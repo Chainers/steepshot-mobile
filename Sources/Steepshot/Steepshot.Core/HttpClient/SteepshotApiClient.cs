@@ -9,6 +9,7 @@ using Steepshot.Core.Serializing;
 using System.Linq;
 using Ditch.Core.JsonRpc;
 using Steepshot.Core.Errors;
+using System;
 
 namespace Steepshot.Core.HttpClient
 {
@@ -82,15 +83,32 @@ namespace Steepshot.Core.HttpClient
             return result;
         }
 
-        public async Task<OperationResult<VoteResponse>> Vote(VoteModel model, CancellationToken ct)
+        public async Task<OperationResult<Post>> Vote(VoteModel model, CancellationToken ct)
         {
             var results = Validate(model);
             if (results.Any())
-                return new OperationResult<VoteResponse>(new ValidationError(results));
+                return new OperationResult<Post>(new ValidationError(results));
 
             var result = await _ditchClient.Vote(model, ct);
+
+            var startDelay = DateTime.Now;
+
             await Trace($"post/@{model.Author}/{model.Permlink}/{model.Type.GetDescription()}", model.Login, result.Error, $"@{model.Author}/{model.Permlink}", ct);
-            return result;
+            if (!result.IsSuccess)
+                return new OperationResult<Post>(result.Error);
+
+            var infoModel = new NamedInfoModel($"@{model.Author}/{ model.Permlink}")
+            {
+                Login = model.Login,
+                ShowLowRated = true,
+                ShowNsfw = true
+            };
+            var postInfo = await GetPostInfo(infoModel, ct);
+
+            var delay = (int)(model.VoteDelay - (DateTime.Now - startDelay).TotalMilliseconds);
+            if (delay > 100)
+                await Task.Delay(delay, ct);
+            return postInfo;
         }
 
         public async Task<OperationResult<VoidResponse>> Follow(FollowModel model, CancellationToken ct)

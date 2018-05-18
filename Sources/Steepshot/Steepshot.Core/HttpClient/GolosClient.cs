@@ -23,7 +23,6 @@ namespace Steepshot.Core.HttpClient
 {
     internal class GolosClient : BaseDitchClient
     {
-        private double GbgKof = 2.4645;//TODO: get value from server
         private readonly OperationManager _operationManager;
 
 
@@ -70,16 +69,16 @@ namespace Steepshot.Core.HttpClient
 
         #region Post requests
 
-        public override async Task<OperationResult<VoteResponse>> Vote(VoteModel model, CancellationToken ct)
+        public override async Task<OperationResult<VoidResponse>> Vote(VoteModel model, CancellationToken ct)
         {
             return await Task.Run(() =>
             {
                 if (!TryReconnectChain(ct))
-                    return new OperationResult<VoteResponse>(new AppError(LocalizationKeys.EnableConnectToBlockchain));
+                    return new OperationResult<VoidResponse>(new AppError(LocalizationKeys.EnableConnectToBlockchain));
 
                 var keys = ToKeyArr(model.PostingKey);
                 if (keys == null)
-                    return new OperationResult<VoteResponse>(new AppError(LocalizationKeys.WrongPrivatePostingKey));
+                    return new OperationResult<VoidResponse>(new AppError(LocalizationKeys.WrongPrivatePostingKey));
 
                 short weigth = 0;
                 if (model.Type == VoteType.Up)
@@ -90,26 +89,12 @@ namespace Steepshot.Core.HttpClient
                 var op = new VoteOperation(model.Login, model.Author, model.Permlink, weigth);
                 var resp = _operationManager.BroadcastOperationsSynchronous(keys, ct, op);
 
-                var result = new OperationResult<VoteResponse>();
+                var result = new OperationResult<VoidResponse>();
                 if (!resp.IsError)
-                {
-                    var dt = DateTime.Now;
-                    var content = _operationManager.GetContent(model.Author, model.Permlink, ct);
-                    if (!content.IsError)
-                    {
-                        //Convert Asset type to double
-                        result.Result = new VoteResponse()
-                        {
-                            NewTotalPayoutReward = GbgKof * (content.Result.TotalPayoutValue + content.Result.CuratorPayoutValue + content.Result.PendingPayoutValue).ToDouble(),
-                            NetVotes = content.Result.NetVotes,
-                            VoteTime = dt
-                        };
-                    }
-                }
+                    result.Result = new VoidResponse();
                 else
-                {
                     OnError(resp, result);
-                }
+
                 return result;
             }, ct);
         }
