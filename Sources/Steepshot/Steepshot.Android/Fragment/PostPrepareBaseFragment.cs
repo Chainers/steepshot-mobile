@@ -163,7 +163,7 @@ namespace Steepshot.Fragment
         private async void OnPost(object sender, EventArgs e)
         {
             _postButton.Text = string.Empty;
-            SpinnerDisplay(false);
+            EnablePostAndEdit(false);
 
             var isConnected = BasePresenter.ConnectionService.IsConnectionAvailable();
 
@@ -185,63 +185,8 @@ namespace Steepshot.Fragment
         }
 
         protected abstract Task OnPostAsync();
-
-        protected async Task CheckOnSpam()
-        {
-            isSpammer = false;
-            _postButton.Text = string.Empty;
-            SpinnerDisplay(false);
-
-            var spamCheck = await Presenter.TryCheckForSpam(AppSettings.User.Login);
-
-            if (spamCheck.IsSuccess)
-            {
-                if (!spamCheck.Result.IsSpam)
-                {
-                    if (spamCheck.Result.WaitingTime > 0)
-                    {
-                        isSpammer = true;
-                        PostingLimit = TimeSpan.FromMinutes(5);
-                        StartPostTimer((int)spamCheck.Result.WaitingTime);
-                        Activity.ShowAlert(LocalizationKeys.Posts5minLimit);
-                    }
-                }
-                else
-                {
-                    // more than 15 posts
-                    isSpammer = true;
-                    PostingLimit = TimeSpan.FromHours(24);
-                    StartPostTimer((int)spamCheck.Result.WaitingTime);
-                    Activity.ShowAlert(LocalizationKeys.PostsDayLimit);
-                }
-            }
-
-            SpinnerDisplay(true);
-            _postButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PublishButtonText);
-        }
-
-        private async void StartPostTimer(int startSeconds)
-        {
-            string timeFormat;
-            var timepassed = PostingLimit - TimeSpan.FromSeconds(startSeconds);
-
-            while (timepassed < PostingLimit)
-            {
-                if (!IsInitialized)
-                    return;
-                timeFormat = (PostingLimit - timepassed).TotalHours >= 1 ? "hh\\:mm\\:ss" : "mm\\:ss";
-                _postButton.Text = (PostingLimit - timepassed).ToString(timeFormat);
-                _postButton.Enabled = false;
-                await Task.Delay(1000);
-                timepassed = timepassed.Add(TimeSpan.FromSeconds(1));
-            }
-
-            isSpammer = false;
-            _postButton.Enabled = true;
-            _postButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PublishButtonText);
-        }
-
-        protected void SpinnerDisplay(bool enabled)
+       
+        protected void EnablePostAndEdit(bool enabled)
         {
             if (enabled)
                 _loadingSpinner.Visibility = ViewStates.Gone;
@@ -259,7 +204,7 @@ namespace Steepshot.Fragment
         protected void EnabledPost()
         {
             _postButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PublishButtonText);
-            SpinnerDisplay(true);
+            EnablePostAndEdit(true);
         }
 
         protected void ForgetAction(object o, DialogClickEventArgs dialogClickEventArgs)
