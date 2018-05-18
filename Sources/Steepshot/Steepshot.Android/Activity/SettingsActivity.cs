@@ -207,10 +207,7 @@ namespace Steepshot.Activity
             if (AppSettings.User.PushSettings == PushSettings)
                 return;
 
-            var model = new PushNotificationsModel(AppSettings.User.UserInfo);
-            model.UserName = AppSettings.User.Login;
-            model.PlayerId = AppSettings.User.PushesPlayerId;
-            model.Subscribe = true;
+            var model = new PushNotificationsModel(AppSettings.User.UserInfo, AppSettings.User.PushesPlayerId, true);
             model.Subscriptions = PushSettings.FlagToStringList();
 
             var resp = await BasePresenter.TrySubscribeForPushes(model);

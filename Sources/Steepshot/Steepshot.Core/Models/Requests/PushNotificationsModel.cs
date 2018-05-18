@@ -4,6 +4,7 @@ using Steepshot.Core.Authority;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Enums;
 using System.ComponentModel.DataAnnotations;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Models.Requests
 {
@@ -35,8 +36,11 @@ namespace Steepshot.Core.Models.Requests
         [JsonIgnore]
         public bool Subscribe { get; set; }
 
-        public PushNotificationsModel(UserInfo user) : base(user)
+        public PushNotificationsModel(UserInfo user, string playerId, bool subscribe) : base(user)
         {
+            UserName = AppSettings.User.Login;
+            PlayerId = playerId;
+            Subscribe = subscribe;
         }
     }
 }
