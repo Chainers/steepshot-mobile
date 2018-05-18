@@ -230,7 +230,6 @@ namespace Steepshot.Fragment
         {
             string timeFormat;
             var timepassed = PostingLimit - TimeSpan.FromSeconds(startSeconds);
-            _postButton.Enabled = false;
 
             while (timepassed < PostingLimit)
             {
@@ -238,6 +237,7 @@ namespace Steepshot.Fragment
                     return;
                 timeFormat = (PostingLimit - timepassed).TotalHours >= 1 ? "hh\\:mm\\:ss" : "mm\\:ss";
                 _postButton.Text = (PostingLimit - timepassed).ToString(timeFormat);
+                _postButton.Enabled = false;
                 await Task.Delay(1000);
                 timepassed = timepassed.Add(TimeSpan.FromSeconds(1));
             }
