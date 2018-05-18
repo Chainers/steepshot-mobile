@@ -78,10 +78,12 @@ namespace Steepshot.iOS.Views
             if (AppSettings.User.PushSettings == PushSettings)
                 return;
 
-            var model = new PushNotificationsModel(AppSettings.User.UserInfo, true)
-            {
-                Subscriptions = PushSettings.FlagToStringList()
-            };
+            var model = new PushNotificationsModel(AppSettings.User.UserInfo);
+            model.UserName = AppSettings.User.Login;
+            model.PlayerId = AppSettings.User.PushesPlayerId;
+            model.Subscribe = true;
+            model.Subscriptions = PushSettings.FlagToStringList();
+
             var resp = await BasePresenter.TrySubscribeForPushes(model);
             if (resp.IsSuccess)
                 AppSettings.User.PushSettings = PushSettings;
