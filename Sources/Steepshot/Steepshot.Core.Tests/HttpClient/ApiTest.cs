@@ -123,12 +123,10 @@ namespace Steepshot.Core.Tests.HttpClient
             var lastPost = userPostsResponse.Result.Results.First(i => !i.Vote);
 
             // 4) Vote up
-            var voteUpRequest = new VoteModel(user, lastPost, VoteType.Up);
+            var voteUpRequest = new VoteModel(user, lastPost, VoteType.Up) { VoteDelay = 0 };
             var voteUpResponse = await Api[apiName].Vote(voteUpRequest, CancellationToken.None);
             AssertResult(voteUpResponse);
             Assert.That(voteUpResponse.IsSuccess, Is.True);
-            Assert.That(voteUpResponse.Result.NewTotalPayoutReward, Is.Not.Null);
-            Assert.That(voteUpResponse.Result.NewTotalPayoutReward, Is.Not.Null);
             //Assert.IsTrue(lastPost.TotalPayoutReward <= voteUpResponse.Result.NewTotalPayoutReward);
 
             // Wait for data to be writed into blockchain
@@ -143,12 +141,10 @@ namespace Steepshot.Core.Tests.HttpClient
             //Assert.That(post.Vote, Is.True);
 
             // 3) Vote down
-            var voteDownRequest = new VoteModel(user, lastPost, VoteType.Down);
+            var voteDownRequest = new VoteModel(user, lastPost, VoteType.Down) { VoteDelay = 0 };
             var voteDownResponse = await Api[apiName].Vote(voteDownRequest, CancellationToken.None);
             AssertResult(voteDownResponse);
             Assert.That(voteDownResponse.IsSuccess, Is.True);
-            Assert.That(voteDownResponse.Result.NewTotalPayoutReward, Is.Not.Null);
-            Assert.That(voteDownResponse.Result.NewTotalPayoutReward, Is.Not.Null);
             //Assert.IsTrue(lastPost.TotalPayoutReward >= voteDownResponse.Result.NewTotalPayoutReward);
 
             // Wait for data to be writed into blockchain
@@ -181,12 +177,10 @@ namespace Steepshot.Core.Tests.HttpClient
 
             // 5) Vote up comment
             var post = commentsResponse.Result.Results.First();
-            var voteUpCommentRequest = new VoteModel(user, post, VoteType.Up);
+            var voteUpCommentRequest = new VoteModel(user, post, VoteType.Up) { VoteDelay = 0 };
             var voteUpCommentResponse = await Api[apiName].Vote(voteUpCommentRequest, CancellationToken.None);
             AssertResult(voteUpCommentResponse);
             Assert.That(voteUpCommentResponse.IsSuccess, Is.True);
-            Assert.That(voteUpCommentResponse.Result.NewTotalPayoutReward, Is.Not.Null);
-            Assert.That(voteUpCommentResponse.Result.NewTotalPayoutReward, Is.Not.Null);
 
             // Wait for data to be writed into blockchain
             Thread.Sleep(TimeSpan.FromSeconds(15));
@@ -199,12 +193,10 @@ namespace Steepshot.Core.Tests.HttpClient
             Assert.That(comm.Vote, Is.True);
 
             // 6) Vote down comment
-            var voteDownCommentRequest = new VoteModel(user, post, VoteType.Down);
+            var voteDownCommentRequest = new VoteModel(user, post, VoteType.Down) { VoteDelay = 0 };
             var voteDownCommentResponse = await Api[apiName].Vote(voteDownCommentRequest, CancellationToken.None);
             AssertResult(voteDownCommentResponse);
             Assert.That(voteDownCommentResponse.IsSuccess, Is.True);
-            Assert.That(voteDownCommentResponse.Result.NewTotalPayoutReward, Is.Not.Null);
-            Assert.That(voteDownCommentResponse.Result.NewTotalPayoutReward, Is.Not.Null);
 
             // Wait for data to be writed into blockchain
             Thread.Sleep(TimeSpan.FromSeconds(15));

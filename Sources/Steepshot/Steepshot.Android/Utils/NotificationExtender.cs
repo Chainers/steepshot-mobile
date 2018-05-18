@@ -2,6 +2,7 @@
 using Android.Content;
 using Android.Graphics;
 using Android.Support.V4.App;
+using Android.OS;
 using Com.OneSignal.Android;
 using Square.Picasso;
 
@@ -29,13 +30,22 @@ namespace Steepshot.Utils
         public NotificationCompat.Builder Extend(NotificationCompat.Builder builder)
         {
             Bitmap largeIcon = null;
-            var largeIconUrl = _result.Payload.AdditionalData?.Get("large_icon").ToString();
-            if (!string.IsNullOrEmpty(largeIconUrl))
-                largeIcon = Picasso.With(this).Load(largeIconUrl).Get();
-            builder.SetSmallIcon(Resource.Drawable.ic_notification)
-                .SetContentTitle(_result.Payload.Title)
-                .SetContentText(_result.Payload.Body)
-                .SetLargeIcon(largeIcon ?? BitmapFactory.DecodeResource(Resources, Resource.Drawable.ic_logo_main));
+            try
+            {
+                _result.Payload.AdditionalData?.Keys();
+                var largeIconUrl = _result.Payload.AdditionalData?.Get("large_icon").ToString();
+                if (!string.IsNullOrEmpty(largeIconUrl))
+                    largeIcon = Picasso.With(this).Load(largeIconUrl).Get();
+            }
+            catch { }
+            finally
+            {
+                builder.SetSmallIcon(Resource.Drawable.ic_stat_onesignal_default)
+                    .SetContentTitle(_result.Payload.Title)
+                    .SetContentText(_result.Payload.Body)
+                    .SetGroup(Build.VERSION.SdkInt >= BuildVersionCodes.N ? "steepshot" : null)
+                    .SetLargeIcon(largeIcon ?? BitmapFactory.DecodeResource(Resources, Resource.Drawable.ic_logo_main));
+            }
             return builder;
         }
     }
