@@ -8,7 +8,6 @@ using Ditch.Core.JsonRpc;
 using Newtonsoft.Json;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
-using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Serializing;
 using Newtonsoft.Json.Linq;
 using Steepshot.Core.Errors;
@@ -36,7 +35,7 @@ namespace Steepshot.Core.HttpClient
         }
 
 
-        public abstract Task<OperationResult<VoteResponse>> Vote(VoteModel model, CancellationToken ct);
+        public abstract Task<OperationResult<VoidResponse>> Vote(VoteModel model, CancellationToken ct);
 
         public abstract Task<OperationResult<VoidResponse>> Follow(FollowModel model, CancellationToken ct);
 

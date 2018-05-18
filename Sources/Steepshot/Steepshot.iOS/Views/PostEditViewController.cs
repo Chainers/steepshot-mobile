@@ -56,7 +56,7 @@ namespace Steepshot.iOS.Views
             }
             else
             {
-                SetupPhoto();
+                SetupPhoto(_cellSize);
 
                 var stringUrl = post.Media[0].Thumbnails.Mini;
                 ImageService.Instance.LoadUrl(stringUrl).Into(photoView);
