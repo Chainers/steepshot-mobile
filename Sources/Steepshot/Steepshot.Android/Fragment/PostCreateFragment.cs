@@ -17,7 +17,6 @@ using Steepshot.Core.Errors;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
-using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 using Steepshot.Utils;
 using ViewUtils = Steepshot.Utils.ViewUtils;
@@ -91,6 +90,7 @@ namespace Steepshot.Fragment
             }
 
             SearchTextChanged();
+            CheckOnSpam();
         }
 
 
@@ -111,22 +111,12 @@ namespace Steepshot.Fragment
 
         protected override async Task OnPostAsync()
         {
-            var isConnected = BasePresenter.ConnectionService.IsConnectionAvailable();
-
-            if (!isConnected)
-            {
-                Activity.ShowAlert(LocalizationKeys.InternetUnavailable);
-                EnabledPost();
+            await CheckOnSpam();
+            if (isSpammer)
                 return;
-            }
 
-            if (string.IsNullOrEmpty(_title.Text))
-            {
-                Activity.ShowAlert(LocalizationKeys.EmptyTitleField, ToastLength.Long);
-                EnabledPost();
-                return;
-            }
-
+            _postButton.Text = string.Empty;
+            EnablePostAndEdit(false);
 
             if (_model.Media == null || _model.Media.Any(x => x == null))
             {
@@ -167,16 +157,68 @@ namespace Steepshot.Fragment
             TryCreateOrEditPost();
         }
 
-        protected void RatioBtnOnClick(object sender, EventArgs eventArgs)
+        private void RatioBtnOnClick(object sender, EventArgs eventArgs)
         {
             _preview.SwitchScale();
         }
 
-        protected void RotateBtnOnClick(object sender, EventArgs eventArgs)
+        private void RotateBtnOnClick(object sender, EventArgs eventArgs)
         {
             _preview.Rotate(_preview.DrawableImageParameters.Rotation + 90f);
         }
 
+
+        private async Task CheckOnSpam()
+        {
+            isSpammer = false;
+
+            var spamCheck = await Presenter.TryCheckForSpam(AppSettings.User.Login);
+
+            if (spamCheck.IsSuccess)
+            {
+                if (!spamCheck.Result.IsSpam)
+                {
+                    if (spamCheck.Result.WaitingTime > 0)
+                    {
+                        isSpammer = true;
+                        PostingLimit = TimeSpan.FromMinutes(5);
+                        StartPostTimer((int)spamCheck.Result.WaitingTime);
+                        Activity.ShowAlert(LocalizationKeys.Posts5minLimit, ToastLength.Long);
+                    }
+                }
+                else
+                {
+                    // more than 15 posts
+                    isSpammer = true;
+                    PostingLimit = TimeSpan.FromHours(24);
+                    StartPostTimer((int)spamCheck.Result.WaitingTime);
+                    Activity.ShowAlert(LocalizationKeys.PostsDayLimit, ToastLength.Long);
+                }
+            }
+
+            _postButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PublishButtonText);
+        }
+
+        private async void StartPostTimer(int startSeconds)
+        {
+            var timepassed = PostingLimit - TimeSpan.FromSeconds(startSeconds);
+
+            while (timepassed < PostingLimit)
+            {
+                if (!IsInitialized)
+                    return;
+                var delay = PostingLimit - timepassed;
+                var timeFormat = delay.TotalHours >= 1 ? "hh\\:mm\\:ss" : "mm\\:ss";
+                _postButton.Text = delay.ToString(timeFormat);
+                _postButton.Enabled = false;
+                await Task.Delay(1000);
+                timepassed = timepassed.Add(TimeSpan.FromSeconds(1));
+            }
+
+            isSpammer = false;
+            _postButton.Enabled = true;
+            _postButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PublishButtonText);
+        }
 
         private string SaveFileTemp(Bitmap btmp, string pathToExif)
         {
