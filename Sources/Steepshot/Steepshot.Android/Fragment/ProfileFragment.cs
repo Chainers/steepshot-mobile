@@ -429,7 +429,7 @@ namespace Steepshot.Fragment
         private async void PushesOnClick(object sender, EventArgs eventArgs)
         {
             _moreActionsDialog.Dismiss();
-            var model = new PushNotificationsModel(AppSettings.User.UserInfo, AppSettings.User.PushesPlayerId, !isSubscribed);
+            var model = new PushNotificationsModel(AppSettings.User.UserInfo, !isSubscribed);
             model.WatchedUser = _profileId;
 
             isSubscription = true;
