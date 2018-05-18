@@ -372,7 +372,7 @@ namespace Steepshot.iOS.Views
             photoView.AutoAlignAxisToSuperviewAxis(ALAxis.Vertical);
             photoView.AutoPinEdgeToSuperviewEdge(ALEdge.Top, 15f);
             photoView.AutoSetDimension(ALDimension.Width, size.Width);
-            photoView.AutoSetDimension(ALDimension.Height,size.Height);
+            photoView.AutoSetDimension(ALDimension.Height, size.Height);
         }
 
         protected void SetupPhotoCollection()
@@ -643,7 +643,6 @@ namespace Steepshot.iOS.Views
         private async Task CheckOnSpam()
         {
             _isSpammer = false;
-            ToggleAvailability(false);
 
             var spamCheck = await _presenter.TryCheckForSpam(AppSettings.User.Login);
 
@@ -668,8 +667,6 @@ namespace Steepshot.iOS.Views
                     ShowAlert(LocalizationKeys.PostsDayLimit);
                 }
             }
-
-            ToggleAvailability(true);
         }
 
         private async void StartPostTimer(int startSeconds)
@@ -719,7 +716,7 @@ namespace Steepshot.iOS.Views
                     return;
             }
 
-            ToggleAvailability(false);
+            EnablePostAndEdit(false);
 
             if (_isFromCamera)
             {
@@ -838,7 +835,7 @@ namespace Steepshot.iOS.Views
                 {
                     InvokeOnMainThread(() =>
                     {
-                        ToggleAvailability(true);
+                        EnablePostAndEdit(true);
                     });
                 }
             });
@@ -900,7 +897,7 @@ namespace Steepshot.iOS.Views
             _cropView.ApplyCriticalScale();
         }
 
-        protected void ToggleAvailability(bool enabled)
+        private void EnablePostAndEdit(bool enabled)
         {
             if (enabled)
                 loadingView.StopAnimating();
