@@ -95,7 +95,7 @@ namespace Steepshot.Activity
             if (response.IsSuccess)
             {
                 var intent = new Intent(this, typeof(SignInActivity));
-                intent.PutExtra(SignInActivity.LoginExtraPath, login);
+                intent.PutExtra(SignInActivity.LoginExtraPath, response.Result.Username);
                 intent.PutExtra(SignInActivity.AvatarUrlExtraPath, response.Result.ProfileImage);
                 StartActivity(intent);
             }
