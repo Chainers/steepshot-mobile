@@ -37,11 +37,9 @@ namespace Steepshot.Core.Models.Requests
         public bool Subscribe { get; }
 
         public PushNotificationsModel(UserInfo user, string playerId, bool subscribe) 
-            : base(user)
+            : this(user, subscribe)
         {
-            UserName = user.Login;
             PlayerId = playerId;
-            Subscribe = subscribe;
         }
 
         public PushNotificationsModel(UserInfo user, bool subscribe) 
