@@ -43,6 +43,7 @@ namespace Steepshot.Fragment
         private RecyclerView.Adapter _adapter;
         private Dialog _moreActionsDialog;
         private bool UserIsWatched => AppSettings.User.WatchedUsers.Contains(_profileId);
+        private bool isSubscribed;
 
 #pragma warning disable 0649, 4014
         [BindView(Resource.Id.btn_back)] private ImageButton _backButton;
@@ -392,7 +393,7 @@ namespace Steepshot.Fragment
             {
                 dialogView.SetMinimumWidth((int)(Resources.DisplayMetrics.WidthPixels * 0.8));
                 var pushes = dialogView.FindViewById<Button>(Resource.Id.pushes);
-                if (Presenter.UserProfileResponse.IsSubscribed)
+                if (isSubscribed)
                 {
                     pushes.SetTextColor(Style.R255G34B5);
                     pushes.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.UnwatchUser);
@@ -428,12 +429,12 @@ namespace Steepshot.Fragment
             model.UserName = AppSettings.User.Login;
             model.PlayerId = AppSettings.User.UserInfo.PushesPlayerId;
             model.WatchedUser = _profileId;
-            model.Subscribe = !Presenter.UserProfileResponse.IsSubscribed;
+            model.Subscribe = !isSubscribed;
 
             var result = await BasePresenter.TrySubscribeForPushes(model);
             if (result.IsSuccess)
             {
-                
+                isSubscribed = !isSubscribed;
             }
         }
 
@@ -507,6 +508,7 @@ namespace Steepshot.Fragment
                 {
                     _listLayout.Visibility = ViewStates.Visible;
                     _more.Enabled = true;
+                    isSubscribed = Presenter.UserProfileResponse.IsSubscribed;
                     break;
                 }
 

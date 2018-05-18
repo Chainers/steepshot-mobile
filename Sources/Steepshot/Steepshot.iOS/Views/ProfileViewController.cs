@@ -43,6 +43,7 @@ namespace Steepshot.iOS.Views
         private UIView powerPopup;
         private UILabel powerText;
         private bool isPowerOpen;
+        private bool isSubscribed;
 
         public override void ViewDidLoad()
         {
@@ -327,6 +328,7 @@ namespace Steepshot.iOS.Views
                 if (error == null)
                 {
                     _userData = _presenter.UserProfileResponse;
+                    isSubscribed = _presenter.UserProfileResponse.IsSubscribed;
 
                     if (settingsButton != null)
                         settingsButton.Enabled = true;
@@ -454,7 +456,7 @@ namespace Steepshot.iOS.Views
         {
             var actionSheetAlert = UIAlertController.Create(null, null, UIAlertControllerStyle.ActionSheet);
 
-            if (_presenter.UserProfileResponse.IsSubscribed)
+            if (isSubscribed)
             {
                 actionSheetAlert.AddAction(UIAlertAction.Create(AppSettings.LocalizationManager.GetText(LocalizationKeys.UnwatchUser),
                                                                 UIAlertActionStyle.Default, PushesOnClick));
@@ -476,13 +478,13 @@ namespace Steepshot.iOS.Views
             model.UserName = AppSettings.User.Login;
             model.PlayerId = AppSettings.User.PushesPlayerId;
             model.WatchedUser = _presenter.UserName;
-            model.Subscribe = !_presenter.UserProfileResponse.IsSubscribed;
+            model.Subscribe = !isSubscribed;
 
             var result = await BasePresenter.TrySubscribeForPushes(model);
 
             if (result.IsSuccess)
             {
-                
+                isSubscribed = !isSubscribed;
             }
         }
 
