@@ -15,7 +15,6 @@ namespace Steepshot.Core.Presenters
 {
     public class BasePostPresenter : ListPresenter<Post>, IDisposable
     {
-        private const int VoteDelay = 3000;
         public static bool IsEnableVote { get; set; }
 
         protected BasePostPresenter()
@@ -156,7 +155,7 @@ namespace Steepshot.Core.Presenters
             return false;
         }
 
-        private bool IsValidMedia(Post item)
+        protected bool IsValidMedia(Post item)
         {
             //This part of the server logic, but... let`s check that everything is okay
             if (item.Media == null || item.Media.Length == 0)
@@ -208,16 +207,10 @@ namespace Steepshot.Core.Presenters
 
             if (response.IsSuccess)
             {
-                var td = DateTime.Now - response.Result.VoteTime;
-                if (VoteDelay > td.Milliseconds)
-                    await Task.Delay(VoteDelay - td.Milliseconds, ct);
-
-                post.NetVotes = response.Result.NetVotes;
-                ChangeLike(post, wasFlaged);
-                post.TotalPayoutReward = response.Result.NewTotalPayoutReward;
+                CashPresenterManager.Add(response.Result);
             }
             else if (response.Error is BlockchainError
-                     && (response.Error.Message.Contains(Constants.VotedInASimilarWaySteem) || response.Error.Message.Contains(Constants.VotedInASimilarWayGolos))) //TODO:KOA: unstable solution
+                && (response.Error.Message.Contains(Constants.VotedInASimilarWaySteem) || response.Error.Message.Contains(Constants.VotedInASimilarWayGolos))) //TODO:KOA: unstable solution
             {
                 response.Error = null;
                 ChangeLike(post, wasFlaged);
@@ -262,12 +255,7 @@ namespace Steepshot.Core.Presenters
 
             if (response.IsSuccess)
             {
-                post.TotalPayoutReward = response.Result.NewTotalPayoutReward;
-                post.NetVotes = response.Result.NetVotes;
-                ChangeFlag(post, wasVote);
-                var td = DateTime.Now - response.Result.VoteTime;
-                if (VoteDelay > td.Milliseconds)
-                    await Task.Delay(VoteDelay - td.Milliseconds, ct);
+                CashPresenterManager.Add(response.Result);
             }
             else if (response.Error is BlockchainError
                 && (response.Error.Message.Contains(Constants.VotedInASimilarWaySteem) || response.Error.Message.Contains(Constants.VotedInASimilarWayGolos))) //TODO:KOA: unstable solution

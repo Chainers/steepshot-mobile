@@ -5,6 +5,7 @@ using Android.OS;
 using Steepshot.Base;
 using Steepshot.Fragment;
 using Steepshot.Interfaces;
+using System.Linq;
 
 namespace Steepshot.Activity
 {
@@ -30,12 +31,13 @@ namespace Steepshot.Activity
 
         public override void OnBackPressed()
         {
-            if (CurrentHostFragment != null)
+            var fragments = CurrentHostFragment?.ChildFragmentManager?.Fragments;
+            if (fragments?.Count > 0)
             {
-                var fragments = CurrentHostFragment.ChildFragmentManager.Fragments;
-                if (fragments[fragments.Count - 1] is ICanOpenPost fragment)
-                    if (fragment.ClosePost())
-                        return;
+                var lastFragment = fragments.Last();
+                if (lastFragment is ICanOpenPost openPostFrg && openPostFrg.ClosePost() ||
+                    lastFragment is BaseFragment baseFrg && baseFrg.OnBackPressed())
+                    return;
             }
 
             if (CurrentHostFragment == null || !CurrentHostFragment.HandleBackPressed(SupportFragmentManager))

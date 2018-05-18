@@ -20,6 +20,7 @@ using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 using Steepshot.Utils;
+using ViewUtils = Steepshot.Utils.ViewUtils;
 
 namespace Steepshot.Fragment
 {
@@ -59,20 +60,29 @@ namespace Steepshot.Fragment
             {
                 _photos.Visibility = ViewStates.Gone;
                 _previewContainer.Visibility = ViewStates.Visible;
-                var margin = (int)BitmapUtils.DpToPixel(15, Resources);
-                var layoutParams = new RelativeLayout.LayoutParams(Resources.DisplayMetrics.WidthPixels - margin * 2, Resources.DisplayMetrics.WidthPixels - margin * 2);
-                layoutParams.SetMargins(margin, 0, margin, margin);
-                _previewContainer.LayoutParameters = layoutParams;
                 _preview.CornerRadius = BitmapUtils.DpToPixel(5, Resources);
+
+                var margin = (int)BitmapUtils.DpToPixel(15, Resources);
 
                 if (_media[0].PreparedBitmap == null)
                 {
+                    var layoutParams = new RelativeLayout.LayoutParams(Resources.DisplayMetrics.WidthPixels - margin * 2, Resources.DisplayMetrics.WidthPixels - margin * 2);
+                    layoutParams.SetMargins(margin, 0, margin, margin);
+                    _previewContainer.LayoutParameters = layoutParams;
+
                     _preview.SetImagePath(_media[0].Path, _media[0].Parameters);
                     _ratioBtn.Click += RatioBtnOnClick;
                     _rotateBtn.Click += RotateBtnOnClick;
                 }
                 else
                 {
+                    var previewSize = ViewUtils.CalculateImagePreviewSize(_media[0].PreparedBitmap.Width,
+                        _media[0].PreparedBitmap.Height, Resources.DisplayMetrics.WidthPixels - margin * 2,
+                        int.MaxValue);
+                    var layoutParams = new RelativeLayout.LayoutParams(previewSize.Width, previewSize.Height);
+                    layoutParams.SetMargins(margin, 0, margin, margin);
+                    _previewContainer.LayoutParameters = layoutParams;
+
                     _ratioBtn.Visibility = _rotateBtn.Visibility = ViewStates.Gone;
                     _preview.SetImageBitmap(_media[0].PreparedBitmap);
                 }
@@ -117,34 +127,38 @@ namespace Steepshot.Fragment
                 return;
             }
 
-            _model.Media = new MediaModel[_media.Count];
-            if (_media.Count == 1 && _media[0].PreparedBitmap == null)
-                _media[0].PreparedBitmap = _preview.Crop(_media[0].Path, _preview.DrawableImageParameters);
 
-            for (var i = 0; i < _media.Count; i++)
+            if (_model.Media == null || _model.Media.Any(x => x == null))
             {
-                var temp = SaveFileTemp(_media[i].PreparedBitmap, _media[i].Path);
-                var operationResult = await UploadPhoto(temp);
-                if (!IsInitialized)
-                    return;
+                _model.Media = new MediaModel[_media.Count];
+                if (_media.Count == 1 && _media[0].PreparedBitmap == null)
+                    _media[0].PreparedBitmap = _preview.Crop(_media[0].Path, _preview.DrawableImageParameters);
 
-                if (!operationResult.IsSuccess)
+                for (var i = 0; i < _media.Count; i++)
                 {
-                    //((SplashActivity)Activity).Cache.EvictAll();
-                    operationResult = await UploadPhoto(temp);
-
+                    var temp = SaveFileTemp(_media[i].PreparedBitmap, _media[i].Path);
+                    var operationResult = await UploadPhoto(temp);
                     if (!IsInitialized)
                         return;
-                }
 
-                if (!operationResult.IsSuccess)
-                {
-                    Activity.ShowAlert(operationResult.Error);
-                    EnabledPost();
-                    return;
-                }
+                    if (!operationResult.IsSuccess)
+                    {
+                        //((SplashActivity)Activity).Cache.EvictAll();
+                        operationResult = await UploadPhoto(temp);
 
-                _model.Media[i] = operationResult.Result;
+                        if (!IsInitialized)
+                            return;
+                    }
+
+                    if (!operationResult.IsSuccess)
+                    {
+                        Activity.ShowAlert(operationResult.Error);
+                        EnabledPost();
+                        return;
+                    }
+
+                    _model.Media[i] = operationResult.Result;
+                }
             }
 
             _model.Title = _title.Text;
@@ -174,7 +188,7 @@ namespace Steepshot.Fragment
                     directory.Mkdirs();
 
                 var path = $"{directory}/{Guid.NewGuid()}.jpeg";
-                stream = new System.IO.FileStream(path, System.IO.FileMode.Create);
+                stream = new FileStream(path, FileMode.Create);
                 btmp.Compress(Bitmap.CompressFormat.Jpeg, 99, stream);
 
                 var options = new Dictionary<string, string>
@@ -196,8 +210,6 @@ namespace Steepshot.Fragment
             }
             finally
             {
-                btmp?.Recycle();
-                btmp?.Dispose();
                 stream?.Dispose();
             }
             return string.Empty;

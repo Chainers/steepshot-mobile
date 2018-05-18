@@ -25,6 +25,7 @@ using Steepshot.Interfaces;
 using Steepshot.Utils;
 using Steepshot.Core.Extensions;
 using Steepshot.Core.Utils;
+using System.Linq;
 
 namespace Steepshot.Activity
 {
@@ -126,12 +127,13 @@ namespace Steepshot.Activity
         public override void OnBackPressed()
         {
             CurrentHostFragment = _adapter.GetItem(_viewPager.CurrentItem) as HostFragment;
-            if (CurrentHostFragment != null)
+            var fragments = CurrentHostFragment?.ChildFragmentManager?.Fragments;
+            if (fragments?.Count > 0)
             {
-                var fragments = CurrentHostFragment.ChildFragmentManager.Fragments;
-                if (fragments[fragments.Count - 1] is ICanOpenPost fragment)
-                    if (fragment.ClosePost())
-                        return;
+                var lastFragment = fragments.Last();
+                if (lastFragment is ICanOpenPost openPostFrg && openPostFrg.ClosePost() ||
+                    lastFragment is BaseFragment baseFrg && baseFrg.OnBackPressed())
+                    return;
             }
 
             if (CurrentHostFragment == null || !CurrentHostFragment.HandleBackPressed(SupportFragmentManager))
