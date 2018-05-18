@@ -38,11 +38,11 @@ namespace Steepshot.iOS.Views
         private SliderCollectionViewFlowDelegate _sliderGridDelegate;
         private UINavigationController _navController;
         private UIBarButtonItem switchButton;
+        private UIBarButtonItem settingsButton;
         private bool _userDataLoaded;
         private UIView powerPopup;
         private UILabel powerText;
         private bool isPowerOpen;
-        private bool UserIsWatched => AppSettings.User.WatchedUsers.Contains(Username);
 
         public override void ViewDidLoad()
         {
@@ -161,8 +161,9 @@ namespace Steepshot.iOS.Views
                 var leftBarButton = new UIBarButtonItem(UIImage.FromBundle("ic_back_arrow"), UIBarButtonItemStyle.Plain, GoBack);
                 leftBarButton.TintColor = Constants.R15G24B30;
                 NavigationItem.LeftBarButtonItem = leftBarButton;
-                var settingsButton = new UIBarButtonItem(UIImage.FromBundle("ic_more"), UIBarButtonItemStyle.Plain, ShowPushSetting);
+                settingsButton = new UIBarButtonItem(UIImage.FromBundle("ic_more"), UIBarButtonItemStyle.Plain, ShowPushSetting);
                 settingsButton.TintColor = Constants.R151G155B158;
+                settingsButton.Enabled = false;
                 NavigationItem.RightBarButtonItems = new UIBarButtonItem[] { settingsButton, switchButton };
             }
         }
@@ -327,6 +328,9 @@ namespace Steepshot.iOS.Views
                 {
                     _userData = _presenter.UserProfileResponse;
 
+                    if (settingsButton != null)
+                        settingsButton.Enabled = true;
+
                     if (Username == AppSettings.User.Login)
                         _profileHeader.PowerFrame.ChangePercents((int)_userData.VotingPower);
                     else
@@ -450,7 +454,7 @@ namespace Steepshot.iOS.Views
         {
             var actionSheetAlert = UIAlertController.Create(null, null, UIAlertControllerStyle.ActionSheet);
 
-            if (UserIsWatched)
+            if (_presenter.UserProfileResponse.IsSubscribed)
             {
                 actionSheetAlert.AddAction(UIAlertAction.Create(AppSettings.LocalizationManager.GetText(LocalizationKeys.UnwatchUser),
                                                                 UIAlertActionStyle.Default, PushesOnClick));
@@ -463,21 +467,22 @@ namespace Steepshot.iOS.Views
 
             actionSheetAlert.AddAction(UIAlertAction.Create("Cancel", UIAlertActionStyle.Cancel, null));
             PresentViewController(actionSheetAlert, true, null);
+            actionSheetAlert.Dispose();
         }
 
         private async void PushesOnClick(object sender)
         {
-            var model = new PushNotificationsModel(AppSettings.User.UserInfo, !UserIsWatched)
+            var model = new PushNotificationsModel(AppSettings.User.UserInfo);
+            model.UserName = AppSettings.User.Login;
+            model.PlayerId = AppSettings.User.PushesPlayerId;
+            model.WatchedUser = _presenter.UserName;
+            model.Subscribe = !_presenter.UserProfileResponse.IsSubscribed;
+
+            var result = await BasePresenter.TrySubscribeForPushes(model);
+
+            if (result.IsSuccess)
             {
-                WatchedUser = Username
-            };
-            var response = await BasePresenter.TrySubscribeForPushes(model);
-            if (response.IsSuccess)
-            {
-                if (UserIsWatched)
-                    AppSettings.User.WatchedUsers.Remove(Username);
-                else
-                    AppSettings.User.WatchedUsers.Add(Username);
+                
             }
         }
 

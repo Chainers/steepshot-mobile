@@ -92,10 +92,12 @@ namespace Steepshot.iOS.ViewControllers
             OneSignal.Current.SendTag("player_id", playerId);
             if (string.IsNullOrEmpty(AppSettings.User.PushesPlayerId) || !AppSettings.User.PushesPlayerId.Equals(playerId))
             {
-                var model = new PushNotificationsModel(AppSettings.User.UserInfo, playerId, true)
-                {
-                    Subscriptions = PushSettings.All.FlagToStringList()
-                };
+                var model = new PushNotificationsModel(AppSettings.User.UserInfo);
+                model.UserName = AppSettings.User.Login;
+                model.PlayerId = playerId;
+                model.Subscribe = true;
+                model.Subscriptions = PushSettings.All.FlagToStringList();
+
                 var response = await BasePresenter.TrySubscribeForPushes(model);
                 if (response.IsSuccess)
                     AppSettings.User.PushesPlayerId = playerId;
