@@ -22,8 +22,12 @@ Global
 		{8C01B785-CFC3-4308-8BE9-BB2F043631DA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{8C01B785-CFC3-4308-8BE9-BB2F043631DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8C01B785-CFC3-4308-8BE9-BB2F043631DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8C01B785-CFC3-4308-8BE9-BB2F043631DA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {7CFEB52C-FF6A-4531-9BEA-AAE35D436BBC}
 	EndGlobalSection
 EndGlobal
