@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\packages\Xamarin.Build.Download.0.4.10\build\Xamarin.Build.Download.props" Condition="Exists('..\packages\Xamarin.Build.Download.0.4.10\build\Xamarin.Build.Download.props')" />
+  <Import Project="..\packages\Xamarin.Build.Download.0.4.11\build\Xamarin.Build.Download.props" Condition="Exists('..\packages\Xamarin.Build.Download.0.4.11\build\Xamarin.Build.Download.props')" />
   <Import Project="..\packages\Xamarin.Build.Download.0.4.2\build\Xamarin.Build.Download.props" Condition="Exists('..\packages\Xamarin.Build.Download.0.4.2\build\Xamarin.Build.Download.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -363,14 +363,14 @@
     <Reference Include="Cryptography.ECDSA, Version=2.1.0.1, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Cryptography.ECDSA.Secp256k1.1.0.1\lib\netstandard1.3\Cryptography.ECDSA.dll</HintPath>
     </Reference>
-    <Reference Include="Ditch.Core, Version=3.1.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Ditch.Core.3.1.1\lib\netstandard2.0\Ditch.Core.dll</HintPath>
+    <Reference Include="Ditch.Core, Version=3.1.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Ditch.Core.3.1.2\lib\netstandard2.0\Ditch.Core.dll</HintPath>
     </Reference>
-    <Reference Include="Ditch.Golos, Version=3.1.2.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Ditch.Golos.3.1.2\lib\netstandard2.0\Ditch.Golos.dll</HintPath>
+    <Reference Include="Ditch.Golos, Version=3.1.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Ditch.Golos.3.1.3-alpha\lib\netstandard2.0\Ditch.Golos.dll</HintPath>
     </Reference>
-    <Reference Include="Ditch.Steem, Version=3.0.15.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Ditch.Steem.3.0.15\lib\netstandard2.0\Ditch.Steem.dll</HintPath>
+    <Reference Include="Ditch.Steem, Version=3.1.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Ditch.Steem.3.1.2-alpha\lib\netstandard2.0\Ditch.Steem.dll</HintPath>
     </Reference>
     <Reference Include="FastAndroidCamera, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\FastAndroidCamera.2.0.0\lib\MonoAndroid403\FastAndroidCamera.dll</HintPath>
@@ -559,9 +559,9 @@
     <AndroidResource Include="Resources\mipmap-xhdpi\ic_launch_icon.png" />
     <AndroidResource Include="Resources\mipmap-xxhdpi\ic_launch_icon.png" />
     <AndroidResource Include="Resources\mipmap-xxxhdpi\ic_launch_icon.png" />
-    <AndroidResource Include="Resources\drawable-mdpi\ic_notification.png" />
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_notification.png" />
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_notification.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_stat_onesignal_default.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_stat_onesignal_default.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_stat_onesignal_default.png" />
     <AndroidResource Include="Resources\drawable-mdpi\ic_multiselect.png" />
     <AndroidResource Include="Resources\drawable-xhdpi\ic_multiselect.png" />
     <AndroidResource Include="Resources\drawable-xxhdpi\ic_multiselect.png" />
@@ -792,6 +792,9 @@
   <ItemGroup>
     <AndroidResource Include="Resources\drawable-xxhdpi\ic_new_like_disabled.png" />
   </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable-hdpi\ic_stat_onesignal_default.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <Import Project="..\packages\Xamarin.Build.Download.0.4.2\build\Xamarin.Build.Download.targets" Condition="Exists('..\packages\Xamarin.Build.Download.0.4.2\build\Xamarin.Build.Download.targets')" />
   <Import Project="..\packages\Xamarin.Android.Support.Core.Utils.25.1.0\build\MonoAndroid70\Xamarin.Android.Support.Core.Utils.targets" Condition="Exists('..\packages\Xamarin.Android.Support.Core.Utils.25.1.0\build\MonoAndroid70\Xamarin.Android.Support.Core.Utils.targets')" />
@@ -838,8 +841,8 @@
     <Error Condition="!Exists('..\packages\Xamarin.GooglePlayServices.Gcm.60.1142.1\build\MonoAndroid80\Xamarin.GooglePlayServices.Gcm.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xamarin.GooglePlayServices.Gcm.60.1142.1\build\MonoAndroid80\Xamarin.GooglePlayServices.Gcm.targets'))" />
     <Error Condition="!Exists('..\packages\Xamarin.GooglePlayServices.TagManager.V4.Impl.60.1142.1\build\MonoAndroid80\Xamarin.GooglePlayServices.TagManager.V4.Impl.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xamarin.GooglePlayServices.TagManager.V4.Impl.60.1142.1\build\MonoAndroid80\Xamarin.GooglePlayServices.TagManager.V4.Impl.targets'))" />
     <Error Condition="!Exists('..\packages\Xamarin.GooglePlayServices.Analytics.60.1142.1\build\MonoAndroid80\Xamarin.GooglePlayServices.Analytics.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xamarin.GooglePlayServices.Analytics.60.1142.1\build\MonoAndroid80\Xamarin.GooglePlayServices.Analytics.targets'))" />
-    <Error Condition="!Exists('..\packages\Xamarin.Build.Download.0.4.10\build\Xamarin.Build.Download.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xamarin.Build.Download.0.4.10\build\Xamarin.Build.Download.props'))" />
-    <Error Condition="!Exists('..\packages\Xamarin.Build.Download.0.4.10\build\Xamarin.Build.Download.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xamarin.Build.Download.0.4.10\build\Xamarin.Build.Download.targets'))" />
+    <Error Condition="!Exists('..\packages\Xamarin.Build.Download.0.4.11\build\Xamarin.Build.Download.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xamarin.Build.Download.0.4.11\build\Xamarin.Build.Download.props'))" />
+    <Error Condition="!Exists('..\packages\Xamarin.Build.Download.0.4.11\build\Xamarin.Build.Download.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xamarin.Build.Download.0.4.11\build\Xamarin.Build.Download.targets'))" />
   </Target>
   <Import Project="..\packages\Xamarin.Android.Support.Annotations.27.0.2\build\MonoAndroid81\Xamarin.Android.Support.Annotations.targets" Condition="Exists('..\packages\Xamarin.Android.Support.Annotations.27.0.2\build\MonoAndroid81\Xamarin.Android.Support.Annotations.targets')" />
   <Import Project="..\packages\Xamarin.Android.Arch.Core.Common.1.0.0\build\MonoAndroid80\Xamarin.Android.Arch.Core.Common.targets" Condition="Exists('..\packages\Xamarin.Android.Arch.Core.Common.1.0.0\build\MonoAndroid80\Xamarin.Android.Arch.Core.Common.targets')" />
@@ -871,5 +874,5 @@
   <Import Project="..\packages\Xamarin.GooglePlayServices.Gcm.60.1142.1\build\MonoAndroid80\Xamarin.GooglePlayServices.Gcm.targets" Condition="Exists('..\packages\Xamarin.GooglePlayServices.Gcm.60.1142.1\build\MonoAndroid80\Xamarin.GooglePlayServices.Gcm.targets')" />
   <Import Project="..\packages\Xamarin.GooglePlayServices.TagManager.V4.Impl.60.1142.1\build\MonoAndroid80\Xamarin.GooglePlayServices.TagManager.V4.Impl.targets" Condition="Exists('..\packages\Xamarin.GooglePlayServices.TagManager.V4.Impl.60.1142.1\build\MonoAndroid80\Xamarin.GooglePlayServices.TagManager.V4.Impl.targets')" />
   <Import Project="..\packages\Xamarin.GooglePlayServices.Analytics.60.1142.1\build\MonoAndroid80\Xamarin.GooglePlayServices.Analytics.targets" Condition="Exists('..\packages\Xamarin.GooglePlayServices.Analytics.60.1142.1\build\MonoAndroid80\Xamarin.GooglePlayServices.Analytics.targets')" />
-  <Import Project="..\packages\Xamarin.Build.Download.0.4.10\build\Xamarin.Build.Download.targets" Condition="Exists('..\packages\Xamarin.Build.Download.0.4.10\build\Xamarin.Build.Download.targets')" />
+  <Import Project="..\packages\Xamarin.Build.Download.0.4.11\build\Xamarin.Build.Download.targets" Condition="Exists('..\packages\Xamarin.Build.Download.0.4.11\build\Xamarin.Build.Download.targets')" />
 </Project>

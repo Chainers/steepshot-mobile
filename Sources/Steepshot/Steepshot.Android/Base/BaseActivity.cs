@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Android.Content;
 using Android.Graphics;
 using Android.OS;
@@ -35,9 +36,10 @@ namespace Steepshot.Base
 
         public override void OnBackPressed()
         {
-            if (CurrentHostFragment?.ChildFragmentManager?.Fragments.Count > 0)
+            var fragments = CurrentHostFragment?.ChildFragmentManager?.Fragments;
+            if (fragments?.Count > 0)
             {
-                if (CurrentHostFragment.ChildFragmentManager.Fragments?[CurrentHostFragment.ChildFragmentManager.Fragments.Count - 1] is BaseFragment currentFragment &&
+                if (fragments.Last() is BaseFragment currentFragment &&
                     (currentFragment.OnBackPressed() || CurrentHostFragment.HandleBackPressed(SupportFragmentManager)))
                     return;
             }
