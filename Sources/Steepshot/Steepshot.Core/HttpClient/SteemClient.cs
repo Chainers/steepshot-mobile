@@ -173,7 +173,7 @@ namespace Steepshot.Core.HttpClient
                     ops = new BaseOperation[]
                     {
                         op,
-                        new BeneficiariesOperation(model.Login, model.Permlink, "SBD", beneficiaries)
+                        new BeneficiariesOperation(model.Login, model.Permlink, beneficiaries)
                     };
                 }
                 else
