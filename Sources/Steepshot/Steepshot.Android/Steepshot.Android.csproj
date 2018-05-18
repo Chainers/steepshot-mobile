@@ -559,9 +559,9 @@
     <AndroidResource Include="Resources\mipmap-xhdpi\ic_launch_icon.png" />
     <AndroidResource Include="Resources\mipmap-xxhdpi\ic_launch_icon.png" />
     <AndroidResource Include="Resources\mipmap-xxxhdpi\ic_launch_icon.png" />
-    <AndroidResource Include="Resources\drawable-mdpi\ic_notification.png" />
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_notification.png" />
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_notification.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_stat_onesignal_default.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_stat_onesignal_default.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_stat_onesignal_default.png" />
     <AndroidResource Include="Resources\drawable-mdpi\ic_multiselect.png" />
     <AndroidResource Include="Resources\drawable-xhdpi\ic_multiselect.png" />
     <AndroidResource Include="Resources\drawable-xxhdpi\ic_multiselect.png" />
@@ -791,6 +791,9 @@
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\drawable-xxhdpi\ic_new_like_disabled.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable-hdpi\ic_stat_onesignal_default.png" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <Import Project="..\packages\Xamarin.Build.Download.0.4.2\build\Xamarin.Build.Download.targets" Condition="Exists('..\packages\Xamarin.Build.Download.0.4.2\build\Xamarin.Build.Download.targets')" />
