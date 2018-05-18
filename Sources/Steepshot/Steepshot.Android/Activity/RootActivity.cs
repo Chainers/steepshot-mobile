@@ -69,10 +69,9 @@ namespace Steepshot.Activity
 
             if (AppSettings.User.IsFirstRun || string.IsNullOrEmpty(AppSettings.User.PushesPlayerId) || !AppSettings.User.PushesPlayerId.Equals(playerId))
             {
-                var model = new PushNotificationsModel(AppSettings.User.UserInfo, playerId, true)
-                {
-                    Subscriptions = PushSettings.All.FlagToStringList()
-                };
+                var model = new PushNotificationsModel(AppSettings.User.UserInfo, playerId, true);
+                model.Subscriptions = PushSettings.All.FlagToStringList();
+
                 var response = await BasePresenter.TrySubscribeForPushes(model);
                 if (response.IsSuccess)
                 {
