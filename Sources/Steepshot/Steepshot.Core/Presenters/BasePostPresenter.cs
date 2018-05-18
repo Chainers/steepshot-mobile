@@ -207,7 +207,14 @@ namespace Steepshot.Core.Presenters
 
             if (response.IsSuccess)
             {
-                CashPresenterManager.Add(response.Result);
+                if (post.IsComment)
+                {
+                    ChangeLike(post, wasFlaged);
+                }
+                else
+                {
+                    CashPresenterManager.Add(response.Result);
+                }
             }
             else if (response.Error is BlockchainError
                 && (response.Error.Message.Contains(Constants.VotedInASimilarWaySteem) || response.Error.Message.Contains(Constants.VotedInASimilarWayGolos))) //TODO:KOA: unstable solution
@@ -255,7 +262,14 @@ namespace Steepshot.Core.Presenters
 
             if (response.IsSuccess)
             {
-                CashPresenterManager.Add(response.Result);
+                if (post.IsComment)
+                {
+                    ChangeFlag(post, wasVote);
+                }
+                else
+                {
+                    CashPresenterManager.Add(response.Result);
+                }
             }
             else if (response.Error is BlockchainError
                 && (response.Error.Message.Contains(Constants.VotedInASimilarWaySteem) || response.Error.Message.Contains(Constants.VotedInASimilarWayGolos))) //TODO:KOA: unstable solution
