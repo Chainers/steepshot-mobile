@@ -79,7 +79,7 @@ namespace Steepshot.Adapter
             {
                 for (int i = CurrentItem - 2; i <= CurrentItem + 2; i++)
                 {
-                    if (i < 0 || i == _presenter.Count) continue;
+                    if (i < 0 || i >= _presenter.Count || _presenter[i] == null) continue;
                     _viewHolders?[i % CachedPagesCount]?.UpdateData(_presenter[i], _context);
                 }
 
