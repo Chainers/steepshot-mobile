@@ -97,17 +97,26 @@ namespace Steepshot.Core.HttpClient
             if (!result.IsSuccess)
                 return new OperationResult<Post>(result.Error);
 
-            var infoModel = new NamedInfoModel($"@{model.Author}/{ model.Permlink}")
+            OperationResult<Post> postInfo = null;
+            if (model.IsComment) //TODO: << delete when comment update support will added on backend
             {
-                Login = model.Login,
-                ShowLowRated = true,
-                ShowNsfw = true
-            };
-            var postInfo = await GetPostInfo(infoModel, ct);
+                postInfo = new OperationResult<Post> { Result = model.Post };
+            }
+            else
+            {
+                var infoModel = new NamedInfoModel($"@{model.Author}/{model.Permlink}")
+                {
+                    Login = model.Login,
+                    ShowLowRated = true,
+                    ShowNsfw = true
+                };
+                postInfo = await GetPostInfo(infoModel, ct);
+            }
 
             var delay = (int)(model.VoteDelay - (DateTime.Now - startDelay).TotalMilliseconds);
             if (delay > 100)
                 await Task.Delay(delay, ct);
+
             return postInfo;
         }
 
