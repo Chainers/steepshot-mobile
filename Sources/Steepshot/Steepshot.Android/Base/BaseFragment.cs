@@ -1,7 +1,6 @@
-﻿using System;
+﻿using Android.OS;
 using Android.Views;
 using Steepshot.Activity;
-using static Android.Views.View;
 
 namespace Steepshot.Base
 {
@@ -10,10 +9,16 @@ namespace Steepshot.Base
         protected bool IsInitialized;
         protected View InflatedView;
 
-        public override void OnViewCreated(View view, Android.OS.Bundle savedInstanceState)
+        public override void OnViewCreated(View view, Bundle savedInstanceState)
         {
             base.OnViewCreated(view, savedInstanceState);
             IsInitialized = true;
+        }
+
+        public override void OnCreate(Bundle savedInstanceState)
+        {
+            App.InitIoC(Context.Assets);
+            base.OnCreate(savedInstanceState);
         }
 
         protected void ToggleTabBar(bool shouldHide = false)

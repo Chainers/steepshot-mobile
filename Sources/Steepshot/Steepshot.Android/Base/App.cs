@@ -22,9 +22,9 @@ namespace Steepshot.Base
 
         protected static LruCache Cache;
         public override void OnCreate()
-        {
+        {            
             base.OnCreate();
-            InitIoC(Assets);
+            InitIoC(Context.Assets);
             InitPicassoCache();
         }
 

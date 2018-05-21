@@ -25,11 +25,15 @@ namespace Steepshot.Base
 
         public override View OnCreateView(View parent, string name, Context context, IAttributeSet attrs)
         {
-            if (Build.VERSION.SdkInt >= Build.VERSION_CODES.M)
+            if (Build.VERSION.SdkInt >= BuildVersionCodes.M)
             {
                 Window.AddFlags(WindowManagerFlags.DrawsSystemBarBackgrounds);
                 Window.DecorView.SystemUiVisibility |= (StatusBarVisibility)SystemUiFlags.LightStatusBar;
                 Window.SetStatusBarColor(Color.White);
+            }
+            else
+            {
+                Window.SetStatusBarColor(Color.Black);
             }
             return base.OnCreateView(parent, name, context, attrs);
         }
