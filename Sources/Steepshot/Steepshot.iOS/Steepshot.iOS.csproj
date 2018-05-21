@@ -549,6 +549,8 @@
     <BundleResource Include="Resources\ic_comment_like_active%403x.png" />
     <BundleResource Include="Resources\ic_noresult_search%403x.png" />
     <BundleResource Include="Resources\ic_noresult_search%402x.png" />
+    <BundleResource Include="Resources\ic_info%403x.png" />
+    <BundleResource Include="Resources\ic_info%402x.png" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="..\Steepshot.Android\Assets\Localization.en-us.txt">
