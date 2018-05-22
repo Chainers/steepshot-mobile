@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Ditch.Core.Helpers;
+using Ditch.Core;
 using Ditch.Steem;
 using Ditch.Steem.Models.Operations;
 using Steepshot.Core.Models.Common;
@@ -19,6 +19,7 @@ using Steepshot.Core.Errors;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Utils;
+using Cryptography.ECDSA;
 
 namespace Steepshot.Core.HttpClient
 {

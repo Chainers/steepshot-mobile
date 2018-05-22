@@ -55,7 +55,7 @@ namespace Steepshot.Core.HttpClient
         {
             try
             {
-                var key = Ditch.Core.Helpers.Base58.TryGetBytes(postingKey);
+                var key = Ditch.Core.Base58.DecodePrivateWif(postingKey);
                 if (key == null || key.Length != 32)
                     return null;
                 return new List<byte[]> { key };

@@ -12,7 +12,7 @@ using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Services;
 using Steepshot.Core.Utils;
-using Ditch.Core.Helpers;
+using Ditch.Core;
 
 namespace Steepshot.Core
 {
