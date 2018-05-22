@@ -8,7 +8,7 @@ namespace Steepshot.Core.Tests.Localization
     [TestFixture]
     public class MessageTest : BaseTests
     {
-        public LocalizationManager Lm => AppSettings.LocalizationManager;
+        public LocalizationManager LocalizationManager => AppSettings.LocalizationManager;
 
         [Test]
         [TestCase(nameof(LocalizationKeys.WrongPrivatePostingKey))]
@@ -152,8 +152,8 @@ namespace Steepshot.Core.Tests.Localization
         public void GetText(string key)
         {
             Console.Write($"{key} => ");
-            Assert.IsTrue(Lm.ContainsKey(key));
-            var text = Lm.GetText(key);
+            Assert.IsTrue(LocalizationManager.ContainsKey(key));
+            var text = LocalizationManager.GetText(key);
             Console.WriteLine(text);
             Assert.IsFalse(string.IsNullOrEmpty(text));
         }

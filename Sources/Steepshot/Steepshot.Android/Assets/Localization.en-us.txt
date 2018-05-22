@@ -1,6 +1,6 @@
 {
     "Lang": "en-us",
-    "Version": 10,
+    "Version": 11,
     "Map": {
 
         "ObsoleteTextStart":"ObsoleteBlock",
@@ -227,6 +227,7 @@
         "4100000 plugin_exception: plugin exception: The comment is archived":"The comment is archived",
         "4100000 plugin_exception: plugin exception Account: steem bandwidth limit exceeded":"Steem bandwidth limit exceeded. Please wait to transact or power up STEEM.",
         "4100000 plugin_exception: plugin exception: Account: ${account} bandwidth limit":"Bandwidth limit exceeded. Please wait to transact or power up STEEM.",
+        "4100000 plugin_exception: plugin exception: Account ${a} already submitted a custom json operation this block.":"Account already submitted a custom json operation this block.",
         "3030000 tx_missing_posting_auth":"Missing required posting authority",		
         "4030200 transaction_tapos_exception":"Transaction tapos exception",
         "4030100 transaction_expiration_exception":"Transaction expiration exception.",
