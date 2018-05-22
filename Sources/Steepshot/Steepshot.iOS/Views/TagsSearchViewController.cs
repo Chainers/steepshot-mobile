@@ -18,6 +18,7 @@ using PureLayout.Net;
 using Steepshot.iOS.Helpers;
 using System.Threading.Tasks;
 using Steepshot.Core.Errors;
+using CoreGraphics;
 
 namespace Steepshot.iOS.Views
 {
@@ -33,12 +34,16 @@ namespace Steepshot.iOS.Views
         private UIButton peopleButton;
         private UITableView tagsTable;
         private UITableView usersTable;
-        private UIView _noResultViewTags = new UIView();
-        private UIView _noResultViewPeople = new UIView();
+        private UILabel _noResultViewTags = new UILabel();
+        private UILabel _noResultViewPeople = new UILabel();
 
         private UIActivityIndicatorView _tagsLoader;
         private UIActivityIndicatorView _peopleLoader;
 
+        private NSLayoutConstraint _tagsNotFoundHorizontalAlignment;
+        private NSLayoutConstraint _peopleNotFoundHorizontalAlignment;
+        private NSLayoutConstraint _tagsHorizontalAlignment;
+        private NSLayoutConstraint _peopleHorizontalAlignment;
         private NSLayoutConstraint pinToTags;
         private NSLayoutConstraint pinToPeople;
         private NSLayoutConstraint tagTableVisible;
@@ -156,13 +161,13 @@ namespace Steepshot.iOS.Views
         {
             NavigationItem.Title = "Search";
             var leftBarButton = new UIBarButtonItem(UIImage.FromBundle("ic_back_arrow"), UIBarButtonItemStyle.Plain, GoBack);
-            leftBarButton.TintColor = Helpers.Constants.R15G24B30;
+            leftBarButton.TintColor = Constants.R15G24B30;
             NavigationItem.LeftBarButtonItem = leftBarButton;
         }
 
         public void GetItems()
         {
-            Search(false, false);
+            SearchUsers(false, false, false);
         }
 
         private async void Follow(UserFriend user)
@@ -382,7 +387,15 @@ namespace Steepshot.iOS.Views
             usersTable.AutoPinEdge(ALEdge.Bottom, ALEdge.Bottom, tagsTable);
 
             CreateNoResultView(_noResultViewTags, tagsTable);
-            CreateNoResultView(_noResultViewPeople, usersTable);
+
+            _noResultViewTags.AutoPinEdge(ALEdge.Right, ALEdge.Right, tagsTable, -12);
+            _noResultViewTags.AutoPinEdge(ALEdge.Left, ALEdge.Left, tagsTable, 12);
+            _tagsNotFoundHorizontalAlignment = _noResultViewTags.AutoAlignAxis(ALAxis.Horizontal, tagsTable);
+
+             CreateNoResultView(_noResultViewPeople, usersTable);
+            _noResultViewPeople.AutoPinEdge(ALEdge.Right, ALEdge.Right, usersTable, -18);
+            _noResultViewPeople.AutoPinEdge(ALEdge.Left, ALEdge.Left, usersTable, 18);
+            _peopleNotFoundHorizontalAlignment = _noResultViewPeople.AutoAlignAxis(ALAxis.Horizontal, usersTable);
 
             _tagsLoader = new UIActivityIndicatorView();
             _tagsLoader.ActivityIndicatorViewStyle = UIActivityIndicatorViewStyle.WhiteLarge;
@@ -391,7 +404,7 @@ namespace Steepshot.iOS.Views
             _tagsLoader.StopAnimating();
             View.AddSubview(_tagsLoader);
 
-            _tagsLoader.AutoAlignAxis(ALAxis.Horizontal, tagsTable);
+            _tagsHorizontalAlignment = _tagsLoader.AutoAlignAxis(ALAxis.Horizontal, tagsTable);
             _tagsLoader.AutoAlignAxis(ALAxis.Vertical, tagsTable);
 
             _peopleLoader = new UIActivityIndicatorView();
@@ -401,7 +414,7 @@ namespace Steepshot.iOS.Views
             _peopleLoader.StopAnimating();
             View.AddSubview(_peopleLoader);
 
-            _peopleLoader.AutoAlignAxis(ALAxis.Horizontal, usersTable);
+            _peopleHorizontalAlignment = _peopleLoader.AutoAlignAxis(ALAxis.Horizontal, usersTable);
             _peopleLoader.AutoAlignAxis(ALAxis.Vertical, usersTable);
 
             warningView = new UIView();
@@ -453,13 +466,20 @@ namespace Steepshot.iOS.Views
 
         protected override void KeyBoardUpNotification(NSNotification notification)
         {
+            var shift = -90;
+            _tagsHorizontalAlignment.Constant = shift;
+            _peopleHorizontalAlignment.Constant = shift;
+            _tagsNotFoundHorizontalAlignment.Constant = shift;
+            _peopleNotFoundHorizontalAlignment.Constant = shift;
             warningView.Hidden = false;
-            if (ScrollAmount > 0)
-                return;
 
-            var r = UIKeyboard.FrameEndFromNotification(notification);
-            ScrollAmount = r.Height - TabBarController.TabBar.Frame.Height;
-            warningViewToBottomConstraint.Constant = -ScrollAmount + 60;
+            if (ScrollAmount == 0)
+            {
+                var r = UIKeyboard.FrameEndFromNotification(notification);
+                ScrollAmount = TabBarController != null ? r.Height - TabBarController.TabBar.Frame.Height : r.Height;
+                warningViewToBottomConstraint.Constant = -ScrollAmount + 60;
+            }
+
             ScrollTheView(true);
         }
 
@@ -467,39 +487,23 @@ namespace Steepshot.iOS.Views
         {
             warningView.Hidden = true;
             warningViewToBottomConstraint.Constant = -ScrollAmount + 60;
+            _tagsNotFoundHorizontalAlignment.Constant = 0;
+            _peopleNotFoundHorizontalAlignment.Constant = 0;
+            _tagsHorizontalAlignment.Constant = 0;
+            _peopleHorizontalAlignment.Constant = 0;
             ScrollTheView(false);
         }
 
-        private void CreateNoResultView(UIView noResultView, UITableView tableToBind)
+        private void CreateNoResultView(UILabel label, UITableView tableToBind)
         {
-            noResultView.Hidden = true;
-            noResultView.ClipsToBounds = true;
-            View.AddSubview(noResultView);
-
-            noResultView.AutoAlignAxis(ALAxis.Horizontal, tableToBind);
-            noResultView.AutoAlignAxis(ALAxis.Vertical, tableToBind);
-
-            var image = new UIImageView();
-            image.Image = UIImage.FromBundle("ic_noresult_search");
-            noResultView.AddSubview(image);
-
-            image.AutoSetDimension(ALDimension.Width, 270);
-            image.AutoPinEdgeToSuperviewEdge(ALEdge.Top);
-            image.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 18);
-            image.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 18);
-
-            var label = new UILabel();
             label.Text = "Sorry, no results found. Please, try again";
             label.Lines = 2;
+            label.Hidden = true;
             label.TextAlignment = UITextAlignment.Center;
             label.Font = Constants.Light27;
             label.TextColor = Constants.R15G24B30;
-            noResultView.AddSubview(label);
 
-            label.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, image, 50);
-            label.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom);
-            label.AutoPinEdgeToSuperviewEdge(ALEdge.Right);
-            label.AutoPinEdgeToSuperviewEdge(ALEdge.Left);
+            View.AddSubview(label);
         }
     }
 }
