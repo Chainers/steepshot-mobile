@@ -6,19 +6,16 @@ using Steepshot.Core.Facades;
 using Steepshot.Core.Models;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
-using Steepshot.Core.Presenters;
 using Steepshot.iOS.Cells;
 using Steepshot.iOS.ViewControllers;
 using Steepshot.iOS.ViewSources;
 using UIKit;
 using Steepshot.Core.Utils;
-using Steepshot.Core.Localization;
 using Steepshot.iOS.CustomViews;
 using PureLayout.Net;
 using Steepshot.iOS.Helpers;
 using System.Threading.Tasks;
 using Steepshot.Core.Errors;
-using CoreGraphics;
 
 namespace Steepshot.iOS.Views
 {
@@ -420,7 +417,7 @@ namespace Steepshot.iOS.Views
             warningView = new UIView();
             warningView.ClipsToBounds = true;
             warningView.BackgroundColor = Constants.R255G34B5;
-            warningView.Layer.CornerRadius = 6;
+            Constants.CreateShadow(warningView, Constants.R231G72B0, 0.5f, 6, 10, 12);
             View.AddSubview(warningView);
 
             warningView.AutoSetDimension(ALDimension.Height, 60);
