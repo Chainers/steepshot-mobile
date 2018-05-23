@@ -1,4 +1,7 @@
-﻿using PureLayout.Net;
+﻿using Foundation;
+using PureLayout.Net;
+using Steepshot.Core.Localization;
+using Steepshot.Core.Utils;
 using Steepshot.iOS.Cells;
 using Steepshot.iOS.CustomViews;
 using Steepshot.iOS.Helpers;
@@ -111,8 +114,8 @@ namespace Steepshot.iOS.Views
 
             CreateNoResultView(_noResultViewTags, tagsTable);
 
-            _noResultViewTags.AutoPinEdge(ALEdge.Right, ALEdge.Right, tagsTable, -12);
-            _noResultViewTags.AutoPinEdge(ALEdge.Left, ALEdge.Left, tagsTable, 12);
+            _noResultViewTags.AutoPinEdge(ALEdge.Right, ALEdge.Right, tagsTable, 12);
+            _noResultViewTags.AutoPinEdge(ALEdge.Left, ALEdge.Left, tagsTable, -12);
             _tagsNotFoundHorizontalAlignment = _noResultViewTags.AutoAlignAxis(ALAxis.Horizontal, tagsTable);
 
             CreateNoResultView(_noResultViewPeople, usersTable);
@@ -155,7 +158,7 @@ namespace Steepshot.iOS.Views
             warningImage.Image = UIImage.FromBundle("ic_info");
 
             var warningLabel = new UILabel();
-            warningLabel.Text = "Here should be at least 2 characters for hashtags search and 3 for the users' query";
+            warningLabel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.TagSearchWarning);
             warningLabel.Lines = 3;
             warningLabel.Font = Constants.Regular12;
             warningLabel.TextColor = UIColor.FromRGB(255, 255, 255);
@@ -181,7 +184,7 @@ namespace Steepshot.iOS.Views
 
         private void CreateNoResultView(UILabel label, UITableView tableToBind)
         {
-            label.Text = "Sorry, no results found. Please, try again";
+            label.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.NoResultText);
             label.Lines = 2;
             label.Hidden = true;
             label.TextAlignment = UITextAlignment.Center;
