@@ -247,7 +247,7 @@ namespace Steepshot.Fragment
                 _refresher.Refresh += RefresherRefresh;
 
                 _emptyQueryLabel.Typeface = Style.Light;
-                _emptyQueryLabel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.EmptyCategory);
+                _emptyQueryLabel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.EmptyQuery);
 
                 _searchToolbarLayout.Click += OnSearch;
 

@@ -24,8 +24,17 @@ namespace Steepshot.Core.Tests.Stubs
 
                 var jObject = JsonNetConverter.Deserialize<JObject>(json);
                 var type = typeof(T);
+
+                if (type.IsGenericType && type.Name.StartsWith("ListResponse"))
+                {
+                    type = type.GenericTypeArguments[0];
+                    var rez = jObject["results"].Value<JArray>();
+                    jObject = rez[0].Value<JObject>();
+                }
+
+
                 var mNames = GetPropertyNames(type);
-                var jNames = jObject.Children().Select(jtoken => ToTitleCase(jtoken.Path)).ToArray();
+                var jNames = jObject.Properties().Select(p => ToTitleCase(p.Name));
 
                 var msg = new List<string>();
                 foreach (var pName in jNames)

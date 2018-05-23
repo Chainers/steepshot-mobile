@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Text.RegularExpressions;
-using Ditch.Core.Helpers;
+using Ditch.Core;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Utils;
 

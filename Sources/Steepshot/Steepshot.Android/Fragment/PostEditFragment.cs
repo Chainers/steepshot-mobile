@@ -7,12 +7,11 @@ using Android.Views;
 using Android.Widget;
 using Square.Picasso;
 using Steepshot.Adapter;
-using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
-using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 using Steepshot.Utils;
+using ViewUtils = Steepshot.Utils.ViewUtils;
 
 namespace Steepshot.Fragment
 {
@@ -49,7 +48,10 @@ namespace Steepshot.Fragment
                 _photos.Visibility = ViewStates.Gone;
                 _previewContainer.Visibility = ViewStates.Visible;
                 var margin = (int)BitmapUtils.DpToPixel(15, Resources);
-                var layoutParams = new RelativeLayout.LayoutParams(Resources.DisplayMetrics.WidthPixels - margin * 2, Resources.DisplayMetrics.WidthPixels - margin * 2);
+                var previewSize = ViewUtils.CalculateImagePreviewSize(_editPost.Media[0].Size.Width,
+                    _editPost.Media[0].Size.Height, Resources.DisplayMetrics.WidthPixels - margin * 2,
+                    int.MaxValue);
+                var layoutParams = new RelativeLayout.LayoutParams(previewSize.Width, previewSize.Height);
                 layoutParams.SetMargins(margin, 0, margin, margin);
                 _previewContainer.LayoutParameters = layoutParams;
                 _preview.CornerRadius = BitmapUtils.DpToPixel(5, Resources);
@@ -67,22 +69,6 @@ namespace Steepshot.Fragment
 
         protected override async Task OnPostAsync()
         {
-            var isConnected = BasePresenter.ConnectionService.IsConnectionAvailable();
-
-            if (!isConnected)
-            {
-                Activity.ShowAlert(LocalizationKeys.InternetUnavailable);
-                EnabledPost();
-                return;
-            }
-
-            if (string.IsNullOrEmpty(_title.Text))
-            {
-                Activity.ShowAlert(LocalizationKeys.EmptyTitleField, ToastLength.Long);
-                EnabledPost();
-                return;
-            }
-
             _model.Media = _editPost.Media;
 
             _model.Title = _title.Text;

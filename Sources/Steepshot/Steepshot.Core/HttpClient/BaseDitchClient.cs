@@ -8,7 +8,6 @@ using Ditch.Core.JsonRpc;
 using Newtonsoft.Json;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
-using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Serializing;
 using Newtonsoft.Json.Linq;
 using Steepshot.Core.Errors;
@@ -36,7 +35,7 @@ namespace Steepshot.Core.HttpClient
         }
 
 
-        public abstract Task<OperationResult<VoteResponse>> Vote(VoteModel model, CancellationToken ct);
+        public abstract Task<OperationResult<VoidResponse>> Vote(VoteModel model, CancellationToken ct);
 
         public abstract Task<OperationResult<VoidResponse>> Follow(FollowModel model, CancellationToken ct);
 
@@ -56,7 +55,7 @@ namespace Steepshot.Core.HttpClient
         {
             try
             {
-                var key = Ditch.Core.Helpers.Base58.TryGetBytes(postingKey);
+                var key = Ditch.Core.Base58.DecodePrivateWif(postingKey);
                 if (key == null || key.Length != 32)
                     return null;
                 return new List<byte[]> { key };
