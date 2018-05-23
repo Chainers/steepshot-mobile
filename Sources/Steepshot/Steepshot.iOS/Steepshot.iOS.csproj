@@ -103,14 +103,20 @@
     <OutputPath>bin\x86\Release\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Cryptography.ECDSA, Version=2.1.0.1, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Cryptography.ECDSA.Secp256k1.1.0.1\lib\netstandard1.3\Cryptography.ECDSA.dll</HintPath>
+    <Reference Include="Autofac, Version=4.8.0.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
+      <HintPath>..\packages\Autofac.4.8.0\lib\netstandard1.1\Autofac.dll</HintPath>
     </Reference>
-    <Reference Include="Ditch.Golos, Version=3.1.2.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Ditch.Golos.3.1.2\lib\netstandard2.0\Ditch.Golos.dll</HintPath>
+    <Reference Include="Cryptography.ECDSA, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Cryptography.ECDSA.Secp256K1.1.1.0\lib\netstandard2.0\Cryptography.ECDSA.dll</HintPath>
     </Reference>
-    <Reference Include="Ditch.Steem, Version=3.0.15.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Ditch.Steem.3.0.15\lib\netstandard2.0\Ditch.Steem.dll</HintPath>
+    <Reference Include="Ditch.Core, Version=3.1.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Ditch.Core.3.1.3\lib\netstandard2.0\Ditch.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Ditch.Golos, Version=3.1.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Ditch.Golos.3.1.3\lib\netstandard2.0\Ditch.Golos.dll</HintPath>
+    </Reference>
+    <Reference Include="Ditch.Steem, Version=3.1.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Ditch.Steem.3.1.3\lib\netstandard2.0\Ditch.Steem.dll</HintPath>
     </Reference>
     <Reference Include="FFImageLoading, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Xamarin.FFImageLoading.2.3.6\lib\Xamarin.iOS10\FFImageLoading.dll</HintPath>
@@ -178,18 +184,6 @@
     <Reference Include="MGSwipeTableCell">
       <HintPath>..\packages\MGSwipeTableCell.1.0.0\lib\Xamarin.iOS10\MGSwipeTableCell.dll</HintPath>
     </Reference>
-    <Reference Include="Ditch.Core, Version=3.1.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Ditch.Core.3.1.1\lib\netstandard2.0\Ditch.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="Google.Analytics">
-      <HintPath>..\packages\Xamarin.Google.iOS.Analytics.3.17.0.2\lib\Xamarin.iOS10\Google.Analytics.dll</HintPath>
-    </Reference>
-    <Reference Include="Autofac">
-      <HintPath>..\packages\Autofac.4.8.1\lib\netstandard1.1\Autofac.dll</HintPath>
-    </Reference>
-    <Reference Include="Google.Analytics">
-      <HintPath>..\packages\Xamarin.Google.iOS.Analytics.3.17.0.2\lib\Xamarin.iOS10\Google.Analytics.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\Contents.json">
@@ -250,7 +244,6 @@
     <InterfaceDefinition Include="Views\FollowViewController.xib" />
     <InterfaceDefinition Include="Views\SettingsViewController.xib" />
     <InterfaceDefinition Include="Views\PostTagsViewController.xib" />
-    <InterfaceDefinition Include="Views\TagsSearchViewController.xib" />
     <InterfaceDefinition Include="Views\VotersViewController.xib" />
     <InterfaceDefinition Include="Views\PreSearchViewController.xib" />
     <InterfaceDefinition Include="Views\WelcomeViewController.xib" />
@@ -357,9 +350,6 @@
       <DependentUpon>PostTagsViewController.cs</DependentUpon>
     </Compile>
     <Compile Include="Views\TagsSearchViewController.cs" />
-    <Compile Include="Views\TagsSearchViewController.designer.cs">
-      <DependentUpon>TagsSearchViewController.cs</DependentUpon>
-    </Compile>
     <Compile Include="Views\VotersViewController.cs" />
     <Compile Include="Views\VotersViewController.designer.cs">
       <DependentUpon>VotersViewController.cs</DependentUpon>
@@ -433,6 +423,7 @@
     <Compile Include="Cells\DescriptionTableViewCell.designer.cs">
       <DependentUpon>DescriptionTableViewCell.cs</DependentUpon>
     </Compile>
+    <Compile Include="Views\TagsSearchViewControllerDesign.cs" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\ic_photo_holder.png" />
@@ -550,6 +541,8 @@
     <BundleResource Include="Resources\ic_comment_like_inactive%402x.png" />
     <BundleResource Include="Resources\ic_comment_like_active%402x.png" />
     <BundleResource Include="Resources\ic_comment_like_active%403x.png" />
+    <BundleResource Include="Resources\ic_info%402x.png" />
+    <BundleResource Include="Resources\ic_info%403x.png" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="..\Steepshot.Android\Assets\Localization.en-us.txt">

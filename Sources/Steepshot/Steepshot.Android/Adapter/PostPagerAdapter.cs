@@ -79,7 +79,7 @@ namespace Steepshot.Adapter
             {
                 for (int i = CurrentItem - 2; i <= CurrentItem + 2; i++)
                 {
-                    if (i < 0 || i == _presenter.Count) continue;
+                    if (i < 0 || i >= _presenter.Count || _presenter[i] == null) continue;
                     _viewHolders?[i % CachedPagesCount]?.UpdateData(_presenter[i], _context);
                 }
 
@@ -175,6 +175,7 @@ namespace Steepshot.Adapter
         {
             base.SetNsfwMaskLayout();
             ((RelativeLayout.LayoutParams)NsfwMask.LayoutParameters).AddRule(LayoutRules.AlignParentTop);
+            ((RelativeLayout.LayoutParams)NsfwMask.LayoutParameters).AddRule(LayoutRules.Above, Resource.Id.footer);
         }
 
         private void ViewTreeObserverOnGlobalLayout(object sender, EventArgs eventArgs)

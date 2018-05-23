@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Steepshot.Core.Authority;
 using System.ComponentModel.DataAnnotations;
-using Ditch.Core.Helpers;
+using Ditch.Core;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Common;
 using System.Diagnostics;

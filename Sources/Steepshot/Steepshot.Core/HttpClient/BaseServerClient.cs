@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Ditch.Core.Helpers;
+using Ditch.Core;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
@@ -129,7 +129,11 @@ namespace Steepshot.Core.HttpClient
             AddLoginParameter(parameters, model.Login);
 
             var endpoint = $"{GatewayVersion.V1P1}/post/{model.Url}/comments";
-            return await Gateway.Get<ListResponse<Post>>(endpoint, parameters, token);
+            var resp = await Gateway.Get<ListResponse<Post>>(endpoint, parameters, token);
+            if (resp.IsSuccess)
+                resp.Result.Results.ForEach(p => p.IsComment = true);
+
+            return resp;
         }
 
         public async Task<OperationResult<UserProfileResponse>> GetUserProfile(UserProfileModel model, CancellationToken token)

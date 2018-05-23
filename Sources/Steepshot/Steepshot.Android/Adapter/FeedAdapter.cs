@@ -187,8 +187,7 @@ namespace Steepshot.Adapter
             _likeOrFlag.Click += DoLikeAction;
             _likeOrFlag.LongClick += DoLikeScaleAction;
             _avatar.Click += DoUserAction;
-            _author.Click += DoUserAction;
-            _cost.Click += DoUserAction;
+            _author.Click += DoUserAction;            
             _commentSubtitle.Click += DoCommentAction;
             _likes.Click += DoLikersAction;
             _topLikers.Click += DoLikersAction;
@@ -299,7 +298,7 @@ namespace Steepshot.Adapter
                 if (Post.Author == AppSettings.User.Login)
                 {
                     flag.Visibility = hide.Visibility = ViewStates.Gone;
-                    edit.Visibility = delete.Visibility = Post.CashoutTime < Post.Created ? ViewStates.Gone : ViewStates.Visible;
+                    edit.Visibility = delete.Visibility = Post.CashoutTime < DateTime.Now ? ViewStates.Gone : ViewStates.Visible;
                 }
 
                 var sharepost = dialogView.FindViewById<Button>(Resource.Id.sharepost);
@@ -552,6 +551,9 @@ namespace Steepshot.Adapter
             else
                 Picasso.With(context).Load(Resource.Drawable.ic_holder).Into(_avatar);
 
+            var size = new Size { Height = post.Media[0].Size.Height / Style.Density, Width = post.Media[0].Size.Width / Style.Density };
+            var height = (int)(OptimalPhotoSize.Get(size, Style.ScreenWidthInDp, 130, Style.MaxPostHeight) * Style.Density);
+            PhotosViewPager.LayoutParameters.Height = height;
             ((PostPhotosPagerAdapter)PhotosViewPager.Adapter).UpdateData(Post);
 
             _topLikers.RemoveAllViews();
@@ -696,10 +698,7 @@ namespace Steepshot.Adapter
                             Picasso.With(_context).Load(url).Placeholder(new ColorDrawable(Style.R245G245B245)).NoFade().Priority(Picasso.Priority.High).Into(photo);
                         });
 
-                    var size = new Size { Height = mediaModel.Size.Height / Style.Density, Width = mediaModel.Size.Width / Style.Density };
-                    var height = (int)(OptimalPhotoSize.Get(size, Style.ScreenWidthInDp, 130, Style.MaxPostHeight) * Style.Density);
-                    ((View)photo.Parent).LayoutParameters.Height = height;
-                    photo.LayoutParameters.Height = height;
+                    photo.LayoutParameters.Height = ((View)photo.Parent).LayoutParameters.Height;
                 }
             }
 

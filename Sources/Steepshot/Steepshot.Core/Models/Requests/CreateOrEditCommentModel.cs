@@ -2,7 +2,7 @@
 using Steepshot.Core.Authority;
 using Steepshot.Core.Services;
 using Steepshot.Core.Models.Common;
-using Ditch.Core.Helpers;
+using Ditch.Core;
 
 namespace Steepshot.Core.Models.Requests
 {

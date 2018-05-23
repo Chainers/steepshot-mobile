@@ -127,7 +127,7 @@ namespace Steepshot.iOS.Views
         }
 
         private void SetupMainScroll()
-        { 
+        {
             mainScroll = new UIScrollView();
             mainScroll.BackgroundColor = UIColor.White;
 
@@ -302,7 +302,7 @@ namespace Steepshot.iOS.Views
             }
             else
             {
-                var ratio = height /width;
+                var ratio = height / width;
                 if (listCount == 1)
                 {
                     photoMargin = 15;
@@ -317,13 +317,15 @@ namespace Steepshot.iOS.Views
         {
             if (ImageAssets.Count == 1)
             {
-                SetupPhoto();
-
                 if (!_isFromCamera)
+                {
+                    SetupPhoto(_cellSize);
                     photoView.Image = ImageAssets[0].Item2;
+                }
                 else
                 {
-                    _cropView = new CropView(new CGRect(0, 0, photoViewSide, photoViewSide));
+                    SetupPhoto(new CGSize(UIScreen.MainScreen.Bounds.Width - 15 * 2, UIScreen.MainScreen.Bounds.Width - 15 * 2));
+                    _cropView = new CropView(new CGRect(0, 0, UIScreen.MainScreen.Bounds.Width - 15 * 2, UIScreen.MainScreen.Bounds.Width - 15 * 2));
                     photoView.AddSubview(_cropView);
 
                     _resizeButton = new UIImageView();
@@ -357,7 +359,7 @@ namespace Steepshot.iOS.Views
             }
         }
 
-        protected void SetupPhoto()
+        protected void SetupPhoto(CGSize size)
         {
             photoView = new UIImageView();
             photoView.Layer.CornerRadius = 8;
@@ -369,8 +371,8 @@ namespace Steepshot.iOS.Views
 
             photoView.AutoAlignAxisToSuperviewAxis(ALAxis.Vertical);
             photoView.AutoPinEdgeToSuperviewEdge(ALEdge.Top, 15f);
-            photoView.AutoSetDimension(ALDimension.Width, _cellSize.Width);
-            photoView.AutoSetDimension(ALDimension.Height, _cellSize.Height);
+            photoView.AutoSetDimension(ALDimension.Width, size.Width);
+            photoView.AutoSetDimension(ALDimension.Height, size.Height);
         }
 
         protected void SetupPhotoCollection()
@@ -641,16 +643,11 @@ namespace Steepshot.iOS.Views
         private async Task CheckOnSpam()
         {
             _isSpammer = false;
-            ToggleAvailability(false);
 
-            try
+            var spamCheck = await _presenter.TryCheckForSpam(AppSettings.User.Login);
+
+            if (spamCheck.IsSuccess)
             {
-                var username = AppSettings.User.Login;
-                var spamCheck = await _presenter.TryCheckForSpam(username);
-
-                if (!spamCheck.IsSuccess)
-                    return;
-
                 if (!spamCheck.Result.IsSpam)
                 {
                     if (spamCheck.Result.WaitingTime > 0)
@@ -669,10 +666,6 @@ namespace Steepshot.iOS.Views
                     StartPostTimer((int)spamCheck.Result.WaitingTime);
                     ShowAlert(LocalizationKeys.PostsDayLimit);
                 }
-            }
-            finally
-            {
-                ToggleAvailability(true);
             }
         }
 
@@ -723,7 +716,7 @@ namespace Steepshot.iOS.Views
                     return;
             }
 
-            ToggleAvailability(false);
+            EnablePostAndEdit(false);
 
             if (_isFromCamera)
             {
@@ -797,7 +790,7 @@ namespace Steepshot.iOS.Views
                         };
                     }
                     else
-                    { 
+                    {
                         model.Title = title;
                         model.Description = description;
                         model.Device = "iOS";
@@ -842,7 +835,7 @@ namespace Steepshot.iOS.Views
                 {
                     InvokeOnMainThread(() =>
                     {
-                        ToggleAvailability(true);
+                        EnablePostAndEdit(true);
                     });
                 }
             });
@@ -904,7 +897,7 @@ namespace Steepshot.iOS.Views
             _cropView.ApplyCriticalScale();
         }
 
-        protected void ToggleAvailability(bool enabled)
+        private void EnablePostAndEdit(bool enabled)
         {
             if (enabled)
                 loadingView.StopAnimating();

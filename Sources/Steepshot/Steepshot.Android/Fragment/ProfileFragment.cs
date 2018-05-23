@@ -42,7 +42,8 @@ namespace Steepshot.Fragment
         private ProfileSpanSizeLookup _profileSpanSizeLookup;
         private RecyclerView.Adapter _adapter;
         private Dialog _moreActionsDialog;
-        private bool UserIsWatched => AppSettings.User.WatchedUsers.Contains(_profileId);
+        private bool isSubscribed;
+        private bool isSubscription;
 
 #pragma warning disable 0649, 4014
         [BindView(Resource.Id.btn_back)] private ImageButton _backButton;
@@ -232,6 +233,7 @@ namespace Steepshot.Fragment
                     _settings.Visibility = ViewStates.Gone;
                     _backButton.Visibility = ViewStates.Visible;
                     _more.Visibility = ViewStates.Visible;
+                    _more.Enabled = false;
                     _login.Text = _profileId;
                     LoadProfile();
                     GetUserPosts();
@@ -386,55 +388,59 @@ namespace Steepshot.Fragment
 
         private void MoreOnClick(object sender, EventArgs eventArgs)
         {
-            var inflater = (LayoutInflater)Context.GetSystemService(Context.LayoutInflaterService);
-            using (var dialogView = inflater.Inflate(Resource.Layout.lyt_profile_popup, null))
+            if (!isSubscription)
             {
-                dialogView.SetMinimumWidth((int)(Resources.DisplayMetrics.WidthPixels * 0.8));
-                var pushes = dialogView.FindViewById<Button>(Resource.Id.pushes);
-                if (UserIsWatched)
+                var inflater = (LayoutInflater)Context.GetSystemService(Context.LayoutInflaterService);
+                using (var dialogView = inflater.Inflate(Resource.Layout.lyt_profile_popup, null))
                 {
-                    pushes.SetTextColor(Style.R255G34B5);
-                    pushes.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.UnwatchUser);
+                    dialogView.SetMinimumWidth((int)(Resources.DisplayMetrics.WidthPixels * 0.8));
+                    var pushes = dialogView.FindViewById<Button>(Resource.Id.pushes);
+                    if (isSubscribed)
+                    {
+                        pushes.SetTextColor(Style.R255G34B5);
+                        pushes.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.UnwatchUser);
+                    }
+                    else
+                    {
+                        pushes.SetTextColor(Color.Black);
+                        pushes.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.WatchUser);
+                    }
+
+                    pushes.Typeface = Style.Semibold;
+
+                    var cancel = dialogView.FindViewById<Button>(Resource.Id.cancel);
+                    cancel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Cancel);
+                    cancel.Typeface = Style.Semibold;
+
+                    pushes.Click -= PushesOnClick;
+                    pushes.Click += PushesOnClick;
+
+                    cancel.Click -= CancelDialog;
+                    cancel.Click += CancelDialog;
+
+                    _moreActionsDialog.SetContentView(dialogView);
+                    dialogView.SetBackgroundColor(Color.Transparent);
+                    _moreActionsDialog.Window.FindViewById(Resource.Id.design_bottom_sheet).SetBackgroundColor(Color.Transparent);
+                    _moreActionsDialog.Show();
                 }
-                else
-                {
-                    pushes.SetTextColor(Color.Black);
-                    pushes.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.WatchUser);
-                }
-                pushes.Typeface = Style.Semibold;
-
-                var cancel = dialogView.FindViewById<Button>(Resource.Id.cancel);
-                cancel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Cancel);
-                cancel.Typeface = Style.Semibold;
-
-                pushes.Click -= PushesOnClick;
-                pushes.Click += PushesOnClick;
-
-                cancel.Click -= CancelDialog;
-                cancel.Click += CancelDialog;
-
-                _moreActionsDialog.SetContentView(dialogView);
-                dialogView.SetBackgroundColor(Color.Transparent);
-                _moreActionsDialog.Window.FindViewById(Resource.Id.design_bottom_sheet).SetBackgroundColor(Color.Transparent);
-                _moreActionsDialog.Show();
             }
         }
 
         private async void PushesOnClick(object sender, EventArgs eventArgs)
         {
             _moreActionsDialog.Dismiss();
-            var model = new PushNotificationsModel(AppSettings.User.UserInfo, !UserIsWatched)
+            var model = new PushNotificationsModel(AppSettings.User.UserInfo, !isSubscribed);
+            model.WatchedUser = _profileId;
+
+            isSubscription = true;
+
+            var result = await BasePresenter.TrySubscribeForPushes(model);
+            if (result.IsSuccess)
             {
-                WatchedUser = _profileId
-            };
-            var error = await BasePresenter.TrySubscribeForPushes(model);
-            if (error == null)
-            {
-                if (UserIsWatched)
-                    AppSettings.User.WatchedUsers.Remove(_profileId);
-                else
-                    AppSettings.User.WatchedUsers.Add(_profileId);
+                isSubscribed = !isSubscribed;
             }
+
+            isSubscription = false;
         }
 
         private void CancelDialog(object sender, EventArgs e)
@@ -506,6 +512,8 @@ namespace Steepshot.Fragment
                 if (error == null || error is CanceledError)
                 {
                     _listLayout.Visibility = ViewStates.Visible;
+                    _more.Enabled = true;
+                    isSubscribed = Presenter.UserProfileResponse.IsSubscribed;
                     break;
                 }
 

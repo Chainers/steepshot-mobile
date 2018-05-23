@@ -1,23 +1,14 @@
 ﻿using System;
+using System.Linq;
 using Android.Content;
-using Android.Content.Res;
 using Android.Graphics;
 using Android.OS;
 using Android.Support.V7.App;
 using Android.Util;
 using Android.Views;
 using Android.Views.InputMethods;
-using Autofac;
-using Square.Picasso;
-using Steepshot.Core.Authority;
-using Steepshot.Core.Services;
 using Steepshot.Core.Utils;
 using Steepshot.Fragment;
-using Steepshot.Services;
-using Steepshot.Utils;
-using LruCache = Square.Picasso.LruCache;
-using Steepshot.Core.Localization;
-using Steepshot.Core.Sentry;
 
 namespace Steepshot.Base
 {
@@ -25,15 +16,7 @@ namespace Steepshot.Base
     {
         public const string AppLinkingExtra = "appLinkingExtra";
         protected HostFragment CurrentHostFragment;
-        protected static LruCache Cache;
         public static Func<MotionEvent, bool> TouchEvent;
-
-        protected override void OnCreate(Bundle savedInstanceState)
-        {
-            InitIoC(Assets);
-            base.OnCreate(savedInstanceState);
-            InitPicassoCache();
-        }
 
         public override bool DispatchTouchEvent(MotionEvent ev)
         {
@@ -42,59 +25,25 @@ namespace Steepshot.Base
 
         public override View OnCreateView(View parent, string name, Context context, IAttributeSet attrs)
         {
-            if (Build.VERSION.SdkInt >= Build.VERSION_CODES.M)
+            if (Build.VERSION.SdkInt >= BuildVersionCodes.M)
             {
                 Window.AddFlags(WindowManagerFlags.DrawsSystemBarBackgrounds);
                 Window.DecorView.SystemUiVisibility |= (StatusBarVisibility)SystemUiFlags.LightStatusBar;
                 Window.SetStatusBarColor(Color.White);
             }
+            else
+            {
+                Window.SetStatusBarColor(Color.Black);
+            }
             return base.OnCreateView(parent, name, context, attrs);
-        }
-
-        private void InitPicassoCache()
-        {
-            if (Cache == null)
-            {
-                Cache = new LruCache(this);
-                var d = new Picasso.Builder(this);
-                d.MemoryCache(Cache);
-                Picasso.SetSingletonInstance(d.Build());
-            }
-        }
-
-        public static void InitIoC(AssetManager assetManagerssets)
-        {
-            if (AppSettings.Container == null)
-            {
-                var builder = new ContainerBuilder();
-                var saverService = new SaverService();
-                var dataProvider = new DataProvider(saverService);
-                var appInfo = new AppInfo();
-                var assetsHelper = new AssetsHelper(assetManagerssets);
-                var connectionService = new ConnectionService();
-
-                var localization = dataProvider.SelectLocalization("en-us") ?? assetsHelper.GetLocalization("en-us");
-                var localizationManager = new LocalizationManager(localization);
-
-                builder.RegisterInstance(assetsHelper).As<IAssetsHelper>().SingleInstance();
-                builder.RegisterInstance(appInfo).As<IAppInfo>().SingleInstance();
-                builder.RegisterInstance(saverService).As<ISaverService>().SingleInstance();
-                builder.RegisterInstance(dataProvider).As<IDataProvider>().SingleInstance();
-                builder.RegisterInstance(connectionService).As<IConnectionService>().SingleInstance();
-                builder.RegisterInstance(connectionService).As<IConnectionService>().SingleInstance();
-                builder.RegisterInstance(localizationManager).As<LocalizationManager>().SingleInstance();
-                var configInfo = assetsHelper.GetConfigInfo();
-                var reporterService = new ReporterService(appInfo, configInfo.RavenClientDsn);
-                builder.RegisterInstance(reporterService).As<IReporterService>().SingleInstance();
-                AppSettings.Container = builder.Build();
-            }
         }
 
         public override void OnBackPressed()
         {
-            if (CurrentHostFragment?.ChildFragmentManager?.Fragments.Count > 0)
+            var fragments = CurrentHostFragment?.ChildFragmentManager?.Fragments;
+            if (fragments?.Count > 0)
             {
-                if (CurrentHostFragment.ChildFragmentManager.Fragments?[CurrentHostFragment.ChildFragmentManager.Fragments.Count - 1] is BaseFragment currentFragment &&
+                if (fragments.Last() is BaseFragment currentFragment &&
                     (currentFragment.OnBackPressed() || CurrentHostFragment.HandleBackPressed(SupportFragmentManager)))
                     return;
             }

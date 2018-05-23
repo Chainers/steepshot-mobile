@@ -41,6 +41,7 @@ namespace Steepshot.Core.Models.Responses
         public string Username { get; set; }
         public string CurrentUser { get; set; }
         public bool HasFollowed { get; set; }
+        public bool IsSubscribed { get; set; }
         public string ProfileImage { get; set; }
         public string CoverImage { get; set; }
         public string Name { get; set; }

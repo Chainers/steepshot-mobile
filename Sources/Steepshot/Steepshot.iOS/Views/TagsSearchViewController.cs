@@ -6,13 +6,13 @@ using Steepshot.Core.Facades;
 using Steepshot.Core.Models;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
-using Steepshot.Core.Presenters;
-using Steepshot.iOS.Cells;
 using Steepshot.iOS.ViewControllers;
 using Steepshot.iOS.ViewSources;
 using UIKit;
 using Steepshot.Core.Utils;
-using Steepshot.Core.Localization;
+using Steepshot.iOS.Helpers;
+using System.Threading.Tasks;
+using Steepshot.Core.Errors;
 
 namespace Steepshot.iOS.Views
 {
@@ -23,53 +23,30 @@ namespace Steepshot.iOS.Views
         private SearchType _searchType = SearchType.Tags;
         private SearchFacade _searchFacade;
 
-
         private readonly Dictionary<SearchType, string> _prevQuery = new Dictionary<SearchType, string>
         {
             {SearchType.People, null},
             {SearchType.Tags, null}
         };
 
-
         public override void ViewDidLoad()
         {
             base.ViewDidLoad();
-
+            CreateView();
             _searchFacade = new SearchFacade();
 
             _timer = new Timer(OnTimer);
 
-            _userTableSource = new FollowTableViewSource(_searchFacade.UserFriendPresenter, usersTable);
-            _userTableSource.ScrolledToBottom += GetItems;
-            _userTableSource.CellAction += CellAction;
-            usersTable.Source = _userTableSource;
-            usersTable.LayoutMargins = UIEdgeInsets.Zero;
-            usersTable.RegisterClassForCellReuse(typeof(FollowViewCell), nameof(FollowViewCell));
-            usersTable.RegisterNibForCellReuse(UINib.FromName(nameof(FollowViewCell), NSBundle.MainBundle), nameof(FollowViewCell));
-            usersTable.RegisterClassForCellReuse(typeof(LoaderCell), nameof(LoaderCell));
-
-            var _tagsSource = new TagsTableViewSource(_searchFacade.TagsPresenter);
-            _tagsSource.CellAction += CellAction;
-            tagsTable.Source = _tagsSource;
-            tagsTable.LayoutMargins = UIEdgeInsets.Zero;
-            tagsTable.RegisterClassForCellReuse(typeof(TagTableViewCell), nameof(TagTableViewCell));
-            tagsTable.RegisterNibForCellReuse(UINib.FromName(nameof(TagTableViewCell), NSBundle.MainBundle), nameof(TagTableViewCell));
-            tagsTable.RowHeight = 65f;
+            SetupTables();
 
             _searchFacade.UserFriendPresenter.SourceChanged += UserFriendPresenterSourceChanged;
             _searchFacade.TagsPresenter.SourceChanged += TagsPresenterSourceChanged;
 
-            searchTextField.BecomeFirstResponder();
-            searchTextField.Font = Helpers.Constants.Regular14;
-            noTagsLabel.Font = Helpers.Constants.Light27;
-            noTagsLabel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.EmptyQuery);
-
-            searchTextField.ShouldReturn += ShouldReturn;
             searchTextField.EditingChanged += EditingChanged;
             tagsButton.TouchDown += TagsButtonTap;
             peopleButton.TouchDown += PeopleButtonTap;
 
-            SwitchSearchType();
+            SwitchSearchType(false);
             SetBackButton();
         }
 
@@ -90,10 +67,9 @@ namespace Steepshot.iOS.Views
             _timer.Change(500, Timeout.Infinite);
         }
 
-        private bool ShouldReturn(UITextField textField)
+        private void ShouldReturn()
         {
             searchTextField.ResignFirstResponder();
-            return true;
         }
 
         private void CellAction(ActionType type, string tag)
@@ -136,13 +112,13 @@ namespace Steepshot.iOS.Views
         {
             NavigationItem.Title = "Search";
             var leftBarButton = new UIBarButtonItem(UIImage.FromBundle("ic_back_arrow"), UIBarButtonItemStyle.Plain, GoBack);
-            leftBarButton.TintColor = Helpers.Constants.R15G24B30;
+            leftBarButton.TintColor = Constants.R15G24B30;
             NavigationItem.LeftBarButtonItem = leftBarButton;
         }
 
         public void GetItems()
         {
-            Search(false, false);
+            SearchUsers(false, false, false);
         }
 
         private async void Follow(UserFriend user)
@@ -163,24 +139,47 @@ namespace Steepshot.iOS.Views
         {
             InvokeOnMainThread(() =>
            {
-               Search(true);
+               if (_searchType == SearchType.Tags)
+                   SearchTags(true);
+               else
+                   SearchUsers(true);
            });
         }
 
-        private async void Search(bool clear, bool isLoaderNeeded = true)
+        private async void SearchTags(bool clear, bool shouldAnimate = true, bool isLoaderNeeded = true)
         {
-            CheckQueryIsEmpty();
+            var shouldHideLoader = await Search(clear, shouldAnimate, isLoaderNeeded);
+            if (shouldHideLoader)
+            {
+                _noResultViewTags.Hidden = _searchFacade.TagsPresenter.Count > 0;
+                _tagsLoader.StopAnimating();
+            }
+        }
+
+        private async void SearchUsers(bool clear, bool shouldAnimate = true, bool isLoaderNeeded = true)
+        {
+            var shouldHideLoader = await Search(clear, shouldAnimate, isLoaderNeeded);
+            if (shouldHideLoader)
+            {
+                _noResultViewPeople.Hidden = _searchFacade.UserFriendPresenter.Count > 0;
+                _peopleLoader.StopAnimating();
+            }
+        }
+
+        private async Task<bool> Search(bool clear, bool shouldAnimate = true, bool isLoaderNeeded = true)
+        {
             if (clear)
             {
                 if (_prevQuery.ContainsKey(_searchType) && string.Equals(_prevQuery[_searchType], searchTextField.Text, StringComparison.OrdinalIgnoreCase))
-                    return;
+                    return false;
 
                 if (_searchType == SearchType.People)
+                {
                     _searchFacade.UserFriendPresenter.Clear();
+                    _userTableSource.ClearPosition();
+                }
                 else
                     _searchFacade.TagsPresenter.Clear();
-
-                _userTableSource.ClearPosition();
 
                 if (_prevQuery.ContainsKey(_searchType))
                     _prevQuery[_searchType] = searchTextField.Text;
@@ -190,49 +189,115 @@ namespace Steepshot.iOS.Views
 
             if (isLoaderNeeded)
             {
-                noTagsLabel.Hidden = true;
-                activityIndicator.StartAnimating();
+                if (_searchType == SearchType.Tags)
+                {
+                    _noResultViewTags.Hidden = true;
+                    _tagsLoader.StartAnimating();
+                }
+                else
+                {
+                    _noResultViewPeople.Hidden = true;
+                    _peopleLoader.StartAnimating();
+                }
             }
 
             var error = await _searchFacade.TrySearchCategories(searchTextField.Text, _searchType);
-            CheckQueryIsEmpty();
+            if (error is CanceledError)
+                return false;
+
+            if (shouldAnimate)
+            {
+                if (!_isWarningOpen && error != null)
+                {
+                    UIView.Animate(0.3f, 0f, UIViewAnimationOptions.CurveEaseOut, () =>
+                    {
+                        _isWarningOpen = true;
+                        warningViewToBottomConstraint.Constant = -ScrollAmount - 20;
+                        View.LayoutIfNeeded();
+                    }, () =>
+                    {
+                        UIView.Animate(0.2f, 5f, UIViewAnimationOptions.CurveEaseIn, () =>
+                        {
+                            warningViewToBottomConstraint.Constant = -ScrollAmount + 60;
+                            View.LayoutIfNeeded();
+                        }, () =>
+                        {
+                            _isWarningOpen = false;
+                        });
+                    });
+                }
+            }
 
             ShowAlert(error);
-            activityIndicator.StopAnimating();
+            return true;
         }
 
-        private void CheckQueryIsEmpty()
+        private void SwitchSearchType(bool shouldAnimate = true)
         {
-            if (string.IsNullOrEmpty(searchTextField.Text))
-                return;
-
-            if (_searchType == SearchType.People)
-                noTagsLabel.Hidden = _searchFacade.UserFriendPresenter.Count > 0;
-            else
-                noTagsLabel.Hidden = _searchFacade.TagsPresenter.Count > 0;
-        }
-
-        private void SwitchSearchType()
-        {
-            Search(true);
             if (_searchType == SearchType.Tags)
             {
+                SearchTags(true, shouldAnimate: shouldAnimate);
+                Activeview = tagsTable;
                 peopleButton.Selected = false;
                 tagsButton.Selected = !peopleButton.Selected;
-                peopleButton.Font = Helpers.Constants.Regular14;
-                tagsButton.Font = Helpers.Constants.Semibold20;
+
                 tagsTable.Hidden = false;
-                usersTable.Hidden = true;
+                tagTableHidden.Active = false;
+                tagTableVisible.Active = true;
+                pinToTags.Active = true;
+                pinToPeople.Active = false;
             }
             else
             {
+                SearchUsers(true, shouldAnimate: shouldAnimate);
+                Activeview = usersTable;
                 peopleButton.Selected = true;
                 tagsButton.Selected = !peopleButton.Selected;
-                tagsButton.Font = Helpers.Constants.Regular14;
-                peopleButton.Font = Helpers.Constants.Semibold20;
+
                 tagsTable.Hidden = true;
-                usersTable.Hidden = false;
+                tagTableHidden.Active = true;
+                tagTableVisible.Active = false;
+                pinToTags.Active = false;
+                pinToPeople.Active = true;
             }
+        }
+
+        protected override void ScrollTheView(bool move)
+        {
+            if (move)
+                tagsTable.ScrollIndicatorInsets = tagsTable.ContentInset = usersTable.ScrollIndicatorInsets = usersTable.ContentInset = new UIEdgeInsets(0, 0, ScrollAmount, 0);
+            else
+                tagsTable.ScrollIndicatorInsets = tagsTable.ContentInset = usersTable.ScrollIndicatorInsets = usersTable.ContentInset = new UIEdgeInsets(0, 0, 0, 0);
+        }
+
+        protected override void KeyBoardUpNotification(NSNotification notification)
+        {
+            var shift = -90;
+            _tagsHorizontalAlignment.Constant = shift;
+            _peopleHorizontalAlignment.Constant = shift;
+            _tagsNotFoundHorizontalAlignment.Constant = shift;
+            _peopleNotFoundHorizontalAlignment.Constant = shift;
+            warningView.Hidden = false;
+
+            if (ScrollAmount == 0)
+            {
+                var r = UIKeyboard.FrameEndFromNotification(notification);
+                ScrollAmount = TabBarController != null ? r.Height - TabBarController.TabBar.Frame.Height : r.Height;
+                warningViewToBottomConstraint.Constant = -ScrollAmount + 60;
+            }
+
+            ScrollTheView(true);
+        }
+
+        protected override void KeyBoardDownNotification(NSNotification notification)
+        {
+            warningView.Hidden = true;
+            warningViewToBottomConstraint.Constant = -ScrollAmount + 60;
+            _tagsNotFoundHorizontalAlignment.Constant = 0;
+            _peopleNotFoundHorizontalAlignment.Constant = 0;
+            _tagsHorizontalAlignment.Constant = 0;
+            _peopleHorizontalAlignment.Constant = 0;
+            ScrollTheView(false);
         }
     }
 }

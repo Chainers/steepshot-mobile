@@ -70,7 +70,7 @@ namespace Steepshot.Core.Presenters
             var ts = GetReconectToken();
             TryRunTask(TryСonect, ts);
             // static constructor initialization.
-            var init = new Secp256k1Manager();
+            var init = new Secp256K1Manager();
             UpdateLocalizationAsync();
             LazyLoadTimer.Dispose();
         }
