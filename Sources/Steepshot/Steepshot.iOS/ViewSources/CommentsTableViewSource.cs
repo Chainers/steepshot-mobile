@@ -10,7 +10,7 @@ namespace Steepshot.iOS.ViewSources
 {
     public class CommentsTableViewSource : BaseTableSource<CommentsPresenter>
     {
-        private readonly string _cellIdentifier = nameof(CommentTableViewCell);
+        private readonly string _cellIdentifier = nameof(NewCommentTableViewCell);
         private readonly string _descriptionCellIdentifier = nameof(DescriptionTableViewCell);
         public event Action<ActionType, Post> CellAction;
         public event Action<string> TagAction;
@@ -32,7 +32,7 @@ namespace Steepshot.iOS.ViewSources
             }
             else
             {
-                var cell = (CommentTableViewCell)tableView.DequeueReusableCell(_cellIdentifier, indexPath);
+                var cell = (NewCommentTableViewCell)tableView.DequeueReusableCell(_cellIdentifier, indexPath);
 
                 if (!cell.IsCellActionSet)
                     cell.CellAction += CellAction;

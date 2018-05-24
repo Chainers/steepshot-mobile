@@ -73,11 +73,6 @@ namespace Steepshot.iOS.Views
             NavigationItem.Title = AppSettings.LocalizationManager.GetText(LocalizationKeys.PasswordViewTitleText);
         }
 
-        private void GoBack(object sender, EventArgs e)
-        {
-            NavigationController.PopViewController(true);
-        }
-
         private void EyeButtonTouch(object sender, EventArgs e)
         {
             password.SecureTextEntry = !password.SecureTextEntry;

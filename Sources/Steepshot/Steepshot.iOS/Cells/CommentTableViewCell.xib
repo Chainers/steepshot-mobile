@@ -52,20 +52,8 @@
                         <color key="textColor" red="0.59215686270000001" green="0.60784313729999995" blue="0.61960784310000006" alpha="1" colorSpace="calibratedRGB"/>
                         <nil key="highlightedColor"/>
                     </label>
-                    <button opaque="NO" contentMode="scaleToFill" selected="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="YZa-PT-Ha5">
-                        <rect key="frame" x="319" y="29" width="40" height="50"/>
-                        <constraints>
-                            <constraint firstAttribute="width" constant="40" id="oDe-1K-egu"/>
-                            <constraint firstAttribute="height" constant="50" id="vCs-PC-9gX"/>
-                        </constraints>
-                        <color key="tintColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
-                        <state key="normal" image="ic_comment_like_inactive.png"/>
-                        <state key="selected" image="ic_comment_like_active.png">
-                            <color key="titleColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
-                        </state>
-                    </button>
                     <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" verticalHuggingPriority="248" scrollEnabled="NO" editable="NO" text="www.steepshot.io" translatesAutoresizingMaskIntoConstraints="NO" id="w1I-EV-1GW">
-                        <rect key="frame" x="11" y="40" width="298" height="27"/>
+                        <rect key="frame" x="11" y="40" width="125" height="27"/>
                         <color key="textColor" red="0.058823529409999999" green="0.094117647060000004" blue="0.1176470588" alpha="1" colorSpace="calibratedRGB"/>
                         <fontDescription key="fontDescription" type="system" pointSize="14"/>
                         <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
@@ -109,15 +97,12 @@
                     <constraint firstAttribute="trailing" secondItem="za7-wI-ZZh" secondAttribute="trailing" constant="14" id="O5P-NP-MVw"/>
                     <constraint firstItem="w1I-EV-1GW" firstAttribute="top" secondItem="j3L-Au-o6s" secondAttribute="bottom" id="OrK-vV-U30"/>
                     <constraint firstItem="w1I-EV-1GW" firstAttribute="leading" secondItem="j3L-Au-o6s" secondAttribute="leading" constant="-4" id="Rky-P0-QiW"/>
-                    <constraint firstItem="YZa-PT-Ha5" firstAttribute="trailing" secondItem="za7-wI-ZZh" secondAttribute="trailing" constant="9" id="TRq-2H-J5n"/>
                     <constraint firstItem="msO-ct-rLQ" firstAttribute="leading" secondItem="qb4-pf-uWu" secondAttribute="trailing" constant="25" id="aPX-R0-6u3"/>
-                    <constraint firstItem="YZa-PT-Ha5" firstAttribute="leading" secondItem="w1I-EV-1GW" secondAttribute="trailing" constant="10" id="eST-wb-vIF"/>
                     <constraint firstItem="bhf-a7-Kmk" firstAttribute="leading" secondItem="qb4-pf-uWu" secondAttribute="trailing" constant="25" id="ecJ-9q-EK8"/>
                     <constraint firstItem="qb4-pf-uWu" firstAttribute="centerY" secondItem="xhJ-7K-S2d" secondAttribute="centerY" id="htv-NE-phe"/>
                     <constraint firstItem="fnL-d0-hVK" firstAttribute="leading" secondItem="j3L-Au-o6s" secondAttribute="trailing" constant="10" id="if9-yw-RYL"/>
                     <constraint firstItem="xhJ-7K-S2d" firstAttribute="top" secondItem="w1I-EV-1GW" secondAttribute="bottom" id="jD3-9x-vxp"/>
                     <constraint firstItem="fnL-d0-hVK" firstAttribute="trailing" secondItem="GUx-tN-8lA" secondAttribute="trailing" id="kfg-LT-wVF"/>
-                    <constraint firstItem="YZa-PT-Ha5" firstAttribute="centerY" secondItem="w1I-EV-1GW" secondAttribute="centerY" id="lo3-vp-LKX"/>
                     <constraint firstItem="j3L-Au-o6s" firstAttribute="leading" secondItem="YTl-1W-gDM" secondAttribute="leading" constant="15" id="mb8-RW-dQy"/>
                     <constraint firstItem="qb4-pf-uWu" firstAttribute="leading" secondItem="j3L-Au-o6s" secondAttribute="leading" id="n4G-9a-wVe"/>
                     <constraint firstItem="msO-ct-rLQ" firstAttribute="centerY" secondItem="bhf-a7-Kmk" secondAttribute="centerY" id="rZF-zX-qqO"/>
@@ -142,7 +127,6 @@
                 <outlet property="flagHiddenConstraint" destination="aPX-R0-6u3" id="947-pc-TTp"/>
                 <outlet property="flagLabel" destination="bhf-a7-Kmk" id="7a4-b1-Vz4"/>
                 <outlet property="flagVisibleConstraint" destination="ecJ-9q-EK8" id="bOE-AV-6Ga"/>
-                <outlet property="likeButton" destination="YZa-PT-Ha5" id="zTg-TT-IFI"/>
                 <outlet property="likeHiddenConstraint" destination="x2s-VM-bDQ" id="rWt-vA-ooC"/>
                 <outlet property="likeLabel" destination="qb4-pf-uWu" id="IEA-Ra-W57"/>
                 <outlet property="loginLabel" destination="fnL-d0-hVK" id="pgJ-OM-R1L"/>
@@ -155,8 +139,4 @@
             <point key="canvasLocation" x="54" y="120.5"/>
         </tableViewCell>
     </objects>
-    <resources>
-        <image name="ic_comment_like_active.png" width="15" height="14"/>
-        <image name="ic_comment_like_inactive.png" width="15" height="14"/>
-    </resources>
 </document>
