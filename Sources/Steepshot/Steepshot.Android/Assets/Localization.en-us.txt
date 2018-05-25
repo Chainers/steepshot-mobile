@@ -260,5 +260,6 @@
         "10 assert_exception: Assert Exception: com.parent_author == o.parent_author":"The parent of a comment cannot change.",
         "10 assert_exception: Assert Exception: _db.calculate_discussion_payout_time(*parent) != fc::time_point_sec::maximum()":"Discussion is frozen.",
         "10 assert_exception: Assert Exception: _callbacks.find( txid ) == _callbacks.end()":"Transaction is a duplicate",
+        "The post is hidden from you. Please change your settings to see this post":"The post is hidden from you. Please change your settings to see this post",
     }
 }

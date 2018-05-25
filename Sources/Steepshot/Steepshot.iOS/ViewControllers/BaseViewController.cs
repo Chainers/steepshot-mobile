@@ -236,7 +236,7 @@ namespace Steepshot.iOS.ViewControllers
             });
         }
 
-        protected void ShowAlert(ErrorBase error)
+        protected void ShowAlert(ErrorBase error, Action<UIAlertAction> okAction = null)
         {
             if (error == null || error is CanceledError)
                 return;
@@ -260,7 +260,7 @@ namespace Steepshot.iOS.ViewControllers
             }
 
             var alert = UIAlertController.Create(null, lm.GetText(message), UIAlertControllerStyle.Alert);
-            alert.AddAction(UIAlertAction.Create(lm.GetText(LocalizationKeys.Ok), UIAlertActionStyle.Cancel, null));
+            alert.AddAction(UIAlertAction.Create(lm.GetText(LocalizationKeys.Ok), UIAlertActionStyle.Cancel, okAction));
             PresentViewController(alert, true, null);
         }
 

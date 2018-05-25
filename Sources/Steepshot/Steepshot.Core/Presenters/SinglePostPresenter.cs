@@ -15,7 +15,12 @@ namespace Steepshot.Core.Presenters
 
         private async Task<ErrorBase> LoadPostInfo(string url, CancellationToken ct)
         {
-            var request = new NamedInfoModel(url) { Login = AppSettings.User.Login };
+            var request = new NamedInfoModel(url)
+            {
+                ShowNsfw = AppSettings.User.IsNsfw,
+                ShowLowRated = AppSettings.User.IsLowRated,
+                Login = AppSettings.User.Login
+            };
 
             var response = await Api.GetPostInfo(request, ct);
             var error = ResponseProcessing(response, nameof(TryLoadPostInfo));
