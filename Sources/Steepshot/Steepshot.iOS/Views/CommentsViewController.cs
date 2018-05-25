@@ -68,9 +68,7 @@ namespace Steepshot.iOS.Views
             _commentsTable.LayoutMargins = UIEdgeInsets.Zero;
             _commentsTable.RegisterClassForCellReuse(typeof(DescriptionTableViewCell), nameof(DescriptionTableViewCell));
             _commentsTable.RegisterNibForCellReuse(UINib.FromName(nameof(DescriptionTableViewCell), NSBundle.MainBundle), nameof(DescriptionTableViewCell));
-           // _commentsTable.RegisterClassForCellReuse(typeof(CommentTableViewCell), nameof(CommentTableViewCell));
-            //_commentsTable.RegisterNibForCellReuse(UINib.FromName(nameof(CommentTableViewCell), NSBundle.MainBundle), nameof(CommentTableViewCell));
-            _commentsTable.RegisterClassForCellReuse(typeof(NewCommentTableViewCell), nameof(NewCommentTableViewCell));
+            _commentsTable.RegisterClassForCellReuse(typeof(CommentTableViewCell), nameof(CommentTableViewCell));
 
             _commentsTable.RowHeight = UITableView.AutomaticDimension;
             _commentsTable.EstimatedRowHeight = 150f;

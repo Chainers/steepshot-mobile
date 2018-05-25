@@ -18,10 +18,11 @@ using Steepshot.iOS.Helpers;
 
 namespace Steepshot.iOS.Cells
 {
-    public class NewCommentTableViewCell : MGSwipeTableCell
+    public class CommentTableViewCell : MGSwipeTableCell
     {
         private Post _currentPost;
         private IScheduledWork _scheduledWorkAvatar;
+        private UIView[] rigthButtons;
 
         public bool IsCellActionSet => CellAction != null;
         public Action<ActionType, Post> CellAction;
@@ -42,7 +43,7 @@ namespace Steepshot.iOS.Cells
         private UILabel _costLabel;
         private UIStackView _bottomView;
 
-        protected NewCommentTableViewCell(IntPtr handle) : base(handle)
+        protected CommentTableViewCell(IntPtr handle) : base(handle)
         {
             _avatar = new UIImageView();
             _avatar.ContentMode = UIViewContentMode.ScaleAspectFill;
@@ -131,7 +132,10 @@ namespace Steepshot.iOS.Cells
 
             _costLabel = new UILabel();
             _costLabel.Font = Constants.Regular12;
-            //_costLabel.Hidden = true;
+            _costLabel.Hidden = true;
+#if DEBUG
+            _costLabel.Hidden = false;
+#endif
             _costLabel.TextColor = Constants.R151G155B158;
             _bottomView.AddArrangedSubview(_costLabel);
             _costLabel.SetContentHuggingPriority(251, UILayoutConstraintAxis.Horizontal);
@@ -175,7 +179,6 @@ namespace Steepshot.iOS.Cells
             _like.AddGestureRecognizer(liketap);
 
             _sliderView = new SliderView(UIScreen.MainScreen.Bounds.Width);
-            _sliderView.Frame = new CGRect(0, 0, UIScreen.MainScreen.Bounds.Width - 4, 70);
             _sliderView.LikeTap += () =>
             {
                 LikeTap();
@@ -183,7 +186,10 @@ namespace Steepshot.iOS.Cells
             BaseViewController.SliderAction += (isSliderOpening) =>
             {
                 if (_sliderView.Superview != null && !isSliderOpening)
+                {
+                    RightButtons = rigthButtons;
                     _sliderView.Close();
+                }
             };
 
             var likelongtap = new UILongPressGestureRecognizer((UILongPressGestureRecognizer obj) =>
@@ -194,6 +200,11 @@ namespace Steepshot.iOS.Cells
                     {
                         if (!BasePostPresenter.IsEnableVote || BaseViewController.IsSliderOpen)
                             return;
+                        rigthButtons = RightButtons;
+                        RightButtons = new UIView[0];
+
+                        _sliderView.Frame = new CGRect(4, ContentView.Frame.Height / 2 - 35, UIScreen.MainScreen.Bounds.Width - 8, 70);
+
                         BaseViewController.IsSliderOpen = true;
                         _sliderView.Show(this);
                     }
@@ -281,7 +292,6 @@ namespace Steepshot.iOS.Cells
                 rightButtons.Insert(0, deleteButton);
                 rightButtons.Insert(1, editButton);
             }
-
             RightButtons = rightButtons.ToArray();
         }
 

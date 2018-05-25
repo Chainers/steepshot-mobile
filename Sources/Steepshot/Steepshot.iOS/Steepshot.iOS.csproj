@@ -230,7 +230,6 @@
     <InterfaceDefinition Include="LaunchScreen.storyboard" />
     <InterfaceDefinition Include="Cells\TagCollectionViewCell.xib" />
     <InterfaceDefinition Include="Cells\FollowViewCell.xib" />
-    <InterfaceDefinition Include="Cells\CommentTableViewCell.xib" />
     <InterfaceDefinition Include="Views\ProfileHeaderViewController.xib" />
     <InterfaceDefinition Include="Cells\FeedCollectionViewCell.xib" />
     <InterfaceDefinition Include="Cells\UsersSearchViewCell.xib" />
@@ -288,9 +287,6 @@
     <Compile Include="ViewSources\FollowTableViewSource.cs" />
     <Compile Include="ViewSources\BaseTableSource.cs" />
     <Compile Include="Cells\CommentTableViewCell.cs" />
-    <Compile Include="Cells\CommentTableViewCell.designer.cs">
-      <DependentUpon>CommentTableViewCell.cs</DependentUpon>
-    </Compile>
     <Compile Include="ViewSources\CommentsTableViewSource.cs" />
     <Compile Include="Views\ProfileHeaderViewController.cs" />
     <Compile Include="Views\ProfileHeaderViewController.designer.cs">
