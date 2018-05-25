@@ -1,7 +1,6 @@
 ﻿using System;
 using FFImageLoading;
 using FFImageLoading.Work;
-using Foundation;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Extensions;
 using UIKit;
@@ -30,22 +29,17 @@ namespace Steepshot.iOS.Cells
         private MGSwipeButton deleteButton;
         private MGSwipeButton editButton;
         private MGSwipeButton flagButton;
-
         private SliderView _sliderView;
-
         private UIImageView _avatar;
         private UILabel _loginLabel;
         private UIView _profileTapView;
         private UILabel _timestamp;
-
         private UITextView _commentText;
         private UIImageView _like;
-
         private UILabel _replyLabel;
         private UILabel _likesLabel;
         private UILabel _flagsLabel;
         private UILabel _costLabel;
-
         private UIStackView _bottomView;
 
         protected NewCommentTableViewCell(IntPtr handle) : base(handle)
@@ -148,23 +142,28 @@ namespace Steepshot.iOS.Cells
 
             var tap = new UITapGestureRecognizer(() =>
             {
-                CellAction?.Invoke(ActionType.Profile, _currentPost);
+                if(SwipeState == MGSwipeState.None)
+                    CellAction?.Invoke(ActionType.Profile, _currentPost);
             });
             var costTap = new UITapGestureRecognizer(() =>
             {
-                CellAction?.Invoke(ActionType.Profile, _currentPost);
+                if (SwipeState == MGSwipeState.None)
+                    CellAction?.Invoke(ActionType.Profile, _currentPost);
             });
             var replyTap = new UITapGestureRecognizer(() =>
             {
-                CellAction?.Invoke(ActionType.Reply, _currentPost);
+                if (SwipeState == MGSwipeState.None)
+                    CellAction?.Invoke(ActionType.Reply, _currentPost);
             });
             var likersTap = new UITapGestureRecognizer(() =>
             {
-                CellAction?.Invoke(ActionType.Voters, _currentPost);
+                if (SwipeState == MGSwipeState.None)
+                    CellAction?.Invoke(ActionType.Voters, _currentPost);
             });
             var flagersTap = new UITapGestureRecognizer(() =>
             {
-                CellAction?.Invoke(ActionType.Flagers, _currentPost);
+                if (SwipeState == MGSwipeState.None)
+                    CellAction?.Invoke(ActionType.Flagers, _currentPost);
             });
             _replyLabel.AddGestureRecognizer(replyTap);
             _profileTapView.AddGestureRecognizer(tap);
