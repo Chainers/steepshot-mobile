@@ -69,7 +69,6 @@ namespace Steepshot.iOS.Views
             _commentsTable.RegisterClassForCellReuse(typeof(DescriptionTableViewCell), nameof(DescriptionTableViewCell));
             _commentsTable.RegisterNibForCellReuse(UINib.FromName(nameof(DescriptionTableViewCell), NSBundle.MainBundle), nameof(DescriptionTableViewCell));
             _commentsTable.RegisterClassForCellReuse(typeof(CommentTableViewCell), nameof(CommentTableViewCell));
-            _commentsTable.RegisterNibForCellReuse(UINib.FromName(nameof(CommentTableViewCell), NSBundle.MainBundle), nameof(CommentTableViewCell));
 
             _commentsTable.RowHeight = UITableView.AutomaticDimension;
             _commentsTable.EstimatedRowHeight = 150f;
@@ -146,7 +145,7 @@ namespace Steepshot.iOS.Views
 
             _rootView.AutoPinEdgeToSuperviewEdge(ALEdge.Top);
             if (DeviceModel.Model(DeviceHardware.HardwareModel) == "iPhone10,6")
-                _rootView.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom, 24);
+                _rootView.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom, 34);
             else
                 _rootView.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom);
             _rootView.AutoPinEdgeToSuperviewEdge(ALEdge.Left);
@@ -335,25 +334,38 @@ namespace Steepshot.iOS.Views
                 ((MainTabBarController)TabBarController)?.UpdateProfile();
         }
 
-        private async void CreateComment(object sender, EventArgs e)
+        private string CheckComment()
         {
             var textToSend = _commentTextView.Text.Trim();
 
             if (string.IsNullOrEmpty(textToSend))
             {
                 ShowAlert(LocalizationKeys.EmptyCommentField);
-                return;
+                return null;
             }
+            return textToSend;
+        }
+
+        private async void CreateComment(object sender, EventArgs e)
+        {
+            var textToSend = CheckComment();
+            if (textToSend == null)
+                return;
 
             _commentTextView.UserInteractionEnabled = false;
             _sendButton.Hidden = true;
             _sendProgressBar.StartAnimating();
 
             var response = await _presenter.TryCreateComment(Post, textToSend);
+
+            _sendProgressBar.StopAnimating();
+            _commentTextView.UserInteractionEnabled = true;
+            _sendButton.Hidden = false;
+
             if (response.IsSuccess)
             {
                 CancelTap(null, null);
-                _sendProgressBar.StopAnimating();
+               
                 var error = await _presenter.TryLoadNextComments(Post);
 
                 ShowAlert(error);
@@ -363,8 +375,6 @@ namespace Steepshot.iOS.Views
             }
             else
                 ShowAlert(response.Error);
-
-            _commentTextView.UserInteractionEnabled = true;
         }
 
         public async Task DeleteComment(Post post)
@@ -379,6 +389,9 @@ namespace Steepshot.iOS.Views
             }
 
             var error = await _presenter.TryDeleteComment(post, Post);
+
+            if(error == null)
+                Post.Children--;
 
             ShowAlert(error);
         }
@@ -448,11 +461,15 @@ namespace Steepshot.iOS.Views
 
         private async void SaveTap(object sender, EventArgs e)
         {
+            var textToSend = CheckComment();
+            if (textToSend == null)
+                return;
+
             _editProgressBar.StartAnimating();
             _saveButton.Hidden = true;
             _commentTextView.UserInteractionEnabled = false;
 
-            var error = await _presenter.TryEditComment(AppSettings.User.UserInfo, Post, _postToEdit, _commentTextView.Text, AppSettings.AppInfo);
+            var error = await _presenter.TryEditComment(AppSettings.User.UserInfo, Post, _postToEdit, textToSend, AppSettings.AppInfo);
 
             if (error == null)
                 CancelTap(null, null);

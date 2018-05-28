@@ -230,7 +230,6 @@
     <InterfaceDefinition Include="LaunchScreen.storyboard" />
     <InterfaceDefinition Include="Cells\TagCollectionViewCell.xib" />
     <InterfaceDefinition Include="Cells\FollowViewCell.xib" />
-    <InterfaceDefinition Include="Cells\CommentTableViewCell.xib" />
     <InterfaceDefinition Include="Views\ProfileHeaderViewController.xib" />
     <InterfaceDefinition Include="Cells\FeedCollectionViewCell.xib" />
     <InterfaceDefinition Include="Cells\UsersSearchViewCell.xib" />
@@ -288,9 +287,6 @@
     <Compile Include="ViewSources\FollowTableViewSource.cs" />
     <Compile Include="ViewSources\BaseTableSource.cs" />
     <Compile Include="Cells\CommentTableViewCell.cs" />
-    <Compile Include="Cells\CommentTableViewCell.designer.cs">
-      <DependentUpon>CommentTableViewCell.cs</DependentUpon>
-    </Compile>
     <Compile Include="ViewSources\CommentsTableViewSource.cs" />
     <Compile Include="Views\ProfileHeaderViewController.cs" />
     <Compile Include="Views\ProfileHeaderViewController.designer.cs">
@@ -537,12 +533,16 @@
     <BundleResource Include="Resources\ic_delete%402x.png" />
     <BundleResource Include="Resources\ic_flag%403x.png" />
     <BundleResource Include="Resources\ic_flag%402x.png" />
-    <BundleResource Include="Resources\ic_comment_like_inactive%403x.png" />
-    <BundleResource Include="Resources\ic_comment_like_inactive%402x.png" />
+    <BundleResource Include="Resources\ic_comment_like_inactive_disabled%403x.png" />
+    <BundleResource Include="Resources\ic_comment_like_inactive_disabled%402x.png" />
     <BundleResource Include="Resources\ic_comment_like_active%402x.png" />
     <BundleResource Include="Resources\ic_comment_like_active%403x.png" />
     <BundleResource Include="Resources\ic_info%402x.png" />
     <BundleResource Include="Resources\ic_info%403x.png" />
+    <BundleResource Include="Resources\ic_comment_like_active_disabled%402x.png" />
+    <BundleResource Include="Resources\ic_comment_like_active_disabled%403x.png" />
+    <BundleResource Include="Resources\ic_comment_like_inactive%402x.png" />
+    <BundleResource Include="Resources\ic_comment_like_inactive%403x.png" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="..\Steepshot.Android\Assets\Localization.en-us.txt">
