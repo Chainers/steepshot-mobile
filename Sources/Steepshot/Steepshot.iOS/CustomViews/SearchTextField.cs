@@ -29,7 +29,6 @@ namespace Steepshot.iOS.CustomViews
             var rightView = new UIView();
 
             Loader = new UIActivityIndicatorView();
-            Loader.StartAnimating();
             Loader.Color = Constants.R231G72B0;
             Loader.HidesWhenStopped = true;
 
@@ -38,9 +37,7 @@ namespace Steepshot.iOS.CustomViews
             ClearButton.SetImage(UIImage.FromBundle("ic_delete_tag"), UIControlState.Normal);
             ClearButton.TouchDown += (sender, e) =>
             {
-                Text = string.Empty;
-                ClearButton.Hidden = true;
-                ((TagFieldDelegate)Delegate).ChangeBackground(this);
+                Clear();
                 ClearButtonTapped?.Invoke();
             };
 
@@ -87,6 +84,7 @@ namespace Steepshot.iOS.CustomViews
         {
             Text = string.Empty;
             ClearButton.Hidden = true;
+            ((TagFieldDelegate)Delegate).ChangeBackground(this);
             LayoutLoader();
         }
 

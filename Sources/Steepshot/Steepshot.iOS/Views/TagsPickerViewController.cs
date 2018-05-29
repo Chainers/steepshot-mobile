@@ -176,7 +176,7 @@ namespace Steepshot.iOS.Views
             if (_tagField.Text.Length == 0)
                 error = await _presenter.TryGetTopTags();
             else if (_tagField.Text.Length > 1)
-                error = await _presenter.TryLoadNext(_tagField.Text);
+                error = await _presenter.TryLoadNext(_tagField.Text, showUnknownTag : true);
 
             if(!(error is CanceledError))
                 _tagField.Loader.StopAnimating();
@@ -197,7 +197,7 @@ namespace Steepshot.iOS.Views
                 return;
             }
 
-            if (!string.IsNullOrWhiteSpace(txt))
+            if (!string.IsNullOrWhiteSpace(txt) && _viewSource.LocalTags.Count < 20)
             {
                 if (shouldClear)
                     _tagField.Clear();

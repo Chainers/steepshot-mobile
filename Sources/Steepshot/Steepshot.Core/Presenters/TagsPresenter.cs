@@ -13,12 +13,12 @@ namespace Steepshot.Core.Presenters
     {
         private const int ItemsLimit = 40;
 
-        public async Task<ErrorBase> TryLoadNext(string s, bool shouldClear = true)
+        public async Task<ErrorBase> TryLoadNext(string s, bool shouldClear = true, bool showUnknownTag = false)
         {
-            return await RunAsSingleTask(LoadNext, new Tuple<string, bool>(s, shouldClear));
+            return await RunAsSingleTask(LoadNext, new Tuple<string, bool, bool>(s, shouldClear, showUnknownTag));
         }
 
-        private async Task<ErrorBase> LoadNext(Tuple<string, bool> queryParams, CancellationToken ct)
+        private async Task<ErrorBase> LoadNext(Tuple<string, bool, bool> queryParams, CancellationToken ct)
         {
             if (queryParams.Item2)
                 Clear();
@@ -44,7 +44,7 @@ namespace Steepshot.Core.Presenters
                     }
                     OffsetUrl = tags.Last().Name;
                 }
-                else if (Items.Count == 0 || Items.Count == 1)
+                else if ((Items.Count == 0 || Items.Count == 1) && queryParams.Item3)
                     lock (Items)
                         Items.Add(new SearchResult() { Name = queryParams.Item1 });
 
