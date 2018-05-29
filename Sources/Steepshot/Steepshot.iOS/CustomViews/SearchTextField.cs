@@ -1,6 +1,7 @@
 ﻿using System;
 using CoreGraphics;
 using Foundation;
+using PureLayout.Net;
 using Steepshot.iOS.Helpers;
 using UIKit;
 
@@ -8,20 +9,33 @@ namespace Steepshot.iOS.CustomViews
 {
     public class SearchTextField : UITextField
     {
+        public Action ClearButtonTapped;
+        private NSLayoutConstraint _loaderLeftMargin;
+
         public UIButton ClearButton
         {
             get;
             private set;
         }
 
-        public Action ClearButtonTapped;
+        public UIActivityIndicatorView Loader
+        {
+            get;
+            private set;
+        }
 
         public SearchTextField(Action returnButtonTapped, string placeholder)
         {
+            var rightView = new UIView();
+
+            Loader = new UIActivityIndicatorView();
+            Loader.StartAnimating();
+            Loader.Color = Constants.R231G72B0;
+            Loader.HidesWhenStopped = true;
+
             ClearButton = new UIButton();
             ClearButton.Hidden = true;
             ClearButton.SetImage(UIImage.FromBundle("ic_delete_tag"), UIControlState.Normal);
-            ClearButton.Frame = new CGRect(0, 0, 16, 16);
             ClearButton.TouchDown += (sender, e) =>
             {
                 Text = string.Empty;
@@ -29,7 +43,18 @@ namespace Steepshot.iOS.CustomViews
                 ((TagFieldDelegate)Delegate).ChangeBackground(this);
                 ClearButtonTapped?.Invoke();
             };
-            RightView = ClearButton;
+
+            rightView.AddSubview(Loader);
+            rightView.AddSubview(ClearButton);
+
+            ClearButton.AutoSetDimensionsToSize(new CGSize(16,16));
+            Loader.AutoSetDimensionsToSize(new CGSize(16, 16));
+            ClearButton.AutoPinEdge(ALEdge.Left, ALEdge.Right, Loader, 5);
+            _loaderLeftMargin = Loader.AutoPinEdgeToSuperviewEdge(ALEdge.Left);
+            Loader.AutoPinEdgeToSuperviewEdge(ALEdge.Top);
+
+            RightView = rightView;
+            rightView.AutoSetDimensionsToSize(new CGSize(37, 16));
             RightViewMode = UITextFieldViewMode.Always;
 
             var _searchPlaceholderAttributes = new UIStringAttributes
@@ -49,17 +74,28 @@ namespace Steepshot.iOS.CustomViews
 
             Delegate = new TagFieldDelegate(returnButtonTapped);
             EditingChanged += DoEditingChanged;
+            LayoutLoader();
         }
 
         private void DoEditingChanged(object sender, EventArgs e)
         {
             ClearButton.Hidden = Text.Length == 0;
+            LayoutLoader();
         }
 
         public void Clear()
         {
             Text = string.Empty;
             ClearButton.Hidden = true;
+            LayoutLoader();
+        }
+
+        private void LayoutLoader()
+        {
+            if (ClearButton.Hidden)
+                _loaderLeftMargin.Constant = 21;
+            else
+                _loaderLeftMargin.Constant = 0;
         }
 
         public override CGRect TextRect(CGRect forBounds)
