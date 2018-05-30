@@ -107,6 +107,8 @@ namespace Steepshot.iOS.Views
             _commentsTextViewDelegate.ChangedAction += (gh) =>
             {
                 _commentViewHeight.Constant = _commentTextViewHeight.Constant = gh;
+                if (_postToEdit != null && _postToEdit.Editing)
+                    _saveButton.Enabled = _postToEdit.Body != _commentTextView.Text;
             };
 
             _commentTextView.Delegate = _commentsTextViewDelegate;
@@ -234,6 +236,9 @@ namespace Steepshot.iOS.Views
 
         private void CellAction(ActionType type, Post post)
         {
+            if (_postToEdit != null && _postToEdit.Editing)
+                return;
+
             switch (type)
             {
                 case ActionType.Profile:
@@ -425,12 +430,12 @@ namespace Steepshot.iOS.Views
                 _postToEdit.Editing = false;
                 _commentsTable.ReloadData();
             }
+            _saveButton.Enabled = false;
             _commentTextView.BecomeFirstResponder();
             _buttonsContainer.Hidden = false;
             _sendButton.Hidden = true;
             Activeview = _buttonsContainer;
             _postToEdit = post;
-
             _commentTextView.Text = post.Body;
             _commentsTextViewDelegate.Changed(_commentTextView);
             _commentTextView.BackgroundColor = UIColor.FromRGB(255, 235, 143).ColorWithAlpha(0.5f);
