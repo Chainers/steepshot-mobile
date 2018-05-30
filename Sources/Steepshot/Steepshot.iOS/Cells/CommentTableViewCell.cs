@@ -283,16 +283,21 @@ namespace Steepshot.iOS.Cells
             _likesLabel.Hidden = _currentPost.NetLikes == 0;
             _replyLabel.Hidden = _currentPost.Author == AppSettings.User.Login || !AppSettings.User.IsAuthenticated;
 
-            var rightButtons = new List<MGSwipeButton>();
-
-            if (_currentPost.Author != AppSettings.User.Login)
-                rightButtons.Add(flagButton);
-            else if (_currentPost.CashoutTime > DateTime.Now)
+            if (_currentPost.Body != Core.Constants.DeletedPostText)
             {
-                rightButtons.Insert(0, deleteButton);
-                rightButtons.Insert(1, editButton);
+                var rightButtons = new List<MGSwipeButton>();
+
+                if (_currentPost.Author != AppSettings.User.Login)
+                    rightButtons.Add(flagButton);
+                else if (_currentPost.CashoutTime > DateTime.Now)
+                {
+                    rightButtons.Insert(0, deleteButton);
+                    rightButtons.Insert(1, editButton);
+                }
+                RightButtons = rightButtons.ToArray();
             }
-            RightButtons = rightButtons.ToArray();
+            else
+                RightButtons = new UIView[0];
         }
 
         private void Animate()
