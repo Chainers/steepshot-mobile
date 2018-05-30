@@ -255,13 +255,15 @@ namespace Steepshot.iOS.Views
                     NavigationController.PushViewController(new VotersViewController(post, VotersType.Flags, true), true);
                     break;
                 case ActionType.Like:
-                    Vote(post);
+                    if (post.Body != Core.Constants.DeletedPostText)
+                        Vote(post);
                     break;
                 case ActionType.Delete:
                     DeleteComment(post);
                     break;
                 case ActionType.Reply:
-                    Reply(post);
+                    if (post.Body != Core.Constants.DeletedPostText)
+                        Reply(post);
                     break;
                 case ActionType.Edit:
                     EditComment(post);
