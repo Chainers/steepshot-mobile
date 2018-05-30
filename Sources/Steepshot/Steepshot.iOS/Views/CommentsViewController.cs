@@ -236,7 +236,7 @@ namespace Steepshot.iOS.Views
 
         private void CellAction(ActionType type, Post post)
         {
-            if (_postToEdit != null && _postToEdit.Editing)
+            if (_postToEdit != null && _postToEdit.Editing && type != ActionType.Edit)
                 return;
 
             switch (type)
