@@ -208,7 +208,7 @@ namespace Steepshot.iOS.Views
             usersTable.RegisterClassForCellReuse(typeof(LoaderCell), nameof(LoaderCell));
             usersTable.RowHeight = 70f;
 
-            var _tagsSource = new TagsTableViewSource(_searchFacade.TagsPresenter, true);
+            var _tagsSource = new TagsTableViewSource(_searchFacade.TagsPresenter, tagsTable, true);
             _tagsSource.CellAction += CellAction;
             tagsTable.Source = _tagsSource;
             tagsTable.AllowsSelection = false;

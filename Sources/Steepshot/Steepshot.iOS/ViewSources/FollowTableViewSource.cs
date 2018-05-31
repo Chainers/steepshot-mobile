@@ -8,7 +8,7 @@ using UIKit;
 
 namespace Steepshot.iOS.ViewSources
 {
-    public class FollowTableViewSource : BaseUiTableViewSource<UserFriend>
+    public class FollowTableViewSource : BaseUITableViewSource
     {
         string _cellIdentifier = nameof(FollowViewCell);
         string _loaderCellIdentifier = nameof(LoaderCell);
@@ -29,7 +29,7 @@ namespace Steepshot.iOS.ViewSources
                 if (!((FollowViewCell)cell).IsCellActionSet)
                     ((FollowViewCell)cell).CellAction += CellAction;
 
-                var user = Presenter[indexPath.Row];
+                var user = ((UserFriendPresenter)Presenter)[indexPath.Row];
                 if (user != null)
                     ((FollowViewCell)cell).UpdateCell(user);
             }

@@ -150,5 +150,6 @@
         EmptyCommentField,
         TagSearchWarning,
         NoResultText,
+        DuplicateTag,
     }
 }

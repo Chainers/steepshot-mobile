@@ -72,11 +72,6 @@ namespace Steepshot.iOS.Views
             NavigationItem.Title = _presenter.VotersType.GetDescription();
         }
 
-        private void GoBack(object sender, EventArgs e)
-        {
-            NavigationController.PopViewController(true);
-        }
-
         private void CellAction(ActionType type, UserFriend user)
         {
             switch (type)
