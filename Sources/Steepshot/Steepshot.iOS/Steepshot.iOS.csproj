@@ -109,9 +109,6 @@
     <Reference Include="Cryptography.ECDSA, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Cryptography.ECDSA.Secp256K1.1.1.0\lib\netstandard2.0\Cryptography.ECDSA.dll</HintPath>
     </Reference>
-    <Reference Include="Ditch.Core, Version=3.1.3.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Ditch.Core.3.1.3\lib\netstandard2.0\Ditch.Core.dll</HintPath>
-    </Reference>
     <Reference Include="Ditch.Golos, Version=3.1.3.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Ditch.Golos.3.1.3\lib\netstandard2.0\Ditch.Golos.dll</HintPath>
     </Reference>
@@ -183,6 +180,9 @@
     </Reference>
     <Reference Include="MGSwipeTableCell">
       <HintPath>..\packages\MGSwipeTableCell.1.0.0\lib\Xamarin.iOS10\MGSwipeTableCell.dll</HintPath>
+    </Reference>
+    <Reference Include="Ditch.Core, Version=3.1.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Ditch.Core.3.1.3\lib\netstandard2.0\Ditch.Core.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -420,6 +420,7 @@
       <DependentUpon>DescriptionTableViewCell.cs</DependentUpon>
     </Compile>
     <Compile Include="Views\TagsSearchViewControllerDesign.cs" />
+    <Compile Include="Views\RegistrationViewController.cs" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\ic_photo_holder.png" />
