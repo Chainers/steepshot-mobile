@@ -201,7 +201,7 @@ namespace Steepshot.Activity
 
         public void OnBitmapLoaded(Bitmap p0, Picasso.LoadedFrom p1)
         {
-            _profileImage.SetImageBitmap(p0);
+            _profileImage?.SetImageBitmap(p0);
         }
 
         public void OnPrepareLoad(Drawable p0)

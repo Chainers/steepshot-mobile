@@ -91,7 +91,7 @@ namespace Steepshot.Fragment
                 {
                     _profilePagerAdapter = new PostPagerAdapter<PreSearchPresenter>(_postPager, Context, Presenter);
                     _profilePagerAdapter.PostAction += PostAction;
-                    _profilePagerAdapter.TagAction += TagAction;
+                    _profilePagerAdapter.AutoLinkAction += AutoLinkAction;
                     _profilePagerAdapter.CloseAction += CloseAction;
                 }
                 return _profilePagerAdapter;
@@ -107,7 +107,7 @@ namespace Steepshot.Fragment
                 {
                     _profileFeedAdapter = new FeedAdapter<PreSearchPresenter>(Context, Presenter);
                     _profileFeedAdapter.PostAction += PostAction;
-                    _profileFeedAdapter.TagAction += TagAction;
+                    _profileFeedAdapter.AutoLinkAction += AutoLinkAction;
                 }
                 return _profileFeedAdapter;
             }
@@ -581,17 +581,6 @@ namespace Steepshot.Fragment
                         break;
                     }
             }
-        }
-
-        private void TagAction(string tag)
-        {
-            if (tag != null)
-            {
-                Activity.Intent.PutExtra(SearchFragment.SearchExtra, tag);
-                ((BaseActivity)Activity).OpenNewContentFragment(new PreSearchFragment());
-            }
-            else
-                _adapter.NotifyDataSetChanged();
         }
 
         private void CloseAction()

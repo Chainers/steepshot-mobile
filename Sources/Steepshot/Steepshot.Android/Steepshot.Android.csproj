@@ -67,7 +67,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Base\App.cs" />
+    <Compile Include="CustomViews\AccurateMovementMethod.cs" />
+    <Compile Include="CustomViews\AutoLinkTextView.cs" />
     <Compile Include="CustomViews\MediaPager.cs" />
+    <Compile Include="CustomViews\TouchableSpan.cs" />
     <Compile Include="Fragment\PostCreateFragment.cs" />
     <Compile Include="Fragment\PostPrepareBaseFragment.cs" />
     <Compile Include="Utils\TextInputFilter.cs" />

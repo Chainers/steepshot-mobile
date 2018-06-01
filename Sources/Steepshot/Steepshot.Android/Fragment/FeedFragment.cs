@@ -67,7 +67,7 @@ namespace Steepshot.Fragment
                 Presenter.SourceChanged += PresenterSourceChanged;
                 _adapter = new FeedAdapter<FeedPresenter>(Context, Presenter);
                 _adapter.PostAction += PostAction;
-                _adapter.TagAction += TagAction;
+                _adapter.AutoLinkAction += AutoLinkAction;
 
                 _logo.Click += OnLogoClick;
                 _browseButton.Click += GoToBrowseButtonClick;
@@ -91,7 +91,7 @@ namespace Steepshot.Fragment
 
                 _postPagerAdapter = new PostPagerAdapter<FeedPresenter>(_postPager, Context, Presenter);
                 _postPagerAdapter.PostAction += PostAction;
-                _postPagerAdapter.TagAction += TagAction;
+                _postPagerAdapter.AutoLinkAction += AutoLinkAction;
                 _postPagerAdapter.CloseAction += CloseAction;
 
                 _postPager.Adapter = _postPagerAdapter;
@@ -333,17 +333,6 @@ namespace Steepshot.Fragment
                         break;
                     }
             }
-        }
-
-        private void TagAction(string tag)
-        {
-            if (tag != null)
-            {
-                Activity.Intent.PutExtra(SearchFragment.SearchExtra, tag);
-                ((BaseActivity)Activity).OpenNewContentFragment(new PreSearchFragment());
-            }
-            else
-                _adapter.NotifyDataSetChanged();
         }
 
         private void CloseAction()
