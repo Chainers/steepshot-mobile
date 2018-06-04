@@ -19,6 +19,7 @@
         EmptyActiveKey,
         EmptyCategory,
         PhotoProcessingError,
+        PhotoUploadError,
         ErrorCameraScale,
         ErrorCameraZoom,
         InternetUnavailable,

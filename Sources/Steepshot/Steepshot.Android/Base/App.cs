@@ -21,7 +21,8 @@ namespace Steepshot.Base
         {
         }
 
-        protected static LruCache Cache;
+        public static LruCache Cache;
+
         public override void OnCreate()
         {
             base.OnCreate();
