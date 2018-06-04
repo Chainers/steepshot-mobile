@@ -47,7 +47,7 @@ namespace Steepshot.iOS.CustomViews
             Font = Constants.Regular14;
             Layer.CornerRadius = 20;
 
-            Delegate = new TagFieldDelegate(returnButtonTapped);
+            Delegate = new TagFieldDelegate() { DoneTapped = returnButtonTapped };
             EditingChanged += DoEditingChanged;
         }
 

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading;
-using Foundation;
 using PureLayout.Net;
 using Steepshot.Core.Errors;
 using Steepshot.Core.Presenters;
@@ -38,13 +37,21 @@ namespace Steepshot.iOS.Views
             base.ViewDidLoad();
             View.BackgroundColor = UIColor.White;
 
+            var tapGesture = new UITapGestureRecognizer(() => 
+            {
+                _email.ResignFirstResponder();
+                _username.ResignFirstResponder();
+            });
+            View.AddGestureRecognizer(tapGesture);
+            View.UserInteractionEnabled = true;
+
             _timer = new Timer(OnTimer);
             _mailChecker = new StringHelper();
 
             _createAcc = new UIButton();
             _createAcc.SetTitle("Create account", UIControlState.Normal);
             _createAcc.Font = Constants.Bold14;
-            _createAcc.TouchDown += _createAcc_TouchDown;
+            _createAcc.TouchDown += CreateAccount;
             View.Add(_createAcc);
 
             _createAcc.AutoAlignAxisToSuperviewAxis(ALAxis.Horizontal);
@@ -72,17 +79,27 @@ namespace Steepshot.iOS.Views
             _emailLabel.AutoPinEdge(ALEdge.Right, ALEdge.Right, _emailUnderline);
 
             _email = new UITextField();
+            var emailDelegate = new BaseTextFieldDelegate();
+            _email.Delegate = emailDelegate;
+            emailDelegate.DoneTapped += () =>
+            {
+                _email.ResignFirstResponder();
+                CreateAccount(null, null);
+            };
             _email.Placeholder = "Email address";
             _email.KeyboardType = UIKeyboardType.EmailAddress;
             _email.AutocorrectionType = UITextAutocorrectionType.No;
             _email.AutocapitalizationType = UITextAutocapitalizationType.None;
             _email.TextAlignment = UITextAlignment.Center;
+            _email.ReturnKeyType = UIReturnKeyType.Go;
             _email.EditingChanged += CheckMail;
+
             View.AddSubview(_email);
 
             _email.AutoPinEdge(ALEdge.Bottom, ALEdge.Top, _emailUnderline, -7);
             _email.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 35);
             _email.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 35);
+            _email.AutoSetDimension(ALDimension.Height, 30);
 
             _usernameUnderline = new UIView();
             _usernameUnderline.BackgroundColor = Constants.R240G240B240;
@@ -104,10 +121,17 @@ namespace Steepshot.iOS.Views
             _usernameLabel.AutoPinEdge(ALEdge.Right, ALEdge.Right, _usernameUnderline);
 
             _username = new UITextField();
+            var usernameDelegate = new UsernameDelegate();
+            _username.Delegate = usernameDelegate;
+            usernameDelegate.DoneTapped += () => 
+            {
+                _email.BecomeFirstResponder();
+            };
             _username.Placeholder = "Username";
             _username.AutocorrectionType = UITextAutocorrectionType.No;
             _username.AutocapitalizationType = UITextAutocapitalizationType.None;
             _username.TextAlignment = UITextAlignment.Center;
+            _username.ReturnKeyType = UIReturnKeyType.Next;
             _username.EditingChanged += (object sender, EventArgs e) => 
             {
                 _timer.Change(500, Timeout.Infinite);
@@ -117,6 +141,7 @@ namespace Steepshot.iOS.Views
             _username.AutoPinEdge(ALEdge.Bottom, ALEdge.Top, _usernameUnderline, -7);
             _username.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 35);
             _username.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 35);
+            _username.AutoSetDimension(ALDimension.Height, 30);
 
             _loader = new UIActivityIndicatorView();
             _loader.Color = Constants.R231G72B0;
@@ -135,12 +160,22 @@ namespace Steepshot.iOS.Views
 
             _registrationLoader.AutoAlignAxis(ALAxis.Horizontal, _createAcc);
             _registrationLoader.AutoAlignAxis(ALAxis.Vertical, _createAcc);
+
+            SetBackButton();
         }
 
         public override void ViewDidLayoutSubviews()
         {
             base.ViewDidLayoutSubviews();
             Constants.CreateGradient(_createAcc, 25);
+        }
+
+        private void SetBackButton()
+        {
+            var leftBarButton = new UIBarButtonItem(UIImage.FromBundle("ic_back_arrow"), UIBarButtonItemStyle.Plain, GoBack);
+            NavigationItem.LeftBarButtonItem = leftBarButton;
+            NavigationController.NavigationBar.TintColor = Helpers.Constants.R15G24B30;
+            NavigationItem.Title = "Create account"; //AppSettings.LocalizationManager.GetText(LocalizationKeys.Comments);
         }
 
         private void CheckMail(object sender, EventArgs e)
@@ -191,7 +226,7 @@ namespace Steepshot.iOS.Views
             _loader.StopAnimating();
         }
 
-        private void _createAcc_TouchDown(object sender, EventArgs e)
+        private void CreateAccount(object sender, EventArgs e)
         {
             if (_loader.IsAnimating)
                 return;
@@ -205,12 +240,11 @@ namespace Steepshot.iOS.Views
             }
 
             CheckMail(null, null);
-            if (!_usernameLabel.Hidden && !_emailLabel.Hidden)
+            if (!_usernameLabel.Hidden || !_emailLabel.Hidden)
                 return;
             
             _registrationLoader.StartAnimating();
             _createAcc.SetTitleColor(UIColor.Clear, UIControlState.Normal);
         }
-
     }
 }
