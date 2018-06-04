@@ -51,8 +51,7 @@ namespace Steepshot.Core.HttpClient
                 if (!EnableWrite)
                 {
                     var cUrls = new List<string> { "wss://golosd.steepshot.org", "wss://ws.golos.io" };
-                    var conectedTo = _operationManager.TryConnectTo(cUrls, token);
-                    if (!string.IsNullOrEmpty(conectedTo))
+                    if (_operationManager.TryConnectTo(cUrls, token))
                         EnableWrite = true;
                 }
             }
