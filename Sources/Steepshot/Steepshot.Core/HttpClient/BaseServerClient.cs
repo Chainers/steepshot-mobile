@@ -21,6 +21,7 @@ namespace Steepshot.Core.HttpClient
         public volatile bool EnableRead;
         public ApiGateway Gateway;
         protected JsonNetConverter JsonConverter;
+        protected string BaseUrl;
 
         #region Get requests
 
@@ -38,7 +39,7 @@ namespace Steepshot.Core.HttpClient
             AddLoginParameter(parameters, model.Login);
             AddCensorParameters(parameters, model);
 
-            var endpoint = $"{GatewayVersion.V1P1}/user/{model.Username}/posts";
+            var endpoint = $"{BaseUrl}/{GatewayVersion.V1P1}/user/{model.Username}/posts";
             return await Gateway.Get<ListResponse<Post>>(endpoint, parameters, token);
         }
 
@@ -56,7 +57,7 @@ namespace Steepshot.Core.HttpClient
             AddLoginParameter(parameters, request.Login);
             AddCensorParameters(parameters, request);
 
-            var endpoint = $"{GatewayVersion.V1P1}/recent";
+            var endpoint = $"{BaseUrl}/{GatewayVersion.V1P1}/recent";
             return await Gateway.Get<ListResponse<Post>>(endpoint, parameters, token);
         }
 
@@ -74,7 +75,7 @@ namespace Steepshot.Core.HttpClient
             AddLoginParameter(parameters, model.Login);
             AddCensorParameters(parameters, model);
 
-            var endpoint = $"{GatewayVersion.V1P1}/posts/{model.Type.ToString().ToLowerInvariant()}";
+            var endpoint = $"{BaseUrl}/{GatewayVersion.V1P1}/posts/{model.Type.ToString().ToLowerInvariant()}";
             return await Gateway.Get<ListResponse<Post>>(endpoint, parameters, token);
         }
 
@@ -92,7 +93,7 @@ namespace Steepshot.Core.HttpClient
             AddLoginParameter(parameters, model.Login);
             AddCensorParameters(parameters, model);
 
-            var endpoint = $"{GatewayVersion.V1P1}/posts/{model.Category}/{model.Type.ToString().ToLowerInvariant()}";
+            var endpoint = $"{BaseUrl}/{GatewayVersion.V1P1}/posts/{model.Category}/{model.Type.ToString().ToLowerInvariant()}";
             return await Gateway.Get<ListResponse<Post>>(endpoint, parameters, token);
         }
 
@@ -111,7 +112,7 @@ namespace Steepshot.Core.HttpClient
             if (!string.IsNullOrEmpty(model.Login))
                 AddLoginParameter(parameters, model.Login);
 
-            var endpoint = $"{GatewayVersion.V1P1}/post/{model.Url}/voters";
+            var endpoint = $"{BaseUrl}/{GatewayVersion.V1P1}/post/{model.Url}/voters";
             return await Gateway.Get<ListResponse<UserFriend>>(endpoint, parameters, token);
         }
 
@@ -128,7 +129,7 @@ namespace Steepshot.Core.HttpClient
             AddOffsetLimitParameters(parameters, model.Offset, model.Limit);
             AddLoginParameter(parameters, model.Login);
 
-            var endpoint = $"{GatewayVersion.V1P1}/post/{model.Url}/comments";
+            var endpoint = $"{BaseUrl}/{GatewayVersion.V1P1}/post/{model.Url}/comments";
             var resp = await Gateway.Get<ListResponse<Post>>(endpoint, parameters, token);
             if (resp.IsSuccess)
                 resp.Result.Results.ForEach(p => p.IsComment = true);
@@ -150,7 +151,7 @@ namespace Steepshot.Core.HttpClient
             parameters.Add("show_nsfw", Convert.ToInt32(model.ShowNsfw));
             parameters.Add("show_low_rated", Convert.ToInt32(model.ShowLowRated));
 
-            var endpoint = $"{GatewayVersion.V1P1}/user/{model.Username}/info";
+            var endpoint = $"{BaseUrl}/{GatewayVersion.V1P1}/user/{model.Username}/info";
             return await Gateway.Get<UserProfileResponse>(endpoint, parameters, token);
         }
 
@@ -167,7 +168,7 @@ namespace Steepshot.Core.HttpClient
             AddOffsetLimitParameters(parameters, model.Offset, model.Limit);
             AddLoginParameter(parameters, model.Login);
 
-            var endpoint = $"{GatewayVersion.V1P1}/user/{model.Username}/{model.Type.ToString().ToLowerInvariant()}";
+            var endpoint = $"{BaseUrl}/{GatewayVersion.V1P1}/user/{model.Username}/{model.Type.ToString().ToLowerInvariant()}";
             return await Gateway.Get<ListResponse<UserFriend>>(endpoint, parameters, token);
         }
 
@@ -184,7 +185,7 @@ namespace Steepshot.Core.HttpClient
             AddLoginParameter(parameters, model.Login);
             AddCensorParameters(parameters, model);
 
-            var endpoint = $"{GatewayVersion.V1P1}/post/{model.Url}/info";
+            var endpoint = $"{BaseUrl}/{GatewayVersion.V1P1}/post/{model.Url}/info";
             return await Gateway.Get<Post>(endpoint, parameters, token);
         }
 
@@ -202,7 +203,7 @@ namespace Steepshot.Core.HttpClient
             AddOffsetLimitParameters(parameters, model.Offset, model.Limit);
             parameters.Add("query", model.Query);
 
-            var endpoint = $"{GatewayVersion.V1P1}/user/search";
+            var endpoint = $"{BaseUrl}/{GatewayVersion.V1P1}/user/search";
             return await Gateway.Get<ListResponse<UserFriend>>(endpoint, parameters, token);
         }
 
@@ -216,7 +217,7 @@ namespace Steepshot.Core.HttpClient
                 return new OperationResult<UserExistsResponse>(new ValidationError(results));
 
             var parameters = new Dictionary<string, object>();
-            var endpoint = $"{GatewayVersion.V1}/user/{model.Username}/exists";
+            var endpoint = $"{BaseUrl}/{GatewayVersion.V1}/user/{model.Username}/exists";
             return await Gateway.Get<UserExistsResponse>(endpoint, parameters, token);
         }
 
@@ -231,7 +232,7 @@ namespace Steepshot.Core.HttpClient
 
             var parameters = new Dictionary<string, object>();
             AddOffsetLimitParameters(parameters, request.Offset, request.Limit);
-            var endpoint = $"{GatewayVersion.V1}/categories/top";
+            var endpoint = $"{BaseUrl}/{GatewayVersion.V1}/categories/top";
             var result = await Gateway.Get<ListResponse<SearchResult>>(endpoint, parameters, token);
 
             if (result.IsSuccess)
@@ -263,7 +264,7 @@ namespace Steepshot.Core.HttpClient
             var parameters = new Dictionary<string, object>();
             AddOffsetLimitParameters(parameters, model.Offset, model.Limit);
             parameters.Add("query", model.Query);
-            var endpoint = $"{GatewayVersion.V1P1}/categories/search";
+            var endpoint = $"{BaseUrl}/{GatewayVersion.V1P1}/categories/search";
             var result = await Gateway.Get<ListResponse<SearchResult>>(endpoint, parameters, token);
 
             if (result.IsSuccess)
@@ -290,7 +291,7 @@ namespace Steepshot.Core.HttpClient
                 if (!string.IsNullOrEmpty(target))
                     parameters.Add("target", target);
 
-                endpoint = $"{GatewayVersion.V1}/log/{endpoint}";
+                endpoint = $"{BaseUrl}/{GatewayVersion.V1}/log/{endpoint}";
                 var result = await Gateway.Post<VoidResponse>(endpoint, parameters, token);
                 if (result.IsSuccess)
                     result.Result = new VoidResponse();
@@ -308,7 +309,7 @@ namespace Steepshot.Core.HttpClient
             if (!EnableRead)
                 return null;
 
-            var endpoint = $"{GatewayVersion.V1}/beneficiaries";
+            var endpoint = $"{BaseUrl}/{GatewayVersion.V1}/beneficiaries";
             return await Gateway.Get<BeneficiariesResponse>(endpoint, token);
         }
 
@@ -317,7 +318,7 @@ namespace Steepshot.Core.HttpClient
             if (!EnableRead)
                 return null;
 
-            var endpoint = $"{GatewayVersion.V1P1}/user/{username}/spam";
+            var endpoint = $"{BaseUrl}/{GatewayVersion.V1P1}/user/{username}/spam";
             var result = await Gateway.Get<SpamResponse>(endpoint, token);
             return result;
         }
@@ -330,7 +331,7 @@ namespace Steepshot.Core.HttpClient
             if (results.Any())
                 return new OperationResult<PreparePostResponse>(new ValidationError(results));
 
-            var endpoint = $"{GatewayVersion.V1P1}/post/prepare";
+            var endpoint = $"{BaseUrl}/{GatewayVersion.V1P1}/post/prepare";
             return await Gateway.Post<PreparePostResponse, PreparePostModel>(endpoint, model, ct);
         }
 

@@ -8,7 +8,7 @@ namespace Steepshot.Core.Authority
 {
     public sealed class User
     {
-        private readonly IDataProvider _data;
+        private readonly UserManager _data;
 
         public UserInfo UserInfo { get; private set; }
 

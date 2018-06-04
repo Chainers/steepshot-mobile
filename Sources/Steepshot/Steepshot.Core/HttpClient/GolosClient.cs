@@ -19,6 +19,7 @@ using Steepshot.Core.Errors;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Localization;
 using Cryptography.ECDSA;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.HttpClient
 {
@@ -34,9 +35,7 @@ namespace Steepshot.Core.HttpClient
 
         public GolosClient(JsonNetConverter jsonConverter) : base(jsonConverter)
         {
-            var jss = GetJsonSerializerSettings();
-            var cm = new WebSocketManager(jss);
-            _operationManager = new OperationManager(cm, jss);
+            _operationManager = new OperationManager();
         }
 
         public override bool TryReconnectChain(CancellationToken token)
@@ -50,9 +49,12 @@ namespace Steepshot.Core.HttpClient
                 Monitor.Enter(SyncConnection, ref lockWasTaken);
                 if (!EnableWrite)
                 {
-                    var cUrls = new List<string> { "wss://golosd.steepshot.org", "wss://ws.golos.io" };
-                    var conectedTo = _operationManager.TryConnectTo(cUrls, token);
-                    if (!string.IsNullOrEmpty(conectedTo))
+                    var cUrls = AppSettings.ConfigManager.GolosNodeConfigs
+                        .Where(n => n.IsEnabled)
+                        .OrderBy(n => n.Order)
+                        .Select(n => n.Url)
+                        .ToArray();
+                    if (cUrls.Any() && _operationManager.TryConnectTo(cUrls, token))
                         EnableWrite = true;
                 }
             }

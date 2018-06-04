@@ -34,9 +34,7 @@ namespace Steepshot.Core.HttpClient
 
         public SteemClient(JsonNetConverter jsonConverter) : base(jsonConverter)
         {
-            var jss = GetJsonSerializerSettings();
-            var cm = new HttpManager(jss);
-            _operationManager = new OperationManager(cm, jss);
+            _operationManager = new OperationManager();
         }
 
         public override bool TryReconnectChain(CancellationToken token)
@@ -50,9 +48,12 @@ namespace Steepshot.Core.HttpClient
                 Monitor.Enter(SyncConnection, ref lockWasTaken);
                 if (!EnableWrite)
                 {
-                    var cUrls = new List<string> { "https://steemd.steepshot.org", "https://api.steemit.com" };
-                    var conectedTo = _operationManager.TryConnectTo(cUrls, token);
-                    if (!string.IsNullOrEmpty(conectedTo))
+                    var cUrls = AppSettings.ConfigManager.SteemNodeConfigs
+                        .Where(n => n.IsEnabled)
+                        .OrderBy(n => n.Order)
+                        .Select(n => n.Url)
+                        .ToArray();
+                    if (cUrls.Any() && _operationManager.TryConnectTo(cUrls, token))
                         EnableWrite = true;
                 }
             }

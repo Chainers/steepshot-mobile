@@ -1,21 +1,19 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Steepshot.Core.Services;
-using Steepshot.Core.Localization;
 
 namespace Steepshot.Core.Authority
 {
-    public sealed class DataProvider : IDataProvider
+    public class UserManager
     {
-        private readonly Dictionary<string, LocalizationModel> _localizationModel;
+        public const string UserContextKey = "UserCredentials";
         private readonly List<UserInfo> _set;
         private readonly ISaverService _saverService;
 
-        public DataProvider(ISaverService saverService)
+        public UserManager(ISaverService saverService)
         {
             _saverService = saverService;
-            _set = _saverService.Get<List<UserInfo>>(Constants.UserContextKey);
-            _localizationModel = _saverService.Get<Dictionary<string, LocalizationModel>>(Constants.Localization);
+            _set = _saverService.Get<List<UserInfo>>(UserContextKey);
         }
 
         public List<UserInfo> Select()
@@ -64,28 +62,7 @@ namespace Steepshot.Core.Authority
 
         private void Save()
         {
-            _saverService.Save(Constants.UserContextKey, _set);
-        }
-
-        public LocalizationModel SelectLocalization(string lang)
-        {
-            if (_localizationModel.ContainsKey(lang))
-                return _localizationModel[lang];
-            return null;
-        }
-
-        public void UpdateLocalization(LocalizationModel model)
-        {
-            if (_localizationModel.ContainsKey(model.Lang))
-            {
-                _localizationModel[model.Lang] = model;
-            }
-            else
-            {
-                _localizationModel.Add(model.Lang, model);
-            }
-
-            _saverService.Save(Constants.Localization, _localizationModel);
+            _saverService.Save(UserContextKey, _set);
         }
     }
 }
