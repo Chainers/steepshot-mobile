@@ -4,22 +4,21 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Ditch.Core;
-using Ditch.Steem;
-using Ditch.Steem.Models.Operations;
+using Ditch.Steem.Old.Models.Operations;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
-using Steepshot.Core.Serializing;
-using DitchFollowType = Ditch.Steem.Models.Enums.FollowType;
-using DitchBeneficiary = Ditch.Steem.Models.Operations.Beneficiary;
-using Ditch.Core;
+using Steepshot.Core.Serializing;   
+using DitchFollowType = Ditch.Steem.Old.Models.Enums.FollowType;
+using DitchBeneficiary = Ditch.Steem.Old.Models.Operations.Beneficiary;
 using Ditch.Core.JsonRpc;
-using Ditch.Steem.Models.ApiObj;
-using Ditch.Steem.Models.Args;
 using Steepshot.Core.Errors;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Utils;
 using Cryptography.ECDSA;
+using Ditch.Steem.Old;
+using Ditch.Steem.Old.Models.Objects;
+using Ditch.Steem.Old.Models.Other;
 
 namespace Steepshot.Core.HttpClient
 {
@@ -175,7 +174,7 @@ namespace Steepshot.Core.HttpClient
                     ops = new BaseOperation[]
                     {
                         op,
-                        new BeneficiariesOperation(model.Login, model.Permlink, beneficiaries)
+                        new BeneficiariesOperation(model.Login, model.Permlink,new Asset(1000000000,3,"SBD") ,beneficiaries)
                     };
                 }
                 else
@@ -231,11 +230,7 @@ namespace Steepshot.Core.HttpClient
                 if (keys == null)
                     return new OperationResult<VoidResponse>(new AppError(LocalizationKeys.WrongPrivateActimeKey));
 
-                var findAccountsArgs = new FindAccountsArgs
-                {
-                    Accounts = new[] { model.Login }
-                };
-                var resp = _operationManager.FindAccounts(findAccountsArgs, CancellationToken.None);
+                var resp = _operationManager.LookupAccountNames(new[] { model.Login }, CancellationToken.None);
                 var result = new OperationResult<VoidResponse>();
                 if (resp.IsError)
                 {
@@ -243,7 +238,7 @@ namespace Steepshot.Core.HttpClient
                     return result;
                 }
 
-                var profile = resp.Result.Accounts.Length == 1 ? resp.Result.Accounts[0] : null;
+                var profile = resp.Result.Length == 1 ? resp.Result[0] : null;
                 if (profile == null)
                 {
                     result.Error = new BlockchainError(LocalizationKeys.UnexpectedProfileData);
@@ -262,7 +257,6 @@ namespace Steepshot.Core.HttpClient
             }, ct);
         }
 
-
         #endregion Post requests
 
         #region Get
@@ -278,7 +272,7 @@ namespace Steepshot.Core.HttpClient
             return await Task.Run(() =>
             {
                 var op = new FollowOperation(model.Login, "steepshot", DitchFollowType.Blog, model.Login);
-                var properties = new DynamicGlobalPropertyApiObj
+                var properties = new DynamicGlobalPropertyObject
                 {
                     HeadBlockId = Hex.ToString(_operationManager.ChainId),
                     Time = DateTime.Now,

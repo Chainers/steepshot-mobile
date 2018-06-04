@@ -115,8 +115,8 @@
     <Reference Include="Ditch.Golos, Version=3.2.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Ditch.Golos.3.2.0-alpha\lib\netstandard2.0\Ditch.Golos.dll</HintPath>
     </Reference>
-    <Reference Include="Ditch.Steem, Version=3.2.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Ditch.Steem.3.2.0-alpha\lib\netstandard2.0\Ditch.Steem.dll</HintPath>
+    <Reference Include="Ditch.Steem.Old, Version=0.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Ditch.Steem.Old.0.1.0-alpha\lib\netstandard2.0\Ditch.Steem.Old.dll</HintPath>
     </Reference>
     <Reference Include="FFImageLoading, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Xamarin.FFImageLoading.2.3.6\lib\Xamarin.iOS10\FFImageLoading.dll</HintPath>
@@ -570,14 +570,7 @@
       <Link>DebugWif.txt</Link>
     </BundleResource>
   </ItemGroup>
-  <ItemGroup>
-    <BundleResource Include="..\Steepshot.Android\Assets\GolosNodesConfig.txt">
-      <Link>GolosNodesConfig.txt</Link>
-    </BundleResource>
-    <BundleResource Include="..\Steepshot.Android\Assets\SteemNodesConfig.txt">
-      <Link>SteemNodesConfig.txt</Link>
-    </BundleResource>
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
   <Import Project="..\packages\Xamarin.Insights.1.12.3\build\Xamarin.iOS10\Xamarin.Insights.targets" Condition="Exists('..\packages\Xamarin.Insights.1.12.3\build\Xamarin.iOS10\Xamarin.Insights.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

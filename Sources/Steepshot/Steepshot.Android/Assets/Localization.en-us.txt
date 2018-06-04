@@ -65,6 +65,7 @@
         "EmptyPostingKey": "Posting key cannot be empty",
         "EmptyActiveKey": "Active key cannot be empty",
         "PhotoProcessingError": "An error occurred while processing the photo. Unfortunately the next step can not be performed.",
+		"PhotoUploadError":"Could not upload file to server",
         "ErrorCameraScale": "ScalemageView does not support FitStart or FitEnd",
         "ErrorCameraZoom": "getZoomedRect() not supported with FitXy",
         "InternetUnavailable": "Check your internet connection",

@@ -12,6 +12,7 @@ using Android.Views;
 using Android.Widget;
 using Java.IO;
 using Steepshot.Adapter;
+using Steepshot.Base;
 using Steepshot.Core;
 using Steepshot.Core.Errors;
 using Steepshot.Core.Localization;
@@ -133,7 +134,7 @@ namespace Steepshot.Fragment
 
                     if (!operationResult.IsSuccess)
                     {
-                        //((SplashActivity)Activity).Cache.EvictAll();
+                        App.Cache?.EvictAll();
                         operationResult = await UploadPhoto(temp);
 
                         if (!IsInitialized)
@@ -275,7 +276,7 @@ namespace Steepshot.Fragment
             catch (Exception ex)
             {
                 AppSettings.Reporter.SendCrash(ex);
-                return new OperationResult<MediaModel>(new AppError(LocalizationKeys.PhotoProcessingError));
+                return new OperationResult<MediaModel>(new AppError(LocalizationKeys.PhotoUploadError));
             }
             finally
             {
