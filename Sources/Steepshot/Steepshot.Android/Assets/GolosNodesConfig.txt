@@ -1,0 +1,12 @@
+[
+	{
+		"url": "wss://ws.golos.io",
+		"is_enabled": "true",
+		"order":10
+	},
+	{
+		"url": "wss://golosd.steepshot.org",
+		"is_enabled": "true",
+		"order":20
+	}
+]

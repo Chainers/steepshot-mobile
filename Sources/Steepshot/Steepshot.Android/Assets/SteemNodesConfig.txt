@@ -1,0 +1,17 @@
+[
+	{
+		"url": "https://api.steemit.com",
+		"is_enabled": "true",
+		"order":10
+	},
+	{
+		"url": "https://steemd.steemitstage.com",
+		"is_enabled": "true",
+		"order":20
+	},
+	{
+		"url": "https://steemd.steepshot.org",
+		"is_enabled": "false",
+		"order":30
+	}
+]
