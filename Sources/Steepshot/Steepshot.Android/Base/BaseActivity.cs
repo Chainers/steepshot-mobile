@@ -1,8 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using Android;
 using Android.Content;
+using Android.Content.PM;
 using Android.Graphics;
 using Android.OS;
+using Android.Support.V4.App;
+using Android.Support.V4.Content;
 using Android.Support.V7.App;
 using Android.Util;
 using Android.Views;
@@ -15,6 +20,7 @@ namespace Steepshot.Base
     public abstract class BaseActivity : AppCompatActivity
     {
         public const string AppLinkingExtra = "appLinkingExtra";
+        public static int CommonPermissionsRequestCode = 888;
         protected HostFragment CurrentHostFragment;
         public static Func<MotionEvent, bool> TouchEvent;
 
@@ -115,6 +121,22 @@ namespace Steepshot.Base
                 else if (path.StartsWith("/@"))
                     OpenNewContentFragment(new ProfileFragment(appLink));
             }
+        }
+
+        public bool RequestPermissions(int requestCode, params string[] permissions)
+        {
+            var missingPermissions = new List<string>();
+            foreach (var permission in permissions)
+            {
+                if (ContextCompat.CheckSelfPermission(this, permission) != Permission.Granted)
+                    missingPermissions.Add(permission);
+            }
+            if (missingPermissions.Any())
+            {
+                ActivityCompat.RequestPermissions(this, missingPermissions.ToArray(), requestCode);
+                return true;
+            }
+            return false;
         }
     }
 }

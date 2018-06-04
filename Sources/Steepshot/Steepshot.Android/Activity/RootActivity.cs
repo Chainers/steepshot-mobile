@@ -15,7 +15,6 @@ using Refractored.Controls;
 using Square.Picasso;
 using Steepshot.Base;
 using Steepshot.Core.Errors;
-using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Presenters;
@@ -26,6 +25,8 @@ using Steepshot.Utils;
 using Steepshot.Core.Extensions;
 using Steepshot.Core.Utils;
 using System.Linq;
+using Android;
+using Android.Runtime;
 
 namespace Steepshot.Activity
 {
@@ -153,21 +154,26 @@ namespace Steepshot.Activity
             }
         }
 
+        public override void OnRequestPermissionsResult(int requestCode, string[] permissions, [GeneratedEnum] Permission[] grantResults)
+        {
+            if (requestCode == CommonPermissionsRequestCode && !grantResults.Any(x => x != Permission.Granted))
+            {
+                var intent = new Intent(this, typeof(CameraActivity));
+                StartActivity(intent);
+            }
+            base.OnRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
+
         private void OnTabLayoutOnTabSelected(object sender, TabLayout.TabSelectedEventArgs e)
         {
             if (e.Tab.Position == 2)
             {
-                if (PermissionChecker.CheckSelfPermission(this, Android.Manifest.Permission.Camera) == (int)Permission.Granted
-                    && PermissionChecker.CheckSelfPermission(this, Android.Manifest.Permission.WriteExternalStorage) == (int)Permission.Granted)
+                _prevTab.Select();
+
+                if (!RequestPermissions(CommonPermissionsRequestCode, Manifest.Permission.Camera, Manifest.Permission.ReadExternalStorage, Manifest.Permission.WriteExternalStorage))
                 {
-                    _prevTab.Select();
                     var intent = new Intent(this, typeof(CameraActivity));
                     StartActivity(intent);
-                }
-                else
-                {
-                    //Replace for Permission request
-                    this.ShowAlert(LocalizationKeys.CheckPermission);
                 }
             }
             else

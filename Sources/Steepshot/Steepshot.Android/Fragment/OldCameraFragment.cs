@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Android;
 using Android.Content;
+using Android.Content.PM;
 using Android.Graphics;
 using Android.Graphics.Drawables;
 using Android.Hardware;
@@ -29,7 +31,7 @@ namespace Steepshot.Fragment
     {
         private Location _currentLocation;
         private LocationManager _locationManager;
-        private bool isGpsEnable = true;
+        private bool isGpsEnable = false;
 
         private const bool FullScreen = true;
         private const int GalleryRequestCode = 228;
@@ -65,9 +67,7 @@ namespace Steepshot.Fragment
         {
             base.OnViewCreated(view, savedInstanceState);
 
-            _locationManager = (LocationManager)Context.GetSystemService(Context.LocationService);
-            var criteriaForLocationService = new Criteria { Accuracy = Accuracy.NoRequirement };
-            _locationManager.RequestLocationUpdates(0, 0, criteriaForLocationService, this, null);
+            ((BaseActivity)Activity).RequestPermissions(BaseActivity.CommonPermissionsRequestCode, Manifest.Permission.AccessCoarseLocation, Manifest.Permission.AccessFineLocation);
 
             if (Camera.NumberOfCameras < 2)
                 _revertButton.Visibility = ViewStates.Gone;
@@ -85,12 +85,27 @@ namespace Steepshot.Fragment
             GetGalleryIcon();
         }
 
+        public override void OnRequestPermissionsResult(int requestCode, string[] permissions, [GeneratedEnum] Permission[] grantResults)
+        {
+            if (requestCode == GalleryRequestCode && !grantResults.Any(x => x != Permission.Granted))
+            {
+                _locationManager = (LocationManager)Context.GetSystemService(Context.LocationService);
+                var criteriaForLocationService = new Criteria { Accuracy = Accuracy.NoRequirement };
+                _locationManager.RequestLocationUpdates(0, 0, criteriaForLocationService, this, null);
+                GpsButtonOnClick(null, null);
+            }
+            base.OnRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
+
         private void GpsButtonOnClick(object sender, EventArgs eventArgs)
         {
             _gpsButton.Enabled = false;
 
-            isGpsEnable = !isGpsEnable;
-            _gpsButton.SetImageResource(isGpsEnable ? Resource.Drawable.ic_gps : Resource.Drawable.ic_gps_n);
+            if (!((BaseActivity)Activity).RequestPermissions(BaseActivity.CommonPermissionsRequestCode, Manifest.Permission.AccessCoarseLocation, Manifest.Permission.AccessFineLocation))
+            {
+                isGpsEnable = !isGpsEnable;
+                _gpsButton.SetImageResource(isGpsEnable ? Resource.Drawable.ic_gps : Resource.Drawable.ic_gps_n);
+            }
 
             _gpsButton.Enabled = true;
         }
