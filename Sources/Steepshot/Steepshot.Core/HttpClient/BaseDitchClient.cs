@@ -86,19 +86,7 @@ namespace Steepshot.Core.HttpClient
                 }
             }
         }
-
-
-        protected static JsonSerializerSettings GetJsonSerializerSettings()
-        {
-            var rez = new JsonSerializerSettings
-            {
-                DateFormatString = "yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK",
-                Culture = CultureInfo.InvariantCulture
-            };
-            return rez;
-        }
-
-
+        
         protected string UpdateProfileJson(string jsonMetadata, UpdateUserProfileModel model)
         {
             var meta = string.IsNullOrEmpty(jsonMetadata) ? "{}" : jsonMetadata;

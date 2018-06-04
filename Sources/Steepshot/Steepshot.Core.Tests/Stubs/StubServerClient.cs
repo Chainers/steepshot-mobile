@@ -9,7 +9,7 @@ namespace Steepshot.Core.Tests.Stubs
         {
             Gateway = new StubApiGateway();
             JsonConverter = converter;
-            Gateway.BaseUrl = url;
+            BaseUrl = url;
             EnableRead = true;
         }
     }

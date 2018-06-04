@@ -47,10 +47,10 @@ namespace Steepshot.Core.HttpClient
                     sUrl = Constants.GolosUrl;
                     break;
             }
-
+            
             lock (_synk)
             {
-                if (!string.IsNullOrEmpty(Gateway.BaseUrl))
+                if (!string.IsNullOrEmpty(BaseUrl))
                 {
                     _ditchClient.EnableWrite = false;
                     _ctsMain.Cancel();
@@ -62,7 +62,7 @@ namespace Steepshot.Core.HttpClient
                     ? (BaseDitchClient)new SteemClient(JsonConverter)
                     : new GolosClient(JsonConverter);
 
-                Gateway.BaseUrl = sUrl;
+                BaseUrl = sUrl;
                 EnableRead = true;
             }
         }
