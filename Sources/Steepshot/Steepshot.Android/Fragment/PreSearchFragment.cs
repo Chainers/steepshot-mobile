@@ -570,16 +570,6 @@ namespace Steepshot.Fragment
                         OpenPost(post);
                         break;
                     }
-                case ActionType.Preview:
-                    {
-                        if (post == null)
-                            return;
-
-                        var intent = new Intent(Context, typeof(PostPreviewActivity));
-                        intent.PutExtra(PostPreviewActivity.PhotoExtraPath, post.Media[0].Url);
-                        StartActivity(intent);
-                        break;
-                    }
             }
         }
 

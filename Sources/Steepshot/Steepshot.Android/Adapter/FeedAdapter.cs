@@ -25,6 +25,7 @@ using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Enums;
 using Steepshot.CustomViews;
 using Object = Java.Lang.Object;
+using Steepshot.Activity;
 
 namespace Steepshot.Adapter
 {
@@ -173,7 +174,16 @@ namespace Steepshot.Adapter
             PhotosViewPager.Adapter = new PostPhotosPagerAdapter(Context, PhotosViewPager.LayoutParameters, post =>
             {
                 HideScaleBar();
-                postAction.Invoke(PhotoPagerType == PostPagerType.Feed ? ActionType.Photo : ActionType.Preview, post);
+                if (PhotoPagerType == PostPagerType.Feed)
+                {
+                    postAction.Invoke(ActionType.Photo, Post);
+                }
+                else
+                {
+                    var intent = new Intent(Context, typeof(PostPreviewActivity));
+                    intent.PutExtra(PostPreviewActivity.PhotoExtraPath, post.Media[PhotosViewPager.CurrentItem].Url);
+                    Context.StartActivity(intent);
+                }
             });
 
             _moreActionsDialog = new BottomSheetDialog(Context);
@@ -187,7 +197,7 @@ namespace Steepshot.Adapter
             _likeOrFlag.Click += DoLikeAction;
             _likeOrFlag.LongClick += DoLikeScaleAction;
             _avatar.Click += DoUserAction;
-            _author.Click += DoUserAction;            
+            _author.Click += DoUserAction;
             _commentSubtitle.Click += DoCommentAction;
             _likes.Click += DoLikersAction;
             _topLikers.Click += DoLikersAction;
