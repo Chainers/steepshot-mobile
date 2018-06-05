@@ -34,7 +34,7 @@ namespace Steepshot.Adapter
         protected readonly T Presenter;
         protected readonly Context Context;
         public Action<ActionType, Post> PostAction;
-        public Action<string> TagAction;
+        public Action<AutoLinkType, string> AutoLinkAction;
 
         public override int ItemCount
         {
@@ -78,7 +78,7 @@ namespace Steepshot.Adapter
                     return loaderVh;
                 default:
                     var itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.lyt_feed_item, parent, false);
-                    var vh = new FeedViewHolder(itemView, PostAction, TagAction, parent.Context.Resources.DisplayMetrics.WidthPixels);
+                    var vh = new FeedViewHolder(itemView, PostAction, AutoLinkAction, parent.Context.Resources.DisplayMetrics.WidthPixels);
                     return vh;
             }
         }
@@ -88,7 +88,6 @@ namespace Steepshot.Adapter
     {
         private static bool _isScalebarOpened;
         private readonly Action<ActionType, Post> _postAction;
-        private readonly Action<string> _tagAction;
         protected readonly ViewPager PhotosViewPager;
         private readonly TabLayout _pagerTabLayout;
         private readonly ImageView _avatar;
@@ -124,7 +123,7 @@ namespace Steepshot.Adapter
         private const int MaxLines = 5;
         protected PostPagerType PhotoPagerType;
 
-        public FeedViewHolder(View itemView, Action<ActionType, Post> postAction, Action<string> tagAction, int height) : base(itemView)
+        public FeedViewHolder(View itemView, Action<ActionType, Post> postAction, Action<AutoLinkType, string> autoLinkAction, int height) : base(itemView)
         {
             Context = itemView.Context;
             PhotoPagerType = PostPagerType.Feed;
@@ -192,7 +191,6 @@ namespace Steepshot.Adapter
             _title.SetHighlightColor(Color.Transparent);
 
             _postAction = postAction;
-            _tagAction = tagAction;
 
             _likeOrFlag.Click += DoLikeAction;
             _likeOrFlag.LongClick += DoLikeScaleAction;
@@ -206,15 +204,10 @@ namespace Steepshot.Adapter
             _nsfwMaskCloseButton.Click += NsfwMaskCloseButtonOnClick;
             _nsfwMaskActionButton.Click += NsfwMaskActionButtonOnClick;
             _more.Click += DoMoreAction;
+            _title.LinkClick += autoLinkAction;
             _more.Visibility = AppSettings.User.IsAuthenticated ? ViewStates.Visible : ViewStates.Invisible;
 
             _title.Click += OnTitleOnClick;
-            _title.TagAction += _tagAction;
-
-            if (_title.OnMeasureInvoked == null)
-            {
-                _title.OnMeasureInvoked += OnTitleOnMeasureInvoked;
-            }
         }
 
         protected override void Dispose(bool disposing)
@@ -271,15 +264,10 @@ namespace Steepshot.Adapter
             _nsfwMaskCloseButton.Visibility = ViewStates.Gone;
         }
 
-        private void OnTitleOnMeasureInvoked()
-        {
-            _title.UpdateText(Post, TagToExclude, TagFormat, MaxLines, Post.IsExpanded || PhotoPagerType == PostPagerType.PostScreen);
-        }
-
         protected virtual void OnTitleOnClick(object sender, EventArgs e)
         {
             Post.IsExpanded = true;
-            _tagAction?.Invoke(null);
+            _title.UpdateText(Post, TagToExclude, TagFormat, MaxLines, true);
         }
 
         private void DoMoreAction(object sender, EventArgs e)
@@ -565,6 +553,8 @@ namespace Steepshot.Adapter
             var height = (int)(OptimalPhotoSize.Get(size, Style.ScreenWidthInDp, 130, Style.MaxPostHeight) * Style.Density);
             PhotosViewPager.LayoutParameters.Height = height;
             ((PostPhotosPagerAdapter)PhotosViewPager.Adapter).UpdateData(Post);
+
+            _title.UpdateText(Post, TagToExclude, TagFormat, MaxLines, Post.IsExpanded || PhotoPagerType == PostPagerType.PostScreen);
 
             _topLikers.RemoveAllViews();
             var topLikersSize = (int)BitmapUtils.DpToPixel(24, Context.Resources);

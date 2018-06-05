@@ -26,7 +26,7 @@ namespace Steepshot.Adapter
         private int _itemsCount;
         private View _loadingView;
         public Action<ActionType, Post> PostAction;
-        public Action<string> TagAction;
+        public Action<AutoLinkType, string> AutoLinkAction;
         public Action CloseAction;
 
         public int CurrentItem => _pager.CurrentItem;
@@ -62,7 +62,7 @@ namespace Steepshot.Adapter
             {
                 var itemView = LayoutInflater.From(_context)
                     .Inflate(Resource.Layout.lyt_post_view_item, container, false);
-                vh = new PostViewHolder(itemView, PostAction, TagAction, CloseAction, _context.Resources.DisplayMetrics.WidthPixels);
+                vh = new PostViewHolder(itemView, PostAction, AutoLinkAction, CloseAction, _context.Resources.DisplayMetrics.WidthPixels);
                 _viewHolders[reusePosition] = vh;
                 container.AddView(vh.ItemView);
             }
@@ -154,7 +154,7 @@ namespace Steepshot.Adapter
     public sealed class PostViewHolder : FeedViewHolder
     {
         private readonly Action _closeAction;
-        public PostViewHolder(View itemView, Action<ActionType, Post> postAction, Action<string> tagAction, Action closeAction, int height) : base(itemView, postAction, tagAction, height)
+        public PostViewHolder(View itemView, Action<ActionType, Post> postAction, Action<AutoLinkType, string> autoLinkAction, Action closeAction, int height) : base(itemView, postAction, autoLinkAction, height)
         {
             PhotoPagerType = PostPagerType.PostScreen;
             _closeAction = closeAction;

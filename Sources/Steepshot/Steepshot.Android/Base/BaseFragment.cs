@@ -1,6 +1,9 @@
-﻿using Android.OS;
+﻿using Android.Content;
+using Android.OS;
 using Android.Views;
 using Steepshot.Activity;
+using Steepshot.CustomViews;
+using Steepshot.Fragment;
 
 namespace Steepshot.Base
 {
@@ -34,5 +37,27 @@ namespace Steepshot.Base
         }
 
         public virtual bool OnBackPressed() => false;
+
+        protected void AutoLinkAction(AutoLinkType type, string link)
+        {
+            if (string.IsNullOrEmpty(link))
+                return;
+
+            switch (type)
+            {
+                case AutoLinkType.Hashtag:
+                    Activity.Intent.PutExtra(SearchFragment.SearchExtra, link);
+                    ((BaseActivity)Activity).OpenNewContentFragment(new PreSearchFragment());
+                    break;
+                case AutoLinkType.Mention:
+                    ((BaseActivity)Activity).OpenNewContentFragment(new ProfileFragment(link));
+                    break;
+                case AutoLinkType.Url:
+                    var intent = new Intent(Intent.ActionView);
+                    intent.SetData(Android.Net.Uri.Parse(link));
+                    StartActivity(intent);
+                    break;
+            }
+        }
     }
 }

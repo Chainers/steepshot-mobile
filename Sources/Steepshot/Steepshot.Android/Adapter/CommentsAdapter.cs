@@ -28,8 +28,8 @@ namespace Steepshot.Adapter
         private readonly Context _context;
         private readonly Post _post;
         public Action<ActionType, Post> CommentAction;
+        public Action<AutoLinkType, string> AutoLinkAction;
         public Action RootClickAction;
-        public Action<string> TagAction;
 
         public override int ItemCount => _presenter.Count + 1;
 
@@ -64,14 +64,14 @@ namespace Steepshot.Adapter
                     {
                         var itemView = LayoutInflater.From(parent.Context)
                             .Inflate(Resource.Layout.lyt_description_item, parent, false);
-                        var vh = new PostDescriptionViewHolder(itemView, (post) => CommentAction?.Invoke(ActionType.Profile, post), TagAction, RootClickAction);
+                        var vh = new PostDescriptionViewHolder(itemView, (post) => CommentAction?.Invoke(ActionType.Profile, post), AutoLinkAction, RootClickAction);
                         return vh;
                     }
                 default:
                     {
                         var itemView = LayoutInflater.From(parent.Context)
                             .Inflate(Resource.Layout.lyt_comment_item, parent, false);
-                        var vh = new CommentViewHolder(itemView, CommentAction, RootClickAction);
+                        var vh = new CommentViewHolder(itemView, CommentAction, AutoLinkAction, RootClickAction);
                         return vh;
                     }
             }
@@ -94,7 +94,7 @@ namespace Steepshot.Adapter
         private const string _tagFormat = " #{0}";
         private const string tagToExclude = "steepshot";
         private const int _maxLines = 7;
-        public PostDescriptionViewHolder(View itemView, Action<Post> userAction, Action<string> tagAction, Action rootClickAction) : base(itemView)
+        public PostDescriptionViewHolder(View itemView, Action<Post> userAction, Action<AutoLinkType, string> autoLinkAction, Action rootClickAction) : base(itemView)
         {
             _context = itemView.Context;
             _avatar = itemView.FindViewById<CircleImageView>(Resource.Id.avatar);
@@ -108,7 +108,6 @@ namespace Steepshot.Adapter
             _title.Typeface = Style.Regular;
 
             _userAction = userAction;
-            _tagAction = tagAction;
             _rootAction = rootClickAction;
 
             _avatar.Click += UserAction;
@@ -117,12 +116,7 @@ namespace Steepshot.Adapter
             _title.MovementMethod = new LinkMovementMethod();
             _title.SetHighlightColor(Color.Transparent);
             _title.Click += TitleOnClick;
-            _title.TagAction = tagAction;
-
-            if (_title.OnMeasureInvoked == null)
-            {
-                _title.OnMeasureInvoked += OnTitleOnMeasureInvoked;
-            }
+            _title.LinkClick += autoLinkAction;
         }
 
         private void UserAction(object sender, EventArgs eventArgs)
@@ -140,11 +134,6 @@ namespace Steepshot.Adapter
         {
             _post.IsExpanded = true;
             _tagAction?.Invoke(null);
-        }
-
-        private void OnTitleOnMeasureInvoked()
-        {
-            _title.UpdateText(_post, tagToExclude, _tagFormat, _maxLines, _post.IsExpanded);
         }
 
         public void UpdateData(Post post, Context context)
@@ -170,7 +159,7 @@ namespace Steepshot.Adapter
     {
         private readonly ImageView _avatar;
         private readonly TextView _author;
-        private readonly TextView _comment;
+        private readonly AutoLinkTextView _comment;
         private readonly TextView _likes;
         private readonly TextView _flags;
         private readonly TextView _cost;
@@ -179,7 +168,6 @@ namespace Steepshot.Adapter
         private readonly ImageButton _likeOrFlag;
         private readonly ImageButton _more;
         private readonly Action<ActionType, Post> _commentAction;
-        private readonly Action<Post, VotersType> _votersAction;
         private readonly Action _rootAction;
         private readonly BottomSheetDialog _moreActionsDialog;
         private readonly Context _context;
@@ -188,11 +176,11 @@ namespace Steepshot.Adapter
 
         private Post _post;
 
-        public CommentViewHolder(View itemView, Action<ActionType, Post> commentAction, Action rootClickAction) : base(itemView)
+        public CommentViewHolder(View itemView, Action<ActionType, Post> commentAction, Action<AutoLinkType, string> autoLinkAction, Action rootClickAction) : base(itemView)
         {
             _avatar = itemView.FindViewById<CircleImageView>(Resource.Id.avatar);
             _author = itemView.FindViewById<TextView>(Resource.Id.sender_name);
-            _comment = itemView.FindViewById<TextView>(Resource.Id.comment_text);
+            _comment = itemView.FindViewById<AutoLinkTextView>(Resource.Id.comment_text);
             _likes = itemView.FindViewById<TextView>(Resource.Id.likes);
             _flags = itemView.FindViewById<TextView>(Resource.Id.flags);
             _cost = itemView.FindViewById<TextView>(Resource.Id.cost);
@@ -218,6 +206,7 @@ namespace Steepshot.Adapter
             _rootView.Click += Root_Click;
             _likes.Click += DoLikersAction;
             _flags.Click += DoFlagersAction;
+            _comment.LinkClick += autoLinkAction;
 
             _context = itemView.RootView.Context;
             _moreActionsDialog = new BottomSheetDialog(_context);
@@ -426,7 +415,7 @@ namespace Steepshot.Adapter
         {
             _post = post;
             _author.Text = post.Author;
-            _comment.Text = post.Body.CensorText();
+            _comment.AutoLinkText = post.Body.CensorText();
 
             if (!string.IsNullOrEmpty(_post.Avatar))
                 Picasso.With(_context).Load(_post.Avatar)

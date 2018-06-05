@@ -15,6 +15,7 @@ using Android.Content;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Utils;
+using Steepshot.CustomViews;
 
 namespace Steepshot.Fragment
 {
@@ -102,7 +103,7 @@ namespace Steepshot.Fragment
             _adapter = new CommentAdapter(Context, Presenter, _post);
             _adapter.CommentAction += CommentAction;
             _adapter.RootClickAction += HideKeyboard;
-            _adapter.TagAction += TagAction;
+            _adapter.AutoLinkAction += AutoLinkAction;
 
             _comments.SetLayoutManager(_manager);
             _comments.SetAdapter(_adapter);
@@ -147,17 +148,6 @@ namespace Steepshot.Fragment
         private void OnRootClick(object sender, EventArgs e)
         {
             HideKeyboard();
-        }
-
-        private void TagAction(string tag)
-        {
-            if (tag != null)
-            {
-                Activity.Intent.PutExtra(SearchFragment.SearchExtra, tag);
-                ((BaseActivity)Activity).OpenNewContentFragment(new PreSearchFragment());
-            }
-            else
-                _adapter.NotifyDataSetChanged();
         }
 
         private async void OnPost(object sender, EventArgs e)
