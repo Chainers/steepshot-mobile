@@ -34,9 +34,9 @@ namespace Steepshot.CustomViews
         }
 
         private static Pattern _hashtagPattern;
-        private static Pattern HashTagPattern => _hashtagPattern ?? (_hashtagPattern = Pattern.Compile("(?:^|\\s|$)#[\\p{L}0-9_.-]*"));
+        private static Pattern HashTagPattern => _hashtagPattern ?? (_hashtagPattern = Pattern.Compile("(?:^|\\s?|$)#[\\p{L}0-9_.-]*"));
         private static Pattern _mentionPattern;
-        private static Pattern MentionPattern => _mentionPattern ?? (_mentionPattern = Pattern.Compile("(?:^|\\s|$|[.])@[\\p{L}0-9_.-]*"));
+        private static Pattern MentionPattern => _mentionPattern ?? (_mentionPattern = Pattern.Compile("(?:^|\\s?|$|[.])@[\\p{L}0-9_.-]*"));
         private static Pattern _urlPattern;
         private static Pattern UrlPattern => _urlPattern ?? (_urlPattern = Pattern.Compile("\\(?\\b(https?://|www[.])[-A-Za-z0-9+&amp;@#/%?=~_()|!:,.;]*[-A-Za-z0-9+&amp;@#/%=~_()|]"));
 
