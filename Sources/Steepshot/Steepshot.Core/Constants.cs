@@ -28,5 +28,6 @@ namespace Steepshot.Core
         public const string VotedInASimilarWayGolos = "You have already voted in a similar way";
 
         public const int PhotoMaxSize = 1200;
+        public const string DeletedPostText = "*deleted*";
     }
 }

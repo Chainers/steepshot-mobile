@@ -13,14 +13,17 @@ namespace Steepshot.Core.Presenters
     {
         private const int ItemsLimit = 40;
 
-        public async Task<ErrorBase> TryLoadNext(string s)
+        public async Task<ErrorBase> TryLoadNext(string s, bool shouldClear = true, bool showUnknownTag = false)
         {
-            return await RunAsSingleTask(LoadNext, s);
+            return await RunAsSingleTask(LoadNext, new Tuple<string, bool, bool>(s, shouldClear, showUnknownTag));
         }
 
-        private async Task<ErrorBase> LoadNext(string s, CancellationToken ct)
+        private async Task<ErrorBase> LoadNext(Tuple<string, bool, bool> queryParams, CancellationToken ct)
         {
-            var request = new SearchWithQueryModel(s.TagToEn())
+            if (queryParams.Item2)
+                Clear();
+
+            var request = new SearchWithQueryModel(queryParams.Item1.TagToEn())
             {
                 Offset = OffsetUrl,
                 Limit = ItemsLimit
@@ -30,19 +33,20 @@ namespace Steepshot.Core.Presenters
 
             if (response.IsSuccess)
             {
+                if (queryParams.Item2)
+                    Clear();
                 var tags = response.Result.Results;
                 if (tags.Count > 0)
                 {
                     lock (Items)
                     {
-                        foreach (var tag in tags)
-                        {
-                            if (!Items.Contains(tag))
-                                Items.Add(tag);
-                        }
+                        Items.AddRange(Items.Count == 0 ? tags : tags.Skip(1));
                     }
                     OffsetUrl = tags.Last().Name;
                 }
+                else if ((Items.Count == 0 || Items.Count == 1) && queryParams.Item3)
+                    lock (Items)
+                        Items.Add(new SearchResult() { Name = queryParams.Item1 });
 
                 if (tags.Count < Math.Min(ServerMaxCount, ItemsLimit))
                     IsLastReaded = true;
@@ -58,6 +62,7 @@ namespace Steepshot.Core.Presenters
 
         private async Task<ErrorBase> GetTopTags(CancellationToken ct)
         {
+            Clear();
             var request = new OffsetLimitModel()
             {
                 Offset = OffsetUrl,
@@ -68,6 +73,7 @@ namespace Steepshot.Core.Presenters
 
             if (response.IsSuccess)
             {
+                Clear();
                 var tags = response.Result.Results;
                 if (tags.Count > 0)
                 {

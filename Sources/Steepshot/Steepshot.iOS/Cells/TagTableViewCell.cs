@@ -14,6 +14,7 @@ namespace Steepshot.iOS.Cells
         private bool _isInitialized;
         public Action<ActionType, string> CellAction;
         public bool IsCellActionSet => CellAction != null;
+        public bool HidePlus;
 
         static TagTableViewCell()
         {
@@ -45,6 +46,8 @@ namespace Steepshot.iOS.Cells
                 {
                     addImage.Image = UIImage.FromBundle("ic_add_tag.png");
                 };
+
+                addImage.Hidden = HidePlus;
 
                 buttonOverlay.TouchUpInside += TouchUp;
                 buttonOverlay.TouchUpOutside += TouchUp;

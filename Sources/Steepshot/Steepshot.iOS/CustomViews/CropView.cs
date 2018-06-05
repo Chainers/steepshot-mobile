@@ -246,7 +246,7 @@ namespace Steepshot.iOS.CustomViews
             }
 
             var shouldIncrease = cropped.Size.Width < Core.Constants.PhotoMaxSize && cropped.Size.Height < Core.Constants.PhotoMaxSize;
-            var newSize = ImageHelper.CalculateInSampleSize(cropped.Size, Core.Constants.PhotoMaxSize, Core.Constants.PhotoMaxSize, shouldIncrease);
+            var newSize = ImageHelper.CalculateInSampleSize(rect.Size, Core.Constants.PhotoMaxSize, Core.Constants.PhotoMaxSize, shouldIncrease);
 
             UIGraphics.BeginImageContextWithOptions(newSize, false, 1);
             cropped.Draw(new CGRect(new CGPoint(0, 0), newSize));

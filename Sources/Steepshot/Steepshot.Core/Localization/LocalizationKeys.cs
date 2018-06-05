@@ -149,5 +149,8 @@
         Posts5minLimit,
         PostsDayLimit,
         EmptyCommentField,
+        TagSearchWarning,
+        NoResultText,
+        DuplicateTag,
     }
 }

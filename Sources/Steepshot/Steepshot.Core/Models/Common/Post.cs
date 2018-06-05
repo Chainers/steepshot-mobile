@@ -81,6 +81,8 @@ namespace Steepshot.Core.Models.Common
         public bool ShowMask { get; set; } = true;
         [JsonIgnore]
         public bool IsComment { get; set; } = true;
+        [JsonIgnore]
+        public bool Editing { get; set; }
 
         public string Permlink
         {

@@ -28,8 +28,7 @@ namespace Steepshot.iOS.Views
         {
             base.ViewDidLoad();
 
-            if (!string.IsNullOrEmpty(_url))
-                _presenter.TryLoadPostInfo(_url);
+            LoadPost();
 
             NavigationController.NavigationBar.Translucent = false;
             if (TabBarController != null)
@@ -44,6 +43,19 @@ namespace Steepshot.iOS.Views
             _cell.CellAction += CellAction;
             _cell.TagAction += TagAction;
             SetBackButton();
+        }
+
+        private async void LoadPost()
+        {
+            if (!string.IsNullOrEmpty(_url))
+            {
+                var error = await _presenter.TryLoadPostInfo(_url);
+                loader.StopAnimating();
+                ShowAlert(error,(UIAlertAction obj) =>
+                {
+                    NavigationController.PopViewController(true);
+                });
+            }
         }
 
         public override void ViewWillAppear(bool animated)

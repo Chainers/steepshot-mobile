@@ -230,7 +230,6 @@
     <InterfaceDefinition Include="LaunchScreen.storyboard" />
     <InterfaceDefinition Include="Cells\TagCollectionViewCell.xib" />
     <InterfaceDefinition Include="Cells\FollowViewCell.xib" />
-    <InterfaceDefinition Include="Cells\CommentTableViewCell.xib" />
     <InterfaceDefinition Include="Views\ProfileHeaderViewController.xib" />
     <InterfaceDefinition Include="Cells\FeedCollectionViewCell.xib" />
     <InterfaceDefinition Include="Cells\UsersSearchViewCell.xib" />
@@ -239,13 +238,11 @@
     <InterfaceDefinition Include="Views\LoginViewController.xib" />
     <InterfaceDefinition Include="Views\PhotoViewController.xib" />
     <InterfaceDefinition Include="Views\ProfileViewController.xib" />
-    <InterfaceDefinition Include="Views\CommentsViewController.xib" />
     <InterfaceDefinition Include="Views\WebPageViewController.xib" />
     <InterfaceDefinition Include="Views\ImagePreviewViewController.xib" />
     <InterfaceDefinition Include="Views\FollowViewController.xib" />
     <InterfaceDefinition Include="Views\SettingsViewController.xib" />
     <InterfaceDefinition Include="Views\PostTagsViewController.xib" />
-    <InterfaceDefinition Include="Views\TagsSearchViewController.xib" />
     <InterfaceDefinition Include="Views\VotersViewController.xib" />
     <InterfaceDefinition Include="Views\PreSearchViewController.xib" />
     <InterfaceDefinition Include="Views\WelcomeViewController.xib" />
@@ -290,9 +287,6 @@
     <Compile Include="ViewSources\FollowTableViewSource.cs" />
     <Compile Include="ViewSources\BaseTableSource.cs" />
     <Compile Include="Cells\CommentTableViewCell.cs" />
-    <Compile Include="Cells\CommentTableViewCell.designer.cs">
-      <DependentUpon>CommentTableViewCell.cs</DependentUpon>
-    </Compile>
     <Compile Include="ViewSources\CommentsTableViewSource.cs" />
     <Compile Include="Views\ProfileHeaderViewController.cs" />
     <Compile Include="Views\ProfileHeaderViewController.designer.cs">
@@ -330,9 +324,6 @@
       <DependentUpon>ProfileViewController.cs</DependentUpon>
     </Compile>
     <Compile Include="Views\CommentsViewController.cs" />
-    <Compile Include="Views\CommentsViewController.designer.cs">
-      <DependentUpon>CommentsViewController.cs</DependentUpon>
-    </Compile>
     <Compile Include="Views\WebPageViewController.cs" />
     <Compile Include="Views\WebPageViewController.designer.cs">
       <DependentUpon>WebPageViewController.cs</DependentUpon>
@@ -355,9 +346,6 @@
       <DependentUpon>PostTagsViewController.cs</DependentUpon>
     </Compile>
     <Compile Include="Views\TagsSearchViewController.cs" />
-    <Compile Include="Views\TagsSearchViewController.designer.cs">
-      <DependentUpon>TagsSearchViewController.cs</DependentUpon>
-    </Compile>
     <Compile Include="Views\VotersViewController.cs" />
     <Compile Include="Views\VotersViewController.designer.cs">
       <DependentUpon>VotersViewController.cs</DependentUpon>
@@ -431,6 +419,7 @@
     <Compile Include="Cells\DescriptionTableViewCell.designer.cs">
       <DependentUpon>DescriptionTableViewCell.cs</DependentUpon>
     </Compile>
+    <Compile Include="Views\TagsSearchViewControllerDesign.cs" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\ic_photo_holder.png" />
@@ -544,10 +533,16 @@
     <BundleResource Include="Resources\ic_delete%402x.png" />
     <BundleResource Include="Resources\ic_flag%403x.png" />
     <BundleResource Include="Resources\ic_flag%402x.png" />
-    <BundleResource Include="Resources\ic_comment_like_inactive%403x.png" />
-    <BundleResource Include="Resources\ic_comment_like_inactive%402x.png" />
+    <BundleResource Include="Resources\ic_comment_like_inactive_disabled%403x.png" />
+    <BundleResource Include="Resources\ic_comment_like_inactive_disabled%402x.png" />
     <BundleResource Include="Resources\ic_comment_like_active%402x.png" />
     <BundleResource Include="Resources\ic_comment_like_active%403x.png" />
+    <BundleResource Include="Resources\ic_info%402x.png" />
+    <BundleResource Include="Resources\ic_info%403x.png" />
+    <BundleResource Include="Resources\ic_comment_like_active_disabled%402x.png" />
+    <BundleResource Include="Resources\ic_comment_like_active_disabled%403x.png" />
+    <BundleResource Include="Resources\ic_comment_like_inactive%402x.png" />
+    <BundleResource Include="Resources\ic_comment_like_inactive%403x.png" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="..\Steepshot.Android\Assets\Localization.en-us.txt">
