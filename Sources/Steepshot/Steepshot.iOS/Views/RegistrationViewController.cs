@@ -50,6 +50,7 @@ namespace Steepshot.iOS.Views
 
             _createAcc = new UIButton();
             _createAcc.SetTitle("Create account", UIControlState.Normal);
+            Constants.CreateShadow(_createAcc, Constants.R231G72B0, 0.5f, 25, 10, 12);
             _createAcc.Font = Constants.Bold14;
             _createAcc.TouchDown += CreateAccount;
             View.Add(_createAcc);
@@ -228,6 +229,7 @@ namespace Steepshot.iOS.Views
 
         private void CreateAccount(object sender, EventArgs e)
         {
+            /*
             if (_loader.IsAnimating)
                 return;
 
@@ -244,7 +246,10 @@ namespace Steepshot.iOS.Views
                 return;
             
             _registrationLoader.StartAnimating();
-            _createAcc.SetTitleColor(UIColor.Clear, UIControlState.Normal);
+            _createAcc.SetTitleColor(UIColor.Clear, UIControlState.Normal); */
+
+            var myViewController = new RegistrationCompletionViewController();
+            NavigationController.PushViewController(myViewController, true);
         }
     }
 }

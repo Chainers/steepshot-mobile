@@ -15,7 +15,7 @@ using UIKit;
 using Steepshot.Core.Utils;
 using Steepshot.Core.Localization;
 using PureLayout.Net;
-using iOS.Hardware;
+using static Steepshot.iOS.Helpers.DeviceHelper;
 
 namespace Steepshot.iOS.Views
 {
@@ -146,7 +146,7 @@ namespace Steepshot.iOS.Views
             View.AddSubview(_rootView);
 
             _rootView.AutoPinEdgeToSuperviewEdge(ALEdge.Top);
-            if (DeviceModel.Model(DeviceHardware.HardwareModel) == "iPhone10,6")
+            if (GetVersion() == HardwareVersion.iPhoneX)
                 _rootView.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom, 34);
             else
                 _rootView.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom);

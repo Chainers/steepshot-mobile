@@ -124,9 +124,6 @@
     <Reference Include="Google.Analytics, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Xamarin.Google.iOS.Analytics.3.17.0.2\lib\Xamarin.iOS10\Google.Analytics.dll</HintPath>
     </Reference>
-    <Reference Include="iOSDeviceModel, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\iOSDeviceModel.1.1.0\lib\Xamarin.iOS10\iOSDeviceModel.dll</HintPath>
-    </Reference>
     <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.11.0.2\lib\netstandard2.0\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -421,6 +418,8 @@
     </Compile>
     <Compile Include="Views\TagsSearchViewControllerDesign.cs" />
     <Compile Include="Views\RegistrationViewController.cs" />
+    <Compile Include="Views\RegistrationCompletionViewController.cs" />
+    <Compile Include="Helpers\DeviceHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\ic_photo_holder.png" />
@@ -544,6 +543,8 @@
     <BundleResource Include="Resources\ic_comment_like_active_disabled%403x.png" />
     <BundleResource Include="Resources\ic_comment_like_inactive%402x.png" />
     <BundleResource Include="Resources\ic_comment_like_inactive%403x.png" />
+    <BundleResource Include="Resources\ic_email%403x.png" />
+    <BundleResource Include="Resources\ic_email%402x.png" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="..\Steepshot.Android\Assets\Localization.en-us.txt">
