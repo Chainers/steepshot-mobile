@@ -27,6 +27,9 @@ namespace Steepshot.iOS.Views
         private bool _toSquareMode = true;
         private UILabel _titleLabel;
         private UIView _modalFolderView = new UIView();
+        private UIImageView _arrowImage;
+        private UIBarButtonItem leftBarButton;
+        private UIBarButtonItem rightBarButton;
 
         public PhotoPreviewViewController()
         {
@@ -266,9 +269,9 @@ namespace Steepshot.iOS.Views
 
         private void SetBackButton()
         {
-            var leftBarButton = new UIBarButtonItem(UIImage.FromBundle("ic_back_arrow"), UIBarButtonItemStyle.Plain, GoBack);
+            leftBarButton = new UIBarButtonItem(UIImage.FromBundle("ic_back_arrow"), UIBarButtonItemStyle.Plain, GoBack);
             var rotatedButton = new UIImage(leftBarButton.Image.CGImage, leftBarButton.Image.CurrentScale, UIImageOrientation.UpMirrored);
-            var rightBarButton = new UIBarButtonItem(rotatedButton, UIBarButtonItemStyle.Plain, GoForward);
+            rightBarButton = new UIBarButtonItem(rotatedButton, UIBarButtonItemStyle.Plain, GoForward);
             rightBarButton.Enabled = false;
             NavigationItem.LeftBarButtonItem = leftBarButton;
             NavigationItem.RightBarButtonItem = rightBarButton;
@@ -277,11 +280,20 @@ namespace Steepshot.iOS.Views
             var titleView = new CustomTitle();
             NavigationItem.TitleView = titleView;
             titleView.UserInteractionEnabled = true;
-            var t = new UITapGestureRecognizer(TitleTapped);
-            titleView.AddGestureRecognizer(t);
+            var titleTapGesture = new UITapGestureRecognizer(TitleTapped);
+            titleView.AddGestureRecognizer(titleTapGesture);
             _titleLabel = new UILabel();
             titleView.AddSubview(_titleLabel);
             _titleLabel.AutoCenterInSuperview();
+
+            _arrowImage = new UIImageView();
+            var mage = UIImage.FromFile("ic_forward");
+            var f = new UIImage(mage.CGImage, mage.CurrentScale, UIImageOrientation.LeftMirrored);
+            _arrowImage.Image = f;
+            titleView.AddSubview(_arrowImage);
+
+            _arrowImage.AutoAlignAxisToSuperviewAxis(ALAxis.Horizontal);
+            _arrowImage.AutoPinEdge(ALEdge.Left, ALEdge.Right, _titleLabel, 10);
         }
 
         private void TitleTapped()
@@ -291,6 +303,10 @@ namespace Steepshot.iOS.Views
                 UIView.Animate(0.2, 0, UIViewAnimationOptions.CurveEaseOut, () =>
                 {
                     _modalFolderView.Frame = new CGRect(0, 0, View.Frame.Width, View.Frame.Height);
+                    leftBarButton.TintColor = rightBarButton.TintColor = UIColor.Clear;
+                    leftBarButton.Enabled = rightBarButton.Enabled = false;
+
+                    _arrowImage.Transform = CGAffineTransform.MakeRotation((nfloat)Math.PI);
                 }, null);
             }
             else
@@ -298,6 +314,10 @@ namespace Steepshot.iOS.Views
                 UIView.Animate(0.2, 0, UIViewAnimationOptions.CurveEaseIn, () =>
                 {
                     _modalFolderView.Frame = new CGRect(0, View.Frame.Height, View.Frame.Width, View.Frame.Height);
+                    leftBarButton.TintColor = rightBarButton.TintColor = Constants.R15G24B30;
+                    leftBarButton.Enabled = rightBarButton.Enabled = true;
+
+                    _arrowImage.Transform = CGAffineTransform.MakeRotation(-(nfloat)(Math.PI * 2));
                 }, null);
             }
         }
@@ -375,6 +395,6 @@ namespace Steepshot.iOS.Views
 
     public class CustomTitle : UIView
     {
-        public override CGSize IntrinsicContentSize => UIView.UILayoutFittingExpandedSize;
+        public override CGSize IntrinsicContentSize => UILayoutFittingExpandedSize;
     }
 }
