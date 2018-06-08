@@ -260,7 +260,7 @@ namespace Steepshot.iOS.CustomViews
             var size = new CGRect()
             {
                 Width = ContentSize.Width > Frame.Width ? Frame.Width : ContentSize.Width,
-                Height = ContentSize.Height > Frame.Width ? Frame.Width : ContentSize.Height,
+                Height = ContentSize.Height > Frame.Height ? Frame.Height : ContentSize.Height,
                 X = ContentOffset.X < 0 ? 0 : ContentOffset.X,
                 Y = ContentOffset.Y < 0 ? 0 : ContentOffset.Y,
             };
