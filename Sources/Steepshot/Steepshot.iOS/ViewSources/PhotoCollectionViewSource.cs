@@ -29,20 +29,21 @@ namespace Steepshot.iOS.ViewSources
 
     public class PhotoCollectionViewSource : UICollectionViewSource
     {
-        private readonly PHFetchResult _fetchResults;
+        private PHFetchResult _fetchResults;
         private readonly PHImageManager _m;
         public List<SavedPhoto> ImageAssets = new List<SavedPhoto>();
         public bool MultiPickMode { get; set; }
         public Tuple<NSIndexPath, PHAsset> CurrentlySelectedItem = new Tuple<NSIndexPath, PHAsset>(null, null);
 
-        public PhotoCollectionViewSource()
+        public PhotoCollectionViewSource(PHImageManager m)
         {
-            PHFetchOptions options = new PHFetchOptions
-            {
-                SortDescriptors = new[] { new NSSortDescriptor("creationDate", false) },
-            };
-            _fetchResults = PHAsset.FetchAssets(PHAssetMediaType.Image, options);
-            _m = new PHImageManager();
+            _m = m;
+        }
+
+        public void UpdateFetchResult(PHFetchResult fetchResults)
+        {
+            _fetchResults = fetchResults;
+            CurrentlySelectedItem = new Tuple<NSIndexPath, PHAsset>(null, null);
         }
 
         public override nint GetItemsCount(UICollectionView collectionView, nint section)
@@ -53,7 +54,7 @@ namespace Steepshot.iOS.ViewSources
         public override UICollectionViewCell GetCell(UICollectionView collectionView, NSIndexPath indexPath)
         {
             var imageCell = (PhotoCollectionViewCell)collectionView.DequeueReusableCell(nameof(PhotoCollectionViewCell), indexPath);
-            var pa = (PHAsset)_fetchResults[indexPath.Item];
+            var pa = (PHAsset)_fetchResults[_fetchResults.Count - 1 - indexPath.Item];
             if (MultiPickMode)
                 imageCell.UpdateImage(_m, pa, CurrentlySelectedItem.Item2?.LocalIdentifier == pa.LocalIdentifier,
                                       ImageAssets.FindIndex(a => a.Asset.LocalIdentifier == pa.LocalIdentifier),
@@ -65,7 +66,7 @@ namespace Steepshot.iOS.ViewSources
 
         public PHAsset GetPHAsset(int index)
         {
-            return (PHAsset)_fetchResults[index];
+            return (PHAsset)_fetchResults[_fetchResults.Count - 1 - index];
         }
     }
 }

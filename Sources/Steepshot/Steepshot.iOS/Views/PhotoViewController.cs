@@ -121,14 +121,8 @@ namespace Steepshot.iOS.Views
             var status = await PHPhotoLibrary.RequestAuthorizationAsync();
             if (status == PHAuthorizationStatus.Authorized)
             {
-                var options = new PHFetchOptions
-                {
-                    SortDescriptors = new[] { new NSSortDescriptor("creationDate", false) },
-                    FetchLimit = 5,
-                };
-
-                var fetchedAssets = PHAsset.FetchAssets(PHAssetMediaType.Image, options);
-                var lastGalleryPhoto = fetchedAssets.FirstOrDefault() as PHAsset;
+                var fetchedAssets = PHAsset.FetchAssets(PHAssetMediaType.Image, null);
+                var lastGalleryPhoto = fetchedAssets.LastObject as PHAsset;
                 if (lastGalleryPhoto != null)
                 {
                     galleryButton.UserInteractionEnabled = true;

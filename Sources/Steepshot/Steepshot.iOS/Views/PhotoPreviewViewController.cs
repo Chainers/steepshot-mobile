@@ -5,6 +5,7 @@ using CoreGraphics;
 using Foundation;
 using ImageIO;
 using Photos;
+using PureLayout.Net;
 using Steepshot.Core.Models.Enums;
 using Steepshot.iOS.Cells;
 using Steepshot.iOS.CustomViews;
@@ -24,6 +25,8 @@ namespace Steepshot.iOS.Views
         private string previousPhotoLocalIdentifier;
         private Tuple<NSIndexPath, PHAsset> pickedPhoto;
         private bool _toSquareMode = true;
+        private UILabel _titleLabel;
+        private UIView _modalFolderView = new UIView();
 
         public PhotoPreviewViewController()
         {
@@ -45,7 +48,7 @@ namespace Steepshot.iOS.Views
 
             bottomArrow.Transform = CGAffineTransform.MakeRotation((float)(Math.PI));
 
-            source = new PhotoCollectionViewSource();
+            source = new PhotoCollectionViewSource(_m);
             photoCollection.Source = source;
             photoCollection.RegisterClassForCell(typeof(PhotoCollectionViewCell), nameof(PhotoCollectionViewCell));
 
@@ -73,10 +76,58 @@ namespace Steepshot.iOS.Views
                 NavigationItem.RightBarButtonItem.Enabled = true;
             };
 
+            var albums = new List<PHAssetCollection>();
+            var sortedAlbums = new List<Tuple<string, PHFetchResult>>();
+            var fetchOptions = new PHFetchOptions();
+
+            var allAlbums = PHAssetCollection.FetchAssetCollections(PHAssetCollectionType.Album, PHAssetCollectionSubtype.AlbumRegular, null)
+                                                 .Cast<PHAssetCollection>();
+            albums.AddRange(allAlbums);
+            var smartAlbums = PHAssetCollection.FetchAssetCollections(PHAssetCollectionType.SmartAlbum, PHAssetCollectionSubtype.AlbumRegular, null)
+                                               .Cast<PHAssetCollection>();
+            albums.AddRange(smartAlbums);
+            fetchOptions.Predicate = NSPredicate.FromFormat("mediaType == %d", FromObject(PHAssetMediaType.Image));
+
+            foreach (var item in albums)
+            {
+                var firstAsset = PHAsset.FetchAssets(item, fetchOptions);
+                if(firstAsset.Count > 0)
+                    sortedAlbums.Add(new Tuple<string, PHFetchResult>(item.LocalizedTitle, firstAsset));
+            }
+
+            sortedAlbums = sortedAlbums.OrderByDescending(a => a.Item2.Count).ToList();
+
+            _modalFolderView.Frame = new CGRect(0, View.Frame.Height, View.Frame.Height, View.Frame.Width);
+            _modalFolderView.BackgroundColor = UIColor.White;
+
+            var folderTable = new UITableView();
+            folderTable.Bounces = false;
+            folderTable.AllowsSelection = false;
+            folderTable.RowHeight = 90;
+            folderTable.SeparatorStyle = UITableViewCellSeparatorStyle.None;
+            var folderSource = new FolderTableViewSource(sortedAlbums);
+            folderSource.CellAction += (ActionType arg1, Tuple<string, PHFetchResult> arg2) => 
+            {
+                TitleTapped();
+                _titleLabel.Text = arg2.Item1;
+                source.UpdateFetchResult(arg2.Item2);
+                photoCollection.ReloadData();
+                delegateP.ItemSelected(photoCollection, NSIndexPath.FromItemSection(0, 0));
+            };
+            folderTable.Source = folderSource;
+            _modalFolderView.AddSubview(folderTable);
+            folderTable.RegisterClassForCellReuse(typeof(AlbumTableViewCell), nameof(AlbumTableViewCell));
+            folderTable.AutoPinEdgesToSuperviewEdges();
+            folderTable.ReloadData();
+            View.AddSubview(_modalFolderView);
+
             cropBackgroundView.BackgroundColor = Constants.R245G245B245;
             cropBackgroundView.AddSubview(_cropView);
             NavigationController.NavigationBar.Translucent = false;
             SetBackButton();
+
+            _titleLabel.Text = sortedAlbums.FirstOrDefault()?.Item1;
+            source.UpdateFetchResult(sortedAlbums.FirstOrDefault()?.Item2);
         }
 
         private void CellAction(ActionType type, Tuple<NSIndexPath, PHAsset> photo)
@@ -221,8 +272,34 @@ namespace Steepshot.iOS.Views
             rightBarButton.Enabled = false;
             NavigationItem.LeftBarButtonItem = leftBarButton;
             NavigationItem.RightBarButtonItem = rightBarButton;
-            NavigationController.NavigationBar.TintColor = Helpers.Constants.R15G24B30;
-            NavigationItem.Title = "Photo preview";
+            NavigationController.NavigationBar.TintColor = Constants.R15G24B30;
+
+            var titleView = new CustomTitle();
+            NavigationItem.TitleView = titleView;
+            titleView.UserInteractionEnabled = true;
+            var t = new UITapGestureRecognizer(TitleTapped);
+            titleView.AddGestureRecognizer(t);
+            _titleLabel = new UILabel();
+            titleView.AddSubview(_titleLabel);
+            _titleLabel.AutoCenterInSuperview();
+        }
+
+        private void TitleTapped()
+        {
+            if (_modalFolderView.Frame.Y != 0)
+            {
+                UIView.Animate(0.2, 0, UIViewAnimationOptions.CurveEaseOut, () =>
+                {
+                    _modalFolderView.Frame = new CGRect(0, 0, View.Frame.Width, View.Frame.Height);
+                }, null);
+            }
+            else
+            {
+                UIView.Animate(0.2, 0, UIViewAnimationOptions.CurveEaseIn, () =>
+                {
+                    _modalFolderView.Frame = new CGRect(0, View.Frame.Height, View.Frame.Width, View.Frame.Height);
+                }, null);
+            }
         }
 
         private void GoBack(object sender, EventArgs e)
@@ -294,5 +371,10 @@ namespace Steepshot.iOS.Views
                 _cropView.ApplyCriticalScale();
             }
         }
+    }
+
+    public class CustomTitle : UIView
+    {
+        public override CGSize IntrinsicContentSize => UIView.UILayoutFittingExpandedSize;
     }
 }
