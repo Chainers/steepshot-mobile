@@ -100,7 +100,6 @@ namespace Steepshot.iOS.Views
 
             sortedAlbums = sortedAlbums.OrderByDescending(a => a.Item2.Count).ToList();
 
-            _modalFolderView.Frame = new CGRect(0, View.Frame.Height, View.Frame.Height, View.Frame.Width);
             _modalFolderView.BackgroundColor = UIColor.White;
 
             var folderTable = new UITableView();
@@ -114,14 +113,16 @@ namespace Steepshot.iOS.Views
                 TitleTapped();
                 _titleLabel.Text = arg2.Item1;
                 source.UpdateFetchResult(arg2.Item2);
+                photoCollection.SetContentOffset(new CGPoint(0, 0), false);
                 photoCollection.ReloadData();
+                if(!source.MultiPickMode)
+                    delegateP.ItemSelected(photoCollection, NSIndexPath.FromItemSection(0, 0));
             };
             folderTable.Source = folderSource;
             _modalFolderView.AddSubview(folderTable);
             folderTable.RegisterClassForCellReuse(typeof(AlbumTableViewCell), nameof(AlbumTableViewCell));
             folderTable.AutoPinEdgesToSuperviewEdges();
             folderTable.ReloadData();
-            View.AddSubview(_modalFolderView);
 
             cropBackgroundView.BackgroundColor = Constants.R245G245B245;
             cropBackgroundView.AddSubview(_cropView);
@@ -130,6 +131,12 @@ namespace Steepshot.iOS.Views
 
             _titleLabel.Text = sortedAlbums.FirstOrDefault()?.Item1;
             source.UpdateFetchResult(sortedAlbums.FirstOrDefault()?.Item2);
+        }
+
+        public override void ViewDidLayoutSubviews()
+        {
+            _modalFolderView.Frame = new CGRect(0, View.Frame.Height, View.Frame.Height, View.Frame.Width);
+            View.AddSubview(_modalFolderView);
         }
 
         private void CellAction(ActionType type, Tuple<NSIndexPath, PHAsset> photo)
