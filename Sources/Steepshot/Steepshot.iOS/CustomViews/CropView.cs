@@ -200,7 +200,7 @@ namespace Steepshot.iOS.CustomViews
             nfloat cropX;
             nfloat cropY;
 
-            if (scaledImageSize.Width > Frame.Width)
+            if ((int)scaledImageSize.Width >= (int)Frame.Width)
             {
                 cropWidth = Frame.Width * ratio2;
             }
@@ -209,7 +209,7 @@ namespace Steepshot.iOS.CustomViews
                 cropWidth = imageView.Frame.Width * ratio2;
             }
 
-            if (scaledImageSize.Height > Frame.Height)
+            if ((int)scaledImageSize.Height >= (int)Frame.Height)
             {
                 cropHeight = Frame.Height * ratio2;
             }

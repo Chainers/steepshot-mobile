@@ -115,7 +115,6 @@ namespace Steepshot.iOS.Views
                 _titleLabel.Text = arg2.Item1;
                 source.UpdateFetchResult(arg2.Item2);
                 photoCollection.ReloadData();
-                delegateP.ItemSelected(photoCollection, NSIndexPath.FromItemSection(0, 0));
             };
             folderTable.Source = folderSource;
             _modalFolderView.AddSubview(folderTable);
@@ -287,9 +286,8 @@ namespace Steepshot.iOS.Views
             _titleLabel.AutoCenterInSuperview();
 
             _arrowImage = new UIImageView();
-            var mage = UIImage.FromFile("ic_forward");
-            var f = new UIImage(mage.CGImage, mage.CurrentScale, UIImageOrientation.LeftMirrored);
-            _arrowImage.Image = f;
+            var forwardImage = UIImage.FromFile("ic_forward");
+            _arrowImage.Image = new UIImage(forwardImage.CGImage, forwardImage.CurrentScale, UIImageOrientation.LeftMirrored);
             titleView.AddSubview(_arrowImage);
 
             _arrowImage.AutoAlignAxisToSuperviewAxis(ALAxis.Horizontal);

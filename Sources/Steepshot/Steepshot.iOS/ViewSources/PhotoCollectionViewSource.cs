@@ -43,7 +43,6 @@ namespace Steepshot.iOS.ViewSources
         public void UpdateFetchResult(PHFetchResult fetchResults)
         {
             _fetchResults = fetchResults;
-            CurrentlySelectedItem = new Tuple<NSIndexPath, PHAsset>(null, null);
         }
 
         public override nint GetItemsCount(UICollectionView collectionView, nint section)
