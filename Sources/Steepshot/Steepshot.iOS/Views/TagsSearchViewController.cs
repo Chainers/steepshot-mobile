@@ -213,12 +213,14 @@ namespace Steepshot.iOS.Views
                     {
                         _isWarningOpen = true;
                         warningViewToBottomConstraint.Constant = -ScrollAmount - 20;
+                        warningView.Alpha = 1;
                         View.LayoutIfNeeded();
                     }, () =>
                     {
                         UIView.Animate(0.2f, 5f, UIViewAnimationOptions.CurveEaseIn, () =>
                         {
                             warningViewToBottomConstraint.Constant = -ScrollAmount + 60;
+                            warningView.Alpha = 0;
                             View.LayoutIfNeeded();
                         }, () =>
                         {
