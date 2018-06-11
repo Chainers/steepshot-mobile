@@ -2,6 +2,8 @@
 using System.Threading.Tasks;
 using Android.App;
 using Android.Content;
+using Android.Graphics;
+using Android.Graphics.Drawables;
 using Android.OS;
 using Android.Support.V7.Widget;
 using Android.Text;
@@ -70,7 +72,6 @@ namespace Steepshot.Activity
             Cheeseknife.Reset(this);
         }
 
-
         private async void SteemLogin(object sender, EventArgs e)
         {
             _steemLoader.Visibility = ViewStates.Visible;
@@ -103,6 +104,7 @@ namespace Steepshot.Activity
 
         private void RegistrationClick(object sender, EventArgs e)
         {
+            /*
             var url = BasePresenter.Chain == KnownChains.Golos
                 ? Constants.GolosRegUrl
                 : Constants.SteemitRegUrl;
@@ -110,6 +112,17 @@ namespace Steepshot.Activity
             var uri = Android.Net.Uri.Parse(url);
             var browserIntent = new Intent(Intent.ActionView, uri);
             StartActivity(browserIntent);
+            */
+
+            AlertDialog.Builder alertBuilder = new AlertDialog.Builder(this);
+            var alert = alertBuilder.Create();
+            var inflater = (LayoutInflater)GetSystemService(LayoutInflaterService);
+            var alertView = inflater.Inflate(Resource.Layout.lyt_registration_alert, null);
+
+            alert.SetCancelable(true);
+            alert.SetView(alertView);
+            alert.Window.SetBackgroundDrawable(new ColorDrawable(Color.Transparent));
+            alert.Show();
         }
 
         private void Logo_Click(object sender, EventArgs e)
