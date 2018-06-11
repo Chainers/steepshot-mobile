@@ -242,8 +242,6 @@ namespace Steepshot.iOS.Views
                 Activeview = tagsTable;
                 peopleButton.Selected = false;
                 tagsButton.Selected = !peopleButton.Selected;
-
-                _noResultViewTags.Hidden = false;
                 tagsTable.Hidden = false;
                 tagTableHidden.Active = false;
                 tagTableVisible.Active = true;
@@ -256,8 +254,6 @@ namespace Steepshot.iOS.Views
                 Activeview = usersTable;
                 peopleButton.Selected = true;
                 tagsButton.Selected = !peopleButton.Selected;
-
-                _noResultViewTags.Hidden = true;
                 tagsTable.Hidden = true;
                 tagTableHidden.Active = true;
                 tagTableVisible.Active = false;
