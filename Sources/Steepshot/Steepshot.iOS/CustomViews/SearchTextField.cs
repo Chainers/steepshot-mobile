@@ -45,10 +45,11 @@ namespace Steepshot.iOS.CustomViews
             rightView.AddSubview(ClearButton);
 
             ClearButton.AutoSetDimensionsToSize(new CGSize(16,16));
-            Loader.AutoSetDimensionsToSize(new CGSize(16, 16));
             ClearButton.AutoPinEdge(ALEdge.Left, ALEdge.Right, Loader, 5);
-            _loaderLeftMargin = Loader.AutoPinEdgeToSuperviewEdge(ALEdge.Left);
+            ClearButton.AutoAlignAxis(ALAxis.Horizontal, Loader);
+            Loader.AutoSetDimensionsToSize(new CGSize(16, 16));
             Loader.AutoPinEdgeToSuperviewEdge(ALEdge.Top);
+            _loaderLeftMargin = Loader.AutoPinEdgeToSuperviewEdge(ALEdge.Left);
 
             RightView = rightView;
             rightView.AutoSetDimensionsToSize(new CGSize(37, 16));
