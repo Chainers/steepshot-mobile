@@ -82,7 +82,7 @@ namespace Steepshot.Adapter
         private readonly TextView _name;
         private readonly TextView _place;
         private readonly TextView _description;
-        private readonly TextView _site;
+        private readonly AutoLinkTextView _site;
         private readonly TextView _photosCount;
         private readonly TextView _photosTitle;
         private readonly TextView _followingCount;
@@ -112,7 +112,7 @@ namespace Steepshot.Adapter
             _name = itemView.FindViewById<TextView>(Resource.Id.profile_name);
             _place = itemView.FindViewById<TextView>(Resource.Id.place);
             _description = itemView.FindViewById<TextView>(Resource.Id.description);
-            _site = itemView.FindViewById<TextView>(Resource.Id.site);
+            _site = itemView.FindViewById<AutoLinkTextView>(Resource.Id.site);
             _photosCount = itemView.FindViewById<TextView>(Resource.Id.photos_count);
             _photosTitle = itemView.FindViewById<TextView>(Resource.Id.photos_title);
             _followingCount = itemView.FindViewById<TextView>(Resource.Id.following_count);
@@ -158,6 +158,14 @@ namespace Steepshot.Adapter
             _balanceContainer.Click += OnBalanceContainerOnClick;
             _followButton.Click += OnFollowButtonOnClick;
             _profileImage.Click += ProfileImageOnClick;
+            _site.LinkClick += LinkClick;
+        }
+
+        private void LinkClick(AutoLinkType type, string url)
+        {
+            var intent = new Intent(Intent.ActionView);
+            intent.SetData(Android.Net.Uri.Parse(url));
+            _context.StartActivity(intent);
         }
 
         private void ProfileImageOnClick(object sender, EventArgs eventArgs)
@@ -277,7 +285,7 @@ namespace Steepshot.Adapter
 
             if (!string.IsNullOrEmpty(profile.Website))
             {
-                _site.Text = profile.Website;
+                _site.AutoLinkText = profile.Website;
                 _site.SetTextColor(Style.R231G72B00);
             }
             else if (!string.Equals(AppSettings.User.Login, profile.Username, StringComparison.OrdinalIgnoreCase))

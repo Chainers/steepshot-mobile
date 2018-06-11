@@ -19,6 +19,7 @@
         EmptyActiveKey,
         EmptyCategory,
         PhotoProcessingError,
+        PhotoUploadError,
         ErrorCameraScale,
         ErrorCameraZoom,
         InternetUnavailable,
@@ -150,5 +151,6 @@
         EmptyCommentField,
         TagSearchWarning,
         NoResultText,
+        DuplicateTag,
     }
 }

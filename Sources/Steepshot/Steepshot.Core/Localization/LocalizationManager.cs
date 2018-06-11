@@ -1,25 +1,64 @@
-﻿using System.Text;
-using Newtonsoft.Json;
+﻿using System.Collections.Generic;
+using System.Threading;
+using Steepshot.Core.HttpClient;
+using Steepshot.Core.Services;
 
 namespace Steepshot.Core.Localization
 {
     public class LocalizationManager
     {
-        public const string UpdateUrl = "https://raw.githubusercontent.com/Chainers/steepshot-mobile/master/Sources/Steepshot/Steepshot.Android/Assets/Localization.en-us.txt";
+        public const string Localization = "Localization";
+        private const string UpdateUrl = "https://raw.githubusercontent.com/Chainers/steepshot-mobile/master/Sources/Steepshot/Steepshot.Android/Assets/Localization.en-us.txt";
+        public const string DefaultLang = "en-us";
+
+        private readonly ISaverService _saverService;
+        private readonly Dictionary<string, LocalizationModel> _localizationModel;
 
         public LocalizationModel Model { get; }
 
-        public LocalizationManager(LocalizationModel model)
+
+        public LocalizationManager(ISaverService saverService, IAssetsHelper assetsHelper)
         {
-            Model = model;
+            _saverService = saverService;
+            _localizationModel = _saverService.Get<Dictionary<string, LocalizationModel>>(Localization);
+
+            Model = _localizationModel.ContainsKey(DefaultLang)
+                ? _localizationModel[DefaultLang]
+                : assetsHelper.GetLocalization(DefaultLang);
         }
 
-        public bool Reset(string content)
+
+        public LocalizationModel SelectLocalization(string lang)
+        {
+            if (_localizationModel.ContainsKey(lang))
+                return _localizationModel[lang];
+            return null;
+        }
+
+        public async void Update(ApiGateway gateway)
+        {
+            var rez = await gateway.Get<LocalizationModel>(UpdateUrl, CancellationToken.None);
+            if (!rez.IsSuccess)
+                return;
+
+            var model = rez.Result;
+            var changed = Reset(model);
+            if (changed)
+            {
+                if (_localizationModel.ContainsKey(model.Lang))
+                    _localizationModel[model.Lang] = model;
+                else
+                    _localizationModel.Add(model.Lang, model);
+
+                _saverService.Save(Localization, _localizationModel);
+            }
+        }
+
+        private bool Reset(LocalizationModel model)
         {
             try
             {
                 var changed = false;
-                var model = JsonConvert.DeserializeObject<LocalizationModel>(content);
                 if (Model.Lang.Equals(model.Lang) && model.Version > Model.Version)
                 {
                     changed = true;

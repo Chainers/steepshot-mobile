@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Cryptography.ECDSA;
 using Steepshot.Core.Authority;
 using Steepshot.Core.Errors;
-using Steepshot.Core.Extensions;
 using Steepshot.Core.HttpClient;
 using Steepshot.Core.Utils;
 using Steepshot.Core.Models.Common;
@@ -71,24 +70,15 @@ namespace Steepshot.Core.Presenters
             TryRunTask(TryСonect, ts);
             // static constructor initialization.
             var init = new Secp256K1Manager();
-            UpdateLocalizationAsync();
+            AppSettings.LocalizationManager.Update(Api.Gateway);
             LazyLoadTimer.Dispose();
-        }
-
-        private static async Task UpdateLocalizationAsync()
-        {
-            var content = await Api.Gateway.Get(LocalizationManager.UpdateUrl);
-            var changed = AppSettings.LocalizationManager.Reset(content);
-            if (changed)
-            {
-                AppSettings.DataProvider.UpdateLocalization(AppSettings.LocalizationManager.Model);
-            }
         }
 
         private static Task<ErrorBase> TryСonect(CancellationToken token)
         {
             return Task.Run(async () =>
             {
+                await AppSettings.ConfigManager.Update(Api.Gateway, Chain, token);
                 do
                 {
                     token.ThrowIfCancellationRequested();

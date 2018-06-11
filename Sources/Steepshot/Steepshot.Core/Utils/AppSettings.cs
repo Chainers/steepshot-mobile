@@ -1,5 +1,6 @@
 ﻿using Autofac;
 using Steepshot.Core.Authority;
+using Steepshot.Core.HttpClient;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Services;
 
@@ -21,8 +22,8 @@ namespace Steepshot.Core.Utils
         private static IConnectionService _connectionService;
         public static IConnectionService ConnectionService => _connectionService ?? (_connectionService = Container.Resolve<IConnectionService>());
 
-        private static IDataProvider _dataProvider;
-        public static IDataProvider DataProvider => _dataProvider ?? (_dataProvider = Container.Resolve<IDataProvider>());
+        private static UserManager _dataProvider;
+        public static UserManager DataProvider => _dataProvider ?? (_dataProvider = Container.Resolve<UserManager>());
 
         private static IAssetsHelper _assetsesHelper;
         public static IAssetsHelper AssetsesHelper => _assetsesHelper ?? (_assetsesHelper = Container.Resolve<IAssetsHelper>());
@@ -30,6 +31,8 @@ namespace Steepshot.Core.Utils
         private static LocalizationManager _localizationManager;
         public static LocalizationManager LocalizationManager => _localizationManager ?? (_localizationManager = Container.Resolve<LocalizationManager>());
 
+        private static ConfigManager _configManager;
+        public static ConfigManager ConfigManager => _configManager ?? (_configManager = Container.Resolve<ConfigManager>());
 
         private static User _user;
         public static User User

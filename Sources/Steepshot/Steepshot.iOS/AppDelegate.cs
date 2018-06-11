@@ -16,6 +16,7 @@ using Steepshot.iOS.ViewControllers;
 using Steepshot.iOS.Views;
 using UIKit;
 using Com.OneSignal.iOS;
+using Steepshot.Core.HttpClient;
 
 namespace Steepshot.iOS
 {
@@ -31,22 +32,23 @@ namespace Steepshot.iOS
         {
             var builder = new ContainerBuilder();
             var saverService = new SaverService();
-            var dataProvider = new DataProvider(saverService);
+            var dataProvider = new UserManager(saverService);
             var appInfo = new AppInfo();
             var connectionService = new ConnectionService();
             var assetsHelper = new AssetsHelper();
-
-            var localization = dataProvider.SelectLocalization("en-us") ?? assetsHelper.GetLocalization("en-us");
-            var localizationManager = new LocalizationManager(localization);
+            
+            var localizationManager = new LocalizationManager(saverService, assetsHelper);
+            var configManager = new ConfigManager(saverService, assetsHelper);
 
             var ravenClientDSN = assetsHelper.GetConfigInfo().RavenClientDsn;
             var reporterService = new Core.Sentry.ReporterService(appInfo, ravenClientDSN);
 
+            builder.RegisterInstance(configManager).As<ConfigManager>().SingleInstance();
             builder.RegisterInstance(localizationManager).As<LocalizationManager>().SingleInstance();
             builder.RegisterInstance(assetsHelper).As<IAssetsHelper>().SingleInstance();
             builder.RegisterInstance(appInfo).As<IAppInfo>().SingleInstance();
             builder.RegisterInstance(saverService).As<ISaverService>().SingleInstance();
-            builder.RegisterInstance(dataProvider).As<IDataProvider>().SingleInstance();
+            builder.RegisterInstance(dataProvider).As<UserManager>().SingleInstance();
             builder.RegisterInstance(reporterService).As<IReporterService>().SingleInstance();
             builder.RegisterInstance(connectionService).As<IConnectionService>().SingleInstance();
 
@@ -95,7 +97,7 @@ namespace Steepshot.iOS
                     InitialViewController.NavigationController.PushViewController(new PostViewController(data), false);
                     break;
                 case string follow when follow.Equals(PushSettings.Follow.GetEnumDescription()):
-                    InitialViewController.NavigationController.PushViewController(new ProfileViewController() { Username = data}, false);
+                    InitialViewController.NavigationController.PushViewController(new ProfileViewController() { Username = data }, false);
                     break;
             }
         }

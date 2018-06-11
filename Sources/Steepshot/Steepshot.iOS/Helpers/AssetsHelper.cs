@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using Newtonsoft.Json;
+using Steepshot.Core.HttpClient;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Services;
 using Steepshot.Core.Utils;
@@ -22,6 +23,16 @@ namespace Steepshot.iOS.Helpers
         public LocalizationModel GetLocalization(string lang)
         {
             return TryReadAsset<LocalizationModel>($"Localization.{lang}.txt");
+        }
+
+        public List<NodeConfig> SteemNodesConfig()
+        {
+            return TryReadAsset<List<NodeConfig>>("SteemNodesConfig.txt");
+        }
+
+        public List<NodeConfig> GolosNodesConfig()
+        {
+            return TryReadAsset<List<NodeConfig>>("GolosNodesConfig.txt");
         }
 
         public void SetLocalization(LocalizationModel model)

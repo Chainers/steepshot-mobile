@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:customAttrs="http://schemas.android.com/apk/res-auto"
     android:id="@+id/root_view"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:clickable="true"
     android:padding="13dp"
     android:background="@color/white">
-    <refractored.controls.CircleImageView xmlns:app="http://schemas.android.com/apk/res-auto"
+    <refractored.controls.CircleImageView
         android:id="@+id/avatar"
         android:layout_width="20dp"
         android:layout_height="20dp"
@@ -54,15 +55,18 @@
             android:background="@android:color/transparent"
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true" />
-        <TextView
+        <Steepshot.CustomViews.AutoLinkTextView
             android:layout_toLeftOf="@id/like_btn"
             android:id="@+id/comment_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="14sp"
             android:textColor="@color/rgb15_24_30"
-            android:autoLink="web"
-            android:linksClickable="true"
+            customAttrs:urlColor="@color/rgb255_34_5"
+            customAttrs:mentionColor="@color/rgb255_34_5"
+            customAttrs:selectedColor="@color/rgb255_34_5"
+            customAttrs:underlineEnabled="true"
+            customAttrs:linkModes="hashtag|mention|url"
             android:text="In using milk for cooking purposes, it should be remembered that being more dense than water, when heated, less steam escapes, and consequently it boils sooner than does water. " />
     </RelativeLayout>
     <LinearLayout

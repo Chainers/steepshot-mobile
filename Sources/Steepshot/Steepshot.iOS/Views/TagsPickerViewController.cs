@@ -3,9 +3,9 @@ using System.Threading;
 using Foundation;
 using PureLayout.Net;
 using Steepshot.Core.Errors;
-using Steepshot.Core.Facades;
 using Steepshot.Core.Models;
 using Steepshot.Core.Models.Enums;
+using Steepshot.Core.Presenters;
 using Steepshot.iOS.Cells;
 using Steepshot.iOS.CustomViews;
 using Steepshot.iOS.ViewControllers;
@@ -15,14 +15,13 @@ using Constants = Steepshot.iOS.Helpers.Constants;
 
 namespace Steepshot.iOS.Views
 {
-    public partial class TagsPickerViewController : BaseViewController
+    public partial class TagsPickerViewController : BaseViewControllerWithPresenter<TagsPresenter>
     {
         private readonly LocalTagsCollectionViewSource _viewSource;
         private readonly LocalTagsCollectionViewFlowDelegate _flowDelegate;
         private readonly Timer _timer;
         private string _previousQuery;
         private SearchTextField _tagField;
-        private TagPickerFacade _tagPickerFacade;
         private TagsTableViewSource _tableSource;
 
         public TagsPickerViewController(LocalTagsCollectionViewSource viewSource, LocalTagsCollectionViewFlowDelegate flowDelegate)
@@ -36,8 +35,7 @@ namespace Steepshot.iOS.Views
         {
             base.ViewDidLoad();
 
-            _tagPickerFacade = new TagPickerFacade(_viewSource.LocalTags);
-            _tagPickerFacade.SourceChanged += SourceChanged;
+            _presenter.SourceChanged += SourceChanged;
 
             NavigationController.NavigationBar.SetBackgroundImage(new UIImage(), UIBarMetrics.Default);
             NavigationController.NavigationBar.ShadowImage = new UIImage();
@@ -70,7 +68,15 @@ namespace Steepshot.iOS.Views
             });
             View.AddGestureRecognizer(tap);
 
-            _tableSource = new TagsTableViewSource(_tagPickerFacade);
+            _tableSource = new TagsTableViewSource(_presenter, tagsTableView);
+            _tableSource.ScrolledToBottom += async () =>
+            {
+                _tagField.Loader.StartAnimating();
+                var error = await _presenter.TryLoadNext(_tagField.Text, false);
+                _tagField.Loader.StopAnimating();
+                ShowAlert(error);
+            };
+
             tagsTableView.Source = _tableSource;
             tagsTableView.LayoutMargins = UIEdgeInsets.Zero;
             tagsTableView.RegisterClassForCellReuse(typeof(TagTableViewCell), nameof(TagTableViewCell));
@@ -108,8 +114,6 @@ namespace Steepshot.iOS.Views
             var contentInsets = new UIEdgeInsets(0, 0, kbSize.Height, 0);
             tagsTableView.ContentInset = contentInsets;
             tagsTableView.ScrollIndicatorInsets = contentInsets;
-            //TODO:scroll view to the current position when keyboard is open
-            //tagsTableView.ScrollRectToVisible(new CGRect(tagsTableView.ContentOffset, new CGSize(tagsTableView.Frame.Width, tagsTableView.Frame.Height - kbSize.Height)), true);
         }
 
         protected override void KeyBoardDownNotification(NSNotification notification)
@@ -137,11 +141,6 @@ namespace Steepshot.iOS.Views
             NavigationController.NavigationBar.Translucent = false;
         }
 
-        private void GoBack(object sender, EventArgs e)
-        {
-            NavigationController.PopViewController(true);
-        }
-
         private void CollectionCellAction(ActionType type, string tag)
         {
             RemoveLocalTag(tag);
@@ -149,10 +148,7 @@ namespace Steepshot.iOS.Views
 
         private void TableCellAction(ActionType type, string tag)
         {
-            var index = _tableSource.IndexOfTag(tag);
             AddLocalTag(tag, false);
-            if (index != null)
-                tagsTableView.DeleteRows(new NSIndexPath[] { index }, UITableViewRowAnimation.Right);
         }
 
         private void SourceChanged(Status obj)
@@ -173,31 +169,35 @@ namespace Steepshot.iOS.Views
             if (_previousQuery == _tagField.Text || _tagField.Text.Length == 1)
                 return;
 
+            _tagField.Loader.StartAnimating();
             _previousQuery = _tagField.Text;
-            _tagPickerFacade.Clear();
 
             ErrorBase error = null;
             if (_tagField.Text.Length == 0)
-                error = await _tagPickerFacade.TryGetTopTags();
+                error = await _presenter.TryGetTopTags();
             else if (_tagField.Text.Length > 1)
-                error = await _tagPickerFacade.TryLoadNext(_tagField.Text);
+                error = await _presenter.TryLoadNext(_tagField.Text, showUnknownTag : true);
 
+            if(!(error is CanceledError))
+                _tagField.Loader.StopAnimating();
             ShowAlert(error);
         }
 
         private void EditingDidChange(object sender, EventArgs e)
         {
-            var txt = ((UITextField)sender).Text;
-
-            if (txt.EndsWith(" "))
-                AddLocalTag(txt);
-            //_tagField.ClearButton.Hidden = _tagField.Text.Length == 0;
+            _tagField.ClearButton.Hidden = _tagField.Text.Length == 0;
             _timer.Change(500, Timeout.Infinite);
         }
 
         private void AddLocalTag(string txt, bool shouldClear = true)
         {
-            if (!_viewSource.LocalTags.Contains(txt) && !string.IsNullOrWhiteSpace(txt))
+            if (_viewSource.LocalTags.Contains(txt))
+            {
+                ShowAlert(Core.Localization.LocalizationKeys.DuplicateTag);
+                return;
+            }
+
+            if (!string.IsNullOrWhiteSpace(txt) && _viewSource.LocalTags.Count < 20)
             {
                 if (shouldClear)
                     _tagField.Clear();
@@ -214,9 +214,6 @@ namespace Steepshot.iOS.Views
             _viewSource.LocalTags.Remove(tag);
             _flowDelegate.GenerateVariables();
             tagsCollectionView.ReloadData();
-            var index = _tableSource.IndexOfTag(tag);
-            if (index != null)
-                tagsTableView.InsertRows(new NSIndexPath[] { index }, UITableViewRowAnimation.Right);
             SetCollectionHeight();
         }
     }

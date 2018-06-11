@@ -9,7 +9,7 @@ namespace Steepshot.Utils
         public const string RuLang = "йцукенгшщзхъфывапролджэячсмитьбюЙЦУКЕНГШЩЗХЪФЫВАПРОЛДЖЭЯЧСМИТТЬБЮ";
         public const string EnLang = "qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM";
         public const string Digits = "0123456789";
-        public const string TagFilter = RuLang + EnLang + Digits + "-" + " ";
+        public const string TagFilter = RuLang + EnLang + Digits + "-" + " " + ".";
 
         private readonly HashSet<char> _chars;
 

@@ -10,6 +10,7 @@ using Steepshot.Core.Utils;
 using Steepshot.Services;
 using Steepshot.Utils;
 using System;
+using Steepshot.Core.HttpClient;
 
 namespace Steepshot.Base
 {
@@ -20,9 +21,10 @@ namespace Steepshot.Base
         {
         }
 
-        protected static LruCache Cache;
+        public static LruCache Cache;
+
         public override void OnCreate()
-        {            
+        {
             base.OnCreate();
             InitIoC(Context.Assets);
             InitPicassoCache();
@@ -45,21 +47,22 @@ namespace Steepshot.Base
             {
                 var builder = new ContainerBuilder();
                 var saverService = new SaverService();
-                var dataProvider = new DataProvider(saverService);
+                var dataProvider = new UserManager(saverService);
                 var appInfo = new AppInfo();
                 var assetsHelper = new AssetsHelper(assetManagerssets);
                 var connectionService = new ConnectionService();
 
-                var localization = dataProvider.SelectLocalization("en-us") ?? assetsHelper.GetLocalization("en-us");
-                var localizationManager = new LocalizationManager(localization);
+                var localizationManager = new LocalizationManager(saverService, assetsHelper);
+                var configManager = new ConfigManager(saverService, assetsHelper);
 
                 builder.RegisterInstance(assetsHelper).As<IAssetsHelper>().SingleInstance();
                 builder.RegisterInstance(appInfo).As<IAppInfo>().SingleInstance();
                 builder.RegisterInstance(saverService).As<ISaverService>().SingleInstance();
-                builder.RegisterInstance(dataProvider).As<IDataProvider>().SingleInstance();
+                builder.RegisterInstance(dataProvider).As<UserManager>().SingleInstance();
                 builder.RegisterInstance(connectionService).As<IConnectionService>().SingleInstance();
                 builder.RegisterInstance(connectionService).As<IConnectionService>().SingleInstance();
                 builder.RegisterInstance(localizationManager).As<LocalizationManager>().SingleInstance();
+                builder.RegisterInstance(configManager).As<ConfigManager>().SingleInstance();
                 var configInfo = assetsHelper.GetConfigInfo();
                 var reporterService = new ReporterService(appInfo, configInfo.RavenClientDsn);
                 builder.RegisterInstance(reporterService).As<IReporterService>().SingleInstance();

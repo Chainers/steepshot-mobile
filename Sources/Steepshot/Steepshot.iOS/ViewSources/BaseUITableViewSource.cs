@@ -1,18 +1,20 @@
 ﻿using System;
 using System.Linq;
-using Steepshot.Core.Presenters;
+using Steepshot.Core.Interfaces;
+using Steepshot.iOS.Cells;
 using UIKit;
 
 namespace Steepshot.iOS.ViewSources
 {
-    public abstract class BaseUiTableViewSource<T> : UITableViewSource
+    public abstract class BaseUITableViewSource : UITableViewSource
     {
         public Action ScrolledToBottom;
-        protected readonly ListPresenter<T> Presenter;
+        protected readonly IListPresenter Presenter;
         private UITableView _table;
         private int _prevPos;
+        protected string loaderCellIdentifier = nameof(LoaderCell);
 
-        protected BaseUiTableViewSource(ListPresenter<T> presenter, UITableView table)
+        protected BaseUITableViewSource(IListPresenter presenter, UITableView table)
         {
             Presenter = presenter;
             _table = table;
@@ -30,7 +32,7 @@ namespace Steepshot.iOS.ViewSources
                 var pos = _table.IndexPathsForVisibleRows.Last().Row;
                 if (!Presenter.IsLastReaded && pos > _prevPos)
                 {
-                    if (pos == Presenter.Count)
+                    if (pos + 1 == Presenter.Count)
                     {
                         _prevPos = pos;
                         ScrolledToBottom?.Invoke();

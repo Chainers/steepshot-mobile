@@ -50,7 +50,7 @@ namespace Steepshot.Core.HttpClient
 
             lock (_synk)
             {
-                if (!string.IsNullOrEmpty(Gateway.BaseUrl))
+                if (!string.IsNullOrEmpty(BaseUrl))
                 {
                     _ditchClient.EnableWrite = false;
                     _ctsMain.Cancel();
@@ -62,7 +62,7 @@ namespace Steepshot.Core.HttpClient
                     ? (BaseDitchClient)new SteemClient(JsonConverter)
                     : new GolosClient(JsonConverter);
 
-                Gateway.BaseUrl = sUrl;
+                BaseUrl = sUrl;
                 EnableRead = true;
             }
         }
@@ -199,7 +199,7 @@ namespace Steepshot.Core.HttpClient
 
             model.VerifyTransaction = JsonConverter.Serialize(trxResp.Result);
 
-            var endpoint = $"{GatewayVersion.V1P1}/media/upload";
+            var endpoint = $"{BaseUrl}/{GatewayVersion.V1P1}/media/upload";
             return await Gateway.UploadMedia(endpoint, model, ct);
         }
 

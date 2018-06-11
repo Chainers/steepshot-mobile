@@ -146,6 +146,7 @@ namespace Steepshot.iOS.Views
             warningView = new UIView();
             warningView.ClipsToBounds = true;
             warningView.BackgroundColor = Constants.R255G34B5;
+            warningView.Alpha = 0;
             Constants.CreateShadow(warningView, Constants.R231G72B0, 0.5f, 6, 10, 12);
             View.AddSubview(warningView);
 
@@ -208,7 +209,7 @@ namespace Steepshot.iOS.Views
             usersTable.RegisterClassForCellReuse(typeof(LoaderCell), nameof(LoaderCell));
             usersTable.RowHeight = 70f;
 
-            var _tagsSource = new TagsTableViewSource(_searchFacade.TagsPresenter, true);
+            var _tagsSource = new TagsTableViewSource(_searchFacade.TagsPresenter, tagsTable, true);
             _tagsSource.CellAction += CellAction;
             tagsTable.Source = _tagsSource;
             tagsTable.AllowsSelection = false;
