@@ -420,6 +420,7 @@
       <DependentUpon>DescriptionTableViewCell.cs</DependentUpon>
     </Compile>
     <Compile Include="Views\TagsSearchViewControllerDesign.cs" />
+    <Compile Include="ViewSources\FolderTableViewSource.cs" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\ic_photo_holder.png" />
