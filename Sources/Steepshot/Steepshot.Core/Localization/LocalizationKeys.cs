@@ -152,5 +152,11 @@
         TagSearchWarning,
         NoResultText,
         DuplicateTag,
+        RegistrationWith,
+        RegisterThroughSteemit,
+        RegisterThroughBlocktrades,
+        RegisterThroughSteemCreate,
+        Use,
+        Close,
     }
 }

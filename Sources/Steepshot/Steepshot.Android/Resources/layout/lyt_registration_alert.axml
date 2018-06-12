@@ -14,9 +14,9 @@
         android:layout_height="wrap_content"
         android:textSize="14sp"
         android:textColor="@color/black"
-        android:textStyle="normal"
+        android:textStyle="bold"
         android:text="Registration with"
-        android:textAlignment="center"
+        android:gravity="center"
         android:layout_marginTop="25dp" />
     <View
         android:layout_width="match_parent"
@@ -24,29 +24,32 @@
         android:layout_marginTop="25dp"
         android:background="@color/rgb244_244_246" />
     <Button
+        android:background="@drawable/registration_button_border"
         android:id="@+id/steemit_btn"
         android:layout_width="match_parent"
         android:layout_height="80dp"
         android:layout_marginTop="20dp"
         android:textAllCaps="false"
-        android:background="@drawable/registration_button_border"
-        android:layout_alignParentLeft="true" />
+        android:gravity="left|center_vertical"
+        android:drawablePadding="10dp" />
     <Button
+        android:background="@drawable/registration_button_border"
         android:id="@+id/blocktrades_btn"
         android:layout_width="match_parent"
         android:layout_height="80dp"
         android:layout_marginTop="20dp"
         android:textAllCaps="false"
-        android:background="@drawable/registration_button_border"
-        android:layout_alignParentLeft="true" />
+        android:gravity="left|center_vertical"
+        android:drawablePadding="10dp" />
     <Button
+        android:background="@drawable/registration_button_border"
         android:id="@+id/steemcreate_btn"
         android:layout_width="match_parent"
         android:layout_height="80dp"
         android:layout_marginTop="20dp"
         android:textAllCaps="false"
-        android:background="@drawable/registration_button_border"
-        android:layout_alignParentLeft="true" />
+        android:gravity="left|center_vertical"
+        android:drawablePadding="10dp" />
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"

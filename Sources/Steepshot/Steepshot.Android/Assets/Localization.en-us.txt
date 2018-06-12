@@ -203,6 +203,13 @@
         "Posts5minLimit":"You can publish no more than one post in 5 minutes",
         "PostsDayLimit":"You have reached per-day limit for 15 posts",
 
+        "RegistrationWith":"Registration with",
+        "RegisterThroughSteemit":"Register through Steemit",
+        "RegisterThroughBlocktrades":"Register through Blocktrades",
+        "RegisterThroughSteemCreate":"Register through SteemCreate",
+        "Use":"Use",
+        "Close":"Close",
+
         "<h1>Server Error (500)</h1>": "(500) Server Error",
         "<h1>Not Found</h1>":"Not Found",
         

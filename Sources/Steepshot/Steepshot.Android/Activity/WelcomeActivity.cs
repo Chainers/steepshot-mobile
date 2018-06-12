@@ -5,6 +5,7 @@ using Android.Content;
 using Android.Graphics;
 using Android.Graphics.Drawables;
 using Android.OS;
+using Android.Support.Design.Widget;
 using Android.Support.V7.Widget;
 using Android.Text;
 using Android.Text.Method;
@@ -14,6 +15,7 @@ using CheeseBind;
 using Steepshot.Base;
 using Steepshot.Core;
 using Steepshot.Core.Localization;
+using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 using Steepshot.Utils;
@@ -23,6 +25,7 @@ namespace Steepshot.Activity
     [Activity(ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait)]
     public sealed class WelcomeActivity : BaseActivity
     {
+        private RegistrationType registrationType;
         private int _clickCount;
 
 #pragma warning disable 0649, 4014
@@ -34,6 +37,9 @@ namespace Steepshot.Activity
         [BindView(Resource.Id.golos_loading_spinner)] private ProgressBar _golosLoder;
         [BindView(Resource.Id.terms)] private TextView _termsTextView;
         [BindView(Resource.Id.steepshot_logo)] private ImageView _steepshotLogo;
+        private Button steemit;
+        private Button blocktrades;
+        private Button steemcreate;
 #pragma warning restore 0649
 
         protected override void OnCreate(Bundle savedInstanceState)
@@ -104,25 +110,98 @@ namespace Steepshot.Activity
 
         private void RegistrationClick(object sender, EventArgs e)
         {
-            /*
-            var url = BasePresenter.Chain == KnownChains.Golos
-                ? Constants.GolosRegUrl
-                : Constants.SteemitRegUrl;
-
-            var uri = Android.Net.Uri.Parse(url);
-            var browserIntent = new Intent(Intent.ActionView, uri);
-            StartActivity(browserIntent);
-            */
-
             AlertDialog.Builder alertBuilder = new AlertDialog.Builder(this);
             var alert = alertBuilder.Create();
             var inflater = (LayoutInflater)GetSystemService(LayoutInflaterService);
-            var alertView = inflater.Inflate(Resource.Layout.lyt_registration_alert, null);
+            using (var alertView = inflater.Inflate(Resource.Layout.lyt_registration_alert, null))
+            {
+                steemit = alertView.FindViewById<Button>(Resource.Id.steemit_btn);
+                blocktrades = alertView.FindViewById<Button>(Resource.Id.blocktrades_btn);
+                steemcreate = alertView.FindViewById<Button>(Resource.Id.steemcreate_btn);
+                var use = alertView.FindViewById<Button>(Resource.Id.use_registration);
+                var close = alertView.FindViewById<Button>(Resource.Id.close_btn);
+                steemit.Selected = true;
+                registrationType = RegistrationType.Steemit;
 
-            alert.SetCancelable(true);
-            alert.SetView(alertView);
-            alert.Window.SetBackgroundDrawable(new ColorDrawable(Color.Transparent));
-            alert.Show();
+                steemit.SetCompoundDrawablesWithIntrinsicBounds(SetupLogo(Resource.Drawable.ic_steem), null, null, null);
+                blocktrades.SetCompoundDrawablesWithIntrinsicBounds(SetupLogo(Resource.Drawable.ic_blocktrade), null, null, null);
+                steemcreate.SetCompoundDrawablesWithIntrinsicBounds(SetupLogo(Resource.Drawable.ic_steemcreate), null, null, null);
+
+                steemit.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.RegisterThroughSteemit);
+                blocktrades.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.RegisterThroughBlocktrades);
+                steemcreate.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.RegisterThroughSteemCreate);
+
+                use.Click += (o, args) =>
+                {
+                    alert.Cancel();
+                    OnUse();
+                };
+
+                close.Click += (o, args) =>
+                {
+                    alert.Cancel();
+                };
+
+                steemit.Click += (o, args) =>
+                {
+                    blocktrades.Selected = steemcreate.Selected = false;
+                    steemit.Selected = true;
+                    registrationType = RegistrationType.Steemit;
+                };
+
+                blocktrades.Click += (o, args) =>
+                {
+                    steemit.Selected = steemcreate.Selected = false;
+                    blocktrades.Selected = true;
+                    registrationType = RegistrationType.Blocktrades;
+                };
+
+                steemcreate.Click += (o, args) =>
+                {
+                    steemit.Selected = blocktrades.Selected = false;
+                    steemcreate.Selected = true;
+                    registrationType = RegistrationType.SteemCreate;
+                };
+
+                alert.SetCancelable(true);
+                alert.SetView(alertView);
+                alert.Window.SetBackgroundDrawable(new ColorDrawable(Color.Transparent));
+
+                var windowManagerLayoutParams = alert.Window.Attributes;
+                windowManagerLayoutParams.Gravity = GravityFlags.Bottom;
+                windowManagerLayoutParams.Y = (int)BitmapUtils.DpToPixel(10, Resources);
+
+                alert.Show();
+            }
+        }
+
+        private BitmapDrawable SetupLogo(int drawable)
+        {
+            var logoSide = (int)BitmapUtils.DpToPixel(80, Resources);
+            var originalImage = BitmapFactory.DecodeResource(Resources, drawable);
+            var scaledBitmap = Bitmap.CreateScaledBitmap(originalImage, logoSide, logoSide, true);
+            return new BitmapDrawable(Resources, scaledBitmap);
+        }
+
+        private void OnUse()
+        {
+            Android.Net.Uri uri;
+
+            switch (registrationType)
+            { 
+                case RegistrationType.Steemit:
+                    uri = Android.Net.Uri.Parse(Constants.SteemitRegUrl);
+                    break;
+                case RegistrationType.Blocktrades:
+                    uri = Android.Net.Uri.Parse(Constants.BlocktradesRegUrl);
+                    break;
+                default:
+                    uri = Android.Net.Uri.Parse(Constants.SteemCreateRegUrl);
+                    break;
+            }
+
+            var browserIntent = new Intent(Intent.ActionView, uri);
+            StartActivity(browserIntent);
         }
 
         private void Logo_Click(object sender, EventArgs e)

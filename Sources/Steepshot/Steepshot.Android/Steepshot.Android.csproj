@@ -239,6 +239,12 @@
     <AndroidResource Include="Resources\drawable-mdpi\ic_blocktrade.png" />
     <AndroidResource Include="Resources\drawable-mdpi\ic_steem.png" />
     <AndroidResource Include="Resources\drawable-mdpi\ic_steemcreate.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_blocktrade.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_steem.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_steemcreate.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_blocktrade.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_steem.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_steemcreate.png" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\drawable\splash.xml" />
