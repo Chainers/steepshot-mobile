@@ -25,6 +25,7 @@ namespace Steepshot.Activity
     [Activity(ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait)]
     public sealed class WelcomeActivity : BaseActivity
     {
+        private Dialog _regActionsDialog;
         private RegistrationType registrationType;
         private int _clickCount;
 
@@ -37,9 +38,6 @@ namespace Steepshot.Activity
         [BindView(Resource.Id.golos_loading_spinner)] private ProgressBar _golosLoder;
         [BindView(Resource.Id.terms)] private TextView _termsTextView;
         [BindView(Resource.Id.steepshot_logo)] private ImageView _steepshotLogo;
-        private Button steemit;
-        private Button blocktrades;
-        private Button steemcreate;
 #pragma warning restore 0649
 
         protected override void OnCreate(Bundle savedInstanceState)
@@ -70,6 +68,9 @@ namespace Steepshot.Activity
             _golosLogin.Click += GolosLogin;
             _regButton.Click += RegistrationClick;
             _steepshotLogo.Click += Logo_Click;
+
+            _regActionsDialog = new BottomSheetDialog(this);
+            _regActionsDialog.Window.RequestFeature(WindowFeatures.NoTitle);
         }
 
         protected override void OnDestroy()
@@ -110,16 +111,25 @@ namespace Steepshot.Activity
 
         private void RegistrationClick(object sender, EventArgs e)
         {
-            AlertDialog.Builder alertBuilder = new AlertDialog.Builder(this);
-            var alert = alertBuilder.Create();
             var inflater = (LayoutInflater)GetSystemService(LayoutInflaterService);
-            using (var alertView = inflater.Inflate(Resource.Layout.lyt_registration_alert, null))
+            using (var dialogView = inflater.Inflate(Resource.Layout.lyt_registration_alert, null))
             {
-                steemit = alertView.FindViewById<Button>(Resource.Id.steemit_btn);
-                blocktrades = alertView.FindViewById<Button>(Resource.Id.blocktrades_btn);
-                steemcreate = alertView.FindViewById<Button>(Resource.Id.steemcreate_btn);
-                var use = alertView.FindViewById<Button>(Resource.Id.use_registration);
-                var close = alertView.FindViewById<Button>(Resource.Id.close_btn);
+                dialogView.SetMinimumWidth((int)(Resources.DisplayMetrics.WidthPixels * 0.8));
+
+                var title = dialogView.FindViewById<TextView>(Resource.Id.registration_title);
+                var steemit = dialogView.FindViewById<Button>(Resource.Id.steemit_btn);
+                var blocktrades = dialogView.FindViewById<Button>(Resource.Id.blocktrades_btn);
+                var steemcreate = dialogView.FindViewById<Button>(Resource.Id.steemcreate_btn);
+                var use = dialogView.FindViewById<Button>(Resource.Id.use_registration);
+                var close = dialogView.FindViewById<Button>(Resource.Id.close_btn);
+
+                title.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.RegistrationWith);
+                title.Typeface = Style.Semibold;
+
+                use.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Use);
+                close.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Close);
+                close.Typeface = Style.Semibold;
+
                 steemit.Selected = true;
                 registrationType = RegistrationType.Steemit;
 
@@ -133,13 +143,13 @@ namespace Steepshot.Activity
 
                 use.Click += (o, args) =>
                 {
-                    alert.Cancel();
+                    _regActionsDialog.Dismiss();
                     OnUse();
                 };
 
                 close.Click += (o, args) =>
                 {
-                    alert.Cancel();
+                    _regActionsDialog.Dismiss();
                 };
 
                 steemit.Click += (o, args) =>
@@ -163,15 +173,13 @@ namespace Steepshot.Activity
                     registrationType = RegistrationType.SteemCreate;
                 };
 
-                alert.SetCancelable(true);
-                alert.SetView(alertView);
-                alert.Window.SetBackgroundDrawable(new ColorDrawable(Color.Transparent));
+                _regActionsDialog.SetContentView(dialogView);
+                _regActionsDialog.Window.FindViewById(Resource.Id.design_bottom_sheet).SetBackgroundColor(Color.Transparent);
 
-                var windowManagerLayoutParams = alert.Window.Attributes;
-                windowManagerLayoutParams.Gravity = GravityFlags.Bottom;
-                windowManagerLayoutParams.Y = (int)BitmapUtils.DpToPixel(10, Resources);
+                var bottomSheet = _regActionsDialog.FindViewById<FrameLayout>(Resource.Id.design_bottom_sheet);
+                BottomSheetBehavior.From(bottomSheet).State = BottomSheetBehavior.StateExpanded;
 
-                alert.Show();
+                _regActionsDialog.Show();
             }
         }
 

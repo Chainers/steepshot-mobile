@@ -146,7 +146,6 @@
     <Compile Include="Utils\CameraOrientationEventListener.cs" />
     <Compile Include="Utils\NewTextEdit.cs" />
     <Compile Include="Utils\ListItemDecoration.cs" />
-    <Compile Include="Activity\WelcomeActivity.cs" />
     <Compile Include="Adapter\AccountsAdapter.cs" />
     <Compile Include="Utils\LoaderViewHolder.cs" />
     <Compile Include="Utils\SpanSizeLookups.cs" />
@@ -156,6 +155,7 @@
     <Compile Include="Fragment\CommentsFragment.cs" />
     <Compile Include="Services\GAService.cs" />
     <Compile Include="Utils\ViewUtils.cs" />
+    <Compile Include="Activity\WelcomeActivity.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

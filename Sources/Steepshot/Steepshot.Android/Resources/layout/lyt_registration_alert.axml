@@ -3,74 +3,75 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:maxWidth="355dp"
-    android:layout_margin="30dp"
-    android:paddingLeft="20dp"
-    android:paddingRight="20dp"
-    android:background="@drawable/popup_background">
-    <TextView
-        android:id="@+id/registration_title"
+    android:padding="10dp">
+    <LinearLayout
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="14sp"
-        android:textColor="@color/black"
-        android:textStyle="bold"
-        android:text="Registration with"
-        android:gravity="center"
-        android:layout_marginTop="25dp" />
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_marginTop="25dp"
-        android:background="@color/rgb244_244_246" />
-    <Button
-        android:background="@drawable/registration_button_border"
-        android:id="@+id/steemit_btn"
-        android:layout_width="match_parent"
-        android:layout_height="80dp"
-        android:layout_marginTop="20dp"
-        android:textAllCaps="false"
-        android:gravity="left|center_vertical"
-        android:drawablePadding="10dp" />
-    <Button
-        android:background="@drawable/registration_button_border"
-        android:id="@+id/blocktrades_btn"
-        android:layout_width="match_parent"
-        android:layout_height="80dp"
-        android:layout_marginTop="20dp"
-        android:textAllCaps="false"
-        android:gravity="left|center_vertical"
-        android:drawablePadding="10dp" />
-    <Button
-        android:background="@drawable/registration_button_border"
-        android:id="@+id/steemcreate_btn"
-        android:layout_width="match_parent"
-        android:layout_height="80dp"
-        android:layout_marginTop="20dp"
-        android:textAllCaps="false"
-        android:gravity="left|center_vertical"
-        android:drawablePadding="10dp" />
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_marginTop="20dp"
-        android:background="@color/rgb244_244_246" />
-    <Button
-        android:id="@+id/use_registration"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_marginTop="20dp"
-        android:textAllCaps="true"
-        android:text="Use"
-        android:background="@drawable/steem_login_border"
-        android:textColor="@color/white" />
-    <Button
-        android:id="@+id/close_btn"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="20dp"
-        android:textAllCaps="true"
-        android:text="Close"
-        android:background="@drawable/grey_rounded_border" />
+        android:background="@drawable/popup_background">
+        <TextView
+            android:id="@+id/registration_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="14sp"
+            android:textColor="@color/black"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:layout_marginTop="25dp" />
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="25dp"
+            android:background="@color/rgb244_244_246" />
+        <Button
+            android:background="@drawable/registration_button_border"
+            android:id="@+id/steemit_btn"
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:layout_marginTop="20dp"
+            android:textAllCaps="false"
+            android:gravity="left|center_vertical"
+            android:drawablePadding="10dp" />
+        <Button
+            android:background="@drawable/registration_button_border"
+            android:id="@+id/blocktrades_btn"
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:layout_marginTop="20dp"
+            android:textAllCaps="false"
+            android:gravity="left|center_vertical"
+            android:drawablePadding="10dp" />
+        <Button
+            android:background="@drawable/registration_button_border"
+            android:id="@+id/steemcreate_btn"
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:layout_marginTop="20dp"
+            android:textAllCaps="false"
+            android:gravity="left|center_vertical"
+            android:drawablePadding="10dp" />
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="20dp"
+            android:background="@color/rgb244_244_246" />
+        <Button
+            android:id="@+id/use_registration"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginTop="20dp"
+            android:textAllCaps="true"
+            android:background="@drawable/steem_login_border"
+            android:textColor="@color/white" />
+        <Button
+            android:id="@+id/close_btn"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="20dp"
+            android:textAllCaps="true"
+            android:background="@drawable/grey_rounded_border" />
+    </LinearLayout>
 </LinearLayout>
