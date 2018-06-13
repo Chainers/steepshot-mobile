@@ -156,6 +156,7 @@
     <Compile Include="Services\GAService.cs" />
     <Compile Include="Utils\ViewUtils.cs" />
     <Compile Include="Activity\WelcomeActivity.cs" />
+    <Compile Include="Activity\RegistrationActivity.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

@@ -153,6 +153,7 @@
         NoResultText,
         DuplicateTag,
         RegistrationWith,
+        RegisterWithEmail,
         RegisterThroughSteemit,
         RegisterThroughBlocktrades,
         RegisterThroughSteemCreate,
