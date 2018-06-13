@@ -114,8 +114,6 @@ namespace Steepshot.Activity
             var inflater = (LayoutInflater)GetSystemService(LayoutInflaterService);
             using (var dialogView = inflater.Inflate(Resource.Layout.lyt_registration_alert, null))
             {
-                dialogView.SetMinimumWidth((int)(Resources.DisplayMetrics.WidthPixels * 0.8));
-
                 var title = dialogView.FindViewById<TextView>(Resource.Id.registration_title);
                 var steemit = dialogView.FindViewById<Button>(Resource.Id.steemit_btn);
                 var blocktrades = dialogView.FindViewById<Button>(Resource.Id.blocktrades_btn);
@@ -174,12 +172,11 @@ namespace Steepshot.Activity
                 };
 
                 _regActionsDialog.SetContentView(dialogView);
-                _regActionsDialog.Window.FindViewById(Resource.Id.design_bottom_sheet).SetBackgroundColor(Color.Transparent);
-
-                var bottomSheet = _regActionsDialog.FindViewById<FrameLayout>(Resource.Id.design_bottom_sheet);
-                BottomSheetBehavior.From(bottomSheet).State = BottomSheetBehavior.StateExpanded;
-
+                var bottomSheet = _regActionsDialog.Window.FindViewById(Resource.Id.design_bottom_sheet);
+                bottomSheet.SetBackgroundColor(Color.Transparent);
                 _regActionsDialog.Show();
+
+                BottomSheetBehavior.From(bottomSheet).State = BottomSheetBehavior.StateExpanded;
             }
         }
 
@@ -196,7 +193,7 @@ namespace Steepshot.Activity
             Android.Net.Uri uri;
 
             switch (registrationType)
-            { 
+            {
                 case RegistrationType.Steemit:
                     uri = Android.Net.Uri.Parse(Constants.SteemitRegUrl);
                     break;
