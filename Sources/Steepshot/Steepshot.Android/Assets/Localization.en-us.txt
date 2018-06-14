@@ -203,11 +203,11 @@
         "Posts5minLimit":"You can publish no more than one post in 5 minutes",
         "PostsDayLimit":"You have reached per-day limit for 15 posts",
 
-        "RegistrationWith":"Registration",
-        "RegisterWithEmail":"Register with Email",
-        "RegisterThroughSteemit":"Register with Steemit",
-        "RegisterThroughBlocktrades":"Register with Blocktrades",
-        "RegisterThroughSteemCreate":"Register with SteemCreate",
+        "RegistrationWith":"Create account",
+        "RegisterWithEmail":"Sign up with Email",
+        "RegisterThroughSteemit":"Sign up with Steemit",
+        "RegisterThroughBlocktrades":"Sign up with Blocktrades",
+        "RegisterThroughSteemCreate":"Sign up with SteemCreate",
         "Use":"Use",
         "Close":"Close",
 
