@@ -6,7 +6,7 @@
 
 using Foundation;
 
-namespace SteepshotShareExtension
+namespace Steepshot
 {
     [Register("ShareViewController")]
     partial class ShareViewController

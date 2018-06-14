@@ -471,11 +471,11 @@ namespace Steepshot.iOS.Cells
 
             _verticalSeparator.Frame = new CGRect(_contentView.Frame.Width - likeButtonWidthConst - 1, _photoScroll.Frame.Bottom + underPhotoPanelHeight / 2 - verticalSeparatorHeight / 2, 1, verticalSeparatorHeight);
 
-            /*
-            _rewards.Text = BaseViewController.ToFormatedCurrencyString(_currentPost.TotalPayoutReward);
+#if DEBUG
+            _rewards.Text = BasePresenter.ToFormatedCurrencyString(_currentPost.TotalPayoutReward);
             var rewardWidth = _rewards.SizeThatFits(new CGSize(0, underPhotoPanelHeight));
             _rewards.Frame = new CGRect(_verticalSeparator.Frame.Left - rewardWidth.Width, _photoScroll.Frame.Bottom, rewardWidth.Width, underPhotoPanelHeight);
-            */
+#endif
 
             _topSeparator.Frame = new CGRect(0, _photoScroll.Frame.Bottom + underPhotoPanelHeight, UIScreen.MainScreen.Bounds.Width, 1);
 

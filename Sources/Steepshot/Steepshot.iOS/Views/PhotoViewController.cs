@@ -205,7 +205,7 @@ namespace Steepshot.iOS.Views
                 var deviceRatio = UIScreen.MainScreen.Bounds.Width / UIScreen.MainScreen.Bounds.Height;
 
                 var x = ((float)inSampleSize.Width - Core.Constants.PhotoMaxSize * (float)deviceRatio) / 2f;
-                photo = CropImage(photo, x, 0, Core.Constants.PhotoMaxSize * (float)deviceRatio, Core.Constants.PhotoMaxSize, inSampleSize);
+                photo = ImageHelper.CropImage(photo, x, 0, Core.Constants.PhotoMaxSize * (float)deviceRatio, Core.Constants.PhotoMaxSize, inSampleSize);
                 GoToDescription(photo, orientationOnPhoto);
             }
             catch (Exception ex)
@@ -213,22 +213,6 @@ namespace Steepshot.iOS.Views
                 AppSettings.Reporter.SendCrash(ex);
                 ShowAlert(Core.Localization.LocalizationKeys.PhotoProcessingError);
             }
-        }
-
-        private UIImage CropImage(UIImage sourceImage, float cropX, float cropY, float width, float height, CGSize inSampleSize)
-        {
-            var imgSize = sourceImage.Size;
-            UIGraphics.BeginImageContext(new SizeF(width, height));
-            var context = UIGraphics.GetCurrentContext();
-            var clippedRect = new RectangleF(0, 0, width, height);
-            context.ClipToRect(clippedRect);
-
-            var drawRect = new CGRect(-cropX, -cropY, inSampleSize.Width, inSampleSize.Height);
-            sourceImage.Draw(drawRect);
-            var modifiedImage = UIGraphics.GetImageFromCurrentImageContext();
-            UIGraphics.EndImageContext();
-            context.Dispose();
-            return modifiedImage;
         }
 
         public override void ViewWillDisappear(bool animated)
