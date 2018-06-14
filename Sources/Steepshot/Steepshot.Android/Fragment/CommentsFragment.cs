@@ -84,8 +84,8 @@ namespace Steepshot.Fragment
 
             base.OnViewCreated(view, savedInstanceState);
 
-            _cancel.Text = "Cancel";
-            _save.Text = "Save";
+            _cancel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Cancel);
+            _save.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Save);
             _textInput.Hint = AppSettings.LocalizationManager.GetText(LocalizationKeys.PutYourComment);
             _viewTitle.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Comments);
 

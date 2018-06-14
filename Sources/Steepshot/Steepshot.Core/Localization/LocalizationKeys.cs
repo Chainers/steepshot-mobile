@@ -112,6 +112,7 @@
         DeletePost,
         CopyLink,
         Cancel,
+        Save,
         Retry,
         Delete,
         PutYourComment,
@@ -159,5 +160,6 @@
         RegisterThroughSteemCreate,
         Use,
         Close,
+        VotingPowerSetting
     }
 }

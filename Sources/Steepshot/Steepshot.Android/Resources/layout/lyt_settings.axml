@@ -111,6 +111,27 @@
                         android:layout_centerVertical="true"
                         android:layout_alignParentRight="true" />
                 </RelativeLayout>
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/rgb244_244_246" />
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="59dp">
+                    <TextView
+                        android:id="@+id/power_switch_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/rgb15_24_30"
+                        android:textSize="@dimen/dp_button_text"
+                        android:layout_centerVertical="true" />
+                    <android.support.v7.widget.SwitchCompat
+                        android:id="@+id/power_switch"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_alignParentRight="true" />
+                </RelativeLayout>
                 <include
                     layout="@layout/lyt_notifications_settings" />
                 <Button
