@@ -147,7 +147,6 @@
     <Compile Include="Utils\CameraOrientationEventListener.cs" />
     <Compile Include="Utils\NewTextEdit.cs" />
     <Compile Include="Utils\ListItemDecoration.cs" />
-    <Compile Include="Activity\WelcomeActivity.cs" />
     <Compile Include="Adapter\AccountsAdapter.cs" />
     <Compile Include="Utils\LoaderViewHolder.cs" />
     <Compile Include="Utils\SpanSizeLookups.cs" />
@@ -157,6 +156,8 @@
     <Compile Include="Fragment\CommentsFragment.cs" />
     <Compile Include="Services\GAService.cs" />
     <Compile Include="Utils\ViewUtils.cs" />
+    <Compile Include="Activity\WelcomeActivity.cs" />
+    <Compile Include="Activity\RegistrationActivity.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
@@ -234,6 +235,18 @@
     <AndroidResource Include="Resources\layout\lyt_single_post.axml" />
     <AndroidResource Include="Resources\layout\lyt_notifications_settings.axml" />
     <AndroidResource Include="Resources\layout\lyt_profile_popup.axml" />
+    <AndroidResource Include="Resources\layout\lyt_registration_alert.axml" />
+    <AndroidResource Include="Resources\drawable\registration_button_border.xml" />
+    <AndroidResource Include="Resources\drawable\grey_rounded_border.xml" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_blocktrade.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_steem.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_steemcreate.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_blocktrade.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_steem.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_steemcreate.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_blocktrade.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_steem.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_steemcreate.png" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\drawable\splash.xml" />

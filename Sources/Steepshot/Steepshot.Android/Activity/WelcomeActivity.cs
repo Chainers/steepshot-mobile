@@ -70,7 +70,6 @@ namespace Steepshot.Activity
             Cheeseknife.Reset(this);
         }
 
-
         private async void SteemLogin(object sender, EventArgs e)
         {
             _steemLoader.Visibility = ViewStates.Visible;
@@ -103,13 +102,8 @@ namespace Steepshot.Activity
 
         private void RegistrationClick(object sender, EventArgs e)
         {
-            var url = BasePresenter.Chain == KnownChains.Golos
-                ? Constants.GolosRegUrl
-                : Constants.SteemitRegUrl;
-
-            var uri = Android.Net.Uri.Parse(url);
-            var browserIntent = new Intent(Intent.ActionView, uri);
-            StartActivity(browserIntent);
+            var intent = new Intent(this, typeof(RegistrationActivity));
+            StartActivity(intent);
         }
 
         private void Logo_Click(object sender, EventArgs e)

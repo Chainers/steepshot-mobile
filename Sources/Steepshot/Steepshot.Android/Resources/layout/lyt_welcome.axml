@@ -31,15 +31,15 @@
         android:textColor="@color/rgb15_24_30"
         android:textSize="14sp"
         android:textAllCaps="false"
-        android:layout_marginRight="15dp"
-        android:layout_marginLeft="15dp" />
+        android:layout_marginRight="55dp"
+        android:layout_marginLeft="55dp" />
     <RelativeLayout
         android:id="@+id/golos_login_layout"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:layout_marginRight="14dp"
-        android:layout_marginLeft="15dp"
-        android:layout_marginBottom="20dp"
+        android:layout_marginRight="55dp"
+        android:layout_marginLeft="55dp"
+        android:layout_marginBottom="40dp"
         android:layout_above="@id/reg_button"
         android:background="@android:color/transparent">
         <Button
@@ -64,9 +64,9 @@
         android:id="@+id/steem_login_layout"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:layout_marginRight="14dp"
-        android:layout_marginLeft="15dp"
-        android:layout_marginBottom="20dp"
+        android:layout_marginRight="55dp"
+        android:layout_marginLeft="55dp"
+        android:layout_marginBottom="10dp"
         android:background="@android:color/transparent"
         android:layout_above="@id/golos_login_layout">
         <Button
@@ -91,6 +91,8 @@
         android:id="@+id/steepshot_logo_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginRight="108dp"
+        android:layout_marginLeft="108dp"
         android:layout_above="@id/steem_login_layout">
         <ImageView
             android:id="@+id/steepshot_logo"
