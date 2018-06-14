@@ -18,8 +18,8 @@
             android:layout_width="match_parent"
             android:layout_height="80dp"
             android:textAllCaps="false"
-            android:gravity="left|center_vertical"
-            android:drawablePadding="10dp" />
+            android:paddingRight="20dp"
+            android:gravity="left|center_vertical" />
         <Button
             android:background="@drawable/registration_button_border"
             android:id="@+id/blocktrades_btn"
@@ -27,8 +27,8 @@
             android:layout_height="80dp"
             android:layout_marginTop="10dp"
             android:textAllCaps="false"
-            android:gravity="left|center_vertical"
-            android:drawablePadding="10dp" />
+            android:paddingRight="20dp"
+            android:gravity="left|center_vertical" />
         <Button
             android:background="@drawable/registration_button_border"
             android:id="@+id/steemcreate_btn"
@@ -36,7 +36,7 @@
             android:layout_height="80dp"
             android:layout_marginTop="10dp"
             android:textAllCaps="false"
-            android:gravity="left|center_vertical"
-            android:drawablePadding="10dp" />
+            android:paddingRight="20dp"
+            android:gravity="left|center_vertical" />
     </LinearLayout>
 </LinearLayout>

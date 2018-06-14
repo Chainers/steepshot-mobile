@@ -51,10 +51,12 @@ namespace Steepshot.Activity
         }
 
         private void SetupView()
-        { 
-            steemit.SetCompoundDrawablesWithIntrinsicBounds(SetupLogo(Resource.Drawable.ic_steem), null, null, null);
-            blocktrades.SetCompoundDrawablesWithIntrinsicBounds(SetupLogo(Resource.Drawable.ic_blocktrade), null, null, null);
-            steemcreate.SetCompoundDrawablesWithIntrinsicBounds(SetupLogo(Resource.Drawable.ic_steemcreate), null, null, null);
+        {
+            var arrow = Resources.GetDrawable(Resource.Drawable.ic_forward);
+
+            steemit.SetCompoundDrawablesWithIntrinsicBounds(SetupLogo(Resource.Drawable.ic_steem), null, arrow, null);
+            blocktrades.SetCompoundDrawablesWithIntrinsicBounds(SetupLogo(Resource.Drawable.ic_blocktrade), null, arrow, null);
+            steemcreate.SetCompoundDrawablesWithIntrinsicBounds(SetupLogo(Resource.Drawable.ic_steemcreate), null, arrow, null);
 
             steemit.Text = $"{AppSettings.LocalizationManager.GetText(LocalizationKeys.RegisterThroughSteemit)} (free)";
             blocktrades.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.RegisterThroughBlocktrades);
