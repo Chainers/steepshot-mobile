@@ -556,7 +556,7 @@
       <Project>{8C01B785-CFC3-4308-8BE9-BB2F043631DA}</Project>
       <Name>Steepshot.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Steepshot\Steepshot.csproj">
+    <ProjectReference Include="..\Steepshot.iOS.ShareExtension\Steepshot.iOS.ShareExtension.csproj">
       <IsAppExtension>true</IsAppExtension>
       <Project>{1A245752-C27A-4239-AF30-E12B7C456E20}</Project>
       <Name>Steepshot.iOS.ShareExtension</Name>
