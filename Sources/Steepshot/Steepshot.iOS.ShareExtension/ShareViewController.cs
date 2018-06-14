@@ -18,7 +18,8 @@ namespace Steepshot
 
         public override void ViewDidLoad()
         {
-            foreach (var attachment in ExtensionContext.InputItems.FirstOrDefault().Attachments)
+            var attachments = ExtensionContext.InputItems.First().Attachments;
+            foreach (var attachment in attachments)
             {
                 if (attachment.HasItemConformingTo(UTType.Image))
                 {
