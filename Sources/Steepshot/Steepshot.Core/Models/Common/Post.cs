@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using Newtonsoft.Json;
+using Steepshot.Core.Extensions;
 using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Models.Common
@@ -60,7 +62,22 @@ namespace Steepshot.Core.Models.Common
 
         public string[] Resteemed { get; set; }
 
-        public string[] TopLikersAvatars { get; set; }
+        [JsonIgnore]
+        private string[] _topLikersAvatars;
+
+        public string[] TopLikersAvatars
+        {
+            get { return _topLikersAvatars; }
+            set
+            {
+                ProxyTopLikersAvatars.Clear();
+                foreach (var item in value)
+                {
+                    ProxyTopLikersAvatars.Add($"{string.Format(Constants.ProxyForAvatars, 100, 100)}{item}");
+                }
+                _topLikersAvatars = value;
+            }
+        }
 
         public bool IsLowRated { get; set; }
 
@@ -83,7 +100,10 @@ namespace Steepshot.Core.Models.Common
         public bool IsComment { get; set; } = true;
         [JsonIgnore]
         public bool Editing { get; set; }
-
+        //[JsonIgnore]
+        //public string ProxyAvatar => Avatar.GetProxy(200, 200);
+        [JsonIgnore]
+        public List<string> ProxyTopLikersAvatars = new List<string>();
         public string Permlink
         {
             get

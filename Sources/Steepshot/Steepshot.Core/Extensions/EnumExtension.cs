@@ -39,5 +39,14 @@ namespace Steepshot.Core.Extensions
             }
             return list;
         }
+
+        public static string GetEnumDescription(this Enum value)
+        {
+            var fi = value.GetType().GetField(value.ToString());
+            var attributes = fi.GetCustomAttributes(typeof(EnumMemberAttribute), false);
+            if (attributes.Length > 0)
+                return ((EnumMemberAttribute)attributes[0]).Value;
+            return value.ToString();
+        }
     }
 }

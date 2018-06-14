@@ -81,13 +81,9 @@ namespace Steepshot.Core.Extensions
             return rez;
         }
 
-        public static string GetEnumDescription(this System.Enum value)
+        public static string GetProxy(this string link, int width, int height)
         {
-            var fi = value.GetType().GetField(value.ToString());
-            var attributes = fi.GetCustomAttributes(typeof(EnumMemberAttribute), false);
-            if (attributes.Length > 0)
-                return ((EnumMemberAttribute)attributes[0]).Value;
-            return value.ToString();
+            return $"{string.Format(Constants.ProxyForAvatars, width, height)}{link}";
         }
     }
 }
