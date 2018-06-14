@@ -26,6 +26,7 @@ using Steepshot.Core.Models.Enums;
 using Steepshot.CustomViews;
 using Object = Java.Lang.Object;
 using Steepshot.Activity;
+using Steepshot.Core;
 
 namespace Steepshot.Adapter
 {
@@ -406,7 +407,7 @@ namespace Steepshot.Adapter
         {
             _moreActionsDialog.Dismiss();
             var clipboard = (ClipboardManager)Context.GetSystemService(Context.ClipboardService);
-            var clip = ClipData.NewPlainText(ClipboardTitle, AppSettings.LocalizationManager.GetText(LocalizationKeys.PostLink, Post.Url));
+            var clip = ClipData.NewPlainText(ClipboardTitle, string.Format(AppSettings.User.Chain == KnownChains.Steem ? Constants.SteemPostUrl : Constants.GolosPostUrl, Post.Url));
             clipboard.PrimaryClip = clip;
             Context.ShowAlert(LocalizationKeys.Copied, ToastLength.Short);
             clip.Dispose();
