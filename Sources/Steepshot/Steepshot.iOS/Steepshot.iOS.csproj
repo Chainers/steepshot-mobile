@@ -103,9 +103,6 @@
     <OutputPath>bin\x86\Release\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Autofac, Version=4.8.0.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
-      <HintPath>..\packages\Autofac.4.8.0\lib\netstandard1.1\Autofac.dll</HintPath>
-    </Reference>
     <Reference Include="Cryptography.ECDSA, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Cryptography.ECDSA.Secp256K1.1.1.0\lib\netstandard2.0\Cryptography.ECDSA.dll</HintPath>
     </Reference>
@@ -183,6 +180,9 @@
     </Reference>
     <Reference Include="FFImageLoading.Platform">
       <HintPath>..\packages\Xamarin.FFImageLoading.2.4.3.840\lib\Xamarin.iOS10\FFImageLoading.Platform.dll</HintPath>
+    </Reference>
+    <Reference Include="Autofac">
+      <HintPath>..\packages\Autofac.4.8.1\lib\netstandard1.1\Autofac.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -421,6 +421,7 @@
     </Compile>
     <Compile Include="Views\TagsSearchViewControllerDesign.cs" />
     <Compile Include="ViewSources\FolderTableViewSource.cs" />
+    <Compile Include="Helpers\Logger.cs" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\ic_photo_holder.png" />
@@ -554,6 +555,11 @@
     <ProjectReference Include="..\Steepshot.Core\Steepshot.Core.csproj">
       <Project>{8C01B785-CFC3-4308-8BE9-BB2F043631DA}</Project>
       <Name>Steepshot.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Steepshot.iOS.ShareExtension\Steepshot.iOS.ShareExtension.csproj">
+      <IsAppExtension>true</IsAppExtension>
+      <Project>{1A245752-C27A-4239-AF30-E12B7C456E20}</Project>
+      <Name>Steepshot.iOS.ShareExtension</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

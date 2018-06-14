@@ -6,7 +6,6 @@ using Foundation;
 using Steepshot.Core.Authority;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Enums;
-using Steepshot.Core.Presenters;
 using Steepshot.Core.Extensions;
 using Steepshot.Core.Services;
 using Steepshot.Core.Utils;
@@ -15,13 +14,11 @@ using Steepshot.iOS.Services;
 using Steepshot.iOS.ViewControllers;
 using Steepshot.iOS.Views;
 using UIKit;
-using Com.OneSignal.iOS;
 using Steepshot.Core.HttpClient;
+using System.Collections.Generic;
 
 namespace Steepshot.iOS
 {
-    // The UIApplicationDelegate for the application. This class is responsible for launching the
-    // AppSettings.User Interface of the application, as well as listening (and optionally responding) to application events from iOS.
     [Register("AppDelegate")]
     public class AppDelegate : UIApplicationDelegate
     {
@@ -36,7 +33,7 @@ namespace Steepshot.iOS
             var appInfo = new AppInfo();
             var connectionService = new ConnectionService();
             var assetsHelper = new AssetsHelper();
-            
+
             var localizationManager = new LocalizationManager(saverService, assetsHelper);
             var configManager = new ConfigManager(saverService, assetsHelper);
 
@@ -67,7 +64,7 @@ namespace Steepshot.iOS
 
             if (AppSettings.AppInfo.GetModel() != "Simulator")
             {
-                Com.OneSignal.OneSignal.Current.StartInit("77fa644f-3280-4e87-9f14-1f0c7ddf8ca5")
+                OneSignal.Current.StartInit("77fa644f-3280-4e87-9f14-1f0c7ddf8ca5")
                          .InFocusDisplaying(Com.OneSignal.Abstractions.OSInFocusDisplayOption.Notification)
                          .HandleNotificationOpened(HandleNotificationOpened)
                          .EndInit();
@@ -102,31 +99,31 @@ namespace Steepshot.iOS
             }
         }
 
-        /*
         public override bool OpenUrl(UIApplication app, NSUrl url, NSDictionary options)
         {
             var tabController = Window.RootViewController as UINavigationController;
-            Task.Delay(500).ContinueWith(_ => InvokeOnMainThread(() =>
+            if (AppSettings.User.IsAuthenticated)
             {
-                if (AppSettings.User.IsAuthenticated)
-                {
-                    var urlCollection = url.ToString().Replace("steepshot://", string.Empty).Split('%');
-                    var nsFileManager = new NSFileManager();
-                    var imageData = nsFileManager.Contents(urlCollection[0]);
-                    var sharedPhoto = UIImage.LoadFromData(imageData);
-                    //TODO:KOA: Test System.IO.Path.GetExtension(urlCollection[0] expected something like .jpg / .gif etc.
-                    var descriptionViewController = new DescriptionViewController(sharedPhoto, System.IO.Path.GetExtension(urlCollection[0]), UIDeviceOrientation.Portrait);
-                    tabController.PushViewController(descriptionViewController, true);
-                }
-                else
-                {
-                    var preLoginViewController = new PreLoginViewController();
-                    tabController.PushViewController(preLoginViewController, true);
-                }
-            }));
+                var urlCollection = url.ToString().Replace("steepshot://", string.Empty);
+                var nsFileManager = new NSFileManager();
+                var imageData = nsFileManager.Contents(urlCollection);
+                var sharedPhoto = UIImage.LoadFromData(imageData);
+
+                var inSampleSize = ImageHelper.CalculateInSampleSize(sharedPhoto.Size, Core.Constants.PhotoMaxSize, Core.Constants.PhotoMaxSize);
+                var deviceRatio = UIScreen.MainScreen.Bounds.Width / UIScreen.MainScreen.Bounds.Height;
+                var x = ((float)inSampleSize.Width - Core.Constants.PhotoMaxSize * (float)deviceRatio) / 2f;
+
+                sharedPhoto = ImageHelper.CropImage(sharedPhoto, 0, 0, (float)inSampleSize.Width, (float)inSampleSize.Height, inSampleSize);
+                var descriptionViewController = new DescriptionViewController(new List<Tuple<NSDictionary, UIImage>>() { new Tuple<NSDictionary, UIImage>(null, sharedPhoto) }, "jpg");
+                tabController.PushViewController(descriptionViewController, false);
+            }
+            else
+            {
+                tabController.PushViewController(new WelcomeViewController(), false);
+            }
             return true;
         }
-*/
+
         public override void OnResignActivation(UIApplication application)
         {
             // Invoked when the application is about to move from active to inactive state.
@@ -150,7 +147,6 @@ namespace Steepshot.iOS
 
         public override void OnActivated(UIApplication application)
         {
-            //SharePhoto();
             // Restart any tasks that were paused (or not yet started) while the application was inactive. 
             // If the application was previously in the background, optionally refresh the AppSettings.User interface.
         }
