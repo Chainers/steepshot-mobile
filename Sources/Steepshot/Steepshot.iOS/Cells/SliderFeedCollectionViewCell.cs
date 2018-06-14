@@ -333,13 +333,20 @@ namespace Steepshot.iOS.Cells
             _contentView.AddSubview(_avatarImage);
             _scheduledWorkAvatar?.Cancel();
             if (!string.IsNullOrEmpty(_currentPost.Avatar))
-                _scheduledWorkAvatar = ImageService.Instance.LoadUrl(_currentPost.Avatar, TimeSpan.FromDays(30))
+                _scheduledWorkAvatar = ImageService.Instance.LoadUrl(_currentPost.Avatar.GetProxy(200, 200), TimeSpan.FromDays(30))
                                                    .WithCache(FFImageLoading.Cache.CacheType.All)
                                                    .FadeAnimation(false)
-                                                   .DownSample(200)
                                                    .LoadingPlaceholder("ic_noavatar.png")
                                                    .ErrorPlaceholder("ic_noavatar.png")
-                                                   .WithPriority(LoadingPriority.Normal)
+                                                   .WithPriority(LoadingPriority.Normal).Error((f) =>
+                                                   {
+                                                   ImageService.Instance.LoadUrl(_currentPost.Avatar, TimeSpan.FromDays(30))
+                                                                             .FadeAnimation(false, false, 0)
+                                                                             .LoadingPlaceholder("ic_noavatar.png")
+                                                                             .ErrorPlaceholder("ic_noavatar.png")
+                                                                             .DownSample(width: (int)200)
+                                                                             .Into(_avatarImage);
+                                                   })
                                                    .Into(_avatarImage);
             else
                 _avatarImage.Image = UIImage.FromBundle("ic_noavatar");
@@ -404,13 +411,20 @@ namespace Steepshot.iOS.Cells
                 _firstLikerImage.Frame = new CGRect(leftMargin, _photoScroll.Frame.Bottom + likersY, likersImageSide, likersImageSide);
                 _scheduledWorkfirst?.Cancel();
 
-                _scheduledWorkfirst = ImageService.Instance.LoadUrl(_currentPost.TopLikersAvatars[0], TimeSpan.FromDays(30))
+                _scheduledWorkfirst = ImageService.Instance.LoadUrl(_currentPost.TopLikersAvatars[0].GetProxy(100, 100), TimeSpan.FromDays(30))
                                                   .WithCache(FFImageLoading.Cache.CacheType.All)
                                                   .LoadingPlaceholder("ic_noavatar.png")
                                                   .ErrorPlaceholder("ic_noavatar.png")
-                                                  .DownSample(width: 100)
                                                   .FadeAnimation(false)
-                                                  .WithPriority(LoadingPriority.Lowest)
+                                                  .WithPriority(LoadingPriority.Lowest).Error((f) =>
+                                                  {
+                                                    ImageService.Instance.LoadUrl(_currentPost.TopLikersAvatars[0], TimeSpan.FromDays(30))
+                                                                              .FadeAnimation(false, false, 0)
+                                                                              .LoadingPlaceholder("ic_noavatar.png")
+                                                                              .ErrorPlaceholder("ic_noavatar.png")
+                                                                              .DownSample(width: (int)100)
+                                                                .Into(_firstLikerImage);
+                                                  })
                                                   .Into(_firstLikerImage);
                 likesMargin = _firstLikerImage.Frame.Right + likesMarginConst;
             }
@@ -429,13 +443,21 @@ namespace Steepshot.iOS.Cells
                 _secondLikerImage.Frame = new CGRect(_firstLikerImage.Frame.Right - likersMargin, _photoScroll.Frame.Bottom + likersY, likersImageSide, likersImageSide);
                 _scheduledWorksecond?.Cancel();
 
-                _scheduledWorksecond = ImageService.Instance.LoadUrl(_currentPost.TopLikersAvatars[1], TimeSpan.FromDays(30))
+                _scheduledWorksecond = ImageService.Instance.LoadUrl(_currentPost.TopLikersAvatars[1].GetProxy(100, 100), TimeSpan.FromDays(30))
                                                     .WithCache(FFImageLoading.Cache.CacheType.All)
                                                     .LoadingPlaceholder("ic_noavatar.png")
                                                     .ErrorPlaceholder("ic_noavatar.png")
                                                     .WithPriority(LoadingPriority.Lowest)
-                                                    .DownSample(width: 100)
                                                     .FadeAnimation(false)
+                                                                 .Error((f) =>
+                                                                 {
+                                                                     ImageService.Instance.LoadUrl(_currentPost.TopLikersAvatars[0], TimeSpan.FromDays(30))
+                                                                                               .FadeAnimation(false, false, 0)
+                                                                                               .LoadingPlaceholder("ic_noavatar.png")
+                                                                                               .ErrorPlaceholder("ic_noavatar.png")
+                                                                                               .DownSample(width: (int)100)
+                                                                                 .Into(_secondLikerImage);
+                                                                 })
                                                     .Into(_secondLikerImage);
                 likesMargin = _secondLikerImage.Frame.Right + likesMarginConst;
             }
@@ -454,13 +476,21 @@ namespace Steepshot.iOS.Cells
                 _thirdLikerImage.Frame = new CGRect(_secondLikerImage.Frame.Right - likersMargin, _photoScroll.Frame.Bottom + likersY, likersImageSide, likersImageSide);
                 _scheduledWorkthird?.Cancel();
 
-                _scheduledWorkthird = ImageService.Instance.LoadUrl(_currentPost.TopLikersAvatars[2], TimeSpan.FromDays(30))
+                _scheduledWorkthird = ImageService.Instance.LoadUrl(_currentPost.TopLikersAvatars[2].GetProxy(100, 100), TimeSpan.FromDays(30))
                                                    .WithCache(FFImageLoading.Cache.CacheType.All)
                                                    .LoadingPlaceholder("ic_noavatar.png")
                                                    .ErrorPlaceholder("ic_noavatar.png")
                                                    .WithPriority(LoadingPriority.Lowest)
-                                                   .DownSample(width: 100)
                                                    .FadeAnimation(false)
+                                                  .Error((f) =>
+                                                  {
+                                                      ImageService.Instance.LoadUrl(_currentPost.TopLikersAvatars[0], TimeSpan.FromDays(30))
+                                                                                .FadeAnimation(false, false, 0)
+                                                                                .LoadingPlaceholder("ic_noavatar.png")
+                                                                                .ErrorPlaceholder("ic_noavatar.png")
+                                                                                .DownSample(width: (int)100)
+                                                                  .Into(_thirdLikerImage);
+                                                  })
                                                    .Into(_thirdLikerImage);
                 likesMargin = _thirdLikerImage.Frame.Right + likesMarginConst;
             }
