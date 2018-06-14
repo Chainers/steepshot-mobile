@@ -69,6 +69,7 @@
     <Compile Include="Base\App.cs" />
     <Compile Include="CustomViews\AccurateMovementMethod.cs" />
     <Compile Include="CustomViews\AutoLinkTextView.cs" />
+    <Compile Include="CustomViews\ExpandableTextView.cs" />
     <Compile Include="CustomViews\MediaPager.cs" />
     <Compile Include="CustomViews\TouchableSpan.cs" />
     <Compile Include="Fragment\PostCreateFragment.cs" />
@@ -350,6 +351,9 @@
   <ItemGroup>
     <Reference Include="AndroidFlowLayout, Version=1.9.1.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\AndroidFlowLayout.1.9.0.1\lib\monoandroid403\AndroidFlowLayout.dll</HintPath>
+    </Reference>
+    <Reference Include="AndroidSwipeLayout, Version=1.2.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Xamarin.AndroidSwipeLayout.1.2.0.2\lib\MonoAndroid403\AndroidSwipeLayout.dll</HintPath>
     </Reference>
     <Reference Include="Autofac, Version=4.8.0.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
       <HintPath>..\packages\Autofac.4.8.0\lib\netstandard1.1\Autofac.dll</HintPath>
@@ -803,6 +807,15 @@
   </ItemGroup>
   <ItemGroup>
     <AndroidAsset Include="Assets\GolosNodesConfig.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable-mdpi\ic_delete.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_delete.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_delete.png" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <Import Project="..\packages\Xamarin.Build.Download.0.4.2\build\Xamarin.Build.Download.targets" Condition="Exists('..\packages\Xamarin.Build.Download.0.4.2\build\Xamarin.Build.Download.targets')" />
