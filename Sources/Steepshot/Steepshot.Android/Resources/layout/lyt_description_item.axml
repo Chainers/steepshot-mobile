@@ -5,36 +5,43 @@
     android:layout_height="wrap_content"
     android:padding="13dp"
     android:background="@color/white">
-    <refractored.controls.CircleImageView xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/avatar"
-        android:layout_width="20dp"
-        android:layout_height="20dp"
-        android:src="@drawable/ic_holder" />
-    <TextView
-        android:id="@+id/sender_name"
-        android:layout_width="wrap_content"
-        android:layout_height="20dp"
-        android:textColor="@color/rgb15_24_30"
-        android:textSize="14sp"
-        android:layout_toEndOf="@+id/avatar"
-        android:layout_marginStart="9dp"
-        android:gravity="center"
-        android:text="Landon Vargasonis" />
-    <TextView
-        android:id="@+id/time"
-        android:layout_width="wrap_content"
-        android:layout_height="20dp"
-        android:textColor="@color/rgb151_155_158"
-        android:textSize="12sp"
-        android:layout_alignParentRight="true"
-        android:gravity="center"
-        android:text="22 Apr 2017" />
+    <RelativeLayout
+        android:id="@+id/header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <refractored.controls.CircleImageView
+            android:id="@+id/avatar"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:src="@drawable/ic_holder" />
+        <TextView
+            android:id="@+id/sender_name"
+            android:layout_width="wrap_content"
+            android:layout_height="20dp"
+            android:textColor="@color/rgb15_24_30"
+            android:textSize="14sp"
+            android:layout_toEndOf="@+id/avatar"
+            android:layout_marginLeft="10dp"
+            android:gravity="center"
+            android:layout_centerVertical="true"
+            android:text="Landon Vargasonis" />
+        <TextView
+            android:id="@+id/time"
+            android:layout_width="wrap_content"
+            android:layout_height="20dp"
+            android:textColor="@color/rgb151_155_158"
+            android:textSize="12sp"
+            android:layout_alignParentRight="true"
+            android:gravity="center"
+            android:layout_centerVertical="true"
+            android:text="22 Apr 2017" />
+    </RelativeLayout>
     <RelativeLayout
         android:id="@+id/comment_text_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignStart="@id/avatar"
-        android:layout_below="@id/sender_name"
+        android:layout_below="@id/header"
         android:layout_marginTop="10dp">
         <Steepshot.CustomViews.PostCustomTextView
             android:id="@+id/first_comment"

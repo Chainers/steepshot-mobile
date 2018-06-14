@@ -19,6 +19,8 @@ namespace Steepshot.Core
 
         public const string SteemitRegUrl = "https://steemit.com/pick_account";
         public const string GolosRegUrl = "https://golos.io/enter_email";
+        public const string SteemCreateRegUrl = "https://www.steemcreate.com/";
+        public const string BlocktradesRegUrl = "https://blocktrades.us/create-steem-account";
 
         public const string Tos = "https://steepshot.org/terms-of-service";
         public const string Guide = "https://alpha.steepshot.io/guide";

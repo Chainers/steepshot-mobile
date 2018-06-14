@@ -37,7 +37,7 @@ namespace Steepshot.Base
                 Window.DecorView.SystemUiVisibility |= (StatusBarVisibility)SystemUiFlags.LightStatusBar;
                 Window.SetStatusBarColor(Color.White);
             }
-            else
+            else if (Build.VERSION.SdkInt >= BuildVersionCodes.Lollipop)
             {
                 Window.SetStatusBarColor(Color.Black);
             }

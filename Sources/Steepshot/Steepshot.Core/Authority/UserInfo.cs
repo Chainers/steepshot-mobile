@@ -43,6 +43,8 @@ namespace Steepshot.Core.Authority
         public string PushesPlayerId { get; set; } = string.Empty;
 
         public bool IsFirstRun { get; set; } = true;
+
+        public bool ShowVotingSlider { get; set; }
     }
 
     public sealed class Navigation

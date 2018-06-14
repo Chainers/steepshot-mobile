@@ -45,6 +45,17 @@ namespace Steepshot.Core.Authority
             }
         }
 
+        public bool ShowVotingSlider
+        {
+            get => UserInfo.ShowVotingSlider;
+            set
+            {
+                UserInfo.ShowVotingSlider = value;
+                if (IsAuthenticated)
+                    _data.Update(UserInfo);
+            }
+        }
+
         public bool ShowFooter
         {
             get => UserInfo.ShowFooter;
