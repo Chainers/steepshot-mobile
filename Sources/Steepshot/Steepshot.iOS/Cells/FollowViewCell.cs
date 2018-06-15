@@ -1,13 +1,12 @@
 ﻿using System;
-using FFImageLoading;
 using FFImageLoading.Work;
 using Foundation;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
-using Steepshot.Core.Extensions;
 using Steepshot.Core.Utils;
 using UIKit;
 using Constants = Steepshot.iOS.Helpers.Constants;
+using Steepshot.iOS.Helpers;
 
 namespace Steepshot.iOS.Cells
 {
@@ -71,22 +70,7 @@ namespace Steepshot.iOS.Cells
             _currentUser = user;
             _scheduledWorkAvatar?.Cancel();
             if (!string.IsNullOrEmpty(_currentUser.Avatar))
-            {
-                _scheduledWorkAvatar = ImageService.Instance.LoadUrl(_currentUser.Avatar.GetProxy(200, 200), TimeSpan.FromDays(30))
-                                                   .FadeAnimation(false, false, 0)
-                                                   .LoadingPlaceholder("ic_noavatar.png")
-                                                   .ErrorPlaceholder("ic_noavatar.png")
-                                                   .Error((f) =>
-                                                   {
-                                                       ImageService.Instance.LoadUrl(_currentUser.Avatar, TimeSpan.FromDays(30))
-                                                                                 .FadeAnimation(false, false, 0)
-                                                                                 .LoadingPlaceholder("ic_noavatar.png")
-                                                                                 .ErrorPlaceholder("ic_noavatar.png")
-                                                                                 .DownSample(width: 200)
-                                                                   .Into(avatar);
-                                                   })
-                                                   .Into(avatar);
-            }
+                _scheduledWorkAvatar = ImageLoader.Load(_currentUser.Avatar, avatar, placeHolder: "ic_noavatar.png");
             else
                 avatar.Image = UIImage.FromBundle("ic_noavatar");
 

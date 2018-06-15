@@ -418,6 +418,7 @@
     <Compile Include="ViewSources\FolderTableViewSource.cs" />
     <Compile Include="Helpers\Logger.cs" />
     <Compile Include="Delegates\TTTAttributedLabelFeedDelegate.cs" />
+    <Compile Include="Helpers\ImageLoader.cs" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\ic_photo_holder.png" />

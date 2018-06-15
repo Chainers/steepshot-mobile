@@ -1,9 +1,8 @@
 ﻿using System;
-using FFImageLoading;
 using FFImageLoading.Work;
 using Steepshot.Core.Models.Common;
 using UIKit;
-using Steepshot.Core.Extensions;
+using Steepshot.iOS.Helpers;
 
 namespace Steepshot.iOS.Cells
 {
@@ -25,18 +24,7 @@ namespace Steepshot.iOS.Cells
             avatar.Image = UIImage.FromFile("ic_user_placeholder.png");
 
             _scheduledWorkAvatar?.Cancel();
-            _scheduledWorkAvatar = ImageService.Instance.LoadUrl(_current.Avatar.GetProxy(200, 200), TimeSpan.FromDays(30))
-                                                         .FadeAnimation(false, false, 0)
-                                                         .Error((f) =>
-                                                           {
-                                                               ImageService.Instance.LoadUrl(_current.Avatar, TimeSpan.FromDays(30))
-                                                                                         .FadeAnimation(false, false, 0)
-                                                                                         .LoadingPlaceholder("ic_noavatar.png")
-                                                                                         .ErrorPlaceholder("ic_noavatar.png")
-                                                                                         .DownSample(width: 200)
-                                                                           .Into(avatar);
-                                                           })
-                                                           .Into(avatar);
+            _scheduledWorkAvatar = ImageLoader.Load(_current.Avatar, avatar, placeHolder: "ic_noavatar.png");
             if (!string.IsNullOrEmpty(_current.Name))
             {
                 username.Text = _current.Name;
