@@ -4,7 +4,7 @@ using FFImageLoading.Work;
 using Foundation;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
-using Steepshot.Core.Presenters;
+using Steepshot.Core.Extensions;
 using Steepshot.Core.Utils;
 using UIKit;
 using Constants = Steepshot.iOS.Helpers.Constants;
@@ -72,11 +72,19 @@ namespace Steepshot.iOS.Cells
             _scheduledWorkAvatar?.Cancel();
             if (!string.IsNullOrEmpty(_currentUser.Avatar))
             {
-                _scheduledWorkAvatar = ImageService.Instance.LoadUrl(_currentUser.Avatar, TimeSpan.FromDays(30))
+                _scheduledWorkAvatar = ImageService.Instance.LoadUrl(_currentUser.Avatar.GetProxy(200, 200), TimeSpan.FromDays(30))
                                                    .FadeAnimation(false, false, 0)
                                                    .LoadingPlaceholder("ic_noavatar.png")
                                                    .ErrorPlaceholder("ic_noavatar.png")
-                                                   .DownSample(200)
+                                                   .Error((f) =>
+                                                   {
+                                                       ImageService.Instance.LoadUrl(_currentUser.Avatar, TimeSpan.FromDays(30))
+                                                                                 .FadeAnimation(false, false, 0)
+                                                                                 .LoadingPlaceholder("ic_noavatar.png")
+                                                                                 .ErrorPlaceholder("ic_noavatar.png")
+                                                                                 .DownSample(width: 200)
+                                                                   .Into(avatar);
+                                                   })
                                                    .Into(avatar);
             }
             else

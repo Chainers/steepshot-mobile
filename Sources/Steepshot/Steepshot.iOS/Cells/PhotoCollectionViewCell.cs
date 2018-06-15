@@ -7,6 +7,7 @@ using PureLayout.Net;
 using Steepshot.Core.Models.Common;
 using Steepshot.iOS.Helpers;
 using UIKit;
+using Steepshot.Core.Extensions;
 
 namespace Steepshot.iOS.Cells
 {
@@ -120,15 +121,20 @@ namespace Steepshot.iOS.Cells
             CreateImageView();
 
             _scheduledWork?.Cancel();
-            _scheduledWork = ImageService.Instance.LoadUrl(ImageUrl)
+            _scheduledWork = ImageService.Instance.LoadUrl(ImageUrl.GetProxy(0,0))
                                          .Retry(2)
                                          .FadeAnimation(false)
                                          .WithCache(FFImageLoading.Cache.CacheType.All)
                                          .WithPriority(LoadingPriority.Highest)
-                                         .DownSample(250)
-                                          /* .DownloadProgress((f)=>
-                                         {
-                                         })*/
+                                         .Error((f) =>
+                                          {
+                                              ImageService.Instance.LoadUrl(ImageUrl, TimeSpan.FromDays(30))
+                                                          .Retry(2)
+                                                          .FadeAnimation(false)
+                                                          .WithCache(FFImageLoading.Cache.CacheType.All)
+                                                          .WithPriority(LoadingPriority.Highest)
+                                                          .Into(_bodyImage);
+                                          })
                                           .Into(_bodyImage);
             if (post.Media.Length > 1)
                 ContentView.BringSubviewToFront(_galleryImage);

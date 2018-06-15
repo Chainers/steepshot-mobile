@@ -17,6 +17,7 @@ using Steepshot.iOS.Helpers;
 using Steepshot.iOS.ViewControllers;
 using Steepshot.iOS.ViewSources;
 using UIKit;
+using Steepshot.Core.Extensions;
 
 namespace Steepshot.iOS.Views
 {

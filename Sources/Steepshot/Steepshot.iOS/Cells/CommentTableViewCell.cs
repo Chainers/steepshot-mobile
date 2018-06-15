@@ -242,11 +242,19 @@ namespace Steepshot.iOS.Cells
             _scheduledWorkAvatar?.Cancel();
             if (!string.IsNullOrEmpty(_currentPost.Avatar))
             {
-                _scheduledWorkAvatar = ImageService.Instance.LoadUrl(_currentPost.Avatar, TimeSpan.FromDays(30))
+                _scheduledWorkAvatar = ImageService.Instance.LoadUrl(_currentPost.Avatar.GetProxy(200, 200), TimeSpan.FromDays(30))
                                                    .LoadingPlaceholder("ic_noavatar.png")
                                                    .ErrorPlaceholder("ic_noavatar.png")
                                                    .FadeAnimation(false, false, 0)
-                                                   .DownSample(200)
+                                                   .Error((f) =>
+                                                   {
+                                                       ImageService.Instance.LoadUrl(_currentPost.Avatar, TimeSpan.FromDays(30))
+                                                                                 .FadeAnimation(false, false, 0)
+                                                                                 .LoadingPlaceholder("ic_noavatar.png")
+                                                                                 .ErrorPlaceholder("ic_noavatar.png")
+                                                                                 .DownSample(width: (int)200)
+                                                                   .Into(_avatar);
+                                                   })
                                                    .Into(_avatar);
             }
             else

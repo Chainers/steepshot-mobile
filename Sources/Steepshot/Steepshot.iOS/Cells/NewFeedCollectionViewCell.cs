@@ -343,11 +343,20 @@ namespace Steepshot.iOS.Cells
                 _bodyImage[i].Frame = new CGRect(UIScreen.MainScreen.Bounds.Width * i, 0, UIScreen.MainScreen.Bounds.Width, variables.PhotoHeight);
                 _photoScroll.AddSubview(_bodyImage[i]);
 
-                _scheduledWorkBody[i] = ImageService.Instance.LoadUrl(_currentPost.Media[i].Url)
+                _scheduledWorkBody[i] = ImageService.Instance.LoadUrl(_currentPost.Media[i].Url.GetProxy(0,0))
                                              .Retry(2)
                                              .FadeAnimation(false)
                                              .WithCache(FFImageLoading.Cache.CacheType.All)
                                              .WithPriority(LoadingPriority.Highest)
+                                            .Error((f) =>
+                                            {
+                                                ImageService.Instance.LoadUrl(_currentPost.Media[i].Url, TimeSpan.FromDays(30))
+                                                            .Retry(2)
+                                                             .FadeAnimation(false)
+                                                             .WithCache(FFImageLoading.Cache.CacheType.All)
+                                                             .WithPriority(LoadingPriority.Highest)
+                                                            .Into(_bodyImage[i]);
+                                            })
                                              .Into(_bodyImage[i]);
             }
             if (_currentPost.Media.Length > 1)
