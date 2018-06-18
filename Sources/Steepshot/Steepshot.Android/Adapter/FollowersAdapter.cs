@@ -7,6 +7,7 @@ using Android.Views;
 using Android.Widget;
 using Refractored.Controls;
 using Square.Picasso;
+using Steepshot.Core.Extensions;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
@@ -73,7 +74,7 @@ namespace Steepshot.Adapter
             }
         }
 
-        private class FollowersViewHolder : RecyclerView.ViewHolder, ITarget
+        private class FollowersViewHolder : RecyclerView.ViewHolder
         {
             private readonly CircleImageView _friendAvatar;
             private readonly TextView _friendName;
@@ -144,12 +145,11 @@ namespace Steepshot.Adapter
                 _friendLogin.Text = userFriends.Author;
 
                 if (!string.IsNullOrEmpty(_userFriends.Avatar))
-                    Picasso.With(_context).Load(_userFriends.Avatar)
+                    Picasso.With(_context).Load(_userFriends.Avatar.GetProxy(_friendAvatar.LayoutParameters.Width, _friendAvatar.LayoutParameters.Height))
                        .Placeholder(Resource.Drawable.ic_holder)
                        .NoFade()
-                       .Resize(300, 0)
                        .Priority(Picasso.Priority.Normal)
-                       .Into(_friendAvatar, OnSuccess, OnError);
+                       .Into(_friendAvatar, null, OnError);
                 else
                     Picasso.With(_context).Load(Resource.Drawable.ic_holder).Into(_friendAvatar);
 
@@ -201,26 +201,9 @@ namespace Steepshot.Adapter
                 }
             }
 
-            private void OnSuccess()
-            {
-            }
-
             private void OnError()
             {
-                Picasso.With(_context).Load(_userFriends.Avatar).NoFade().Into(this);
-            }
-
-            public void OnBitmapFailed(Drawable p0)
-            {
-            }
-
-            public void OnBitmapLoaded(Bitmap p0, Picasso.LoadedFrom p1)
-            {
-                _friendAvatar.SetImageBitmap(p0);
-            }
-
-            public void OnPrepareLoad(Drawable p0)
-            {
+                Picasso.With(_context).Load(_userFriends.Avatar).NoFade().Into(_friendAvatar);
             }
         }
     }

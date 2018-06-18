@@ -248,7 +248,7 @@ namespace Steepshot.Core.HttpClient
             if (results.Any())
                 return new OperationResult<object>(new ValidationError(results));
 
-            var endpoint = $"{GatewayVersion.V1P1}/{(model.Subscribe ? "subscribe" : "unsubscribe")}";
+            var endpoint = $"{BaseUrl}/{GatewayVersion.V1P1}/{(model.Subscribe ? "subscribe" : "unsubscribe")}";
 
             return await Gateway.Post<object, PushNotificationsModel>(endpoint, model, ct);
         }

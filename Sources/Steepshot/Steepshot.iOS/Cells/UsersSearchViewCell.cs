@@ -1,8 +1,8 @@
 ﻿using System;
-using FFImageLoading;
 using FFImageLoading.Work;
 using Steepshot.Core.Models.Common;
 using UIKit;
+using Steepshot.iOS.Helpers;
 
 namespace Steepshot.iOS.Cells
 {
@@ -11,8 +11,6 @@ namespace Steepshot.iOS.Cells
         private IScheduledWork _scheduledWorkAvatar;
         protected UsersSearchViewCell(IntPtr handle) : base(handle) { }
         private UserFriend _current;
-
-
 
         public override void LayoutSubviews()
         {
@@ -26,11 +24,7 @@ namespace Steepshot.iOS.Cells
             avatar.Image = UIImage.FromFile("ic_user_placeholder.png");
 
             _scheduledWorkAvatar?.Cancel();
-            _scheduledWorkAvatar = ImageService.Instance.LoadUrl(_current.Avatar, TimeSpan.FromDays(30))
-                                                                                         .Retry(2, 200)
-                                                                                         .FadeAnimation(false, false, 0)
-                                                                                         .DownSample(width: (int)avatar.Frame.Width)
-                                                                                         .Into(avatar);
+            _scheduledWorkAvatar = ImageLoader.Load(_current.Avatar, avatar, placeHolder: "ic_noavatar.png");
             if (!string.IsNullOrEmpty(_current.Name))
             {
                 username.Text = _current.Name;
