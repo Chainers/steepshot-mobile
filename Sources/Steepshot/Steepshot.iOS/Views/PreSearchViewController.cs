@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using CoreGraphics;
+using FFImageLoading;
 using Foundation;
 using iOS.Hardware;
 using Steepshot.Core.Errors;
@@ -337,11 +338,39 @@ namespace Steepshot.iOS.Views
         {
             if (!collectionView.Hidden)
             {
+                foreach (var item in _presenter)
+                {
+                    foreach (var url in item.Media)
+                    {
+                        if(_gridDelegate.IsGrid)
+                            ImageLoader.Preload(item.Media[0].Url, Constants.CellSize);
+                        else
+                            ImageLoader.Preload(url.Url, new CGSize(UIScreen.MainScreen.Bounds.Size.Width, UIScreen.MainScreen.Bounds.Size.Width));
+                    }
+                }
+
                 _gridDelegate.GenerateVariables();
                 collectionView.ReloadData();
             }
             else
             {
+                foreach (var item in _presenter)
+                {
+                    foreach (var url in item.Media)
+                    {
+                        if (_gridDelegate.IsGrid)
+                            ImageLoader.Preload(item.Media[0].Url, Constants.CellSize);
+                        else
+                            ImageLoader.Preload(url.Url, new CGSize(UIScreen.MainScreen.Bounds.Size.Width, UIScreen.MainScreen.Bounds.Size.Width));
+                    }
+                }
+
+
+                foreach (var item in _presenter)
+                {
+                    ImageLoader.Preload(item.Media[0].Url, new CGSize(UIScreen.MainScreen.Bounds.Width, UIScreen.MainScreen.Bounds.Width));
+                }
+
                 _sliderGridDelegate.GenerateVariables();
                 sliderCollection.ReloadData();
             }
