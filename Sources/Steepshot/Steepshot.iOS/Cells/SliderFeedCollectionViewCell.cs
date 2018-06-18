@@ -370,7 +370,8 @@ namespace Steepshot.iOS.Cells
 
                 _scheduledWorkBody[i] = ImageLoader.Load(_currentPost.Media[i].Url,
                                                          _bodyImage[i],
-                                                         2, LoadingPriority.Highest);
+                                                         2, LoadingPriority.Highest,
+                                                         size: new CGSize(UIScreen.MainScreen.Bounds.Size));
             }
             if (_currentPost.Media.Length > 1)
             {
@@ -397,7 +398,7 @@ namespace Steepshot.iOS.Cells
                 _scheduledWorkfirst = ImageLoader.Load(_currentPost.TopLikersAvatars[0],
                                                         _firstLikerImage,
                                                         placeHolder: "ic_noavatar.png",
-                                                       priority: LoadingPriority.Lowest);
+                                                       priority: LoadingPriority.Low);
                 likesMargin = _firstLikerImage.Frame.Right + likesMarginConst;
             }
             else if (_firstLikerImage != null)
@@ -418,7 +419,7 @@ namespace Steepshot.iOS.Cells
                 _scheduledWorksecond = ImageLoader.Load(_currentPost.TopLikersAvatars[1],
                                                         _secondLikerImage,
                                                         placeHolder: "ic_noavatar.png",
-                                                       priority: LoadingPriority.Lowest);
+                                                        priority: LoadingPriority.Low);
                 likesMargin = _secondLikerImage.Frame.Right + likesMarginConst;
             }
             else if (_secondLikerImage != null)
@@ -439,7 +440,7 @@ namespace Steepshot.iOS.Cells
                 _scheduledWorkthird = ImageLoader.Load(_currentPost.TopLikersAvatars[2],
                                                        _thirdLikerImage,
                                                         placeHolder: "ic_noavatar.png",
-                                                       priority: LoadingPriority.Lowest);
+                                                       priority: LoadingPriority.Low);
                 likesMargin = _thirdLikerImage.Frame.Right + likesMarginConst;
             }
             else if (_thirdLikerImage != null)
