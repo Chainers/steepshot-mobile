@@ -66,8 +66,6 @@ namespace Steepshot.iOS.Views
             feedCollection.Source = _collectionViewSource;
             feedCollection.RegisterClassForCell(typeof(NewFeedCollectionViewCell), nameof(NewFeedCollectionViewCell));
             feedCollection.RegisterClassForCell(typeof(LoaderCollectionCell), nameof(LoaderCollectionCell));
-            feedCollection.RegisterClassForCell(typeof(FeedCollectionViewCell), nameof(FeedCollectionViewCell));
-            feedCollection.RegisterNibForCell(UINib.FromName(nameof(FeedCollectionViewCell), NSBundle.MainBundle), nameof(FeedCollectionViewCell));
             feedCollection.Add(_refreshControl);
             feedCollection.Delegate = _gridDelegate;
             feedCollection.DelaysContentTouches = false;
@@ -106,7 +104,7 @@ namespace Steepshot.iOS.Views
 
             if (TabBarController != null)
             {
-                TabBarController.NavigationController.NavigationBar.TintColor = Helpers.Constants.R15G24B30;
+                TabBarController.NavigationController.NavigationBar.TintColor = Constants.R15G24B30;
                 TabBarController.NavigationController.NavigationBar.BarTintColor = UIColor.White;
                 TabBarController.NavigationController.SetNavigationBarHidden(true, false);
             }

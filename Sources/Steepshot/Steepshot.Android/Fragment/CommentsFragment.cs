@@ -12,10 +12,12 @@ using Steepshot.Utils;
 using Steepshot.Core.Models;
 using Steepshot.Activity;
 using Android.Content;
+using Android.Graphics;
+using Android.Graphics.Drawables;
+using Android.Text;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Utils;
-using Steepshot.CustomViews;
 
 namespace Steepshot.Fragment
 {
@@ -27,11 +29,13 @@ namespace Steepshot.Fragment
         public const string ResultString = "result";
         public const string CountString = "count";
 
-        private Post _post, _editComment;
+        private readonly Post _post;
+        private Post _editComment;
         private CommentAdapter _adapter;
         private bool _openKeyboard;
         private LinearLayoutManager _manager;
         private int _counter = 0;
+        private GradientDrawable _textInputShape;
 
 #pragma warning disable 0649, 4014
         [BindView(Resource.Id.comments_list)] private RecyclerView _comments;
@@ -46,10 +50,9 @@ namespace Steepshot.Fragment
         [BindView(Resource.Id.btn_post_image)] private ImageView _postImage;
         [BindView(Resource.Id.message)] private RelativeLayout _messagePanel;
         [BindView(Resource.Id.root_layout)] private RelativeLayout _rootLayout;
-        [BindView(Resource.Id.comment_edit)] private RelativeLayout _commentEditBlock;
-        [BindView(Resource.Id.comment_cancel_edit)] private ImageButton _commentEditCancelBtn;
-        [BindView(Resource.Id.comment_edit_message)] private TextView _commentEditMessage;
-        [BindView(Resource.Id.comment_edit_text)] private TextView _commentEditText;
+        [BindView(Resource.Id.edit_controls)] private RelativeLayout _editControls;
+        [BindView(Resource.Id.cancel)] private Button _cancel;
+        [BindView(Resource.Id.save)] private Button _save;
 #pragma warning restore 0649
 
         public CommentsFragment()
@@ -81,12 +84,20 @@ namespace Steepshot.Fragment
 
             base.OnViewCreated(view, savedInstanceState);
 
-            _commentEditMessage.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.EditComment);
+            _cancel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Cancel);
+            _save.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Save);
             _textInput.Hint = AppSettings.LocalizationManager.GetText(LocalizationKeys.PutYourComment);
             _viewTitle.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Comments);
 
-            _commentEditMessage.Typeface = Style.Semibold;
-            _commentEditText.Typeface = Style.Regular;
+            _textInputShape = new GradientDrawable();
+            _textInputShape.SetCornerRadius(BitmapUtils.DpToPixel(20, Resources));
+            _textInputShape.SetColor(Color.White);
+            _textInputShape.SetStroke((int)BitmapUtils.DpToPixel(1, Resources), Style.R244G244B246);
+            _textInput.Background = _textInputShape;
+            _textInput.TextChanged += TextInputOnTextChanged;
+
+            _cancel.Typeface = Style.Semibold;
+            _save.Typeface = Style.Semibold;
             _textInput.Typeface = Style.Regular;
             _viewTitle.Typeface = Style.Semibold;
             _backButton.Visibility = ViewStates.Visible;
@@ -112,13 +123,23 @@ namespace Steepshot.Fragment
             if (!AppSettings.User.IsAuthenticated)
                 _messagePanel.Visibility = ViewStates.Gone;
 
-            _commentEditCancelBtn.Click += CommentEditCancelBtnOnClick;
+            _cancel.Click += CommentEditCancelBtnOnClick;
+            _save.Click += SaveOnClick;
 
             LoadComments(_post);
             if (_openKeyboard)
             {
                 _openKeyboard = false;
                 OpenKeyboard();
+            }
+        }
+
+        private void TextInputOnTextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (_textInput.LineCount <= 2)
+            {
+                _textInputShape.SetCornerRadius(BitmapUtils.DpToPixel(20, Resources) / _textInput.LineCount);
+                _textInput.Background = _textInputShape;
             }
         }
 
@@ -135,6 +156,7 @@ namespace Steepshot.Fragment
 
         public override void OnDetach()
         {
+            CommentEditCancelBtnOnClick(null, null);
             base.OnDetach();
             Cheeseknife.Reset(this);
         }
@@ -152,7 +174,7 @@ namespace Steepshot.Fragment
 
         private async void OnPost(object sender, EventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(_textInput.Text))
+            if (string.IsNullOrWhiteSpace(_textInput.Text) || _editComment != null && _editComment.Editing && _editComment.Body.Equals(_textInput.Text))
                 return;
 
             _sendSpinner.Visibility = ViewStates.Visible;
@@ -161,7 +183,7 @@ namespace Steepshot.Fragment
 
             HideKeyboard();
 
-            if (_commentEditBlock.Visibility == ViewStates.Visible)
+            if (_editControls.Visibility == ViewStates.Visible)
             {
                 var error = await Presenter.TryEditComment(AppSettings.User.UserInfo, _post, _editComment, _textInput.Text, AppSettings.AppInfo);
 
@@ -301,9 +323,14 @@ namespace Steepshot.Fragment
                 case ActionType.Edit:
                     {
                         _editComment = post;
-                        _textInput.Text = _commentEditText.Text = post.Body;
+                        _editComment.Editing = true;
+                        _textInput.Text = post.Body;
                         _textInput.SetSelection(post.Body.Length);
-                        _commentEditBlock.Visibility = ViewStates.Visible;
+                        _textInputShape.SetColor(Style.R254G249B229);
+                        _textInput.Background = _textInputShape;
+                        _editControls.Visibility = ViewStates.Visible;
+                        _postBtn.Visibility = ViewStates.Gone;
+                        _rootLayout.ViewTreeObserver.GlobalLayout += ViewTreeObserverOnGlobalLayout;
                         OpenKeyboard();
                         break;
                     }
@@ -319,6 +346,19 @@ namespace Steepshot.Fragment
             }
         }
 
+        private void ViewTreeObserverOnGlobalLayout(object sender, EventArgs e)
+        {
+            if (_rootLayout.RootView.Height - _rootLayout.Height > BitmapUtils.DpToPixel(128, Resources))
+            {
+                _adapter.MItemManager.CloseAllItems();
+                _adapter.SwipeEnabled = false;
+                _adapter.NotifyDataSetChanged();
+                var editPos = Presenter.IndexOf(_editComment) + 1;
+                _comments.ScrollToPosition(editPos);
+                _rootLayout.ViewTreeObserver.GlobalLayout -= ViewTreeObserverOnGlobalLayout;
+            }
+        }
+
         private void HideKeyboard()
         {
             ((BaseActivity)Activity).HideKeyboard();
@@ -330,11 +370,35 @@ namespace Steepshot.Fragment
             _textInput?.Post(() => ((BaseActivity)Activity).OpenKeyboard(_textInput));
         }
 
+        public override bool OnBackPressed()
+        {
+            if (_editComment != null && _editComment.Editing)
+            {
+                CommentEditCancelBtnOnClick(null, null);
+                return true;
+            }
+            return base.OnBackPressed();
+        }
+
         private void CommentEditCancelBtnOnClick(object sender, EventArgs eventArgs)
         {
-            _textInput.Text = _commentEditText.Text = string.Empty;
-            _commentEditBlock.Visibility = ViewStates.Gone;
+            if (_editComment != null)
+                _editComment.Editing = false;
+            _textInput.Text = string.Empty;
+            _textInputShape.SetColor(Color.White);
+            _textInput.Background = _textInputShape;
+            _editControls.Visibility = ViewStates.Gone;
+            _postBtn.Visibility = ViewStates.Visible;
+            _adapter.SwipeEnabled = true;
+            _adapter.NotifyDataSetChanged();
+            _rootLayout.ViewTreeObserver.GlobalLayout -= ViewTreeObserverOnGlobalLayout;
             HideKeyboard();
+        }
+
+        private void SaveOnClick(object sender, EventArgs e)
+        {
+            OnPost(null, null);
+            CommentEditCancelBtnOnClick(null, null);
         }
     }
 }

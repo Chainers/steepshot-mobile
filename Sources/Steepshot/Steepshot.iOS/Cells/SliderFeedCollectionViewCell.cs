@@ -17,6 +17,7 @@ using Steepshot.Core.Presenters;
 using System.Text.RegularExpressions;
 using Steepshot.iOS.CustomViews;
 using Steepshot.iOS.ViewControllers;
+using Steepshot.iOS.Helpers;
 
 namespace Steepshot.iOS.Cells
 {
@@ -333,14 +334,9 @@ namespace Steepshot.iOS.Cells
             _contentView.AddSubview(_avatarImage);
             _scheduledWorkAvatar?.Cancel();
             if (!string.IsNullOrEmpty(_currentPost.Avatar))
-                _scheduledWorkAvatar = ImageService.Instance.LoadUrl(_currentPost.Avatar, TimeSpan.FromDays(30))
-                                                   .WithCache(FFImageLoading.Cache.CacheType.All)
-                                                   .FadeAnimation(false)
-                                                   .DownSample(200)
-                                                   .LoadingPlaceholder("ic_noavatar.png")
-                                                   .ErrorPlaceholder("ic_noavatar.png")
-                                                   .WithPriority(LoadingPriority.Normal)
-                                                   .Into(_avatarImage);
+                _scheduledWorkAvatar = ImageLoader.Load(_currentPost.Avatar,
+                                                        _avatarImage,
+                                                        placeHolder: "ic_noavatar.png");
             else
                 _avatarImage.Image = UIImage.FromBundle("ic_noavatar");
 
@@ -372,15 +368,9 @@ namespace Steepshot.iOS.Cells
                 _bodyImage[i].Frame = new CGRect(_contentScroll.Frame.Width * i, 0, _contentScroll.Frame.Width, variables.PhotoHeight);
                 _photoScroll.AddSubview(_bodyImage[i]);
 
-                _scheduledWorkBody[i] = ImageService.Instance.LoadUrl(_currentPost.Media[i].Url)
-                                             .Retry(2)
-                                             .FadeAnimation(false)
-                                             .WithCache(FFImageLoading.Cache.CacheType.All)
-                                             .WithPriority(LoadingPriority.Highest)
-                                               //.DownloadProgress((f)=>
-                                             //{
-                                             //})
-                                              .Into(_bodyImage[i]);
+                _scheduledWorkBody[i] = ImageLoader.Load(_currentPost.Media[i].Url,
+                                                         _bodyImage[i],
+                                                         2, LoadingPriority.Highest);
             }
             if (_currentPost.Media.Length > 1)
             {
@@ -404,14 +394,10 @@ namespace Steepshot.iOS.Cells
                 _firstLikerImage.Frame = new CGRect(leftMargin, _photoScroll.Frame.Bottom + likersY, likersImageSide, likersImageSide);
                 _scheduledWorkfirst?.Cancel();
 
-                _scheduledWorkfirst = ImageService.Instance.LoadUrl(_currentPost.TopLikersAvatars[0], TimeSpan.FromDays(30))
-                                                  .WithCache(FFImageLoading.Cache.CacheType.All)
-                                                  .LoadingPlaceholder("ic_noavatar.png")
-                                                  .ErrorPlaceholder("ic_noavatar.png")
-                                                  .DownSample(width: 100)
-                                                  .FadeAnimation(false)
-                                                  .WithPriority(LoadingPriority.Lowest)
-                                                  .Into(_firstLikerImage);
+                _scheduledWorkfirst = ImageLoader.Load(_currentPost.TopLikersAvatars[0],
+                                                        _firstLikerImage,
+                                                        placeHolder: "ic_noavatar.png",
+                                                       priority: LoadingPriority.Lowest);
                 likesMargin = _firstLikerImage.Frame.Right + likesMarginConst;
             }
             else if (_firstLikerImage != null)
@@ -429,14 +415,10 @@ namespace Steepshot.iOS.Cells
                 _secondLikerImage.Frame = new CGRect(_firstLikerImage.Frame.Right - likersMargin, _photoScroll.Frame.Bottom + likersY, likersImageSide, likersImageSide);
                 _scheduledWorksecond?.Cancel();
 
-                _scheduledWorksecond = ImageService.Instance.LoadUrl(_currentPost.TopLikersAvatars[1], TimeSpan.FromDays(30))
-                                                    .WithCache(FFImageLoading.Cache.CacheType.All)
-                                                    .LoadingPlaceholder("ic_noavatar.png")
-                                                    .ErrorPlaceholder("ic_noavatar.png")
-                                                    .WithPriority(LoadingPriority.Lowest)
-                                                    .DownSample(width: 100)
-                                                    .FadeAnimation(false)
-                                                    .Into(_secondLikerImage);
+                _scheduledWorksecond = ImageLoader.Load(_currentPost.TopLikersAvatars[1],
+                                                        _secondLikerImage,
+                                                        placeHolder: "ic_noavatar.png",
+                                                       priority: LoadingPriority.Lowest);
                 likesMargin = _secondLikerImage.Frame.Right + likesMarginConst;
             }
             else if (_secondLikerImage != null)
@@ -454,14 +436,10 @@ namespace Steepshot.iOS.Cells
                 _thirdLikerImage.Frame = new CGRect(_secondLikerImage.Frame.Right - likersMargin, _photoScroll.Frame.Bottom + likersY, likersImageSide, likersImageSide);
                 _scheduledWorkthird?.Cancel();
 
-                _scheduledWorkthird = ImageService.Instance.LoadUrl(_currentPost.TopLikersAvatars[2], TimeSpan.FromDays(30))
-                                                   .WithCache(FFImageLoading.Cache.CacheType.All)
-                                                   .LoadingPlaceholder("ic_noavatar.png")
-                                                   .ErrorPlaceholder("ic_noavatar.png")
-                                                   .WithPriority(LoadingPriority.Lowest)
-                                                   .DownSample(width: 100)
-                                                   .FadeAnimation(false)
-                                                   .Into(_thirdLikerImage);
+                _scheduledWorkthird = ImageLoader.Load(_currentPost.TopLikersAvatars[2],
+                                                       _thirdLikerImage,
+                                                        placeHolder: "ic_noavatar.png",
+                                                       priority: LoadingPriority.Lowest);
                 likesMargin = _thirdLikerImage.Frame.Right + likesMarginConst;
             }
             else if (_thirdLikerImage != null)
@@ -510,11 +488,11 @@ namespace Steepshot.iOS.Cells
 
             _verticalSeparator.Frame = new CGRect(_contentView.Frame.Width - likeButtonWidthConst - 1, _photoScroll.Frame.Bottom + underPhotoPanelHeight / 2 - verticalSeparatorHeight / 2, 1, verticalSeparatorHeight);
 
-            /*
-            _rewards.Text = BaseViewController.ToFormatedCurrencyString(_currentPost.TotalPayoutReward);
+#if DEBUG
+            _rewards.Text = BasePresenter.ToFormatedCurrencyString(_currentPost.TotalPayoutReward);
             var rewardWidth = _rewards.SizeThatFits(new CGSize(0, underPhotoPanelHeight));
             _rewards.Frame = new CGRect(_verticalSeparator.Frame.Left - rewardWidth.Width, _photoScroll.Frame.Bottom, rewardWidth.Width, underPhotoPanelHeight);
-            */
+#endif
 
             _topSeparator.Frame = new CGRect(0, _photoScroll.Frame.Bottom + underPhotoPanelHeight, _contentScroll.Frame.Width, 1);
 

@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using Newtonsoft.Json;
+using Steepshot.Core.Extensions;
 using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Models.Common
@@ -83,6 +85,7 @@ namespace Steepshot.Core.Models.Common
         public bool IsComment { get; set; } = true;
         [JsonIgnore]
         public bool Editing { get; set; }
+
 
         public string Permlink
         {

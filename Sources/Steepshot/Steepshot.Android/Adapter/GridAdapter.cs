@@ -1,12 +1,12 @@
 ﻿using System;
 using Android.Content;
-using Android.Graphics;
-using Android.Graphics.Drawables;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
 using Square.Picasso;
+using Steepshot.Core.Extensions;
 using Steepshot.Core.Localization;
+using Steepshot.Core.Models;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
@@ -32,8 +32,24 @@ namespace Steepshot.Adapter
         public GridAdapter(Context context, T presenter)
         {
             Context = context;
+            CellSize = Context.Resources.DisplayMetrics.WidthPixels / 3 - 2; // [x+2][1+x+1][2+x]   
             Presenter = presenter;
-            CellSize = Context.Resources.DisplayMetrics.WidthPixels / 3 - 2; // [x+2][1+x+1][2+x]
+            Presenter.SourceChanged += PresenterOnSourceChanged;
+        }
+
+        private void PresenterOnSourceChanged(Status obj)
+        {
+            foreach (var post in Presenter)
+            {
+                if (!string.IsNullOrEmpty(post.Media[0].Url))
+                    Picasso.With(Context).Load(post.Url.GetProxy(CellSize, CellSize)).Priority(Picasso.Priority.Low).MemoryPolicy(MemoryPolicy.NoCache).Fetch();
+            }
+        }
+
+        public override void OnDetachedFromRecyclerView(RecyclerView recyclerView)
+        {
+            Presenter.SourceChanged -= PresenterOnSourceChanged;
+            base.OnDetachedFromRecyclerView(recyclerView);
         }
 
         public override int GetItemViewType(int position)
@@ -70,7 +86,7 @@ namespace Steepshot.Adapter
         }
     }
 
-    public sealed class ImageViewHolder : RecyclerView.ViewHolder, ITarget
+    public sealed class ImageViewHolder : RecyclerView.ViewHolder
     {
         private readonly Action<Post> _click;
         private readonly ImageView _photo;
@@ -106,11 +122,15 @@ namespace Steepshot.Adapter
             _post = post;
             _context = context;
 
-            _photoString = post.Media[0].Thumbnails.Micro;
+            _photoString = post.Media[0].Url;
 
             if (_photoString != null)
             {
-                Picasso.With(_context).Load(_photoString).Placeholder(Resource.Color.rgb244_244_246).NoFade().Resize(cellSize, cellSize).CenterCrop().Into(_photo, OnSuccess, OnError);
+                Picasso.With(_context).Load(_photoString.GetProxy(cellSize, cellSize))
+                    .Placeholder(Resource.Color.rgb244_244_246)
+                    .NoFade()
+                    .Priority(Picasso.Priority.High)
+                    .Into(_photo, null, OnError);
             }
 
             _gallery.Visibility = post.Media.Length > 1 ? ViewStates.Visible : ViewStates.Gone;
@@ -124,26 +144,9 @@ namespace Steepshot.Adapter
                 _nsfwMask.Visibility = ViewStates.Gone;
         }
 
-        public void OnBitmapFailed(Drawable p0)
-        {
-        }
-
-        public void OnBitmapLoaded(Bitmap p0, Picasso.LoadedFrom p1)
-        {
-            _photo.SetImageBitmap(p0);
-        }
-
-        public void OnPrepareLoad(Drawable p0)
-        {
-        }
-
-        private void OnSuccess()
-        {
-        }
-
         private void OnError()
         {
-            Picasso.With(_context).Load(_photoString).Placeholder(Resource.Color.rgb244_244_246).NoFade().Into(this);
+            Picasso.With(_context).Load(_photoString).Placeholder(Resource.Color.rgb244_244_246).NoFade().Into(_photo);
         }
     }
 }

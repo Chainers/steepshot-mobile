@@ -200,7 +200,7 @@ namespace Steepshot.iOS.CustomViews
             nfloat cropX;
             nfloat cropY;
 
-            if (scaledImageSize.Width > Frame.Width)
+            if ((int)scaledImageSize.Width >= (int)Frame.Width)
             {
                 cropWidth = Frame.Width * ratio2;
             }
@@ -209,7 +209,7 @@ namespace Steepshot.iOS.CustomViews
                 cropWidth = imageView.Frame.Width * ratio2;
             }
 
-            if (scaledImageSize.Height > Frame.Height)
+            if ((int)scaledImageSize.Height >= (int)Frame.Height)
             {
                 cropHeight = Frame.Height * ratio2;
             }
@@ -247,6 +247,7 @@ namespace Steepshot.iOS.CustomViews
 
             var shouldIncrease = cropped.Size.Width < Core.Constants.PhotoMaxSize && cropped.Size.Height < Core.Constants.PhotoMaxSize;
             var newSize = ImageHelper.CalculateInSampleSize(rect.Size, Core.Constants.PhotoMaxSize, Core.Constants.PhotoMaxSize, shouldIncrease);
+            newSize = new CGSize((int)newSize.Width, (int)newSize.Height);
 
             UIGraphics.BeginImageContextWithOptions(newSize, false, 1);
             cropped.Draw(new CGRect(new CGPoint(0, 0), newSize));
@@ -260,7 +261,7 @@ namespace Steepshot.iOS.CustomViews
             var size = new CGRect()
             {
                 Width = ContentSize.Width > Frame.Width ? Frame.Width : ContentSize.Width,
-                Height = ContentSize.Height > Frame.Width ? Frame.Width : ContentSize.Height,
+                Height = ContentSize.Height > Frame.Height ? Frame.Height : ContentSize.Height,
                 X = ContentOffset.X < 0 ? 0 : ContentOffset.X,
                 Y = ContentOffset.Y < 0 ? 0 : ContentOffset.Y,
             };

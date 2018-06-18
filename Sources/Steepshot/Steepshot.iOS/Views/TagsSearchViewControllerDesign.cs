@@ -146,6 +146,7 @@ namespace Steepshot.iOS.Views
             warningView = new UIView();
             warningView.ClipsToBounds = true;
             warningView.BackgroundColor = Constants.R255G34B5;
+            warningView.Alpha = 0;
             Constants.CreateShadow(warningView, Constants.R231G72B0, 0.5f, 6, 10, 12);
             View.AddSubview(warningView);
 

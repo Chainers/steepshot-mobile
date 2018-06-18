@@ -47,6 +47,8 @@ namespace Steepshot.Activity
         [BindView(Resource.Id.btn_back)] private ImageButton _backButton;
         [BindView(Resource.Id.accounts_list)] private RecyclerView _accountsList;
         [BindView(Resource.Id.add_account_loading_spinner)] private ProgressBar _addAccountLoader;
+        [BindView(Resource.Id.power_switch)] private SwitchCompat _powerSwitch;
+        [BindView(Resource.Id.power_switch_text)] private TextView _powerSwitchText;
         [BindView(Resource.Id.header_text)] private TextView _notificationSettings;
         [BindView(Resource.Id.post_upvotes)] private TextView _notificationUpvotes;
         [BindView(Resource.Id.post_upvotes_switch)] private SwitchCompat _notificationUpvotesSwitch;
@@ -76,6 +78,7 @@ namespace Steepshot.Activity
             _addButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.AddAccountText);
             _guideButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Guidelines);
             _termsButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.ToS);
+            _powerSwitchText.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.VotingPowerSetting);
             _notificationSettings.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.NotificationSettings);
             _notificationUpvotes.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.NotificationPostUpvotes);
             _notificationCommentsUpvotes.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.NotificationCommentsUpvotes);
@@ -96,6 +99,7 @@ namespace Steepshot.Activity
             _nsfwSwitchText.Typeface = Style.Semibold;
             _lowSwitchText.Typeface = Style.Semibold;
             _termsButton.Typeface = Style.Semibold;
+            _powerSwitchText.Typeface = Style.Semibold;
             _notificationSettings.Typeface = Style.Semibold;
             _notificationUpvotes.Typeface = Style.Semibold;
             _notificationCommentsUpvotes.Typeface = Style.Semibold;
@@ -120,6 +124,7 @@ namespace Steepshot.Activity
 
             _nsfwSwitcher.Checked = AppSettings.User.IsNsfw;
             _lowRatedSwitcher.Checked = AppSettings.User.IsLowRated;
+            _powerSwitch.Checked = AppSettings.User.ShowVotingSlider;
 
             PushSettings = AppSettings.User.PushSettings;
             _notificationUpvotesSwitch.Checked = PushSettings.HasFlag(PushSettings.Upvote);
@@ -130,6 +135,7 @@ namespace Steepshot.Activity
 
             _nsfwSwitcher.CheckedChange += OnNsfwSwitcherOnCheckedChange;
             _lowRatedSwitcher.CheckedChange += OnLowRatedSwitcherOnCheckedChange;
+            _powerSwitch.CheckedChange += PowerSwitchOnCheckedChange;
             _notificationUpvotesSwitch.CheckedChange += NotificationChange;
             _notificationCommentsUpvotesSwitch.CheckedChange += NotificationChange;
             _notificationFollowingSwitch.CheckedChange += NotificationChange;
@@ -142,6 +148,11 @@ namespace Steepshot.Activity
                 _testsButton.Visibility = ViewStates.Visible;
                 _testsButton.Click += StartTestActivity;
             }
+        }
+
+        private void PowerSwitchOnCheckedChange(object sender, CompoundButton.CheckedChangeEventArgs e)
+        {
+            AppSettings.User.ShowVotingSlider = e.IsChecked;
         }
 
         protected override void OnResume()

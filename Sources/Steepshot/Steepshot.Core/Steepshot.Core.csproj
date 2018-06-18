@@ -17,4 +17,7 @@
   <ItemGroup>
     <Folder Include="Interfaces\" />
   </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="Models\Enums\RegistrationType.cs" />
+  </ItemGroup>
 </Project>

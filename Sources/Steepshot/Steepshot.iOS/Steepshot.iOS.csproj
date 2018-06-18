@@ -118,9 +118,6 @@
     <Reference Include="Ditch.Core, Version=3.2.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Ditch.Core.3.2.0-alpha\lib\netstandard2.0\Ditch.Core.dll</HintPath>
     </Reference>
-    <Reference Include="Ditch.Golos, Version=3.2.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Ditch.Golos.3.2.0-alpha\lib\netstandard2.0\Ditch.Golos.dll</HintPath>
-    </Reference>
     <Reference Include="Ditch.Steem.Old, Version=0.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Ditch.Steem.Old.0.1.0-alpha\lib\netstandard2.0\Ditch.Steem.Old.dll</HintPath>
     </Reference>
@@ -184,6 +181,9 @@
     <Reference Include="ZXingNetMobile, Version=2.4.1.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\ZXing.Net.Mobile.2.4.1\lib\Xamarin.iOS10\ZXingNetMobile.dll</HintPath>
     </Reference>
+    <Reference Include="Ditch.Golos, Version=3.2.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Ditch.Golos.3.2.0-alpha\lib\netstandard2.0\Ditch.Golos.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\Contents.json">
@@ -231,7 +231,6 @@
     <InterfaceDefinition Include="Cells\TagCollectionViewCell.xib" />
     <InterfaceDefinition Include="Cells\FollowViewCell.xib" />
     <InterfaceDefinition Include="Views\ProfileHeaderViewController.xib" />
-    <InterfaceDefinition Include="Cells\FeedCollectionViewCell.xib" />
     <InterfaceDefinition Include="Cells\UsersSearchViewCell.xib" />
     <InterfaceDefinition Include="Views\FeedViewController.xib" />
     <InterfaceDefinition Include="Views\PreLoginViewController.xib" />
@@ -291,10 +290,6 @@
     <Compile Include="Views\ProfileHeaderViewController.cs" />
     <Compile Include="Views\ProfileHeaderViewController.designer.cs">
       <DependentUpon>ProfileHeaderViewController.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Cells\FeedCollectionViewCell.cs" />
-    <Compile Include="Cells\FeedCollectionViewCell.designer.cs">
-      <DependentUpon>FeedCollectionViewCell.cs</DependentUpon>
     </Compile>
     <Compile Include="Cells\BaseProfileCell.cs" />
     <Compile Include="Cells\UsersSearchViewCell.cs" />
@@ -420,6 +415,10 @@
       <DependentUpon>DescriptionTableViewCell.cs</DependentUpon>
     </Compile>
     <Compile Include="Views\TagsSearchViewControllerDesign.cs" />
+    <Compile Include="ViewSources\FolderTableViewSource.cs" />
+    <Compile Include="Helpers\Logger.cs" />
+    <Compile Include="Delegates\TTTAttributedLabelFeedDelegate.cs" />
+    <Compile Include="Helpers\ImageLoader.cs" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\ic_photo_holder.png" />
@@ -554,6 +553,11 @@
       <Project>{8C01B785-CFC3-4308-8BE9-BB2F043631DA}</Project>
       <Name>Steepshot.Core</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Steepshot.iOS.ShareExtension\Steepshot.iOS.ShareExtension.csproj">
+      <IsAppExtension>true</IsAppExtension>
+      <Project>{1A245752-C27A-4239-AF30-E12B7C456E20}</Project>
+      <Name>Steepshot.iOS.ShareExtension</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="..\Steepshot.Android\Assets\Config.txt">
@@ -571,6 +575,9 @@
     </BundleResource>
   </ItemGroup>
   <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Delegates\" />
+  </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
   <Import Project="..\packages\Xamarin.Insights.1.12.3\build\Xamarin.iOS10\Xamarin.Insights.targets" Condition="Exists('..\packages\Xamarin.Insights.1.12.3\build\Xamarin.iOS10\Xamarin.Insights.targets')" />
   <Import Project="..\packages\NETStandard.Library.2.0.1\build\netstandard2.0\NETStandard.Library.targets" Condition="Exists('..\packages\NETStandard.Library.2.0.1\build\netstandard2.0\NETStandard.Library.targets')" />

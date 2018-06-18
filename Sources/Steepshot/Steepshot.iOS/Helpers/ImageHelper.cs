@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Drawing;
 using CoreGraphics;
 using UIKit;
 
@@ -45,6 +46,22 @@ namespace Steepshot.iOS.Helpers
                 }
             }
             return new CGSize(width * inSampleSize, height * inSampleSize);
+        }
+
+        public static UIImage CropImage(UIImage sourceImage, float cropX, float cropY, float width, float height, CGSize inSampleSize)
+        {
+            var imgSize = sourceImage.Size;
+            UIGraphics.BeginImageContext(new SizeF(width, height));
+            var context = UIGraphics.GetCurrentContext();
+            var clippedRect = new RectangleF(0, 0, width, height);
+            context.ClipToRect(clippedRect);
+
+            var drawRect = new CGRect(-cropX, -cropY, inSampleSize.Width, inSampleSize.Height);
+            sourceImage.Draw(drawRect);
+            var modifiedImage = UIGraphics.GetImageFromCurrentImageContext();
+            UIGraphics.EndImageContext();
+            context.Dispose();
+            return modifiedImage;
         }
     }
 }

@@ -36,8 +36,6 @@ namespace Steepshot.Core.Presenters
         {
             get
             {
-                if (AppSettings.AppInfo.GetPlatform() == "iOS")
-                    return "SBD";
                 return Chain == KnownChains.Steem ? "$" : "₽";
             }
         }

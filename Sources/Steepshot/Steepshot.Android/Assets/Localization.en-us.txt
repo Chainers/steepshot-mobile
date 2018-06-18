@@ -97,6 +97,7 @@
         "Reply": "Reply",
         "HidePhoto": "Hide photo",
         "Cancel": "Cancel",
+		"Save":"Save",
         "Following": "Following",
         "Followers": "Followers",
         "Hot": "Hot",
@@ -193,6 +194,7 @@
 		"UnwatchUser":"Stop notifying me of new posts",
         "TagSearchWarning":"Here should be at least 2 characters for hashtags search and 3 for the users' query",
         "NoResultText":"Sorry, no results found. Please, try again",
+		"VotingPowerSetting":"Show voting slider",
 
         "<h1>Server Error (500)</h1>": "(500) Server Error",
         "<h1>Not Found</h1>":"Not Found",
@@ -202,6 +204,14 @@
 		"GoToBrowse":"Let's go",
         "Posts5minLimit":"You can publish no more than one post in 5 minutes",
         "PostsDayLimit":"You have reached per-day limit for 15 posts",
+
+        "RegistrationWith":"Create account",
+        "RegisterWithEmail":"Sign up with Email",
+        "RegisterThroughSteemit":"Sign up with Steemit",
+        "RegisterThroughBlocktrades":"Sign up with Blocktrades",
+        "RegisterThroughSteemCreate":"Sign up with SteemCreate",
+        "Use":"Use",
+        "Close":"Close",
 
         "<h1>Server Error (500)</h1>": "(500) Server Error",
         "<h1>Not Found</h1>":"Not Found",
