@@ -50,6 +50,29 @@ namespace Steepshot.Adapter
         {
             Context = context;
             Presenter = presenter;
+            Presenter.SourceChanged += PresenterOnSourceChanged;
+        }
+
+        private void PresenterOnSourceChanged(Status obj)
+        {
+            foreach (var post in Presenter)
+            {
+                foreach (var media in post.Media)
+                {
+                    if (!string.IsNullOrEmpty(media.Url))
+                        Picasso.With(Context).Load(post.Url.GetProxy(Context.Resources.DisplayMetrics.WidthPixels,
+                                Context.Resources.DisplayMetrics.WidthPixels))
+                            .Priority(Picasso.Priority.Low)
+                            .MemoryPolicy(MemoryPolicy.NoCache)
+                            .Fetch();
+                }
+            }
+        }
+
+        public override void OnDetachedFromRecyclerView(RecyclerView recyclerView)
+        {
+            Presenter.SourceChanged -= PresenterOnSourceChanged;
+            base.OnDetachedFromRecyclerView(recyclerView);
         }
 
         public override int GetItemViewType(int position)
@@ -691,9 +714,11 @@ namespace Steepshot.Adapter
             {
                 if (mediaModel != null)
                 {
-                    var url = mediaModel.Thumbnails.Mini;
-                    Picasso.With(_context).Load(url).Placeholder(new ColorDrawable(Style.R245G245B245)).NoFade()
-                        .Resize(_context.Resources.DisplayMetrics.WidthPixels, 0).Priority(Picasso.Priority.High)
+                    var url = mediaModel.Url;
+                    Picasso.With(_context).Load(url.GetProxy(_context.Resources.DisplayMetrics.WidthPixels, _context.Resources.DisplayMetrics.WidthPixels))
+                        .Placeholder(new ColorDrawable(Style.R245G245B245))
+                        .NoFade()
+                        .Priority(Picasso.Priority.High)
                         .Into(photo, null, () =>
                         {
                             Picasso.With(_context).Load(url).Placeholder(new ColorDrawable(Style.R245G245B245)).NoFade().Priority(Picasso.Priority.High).Into(photo);
