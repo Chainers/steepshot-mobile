@@ -49,13 +49,13 @@ namespace Steepshot.Base
                 var saverService = new SaverService();
                 var dataProvider = new UserManager(saverService);
                 var appInfo = new AppInfo();
-                var assetsHelper = new AssetsHelper(assetManagerssets);
+                var assetsHelper = new AssetHelper(assetManagerssets);
                 var connectionService = new ConnectionService();
 
                 var localizationManager = new LocalizationManager(saverService, assetsHelper);
                 var configManager = new ConfigManager(saverService, assetsHelper);
 
-                builder.RegisterInstance(assetsHelper).As<IAssetsHelper>().SingleInstance();
+                builder.RegisterInstance(assetsHelper).As<IAssetHelper>().SingleInstance();
                 builder.RegisterInstance(appInfo).As<IAppInfo>().SingleInstance();
                 builder.RegisterInstance(saverService).As<ISaverService>().SingleInstance();
                 builder.RegisterInstance(dataProvider).As<UserManager>().SingleInstance();

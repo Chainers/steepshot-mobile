@@ -22,15 +22,14 @@ namespace Steepshot.Core.Models.Common
     public class OperationResult<T> : OperationResult
     {
         public T Result { get; set; }
-        
+
         public OperationResult() { }
 
         public OperationResult(ErrorBase error) : base(error) { }
 
-        public OperationResult(ApplicationException applicationException)
+        public OperationResult(T result)
         {
-
+            Result = result;
         }
-        
     }
 }

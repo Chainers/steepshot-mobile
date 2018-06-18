@@ -25,8 +25,8 @@ namespace Steepshot.Core.Utils
         private static UserManager _dataProvider;
         public static UserManager DataProvider => _dataProvider ?? (_dataProvider = Container.Resolve<UserManager>());
 
-        private static IAssetsHelper _assetsesHelper;
-        public static IAssetsHelper AssetsesHelper => _assetsesHelper ?? (_assetsesHelper = Container.Resolve<IAssetsHelper>());
+        private static IAssetHelper _assetHelper;
+        public static IAssetHelper AssetHelper => _assetHelper ?? (_assetHelper = Container.Resolve<IAssetHelper>());
 
         private static LocalizationManager _localizationManager;
         public static LocalizationManager LocalizationManager => _localizationManager ?? (_localizationManager = Container.Resolve<LocalizationManager>());

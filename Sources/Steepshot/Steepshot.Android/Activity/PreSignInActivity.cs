@@ -36,7 +36,7 @@ namespace Steepshot.Activity
             SetContentView(Resource.Layout.lyt_pre_sign_in);
             Cheeseknife.Bind(this);
 #if DEBUG
-            var di = AppSettings.AssetsesHelper.GetDebugInfo();
+            var di = AppSettings.AssetHelper.GetDebugInfo();
             _username.Text = BasePresenter.Chain == KnownChains.Golos
                 ? di.GolosTestLogin
                 : di.SteemTestLogin;
