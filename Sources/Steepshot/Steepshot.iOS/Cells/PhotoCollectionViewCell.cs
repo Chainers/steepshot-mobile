@@ -1,6 +1,5 @@
 ﻿using System;
 using CoreGraphics;
-using FFImageLoading;
 using FFImageLoading.Work;
 using Photos;
 using PureLayout.Net;
@@ -12,7 +11,6 @@ namespace Steepshot.iOS.Cells
 {
     public partial class PhotoCollectionViewCell : UICollectionViewCell
     {
-        private string ImageUrl;
         private IScheduledWork _scheduledWork;
         private Post _currentPost;
         private UIImageView _bodyImage;
@@ -114,22 +112,13 @@ namespace Steepshot.iOS.Cells
         {
             _currentPost = post;
 
-            ImageUrl = post.Media[0].Thumbnails.Micro;
-
             _bodyImage?.RemoveFromSuperview();
             CreateImageView();
 
             _scheduledWork?.Cancel();
-            _scheduledWork = ImageService.Instance.LoadUrl(ImageUrl)
-                                         .Retry(2)
-                                         .FadeAnimation(false)
-                                         .WithCache(FFImageLoading.Cache.CacheType.All)
-                                         .WithPriority(LoadingPriority.Highest)
-                                         .DownSample(250)
-                                          /* .DownloadProgress((f)=>
-                                         {
-                                         })*/
-                                          .Into(_bodyImage);
+            _scheduledWork = ImageLoader.Load(_currentPost.Media[0].Url,
+                                              _bodyImage, 2,
+                                              LoadingPriority.Highest, microUrl: _currentPost.Media[0].Thumbnails.Micro);
             if (post.Media.Length > 1)
                 ContentView.BringSubviewToFront(_galleryImage);
         }
@@ -148,7 +137,7 @@ namespace Steepshot.iOS.Cells
             _bodyImage.UserInteractionEnabled = true;
             _bodyImage.ContentMode = UIViewContentMode.ScaleAspectFill;
             _bodyImage.Frame = new CGRect(new CGPoint(0, 0), Constants.CellSize);
-            _bodyImage.BackgroundColor = UIColor.FromRGB(244, 244, 246);
+            _bodyImage.BackgroundColor = Constants.R244G244B246;
 
             ContentView.AddSubview(_bodyImage);
         }

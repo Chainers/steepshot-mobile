@@ -109,9 +109,6 @@
     <Reference Include="Ditch.Core, Version=3.2.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Ditch.Core.3.2.0-alpha\lib\netstandard2.0\Ditch.Core.dll</HintPath>
     </Reference>
-    <Reference Include="Ditch.Golos, Version=3.2.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Ditch.Golos.3.2.0-alpha\lib\netstandard2.0\Ditch.Golos.dll</HintPath>
-    </Reference>
     <Reference Include="Ditch.Steem.Old, Version=0.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Ditch.Steem.Old.0.1.0-alpha\lib\netstandard2.0\Ditch.Steem.Old.dll</HintPath>
     </Reference>
@@ -184,6 +181,9 @@
     <Reference Include="Autofac">
       <HintPath>..\packages\Autofac.4.8.1\lib\netstandard1.1\Autofac.dll</HintPath>
     </Reference>
+    <Reference Include="Ditch.Golos, Version=3.2.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Ditch.Golos.3.2.0-alpha\lib\netstandard2.0\Ditch.Golos.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\Contents.json">
@@ -231,7 +231,6 @@
     <InterfaceDefinition Include="Cells\TagCollectionViewCell.xib" />
     <InterfaceDefinition Include="Cells\FollowViewCell.xib" />
     <InterfaceDefinition Include="Views\ProfileHeaderViewController.xib" />
-    <InterfaceDefinition Include="Cells\FeedCollectionViewCell.xib" />
     <InterfaceDefinition Include="Cells\UsersSearchViewCell.xib" />
     <InterfaceDefinition Include="Views\FeedViewController.xib" />
     <InterfaceDefinition Include="Views\PreLoginViewController.xib" />
@@ -291,10 +290,6 @@
     <Compile Include="Views\ProfileHeaderViewController.cs" />
     <Compile Include="Views\ProfileHeaderViewController.designer.cs">
       <DependentUpon>ProfileHeaderViewController.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Cells\FeedCollectionViewCell.cs" />
-    <Compile Include="Cells\FeedCollectionViewCell.designer.cs">
-      <DependentUpon>FeedCollectionViewCell.cs</DependentUpon>
     </Compile>
     <Compile Include="Cells\BaseProfileCell.cs" />
     <Compile Include="Cells\UsersSearchViewCell.cs" />
@@ -422,6 +417,8 @@
     <Compile Include="Views\TagsSearchViewControllerDesign.cs" />
     <Compile Include="ViewSources\FolderTableViewSource.cs" />
     <Compile Include="Helpers\Logger.cs" />
+    <Compile Include="Delegates\TTTAttributedLabelFeedDelegate.cs" />
+    <Compile Include="Helpers\ImageLoader.cs" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\ic_photo_holder.png" />
@@ -578,6 +575,9 @@
     </BundleResource>
   </ItemGroup>
   <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Delegates\" />
+  </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
   <Import Project="..\packages\Xamarin.Insights.1.12.3\build\Xamarin.iOS10\Xamarin.Insights.targets" Condition="Exists('..\packages\Xamarin.Insights.1.12.3\build\Xamarin.iOS10\Xamarin.Insights.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
