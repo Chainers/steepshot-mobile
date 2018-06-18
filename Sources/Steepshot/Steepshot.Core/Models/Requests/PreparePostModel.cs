@@ -12,13 +12,13 @@ namespace Steepshot.Core.Models.Requests
     [JsonObject(MemberSerialization.OptIn)]
     public class PreparePostModel : AuthorizedModel
     {
-        private string[] _tags;
+        private string[] _tags = new string[0];
         private string _permlink;
         private string _category;
         public const int TagLimit = 20;
 
         [JsonProperty]
-        public string Description { get; set; }
+        public string Description { get; set; } = string.Empty;
 
         public string Permlink
         {

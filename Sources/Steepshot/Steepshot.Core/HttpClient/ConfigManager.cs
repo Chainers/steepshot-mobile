@@ -17,17 +17,17 @@ namespace Steepshot.Core.HttpClient
         public List<NodeConfig> SteemNodeConfigs { get; private set; }
         public List<NodeConfig> GolosNodeConfigs { get; private set; }
 
-        public ConfigManager(ISaverService saverService, IAssetsHelper assetsHelper)
+        public ConfigManager(ISaverService saverService, IAssetHelper assetHelper)
         {
             _saverService = saverService;
 
             SteemNodeConfigs = _saverService.Get<List<NodeConfig>>(SteemNodeConfigKey);
             if (SteemNodeConfigs == null || !SteemNodeConfigs.Any())
-                SteemNodeConfigs = assetsHelper.SteemNodesConfig();
+                SteemNodeConfigs = assetHelper.SteemNodesConfig();
 
             GolosNodeConfigs = _saverService.Get<List<NodeConfig>>(GolosNodeConfigKey);
             if (GolosNodeConfigs == null || !GolosNodeConfigs.Any())
-                GolosNodeConfigs = assetsHelper.GolosNodesConfig();
+                GolosNodeConfigs = assetHelper.GolosNodesConfig();
         }
 
         public async Task Update(ApiGateway gateway, KnownChains knownChains, CancellationToken token)

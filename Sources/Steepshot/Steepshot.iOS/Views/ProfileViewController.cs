@@ -4,6 +4,7 @@ using CoreGraphics;
 using FFImageLoading;
 using Foundation;
 using PureLayout.Net;
+using Steepshot.Core.Extensions;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models;
 using Steepshot.Core.Models.Common;

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Configuration;
 using Steepshot.Core.Authority;
+using Steepshot.Core.Localization;
 using Steepshot.Core.Services;
 
 namespace Steepshot.Core.Tests.Stubs
@@ -29,6 +30,10 @@ namespace Steepshot.Core.Tests.Stubs
                             PostingKey = ConfigurationManager.AppSettings["SteemWif"]
                         }
                     }
+                },
+                {
+                    LocalizationManager.Localization,
+                    new Dictionary<string, LocalizationModel>()
                 }
             };
         }
@@ -44,7 +49,7 @@ namespace Steepshot.Core.Tests.Stubs
         public T Get<T>(string key) where T : new()
         {
             if (_container.ContainsKey(key))
-                return (T) _container[key];
+                return (T)_container[key];
             return default(T);
         }
     }

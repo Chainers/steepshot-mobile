@@ -9,11 +9,11 @@ using Steepshot.Core.Services;
 
 namespace Steepshot.Utils
 {
-    public sealed class AssetsHelper : IAssetsHelper
+    public sealed class AssetHelper : IAssetHelper
     {
         private readonly AssetManager _assetManager;
 
-        public AssetsHelper(AssetManager assetManager)
+        public AssetHelper(AssetManager assetManager)
         {
             _assetManager = assetManager;
         }
@@ -31,6 +31,12 @@ namespace Steepshot.Utils
         public LocalizationModel GetLocalization(string lang)
         {
             return TryReadAsset<LocalizationModel>($"Localization.{lang}.txt");
+        }
+
+
+        public LocalizationModel GetLocalization()
+        {
+            return TryReadAsset<LocalizationModel>("InstagramModuleOptions.txt");
         }
 
         public HashSet<string> TryReadCensoredWords()
@@ -67,8 +73,14 @@ namespace Steepshot.Utils
             return TryReadAsset<List<NodeConfig>>("GolosNodesConfig.txt");
         }
 
+        public Dictionary<string, string> IntegrationModuleConfig()
+        {
+            return TryReadAsset<Dictionary<string, string>>("IntegrationModuleConfig.txt");
+        }
 
-        private T TryReadAsset<T>(string file) where T : new()
+
+        public T TryReadAsset<T>(string file)
+            where T : new()
         {
             try
             {
