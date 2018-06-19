@@ -299,13 +299,19 @@ namespace Steepshot.iOS.Cells
 
             this.userData = userData;
 
-            if (!string.IsNullOrEmpty(userData.ProfileImage))
+            if (!string.IsNullOrEmpty(userData.ProfileImage.GetProxy(300, 300)))
+                ImageService.Instance.LoadUrl(userData.ProfileImage, TimeSpan.FromDays(30))
+                                     .FadeAnimation(false, false, 0)
+                                     .LoadingPlaceholder("ic_noavatar.png")
+                                     .ErrorPlaceholder("ic_noavatar.png").Error((f) =>
+            {
                 ImageService.Instance.LoadUrl(userData.ProfileImage, TimeSpan.FromDays(30))
                                      .FadeAnimation(false, false, 0)
                                      .LoadingPlaceholder("ic_noavatar.png")
                                      .ErrorPlaceholder("ic_noavatar.png")
                                      .DownSample(width: (int)300)
                                      .Into(avatar);
+            }).Into(avatar);
             else
                 avatar.Image = UIImage.FromBundle("ic_noavatar");
 

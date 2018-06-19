@@ -340,22 +340,6 @@ namespace Steepshot.iOS.Views
                     if (powerText != null)
                         powerText.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PowerOfLike, _userData.VotingPower);
 
-                    //if (!string.IsNullOrEmpty(_userData.ProfileImage.GetProxy(300, 300)))
-                    //    ImageService.Instance.LoadUrl(_userData.ProfileImage, TimeSpan.FromDays(30))
-                    //                         .FadeAnimation(false, false, 0)
-                    //                         .LoadingPlaceholder("ic_noavatar.png")
-                    //                         .ErrorPlaceholder("ic_noavatar.png").Error((f) =>
-                    //{
-                    //    ImageService.Instance.LoadUrl(_userData.ProfileImage, TimeSpan.FromDays(30))
-                    //                         .FadeAnimation(false, false, 0)
-                    //                         .LoadingPlaceholder("ic_noavatar.png")
-                    //                         .ErrorPlaceholder("ic_noavatar.png")
-                    //                         .DownSample(width: (int)300)
-                    //                         .Into(_profileHeader.Avatar);
-                    //}).Into(_profileHeader.Avatar);
-                    //else
-                    //_profileHeader.Avatar.Image = UIImage.FromBundle("ic_noavatar");
-
                     if (!_refreshControl.Refreshing)
                     {
                         collectionView.ContentInset = new UIEdgeInsets(0, 0, 0, 0);
