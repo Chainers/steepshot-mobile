@@ -185,18 +185,24 @@ namespace Steepshot.Fragment
                     : _gallery.FirstOrDefault(m => m.Bucket.Equals(_selectedBucket, StringComparison.OrdinalIgnoreCase));
             }
 
-            OnItemSelected(selectedItem);
+            OnItemSelected(selectedItem, 0);
             _multiselectBtn.SetImageResource(_multiSelect ? Resource.Drawable.ic_multiselect_active : Resource.Drawable.ic_multiselect);
 
             _gridAdapter.NotifyDataSetChanged();
         }
 
-        private void OnItemSelected(GalleryMediaModel model)
+        private void OnItemSelected(GalleryMediaModel model, int position)
         {
             if (_multiSelect && _pickedItems.Count >= MaxPhotosAllowed && !(model.Selected || model.SelectionPosition > 0))
             {
                 Activity.ShowAlert(LocalizationKeys.PickedPhotosLimit, ToastLength.Short);
                 return;
+            }
+
+            if (_coordinator.SwitchToWhole())
+            {
+                _gridView.ScrollToPosition(position);
+                _gridView.ScrollBy(0, Resources.DisplayMetrics.WidthPixels);
             }
 
             for (int i = 0; i < _pickedItems.Count; i++)
@@ -247,7 +253,7 @@ namespace Steepshot.Fragment
                     }
 
                     if (!_multiSelect || _pickedItems.Count > 0)
-                        OnItemSelected(selectedItem);
+                        OnItemSelected(selectedItem, 0);
                     return;
                 }
             }
@@ -273,7 +279,7 @@ namespace Steepshot.Fragment
             _gridAdapter.SetMedia(set);
 
             if (set.Length > 0 && _pickedItems.Count == 0 || !_multiSelect)
-                OnItemSelected(set[0]);
+                OnItemSelected(set[0], 0);
         }
 
         private void InitBucket()
