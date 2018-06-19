@@ -7,6 +7,7 @@ using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
 using Square.Picasso;
+using Steepshot.Core.Extensions;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Models.Responses;
@@ -76,7 +77,7 @@ namespace Steepshot.Adapter
         }
     }
 
-    public sealed class HeaderViewHolder : RecyclerView.ViewHolder, ITarget
+    public sealed class HeaderViewHolder : RecyclerView.ViewHolder
     {
         private readonly Context _context;
         private readonly TextView _name;
@@ -204,11 +205,10 @@ namespace Steepshot.Adapter
             _userAvatar = profile.ProfileImage;
             if (!string.IsNullOrEmpty(_userAvatar))
             {
-                Picasso.With(_context).Load(_userAvatar).Placeholder(Resource.Drawable.ic_holder)
+                Picasso.With(_context).Load(_userAvatar.GetProxy(_profileImage.LayoutParameters.Width, _profileImage.LayoutParameters.Height))
+                      .Placeholder(Resource.Drawable.ic_holder)
                       .NoFade()
-                      .Resize(300, 300)
-                      .CenterCrop()
-                      .Into(_profileImage, OnSuccess, OnError);
+                      .Into(_profileImage, null, OnError);
             }
             else
                 Picasso.With(_context).Load(Resource.Drawable.ic_holder).Into(_profileImage);
@@ -300,26 +300,9 @@ namespace Steepshot.Adapter
             _balance.Text = BasePresenter.ToFormatedCurrencyString(profile.EstimatedBalance);
         }
 
-        public void OnBitmapFailed(Drawable p0)
-        {
-        }
-
-        public void OnBitmapLoaded(Bitmap p0, Picasso.LoadedFrom p1)
-        {
-            _profileImage.SetImageBitmap(p0);
-        }
-
-        public void OnPrepareLoad(Drawable p0)
-        {
-        }
-
-        private void OnSuccess()
-        {
-        }
-
         private void OnError()
         {
-            Picasso.With(_context).Load(_userAvatar).Placeholder(Resource.Drawable.ic_holder).NoFade().Into(this);
+            Picasso.With(_context).Load(_userAvatar).Placeholder(Resource.Drawable.ic_holder).NoFade().Into(_profileImage);
         }
     }
 }

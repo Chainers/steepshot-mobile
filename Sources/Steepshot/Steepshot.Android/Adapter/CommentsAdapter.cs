@@ -154,7 +154,9 @@ namespace Steepshot.Adapter
         {
             _post = post;
             if (!string.IsNullOrEmpty(_post.Avatar))
-                Picasso.With(context).Load(_post.Avatar).Placeholder(Resource.Drawable.ic_holder).Resize(300, 0).Priority(Picasso.Priority.Low).Into(_avatar, null, OnPicassoError);
+                Picasso.With(context).Load(_post.Avatar.GetProxy(_avatar.LayoutParameters.Width, _avatar.LayoutParameters.Height)).
+                    Placeholder(Resource.Drawable.ic_holder).
+                    Priority(Picasso.Priority.Low).Into(_avatar, null, OnPicassoError);
             else
                 Picasso.With(context).Load(Resource.Drawable.ic_holder).Into(_avatar);
 
@@ -169,7 +171,7 @@ namespace Steepshot.Adapter
         }
     }
 
-    public sealed class CommentViewHolder : RecyclerView.ViewHolder, ITarget
+    public sealed class CommentViewHolder : RecyclerView.ViewHolder
     {
         private readonly ImageView _avatar;
         private readonly TextView _author;
@@ -384,12 +386,11 @@ namespace Steepshot.Adapter
             }
 
             if (!string.IsNullOrEmpty(_post.Avatar))
-                Picasso.With(_context).Load(_post.Avatar)
+                Picasso.With(_context).Load(_post.Avatar.GetProxy(_avatar.LayoutParameters.Width, _avatar.LayoutParameters.Height))
                        .Placeholder(Resource.Drawable.ic_holder)
                        .NoFade()
-                       .Resize(300, 0)
                        .Priority(Picasso.Priority.Normal)
-                       .Into(_avatar, OnSuccess, OnError);
+                       .Into(_avatar, null, OnError);
             else
                 Picasso.With(context).Load(Resource.Drawable.ic_holder).Into(_avatar);
 
@@ -454,26 +455,9 @@ namespace Steepshot.Adapter
             _time.Text = post.Created.ToPostTime();
         }
 
-        private void OnSuccess()
-        {
-        }
-
         private void OnError()
         {
-            Picasso.With(_context).Load(_post.Avatar).NoFade().Into(this);
-        }
-
-        public void OnBitmapFailed(Drawable p0)
-        {
-        }
-
-        public void OnBitmapLoaded(Bitmap p0, Picasso.LoadedFrom p1)
-        {
-            _avatar.SetImageBitmap(p0);
-        }
-
-        public void OnPrepareLoad(Drawable p0)
-        {
+            Picasso.With(_context).Load(_post.Avatar).NoFade().Into(_avatar);
         }
     }
 }
