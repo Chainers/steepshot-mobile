@@ -24,17 +24,6 @@ namespace Steepshot.iOS.Views
 {
     public partial class ProfileViewController : BasePostController<UserProfilePresenter>, IPageCloser //BaseViewControllerWithPresenter<UserProfilePresenter>
     {
-        void _collectionViewSource_ProfileAction(ActionType obj)
-        {
-        }
-
-
-        protected override void CreatePresenter()
-        {
-            _presenter = new UserProfilePresenter() { UserName = Username };
-            _presenter.SourceChanged += SourceChanged;
-        }
-
         private UserProfileResponse _userData;
         private ProfileCollectionViewSource _collectionViewSource;
         private UIRefreshControl _refreshControl;
@@ -50,6 +39,13 @@ namespace Steepshot.iOS.Views
         private bool UserIsWatched => AppSettings.User.WatchedUsers.Contains(Username);
 
         public string Username = AppSettings.User.Login;
+
+
+        protected override void CreatePresenter()
+        {
+            _presenter = new UserProfilePresenter() { UserName = Username };
+            _presenter.SourceChanged += SourceChanged;
+        }
 
         public override void ViewDidLoad()
         {
