@@ -40,7 +40,7 @@ namespace Steepshot.iOS.Views
             View.BackgroundColor = UIColor.White;
             searchTextField = new SearchTextField(ShouldReturn, "Tap to search");
             searchTextField.BecomeFirstResponder();
-            searchTextField.Font = Constants.Regular14;
+            //searchTextField.Font = Constants.Regular14;
             View.AddSubview(searchTextField);
 
             searchTextField.ClearButtonTapped += () => { OnTimer(null); };
