@@ -6,6 +6,7 @@ using PureLayout.Net;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Models.Responses;
+using Steepshot.Core.Extensions;
 using Steepshot.Core.Utils;
 using Steepshot.iOS.Helpers;
 using Steepshot.iOS.Views;
@@ -241,6 +242,9 @@ namespace Steepshot.iOS.Cells
 
             #endregion
 
+            // without balance container
+            AddSubview(bottomSeparator);
+
             #region constraints
 
             /*
@@ -407,17 +411,17 @@ namespace Steepshot.iOS.Cells
             };
 
             NSMutableAttributedString photosString = new NSMutableAttributedString();
-            photosString.Append(new NSAttributedString(userData.PostCount.ToString("N0"), buttonsAttributes));
+            photosString.Append(new NSAttributedString(userData.PostCount.CounterFormat(), buttonsAttributes));
             photosString.Append(new NSAttributedString(Environment.NewLine));
             photosString.Append(new NSAttributedString("Photos", textAttributes));
 
             NSMutableAttributedString followingString = new NSMutableAttributedString();
-            followingString.Append(new NSAttributedString(userData.FollowingCount.ToString("N0"), buttonsAttributes));
+            followingString.Append(new NSAttributedString(userData.FollowingCount.CounterFormat(), buttonsAttributes));
             followingString.Append(new NSAttributedString(Environment.NewLine));
             followingString.Append(new NSAttributedString("Following", textAttributes));
 
             NSMutableAttributedString followersString = new NSMutableAttributedString();
-            followersString.Append(new NSAttributedString(userData.FollowersCount.ToString("N0"), buttonsAttributes));
+            followersString.Append(new NSAttributedString(userData.FollowersCount.CounterFormat(), buttonsAttributes)); 
             followersString.Append(new NSAttributedString(Environment.NewLine));
             followersString.Append(new NSAttributedString("Followers", textAttributes));
 
