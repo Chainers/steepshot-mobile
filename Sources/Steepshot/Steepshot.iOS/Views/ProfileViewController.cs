@@ -212,6 +212,14 @@ namespace Steepshot.iOS.Views
                 NavigationController.PushViewController(myViewController, true);
             };
 
+            var balanceTap = new UITapGestureRecognizer(() =>
+            {
+                NavigationController.PushViewController(new WalletViewController(), true);
+            });
+
+            _profileHeader.Balance.UserInteractionEnabled = true;
+            _profileHeader.Balance.AddGestureRecognizer(balanceTap);
+
             var avatarTap = new UITapGestureRecognizer(() =>
             {
                 if (isPowerOpen || Username != AppSettings.User.Login)
