@@ -72,7 +72,7 @@ namespace Steepshot.Core.HttpClient
             return _ditchClient.TryReconnectChain(token);
         }
 
-        public async Task<OperationResult<VoidResponse>> LoginWithPostingKey(AuthorizedModel model, CancellationToken ct)
+        public async Task<OperationResult<VoidResponse>> LoginWithPostingKey(AuthorizedPostingModel model, CancellationToken ct)
         {
             var results = Validate(model);
             if (results.Any())
@@ -251,6 +251,15 @@ namespace Steepshot.Core.HttpClient
             var endpoint = $"{BaseUrl}/{GatewayVersion.V1P1}/{(model.Subscribe ? "subscribe" : "unsubscribe")}";
 
             return await Gateway.Post<object, PushNotificationsModel>(endpoint, model, ct);
+        }
+
+        public async Task<OperationResult<VoidResponse>> Transfer(TransferModel model, CancellationToken ct)
+        {
+            var results = Validate(model);
+            if (results.Any())
+                return new OperationResult<VoidResponse>(new ValidationError(results));
+
+            return await _ditchClient.Transfer(model, ct);
         }
     }
 }

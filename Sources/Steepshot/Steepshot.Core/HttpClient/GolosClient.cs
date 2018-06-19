@@ -1,17 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Ditch.Core;
 using Ditch.Golos;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
-using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Serializing;
 using DitchFollowType = Ditch.Golos.Models.Enums.FollowType;
 using DitchBeneficiary = Ditch.Golos.Models.Operations.Beneficiary;
-using Ditch.Core;
 using Ditch.Core.JsonRpc;
 using Ditch.Golos.Models.Operations;
 using Ditch.Golos.Models.Objects;
@@ -19,6 +15,7 @@ using Steepshot.Core.Errors;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Localization;
 using Cryptography.ECDSA;
+using Ditch.Golos.Models.Other;
 using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.HttpClient
@@ -129,7 +126,7 @@ namespace Steepshot.Core.HttpClient
             }, ct);
         }
 
-        public override async Task<OperationResult<VoidResponse>> LoginWithPostingKey(AuthorizedModel model, CancellationToken ct)
+        public override async Task<OperationResult<VoidResponse>> LoginWithPostingKey(AuthorizedPostingModel model, CancellationToken ct)
         {
             return await Task.Run(() =>
             {
@@ -259,11 +256,80 @@ namespace Steepshot.Core.HttpClient
             }, ct);
         }
 
+        public override async Task<OperationResult<VoidResponse>> Transfer(TransferModel model, CancellationToken ct)
+        {
+            return await Task.Run(() =>
+            {
+                if (!TryReconnectChain(ct))
+                    return new OperationResult<VoidResponse>(new AppError(LocalizationKeys.EnableConnectToBlockchain));
+
+                var keys = ToKeyArr(model.ActiveKey);
+                if (keys == null)
+                    return new OperationResult<VoidResponse>(new AppError(LocalizationKeys.WrongPrivateActimeKey));
+
+                var lookupAccountNames = _operationManager.LookupAccountNames(new[] { model.Login, model.Recipient }, CancellationToken.None);
+                var result = new OperationResult<VoidResponse>();
+                if (lookupAccountNames.IsError)
+                {
+                    OnError(lookupAccountNames, result);
+                    return result;
+                }
+
+                if (lookupAccountNames.Result.Length != 2 || lookupAccountNames.Result.Any(r => r == null))
+                {
+                    result.Error = new ValidationError(LocalizationKeys.UnexpectedProfileData);
+                    return result;
+                }
+
+                var accInfo = lookupAccountNames.Result.First(i => i.Name.Equals(model.Login));
+
+                Asset asset;
+                switch (model.CurrencyType)
+                {
+                    case CurrencyType.Golos:
+                        {
+                            if (accInfo.Balance.Value < model.Value)
+                            {
+                                result.Error = new ValidationError(LocalizationKeys.InsufficientBalance, accInfo.Balance.ToString());
+                                return result;
+                            }
+
+                            asset = new Asset(model.Value, model.Precussion, accInfo.Balance.Currency);
+                            break;
+                        }
+                    case CurrencyType.Gbg:
+                        {
+                            if (accInfo.SbdBalance.Value < model.Value)
+                            {
+                                result.Error = new ValidationError(LocalizationKeys.InsufficientBalance, accInfo.SbdBalance.ToString());
+                                return result;
+                            }
+
+                            asset = new Asset(model.Value, model.Precussion, accInfo.SbdBalance.Currency);
+                            break;
+                        }
+                    default:
+                        {
+                            result.Error = new ValidationError(LocalizationKeys.UnsupportedCurrency, model.CurrencyType.ToString());
+                            return result;
+                        }
+                }
+
+                var op = new TransferOperation(model.Login, model.Recipient, asset, model.Memo);
+                var resp = _operationManager.BroadcastOperationsSynchronous(keys, ct, op);
+                if (!resp.IsError)
+                    result.Result = new VoidResponse();
+                else
+                    OnError(resp, result);
+                return result;
+            }, ct);
+        }
+
         #endregion Post requests
 
         #region Get
 
-        public override async Task<OperationResult<object>> GetVerifyTransaction(AuthorizedModel model, CancellationToken ct)
+        public override async Task<OperationResult<object>> GetVerifyTransaction(AuthorizedPostingModel model, CancellationToken ct)
         {
             if (!TryReconnectChain(ct))
                 return new OperationResult<object>(new AppError(LocalizationKeys.EnableConnectToBlockchain));

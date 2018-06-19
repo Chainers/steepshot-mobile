@@ -9,7 +9,7 @@ using Steepshot.Core.Utils;
 namespace Steepshot.Core.Models.Requests
 {
     [JsonObject(MemberSerialization.OptIn)]
-    public class PushNotificationsModel : AuthorizedModel
+    public class PushNotificationsModel : AuthorizedPostingModel
     {
         [JsonProperty("username")]
         [Required(ErrorMessage = nameof(LocalizationKeys.EmptyLogin))]

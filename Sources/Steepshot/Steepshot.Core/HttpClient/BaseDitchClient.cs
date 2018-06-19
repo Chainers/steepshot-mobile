@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
 using Ditch.Core.Errors;
 using Ditch.Core.JsonRpc;
-using Newtonsoft.Json;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Serializing;
@@ -39,15 +37,17 @@ namespace Steepshot.Core.HttpClient
 
         public abstract Task<OperationResult<VoidResponse>> Follow(FollowModel model, CancellationToken ct);
 
-        public abstract Task<OperationResult<VoidResponse>> LoginWithPostingKey(AuthorizedModel model, CancellationToken ct);
+        public abstract Task<OperationResult<VoidResponse>> LoginWithPostingKey(AuthorizedPostingModel model, CancellationToken ct);
 
         public abstract Task<OperationResult<VoidResponse>> CreateOrEdit(CommentModel model, CancellationToken ct);
 
-        public abstract Task<OperationResult<object>> GetVerifyTransaction(AuthorizedModel model, CancellationToken ct);
+        public abstract Task<OperationResult<object>> GetVerifyTransaction(AuthorizedPostingModel model, CancellationToken ct);
 
         public abstract Task<OperationResult<VoidResponse>> Delete(DeleteModel model, CancellationToken ct);
 
         public abstract Task<OperationResult<VoidResponse>> UpdateUserProfile(UpdateUserProfileModel model, CancellationToken ct);
+
+        public abstract Task<OperationResult<VoidResponse>> Transfer(TransferModel model, CancellationToken ct);
 
         public abstract bool TryReconnectChain(CancellationToken token);
 
@@ -86,7 +86,7 @@ namespace Steepshot.Core.HttpClient
                 }
             }
         }
-        
+
         protected string UpdateProfileJson(string jsonMetadata, UpdateUserProfileModel model)
         {
             var meta = string.IsNullOrEmpty(jsonMetadata) ? "{}" : jsonMetadata;
