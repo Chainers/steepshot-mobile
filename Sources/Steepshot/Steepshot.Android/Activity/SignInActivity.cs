@@ -71,7 +71,7 @@ namespace Steepshot.Activity
             _signInBtn.Typeface = Style.Semibold;
             _buttonScanDefaultView.Typeface = Style.Semibold;
 #if DEBUG
-            var di = AppSettings.AssetsesHelper.GetDebugInfo();
+            var di = AppSettings.AssetHelper.GetDebugInfo();
             _password.Text = BasePresenter.Chain == KnownChains.Golos
                 ? di.GolosTestWif
                 : di.SteemTestWif;

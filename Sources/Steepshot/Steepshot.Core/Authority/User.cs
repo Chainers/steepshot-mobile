@@ -148,6 +148,9 @@ namespace Steepshot.Core.Authority
             }
         }
 
+        public Dictionary<string, string> Integration => UserInfo.Integration;
+
+
         public User()
         {
             _data = AppSettings.DataProvider;

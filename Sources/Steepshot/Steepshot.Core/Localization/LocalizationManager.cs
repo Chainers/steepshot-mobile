@@ -17,14 +17,14 @@ namespace Steepshot.Core.Localization
         public LocalizationModel Model { get; }
 
 
-        public LocalizationManager(ISaverService saverService, IAssetsHelper assetsHelper)
+        public LocalizationManager(ISaverService saverService, IAssetHelper assetHelper)
         {
             _saverService = saverService;
             _localizationModel = _saverService.Get<Dictionary<string, LocalizationModel>>(Localization);
 
             Model = _localizationModel.ContainsKey(DefaultLang)
                 ? _localizationModel[DefaultLang]
-                : assetsHelper.GetLocalization(DefaultLang);
+                : assetHelper.GetLocalization(DefaultLang);
         }
 
 

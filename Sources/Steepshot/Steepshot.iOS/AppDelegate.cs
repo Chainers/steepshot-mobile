@@ -42,7 +42,7 @@ namespace Steepshot.iOS
 
             builder.RegisterInstance(configManager).As<ConfigManager>().SingleInstance();
             builder.RegisterInstance(localizationManager).As<LocalizationManager>().SingleInstance();
-            builder.RegisterInstance(assetsHelper).As<IAssetsHelper>().SingleInstance();
+            builder.RegisterInstance(assetsHelper).As<IAssetHelper>().SingleInstance();
             builder.RegisterInstance(appInfo).As<IAppInfo>().SingleInstance();
             builder.RegisterInstance(saverService).As<ISaverService>().SingleInstance();
             builder.RegisterInstance(dataProvider).As<UserManager>().SingleInstance();

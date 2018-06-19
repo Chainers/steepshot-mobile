@@ -45,6 +45,8 @@ namespace Steepshot.Core.Authority
         public bool IsFirstRun { get; set; } = true;
 
         public bool ShowVotingSlider { get; set; }
+
+        public Dictionary<string, string> Integration { get; set; } = new Dictionary<string, string>();
     }
 
     public sealed class Navigation

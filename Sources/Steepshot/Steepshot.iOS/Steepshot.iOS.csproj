@@ -565,18 +565,16 @@
     <BundleResource Include="..\Steepshot.Android\Assets\Config.txt">
       <Link>Config.txt</Link>
     </BundleResource>
-  </ItemGroup>
-  <ItemGroup>
     <BundleResource Include="..\Steepshot.Android\Assets\CensoredWords.txt">
       <Link>CensoredWords.txt</Link>
     </BundleResource>
-  </ItemGroup>
-  <ItemGroup>
     <BundleResource Include="..\Steepshot.Android\Assets\DebugWif.txt">
       <Link>DebugWif.txt</Link>
     </BundleResource>
+    <BundleResource Include="..\Steepshot.Android\Assets\IntegrationModuleConfig.txt">
+      <Link>IntegrationModuleConfig.txt</Link>
+    </BundleResource>
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
     <Folder Include="Delegates\" />
   </ItemGroup>

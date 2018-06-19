@@ -8,7 +8,7 @@ using Steepshot.Core.Utils;
 
 namespace Steepshot.iOS.Helpers
 {
-    public sealed class AssetsHelper : IAssetsHelper
+    public sealed class AssetsHelper : IAssetHelper
     {
         public DebugInfo GetDebugInfo()
         {
@@ -33,6 +33,11 @@ namespace Steepshot.iOS.Helpers
         public List<NodeConfig> GolosNodesConfig()
         {
             return TryReadAsset<List<NodeConfig>>("GolosNodesConfig.txt");
+        }
+
+        public Dictionary<string, string> IntegrationModuleConfig()
+        {
+            return TryReadAsset<Dictionary<string, string>>("IntegrationModuleConfig.txt");
         }
 
         public void SetLocalization(LocalizationModel model)

@@ -28,7 +28,7 @@ namespace Steepshot.Core.Tests
             var saverService = new StubSaverService();
             var assetsHelper = new AssetsHelperStub();
 
-            builder.RegisterInstance(assetsHelper).As<IAssetsHelper>().SingleInstance();
+            builder.RegisterInstance(assetsHelper).As<IAssetHelper>().SingleInstance();
             builder.RegisterInstance(new StubAppInfo()).As<IAppInfo>().SingleInstance();
             builder.RegisterInstance(new UserManager(saverService)).As<UserManager>().SingleInstance();
             builder.RegisterInstance(saverService).As<ISaverService>().SingleInstance();
