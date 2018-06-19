@@ -4,6 +4,7 @@ using Foundation;
 using Steepshot.Core.Models;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
+using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Presenters;
 using Steepshot.iOS.Cells;
 using Steepshot.iOS.Helpers;
@@ -15,7 +16,10 @@ namespace Steepshot.iOS.ViewSources
     {
         public bool IsGrid = false;
         public event Action<ActionType, Post> CellAction;
+        public event Action<ActionType> ProfileAction;
         public event Action<string> TagAction;
+        public UserProfileResponse user;
+
         private readonly BasePostPresenter _presenter;
         private CollectionViewFlowDelegate _flowDelegate;
 
@@ -42,28 +46,45 @@ namespace Steepshot.iOS.ViewSources
             }
             else
             {
-                UICollectionViewCell cell;
-                var post = _presenter[(int)indexPath.Item];
-                if (IsGrid)
+                if (indexPath.Row == 0 && _flowDelegate.IsProfile)
                 {
-                    cell = (PhotoCollectionViewCell)collectionView.DequeueReusableCell(nameof(PhotoCollectionViewCell), indexPath);
-                    if (post != null)
-                        ((PhotoCollectionViewCell)cell).UpdateCell(post);
+                    var profile = (ProfileHeaderViewCell)collectionView.DequeueReusableCell(nameof(ProfileHeaderViewCell), indexPath);
+
+                    if (profile.ContentView.Subviews.Length == 0)
+                        profile.ContentView.AddSubview(_flowDelegate.profileCell);
+
+                    if (!_flowDelegate.profileCell.IsProfileActionSet)
+                        _flowDelegate.profileCell.ProfileAction += ProfileAction;
+
+                    return profile;
                 }
                 else
                 {
-                    cell = (NewFeedCollectionViewCell)collectionView.DequeueReusableCell(nameof(NewFeedCollectionViewCell), indexPath);
+                    UICollectionViewCell cell;
+                    var post = _presenter[_flowDelegate.IsProfile ? (int)indexPath.Item - 1 : (int)indexPath.Item];
 
-                    if (post != null)
-                        ((NewFeedCollectionViewCell)cell).Cell.UpdateCell(post, _flowDelegate.Variables[(int)indexPath.Item]);
-
-                    if (!((NewFeedCollectionViewCell)cell).Cell.IsCellActionSet)
+                    if (IsGrid)
                     {
-                        ((NewFeedCollectionViewCell)cell).Cell.CellAction += CellAction;
-                        ((NewFeedCollectionViewCell)cell).Cell.TagAction += TagAction;
+                        cell = (PhotoCollectionViewCell)collectionView.DequeueReusableCell(nameof(PhotoCollectionViewCell), indexPath);
+                        if (post != null)
+                            ((PhotoCollectionViewCell)cell).UpdateCell(post);
                     }
+                    else
+                    {
+                        cell = (NewFeedCollectionViewCell)collectionView.DequeueReusableCell(nameof(NewFeedCollectionViewCell), indexPath);
+
+                        if (post != null)
+                            ((NewFeedCollectionViewCell)cell).Cell.UpdateCell(post, _flowDelegate.Variables[_flowDelegate.IsProfile ? (int)indexPath.Item - 1 : (int)indexPath.Item]);
+
+                        if (!((NewFeedCollectionViewCell)cell).Cell.IsCellActionSet)
+                        {
+                            ((NewFeedCollectionViewCell)cell).Cell.CellAction += CellAction;
+                            ((NewFeedCollectionViewCell)cell).Cell.TagAction += TagAction;
+                        }
+                    }
+
+                    return cell;
                 }
-                return cell;
             }
         }
 

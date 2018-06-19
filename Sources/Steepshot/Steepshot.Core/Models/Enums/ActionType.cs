@@ -24,6 +24,7 @@
         Followers,
         Following,
         Balance,
-        LikePower
+        LikePower,
+        ProfilePower
     }
 }

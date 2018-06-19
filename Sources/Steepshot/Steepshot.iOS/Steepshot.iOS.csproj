@@ -419,6 +419,7 @@
     <Compile Include="Helpers\Logger.cs" />
     <Compile Include="Delegates\TTTAttributedLabelFeedDelegate.cs" />
     <Compile Include="Helpers\ImageLoader.cs" />
+    <Compile Include="Cells\ProfileHeaderViewCell.cs" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\ic_photo_holder.png" />

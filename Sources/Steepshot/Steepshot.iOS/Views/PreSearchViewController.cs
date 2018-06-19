@@ -8,6 +8,7 @@ using Steepshot.Core.Errors;
 using Steepshot.Core.Models;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
+using Steepshot.Core.Interfaces;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 using Steepshot.iOS.Cells;
@@ -18,7 +19,7 @@ using UIKit;
 
 namespace Steepshot.iOS.Views
 {
-    public partial class PreSearchViewController : BasePostController<PreSearchPresenter>
+    public partial class PreSearchViewController : BasePostController<PreSearchPresenter>, IPageCloser
     {
         public string CurrentPostCategory;
 
@@ -124,8 +125,6 @@ namespace Steepshot.iOS.Views
 
             var searchTap = new UITapGestureRecognizer(SearchTapped);
             searchButton.AddGestureRecognizer(searchTap);
-            if (TabBarController != null)
-                ((MainTabBarController)TabBarController).SameTabTapped += SameTabTapped;
 
             GetPosts();
         }
@@ -133,6 +132,10 @@ namespace Steepshot.iOS.Views
         public override void ViewWillDisappear(bool animated)
         {
             NavigationController.SetNavigationBarHidden(false, false);
+
+            if (TabBarController != null)
+                ((MainTabBarController)TabBarController).SameTabTapped -= SameTabTapped;
+
             base.ViewWillDisappear(animated);
         }
 
@@ -159,6 +162,9 @@ namespace Steepshot.iOS.Views
                 NavigationController.SetNavigationBarHidden(true, false);
             }
 
+            if (TabBarController != null)
+                ((MainTabBarController)TabBarController).SameTabTapped += SameTabTapped;
+
             base.ViewWillAppear(animated);
         }
 
@@ -170,7 +176,8 @@ namespace Steepshot.iOS.Views
 
         protected override void SameTabTapped()
         {
-            collectionView.SetContentOffset(new CGPoint(0, 0), true);
+            if (NavigationController?.ViewControllers.Length == 1)
+                collectionView.SetContentOffset(new CGPoint(0, 0), true);
         }
 
         private void SwitchSearchType(PostType postType)
@@ -216,13 +223,7 @@ namespace Steepshot.iOS.Views
                         //NavigationController.PushViewController(new PostViewController(post, _gridDelegate.Variables[_presenter.IndexOf(post)], _presenter), false);
                         NavigationController.PushViewController(new ImagePreviewViewController(post.Body) { HidesBottomBarWhenPushed = true }, true);
                     else
-                    {
-                        collectionView.Hidden = true;
-                        sliderCollection.Hidden = false;
-                        _sliderGridDelegate.GenerateVariables();
-                        sliderCollection.ReloadData();
-                        sliderCollection.ScrollToItem(NSIndexPath.FromRowSection(_presenter.IndexOf(post), 0), UICollectionViewScrollPosition.CenteredHorizontally, false);
-                    }
+                        OpenPost(post);
                     break;
                 case ActionType.Voters:
                     NavigationController.PushViewController(new VotersViewController(post, VotersType.Likes), true);
@@ -243,15 +244,40 @@ namespace Steepshot.iOS.Views
                     Flagged(post);
                     break;
                 case ActionType.Close:
-                    collectionView.Hidden = false;
-                    sliderCollection.Hidden = true;
-                    _gridDelegate.GenerateVariables();
-                    collectionView.ReloadData();
-                    collectionView.ScrollToItem(NSIndexPath.FromRowSection(_presenter.IndexOf(post), 0), UICollectionViewScrollPosition.Top, false);
+                    ClosePost();
                     break;
                 default:
                     break;
             }
+        }
+
+        public void OpenPost(Post post)
+        {
+            collectionView.Hidden = true;
+            sliderCollection.Hidden = false;
+            _sliderGridDelegate.GenerateVariables();
+            sliderCollection.ReloadData();
+            sliderCollection.ScrollToItem(NSIndexPath.FromRowSection(_presenter.IndexOf(post), 0), UICollectionViewScrollPosition.CenteredHorizontally, false);
+        }
+
+        public bool ClosePost()
+        {
+            if (!sliderCollection.Hidden)
+            {
+                var visibleRect = new CGRect();
+                visibleRect.Location = sliderCollection.ContentOffset;
+                visibleRect.Size = sliderCollection.Bounds.Size;
+                var visiblePoint = new CGPoint(visibleRect.GetMidX(), visibleRect.GetMidY());
+                var index = sliderCollection.IndexPathForItemAtPoint(visiblePoint);
+
+                collectionView.ScrollToItem(index, UICollectionViewScrollPosition.Top, false);
+                collectionView.Hidden = false;
+                sliderCollection.Hidden = true;
+                _gridDelegate.GenerateVariables();
+                collectionView.ReloadData();
+                return true;
+            }
+            return false;
         }
 
         private void SwitchLayout(object sender, EventArgs e)
@@ -342,7 +368,7 @@ namespace Steepshot.iOS.Views
                 {
                     foreach (var url in item.Media)
                     {
-                        if(_gridDelegate.IsGrid)
+                        if (_gridDelegate.IsGrid)
                             ImageLoader.Preload(item.Media[0].Url, Constants.CellSize);
                         else
                             ImageLoader.Preload(url.Url, new CGSize(UIScreen.MainScreen.Bounds.Size.Width, UIScreen.MainScreen.Bounds.Size.Width));
