@@ -8,7 +8,7 @@ using Steepshot.Core.Utils;
 namespace Steepshot.Core.Models.Requests
 {
     [JsonObject(MemberSerialization.OptIn)]
-    public class UploadMediaModel : AuthorizedModel
+    public class UploadMediaModel : AuthorizedPostingModel
     {
         [Required(ErrorMessage = nameof(LocalizationKeys.EmptyFileField))]
         public Stream File { get; }

@@ -208,7 +208,7 @@ namespace Steepshot.Core
             sb.Append($"{num}) LoginWithPostingKeyTest : ");
             StepFinished?.Invoke(sb.ToString());
 
-            var request = new AuthorizedModel(_user);
+            var request = new AuthorizedPostingModel(_user);
             var response = _api.LoginWithPostingKey(request, CancellationToken.None).Result;
             if (!response.IsSuccess)
             {

@@ -7,7 +7,7 @@ using Steepshot.Core.Models.Common;
 namespace Steepshot.Core.Models.Requests
 {
     [JsonObject(MemberSerialization.OptIn)]
-    public class VoteModel : AuthorizedModel
+    public class VoteModel : AuthorizedPostingModel
     {
         public Post Post { get; }
 

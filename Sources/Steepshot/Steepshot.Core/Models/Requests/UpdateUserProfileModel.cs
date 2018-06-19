@@ -1,18 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
-using Newtonsoft.Json;
-using Steepshot.Core.Localization;
+﻿using Newtonsoft.Json;
 
 namespace Steepshot.Core.Models.Requests
 {
     [JsonObject(MemberSerialization.OptIn)]
-    public class UpdateUserProfileModel
+    public class UpdateUserProfileModel : AuthorizedActiveModel
     {
-        [Required(ErrorMessage = nameof(LocalizationKeys.EmptyActiveKey))]
-        public string ActiveKey { get; set; }
-
-        [Required(ErrorMessage = nameof(LocalizationKeys.EmptyUsernameField))]
-        public string Login { get; set; }
-
         public string ProfileImage { get; set; }
 
         public string Name { get; set; }
@@ -22,5 +14,10 @@ namespace Steepshot.Core.Models.Requests
         public string Website { get; set; }
 
         public string About { get; set; }
+
+        public UpdateUserProfileModel(string login, string activeKey)
+            : base(login, activeKey)
+        {
+        }
     }
 }

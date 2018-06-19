@@ -10,7 +10,7 @@ namespace Steepshot.Core.Models.Requests
 {
     [DebuggerStepThrough]
     [JsonObject(MemberSerialization.OptIn)]
-    public class PreparePostModel : AuthorizedModel
+    public class PreparePostModel : AuthorizedPostingModel
     {
         private string[] _tags = new string[0];
         private string _permlink;

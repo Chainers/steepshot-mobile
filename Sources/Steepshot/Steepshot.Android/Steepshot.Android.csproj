@@ -163,6 +163,7 @@
   <ItemGroup>
     <None Include="app.config" />
     <AndroidAsset Include="Assets\Config.txt.template" />
+    <AndroidAsset Include="Assets\IntegrationModuleConfig.txt.template" />
     <None Include="packages.config" />
     <None Include="Resources\AboutResources.txt" />
     <None Include="Properties\AndroidManifest.xml" />
