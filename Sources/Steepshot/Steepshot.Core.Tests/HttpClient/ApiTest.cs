@@ -21,7 +21,7 @@ namespace Steepshot.Core.Tests.HttpClient
         public async Task LoginWithPostingKeyTest(KnownChains apiName)
         {
             var user = Users[apiName];
-            var request = new AuthorizedModel(user);
+            var request = new AuthorizedPostingModel(user);
             var response = await Api[apiName].LoginWithPostingKey(request, CancellationToken.None);
             AssertResult(response);
             Assert.That(response.IsSuccess, Is.True);
@@ -245,10 +245,8 @@ namespace Steepshot.Core.Tests.HttpClient
             Assert.IsTrue(profileResponse.IsSuccess);
             var profile = profileResponse.Result;
 
-            var updateUserProfileModel = new UpdateUserProfileModel()
+            var updateUserProfileModel = new UpdateUserProfileModel(user.Login, user.PostingKey)
             {
-                Login = user.Login,
-                ActiveKey = user.PostingKey,
                 About = profile.About,
                 Location = profile.Location,
                 Name = profile.Name,

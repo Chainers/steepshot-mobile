@@ -22,7 +22,7 @@ namespace Steepshot.Core.Tests.HttpClient
             var user = Users[apiName];
             user.Login += "x";
             user.PostingKey += "x";
-            var request = new AuthorizedModel(user);
+            var request = new AuthorizedPostingModel(user);
 
             var response = await Api[apiName].LoginWithPostingKey(request, CancellationToken.None);
 
@@ -36,7 +36,7 @@ namespace Steepshot.Core.Tests.HttpClient
         {
             var user = Users[apiName];
             user.PostingKey += "x";
-            var request = new AuthorizedModel(user);
+            var request = new AuthorizedPostingModel(user);
 
             var response = await Api[apiName].LoginWithPostingKey(request, CancellationToken.None);
 
@@ -50,7 +50,7 @@ namespace Steepshot.Core.Tests.HttpClient
         {
             var user = Users[apiName];
             user.Login += "x";
-            var request = new AuthorizedModel(user);
+            var request = new AuthorizedPostingModel(user);
 
             var response = await Api[apiName].LoginWithPostingKey(request, CancellationToken.None);
 
