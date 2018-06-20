@@ -1,4 +1,5 @@
 ﻿using System;
+using CoreGraphics;
 using PureLayout.Net;
 using Steepshot.Core.Presenters;
 using Steepshot.iOS.CustomViews;
@@ -26,20 +27,10 @@ namespace Steepshot.iOS.Views
 
             recepientLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Top, 25);
             recepientLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 15);
-            /*
-            UITextField recepientTextField = new UITextField();
-            recepientTextField.Placeholder = "Search";
-            recepientTextField.Layer.CornerRadius = 25;
-            recepientTextField.BackgroundColor = Constants.R245G245B245;
-            recepientTextField.RightView = new UIImageView() { Image = UIImage.FromBundle("ic_search_small.png") };
-            recepientTextField.Font = Constants.Regular14;
-*/
+
             SearchTextField recepientTextField = new SearchTextField(() => {
                 
-            }, "Tap to search");
-            recepientTextField.BecomeFirstResponder();
-            recepientTextField.Font = Constants.Regular14;
-            recepientTextField.Placeholder = "Search";
+            }, "Search");
             recepientTextField.Layer.CornerRadius = 25;
             View.AddSubview(recepientTextField);
 
@@ -62,27 +53,45 @@ namespace Steepshot.iOS.Views
             amountLabel.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, recepientTextField, 25);
             amountLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 15);
 
-            UITextField amountTextField = new UITextField();
-            amountTextField.Placeholder = "100";
+
+            SearchTextField amountTextField = new SearchTextField(() => {
+
+            }, "100");
             amountTextField.Layer.CornerRadius = 25;
-            amountTextField.BackgroundColor = Constants.R245G245B245;
-            recepientTextField.Font = Constants.Regular14;
+            View.AddSubview(amountTextField);
+
+            amountTextField.ClearButtonTapped += () => { };
+
             View.AddSubview(amountTextField);
 
             amountTextField.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 15);
-            amountTextField.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, amountLabel, 25);
-            amountTextField.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 15);
+            amountTextField.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, amountLabel, 16);
             amountTextField.AutoSetDimension(ALDimension.Height, 50);
 
-            /*
             UIView pickerView = new UIView();
-            pickerView.BackgroundColor = UIColor.Black;
+            pickerView.Layer.CornerRadius = 25;
+            pickerView.Layer.BorderColor = Constants.R244G244B246.CGColor;
+            pickerView.Layer.BorderWidth = 1;
             View.AddSubview(pickerView);
-*/
+
+            pickerView.AutoSetDimensionsToSize(new CGSize(125, 50));
+            pickerView.AutoPinEdge(ALEdge.Left, ALEdge.Right, amountTextField, 10);
+            pickerView.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 15);
+            pickerView.AutoAlignAxis(ALAxis.Horizontal, amountTextField);
+
+            UILabel pickerLabel = new UILabel();
+            pickerLabel.Text = "VIM";
+            pickerLabel.Font = Constants.Semibold14;
+            pickerLabel.TextColor = Constants.R255G71B5;
+            pickerView.AddSubview(pickerLabel);
+
+            pickerLabel.AutoCenterInSuperview();
+
             _transferButton = new UIButton();
             _transferButton.SetTitleColor(UIColor.White, UIControlState.Normal);
-            _transferButton.SetTitle("Transfer", UIControlState.Normal);
+            _transferButton.SetTitle("TRANSFER", UIControlState.Normal);
             _transferButton.Layer.CornerRadius = 25;
+            _transferButton.Font = Constants.Bold14;
             _transferButton.TouchDown += (object sender, EventArgs e) =>
             {
                 
