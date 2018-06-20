@@ -1,6 +1,5 @@
 ﻿using System;
 using CoreGraphics;
-using FFImageLoading;
 using Steepshot.Core;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
@@ -10,7 +9,6 @@ using Constants = Steepshot.iOS.Helpers.Constants;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Responses;
 using Steepshot.iOS.Helpers;
-using Steepshot.Core.Models.Common;
 
 namespace Steepshot.iOS.Views
 {
