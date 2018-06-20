@@ -19,7 +19,6 @@ using Steepshot.iOS.Helpers;
 using Steepshot.iOS.ViewControllers;
 using Steepshot.iOS.ViewSources;
 using UIKit;
-using Steepshot.Core.Extensions;
 
 namespace Steepshot.iOS.Views
 {
@@ -493,7 +492,7 @@ namespace Steepshot.iOS.Views
                 var visiblePoint = new CGPoint(visibleRect.GetMidX(), visibleRect.GetMidY());
                 var index = sliderCollection.IndexPathForItemAtPoint(visiblePoint);
 
-                collectionView.ScrollToItem(index, UICollectionViewScrollPosition.Top, false);
+                collectionView.ScrollToItem(NSIndexPath.FromRowSection(index.Row + 1, index.Section), UICollectionViewScrollPosition.Top, false);
                 collectionView.Hidden = false;
                 sliderCollection.Hidden = true;
                 _gridDelegate.GenerateVariables();
