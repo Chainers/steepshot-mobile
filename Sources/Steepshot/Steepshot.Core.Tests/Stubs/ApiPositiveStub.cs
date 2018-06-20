@@ -72,7 +72,7 @@ namespace Steepshot.Core.Tests.Stubs
             return true;
         }
 
-        public async Task<OperationResult<VoidResponse>> LoginWithPostingKey(AuthorizedModel model, CancellationToken ct)
+        public async Task<OperationResult<VoidResponse>> LoginWithPostingKey(AuthorizedPostingModel model, CancellationToken ct)
         {
             return new OperationResult<VoidResponse>
             {

@@ -2,7 +2,7 @@
 using System.Linq;
 using Steepshot.Core.Services;
 
-namespace Steepshot.Core.Authority
+namespace Steepshot.Core.Authorization
 {
     public class UserManager
     {

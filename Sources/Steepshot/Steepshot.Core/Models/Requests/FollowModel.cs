@@ -1,13 +1,13 @@
-using Steepshot.Core.Authority;
 using System.ComponentModel.DataAnnotations;
 using Newtonsoft.Json;
+using Steepshot.Core.Authorization;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Enums;
 
 namespace Steepshot.Core.Models.Requests
 {
     [JsonObject(MemberSerialization.OptIn)]
-    public class FollowModel : AuthorizedModel
+    public class FollowModel : AuthorizedPostingModel
     {
         [JsonProperty]
         public FollowType Type { get; }

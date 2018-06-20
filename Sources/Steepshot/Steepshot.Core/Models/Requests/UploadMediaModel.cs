@@ -1,14 +1,14 @@
-﻿using Steepshot.Core.Authority;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.IO;
 using Newtonsoft.Json;
+using Steepshot.Core.Authorization;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Models.Requests
 {
     [JsonObject(MemberSerialization.OptIn)]
-    public class UploadMediaModel : AuthorizedModel
+    public class UploadMediaModel : AuthorizedPostingModel
     {
         [Required(ErrorMessage = nameof(LocalizationKeys.EmptyFileField))]
         public Stream File { get; }

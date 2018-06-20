@@ -241,26 +241,10 @@ namespace Steepshot.iOS.ViewControllers
             if (error == null || error is CanceledError)
                 return;
 
-            var message = error.Message;
-            if (string.IsNullOrWhiteSpace(message))
-                return;
+            var message = GetMsg(error);
 
-            var lm = AppSettings.LocalizationManager;
-            if (!lm.ContainsKey(message))
-            {
-                if (error is BlockchainError blError)
-                {
-                    AppSettings.Reporter.SendMessage($"New message: {LocalizationManager.NormalizeKey(blError.Message)}{Environment.NewLine}Full Message:{blError.FullMessage}");
-                }
-                else
-                {
-                    AppSettings.Reporter.SendMessage($"New message: {LocalizationManager.NormalizeKey(message)}");
-                }
-                message = nameof(LocalizationKeys.UnexpectedError);
-            }
-
-            var alert = UIAlertController.Create(null, lm.GetText(message), UIAlertControllerStyle.Alert);
-            alert.AddAction(UIAlertAction.Create(lm.GetText(LocalizationKeys.Ok), UIAlertActionStyle.Cancel, okAction));
+            var alert = UIAlertController.Create(null, message, UIAlertControllerStyle.Alert);
+            alert.AddAction(UIAlertAction.Create(AppSettings.LocalizationManager.GetText(LocalizationKeys.Ok), UIAlertActionStyle.Cancel, okAction));
             PresentViewController(alert, true, null);
         }
 
@@ -269,9 +253,21 @@ namespace Steepshot.iOS.ViewControllers
             if (error == null || error is CanceledError)
                 return;
 
+            var message = GetMsg(error);
+
+
+
+            var alert = UIAlertController.Create(null, message, UIAlertControllerStyle.Alert);
+            alert.AddAction(UIAlertAction.Create(AppSettings.LocalizationManager.GetText(leftButtonText), UIAlertActionStyle.Cancel, leftButtonAction));
+            alert.AddAction(UIAlertAction.Create(AppSettings.LocalizationManager.GetText(rightButtonText), UIAlertActionStyle.Default, rightButtonAction));
+            PresentViewController(alert, true, null);
+        }
+
+        private static string GetMsg(ErrorBase error)
+        {
             var message = error.Message;
             if (string.IsNullOrWhiteSpace(message))
-                return;
+                return message;
 
             var lm = AppSettings.LocalizationManager;
             if (!lm.ContainsKey(message))
@@ -287,12 +283,12 @@ namespace Steepshot.iOS.ViewControllers
                 message = nameof(LocalizationKeys.UnexpectedError);
             }
 
-            var alert = UIAlertController.Create(null, lm.GetText(message), UIAlertControllerStyle.Alert);
-            alert.AddAction(UIAlertAction.Create(lm.GetText(leftButtonText), UIAlertActionStyle.Cancel, leftButtonAction));
-            alert.AddAction(UIAlertAction.Create(lm.GetText(rightButtonText), UIAlertActionStyle.Default, rightButtonAction));
-            PresentViewController(alert, true, null);
-        }
+            var txt = lm.GetText(message);
+            if (error.Parameters != null)
+                txt = string.Format(txt, error.Parameters);
 
+            return txt;
+        }
         protected void TagAction(string tag)
         {
             var myViewController = new PreSearchViewController();

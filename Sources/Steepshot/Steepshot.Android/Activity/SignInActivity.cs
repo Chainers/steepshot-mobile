@@ -12,11 +12,14 @@ using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
 using CheeseBind;
+using Cryptography.ECDSA;
+using Newtonsoft.Json;
 using Refractored.Controls;
 using Square.Picasso;
 using Steepshot.Base;
 using Steepshot.Core;
 using Steepshot.Core.Localization;
+using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 using Steepshot.Utils;
@@ -25,14 +28,15 @@ using ZXing.Mobile;
 namespace Steepshot.Activity
 {
     [Activity(ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait)]
-    public sealed class SignInActivity : BaseActivityWithPresenter<SignInPresenter>, ITarget
+    public sealed class SignInActivity : BaseActivity, ITarget
     {
         public const string LoginExtraPath = "login";
-        public const string AvatarUrlExtraPath = "avatar_url";
+        public const string AccountInfoResponseExtraPath = "account_info_response";
 
         private MobileBarcodeScanner _scanner;
         private string _username;
         private string _profileImageUrl;
+        private AccountInfoResponse _accountInfoResponse;
 
 #pragma warning disable 0649, 4014
         [BindView(Resource.Id.profile_image)] private CircleImageView _profileImage;
@@ -56,7 +60,8 @@ namespace Steepshot.Activity
             MobileBarcodeScanner.Initialize(Application);
             _scanner = new MobileBarcodeScanner();
             _username = Intent.GetStringExtra(LoginExtraPath);
-            _profileImageUrl = Intent.GetStringExtra(AvatarUrlExtraPath);
+            _accountInfoResponse = JsonConvert.DeserializeObject<AccountInfoResponse>(Intent.GetStringExtra(AccountInfoResponseExtraPath));
+            _profileImageUrl = _accountInfoResponse.Metadata?.Profile?.ProfileImage;
 
             _backButton.Visibility = ViewStates.Visible;
             _backButton.Click += GoBack;
@@ -71,7 +76,7 @@ namespace Steepshot.Activity
             _signInBtn.Typeface = Style.Semibold;
             _buttonScanDefaultView.Typeface = Style.Semibold;
 #if DEBUG
-            var di = AppSettings.AssetsesHelper.GetDebugInfo();
+            var di = AppSettings.AssetHelper.GetDebugInfo();
             _password.Text = BasePresenter.Chain == KnownChains.Golos
                 ? di.GolosTestWif
                 : di.SteemTestWif;
@@ -168,11 +173,8 @@ namespace Steepshot.Activity
             appCompatButton.Text = string.Empty;
             appCompatButton.Enabled = false;
 
-            var response = await Presenter.TrySignIn(login, pass);
-            if (IsFinishing || IsDestroyed)
-                return;
-
-            if (response.IsSuccess)
+            var isvalid = KeyHelper.ValidatePrivateKey(pass, _accountInfoResponse.PublicPostingKeys);
+            if (isvalid)
             {
                 AppSettings.User.AddAndSwitchUser(login, pass, BasePresenter.Chain);
                 var intent = new Intent(this, typeof(RootActivity));
@@ -181,7 +183,7 @@ namespace Steepshot.Activity
             }
             else
             {
-                this.ShowAlert(response.Error);
+                this.ShowAlert(LocalizationKeys.WrongPrivatePostingKey);
             }
 
             appCompatButton.Enabled = true;

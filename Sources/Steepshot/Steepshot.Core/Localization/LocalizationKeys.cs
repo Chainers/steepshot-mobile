@@ -27,6 +27,7 @@
         CameraSettingError,
         TagLimitError,
         UnsupportedMime,
+        UnsupportedCurrency,
         UnexpectedProfileData,
         PostFirstComment,
         ScanQRCode,
@@ -160,6 +161,7 @@
         RegisterThroughSteemCreate,
         Use,
         Close,
-        VotingPowerSetting
+        VotingPowerSetting,
+        InsufficientBalance
     }
 }

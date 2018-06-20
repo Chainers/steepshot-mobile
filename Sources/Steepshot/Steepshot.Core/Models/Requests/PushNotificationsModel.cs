@@ -1,15 +1,15 @@
 ﻿using System.Collections.Generic;
 using Newtonsoft.Json;
-using Steepshot.Core.Authority;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Enums;
 using System.ComponentModel.DataAnnotations;
+using Steepshot.Core.Authorization;
 using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Models.Requests
 {
     [JsonObject(MemberSerialization.OptIn)]
-    public class PushNotificationsModel : AuthorizedModel
+    public class PushNotificationsModel : AuthorizedPostingModel
     {
         [JsonProperty("username")]
         [Required(ErrorMessage = nameof(LocalizationKeys.EmptyLogin))]

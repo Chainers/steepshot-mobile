@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Steepshot.Core.Models.Enums;
 
-namespace Steepshot.Core.Authority
+namespace Steepshot.Core.Authorization
 {
     public sealed class UserInfo
     {
@@ -45,6 +45,8 @@ namespace Steepshot.Core.Authority
         public bool IsFirstRun { get; set; } = true;
 
         public bool ShowVotingSlider { get; set; }
+
+        public Dictionary<string, string> Integration { get; set; } = new Dictionary<string, string>();
     }
 
     public sealed class Navigation

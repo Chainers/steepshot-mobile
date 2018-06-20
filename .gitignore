@@ -222,3 +222,4 @@ Sources/Steepshot/Steepshot.Android/Assets/DebugWif.txt
 Sources/Steepshot/Steepshot.iOS/Debug.plist
 Sources/Steepshot/.vs/
 Sources/Steepshot/Steepshot.Android/Assets/Config.txt
+Sources/Steepshot/Steepshot.Android/Assets/IntegrationModuleConfig.txt

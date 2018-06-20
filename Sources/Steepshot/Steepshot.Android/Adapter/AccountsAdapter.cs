@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
-using Steepshot.Core.Authority;
+using Steepshot.Core.Authorization;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;

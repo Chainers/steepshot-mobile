@@ -1,13 +1,13 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Newtonsoft.Json;
-using Steepshot.Core.Authority;
+using Steepshot.Core.Authorization;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Models.Common;
 
 namespace Steepshot.Core.Models.Requests
 {
     [JsonObject(MemberSerialization.OptIn)]
-    public class VoteModel : AuthorizedModel
+    public class VoteModel : AuthorizedPostingModel
     {
         public Post Post { get; }
 
