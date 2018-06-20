@@ -4,18 +4,18 @@ using FFImageLoading;
 using Steepshot.Core;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
-using Steepshot.iOS.Helpers;
 using Steepshot.iOS.ViewControllers;
 using UIKit;
 using Constants = Steepshot.iOS.Helpers.Constants;
 using Steepshot.Core.Localization;
+using Steepshot.Core.Models.Responses;
 
 namespace Steepshot.iOS.Views
 {
-    public partial class LoginViewController : BaseViewControllerWithPresenter<SignInPresenter>
+    public partial class LoginViewController : BaseViewController
     {
-        public string AvatarLink { get; set; }
         public string Username { get; set; }
+        public AccountInfoResponse AccountInfoResponse { get; set; }
 
         public override void ViewDidLoad()
         {
@@ -33,7 +33,8 @@ namespace Steepshot.iOS.Views
             qrButton.Layer.BorderWidth = 1f;
             qrButton.Layer.BorderColor = Constants.R244G244B246.CGColor;
 
-            ImageService.Instance.LoadUrl(AvatarLink, TimeSpan.FromDays(30))
+            var avatarLink = AccountInfoResponse.Metadata?.Profile?.ProfileImage;
+            ImageService.Instance.LoadUrl(avatarLink, TimeSpan.FromDays(30))
                                              .Retry(2, 200)
                                              .FadeAnimation(false, true)
                                              .DownSample(width: 300)
@@ -71,6 +72,11 @@ namespace Steepshot.iOS.Views
             NavigationController.NavigationBar.TintColor = Helpers.Constants.R15G24B30;
 
             NavigationItem.Title = AppSettings.LocalizationManager.GetText(LocalizationKeys.PasswordViewTitleText);
+        }
+
+        protected void GoBack(object sender, EventArgs e)
+        {
+            NavigationController.PopViewController(true);
         }
 
         private void EyeButtonTouch(object sender, EventArgs e)
@@ -118,8 +124,8 @@ namespace Steepshot.iOS.Views
             loginButton.SetTitleColor(UIColor.Clear, UIControlState.Disabled);
             try
             {
-                var response = await _presenter.TrySignIn(Username, password.Text);
-                if (response.IsSuccess)
+                var isvalid = KeyHelper.ValidatePrivateKey(password.Text, AccountInfoResponse.PublicPostingKeys);
+                if (isvalid)
                 {
                     AppSettings.User.AddAndSwitchUser(Username, password.Text, BasePresenter.Chain);
 
@@ -129,7 +135,7 @@ namespace Steepshot.iOS.Views
                     NavigationController.PopViewController(true);
                 }
                 else
-                    ShowAlert(response.Error);
+                    ShowAlert(LocalizationKeys.WrongPrivatePostingKey);
             }
             catch (ArgumentNullException)
             {

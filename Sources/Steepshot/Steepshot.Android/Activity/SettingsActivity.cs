@@ -11,7 +11,6 @@ using CheeseBind;
 using Steepshot.Adapter;
 using Steepshot.Base;
 using Steepshot.Core;
-using Steepshot.Core.Authority;
 using Steepshot.Core.Extensions;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Enums;
@@ -20,6 +19,7 @@ using Steepshot.Core.Utils;
 using Steepshot.Utils;
 using Steepshot.Core.Models.Requests;
 using System.Threading.Tasks;
+using Steepshot.Core.Authorization;
 
 namespace Steepshot.Activity
 {

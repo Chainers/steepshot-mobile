@@ -2,7 +2,6 @@
 using Android.Runtime;
 using Autofac;
 using Square.Picasso;
-using Steepshot.Core.Authority;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Sentry;
 using Steepshot.Core.Services;
@@ -10,6 +9,7 @@ using Steepshot.Core.Utils;
 using Steepshot.Services;
 using Steepshot.Utils;
 using System;
+using Steepshot.Core.Authorization;
 using Steepshot.Core.HttpClient;
 
 namespace Steepshot.Base
