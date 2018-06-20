@@ -5,7 +5,7 @@ using Steepshot.Core.HttpClient;
 
 namespace Steepshot.Core.Services
 {
-    public interface IAssetsHelper
+    public interface IAssetHelper
     {
         HashSet<string> TryReadCensoredWords();
 
@@ -18,5 +18,7 @@ namespace Steepshot.Core.Services
         List<NodeConfig> SteemNodesConfig();
 
         List<NodeConfig> GolosNodesConfig();
+
+        Dictionary<string, string> IntegrationModuleConfig();
     }
 }

@@ -1,7 +1,7 @@
 ﻿using System;
 
 using Foundation;
-using Steepshot.Core.Authority;
+using Steepshot.Core.Authorization;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Presenters;
 using UIKit;

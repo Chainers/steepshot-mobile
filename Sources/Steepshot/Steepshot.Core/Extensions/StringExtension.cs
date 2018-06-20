@@ -11,7 +11,7 @@ namespace Steepshot.Core.Extensions
     public static class StringExtension
     {
         private static HashSet<string> _censoredWords;
-        private static HashSet<string> CensoredWords => _censoredWords ?? (_censoredWords = AppSettings.AssetsesHelper.TryReadCensoredWords());
+        private static HashSet<string> CensoredWords => _censoredWords ?? (_censoredWords = AppSettings.AssetHelper.TryReadCensoredWords());
         private static readonly Regex GetWords = new Regex(@"\b[\w]{2,}\b", RegexOptions.CultureInvariant | RegexOptions.Compiled);
         private static readonly Regex WordDelimiters = new Regex(@"[_\s\.]+");
         private static readonly Regex PermlinkNotSupportedCharacters = new Regex(@"[^a-z0-9-]+", RegexOptions.IgnoreCase);

@@ -1,12 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using Steepshot.Core.Authority;
 using Newtonsoft.Json;
+using Steepshot.Core.Authorization;
 using Steepshot.Core.Localization;
 
 namespace Steepshot.Core.Models.Requests
 {
     [JsonObject(MemberSerialization.OptIn)]
-    public class AuthorizedModel
+    public class AuthorizedPostingModel
     {
         [Required(ErrorMessage = nameof(LocalizationKeys.EmptyUsernameField))]
         public string Login { get; }
@@ -15,13 +15,13 @@ namespace Steepshot.Core.Models.Requests
         public string PostingKey { get; }
 
 
-        public AuthorizedModel(string login, string postingKey)
+        public AuthorizedPostingModel(string login, string postingKey)
         {
             Login = login;
             PostingKey = postingKey;
         }
 
-        public AuthorizedModel(UserInfo user)
+        public AuthorizedPostingModel(UserInfo user)
             : this(user.Login, user.PostingKey)
         {
         }

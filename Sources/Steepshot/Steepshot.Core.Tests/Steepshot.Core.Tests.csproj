@@ -41,7 +41,7 @@
   <ItemGroup>
     <Compile Include="HttpClient\BaseDitchClientTests.cs" />
     <Compile Include="HttpClient\ApiGatewayTest.cs" />
-    <Compile Include="LocalizationManagerTest.cs" />
+    <Compile Include="AssetTest.cs" />
     <Compile Include="Localization\MessageTest.cs" />
     <Compile Include="ServerResponceTests.cs" />
     <Compile Include="Stubs\AssetsHelperStub.cs" />
@@ -70,10 +70,14 @@
     <None Include="supersocket.sh" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\Steepshot.Android\Assets\IntegrationModuleConfig.txt">
+      <Link>IntegrationModuleConfig.txt</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <Content Include="Data\cat.jpg" />
     <None Include="..\Steepshot.Android\Assets\Localization.en-us.txt">
       <Link>Localization.en-us.txt</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
   <ItemGroup>

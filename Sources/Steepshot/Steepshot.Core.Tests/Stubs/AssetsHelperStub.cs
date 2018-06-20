@@ -9,37 +9,62 @@ using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Tests.Stubs
 {
-    public class AssetsHelperStub : IAssetsHelper
+    public class AssetsHelperStub : IAssetHelper
     {
-        public ConfigInfo GetConfigInfo()
-        {
-            throw new NotImplementedException();
-        }
-
         public DebugInfo GetDebugInfo()
         {
-            throw new NotImplementedException();
+            return TryReadAsset<DebugInfo>("DebugWif.txt");
+        }
+        
+        public ConfigInfo GetConfigInfo()
+        {
+            return TryReadAsset<ConfigInfo>("Config.txt");
         }
 
         public LocalizationModel GetLocalization(string lang)
         {
-            var jsonLocalization = File.ReadAllText($"{AppDomain.CurrentDomain.BaseDirectory}\\Localization.en-us.txt");
-            return JsonConvert.DeserializeObject<LocalizationModel>(jsonLocalization);
+            return TryReadAsset<LocalizationModel>($"Localization.{lang}.txt");
         }
 
-        public List<NodeConfig> SteemNodesConfig()
-        {
-            throw new NotImplementedException();
-        }
 
-        public List<NodeConfig> GolosNodesConfig()
+        public LocalizationModel GetLocalization()
         {
-            throw new NotImplementedException();
+            return TryReadAsset<LocalizationModel>("InstagramModuleOptions.txt");
         }
 
         public HashSet<string> TryReadCensoredWords()
         {
             throw new NotImplementedException();
+        }
+
+        public List<NodeConfig> SteemNodesConfig()
+        {
+            return TryReadAsset<List<NodeConfig>>("SteemNodesConfig.txt");
+        }
+
+        public List<NodeConfig> GolosNodesConfig()
+        {
+            return TryReadAsset<List<NodeConfig>>("GolosNodesConfig.txt");
+        }
+
+        public Dictionary<string, string> IntegrationModuleConfig()
+        {
+            return TryReadAsset<Dictionary<string, string>>("IntegrationModuleConfig.txt");
+        }
+
+        public T TryReadAsset<T>(string file)
+            where T : new()
+        {
+            try
+            {
+                var json = File.ReadAllText($"{AppDomain.CurrentDomain.BaseDirectory}\\{file}");
+                return JsonConvert.DeserializeObject<T>(json);
+            }
+            catch
+            {
+                //to do nothing
+            }
+            return new T();
         }
     }
 }
