@@ -200,7 +200,7 @@ namespace Steepshot.iOS.Views
 
         public override void ViewWillLayoutSubviews()
         {
-            if (!AppSettings.User.IsAuthenticated)
+            if (!AppSettings.User.HasPostingPermission)
                 _commentView.Hidden = true;
         }
 
@@ -315,7 +315,7 @@ namespace Steepshot.iOS.Views
 
         private async Task Vote(Post post)
         {
-            if (!AppSettings.User.IsAuthenticated)
+            if (!AppSettings.User.HasPostingPermission)
             {
                 LoginTapped();
                 return;
@@ -329,7 +329,7 @@ namespace Steepshot.iOS.Views
 
         public async Task FlagComment(Post post)
         {
-            if (!AppSettings.User.IsAuthenticated)
+            if (!AppSettings.User.HasPostingPermission)
             {
                 LoginTapped();
                 return;
@@ -389,7 +389,7 @@ namespace Steepshot.iOS.Views
             if (!_buttonsContainer.Hidden)
                 return;
 
-            if (!AppSettings.User.IsAuthenticated)
+            if (!AppSettings.User.HasPostingPermission)
             {
                 LoginTapped();
                 return;
@@ -421,7 +421,7 @@ namespace Steepshot.iOS.Views
 
         public void EditComment(Post post)
         {
-            if (!AppSettings.User.IsAuthenticated)
+            if (!AppSettings.User.HasPostingPermission)
             {
                 LoginTapped();
                 return;

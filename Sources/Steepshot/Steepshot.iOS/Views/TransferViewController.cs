@@ -2,6 +2,7 @@
 using CoreGraphics;
 using PureLayout.Net;
 using Steepshot.Core.Presenters;
+using Steepshot.Core.Utils;
 using Steepshot.iOS.CustomViews;
 using Steepshot.iOS.Helpers;
 using Steepshot.iOS.ViewControllers;
@@ -53,10 +54,10 @@ namespace Steepshot.iOS.Views
             amountLabel.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, recepientTextField, 25);
             amountLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 15);
 
-
             SearchTextField amountTextField = new SearchTextField(() => {
 
             }, "100");
+            amountTextField.KeyboardType = UIKeyboardType.NumbersAndPunctuation;
             amountTextField.Layer.CornerRadius = 25;
             View.AddSubview(amountTextField);
 
@@ -92,9 +93,25 @@ namespace Steepshot.iOS.Views
             _transferButton.SetTitle("TRANSFER", UIControlState.Normal);
             _transferButton.Layer.CornerRadius = 25;
             _transferButton.Font = Constants.Bold14;
-            _transferButton.TouchDown += (object sender, EventArgs e) =>
+            _transferButton.TouchDown += async (object sender, EventArgs e) =>
             {
-                
+                if (!AppSettings.User.HasActivePermission)
+                {
+                    TabBarController.NavigationController.PushViewController(new LoginViewController(false), true);
+                    return;
+                }
+
+                if (string.IsNullOrEmpty(recepientTextField.Text) || string.IsNullOrEmpty(amountTextField.Text))
+                {
+                    //All fields should be filled
+                    return;
+                }
+
+                var response = await _presenter.TryTransfer(recepientTextField.Text, double.Parse(amountTextField.Text), Core.Models.Requests.CurrencyType.Steem);
+                if (response.IsSuccess)
+                {
+                    return;
+                }
             };
             View.AddSubview(_transferButton);
 
@@ -109,6 +126,15 @@ namespace Steepshot.iOS.Views
         {
             base.ViewDidLayoutSubviews();
             Constants.CreateGradient(_transferButton, 25);
+        }
+
+        private void SetBackButton()
+        {
+            var leftBarButton = new UIBarButtonItem(UIImage.FromBundle("ic_back_arrow"), UIBarButtonItemStyle.Plain, GoBack);
+            NavigationItem.SetLeftBarButtonItem(leftBarButton, true);
+            NavigationController.NavigationBar.TintColor = Constants.R15G24B30;
+
+            NavigationItem.Title = "Your account name";
         }
 
         private void CreateView()

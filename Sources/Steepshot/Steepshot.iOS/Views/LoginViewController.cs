@@ -9,13 +9,21 @@ using UIKit;
 using Constants = Steepshot.iOS.Helpers.Constants;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Responses;
+using Steepshot.iOS.Helpers;
+using Steepshot.Core.Models.Common;
 
 namespace Steepshot.iOS.Views
 {
-    public partial class LoginViewController : BaseViewController
+    public partial class LoginViewController : BaseViewControllerWithPresenter<PreSignInPresenter>
     {
         public string Username { get; set; }
         public AccountInfoResponse AccountInfoResponse { get; set; }
+        private bool _isPostingMode;
+
+        public LoginViewController(bool isPostingMode = true)
+        {
+            _isPostingMode = isPostingMode;
+        }
 
         public override void ViewDidLoad()
         {
@@ -33,12 +41,21 @@ namespace Steepshot.iOS.Views
             qrButton.Layer.BorderWidth = 1f;
             qrButton.Layer.BorderColor = Constants.R244G244B246.CGColor;
 
-            var avatarLink = AccountInfoResponse.Metadata?.Profile?.ProfileImage;
-            ImageService.Instance.LoadUrl(avatarLink, TimeSpan.FromDays(30))
-                                             .Retry(2, 200)
-                                             .FadeAnimation(false, true)
-                                             .DownSample(width: 300)
-                                             .Into(avatar);
+            if (_isPostingMode)
+            {
+                var avatarLink = AccountInfoResponse.Metadata?.Profile?.ProfileImage;
+                if (!string.IsNullOrEmpty(avatarLink))
+                    ImageLoader.Load(avatarLink, avatar, size: new CGSize(300, 300));
+                else
+                    avatar.Image = UIImage.FromBundle("ic_noavatar");
+            }
+            else
+            {
+                Username = AppSettings.User.Login;
+                password.Placeholder = "Private active key";
+                avatar.Image = ((MainTabBarController)NavigationController.ViewControllers[0])._avatar.Image;
+                GetAccountInfo();
+            }
 
             password.Font = Constants.Regular14;
             loginButton.Font = Constants.Semibold14;
@@ -59,6 +76,21 @@ namespace Steepshot.iOS.Views
             SetBackButton();
         }
 
+        private async void GetAccountInfo()
+        {
+            loginButton.Enabled = false;
+            do
+            {
+                var response = await _presenter.TryGetAccountInfo(Username);
+                if (response.IsSuccess)
+                {
+                    AccountInfoResponse = response.Result;
+                    loginButton.Enabled = true;
+                    break;
+                }
+            } while (true);
+        }
+
         public override void ViewDidLayoutSubviews()
         {
             base.ViewDidLayoutSubviews();
@@ -69,9 +101,12 @@ namespace Steepshot.iOS.Views
         {
             var leftBarButton = new UIBarButtonItem(UIImage.FromBundle("ic_back_arrow"), UIBarButtonItemStyle.Plain, GoBack);
             NavigationItem.SetLeftBarButtonItem(leftBarButton, true);
-            NavigationController.NavigationBar.TintColor = Helpers.Constants.R15G24B30;
+            NavigationController.NavigationBar.TintColor = Constants.R15G24B30;
 
-            NavigationItem.Title = AppSettings.LocalizationManager.GetText(LocalizationKeys.PasswordViewTitleText);
+            if (_isPostingMode)
+                NavigationItem.Title = AppSettings.LocalizationManager.GetText(LocalizationKeys.PasswordViewTitleText);
+            else
+                NavigationItem.Title = "Account active key";
         }
 
         protected void GoBack(object sender, EventArgs e)
@@ -100,7 +135,10 @@ namespace Steepshot.iOS.Views
             var result = await scanner.Scan();
 
             if (result != null && result.Text.Length == 51)
+            {
                 password.Text = result.Text;
+                Login(null, null);
+            }
             else
                 ShowCustomAlert(LocalizationKeys.WrongPrivatePostingKey, password);
         }
@@ -111,7 +149,7 @@ namespace Steepshot.iOS.Views
             return true;
         }
 
-        private async void Login(object sender, EventArgs e)
+        private void Login(object sender, EventArgs e)
         {
             if (string.IsNullOrWhiteSpace(password.Text))
             {
@@ -124,22 +162,30 @@ namespace Steepshot.iOS.Views
             loginButton.SetTitleColor(UIColor.Clear, UIControlState.Disabled);
             try
             {
-                var isvalid = KeyHelper.ValidatePrivateKey(password.Text, AccountInfoResponse.PublicPostingKeys);
+                var isvalid = KeyHelper.ValidatePrivateKey(password.Text, _isPostingMode ? AccountInfoResponse.PublicPostingKeys : AccountInfoResponse.PublicActiveKeys);
                 if (isvalid)
                 {
-                    AppSettings.User.AddAndSwitchUser(Username, password.Text, BasePresenter.Chain);
+                    if (_isPostingMode)
+                    {
+                        AppSettings.User.AddAndSwitchUser(Username, password.Text, BasePresenter.Chain);
 
-                    var myViewController = new MainTabBarController();
-                    AppDelegate.InitialViewController = myViewController;
-                    NavigationController.ViewControllers = new UIViewController[] { myViewController, this };
-                    NavigationController.PopViewController(true);
+                        var myViewController = new MainTabBarController();
+                        AppDelegate.InitialViewController = myViewController;
+                        NavigationController.ViewControllers = new UIViewController[] { myViewController, this };
+                        NavigationController.PopViewController(true);
+                    }
+                    else
+                    {
+                        AppSettings.User.ActiveKey = password.Text;
+                        NavigationController.PopViewController(true);
+                    }
                 }
                 else
-                    ShowAlert(LocalizationKeys.WrongPrivatePostingKey);
+                    ShowCustomAlert(LocalizationKeys.WrongPrivatePostingKey, password);
             }
             catch (ArgumentNullException)
             {
-                ShowAlert(LocalizationKeys.WrongPrivatePostingKey);
+                ShowCustomAlert(LocalizationKeys.WrongPrivatePostingKey, password);
             }
             catch (Exception ex)
             {
