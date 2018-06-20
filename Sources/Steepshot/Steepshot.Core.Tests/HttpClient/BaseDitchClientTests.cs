@@ -22,9 +22,9 @@ namespace Steepshot.Core.Tests.HttpClient
             var user = Users[apiName];
             user.Login += "x";
             user.PostingKey += "x";
-            var request = new AuthorizedPostingModel(user);
+            var request = new ValidatePrivateKeyModel(user.Login, user.PostingKey, KeyRoleType.Posting);
 
-            var response = await Api[apiName].LoginWithPostingKey(request, CancellationToken.None);
+            var response = await Api[apiName].ValidatePrivateKey(request, CancellationToken.None);
 
             Assert.IsTrue(response.Error.Message.StartsWith(nameof(LocalizationKeys.WrongPrivatePostingKey)));
         }
@@ -36,9 +36,9 @@ namespace Steepshot.Core.Tests.HttpClient
         {
             var user = Users[apiName];
             user.PostingKey += "x";
-            var request = new AuthorizedPostingModel(user);
+            var request = new ValidatePrivateKeyModel(user.Login, user.PostingKey, KeyRoleType.Posting);
 
-            var response = await Api[apiName].LoginWithPostingKey(request, CancellationToken.None);
+            var response = await Api[apiName].ValidatePrivateKey(request, CancellationToken.None);
 
             Assert.IsTrue(response.Error.Message.StartsWith(nameof(LocalizationKeys.WrongPrivatePostingKey)));
         }
@@ -50,9 +50,9 @@ namespace Steepshot.Core.Tests.HttpClient
         {
             var user = Users[apiName];
             user.Login += "x";
-            var request = new AuthorizedPostingModel(user);
+            var request = new ValidatePrivateKeyModel(user.Login, user.PostingKey, KeyRoleType.Posting);
 
-            var response = await Api[apiName].LoginWithPostingKey(request, CancellationToken.None);
+            var response = await Api[apiName].ValidatePrivateKey(request, CancellationToken.None);
 
             Assert.IsTrue(response.Error.Message.StartsWith("13 N5boost16exception_detail10clone_implINS0_19error_info_injectorISt12out_of_rangeEEEE: unknown key"));
         }

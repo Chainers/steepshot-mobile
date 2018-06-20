@@ -21,8 +21,8 @@ namespace Steepshot.Core.Tests.HttpClient
         public async Task LoginWithPostingKeyTest(KnownChains apiName)
         {
             var user = Users[apiName];
-            var request = new AuthorizedPostingModel(user);
-            var response = await Api[apiName].LoginWithPostingKey(request, CancellationToken.None);
+            var request = new ValidatePrivateKeyModel(user.Login, user.PostingKey, KeyRoleType.Posting);
+            var response = await Api[apiName].ValidatePrivateKey(request, CancellationToken.None);
             AssertResult(response);
             Assert.That(response.IsSuccess, Is.True);
         }

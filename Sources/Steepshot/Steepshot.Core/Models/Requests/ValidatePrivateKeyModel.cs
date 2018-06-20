@@ -1,29 +1,26 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Newtonsoft.Json;
-using Steepshot.Core.Authorization;
 using Steepshot.Core.Localization;
 
 namespace Steepshot.Core.Models.Requests
 {
     [JsonObject(MemberSerialization.OptIn)]
-    public class AuthorizedPostingModel
+    public class ValidatePrivateKeyModel
     {
         [Required(ErrorMessage = nameof(LocalizationKeys.EmptyUsernameField))]
         public string Login { get; }
 
         [Required(ErrorMessage = nameof(LocalizationKeys.EmptyPostingKey))]
-        public string PostingKey { get; }
+        public string PrivateKey { get; }
+
+        public KeyRoleType KeyRoleType { get; }
 
 
-        public AuthorizedPostingModel(string login, string postingKey)
+        public ValidatePrivateKeyModel(string login, string privateKey, KeyRoleType keyRoleType)
         {
             Login = login;
-            PostingKey = postingKey;
-        }
-
-        public AuthorizedPostingModel(UserInfo user)
-            : this(user.Login, user.PostingKey)
-        {
+            PrivateKey = privateKey;
+            KeyRoleType = keyRoleType;
         }
     }
 }

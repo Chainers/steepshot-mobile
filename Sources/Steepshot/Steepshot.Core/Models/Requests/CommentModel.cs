@@ -1,5 +1,5 @@
 using Newtonsoft.Json;
-using Steepshot.Core.Authority;
+using Steepshot.Core.Authorization;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Responses;
 

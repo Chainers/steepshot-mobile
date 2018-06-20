@@ -75,8 +75,8 @@ namespace Steepshot.iOS.Views
             {
                 var myViewController = new LoginViewController
                 {
-                    AvatarLink = response.Result.ProfileImage,
-                    Username = response.Result.Username
+                    AccountInfoResponse = response.Result,
+                    Username = loginText.Text
                 };
                 NavigationController.PushViewController(myViewController, true);
             }

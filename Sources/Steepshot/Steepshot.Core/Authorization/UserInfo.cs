@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Steepshot.Core.Models.Enums;
 
-namespace Steepshot.Core.Authority
+namespace Steepshot.Core.Authorization
 {
     public sealed class UserInfo
     {

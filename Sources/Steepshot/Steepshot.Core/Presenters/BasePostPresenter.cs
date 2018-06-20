@@ -2,11 +2,11 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Steepshot.Core.Authorization;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Models.Enums;
-using Steepshot.Core.Authority;
 using Steepshot.Core.Errors;
 using Steepshot.Core.Services;
 using Steepshot.Core.Utils;
