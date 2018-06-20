@@ -90,8 +90,7 @@ namespace Steepshot.iOS.Cells
             infoView.Axis = UILayoutConstraintAxis.Vertical;
             infoView.Alignment = UIStackViewAlignment.Fill;
             infoView.Distribution = UIStackViewDistribution.FillEqually;
-            infoView.Spacing = 1;
-            infoView.Frame = new CGRect(powerFrameSide + topViewSpacing, 0, screenWidth - mainMargin * 2 - (powerFrameSide + topViewSpacing), topViewHeight);
+            infoView.Frame = new CGRect(powerFrameSide + topViewSpacing, 0, screenWidth - mainMargin * 2 - (powerFrameSide + topViewSpacing), topViewHeight + 8);
 
             userName = new UILabel();
             userName.UserInteractionEnabled = false;
