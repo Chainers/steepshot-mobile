@@ -12,6 +12,7 @@ using Steepshot.Core.Presenters;
 using System.Linq;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Utils;
+using Newtonsoft.Json;
 
 namespace Steepshot.Activity
 {
@@ -61,7 +62,7 @@ namespace Steepshot.Activity
             base.OnDestroy();
             Cheeseknife.Reset(this);
         }
-        
+
         public override async void OnBackPressed()
         {
             base.OnBackPressed();
@@ -95,8 +96,8 @@ namespace Steepshot.Activity
             if (response.IsSuccess)
             {
                 var intent = new Intent(this, typeof(SignInActivity));
-                intent.PutExtra(SignInActivity.LoginExtraPath, response.Result.Username);
-                intent.PutExtra(SignInActivity.AvatarUrlExtraPath, response.Result.ProfileImage);
+                intent.PutExtra(SignInActivity.LoginExtraPath, login);
+                intent.PutExtra(SignInActivity.AccountInfoResponseExtraPath, JsonConvert.SerializeObject(response.Result));
                 StartActivity(intent);
             }
             else

@@ -2,20 +2,22 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Ditch.Golos;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Serializing;
 using DitchFollowType = Ditch.Golos.Models.Enums.FollowType;
 using DitchBeneficiary = Ditch.Golos.Models.Operations.Beneficiary;
 using Ditch.Core.JsonRpc;
+using Ditch.Golos;
 using Ditch.Golos.Models.Operations;
 using Ditch.Golos.Models.Objects;
+using Ditch.Golos.Models.Other;
 using Steepshot.Core.Errors;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Localization;
 using Cryptography.ECDSA;
-using Ditch.Golos.Models.Other;
+using Newtonsoft.Json;
+using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.HttpClient
@@ -114,31 +116,6 @@ namespace Steepshot.Core.HttpClient
                     ? new FollowOperation(model.Login, model.Username, DitchFollowType.Blog, model.Login)
                     : new UnfollowOperation(model.Login, model.Username, model.Login);
                 var resp = _operationManager.BroadcastOperationsSynchronous(keys, ct, op);
-
-                var result = new OperationResult<VoidResponse>();
-
-                if (!resp.IsError)
-                    result.Result = new VoidResponse();
-                else
-                    OnError(resp, result);
-
-                return result;
-            }, ct);
-        }
-
-        public override async Task<OperationResult<VoidResponse>> LoginWithPostingKey(AuthorizedPostingModel model, CancellationToken ct)
-        {
-            return await Task.Run(() =>
-            {
-                if (!TryReconnectChain(ct))
-                    return new OperationResult<VoidResponse>(new AppError(LocalizationKeys.EnableConnectToBlockchain));
-
-                var keys = ToKeyArr(model.PostingKey);
-                if (keys == null)
-                    return new OperationResult<VoidResponse>(new AppError(LocalizationKeys.WrongPrivatePostingKey));
-
-                var op = new FollowOperation(model.Login, "steepshot", DitchFollowType.Blog, model.Login);
-                var resp = _operationManager.VerifyAuthority(keys, ct, op);
 
                 var result = new OperationResult<VoidResponse>();
 
@@ -349,6 +326,105 @@ namespace Steepshot.Core.HttpClient
                 };
                 var tr = _operationManager.CreateTransaction(properties, keys, ct, op);
                 return new OperationResult<object>() { Result = tr };
+            }, ct);
+        }
+
+        public override async Task<OperationResult<VoidResponse>> ValidatePrivateKey(ValidatePrivateKeyModel model, CancellationToken ct)
+        {
+            return await Task.Run(() =>
+            {
+                var keys = ToKey(model.PrivateKey);
+                if (keys == null)
+                {
+                    switch (model.KeyRoleType)
+                    {
+                        case KeyRoleType.Active:
+                            return new OperationResult<VoidResponse>(new AppError(LocalizationKeys.WrongPrivateActimeKey));
+                        case KeyRoleType.Posting:
+                            return new OperationResult<VoidResponse>(new AppError(LocalizationKeys.WrongPrivatePostingKey));
+                    }
+                }
+
+                if (!TryReconnectChain(ct))
+                {
+                    return new OperationResult<VoidResponse>(new AppError(LocalizationKeys.EnableConnectToBlockchain));
+                }
+
+                var result = new OperationResult<VoidResponse>();
+
+                var lookupAccountNames = _operationManager.LookupAccountNames(new[] { model.Login }, CancellationToken.None);
+                if (lookupAccountNames.IsError)
+                {
+                    OnError(lookupAccountNames, result);
+                    return result;
+                }
+
+                if (lookupAccountNames.Result.Length != 1 || lookupAccountNames.Result[0] == null)
+                {
+                    return new OperationResult<VoidResponse>(new ValidationError(LocalizationKeys.UnexpectedProfileData));
+                }
+
+                Authority authority = null;
+
+                switch (model.KeyRoleType)
+                {
+                    case KeyRoleType.Active:
+                        authority = lookupAccountNames.Result[0].Active;
+                        break;
+                    case KeyRoleType.Posting:
+                        authority = lookupAccountNames.Result[0].Posting;
+                        break;
+                }
+
+
+                var isSame = KeyHelper.ValidatePrivateKey(keys, authority.KeyAuths.Select(i => i.Key.Data).ToArray());
+
+                if (isSame)
+                    return new OperationResult<VoidResponse>(new VoidResponse());
+                
+                switch (model.KeyRoleType)
+                {
+                    case KeyRoleType.Active:
+                        return new OperationResult<VoidResponse>(new AppError(LocalizationKeys.WrongPrivateActimeKey));
+                    default:
+                        return new OperationResult<VoidResponse>(new AppError(LocalizationKeys.WrongPrivatePostingKey));
+                }
+            }, ct);
+        }
+
+        public override async Task<OperationResult<AccountInfoResponse>> GetAccountInfo(string userName, CancellationToken ct)
+        {
+            return await Task.Run(() =>
+            {
+                if (!TryReconnectChain(ct))
+                {
+                    return new OperationResult<AccountInfoResponse>(new AppError(LocalizationKeys.EnableConnectToBlockchain));
+                }
+
+                var result = new OperationResult<AccountInfoResponse>();
+
+                var lookupAccountNames = _operationManager.LookupAccountNames(new[] { userName }, CancellationToken.None);
+                if (lookupAccountNames.IsError)
+                {
+                    OnError(lookupAccountNames, result);
+                    return result;
+                }
+
+                if (lookupAccountNames.Result.Length != 1 || lookupAccountNames.Result[0] == null)
+                {
+                    return new OperationResult<AccountInfoResponse>(new ValidationError(LocalizationKeys.UnexpectedProfileData));
+                }
+
+                var acc = lookupAccountNames.Result[0];
+                result.Result = new AccountInfoResponse
+                {
+                    PublicPostingKeys = acc.Posting.KeyAuths.Select(i => i.Key.Data).ToArray(),
+                    PublicActiveKeys = acc.Active.KeyAuths.Select(i => i.Key.Data).ToArray(),
+                    Metadata = JsonConverter.Deserialize<AccountMetadata>(acc.JsonMetadata)
+                };
+
+                return result;
+
             }, ct);
         }
 

@@ -1,10 +1,10 @@
 ﻿using Newtonsoft.Json;
-using Steepshot.Core.Authority;
 using System.ComponentModel.DataAnnotations;
 using Ditch.Core;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Common;
 using System.Diagnostics;
+using Steepshot.Core.Authorization;
 
 namespace Steepshot.Core.Models.Requests
 {

@@ -17,6 +17,11 @@ namespace Steepshot.Core.Errors
         {
         }
 
+        public ValidationError(LocalizationKeys key)
+            : base(key)
+        {
+        }
+
         public ValidationError()
             : base(string.Empty)
         {
