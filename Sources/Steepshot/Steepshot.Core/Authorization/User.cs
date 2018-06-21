@@ -18,7 +18,7 @@ namespace Steepshot.Core.Authorization
             set
             {
                 UserInfo.IsDev = value;
-                if (IsAuthenticated)
+                if (HasPostingPermission)
                     _data.Update(UserInfo);
             }
         }
@@ -29,7 +29,7 @@ namespace Steepshot.Core.Authorization
             set
             {
                 UserInfo.IsNsfw = value;
-                if (IsAuthenticated)
+                if (HasPostingPermission)
                     _data.Update(UserInfo);
             }
         }
@@ -40,7 +40,7 @@ namespace Steepshot.Core.Authorization
             set
             {
                 UserInfo.IsLowRated = value;
-                if (IsAuthenticated)
+                if (HasPostingPermission)
                     _data.Update(UserInfo);
             }
         }
@@ -51,7 +51,7 @@ namespace Steepshot.Core.Authorization
             set
             {
                 UserInfo.ShowVotingSlider = value;
-                if (IsAuthenticated)
+                if (HasPostingPermission)
                     _data.Update(UserInfo);
             }
         }
@@ -62,7 +62,7 @@ namespace Steepshot.Core.Authorization
             set
             {
                 UserInfo.ShowFooter = value;
-                if (IsAuthenticated)
+                if (HasPostingPermission)
                     _data.Update(UserInfo);
             }
         }
@@ -73,7 +73,7 @@ namespace Steepshot.Core.Authorization
             set
             {
                 UserInfo.DefaultPhotoDirectory = value;
-                if (IsAuthenticated)
+                if (HasPostingPermission)
                     _data.Update(UserInfo);
             }
         }
@@ -84,7 +84,7 @@ namespace Steepshot.Core.Authorization
             set
             {
                 UserInfo.VotePower = value;
-                if (IsAuthenticated)
+                if (HasPostingPermission)
                     _data.Update(UserInfo);
             }
         }
@@ -97,7 +97,7 @@ namespace Steepshot.Core.Authorization
             set
             {
                 UserInfo.PushSettings = value;
-                if (IsAuthenticated)
+                if (HasPostingPermission)
                     _data.Update(UserInfo);
             }
         }
@@ -109,7 +109,7 @@ namespace Steepshot.Core.Authorization
             set
             {
                 UserInfo.PushesPlayerId = value;
-                if (IsAuthenticated)
+                if (HasPostingPermission)
                     _data.Update(UserInfo);
             }
         }
@@ -126,7 +126,18 @@ namespace Steepshot.Core.Authorization
             set
             {
                 UserInfo.IsFirstRun = value;
-                if (IsAuthenticated)
+                if (HasPostingPermission)
+                    _data.Update(UserInfo);
+            }
+        }
+
+        public string ActiveKey
+        {
+            get => UserInfo.ActiveKey;
+            set
+            {
+                UserInfo.ActiveKey = value;
+                if (HasPostingPermission)
                     _data.Update(UserInfo);
             }
         }
@@ -135,7 +146,9 @@ namespace Steepshot.Core.Authorization
 
         public KnownChains Chain => UserInfo.Chain;
 
-        public bool IsAuthenticated => !string.IsNullOrEmpty(UserInfo?.PostingKey);
+        public bool HasPostingPermission => !string.IsNullOrEmpty(UserInfo?.PostingKey);
+
+        public bool HasActivePermission => !string.IsNullOrEmpty(UserInfo?.ActiveKey);
 
         public int SelectedTab
         {
@@ -143,7 +156,7 @@ namespace Steepshot.Core.Authorization
             set
             {
                 UserInfo.SelectedTab = value;
-                if (IsAuthenticated)
+                if (HasPostingPermission)
                     _data.Update(UserInfo);
             }
         }

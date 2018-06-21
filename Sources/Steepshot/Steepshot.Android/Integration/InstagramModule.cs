@@ -40,7 +40,7 @@ namespace Steepshot.Integration
 
         private void AuthOnCompleted(object o, AuthenticatorCompletedEventArgs args)
         {
-            if (args.IsAuthenticated)
+            if (args.HasPostingPermission)
             {
                 var opt = GetOptionsOrDefault<ModuleOptionsModel>(AppId);
                 

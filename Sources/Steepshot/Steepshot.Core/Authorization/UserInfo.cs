@@ -14,6 +14,8 @@ namespace Steepshot.Core.Authorization
 
         public string PostingKey { get; set; } = string.Empty;
 
+        public string ActiveKey { get; set; } = string.Empty;
+
         public DateTimeOffset LoginTime { get; set; } = DateTime.Now;
 
         public bool IsNsfw { get; set; } = false;

@@ -120,7 +120,7 @@ namespace Steepshot.Fragment
             _comments.SetAdapter(_adapter);
             _comments.Visibility = ViewStates.Visible;
 
-            if (!AppSettings.User.IsAuthenticated)
+            if (!AppSettings.User.HasPostingPermission)
                 _messagePanel.Visibility = ViewStates.Gone;
 
             _cancel.Click += CommentEditCancelBtnOnClick;
@@ -249,7 +249,7 @@ namespace Steepshot.Fragment
             {
                 case ActionType.Like:
                     {
-                        if (AppSettings.User.IsAuthenticated)
+                        if (AppSettings.User.HasPostingPermission)
                         {
                             var error = await Presenter.TryVote(post);
 
@@ -288,7 +288,7 @@ namespace Steepshot.Fragment
                     }
                 case ActionType.Flag:
                     {
-                        if (AppSettings.User.IsAuthenticated)
+                        if (AppSettings.User.HasPostingPermission)
                         {
                             var error = await Presenter.TryFlag(post);
 

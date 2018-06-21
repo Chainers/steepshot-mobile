@@ -261,7 +261,7 @@ namespace Steepshot.iOS.Cells
 
             var likelongtap = new UILongPressGestureRecognizer((UILongPressGestureRecognizer obj) =>
             {
-                if (AppSettings.User.IsAuthenticated && !_currentPost.Vote)
+                if (AppSettings.User.HasPostingPermission && !_currentPost.Vote)
                 {
                     if (obj.State == UIGestureRecognizerState.Began)
                     {

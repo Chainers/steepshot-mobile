@@ -96,7 +96,7 @@ namespace Steepshot.iOS.Views
                     sliderCollection.ScrollEnabled = !isOpening;
             };
 
-            if (!AppSettings.User.IsAuthenticated && CurrentPostCategory == null)
+            if (!AppSettings.User.HasPostingPermission && CurrentPostCategory == null)
             {
                 loginButton.Hidden = false;
                 loginButton.Layer.CornerRadius = 25;

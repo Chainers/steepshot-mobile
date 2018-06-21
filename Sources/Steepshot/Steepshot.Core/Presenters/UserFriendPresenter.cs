@@ -11,7 +11,7 @@ using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Presenters
 {
-    public sealed class UserFriendPresenter : ListPresenter<UserFriend>, IDisposable
+    public class UserFriendPresenter : ListPresenter<UserFriend>, IDisposable
     {
         private const int ItemsLimit = 40;
         public FriendsType? FollowType { get; set; }

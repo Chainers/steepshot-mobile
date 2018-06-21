@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using Android.Content;
 using Android.Graphics;
@@ -229,7 +229,7 @@ namespace Steepshot.Adapter
             _nsfwMaskActionButton.Click += NsfwMaskActionButtonOnClick;
             _more.Click += DoMoreAction;
             _title.LinkClick += autoLinkAction;
-            _more.Visibility = AppSettings.User.IsAuthenticated ? ViewStates.Visible : ViewStates.Invisible;
+            _more.Visibility = AppSettings.User.HasPostingPermission ? ViewStates.Visible : ViewStates.Invisible;
 
             _title.Click += OnTitleOnClick;
         }
@@ -526,7 +526,7 @@ namespace Steepshot.Adapter
 
         private void DoLikeScaleAction(object sender, View.LongClickEventArgs longClickEventArgs)
         {
-            if (!AppSettings.User.IsAuthenticated || !AppSettings.User.ShowVotingSlider || !BasePostPresenter.IsEnableVote || Post.Vote || Post.Flag || _isScalebarOpened) return;
+            if (!AppSettings.User.HasPostingPermission || !AppSettings.User.ShowVotingSlider || !BasePostPresenter.IsEnableVote || Post.Vote || Post.Flag || _isScalebarOpened) return;
             BaseActivity.TouchEvent += TouchEvent;
             _likeScaleBar.Progress = AppSettings.User.VotePower;
             _likeScaleBar.ProgressChanged += LikeScaleBarOnProgressChanged;

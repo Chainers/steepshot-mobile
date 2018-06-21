@@ -552,7 +552,7 @@ namespace Steepshot.Fragment
                     ((BaseActivity)Activity).OpenNewContentFragment(new FollowersFragment());
                     break;
                 case ActionType.Follow:
-                    if (AppSettings.User.IsAuthenticated)
+                    if (AppSettings.User.HasPostingPermission)
                     {
                         var error = await Presenter.TryFollow();
                         if (!IsInitialized)
@@ -584,7 +584,7 @@ namespace Steepshot.Fragment
             {
                 case ActionType.Like:
                     {
-                        if (AppSettings.User.IsAuthenticated)
+                        if (AppSettings.User.HasPostingPermission)
                         {
                             var error = await Presenter.TryVote(post);
                             if (!IsInitialized)
@@ -613,7 +613,7 @@ namespace Steepshot.Fragment
                     {
                         if (post == null)
                             return;
-                        if (post.Children == 0 && !AppSettings.User.IsAuthenticated)
+                        if (post.Children == 0 && !AppSettings.User.HasPostingPermission)
                         {
                             OpenLogin();
                             return;
@@ -633,7 +633,7 @@ namespace Steepshot.Fragment
                     }
                 case ActionType.Flag:
                     {
-                        if (!AppSettings.User.IsAuthenticated)
+                        if (!AppSettings.User.HasPostingPermission)
                             return;
 
                         var error = await Presenter.TryFlag(post);

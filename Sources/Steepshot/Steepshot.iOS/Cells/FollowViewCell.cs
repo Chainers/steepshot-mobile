@@ -82,7 +82,7 @@ namespace Steepshot.iOS.Cells
 
         private void DecorateFollowButton()
         {
-            if(!AppSettings.User.IsAuthenticated || _currentUser.Author == AppSettings.User.Login)
+            if(!AppSettings.User.HasPostingPermission || _currentUser.Author == AppSettings.User.Login)
             {
                 followButton.Hidden = true;
                 return;
