@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="30dp"
+    android:background="@color/white">
+    <TextView
+        android:id="@+id/recipient_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="14sp"
+        android:textColor="@color/black" />
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:layout_marginBottom="20dp">
+        <refractored.controls.CircleImageView
+            android:id="@+id/recipient_avatar"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginRight="10dp"
+            android:src="@drawable/ic_holder" />
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/recipient_avatar">
+            <EditText
+                android:id="@+id/recipient_search"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:textSize="14sp"
+                android:paddingLeft="20dp"
+                android:background="@drawable/edit_text_borders" />
+            <ImageView
+                android:layout_width="15dp"
+                android:layout_height="15dp"
+                android:layout_marginRight="15dp"
+                android:layout_centerVertical="true"
+                android:layout_alignParentRight="true"
+                android:src="@drawable/ic_search_small" />
+        </RelativeLayout>
+    </RelativeLayout>
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/users"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone" />
+    <LinearLayout
+        android:id="@+id/transfer_details"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <TextView
+            android:id="@+id/transfer_amount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="14sp"
+            android:textColor="@color/black" />
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            android:layout_marginBottom="20dp">
+            <LinearLayout
+                android:id="@+id/transfer_coin"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:minWidth="100dp"
+                android:orientation="horizontal"
+                android:layout_alignParentRight="true"
+                android:gravity="center"
+                android:paddingLeft="15dp"
+                android:paddingRight="15dp"
+                android:background="@drawable/white_rounded_border">
+                <TextView
+                    android:id="@+id/transfercoin_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:textSize="14sp"
+                    android:textColor="@color/rgb255_34_5" />
+                <ImageView
+                    android:layout_width="8dp"
+                    android:layout_height="16dp"
+                    android:layout_marginLeft="10dp"
+                    android:layout_gravity="center_vertical|right"
+                    android:src="@drawable/ic_arrows" />
+            </LinearLayout>
+            <EditText
+                android:id="@+id/transfer_amount_edit"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_toLeftOf="@id/transfer_coin"
+                android:layout_marginRight="10dp"
+                android:textSize="14sp"
+                android:paddingLeft="20dp"
+                android:background="@drawable/edit_text_borders" />
+        </RelativeLayout>
+        <TextView
+            android:id="@+id/transfer_comment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="14sp"
+            android:textColor="@color/black" />
+        <EditText
+            android:id="@+id/transfer_comment_edit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="top|left"
+            android:textSize="14sp"
+            android:minLines="6"
+            android:maxLines="6"
+            android:scrollbars="vertical"
+            android:background="@drawable/multiline_edittext_borders"
+            android:layout_marginTop="15dp"
+            android:layout_marginBottom="20dp"
+            android:paddingLeft="15dp"
+            android:paddingTop="15dp" />
+        <Button
+            android:id="@+id/transfer_btn"
+            android:textColor="@color/white"
+            android:textSize="14sp"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:gravity="center"
+            android:background="@drawable/steem_login_border"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="20dp" />
+    </LinearLayout>
+</LinearLayout>
