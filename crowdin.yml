@@ -1,0 +1,3 @@
+files:
+  - source: References/Languages/en/dictionary.json
+    translation: References/Languages/%two_letters_code%/%original_file_name%
