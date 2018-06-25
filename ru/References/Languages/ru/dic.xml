@@ -258,5 +258,5 @@
   <string name="10 assert_exception: Assert Exception: _db.calculate_discussion_payout_time(*parent) != fc::time_point_sec::maximum()">Discussion is frozen.</string>
   <string name="10 assert_exception: Assert Exception: _callbacks.find( txid ) == _callbacks.end()">Transaction is a duplicate</string>
   <string name="The post is hidden from you. Please change your settings to see this post">The post is hidden from you. Please change your settings to see this post</string>
-  <string name="DuplicateTag">You have already added this tag</string>
+  <string name="DuplicateTag">Вы уже добавили этот тэг</string>
 </resources>
