@@ -26,7 +26,7 @@
   <string name="Login">Login</string>
   <string name="NewPhotos">NEW PHOTOS</string>
   <string name="Hello">Hello, </string>
-  <string name="Profile">PROFILE</string>
+  <string name="Profile">ПРОФИЛЬ</string>
   <string name="ChoosePhoto">CHOOSE PHOTO</string>
   <string name="TypeTag">Please type a tag</string>
   <string name="TypeUsername">Please type an username</string>
@@ -60,7 +60,7 @@
   <string name="PhotoUploadError">Could not upload file to server</string>
   <string name="ErrorCameraScale">ScalemageView does not support FitStart or FitEnd</string>
   <string name="ErrorCameraZoom">getZoomedRect() not supported with FitXy</string>
-  <string name="InternetUnavailable">Check your internet connection</string>
+  <string name="InternetUnavailable">Проверьте подключение к интернету</string>
   <string name="STEEMIT_MAX_VOTE_CHANGES">You`ve already liked this post a few times. Please try another one.</string>
   <string name="UnexpectedError">An unexpected error occurred.</string>
   <string name="CameraSettingError">Camera Setting error.</string>
