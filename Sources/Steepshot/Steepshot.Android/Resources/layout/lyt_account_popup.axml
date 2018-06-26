@@ -12,14 +12,6 @@
         android:divider="@drawable/popup_separator"
         android:showDividers="middle">
         <Button
-            android:id="@+id/logout"
-            android:layout_width="fill_parent"
-            android:layout_height="65dp"
-            android:gravity="center"
-            android:textSize="20sp"
-            android:textAllCaps="false"
-            android:background="@drawable/popup_background" />
-        <Button
             android:id="@+id/switch_account"
             android:layout_width="fill_parent"
             android:layout_height="65dp"
@@ -27,6 +19,14 @@
             android:textSize="20sp"
             android:textAllCaps="false"
             android:visibility="gone"
+            android:background="@drawable/popup_background" />
+        <Button
+            android:id="@+id/logout"
+            android:layout_width="fill_parent"
+            android:layout_height="65dp"
+            android:gravity="center"
+            android:textSize="20sp"
+            android:textAllCaps="false"
             android:background="@drawable/popup_background" />
     </LinearLayout>
     <Button

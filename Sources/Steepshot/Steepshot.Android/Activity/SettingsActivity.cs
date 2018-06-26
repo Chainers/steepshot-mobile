@@ -25,11 +25,13 @@ using Android.Graphics;
 using Android.Support.Design.Widget;
 using Steepshot.CustomViews;
 using Refractored.Controls;
+using Square.Picasso;
+using Steepshot.Core.Errors;
 
 namespace Steepshot.Activity
 {
     [Activity(ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait)]
-    public sealed class SettingsActivity : BaseActivity
+    public sealed class SettingsActivity : BaseActivityWithPresenter<UserProfilePresenter>
     {
         private PushSettings PushSettings;
         private BottomSheetDialog _propertiesActionsDialog;
@@ -307,7 +309,6 @@ namespace Steepshot.Activity
 
                 if (account.Chain != AppSettings.User.Chain)
                 {
-                    logout.Visibility = ViewStates.Gone;
                     switchAccount.Visibility = ViewStates.Visible;
                 }
 
@@ -394,20 +395,32 @@ namespace Steepshot.Activity
             }
             else
             {
-                var i = new Intent(ApplicationContext, typeof(RootActivity));
-                i.AddFlags(ActivityFlags.NewTask | ActivityFlags.ClearTask);
-                StartActivity(i);
-                Finish();
+                if (BasePresenter.Chain == chain)
+                {
+                    BasePresenter.SwitchChain(accounts.First());
+                    var i = new Intent(ApplicationContext, typeof(RootActivity));
+                    i.AddFlags(ActivityFlags.NewTask | ActivityFlags.ClearTask);
+                    StartActivity(i);
+                    Finish();
+                }
+                else
+                {
+                    SetupAccounts(accounts);
+                }
             }
         }
 
         private void SetupAccounts(List<UserInfo> accounts)
         {
-            _steemAvatar.Visibility = _golosAvatar.Visibility =
-                _steemLogo.Visibility = _golosLogo.Visibility =
-                    _steemState.Visibility = _golosState.Visibility = ViewStates.Gone;
+            _golosLyt.Enabled = false;
+            _steemLyt.Enabled = false;
+
+            //_steemAvatar.Visibility = _golosAvatar.Visibility = ViewStates.Gone;
+            _steemLogo.Visibility = _golosLogo.Visibility = ViewStates.Gone;
+            _steemState.Visibility = _golosState.Visibility = ViewStates.Gone;
 
             _steemConnectButton.Visibility = _golosConnectButton.Visibility = ViewStates.Visible;
+            _steemConnectLyt.Visibility = _golosConnectLyt.Visibility = ViewStates.Visible;
 
             _steemTitle.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.SteemitAccount);
             _golosTitle.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.GolosAccount);
@@ -420,7 +433,9 @@ namespace Steepshot.Activity
                 switch (account.Chain)
                 {
                     case KnownChains.Steem:
-                        _steemAvatar.Visibility = ViewStates.Visible;
+                        _steemLyt.Enabled = true;
+
+                        //_steemAvatar.Visibility = ViewStates.Visible;
                         _steemLogo.Visibility = ViewStates.Visible;
                         _steemState.Visibility = ViewStates.Visible;
                         _steemConnectLyt.Visibility = ViewStates.Gone;
@@ -434,11 +449,11 @@ namespace Steepshot.Activity
                         }
                         else
                             _steemState.SetImageResource(Resource.Drawable.ic_unchecked);
-
-                        SetVotePower(account.VotePower, _steemAvatar);
                         break;
                     case KnownChains.Golos:
-                        _golosAvatar.Visibility = ViewStates.Visible;
+                        _golosLyt.Enabled = true;
+
+                        //_golosAvatar.Visibility = ViewStates.Visible;
                         _golosLogo.Visibility = ViewStates.Visible;
                         _golosState.Visibility = ViewStates.Visible;
                         _golosConnectLyt.Visibility = ViewStates.Gone;
@@ -451,33 +466,9 @@ namespace Steepshot.Activity
                         }
                         else
                             _golosState.SetImageResource(Resource.Drawable.ic_unchecked);
-
-                        SetVotePower(account.VotePower, _golosAvatar);
                         break;
                 }
             }
-        }
-
-        private void SetVotePower(float votePower, ImageView avatar)
-        {
-            var votingPowerFrame = new VotingPowerFrame(this)
-            {
-                Draw = true,
-                VotingPower = votePower,
-                VotingPowerWidth = BitmapUtils.DpToPixel(2, Resources)
-            };
-
-            var frameSide = (int)BitmapUtils.DpToPixel(38, Resources);
-            var padding = (int)BitmapUtils.DpToPixel(5, Resources);
-            votingPowerFrame.Layout(0, 0, frameSide, frameSide);
-
-            var avatarImage = new CircleImageView(this);
-            avatarImage.Layout(padding, padding, frameSide - padding, frameSide - padding);
-            avatarImage.SetImageResource(Resource.Drawable.ic_holder);
-
-            votingPowerFrame.AddView(avatarImage);
-
-            avatar.SetImageDrawable(BitmapUtils.GetViewDrawable(votingPowerFrame));
         }
     }
 }
