@@ -37,8 +37,8 @@
                     android:gravity="center_vertical">
                     <ImageView
                         android:id="@+id/steem_avatar"
-                        android:layout_width="30dp"
-                        android:layout_height="30dp"
+                        android:layout_width="38dp"
+                        android:layout_height="38dp"
                         android:layout_marginRight="25dp"
                         android:visibility="gone"
                         android:src="@drawable/ic_holder" />
@@ -51,12 +51,12 @@
                         android:layout_weight="1" />
                     <ImageView
                         android:id="@+id/steem_logo"
-                        android:layout_width="30dp"
-                        android:layout_height="30dp"
-                        android:src="@drawable/ic_steem"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_steemit"
                         android:visibility="gone"
                         android:layout_marginLeft="10dp"
-                        android:layout_marginRight="15dp" />
+                        android:layout_marginRight="20dp" />
                     <ImageView
                         android:id="@+id/steem_state"
                         android:layout_width="20dp"
@@ -93,8 +93,8 @@
                     android:gravity="center_vertical">
                     <ImageView
                         android:id="@+id/golos_avatar"
-                        android:layout_width="30dp"
-                        android:layout_height="30dp"
+                        android:layout_width="38dp"
+                        android:layout_height="38dp"
                         android:src="@drawable/ic_holder"
                         android:layout_marginRight="25dp"
                         android:visibility="gone" />
@@ -107,12 +107,12 @@
                         android:layout_weight="1" />
                     <ImageView
                         android:id="@+id/golos_logo"
-                        android:layout_width="30dp"
-                        android:layout_height="30dp"
-                        android:src="@drawable/ic_steem"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_golos"
                         android:visibility="gone"
                         android:layout_marginLeft="10dp"
-                        android:layout_marginRight="15dp" />
+                        android:layout_marginRight="20dp" />
                     <ImageView
                         android:id="@+id/golos_state"
                         android:layout_width="20dp"

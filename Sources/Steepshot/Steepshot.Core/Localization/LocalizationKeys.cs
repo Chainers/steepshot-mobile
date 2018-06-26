@@ -166,6 +166,7 @@
         SteemitAccount,
         GolosAccount,
         Connect,
-        Logout
+        Logout,
+        SwitchTo
     }
 }

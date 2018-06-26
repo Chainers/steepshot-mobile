@@ -23,17 +23,18 @@ using Steepshot.Core.Authorization;
 using System.Collections.Generic;
 using Android.Graphics;
 using Android.Support.Design.Widget;
+using Steepshot.CustomViews;
+using Refractored.Controls;
 
 namespace Steepshot.Activity
 {
     [Activity(ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait)]
     public sealed class SettingsActivity : BaseActivity
     {
-        private AccountsAdapter _accountsAdapter;
-        private bool _lowRatedChanged;
-        private bool _nsfwChanged;
         private PushSettings PushSettings;
         private BottomSheetDialog _propertiesActionsDialog;
+        private bool _lowRatedChanged;
+        private bool _nsfwChanged;
 
 #pragma warning disable 0649, 4014
         [BindView(Resource.Id.dtn_terms_of_service)] private Button _termsButton;
@@ -48,7 +49,6 @@ namespace Steepshot.Activity
         [BindView(Resource.Id.btn_switcher)] private ImageButton _switcher;
         [BindView(Resource.Id.btn_settings)] private ImageButton _settings;
         [BindView(Resource.Id.btn_back)] private ImageButton _backButton;
-        //[BindView(Resource.Id.accounts_list)] private RecyclerView _accountsList;
         [BindView(Resource.Id.power_switch)] private SwitchCompat _powerSwitch;
         [BindView(Resource.Id.power_switch_text)] private TextView _powerSwitchText;
         [BindView(Resource.Id.header_text)] private TextView _notificationSettings;
@@ -111,7 +111,6 @@ namespace Steepshot.Activity
             _steemConnectButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Connect);
             _golosConnectButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Connect);
 
-            SetAddButton(accounts.Count);
             SetupAccounts(accounts);
 
             _backButton.Visibility = ViewStates.Visible;
@@ -161,19 +160,9 @@ namespace Steepshot.Activity
             };
 
             _golosLyt.Click += (sender, e) =>
-            { 
+            {
                 OpenAccountProperties(accounts.FirstOrDefault(p => p.Chain.Equals(KnownChains.Golos)));
             };
-
-            _accountsAdapter = new AccountsAdapter();
-            _accountsAdapter.AccountsList = accounts;
-            _accountsAdapter.DeleteAccount += OnAdapterDeleteAccount;
-            _accountsAdapter.PickAccount += OnAdapterPickAccount;
-
-            //if (Build.VERSION.SdkInt >= Build.VERSION_CODES.Lollipop)
-            //    _accountsList.NestedScrollingEnabled = false;
-            //_accountsList.SetLayoutManager(new LinearLayoutManager(this));
-            //_accountsList.SetAdapter(_accountsAdapter);
 
             _nsfwSwitcher.Checked = AppSettings.User.IsNsfw;
             _lowRatedSwitcher.Checked = AppSettings.User.IsLowRated;
@@ -301,29 +290,45 @@ namespace Steepshot.Activity
             var chainToDelete = userInfo.Chain;
             AppSettings.User.Delete(userInfo);
             RemoveChain(chainToDelete);
-            _accountsAdapter.NotifyDataSetChanged();
         }
 
         private void OpenAccountProperties(UserInfo account)
-        { 
+        {
             var inflater = (LayoutInflater)GetSystemService(LayoutInflaterService);
-            using (var dialogView = inflater.Inflate(Resource.Layout.lyt_feed_popup, null))
-            { 
-                var logout = dialogView.FindViewById<Button>(Resource.Id.flag);
+            using (var dialogView = inflater.Inflate(Resource.Layout.lyt_account_popup, null))
+            {
+                var logout = dialogView.FindViewById<Button>(Resource.Id.logout);
                 logout.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Logout);
                 logout.Typeface = Style.Semibold;
+
+                var switchAccount = dialogView.FindViewById<Button>(Resource.Id.switch_account);
+                switchAccount.Text = $"{AppSettings.LocalizationManager.GetText(LocalizationKeys.SwitchTo)} {account.Login}";
+                switchAccount.Typeface = Style.Semibold;
+
+                if (account.Chain != AppSettings.User.Chain)
+                {
+                    logout.Visibility = ViewStates.Gone;
+                    switchAccount.Visibility = ViewStates.Visible;
+                }
 
                 var cancel = dialogView.FindViewById<Button>(Resource.Id.cancel);
                 cancel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Cancel);
                 cancel.Typeface = Style.Semibold;
 
-                logout.Click += (sender, e) => 
+                logout.Click += (sender, e) =>
+                {
+                    OnAdapterDeleteAccount(account);
+                    _propertiesActionsDialog.Dismiss();
+                };
+
+                switchAccount.Click += (sender, e) =>
                 {
                     OnAdapterPickAccount(account);
+                    _propertiesActionsDialog.Dismiss();
                 };
 
                 cancel.Click += (sender, e) =>
-                { 
+                {
                     _propertiesActionsDialog.Dismiss();
                 };
 
@@ -389,35 +394,17 @@ namespace Steepshot.Activity
             }
             else
             {
-                if (BasePresenter.Chain == chain)
-                {
-                    BasePresenter.SwitchChain(_accountsAdapter.AccountsList.First());
-                    var i = new Intent(ApplicationContext, typeof(RootActivity));
-                    i.AddFlags(ActivityFlags.NewTask | ActivityFlags.ClearTask);
-                    StartActivity(i);
-                    Finish();
-                }
-                else
-                {
-                    SetAddButton(accounts.Count);
-                }
+                var i = new Intent(ApplicationContext, typeof(RootActivity));
+                i.AddFlags(ActivityFlags.NewTask | ActivityFlags.ClearTask);
+                StartActivity(i);
+                Finish();
             }
-        }
-
-        private void SetAddButton(int accountsCount)
-        {
-            /*
-            if (accountsCount == 2)
-                _addButton.Visibility = ViewStates.Gone;
-            else
-                _addButton.Visibility = ViewStates.Visible;
-            */
         }
 
         private void SetupAccounts(List<UserInfo> accounts)
         {
             _steemAvatar.Visibility = _golosAvatar.Visibility =
-                _steemLogo.Visibility = _golosLogo.Visibility = 
+                _steemLogo.Visibility = _golosLogo.Visibility =
                     _steemState.Visibility = _golosState.Visibility = ViewStates.Gone;
 
             _steemConnectButton.Visibility = _golosConnectButton.Visibility = ViewStates.Visible;
@@ -439,7 +426,16 @@ namespace Steepshot.Activity
                         _steemConnectLyt.Visibility = ViewStates.Gone;
 
                         _steemTitle.Text = account.Login;
-                        _steemTitle.SetTextColor(Resources.GetColor(Resource.Color.rgb255_34_5));
+
+                        if (account.Chain == AppSettings.User.Chain)
+                        {
+                            _steemTitle.SetTextColor(Resources.GetColor(Resource.Color.rgb255_34_5));
+                            _steemState.SetImageResource(Resource.Drawable.ic_checked);
+                        }
+                        else
+                            _steemState.SetImageResource(Resource.Drawable.ic_unchecked);
+
+                        SetVotePower(account.VotePower, _steemAvatar);
                         break;
                     case KnownChains.Golos:
                         _golosAvatar.Visibility = ViewStates.Visible;
@@ -448,10 +444,40 @@ namespace Steepshot.Activity
                         _golosConnectLyt.Visibility = ViewStates.Gone;
 
                         _golosTitle.Text = account.Login;
-                        _steemTitle.SetTextColor(Resources.GetColor(Resource.Color.rgb255_34_5));
+                        if (account.Chain == AppSettings.User.Chain)
+                        {
+                            _golosTitle.SetTextColor(Resources.GetColor(Resource.Color.rgb255_34_5));
+                            _golosState.SetImageResource(Resource.Drawable.ic_checked);
+                        }
+                        else
+                            _golosState.SetImageResource(Resource.Drawable.ic_unchecked);
+
+                        SetVotePower(account.VotePower, _golosAvatar);
                         break;
                 }
             }
+        }
+
+        private void SetVotePower(float votePower, ImageView avatar)
+        {
+            var votingPowerFrame = new VotingPowerFrame(this)
+            {
+                Draw = true,
+                VotingPower = votePower,
+                VotingPowerWidth = BitmapUtils.DpToPixel(2, Resources)
+            };
+
+            var frameSide = (int)BitmapUtils.DpToPixel(38, Resources);
+            var padding = (int)BitmapUtils.DpToPixel(5, Resources);
+            votingPowerFrame.Layout(0, 0, frameSide, frameSide);
+
+            var avatarImage = new CircleImageView(this);
+            avatarImage.Layout(padding, padding, frameSide - padding, frameSide - padding);
+            avatarImage.SetImageResource(Resource.Drawable.ic_holder);
+
+            votingPowerFrame.AddView(avatarImage);
+
+            avatar.SetImageDrawable(BitmapUtils.GetViewDrawable(votingPowerFrame));
         }
     }
 }
