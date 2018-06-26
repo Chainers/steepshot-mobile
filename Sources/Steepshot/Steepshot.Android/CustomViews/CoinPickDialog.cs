@@ -7,13 +7,14 @@ using Android.Util;
 using Android.Views;
 using Android.Widget;
 using Com.Aigestudio.Wheelpicker;
+using Steepshot.Core.Models.Requests;
 using Steepshot.Utils;
 
 namespace Steepshot.CustomViews
 {
     public class CoinPickDialog : BottomSheetDialog
     {
-        public Action<string> CoinSelected;
+        public Action<CurrencyType> CoinSelected;
         private readonly IList _coins;
         private WheelPicker _wheelPicker;
         private int _selectedPosition;
@@ -86,7 +87,7 @@ namespace Steepshot.CustomViews
 
         private void SelectBtnOnClick(object sender, EventArgs e)
         {
-            CoinSelected?.Invoke(_coins[_selectedPosition].ToString());
+            CoinSelected?.Invoke((CurrencyType)_coins[_selectedPosition]);
             CancelBtnOnClick(null, null);
         }
     }

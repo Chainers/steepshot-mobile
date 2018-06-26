@@ -40,10 +40,10 @@ namespace Steepshot.Integration
 
         private void AuthOnCompleted(object o, AuthenticatorCompletedEventArgs args)
         {
-            if (args.HasPostingPermission)
+            if (args.IsAuthenticated)
             {
                 var opt = GetOptionsOrDefault<ModuleOptionsModel>(AppId);
-                
+
                 if (args.Account.Properties.ContainsKey(AccessTokenKeyName))
                     opt.AccessToken = args.Account.Properties[AccessTokenKeyName];
 

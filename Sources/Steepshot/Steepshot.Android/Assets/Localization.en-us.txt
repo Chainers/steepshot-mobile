@@ -196,6 +196,13 @@
         "TagSearchWarning":"Here should be at least 2 characters for hashtags search and 3 for the users' query",
         "NoResultText":"Sorry, no results found. Please, try again",
         "VotingPowerSetting":"Show voting slider",
+		"Transfer":"Transfer",
+		"RecipientName":"Recipient name",
+        "RecipientNameHint":"Enter recipient name",
+        "TransferAmount":"Transfer amount",
+        "TransferAmountHint":"Enter transfer amount",
+        "TransferComment":"Accompanying commentary",
+        "TranferCommentHint":"Enter accompanying commentary",  
 
         "<h1>Server Error (500)</h1>": "(500) Server Error",
         "<h1>Not Found</h1>":"Not Found",

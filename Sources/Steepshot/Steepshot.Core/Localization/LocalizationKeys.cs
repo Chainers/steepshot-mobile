@@ -162,6 +162,13 @@
         Use,
         Close,
         VotingPowerSetting,
-        InsufficientBalance
+        InsufficientBalance,
+        Transfer,
+        RecipientName,
+        RecipientNameHint,
+        TransferAmount,
+        TransferAmountHint,
+        TransferComment,
+        TranferCommentHint        
     }
 }

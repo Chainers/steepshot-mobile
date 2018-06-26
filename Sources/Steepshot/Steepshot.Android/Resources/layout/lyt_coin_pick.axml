@@ -37,7 +37,8 @@
         android:gravity="center"
         android:background="@drawable/steem_login_border"
         android:layout_marginTop="20dp"
-        android:layout_marginBottom="5dp" />
+        android:layout_marginBottom="5dp"
+        android:elevation="0dp" />
     <Button
         android:id="@+id/cacncel_btn"
         android:textColor="@color/black"
@@ -46,5 +47,6 @@
         android:layout_height="50dp"
         android:gravity="center"
         android:background="@drawable/white_rounded_border"
-        android:layout_marginTop="5dp" />
+        android:layout_marginTop="5dp"
+        android:elevation="0dp" />
 </LinearLayout>
