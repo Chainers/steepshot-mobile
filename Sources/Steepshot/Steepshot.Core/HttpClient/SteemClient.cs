@@ -269,7 +269,6 @@ namespace Steepshot.Core.HttpClient
                                 result.Error = new ValidationError(LocalizationKeys.InsufficientBalance, accInfo.Balance.ToString());
                                 return result;
                             }
-
                             asset = new Asset(model.Value, model.Precussion, accInfo.Balance.Currency);
                             break;
                         }

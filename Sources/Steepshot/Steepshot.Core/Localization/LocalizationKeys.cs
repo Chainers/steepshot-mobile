@@ -80,6 +80,7 @@
         CreateButtonText,
         EnterAccountText,
         PasswordViewTitleText,
+        ActivePasswordViewTitleText,
         PublishButtonText,
         AppSettingsTitle,
         AddAccountText,

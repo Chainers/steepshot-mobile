@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using Steepshot.Core.Models.Enums;
+using Steepshot.Core.Models.Responses;
 
 namespace Steepshot.Core.Authorization
 {
     public sealed class UserInfo
     {
+        public AccountInfoResponse AccountInfo { get; set; }
+
         public int Id { get; set; }
 
         public KnownChains Chain { get; set; } = KnownChains.Steem;

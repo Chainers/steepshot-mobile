@@ -1,47 +1,35 @@
 ﻿using System;
 using Android.App;
-using Android.Content;
 using Android.Content.PM;
 using Android.OS;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
-using Newtonsoft.Json;
 using Steepshot.Base;
 using Steepshot.Core.Localization;
-using Steepshot.Core.Models.Responses;
-using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 using Steepshot.Utils;
 
 namespace Steepshot.Activity
 {
     [Activity(ScreenOrientation = ScreenOrientation.Portrait)]
-    public sealed class SignInActivity : BaseSignInActivity
+    public sealed class ActiveSignInActivity : BaseSignInActivity
     {
-        public const string LoginExtraPath = "login";
-        public const string AccountInfoResponseExtraPath = "account_info_response";
-
         protected override void OnCreate(Bundle savedInstanceState)
         {
-            Username = Intent.GetStringExtra(LoginExtraPath);
-            AccountInfoResponse = JsonConvert.DeserializeObject<AccountInfoResponse>(Intent.GetStringExtra(AccountInfoResponseExtraPath));
+            Username = AppSettings.User.Login;
+            AccountInfoResponse = AppSettings.User.AccountInfo;
             ProfileImageUrl = AccountInfoResponse.Metadata?.Profile?.ProfileImage;
             base.OnCreate(savedInstanceState);
+
+            _viewTitle.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.ActivePasswordViewTitleText);
         }
 
         protected override void SignIn(object sender, EventArgs e)
         {
             var appCompatButton = (AppCompatButton)sender;
 
-            var login = Username;
             var pass = _password?.Text;
-
-            if (string.IsNullOrEmpty(login))
-            {
-                this.ShowAlert(LocalizationKeys.EmptyLogin, ToastLength.Short);
-                return;
-            }
 
             if (string.IsNullOrEmpty(pass))
             {
@@ -53,17 +41,15 @@ namespace Steepshot.Activity
             appCompatButton.Text = string.Empty;
             appCompatButton.Enabled = false;
 
-            var isvalid = KeyHelper.ValidatePrivateKey(pass, AccountInfoResponse.PublicPostingKeys);
+            var isvalid = KeyHelper.ValidatePrivateKey(pass, AccountInfoResponse.PublicActiveKeys);
             if (isvalid)
             {
-                AppSettings.User.AddAndSwitchUser(login, pass, AccountInfoResponse, BasePresenter.Chain);
-                var intent = new Intent(this, typeof(RootActivity));
-                intent.AddFlags(ActivityFlags.NewTask | ActivityFlags.ClearTask);
-                StartActivity(intent);
+                AppSettings.User.AddActiveKey(pass);
+                Finish();
             }
             else
             {
-                this.ShowAlert(LocalizationKeys.WrongPrivatePostingKey);
+                this.ShowAlert(LocalizationKeys.WrongPrivateActimeKey);
             }
 
             appCompatButton.Enabled = true;

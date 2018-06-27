@@ -127,6 +127,7 @@
         "CreateButtonText": "Create new account",
         "EnterAccountText": "Enter to your account",
         "PasswordViewTitleText": "Account posting key",
+		"ActivePasswordViewTitleText": "Account active key",
         "PublishButtonText": "Publish Photo",
         "AppSettingsTitle": "App settings",
         "AddAccountText": "Add account",

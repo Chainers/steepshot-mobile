@@ -185,7 +185,7 @@ namespace Steepshot.Fragment
             _transferCommentTitle.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.TransferComment);
             _transferCommentEdit.Hint = AppSettings.LocalizationManager.GetText(LocalizationKeys.TranferCommentHint);
             _emptyQueryLabel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.EmptyQuery);
-            _transferBtn.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Transfer); ;
+            _transferBtn.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Transfer);
             _transferCoinName.Text = _coins[0].ToString();
             _balance.Text = $"{BasePresenter.ToFormatedCurrencyString(100)}$";
 
@@ -322,7 +322,7 @@ namespace Steepshot.Fragment
 
             if (string.IsNullOrEmpty(AppSettings.User.ActiveKey))
             {
-                Activity.StartActivity(typeof(SignInActivity));
+                Activity.StartActivity(typeof(ActiveSignInActivity));
             }
 
             Presenter.TryTransfer(Recipient.Author, 0.0, _pickedCoin, _transferCommentEdit.Text);

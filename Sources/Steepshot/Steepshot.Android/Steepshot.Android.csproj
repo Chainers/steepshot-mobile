@@ -66,8 +66,10 @@
     <OutputPath>bin\x86\Release\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Activity\ActiveSignInActivity.cs" />
     <Compile Include="Adapter\RecipientsAdapter.cs" />
     <Compile Include="Base\App.cs" />
+    <Compile Include="Base\BaseSignInActivity.cs" />
     <Compile Include="CustomViews\AccurateMovementMethod.cs" />
     <Compile Include="CustomViews\AutoLinkTextView.cs" />
     <Compile Include="CustomViews\CoinPickDialog.cs" />

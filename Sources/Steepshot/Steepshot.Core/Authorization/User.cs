@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Steepshot.Core.Models.Enums;
+using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Authorization
@@ -146,6 +147,8 @@ namespace Steepshot.Core.Authorization
 
         public KnownChains Chain => UserInfo.Chain;
 
+        public AccountInfoResponse AccountInfo => UserInfo.AccountInfo;
+
         public bool HasPostingPermission => !string.IsNullOrEmpty(UserInfo?.PostingKey);
 
         public bool HasActivePermission => !string.IsNullOrEmpty(UserInfo?.ActiveKey);
@@ -188,7 +191,7 @@ namespace Steepshot.Core.Authorization
             }
         }
 
-        public void AddAndSwitchUser(string login, string pass, KnownChains chain)
+        public void AddAndSwitchUser(string login, string pass, AccountInfoResponse accountInfo, KnownChains chain)
         {
             if (!string.IsNullOrEmpty(Login) && UserInfo.PostingKey == null)
             {
@@ -200,12 +203,19 @@ namespace Steepshot.Core.Authorization
             var userInfo = new UserInfo
             {
                 Login = login,
+                AccountInfo = accountInfo,
                 Chain = chain,
                 PostingKey = pass,
             };
 
             _data.Insert(userInfo);
             UserInfo = userInfo;
+        }
+
+        public void AddActiveKey(string pass)
+        {
+            UserInfo.PostingKey = pass;
+            Save();
         }
 
         public void SwitchUser(UserInfo userInfo)
