@@ -87,4 +87,14 @@
         android:layout_marginLeft="15dp"
         android:layout_marginTop="20dp"
         android:layout_below="@+id/sign_in_btn" />
+    <TextView
+        android:id="@+id/privacy_politic"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="10dp"
+        android:gravity="center"
+        android:textSize="10sp"
+        android:textColor="@color/rgb244_244_246"
+        android:visibility="gone" />
 </RelativeLayout>

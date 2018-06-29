@@ -8,25 +8,26 @@ using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Presenters
 {
-    public class TransferPresenter : UserFriendPresenter
+    public class TransferPresenter : BasePresenter
     {
-        public async Task<OperationResult<VoidResponse>> TryTransfer(string recipient, double amount, CurrencyType type, string memo = null)
+        public async Task<OperationResult<VoidResponse>> TryTransfer(string recipient, double amount, CurrencyType type, string chainCurrency, string memo = null)
         {
-            return await TryRunTask<Tuple<string, double, CurrencyType, string>, VoidResponse>(Transfer, OnDisposeCts.Token, new Tuple<string, double, CurrencyType, string>(recipient, amount, type, memo));
+            return await TryRunTask<(string Recipient, double Amount, CurrencyType Type, string ChainCurrency, string Memo), VoidResponse>(Transfer, OnDisposeCts.Token, (recipient, amount, type, chainCurrency, memo));
         }
 
-        private Task<OperationResult<VoidResponse>> Transfer(Tuple<string, double, CurrencyType, string> transferData, CancellationToken ct)
+        private Task<OperationResult<VoidResponse>> Transfer((string Recipient, double Amount, CurrencyType Type, string ChainCurrency, string Memo) transferData, CancellationToken ct)
         {
             var transferModel = new TransferModel(
                 AppSettings.User.Login,
                 AppSettings.User.ActiveKey,
-                transferData.Item1,
-                (long)(transferData.Item3 == CurrencyType.Sbd ? transferData.Item2 * 10000000 : transferData.Item2 * 1000),
-                (byte)(transferData.Item3 == CurrencyType.Sbd ? 6 : 3),
-                transferData.Item3);
+                transferData.Recipient,
+                (long)(transferData.Type == CurrencyType.Sbd ? transferData.Amount * 10000000 : transferData.Amount * 1000),
+                (byte)(transferData.Type == CurrencyType.Sbd ? 6 : 3),
+                transferData.Type,
+                transferData.ChainCurrency);
 
-            if (string.IsNullOrEmpty(transferData.Item4))
-                transferModel.Memo = transferData.Item4;
+            if (!string.IsNullOrEmpty(transferData.Memo))
+                transferModel.Memo = transferData.Memo;
 
             return Api.Transfer(transferModel, ct);
         }

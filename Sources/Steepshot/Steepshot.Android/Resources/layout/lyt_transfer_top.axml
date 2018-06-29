@@ -30,6 +30,15 @@
         android:textSize="20sp"
         android:textColor="@color/rgb151_155_158"
         android:textAllCaps="true" />
+    <ProgressBar
+        android:id="@+id/balance_spinner"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:indeterminateTintMode="src_atop"
+        android:indeterminateTint="@color/black"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:visibility="gone" />
     <View
         android:layout_width="match_parent"
         android:layout_height="2px"

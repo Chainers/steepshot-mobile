@@ -49,7 +49,7 @@ namespace Steepshot.Adapter
     public class RecipientViewHolder : RecyclerView.ViewHolder
     {
         private readonly Action<UserFriend> _recipientSelected;
-        private readonly RelativeLayout _recipientRoot;
+        private readonly FrameLayout _recipientRoot;
         private readonly CircleImageView _recipientAvatar;
         private readonly TextView _recipientLogin;
         private readonly TextView _recipientName;
@@ -59,7 +59,7 @@ namespace Steepshot.Adapter
         public RecipientViewHolder(View itemView, Action<UserFriend> recipientSelected) : base(itemView)
         {
             _recipientSelected = recipientSelected;
-            _recipientRoot = itemView.FindViewById<RelativeLayout>(Resource.Id.recipient_root);
+            _recipientRoot = itemView.FindViewById<FrameLayout>(Resource.Id.root_item);
             _recipientAvatar = itemView.FindViewById<CircleImageView>(Resource.Id.friend_avatar);
             _recipientLogin = itemView.FindViewById<TextView>(Resource.Id.username);
             _recipientName = itemView.FindViewById<TextView>(Resource.Id.name);
@@ -67,6 +67,7 @@ namespace Steepshot.Adapter
             _recipientLogin.Typeface = Style.Semibold;
             _recipientName.Typeface = Style.Light;
 
+            _recipientRoot.Clickable = true;
             _recipientRoot.Click += ItemViewOnClick;
         }
 

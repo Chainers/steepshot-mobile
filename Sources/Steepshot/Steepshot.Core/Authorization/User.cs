@@ -147,7 +147,11 @@ namespace Steepshot.Core.Authorization
 
         public KnownChains Chain => UserInfo.Chain;
 
-        public AccountInfoResponse AccountInfo => UserInfo.AccountInfo;
+        public AccountInfoResponse AccountInfo
+        {
+            get => UserInfo.AccountInfo;
+            set => UserInfo.AccountInfo = value;
+        }
 
         public bool HasPostingPermission => !string.IsNullOrEmpty(UserInfo?.PostingKey);
 
@@ -214,7 +218,7 @@ namespace Steepshot.Core.Authorization
 
         public void AddActiveKey(string pass)
         {
-            UserInfo.PostingKey = pass;
+            UserInfo.ActiveKey = pass;
             Save();
         }
 

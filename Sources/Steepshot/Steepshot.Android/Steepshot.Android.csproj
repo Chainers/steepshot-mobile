@@ -161,6 +161,7 @@
     <Compile Include="Interfaces\IClearable.cs" />
     <Compile Include="Fragment\CommentsFragment.cs" />
     <Compile Include="Services\GAService.cs" />
+    <Compile Include="Utils\TransferAmountFilter.cs" />
     <Compile Include="Utils\ViewUtils.cs" />
     <Compile Include="Activity\WelcomeActivity.cs" />
     <Compile Include="Activity\RegistrationActivity.cs" />

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,7 +17,6 @@ using Steepshot.Core.Errors;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Localization;
 using Cryptography.ECDSA;
-using Newtonsoft.Json;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Utils;
 
@@ -244,45 +244,19 @@ namespace Steepshot.Core.HttpClient
                 if (keys == null)
                     return new OperationResult<VoidResponse>(new AppError(LocalizationKeys.WrongPrivateActimeKey));
 
-                var lookupAccountNames = _operationManager.LookupAccountNames(new[] { model.Login, model.Recipient }, CancellationToken.None);
                 var result = new OperationResult<VoidResponse>();
-                if (lookupAccountNames.IsError)
-                {
-                    OnError(lookupAccountNames, result);
-                    return result;
-                }
-
-                if (lookupAccountNames.Result.Length != 2 || lookupAccountNames.Result.Any(r => r == null))
-                {
-                    result.Error = new ValidationError(LocalizationKeys.UnexpectedProfileData);
-                    return result;
-                }
-
-                var accInfo = lookupAccountNames.Result.First(i => i.Name.Equals(model.Login));
 
                 Asset asset;
                 switch (model.CurrencyType)
                 {
                     case CurrencyType.Golos:
                         {
-                            if (accInfo.Balance.Value < model.Value)
-                            {
-                                result.Error = new ValidationError(LocalizationKeys.InsufficientBalance, accInfo.Balance.ToString());
-                                return result;
-                            }
-
-                            asset = new Asset(model.Value, model.Precussion, accInfo.Balance.Currency);
+                            asset = new Asset(model.Value, model.Precussion, model.ChainCurrency);
                             break;
                         }
                     case CurrencyType.Gbg:
                         {
-                            if (accInfo.SbdBalance.Value < model.Value)
-                            {
-                                result.Error = new ValidationError(LocalizationKeys.InsufficientBalance, accInfo.SbdBalance.ToString());
-                                return result;
-                            }
-
-                            asset = new Asset(model.Value, model.Precussion, accInfo.SbdBalance.Currency);
+                            asset = new Asset(model.Value, model.Precussion, model.ChainCurrency);
                             break;
                         }
                     default:
@@ -381,7 +355,7 @@ namespace Steepshot.Core.HttpClient
 
                 if (isSame)
                     return new OperationResult<VoidResponse>(new VoidResponse());
-                
+
                 switch (model.KeyRoleType)
                 {
                     case KeyRoleType.Active:
@@ -422,6 +396,10 @@ namespace Steepshot.Core.HttpClient
                     PublicActiveKeys = acc.Active.KeyAuths.Select(i => i.Key.Data).ToArray(),
                     Metadata = JsonConverter.Deserialize<AccountMetadata>(acc.JsonMetadata)
                 };
+
+                var balances = result.Result.Balances = new Dictionary<CurrencyType, (long Value, byte Precision, string ChainCurrency)>();
+                balances.Add(CurrencyType.Golos, (acc.Balance.Value, acc.Balance.Precision, acc.Balance.Currency));
+                balances.Add(CurrencyType.Gbg, (acc.SbdBalance.Value, acc.Balance.Precision, acc.SbdBalance.Currency));
 
                 return result;
 

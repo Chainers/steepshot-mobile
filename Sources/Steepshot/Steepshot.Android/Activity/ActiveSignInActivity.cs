@@ -1,10 +1,13 @@
 ﻿using System;
 using Android.App;
 using Android.Content.PM;
+using Android.Graphics;
 using Android.OS;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
+using CheeseBind;
+using Refractored.Controls;
 using Steepshot.Base;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Utils;
@@ -15,6 +18,8 @@ namespace Steepshot.Activity
     [Activity(ScreenOrientation = ScreenOrientation.Portrait)]
     public sealed class ActiveSignInActivity : BaseSignInActivity
     {
+        [BindView(Resource.Id.privacy_politic)] private TextView _privacyPolitic;
+
         protected override void OnCreate(Bundle savedInstanceState)
         {
             Username = AppSettings.User.Login;
@@ -23,6 +28,10 @@ namespace Steepshot.Activity
             base.OnCreate(savedInstanceState);
 
             _viewTitle.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.ActivePasswordViewTitleText);
+            _privacyPolitic.Typeface = Style.Light;
+            _privacyPolitic.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.ActiveKeyPrivacy);
+            _privacyPolitic.SetTextColor(Color.LightGray);
+            _privacyPolitic.Visibility = ViewStates.Visible;
         }
 
         protected override void SignIn(object sender, EventArgs e)
@@ -45,6 +54,7 @@ namespace Steepshot.Activity
             if (isvalid)
             {
                 AppSettings.User.AddActiveKey(pass);
+                SetResult(Result.Ok);
                 Finish();
             }
             else
@@ -55,6 +65,12 @@ namespace Steepshot.Activity
             appCompatButton.Enabled = true;
             appCompatButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.EnterAccountText);
             _spinner.Visibility = ViewStates.Invisible;
+        }
+
+        protected override void GoBack(object sender, EventArgs e)
+        {
+            SetResult(Result.Canceled);
+            base.GoBack(sender, e);
         }
     }
 }

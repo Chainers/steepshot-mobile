@@ -49,4 +49,8 @@
         android:layout_centerVertical="true"
         android:layout_alignParentRight="true"
         android:src="@drawable/ic_top_arrow" />
+    <FrameLayout
+        android:id="@+id/root_item"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 </RelativeLayout>

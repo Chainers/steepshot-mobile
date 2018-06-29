@@ -170,6 +170,13 @@
         TransferAmount,
         TransferAmountHint,
         TransferComment,
-        TranferCommentHint        
+        TranferCommentHint,
+        WrongRecipientName,
+        WrongTransferAmount,
+        TransferSuccess,
+        TransferFail,
+        Select,
+        SelectToken,
+        ActiveKeyPrivacy
     }
 }

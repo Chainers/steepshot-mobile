@@ -7,7 +7,9 @@ using Android.Util;
 using Android.Views;
 using Android.Widget;
 using Com.Aigestudio.Wheelpicker;
+using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Requests;
+using Steepshot.Core.Utils;
 using Steepshot.Utils;
 
 namespace Steepshot.CustomViews
@@ -40,7 +42,7 @@ namespace Steepshot.CustomViews
 
                 var dialogTitle = dialogView.FindViewById<TextView>(Resource.Id.dialog_title);
                 dialogTitle.Typeface = Style.Semibold;
-                dialogTitle.Text = "Select token";
+                dialogTitle.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.SelectToken);
 
                 _wheelPicker = dialogView.FindViewById<WheelPicker>(Resource.Id.coin_picker);
                 _wheelPicker.Typeface = Style.Light;
@@ -57,8 +59,8 @@ namespace Steepshot.CustomViews
                 var selectBtn = dialogView.FindViewById<Button>(Resource.Id.select_btn);
                 var cancelBtn = dialogView.FindViewById<Button>(Resource.Id.cacncel_btn);
 
-                selectBtn.Text = "Select";
-                cancelBtn.Text = "Cancel";
+                selectBtn.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Select);
+                cancelBtn.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Cancel);
 
                 selectBtn.Click += SelectBtnOnClick;
                 cancelBtn.Click += CancelBtnOnClick;

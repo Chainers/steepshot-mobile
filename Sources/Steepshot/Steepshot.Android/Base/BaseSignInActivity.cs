@@ -131,7 +131,7 @@ namespace Steepshot.Base
                 ScanQr();
         }
 
-        private void GoBack(object sender, EventArgs e)
+        protected virtual void GoBack(object sender, EventArgs e)
         {
             OnBackPressed();
         }
