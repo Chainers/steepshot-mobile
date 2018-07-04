@@ -92,28 +92,6 @@ namespace Steepshot.Fragment
             }
         }
 
-        private BalanceModel _userBalance;
-        private BalanceModel UserBalance
-        {
-            get => _userBalance;
-            set
-            {
-                _userBalance = value;
-                OnUserBalanceChanged();
-            }
-        }
-
-        private UserFriend _recipient;
-        private UserFriend Recipient
-        {
-            get => _recipient;
-            set
-            {
-                _recipient = value;
-                OnRecipientChanged();
-            }
-        }
-
         private bool EditEnabled
         {
             set
@@ -140,6 +118,8 @@ namespace Steepshot.Fragment
         public TransferFragment()
         {
             _transferFacade = new TransferFacade();
+            _transferFacade.OnRecipientChanged += OnRecipientChanged;
+            _transferFacade.OnUserBalanceChanged += OnUserBalanceChanged;
         }
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -267,7 +247,7 @@ namespace Steepshot.Fragment
             _recipientSearchLoader.Visibility = ViewStates.Gone;
             _emptyQueryLabel.Visibility = _transferFacade.UserFriendPresenter.Count == 0 ? ViewStates.Visible : ViewStates.Gone;
             if (State == FragmentState.TransferPrepare)
-                Recipient = Recipient ?? _transferFacade.UserFriendPresenter.FirstOrDefault(recipient => recipient.Author.Equals(_recipientSearch.Text));
+                _transferFacade.Recipient = _transferFacade.Recipient ?? _transferFacade.UserFriendPresenter.FirstOrDefault(recipient => recipient.Author.Equals(_recipientSearch.Text));
         }
 
         private void OnFragmentStateChanged()
@@ -280,13 +260,13 @@ namespace Steepshot.Fragment
                 case FragmentState.Search:
                     _recipientSearchList.Visibility = ViewStates.Visible;
                     _transferDetailsContainer.Visibility = ViewStates.Gone;
-                    _recipient = null;
+                    _transferFacade.Recipient = null;
                     _recipientAvatar.Visibility = ViewStates.Gone;
                     break;
                 case FragmentState.TransferPrepare:
                     _recipientSearchList.Visibility = ViewStates.Gone;
                     _transferDetailsContainer.Visibility = ViewStates.Visible;
-                    Recipient = Recipient ?? _transferFacade.UserFriendPresenter.FirstOrDefault(recipient => recipient.Author.Equals(_recipientSearch.Text));
+                    _transferFacade.Recipient = _transferFacade.Recipient ?? _transferFacade.UserFriendPresenter.FirstOrDefault(recipient => recipient.Author.Equals(_recipientSearch.Text));
                     break;
                 case FragmentState.Comment:
                     _recipientSearchList.Visibility = ViewStates.Gone;
@@ -308,24 +288,24 @@ namespace Steepshot.Fragment
 
         private void OnUserBalanceChanged()
         {
-            if (_userBalance != null)
-                _balance.Text = $"{_userBalance.Value.ToFormattedCurrencyString(_userBalance.Precision, _pickedCoin.ToString(), ".")}";
+            if (_transferFacade.UserBalance != null)
+                _balance.Text = $"{_transferFacade.UserBalance.Value.ToFormattedCurrencyString(_transferFacade.UserBalance.Precision, _pickedCoin.ToString(), ".")}";
         }
 
         private void OnRecipientChanged()
         {
-            if (_recipient != null)
+            if (_transferFacade.Recipient != null)
             {
-                if (!string.IsNullOrEmpty(_recipient.Avatar))
+                if (!string.IsNullOrEmpty(_transferFacade.Recipient.Avatar))
                     Picasso.With(Activity)
-                        .Load(_recipient.Avatar.GetProxy(_recipientAvatar.LayoutParameters.Width, _recipientAvatar.LayoutParameters.Height))
+                        .Load(_transferFacade.Recipient.Avatar.GetProxy(_recipientAvatar.LayoutParameters.Width, _recipientAvatar.LayoutParameters.Height))
                         .Placeholder(Resource.Drawable.ic_holder)
                         .NoFade()
                         .Priority(Picasso.Priority.Normal)
                         .Into(_recipientAvatar, null, () =>
                         {
                             Picasso.With(Activity)
-                                .Load(_recipient.Avatar.GetProxy(_recipientAvatar.LayoutParameters.Width, _recipientAvatar.LayoutParameters.Height))
+                                .Load(_transferFacade.Recipient.Avatar.GetProxy(_recipientAvatar.LayoutParameters.Width, _recipientAvatar.LayoutParameters.Height))
                                 .Placeholder(Resource.Drawable.ic_holder)
                                 .NoFade()
                                 .Priority(Picasso.Priority.Normal)
@@ -334,6 +314,10 @@ namespace Steepshot.Fragment
                 else
                     Picasso.With(Activity).Load(Resource.Drawable.ic_holder).Into(_recipientAvatar);
                 _recipientAvatar.Visibility = ViewStates.Visible;
+
+                Activity.RunOnUiThread(() => {
+                    _recipientSearch.Text = _transferFacade.Recipient.Author;
+                });
             }
             else
             {
@@ -349,6 +333,9 @@ namespace Steepshot.Fragment
 
         private async void RecipientSearchOnTextChanged(object sender, TextChangedEventArgs e)
         {
+            if (_recipientSearch.Text == _transferFacade?.Recipient?.Author)
+                return;
+
             var isEmpty = string.IsNullOrEmpty(_recipientSearch.Text);
             _recipientSearchClear.SetImageResource(isEmpty ? Resource.Drawable.ic_search_small : Resource.Drawable.ic_close_tag_active);
             if (!isEmpty && _recipientSearch.Text.Length > 2 && !_prevQuery.Equals(_recipientSearch.Text))
@@ -372,7 +359,7 @@ namespace Steepshot.Fragment
         private void RecipientSearchClearOnClick(object sender, EventArgs e)
         {
             _recipientSearch.Text = string.Empty;
-            Recipient = null;
+            _transferFacade.Recipient = null;
         }
 
         private void TransferAmountEditOnTextChanged(object sender, TextChangedEventArgs e)
@@ -399,7 +386,7 @@ namespace Steepshot.Fragment
             if (response.IsSuccess)
             {
                 AppSettings.User.AccountInfo = response.Result;
-                UserBalance = AppSettings.User.AccountInfo?.Balances?[_pickedCoin];
+                _transferFacade.UserBalance = AppSettings.User.AccountInfo?.Balances?[_pickedCoin];
             }
             _balance.Visibility = ViewStates.Visible;
             _balanceLoader.Visibility = ViewStates.Gone;
@@ -409,13 +396,13 @@ namespace Steepshot.Fragment
         {
             _pickedCoin = pickedCoin;
             _transferCoinName.Text = _pickedCoin.ToString();
-            UserBalance = AppSettings.User.AccountInfo?.Balances?[_pickedCoin];
+            _transferFacade.UserBalance = AppSettings.User.AccountInfo?.Balances?[_pickedCoin];
             _transferAmountEdit.SetFilters(new IInputFilter[] { new TransferAmountFilter(20, 3) });
         }
 
         private void RecipientSelected(UserFriend recipient)
         {
-            Recipient = recipient;
+            _transferFacade.Recipient = recipient;
             _transferBtn.RequestFocus();
         }
 
@@ -465,22 +452,22 @@ namespace Steepshot.Fragment
 
         private async Task<bool> Validate()
         {
-            if (Recipient == null)
+            if (_transferFacade.Recipient == null)
             {
                 Toast.MakeText(Activity, AppSettings.LocalizationManager.GetText(LocalizationKeys.WrongRecipientName), ToastLength.Short).Show();
                 return false;
             }
 
-            if (UserBalance == null)
+            if (_transferFacade.UserBalance == null)
             {
                 await _transferFacade.TryGetAccountInfo(AppSettings.User.Login);
                 return await Validate();
             }
 
             var transferAmount = (long)(double.Parse(_transferAmountEdit.Text, CultureInfo.InvariantCulture) *
-                                 Math.Pow(10, UserBalance.Precision));
+                                        Math.Pow(10, _transferFacade.UserBalance.Precision));
 
-            if (transferAmount == 0 || transferAmount > UserBalance.Value)
+            if (transferAmount == 0 || transferAmount > _transferFacade.UserBalance.Value)
             {
                 Toast.MakeText(Activity, AppSettings.LocalizationManager.GetText(LocalizationKeys.WrongTransferAmount), ToastLength.Short).Show();
                 return false;
@@ -511,10 +498,10 @@ namespace Steepshot.Fragment
 
         private async void Transfer()
         {
-            if (UserBalance == null)
+            if (_transferFacade.UserBalance == null)
                 return;
 
-            var transferResponse = await Presenter.TryTransfer(Recipient.Author, double.Parse(_transferAmountEdit.Text, CultureInfo.InvariantCulture), _pickedCoin, UserBalance.ChainCurrency, _transferCommentEdit.Text);
+            var transferResponse = await Presenter.TryTransfer(_transferFacade.Recipient.Author, double.Parse(_transferAmountEdit.Text, CultureInfo.InvariantCulture), _pickedCoin, _transferFacade.UserBalance.ChainCurrency, _transferCommentEdit.Text);
             if (transferResponse.IsSuccess)
             {
                 Toast.MakeText(Activity, AppSettings.LocalizationManager.GetText(LocalizationKeys.TransferSuccess), ToastLength.Short).Show();
@@ -541,7 +528,7 @@ namespace Steepshot.Fragment
         private void ClearEdits()
         {
             _recipientSearch.Text = _transferAmountEdit.Text = _transferCommentEdit.Text = string.Empty;
-            Recipient = null;
+            _transferFacade.Recipient = null;
         }
 
         private void BackBtnOnClick(object sender, EventArgs e)

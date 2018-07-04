@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Steepshot.Core.Errors;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Responses;
@@ -8,8 +9,32 @@ namespace Steepshot.Core.Facades
 {
     public sealed class TransferFacade
     {
-        public UserFriendPresenter UserFriendPresenter { get; }
         private readonly PreSignInPresenter _preSignInPresenter;
+        public UserFriendPresenter UserFriendPresenter { get; }
+        public Action OnUserBalanceChanged;
+        public Action OnRecipientChanged;
+
+        private BalanceModel _userBalance;
+        public BalanceModel UserBalance
+        {
+            get => _userBalance;
+            set
+            {
+                _userBalance = value;
+                OnUserBalanceChanged?.Invoke();
+            }
+        }
+
+        private UserFriend _recipient;
+        public UserFriend Recipient
+        {
+            get => _recipient;
+            set
+            {
+                _recipient = value;
+                OnRecipientChanged?.Invoke();
+            }
+        }
 
         public TransferFacade()
         {

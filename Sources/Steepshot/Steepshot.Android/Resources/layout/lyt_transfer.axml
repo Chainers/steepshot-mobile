@@ -48,7 +48,7 @@
                         android:layout_height="40dp"
                         android:textSize="14sp"
                         android:maxLines="1"
-                        android:inputType="text"
+                        android:inputType="text|textCapSentences|textNoSuggestions"
                         android:paddingLeft="20dp"
                         android:paddingRight="35dp"
                         android:background="@drawable/edit_text_borders" />
