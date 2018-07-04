@@ -88,50 +88,18 @@ namespace Steepshot.Fragment
             set
             {
                 _state = value;
-                _transferBtn.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Transfer);
-                _transferLoader.Visibility = ViewStates.Gone;
-                EditEnabled = true;
-                switch (_state)
-                {
-                    case FragmentState.Search:
-                        _recipientSearchList.Visibility = ViewStates.Visible;
-                        _transferDetailsContainer.Visibility = ViewStates.Gone;
-                        _recipient = null;
-                        _recipientAvatar.Visibility = ViewStates.Gone;
-                        break;
-                    case FragmentState.TransferPrepare:
-                        _recipientSearchList.Visibility = ViewStates.Gone;
-                        _transferDetailsContainer.Visibility = ViewStates.Visible;
-                        Recipient = Recipient ?? _transferFacade.UserFriendPresenter.FirstOrDefault(recipient => recipient.Author.Equals(_recipientSearch.Text));
-                        break;
-                    case FragmentState.Comment:
-                        _recipientSearchList.Visibility = ViewStates.Gone;
-                        _transferDetailsScroll.FullScroll(FocusSearchDirection.Down);
-                        break;
-                    case FragmentState.Transfer:
-                        _transferBtn.Text = string.Empty;
-                        _transferLoader.Visibility = ViewStates.Visible;
-                        _recipientSearchList.Visibility = ViewStates.Gone;
-                        _transferDetailsContainer.Visibility = ViewStates.Visible;
-                        EditEnabled = false;
-                        break;
-                    case FragmentState.Cancel:
-                        if (IsKeyboardOpening)
-                            ((BaseActivity)Activity).HideKeyboard();
-                        break;
-                }
+                OnFragmentStateChanged();
             }
         }
 
-        private (long Value, byte Precision, string ChainCurrency)? _userBalance;
-        private (long Value, byte Precision, string ChainCurrency)? UserBalance
+        private BalanceModel _userBalance;
+        private BalanceModel UserBalance
         {
             get => _userBalance;
             set
             {
                 _userBalance = value;
-                if (_userBalance.HasValue)
-                    _balance.Text = $"{_userBalance.Value.Value.ToFormattedCurrencyString(_userBalance.Value.Precision, _pickedCoin.ToString(), ".")}";
+                OnUserBalanceChanged();
             }
         }
 
@@ -142,31 +110,7 @@ namespace Steepshot.Fragment
             set
             {
                 _recipient = value;
-                if (_recipient != null)
-                {
-                    if (!string.IsNullOrEmpty(_recipient.Avatar))
-                        Picasso.With(Activity)
-                            .Load(_recipient.Avatar.GetProxy(_recipientAvatar.LayoutParameters.Width, _recipientAvatar.LayoutParameters.Height))
-                            .Placeholder(Resource.Drawable.ic_holder)
-                            .NoFade()
-                            .Priority(Picasso.Priority.Normal)
-                            .Into(_recipientAvatar, null, () =>
-                            {
-                                Picasso.With(Activity)
-                                    .Load(_recipient.Avatar.GetProxy(_recipientAvatar.LayoutParameters.Width, _recipientAvatar.LayoutParameters.Height))
-                                    .Placeholder(Resource.Drawable.ic_holder)
-                                    .NoFade()
-                                    .Priority(Picasso.Priority.Normal)
-                                    .Into(_recipientAvatar);
-                            });
-                    else
-                        Picasso.With(Activity).Load(Resource.Drawable.ic_holder).Into(_recipientAvatar);
-                    _recipientAvatar.Visibility = ViewStates.Visible;
-                }
-                else
-                {
-                    _recipientAvatar.Visibility = ViewStates.Gone;
-                }
+                OnRecipientChanged();
             }
         }
 
@@ -326,6 +270,77 @@ namespace Steepshot.Fragment
                 Recipient = Recipient ?? _transferFacade.UserFriendPresenter.FirstOrDefault(recipient => recipient.Author.Equals(_recipientSearch.Text));
         }
 
+        private void OnFragmentStateChanged()
+        {
+            _transferBtn.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Transfer);
+            _transferLoader.Visibility = ViewStates.Gone;
+            EditEnabled = true;
+            switch (_state)
+            {
+                case FragmentState.Search:
+                    _recipientSearchList.Visibility = ViewStates.Visible;
+                    _transferDetailsContainer.Visibility = ViewStates.Gone;
+                    _recipient = null;
+                    _recipientAvatar.Visibility = ViewStates.Gone;
+                    break;
+                case FragmentState.TransferPrepare:
+                    _recipientSearchList.Visibility = ViewStates.Gone;
+                    _transferDetailsContainer.Visibility = ViewStates.Visible;
+                    Recipient = Recipient ?? _transferFacade.UserFriendPresenter.FirstOrDefault(recipient => recipient.Author.Equals(_recipientSearch.Text));
+                    break;
+                case FragmentState.Comment:
+                    _recipientSearchList.Visibility = ViewStates.Gone;
+                    _transferDetailsScroll.FullScroll(FocusSearchDirection.Down);
+                    break;
+                case FragmentState.Transfer:
+                    _transferBtn.Text = string.Empty;
+                    _transferLoader.Visibility = ViewStates.Visible;
+                    _recipientSearchList.Visibility = ViewStates.Gone;
+                    _transferDetailsContainer.Visibility = ViewStates.Visible;
+                    EditEnabled = false;
+                    break;
+                case FragmentState.Cancel:
+                    if (IsKeyboardOpening)
+                        ((BaseActivity)Activity).HideKeyboard();
+                    break;
+            }
+        }
+
+        private void OnUserBalanceChanged()
+        {
+            if (_userBalance != null)
+                _balance.Text = $"{_userBalance.Value.ToFormattedCurrencyString(_userBalance.Precision, _pickedCoin.ToString(), ".")}";
+        }
+
+        private void OnRecipientChanged()
+        {
+            if (_recipient != null)
+            {
+                if (!string.IsNullOrEmpty(_recipient.Avatar))
+                    Picasso.With(Activity)
+                        .Load(_recipient.Avatar.GetProxy(_recipientAvatar.LayoutParameters.Width, _recipientAvatar.LayoutParameters.Height))
+                        .Placeholder(Resource.Drawable.ic_holder)
+                        .NoFade()
+                        .Priority(Picasso.Priority.Normal)
+                        .Into(_recipientAvatar, null, () =>
+                        {
+                            Picasso.With(Activity)
+                                .Load(_recipient.Avatar.GetProxy(_recipientAvatar.LayoutParameters.Width, _recipientAvatar.LayoutParameters.Height))
+                                .Placeholder(Resource.Drawable.ic_holder)
+                                .NoFade()
+                                .Priority(Picasso.Priority.Normal)
+                                .Into(_recipientAvatar);
+                        });
+                else
+                    Picasso.With(Activity).Load(Resource.Drawable.ic_holder).Into(_recipientAvatar);
+                _recipientAvatar.Visibility = ViewStates.Visible;
+            }
+            else
+            {
+                _recipientAvatar.Visibility = ViewStates.Gone;
+            }
+        }
+
         private void RecipientSearchOnFocusChange(object sender, View.FocusChangeEventArgs e)
         {
             if (e.HasFocus)
@@ -450,22 +465,22 @@ namespace Steepshot.Fragment
 
         private async Task<bool> Validate()
         {
-            if (_recipient == null)
+            if (Recipient == null)
             {
                 Toast.MakeText(Activity, AppSettings.LocalizationManager.GetText(LocalizationKeys.WrongRecipientName), ToastLength.Short).Show();
                 return false;
             }
 
-            if (!UserBalance.HasValue)
+            if (UserBalance == null)
             {
                 await _transferFacade.TryGetAccountInfo(AppSettings.User.Login);
                 return await Validate();
             }
 
             var transferAmount = (long)(double.Parse(_transferAmountEdit.Text, CultureInfo.InvariantCulture) *
-                                 Math.Pow(10, UserBalance.Value.Precision));
+                                 Math.Pow(10, UserBalance.Precision));
 
-            if (transferAmount == 0 || transferAmount > UserBalance.Value.Value)
+            if (transferAmount == 0 || transferAmount > UserBalance.Value)
             {
                 Toast.MakeText(Activity, AppSettings.LocalizationManager.GetText(LocalizationKeys.WrongTransferAmount), ToastLength.Short).Show();
                 return false;
@@ -496,10 +511,10 @@ namespace Steepshot.Fragment
 
         private async void Transfer()
         {
-            if (!UserBalance.HasValue)
+            if (UserBalance == null)
                 return;
 
-            var transferResponse = await Presenter.TryTransfer(Recipient.Author, double.Parse(_transferAmountEdit.Text, CultureInfo.InvariantCulture), _pickedCoin, UserBalance.Value.ChainCurrency, _transferCommentEdit.Text);
+            var transferResponse = await Presenter.TryTransfer(Recipient.Author, double.Parse(_transferAmountEdit.Text, CultureInfo.InvariantCulture), _pickedCoin, UserBalance.ChainCurrency, _transferCommentEdit.Text);
             if (transferResponse.IsSuccess)
             {
                 Toast.MakeText(Activity, AppSettings.LocalizationManager.GetText(LocalizationKeys.TransferSuccess), ToastLength.Short).Show();
