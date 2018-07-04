@@ -162,6 +162,11 @@
         Use,
         Close,
         VotingPowerSetting,
-        InsufficientBalance
+        InsufficientBalance,
+        SteemitAccount,
+        GolosAccount,
+        Connect,
+        Logout,
+        SwitchTo
     }
 }
