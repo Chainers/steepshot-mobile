@@ -395,9 +395,21 @@ namespace Steepshot.Core.HttpClient
                     Metadata = JsonConverter.Deserialize<AccountMetadata>(acc.JsonMetadata)
                 };
 
-                var balances = result.Result.Balances = new Dictionary<CurrencyType, (long Value, byte precision, string ChainCurrency)>();
-                balances.Add(CurrencyType.Steem, (acc.Balance.Value, acc.Balance.Precision, acc.Balance.Currency));
-                balances.Add(CurrencyType.Sbd, (acc.SbdBalance.Value, acc.Balance.Precision, acc.SbdBalance.Currency));
+                result.Result.Balances = new Dictionary<CurrencyType, BalanceModel>
+                {
+                    {CurrencyType.Steem, new BalanceModel
+                    {
+                        Value = acc.Balance.Value,
+                        Precision = acc.Balance.Precision,
+                        ChainCurrency = acc.Balance.Currency
+                    } },
+                    {CurrencyType.Sbd, new BalanceModel
+                    {
+                        Value = acc.SbdBalance.Value,
+                        Precision = acc.SbdBalance.Precision,
+                        ChainCurrency = acc.SbdBalance.Currency
+                    } }
+                };
 
                 return result;
 
