@@ -3,7 +3,6 @@ using Autofac;
 using Foundation;
 using MessageUI;
 using PureLayout.Net;
-using Steepshot.Core.Authority;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Services;
@@ -15,6 +14,7 @@ using UIKit;
 using Constants = Steepshot.iOS.Helpers.Constants;
 using Steepshot.Core.Localization;
 using Com.OneSignal;
+using Steepshot.Core.Authorization;
 
 namespace Steepshot.iOS.Views
 {

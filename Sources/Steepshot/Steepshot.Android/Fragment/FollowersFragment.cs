@@ -117,7 +117,7 @@ namespace Steepshot.Fragment
         {
             if (userFriend == null)
                 return;
-            if (AppSettings.User.IsAuthenticated)
+            if (AppSettings.User.HasPostingPermission)
             {
                 var error = await Presenter.TryFollow(userFriend);
                 if (!IsInitialized)

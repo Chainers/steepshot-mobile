@@ -154,7 +154,7 @@ namespace Steepshot.Core.HttpClient
             var endpoint = $"{BaseUrl}/{GatewayVersion.V1P1}/user/{model.Username}/info";
             return await Gateway.Get<UserProfileResponse>(endpoint, parameters, token);
         }
-
+        
         public async Task<OperationResult<ListResponse<UserFriend>>> GetUserFriends(UserFriendsModel model, CancellationToken token)
         {
             if (!EnableRead)

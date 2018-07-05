@@ -1,16 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Cryptography.ECDSA;
 using Ditch.Core.Errors;
 using Ditch.Core.JsonRpc;
-using Newtonsoft.Json;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Serializing;
 using Newtonsoft.Json.Linq;
 using Steepshot.Core.Errors;
+using Steepshot.Core.Models.Responses;
 
 namespace Steepshot.Core.HttpClient
 {
@@ -39,26 +40,39 @@ namespace Steepshot.Core.HttpClient
 
         public abstract Task<OperationResult<VoidResponse>> Follow(FollowModel model, CancellationToken ct);
 
-        public abstract Task<OperationResult<VoidResponse>> LoginWithPostingKey(AuthorizedModel model, CancellationToken ct);
+        public abstract Task<OperationResult<VoidResponse>> ValidatePrivateKey(ValidatePrivateKeyModel model, CancellationToken ct);
 
         public abstract Task<OperationResult<VoidResponse>> CreateOrEdit(CommentModel model, CancellationToken ct);
 
-        public abstract Task<OperationResult<object>> GetVerifyTransaction(AuthorizedModel model, CancellationToken ct);
+        public abstract Task<OperationResult<object>> GetVerifyTransaction(AuthorizedPostingModel model, CancellationToken ct);
 
         public abstract Task<OperationResult<VoidResponse>> Delete(DeleteModel model, CancellationToken ct);
 
         public abstract Task<OperationResult<VoidResponse>> UpdateUserProfile(UpdateUserProfileModel model, CancellationToken ct);
 
-        public abstract bool TryReconnectChain(CancellationToken token);
+        public abstract Task<OperationResult<VoidResponse>> Transfer(TransferModel model, CancellationToken ct);
 
+        public abstract Task<OperationResult<AccountInfoResponse>> GetAccountInfo(string userName, CancellationToken ct);
+
+        public abstract bool TryReconnectChain(CancellationToken token);
+        
         protected List<byte[]> ToKeyArr(string postingKey)
+        {
+            var key = ToKey(postingKey);
+            if (key == null)
+                return null;
+
+            return new List<byte[]> { key };
+        }
+
+        protected byte[] ToKey(string postingKey)
         {
             try
             {
                 var key = Ditch.Core.Base58.DecodePrivateWif(postingKey);
                 if (key == null || key.Length != 32)
                     return null;
-                return new List<byte[]> { key };
+                return key;
             }
             catch (Exception)
             {
@@ -86,7 +100,7 @@ namespace Steepshot.Core.HttpClient
                 }
             }
         }
-        
+
         protected string UpdateProfileJson(string jsonMetadata, UpdateUserProfileModel model)
         {
             var meta = string.IsNullOrEmpty(jsonMetadata) ? "{}" : jsonMetadata;

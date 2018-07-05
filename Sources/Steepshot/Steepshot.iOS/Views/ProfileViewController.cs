@@ -112,7 +112,7 @@ namespace Steepshot.iOS.Views
                 ((MainTabBarController)TabBarController).SameTabTapped += SameTabTapped;
             SetBackButton();
 
-            if (Username == AppSettings.User.Login && AppSettings.User.IsAuthenticated)
+            if (Username == AppSettings.User.Login && AppSettings.User.HasPostingPermission)
                 SetVotePowerView();
             GetUserInfo();
             GetPosts();
@@ -212,6 +212,14 @@ namespace Steepshot.iOS.Views
                 var myViewController = new FollowViewController(FriendsType.Followers, _userData);
                 NavigationController.PushViewController(myViewController, true);
             };
+
+            var balanceTap = new UITapGestureRecognizer(() =>
+            {
+                NavigationController.PushViewController(new WalletViewController(), true);
+            });
+
+            _profileHeader.Balance.UserInteractionEnabled = true;
+            _profileHeader.Balance.AddGestureRecognizer(balanceTap);
 
             var avatarTap = new UITapGestureRecognizer(() =>
             {
@@ -356,19 +364,8 @@ namespace Steepshot.iOS.Views
                         _profileHeader.DescriptionLabel.Text = _userData.About;
                     }
 
-                    if (!string.IsNullOrEmpty(_userData.ProfileImage.GetProxy(300, 300)))
-                        ImageService.Instance.LoadUrl(_userData.ProfileImage, TimeSpan.FromDays(30))
-                                             .FadeAnimation(false, false, 0)
-                                             .LoadingPlaceholder("ic_noavatar.png")
-                                             .ErrorPlaceholder("ic_noavatar.png").Error((f) =>
-                    {
-                        ImageService.Instance.LoadUrl(_userData.ProfileImage, TimeSpan.FromDays(30))
-                                             .FadeAnimation(false, false, 0)
-                                             .LoadingPlaceholder("ic_noavatar.png")
-                                             .ErrorPlaceholder("ic_noavatar.png")
-                                             .DownSample(width: (int)300)
-                                             .Into(_profileHeader.Avatar);
-                    }).Into(_profileHeader.Avatar);
+                    if (!string.IsNullOrEmpty(_userData.ProfileImage))
+                        ImageLoader.Load(_userData.ProfileImage, _profileHeader.Avatar, size: new CGSize(300, 300));
                     else
                         _profileHeader.Avatar.Image = UIImage.FromBundle("ic_noavatar");
 

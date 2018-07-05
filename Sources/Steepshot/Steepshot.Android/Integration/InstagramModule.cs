@@ -1,7 +1,7 @@
 ﻿using System;
 using Android.Content;
 using Newtonsoft.Json;
-using Steepshot.Core.Authority;
+using Steepshot.Core.Authorization;
 using Steepshot.Core.HttpClient;
 using Steepshot.Core.Utils;
 using Xamarin.Auth;
@@ -43,7 +43,7 @@ namespace Steepshot.Integration
             if (args.IsAuthenticated)
             {
                 var opt = GetOptionsOrDefault<ModuleOptionsModel>(AppId);
-                
+
                 if (args.Account.Properties.ContainsKey(AccessTokenKeyName))
                     opt.AccessToken = args.Account.Properties[AccessTokenKeyName];
 

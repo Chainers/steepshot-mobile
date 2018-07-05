@@ -5,17 +5,21 @@
     android:layout_height="match_parent"
     android:divider="@drawable/settings_separator"
     android:showDividers="middle"
+    android:paddingLeft="30dp"
+    android:paddingRight="30dp"
     android:layout_marginTop="10dp"
-    android:layout_marginBottom="10dp">
+    android:background="@color/white">
     <TextView
         android:id="@+id/header_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textColor="@color/black"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="20dp"
         android:textSize="20sp" />
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="59dp">
+        android:layout_height="80dp">
         <TextView
             android:id="@+id/post_upvotes"
             android:layout_width="wrap_content"
@@ -33,7 +37,7 @@
     </RelativeLayout>
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="59dp">
+        android:layout_height="80dp">
         <TextView
             android:id="@+id/comments_upvotes"
             android:layout_width="wrap_content"
@@ -51,7 +55,7 @@
     </RelativeLayout>
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="59dp">
+        android:layout_height="80dp">
         <TextView
             android:id="@+id/following"
             android:layout_width="wrap_content"
@@ -69,7 +73,7 @@
     </RelativeLayout>
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="59dp">
+        android:layout_height="80dp">
         <TextView
             android:id="@+id/comments"
             android:layout_width="wrap_content"
@@ -87,7 +91,7 @@
     </RelativeLayout>
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="59dp">
+        android:layout_height="80dp">
         <TextView
             android:id="@+id/posting"
             android:layout_width="wrap_content"

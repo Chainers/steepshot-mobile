@@ -4,7 +4,6 @@ using System.Configuration;
 using System.IO;
 using Autofac;
 using NUnit.Framework;
-using Steepshot.Core.Authority;
 using Steepshot.Core.HttpClient;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Services;
@@ -12,6 +11,7 @@ using Steepshot.Core.Tests.Stubs;
 using Steepshot.Core.Utils;
 using System.ComponentModel.DataAnnotations;
 using Newtonsoft.Json;
+using Steepshot.Core.Authorization;
 using Steepshot.Core.Localization;
 
 namespace Steepshot.Core.Tests

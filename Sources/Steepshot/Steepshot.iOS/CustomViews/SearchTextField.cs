@@ -69,6 +69,7 @@ namespace Steepshot.iOS.CustomViews
             BackgroundColor = Constants.R245G245B245;
             Font = Constants.Regular14;
             Layer.CornerRadius = 20;
+            TintColor = Constants.R255G71B5;
 
             Delegate = new TagFieldDelegate(returnButtonTapped);
             EditingChanged += DoEditingChanged;

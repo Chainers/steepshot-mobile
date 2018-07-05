@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using Autofac;
 using Com.OneSignal;
 using Foundation;
-using Steepshot.Core.Authority;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Extensions;
@@ -16,6 +15,7 @@ using Steepshot.iOS.Views;
 using UIKit;
 using Steepshot.Core.HttpClient;
 using System.Collections.Generic;
+using Steepshot.Core.Authorization;
 
 namespace Steepshot.iOS
 {
@@ -71,7 +71,7 @@ namespace Steepshot.iOS
             }
 
             Window = new CustomWindow();
-            if (AppSettings.User.IsAuthenticated)
+            if (AppSettings.User.HasPostingPermission)
                 InitialViewController = new MainTabBarController();
             else
                 InitialViewController = new PreSearchViewController();
@@ -102,7 +102,7 @@ namespace Steepshot.iOS
         public override bool OpenUrl(UIApplication app, NSUrl url, NSDictionary options)
         {
             var tabController = Window.RootViewController as UINavigationController;
-            if (AppSettings.User.IsAuthenticated)
+            if (AppSettings.User.HasPostingPermission)
             {
                 var urlCollection = url.ToString().Replace("steepshot://", string.Empty);
                 var nsFileManager = new NSFileManager();

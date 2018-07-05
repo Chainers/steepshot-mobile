@@ -5,7 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Ditch.Core.JsonRpc;
 using Newtonsoft.Json;
-using Steepshot.Core.Authority;
+using Steepshot.Core.Authorization;
 using Steepshot.Core.Errors;
 using Steepshot.Core.HttpClient;
 using Steepshot.Core.Localization;
