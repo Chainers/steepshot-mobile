@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using Ditch.Core.JsonRpc;
 using Steepshot.Core.Models.Common;
@@ -21,8 +20,8 @@ namespace Steepshot.Core.Presenters
                 AppSettings.User.Login,
                 AppSettings.User.ActiveKey,
                 transferData.Recipient,
-                (long)(transferData.Type == CurrencyType.Sbd ? transferData.Amount * 10000000 : transferData.Amount * 1000),
-                (byte)(transferData.Type == CurrencyType.Sbd ? 6 : 3),
+                (long)(transferData.Amount * 1000),
+                3,
                 transferData.Type,
                 transferData.ChainCurrency);
 

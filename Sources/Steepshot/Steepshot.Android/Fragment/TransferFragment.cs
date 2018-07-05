@@ -253,6 +253,7 @@ namespace Steepshot.Fragment
         private void OnFragmentStateChanged()
         {
             _transferBtn.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Transfer);
+            _emptyQueryLabel.Visibility = ViewStates.Gone;
             _transferLoader.Visibility = ViewStates.Gone;
             EditEnabled = true;
             switch (_state)
@@ -266,7 +267,7 @@ namespace Steepshot.Fragment
                 case FragmentState.TransferPrepare:
                     _recipientSearchList.Visibility = ViewStates.Gone;
                     _transferDetailsContainer.Visibility = ViewStates.Visible;
-                    _transferFacade.Recipient = _transferFacade.Recipient ?? _transferFacade.UserFriendPresenter.FirstOrDefault(recipient => recipient.Author.Equals(_recipientSearch.Text));
+                    _transferFacade.Recipient = _transferFacade.Recipient ?? _transferFacade.UserFriendPresenter.FirstOrDefault(recipient => recipient.Author.Equals(_recipientSearch.Text, StringComparison.OrdinalIgnoreCase));
                     break;
                 case FragmentState.Comment:
                     _recipientSearchList.Visibility = ViewStates.Gone;
@@ -315,7 +316,8 @@ namespace Steepshot.Fragment
                     Picasso.With(Activity).Load(Resource.Drawable.ic_holder).Into(_recipientAvatar);
                 _recipientAvatar.Visibility = ViewStates.Visible;
 
-                Activity.RunOnUiThread(() => {
+                Activity.RunOnUiThread(() =>
+                {
                     _recipientSearch.Text = _transferFacade.Recipient.Author;
                 });
             }
@@ -353,7 +355,10 @@ namespace Steepshot.Fragment
 
         private void RecipientSearchOnKeyPress(object sender, View.KeyEventArgs e)
         {
-            _transferBtn.RequestFocus();
+            if (e.KeyCode != Keycode.Del)
+                _transferBtn.RequestFocus();
+            else
+                _recipientSearch.OnKeyDown(e.KeyCode, e.Event);
         }
 
         private void RecipientSearchClearOnClick(object sender, EventArgs e)
@@ -397,7 +402,17 @@ namespace Steepshot.Fragment
             _pickedCoin = pickedCoin;
             _transferCoinName.Text = _pickedCoin.ToString();
             _transferFacade.UserBalance = AppSettings.User.AccountInfo?.Balances?[_pickedCoin];
-            _transferAmountEdit.SetFilters(new IInputFilter[] { new TransferAmountFilter(20, 3) });
+            switch (pickedCoin)
+            {
+                case CurrencyType.Steem:
+                case CurrencyType.Golos:
+                    _transferAmountEdit.SetFilters(new IInputFilter[] { new TransferAmountFilter(20, 3) });
+                    break;
+                case CurrencyType.Sbd:
+                case CurrencyType.Gbg:
+                    _transferAmountEdit.SetFilters(new IInputFilter[] { new TransferAmountFilter(20, 6) });
+                    break;
+            }
         }
 
         private void RecipientSelected(UserFriend recipient)

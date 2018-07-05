@@ -202,7 +202,7 @@
         "RecipientNameHint":"Search",
         "TransferAmount":"Transfer amount",
         "TransferAmountHint":"0",
-        "TransferComment":"Comment",
+        "TransferComment":"+ Add comment",
         "TranferCommentHint":"Enter comment", 
 		"WrongRecipientName":"Check recipient name",
         "WrongTransferAmount":"Check transfer amount",
