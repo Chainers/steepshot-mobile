@@ -73,7 +73,7 @@ namespace Steepshot.iOS.Views
 
         public void DecorateFollowButton(bool? hasFollowed, string currentUsername)
         {
-            if (!AppSettings.User.IsAuthenticated || currentUsername == AppSettings.User.Login)
+            if (!AppSettings.User.HasPostingPermission || currentUsername == AppSettings.User.Login)
             {
                 followButton.Hidden = true;
                 return;

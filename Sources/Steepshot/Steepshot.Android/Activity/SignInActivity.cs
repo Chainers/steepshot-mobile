@@ -1,160 +1,40 @@
 ﻿using System;
-using System.Linq;
 using Android.App;
 using Android.Content;
 using Android.Content.PM;
-using Android.Graphics;
-using Android.Graphics.Drawables;
 using Android.OS;
-using Android.Runtime;
-using Android.Support.V4.Content;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
-using CheeseBind;
-using Cryptography.ECDSA;
 using Newtonsoft.Json;
-using Refractored.Controls;
-using Square.Picasso;
 using Steepshot.Base;
-using Steepshot.Core;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 using Steepshot.Utils;
-using ZXing.Mobile;
 
 namespace Steepshot.Activity
 {
-    [Activity(ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait)]
-    public sealed class SignInActivity : BaseActivity, ITarget
+    [Activity(ScreenOrientation = ScreenOrientation.Portrait)]
+    public sealed class SignInActivity : BaseSignInActivity
     {
         public const string LoginExtraPath = "login";
         public const string AccountInfoResponseExtraPath = "account_info_response";
 
-        private MobileBarcodeScanner _scanner;
-        private string _username;
-        private string _profileImageUrl;
-        private AccountInfoResponse _accountInfoResponse;
-
-#pragma warning disable 0649, 4014
-        [BindView(Resource.Id.profile_image)] private CircleImageView _profileImage;
-        [BindView(Resource.Id.loading_spinner)] private ProgressBar _spinner;
-        [BindView(Resource.Id.input_password)] private EditText _password;
-        [BindView(Resource.Id.qr_button)] private Button _buttonScanDefaultView;
-        [BindView(Resource.Id.sign_in_btn)] private AppCompatButton _signInBtn;
-        [BindView(Resource.Id.profile_login)] private TextView _viewTitle;
-        [BindView(Resource.Id.btn_switcher)] private ImageButton _switcher;
-        [BindView(Resource.Id.btn_settings)] private ImageButton _settings;
-        [BindView(Resource.Id.btn_back)] private ImageButton _backButton;
-        [BindView(Resource.Id.root_layout)] private RelativeLayout _rootLayout;
-#pragma warning restore 0649
-
         protected override void OnCreate(Bundle savedInstanceState)
         {
+            Username = Intent.GetStringExtra(LoginExtraPath);
+            AccountInfoResponse = JsonConvert.DeserializeObject<AccountInfoResponse>(Intent.GetStringExtra(AccountInfoResponseExtraPath));
+            ProfileImageUrl = AccountInfoResponse.Metadata?.Profile?.ProfileImage;
             base.OnCreate(savedInstanceState);
-            SetContentView(Resource.Layout.lyt_sign_in);
-            Cheeseknife.Bind(this);
-
-            MobileBarcodeScanner.Initialize(Application);
-            _scanner = new MobileBarcodeScanner();
-            _username = Intent.GetStringExtra(LoginExtraPath);
-            _accountInfoResponse = JsonConvert.DeserializeObject<AccountInfoResponse>(Intent.GetStringExtra(AccountInfoResponseExtraPath));
-            _profileImageUrl = _accountInfoResponse.Metadata?.Profile?.ProfileImage;
-
-            _backButton.Visibility = ViewStates.Visible;
-            _backButton.Click += GoBack;
-            _switcher.Visibility = ViewStates.Gone;
-            _settings.Visibility = ViewStates.Gone;
-            _viewTitle.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PasswordViewTitleText);
-            _signInBtn.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.SignIn);
-            _buttonScanDefaultView.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.ScanQRCode);
-
-            _viewTitle.Typeface = Style.Semibold;
-            _password.Typeface = Style.Semibold;
-            _signInBtn.Typeface = Style.Semibold;
-            _buttonScanDefaultView.Typeface = Style.Semibold;
-#if DEBUG
-            var di = AppSettings.AssetHelper.GetDebugInfo();
-            _password.Text = BasePresenter.Chain == KnownChains.Golos
-                ? di.GolosTestWif
-                : di.SteemTestWif;
-#endif
-            if (!string.IsNullOrEmpty(_profileImageUrl))
-                Picasso.With(this).Load(_profileImageUrl)
-                       .Placeholder(Resource.Drawable.ic_holder)
-                       .NoFade()
-                       .Resize(300, 0)
-                       .Priority(Picasso.Priority.Normal)
-                       .Into(_profileImage, OnSuccess, OnError);
-
-            _buttonScanDefaultView.Click += OnButtonScanDefaultViewOnClick;
-            _signInBtn.Click += SignInBtn_Click;
-            _rootLayout.Click += HideKeyboard;
         }
 
-        protected override void OnDestroy()
-        {
-            base.OnDestroy();
-            Cheeseknife.Reset(this);
-        }
-
-        public override void OnRequestPermissionsResult(int requestCode, string[] permissions, [GeneratedEnum] Permission[] grantResults)
-        {
-            if (requestCode == CommonPermissionsRequestCode && !grantResults.Any(x => x != Permission.Granted))
-                ScanQR();
-            base.OnRequestPermissionsResult(requestCode, permissions, grantResults);
-        }
-
-        private async void ScanQR()
-        {
-            try
-            {
-                //Tell our scanner to use the default overlay
-                _scanner.UseCustomOverlay = false;
-
-                //We can customize the top and bottom text of the default overlay
-                _scanner.TopText = AppSettings.LocalizationManager.GetText(LocalizationKeys.CameraHoldUp);
-                _scanner.BottomText = AppSettings.LocalizationManager.GetText(LocalizationKeys.WaitforScan);
-
-                //Start scanning
-                var result = await _scanner.Scan();
-
-                if (IsFinishing || IsDestroyed)
-                    return;
-
-                if (result != null)
-                {
-                    _password.Text = result.Text;
-                    SignInBtn_Click(_signInBtn, null);
-                }
-            }
-            catch (Exception ex)
-            {
-                AppSettings.Reporter.SendCrash(ex);
-                this.ShowAlert(LocalizationKeys.UnknownError, ToastLength.Short);
-            }
-        }
-
-        private void OnButtonScanDefaultViewOnClick(object sender, EventArgs e)
-        {
-            if (!RequestPermissions(CommonPermissionsRequestCode,
-                Android.Manifest.Permission.Camera,
-                Android.Manifest.Permission.WriteExternalStorage))
-                ScanQR();
-        }
-
-        private void GoBack(object sender, EventArgs e)
-        {
-            OnBackPressed();
-        }
-
-        private async void SignInBtn_Click(object sender, EventArgs e)
+        protected override void SignIn(object sender, EventArgs e)
         {
             var appCompatButton = (AppCompatButton)sender;
 
-            var login = _username;
+            var login = Username;
             var pass = _password?.Text;
 
             if (string.IsNullOrEmpty(login))
@@ -173,10 +53,10 @@ namespace Steepshot.Activity
             appCompatButton.Text = string.Empty;
             appCompatButton.Enabled = false;
 
-            var isvalid = KeyHelper.ValidatePrivateKey(pass, _accountInfoResponse.PublicPostingKeys);
+            var isvalid = KeyHelper.ValidatePrivateKey(pass, AccountInfoResponse.PublicPostingKeys);
             if (isvalid)
             {
-                AppSettings.User.AddAndSwitchUser(login, pass, BasePresenter.Chain);
+                AppSettings.User.AddAndSwitchUser(login, pass, AccountInfoResponse, BasePresenter.Chain);
                 var intent = new Intent(this, typeof(RootActivity));
                 intent.AddFlags(ActivityFlags.NewTask | ActivityFlags.ClearTask);
                 StartActivity(intent);
@@ -189,33 +69,6 @@ namespace Steepshot.Activity
             appCompatButton.Enabled = true;
             appCompatButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.EnterAccountText);
             _spinner.Visibility = ViewStates.Invisible;
-        }
-
-        private void HideKeyboard(object sender, EventArgs e)
-        {
-            HideKeyboard();
-        }
-
-        private void OnSuccess()
-        {
-        }
-
-        private void OnError()
-        {
-            Picasso.With(this).Load(_profileImageUrl).NoFade().Into(this);
-        }
-
-        public void OnBitmapFailed(Drawable p0)
-        {
-        }
-
-        public void OnBitmapLoaded(Bitmap p0, Picasso.LoadedFrom p1)
-        {
-            _profileImage?.SetImageBitmap(p0);
-        }
-
-        public void OnPrepareLoad(Drawable p0)
-        {
         }
     }
 }

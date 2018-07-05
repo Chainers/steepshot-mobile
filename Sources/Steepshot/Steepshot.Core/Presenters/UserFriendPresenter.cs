@@ -11,7 +11,7 @@ using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Presenters
 {
-    public sealed class UserFriendPresenter : ListPresenter<UserFriend>, IDisposable
+    public class UserFriendPresenter : ListPresenter<UserFriend>, IDisposable
     {
         private const int ItemsLimit = 40;
         public FriendsType? FollowType { get; set; }
@@ -123,6 +123,9 @@ namespace Steepshot.Core.Presenters
 
         private async Task<ErrorBase> LoadNextSearchUser(string query, CancellationToken ct)
         {
+            if (string.IsNullOrEmpty(query) || query.Length <= 2)
+                return new ValidationError();
+
             var request = new SearchWithQueryModel(query)
             {
                 Limit = ItemsLimit,
@@ -185,7 +188,7 @@ namespace Steepshot.Core.Presenters
             }
             base.Clear(isNotify);
         }
-        
+
         #region IDisposable Support
         private bool _disposedValue = false; // To detect redundant calls
 

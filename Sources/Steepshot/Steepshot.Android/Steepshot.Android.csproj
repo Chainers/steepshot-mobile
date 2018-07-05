@@ -1,4 +1,5 @@
-﻿<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="..\packages\Xamarin.Build.Download.0.4.11\build\Xamarin.Build.Download.props" Condition="Exists('..\packages\Xamarin.Build.Download.0.4.11\build\Xamarin.Build.Download.props')" />
   <Import Project="..\packages\Xamarin.Build.Download.0.4.2\build\Xamarin.Build.Download.props" Condition="Exists('..\packages\Xamarin.Build.Download.0.4.2\build\Xamarin.Build.Download.props')" />
   <PropertyGroup>
@@ -17,8 +18,10 @@
     <MonoAndroidResourcePrefix>Resources</MonoAndroidResourcePrefix>
     <MonoAndroidAssetsPrefix>Assets</MonoAndroidAssetsPrefix>
     <AndroidUseLatestPlatformSdk>true</AndroidUseLatestPlatformSdk>
-    <AndroidTlsProvider></AndroidTlsProvider>
-    <NuGetPackageImportStamp></NuGetPackageImportStamp>
+    <AndroidTlsProvider>
+    </AndroidTlsProvider>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
     <AndroidSupportedAbis>armeabi;armeabi-v7a;x86;arm64-v8a</AndroidSupportedAbis>
     <AndroidUseSharedRuntime>false</AndroidUseSharedRuntime>
   </PropertyGroup>
@@ -48,7 +51,8 @@
     <AndroidManagedSymbols>true</AndroidManagedSymbols>
     <EmbedAssembliesIntoApk>True</EmbedAssembliesIntoApk>
     <Debugger>Xamarin</Debugger>
-    <JavaMaximumHeapSize></JavaMaximumHeapSize>
+    <JavaMaximumHeapSize>
+    </JavaMaximumHeapSize>
     <AndroidHttpClientHandlerType>Xamarin.Android.Net.AndroidClientHandler</AndroidHttpClientHandlerType>
     <AndroidTlsProvider>btls</AndroidTlsProvider>
     <AndroidLinkMode>SdkOnly</AndroidLinkMode>
@@ -62,14 +66,19 @@
     <OutputPath>bin\x86\Release\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Activity\ActiveSignInActivity.cs" />
+    <Compile Include="Adapter\RecipientsAdapter.cs" />
     <Compile Include="Base\App.cs" />
+    <Compile Include="Base\BaseSignInActivity.cs" />
     <Compile Include="CustomViews\AccurateMovementMethod.cs" />
     <Compile Include="CustomViews\AutoLinkTextView.cs" />
+    <Compile Include="CustomViews\CoinPickDialog.cs" />
     <Compile Include="CustomViews\ExpandableTextView.cs" />
     <Compile Include="CustomViews\MediaPager.cs" />
     <Compile Include="CustomViews\TouchableSpan.cs" />
     <Compile Include="Fragment\PostCreateFragment.cs" />
     <Compile Include="Fragment\PostPrepareBaseFragment.cs" />
+    <Compile Include="Fragment\TransferFragment.cs" />
     <Compile Include="Integration\InstagramModule.cs" />
     <Compile Include="Utils\TextInputFilter.cs" />
     <Compile Include="Utils\NotificationExtender.cs" />
@@ -92,6 +101,7 @@
     <Compile Include="Activity\GuestActivity.cs" />
     <Compile Include="Activity\RootActivity.cs" />
     <Compile Include="Activity\TestActivity.cs" />
+    <Compile Include="Activity\SettingsActivity.cs" />
     <Compile Include="Activity\SignInActivity.cs" />
     <Compile Include="Activity\SplashActivity.cs" />
     <Compile Include="Activity\PreSignInActivity.cs" />
@@ -151,9 +161,9 @@
     <Compile Include="Interfaces\IClearable.cs" />
     <Compile Include="Fragment\CommentsFragment.cs" />
     <Compile Include="Services\GAService.cs" />
+    <Compile Include="Utils\TransferAmountFilter.cs" />
     <Compile Include="Utils\ViewUtils.cs" />
     <Compile Include="Activity\WelcomeActivity.cs" />
-    <Compile Include="Activity\SettingsActivity.cs" />
     <Compile Include="Activity\RegistrationActivity.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -245,13 +255,11 @@
     <AndroidResource Include="Resources\drawable-xxhdpi\ic_blocktrade.png" />
     <AndroidResource Include="Resources\drawable-xxhdpi\ic_steem.png" />
     <AndroidResource Include="Resources\drawable-xxhdpi\ic_steemcreate.png" />
-    <AndroidResource Include="Resources\layout\lyt_account_popup.axml" />
-    <AndroidResource Include="Resources\drawable-mdpi\ic_golos.png" />
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_golos.png" />
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_golos.png" />
-    <AndroidResource Include="Resources\drawable-mdpi\ic_steemit.png" />
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_steemit.png" />
     <AndroidResource Include="Resources\drawable-xxhdpi\ic_steemit.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_golos.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_steemit.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_golos.png" />
+    <AndroidResource Include="Resources\layout\lyt_account_popup.axml" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\drawable\splash.xml" />
@@ -402,6 +410,9 @@
     </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=84e04ff9cfb79065, processorArchitecture=MSIL" />
+    <Reference Include="Naxam.WheelPicker, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Naxam.WheelPicker.1.1.2\lib\MonoAndroid10\Naxam.WheelPicker.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.11.0.2\lib\netstandard2.0\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -841,6 +852,47 @@
   </ItemGroup>
   <ItemGroup>
     <AndroidAsset Include="Assets\IntegrationModuleConfig.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\layout\lyt_transfer.axml">
+      <SubType>Designer</SubType>
+    </AndroidResource>
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\layout\lyt_coin_pick.axml">
+      <SubType>Designer</SubType>
+    </AndroidResource>
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable\multiline_edittext_borders.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable-mdpi\ic_arrows.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_arrows.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_arrows.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\layout\lyt_recipients_item.axml">
+      <SubType>Designer</SubType>
+    </AndroidResource>
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable-mdpi\ic_top_arrow.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_top_arrow.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_top_arrow.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\layout\lyt_transfer_top.axml">
+      <SubType>Designer</SubType>
+    </AndroidResource>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <Import Project="..\packages\Xamarin.Build.Download.0.4.2\build\Xamarin.Build.Download.targets" Condition="Exists('..\packages\Xamarin.Build.Download.0.4.2\build\Xamarin.Build.Download.targets')" />

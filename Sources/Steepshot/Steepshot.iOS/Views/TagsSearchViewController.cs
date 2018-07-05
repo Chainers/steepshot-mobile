@@ -230,7 +230,7 @@ namespace Steepshot.iOS.Views
                 }
             }
 
-            ShowAlert(error);
+            //ShowAlert(error);
             return true;
         }
 

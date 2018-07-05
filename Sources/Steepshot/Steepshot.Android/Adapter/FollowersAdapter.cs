@@ -16,10 +16,10 @@ using Steepshot.Core.Utils;
 
 namespace Steepshot.Adapter
 {
-    public sealed class FollowersAdapter : RecyclerView.Adapter
+    public class FollowersAdapter : RecyclerView.Adapter
     {
         private readonly Context _context;
-        private readonly ListPresenter<UserFriend> _presenter;
+        protected readonly ListPresenter<UserFriend> _presenter;
         public Action<UserFriend> FollowAction;
         public Action<UserFriend> UserAction;
 

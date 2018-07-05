@@ -18,15 +18,18 @@ namespace Steepshot.Core.Models.Requests
 
         public CurrencyType CurrencyType { get; set; }
 
+        public string ChainCurrency { get; set; }
+
         public string Memo { get; set; }
 
-        public TransferModel(string login, string activeKey, string recipient, long value, byte precussion, CurrencyType currencyType)
+        public TransferModel(string login, string activeKey, string recipient, long value, byte precussion, CurrencyType currencyType, string chainCurrency)
             : base(login, activeKey)
         {
             Recipient = recipient;
             Value = value;
             Precussion = precussion;
             CurrencyType = currencyType;
+            ChainCurrency = chainCurrency;
         }
     }
 }
