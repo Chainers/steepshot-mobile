@@ -90,13 +90,18 @@ namespace Steepshot.CustomViews
 
                 var thumbnail = MediaStore.Images.Thumbnails.GetThumbnail(Context.ContentResolver, model.Id, ThumbnailKind.MiniKind, null);
 
+                var matrix = new Matrix();
+                matrix.PostRotate(model.Orientation * 45);
+                var oriThumbnail = Bitmap.CreateBitmap(thumbnail, 0, 0, thumbnail.Width, thumbnail.Height, matrix, true);
+
                 if (token.IsCancellationRequested)
                 {
                     thumbnail.Recycle();
+                    oriThumbnail.Recycle();
                     return;
                 }
 
-                _handler.Post(() => SetImageBitmap(thumbnail));
+                _handler.Post(() => SetImageBitmap(oriThumbnail));
             }, token);
         }
 

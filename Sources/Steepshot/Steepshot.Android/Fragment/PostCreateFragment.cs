@@ -70,7 +70,7 @@ namespace Steepshot.Fragment
                     layoutParams.SetMargins(margin, 0, margin, margin);
                     _previewContainer.LayoutParameters = layoutParams;
 
-                    _preview.SetImagePath(_media[0].Path, _media[0].Parameters);
+                    _preview.SetImage(_media[0]);
                     _ratioBtn.Click += RatioBtnOnClick;
                     _rotateBtn.Click += RotateBtnOnClick;
                 }

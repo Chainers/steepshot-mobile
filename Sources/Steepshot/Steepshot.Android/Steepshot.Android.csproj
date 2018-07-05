@@ -66,6 +66,7 @@
     <OutputPath>bin\x86\Release\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Adapter\SpinnerAdapter.cs" />
     <Compile Include="Activity\ActiveSignInActivity.cs" />
     <Compile Include="Adapter\RecipientsAdapter.cs" />
     <Compile Include="Base\App.cs" />
@@ -854,6 +855,7 @@
     <AndroidAsset Include="Assets\IntegrationModuleConfig.txt" />
   </ItemGroup>
   <ItemGroup>
+    <AndroidResource Include="Resources\drawable\spinner_dropdown.xml" />
     <AndroidResource Include="Resources\layout\lyt_transfer.axml">
       <SubType>Designer</SubType>
     </AndroidResource>

@@ -39,7 +39,7 @@ namespace Steepshot.CustomViews
         private CropViewGrid _grid;
         private ImageParameters _drawableImageParameters;
 
-        private string _imageUri;
+        private GalleryMediaModel _media;
         private Drawable _drawable;
         private int _width;
         private int _height;
@@ -109,6 +109,8 @@ namespace Steepshot.CustomViews
                 _displayDrawableLeft = 0;
                 _displayDrawableTop = 0;
                 _drawableImageParameters = new ImageParameters();
+                if (_media != null)
+                    Rotation = _media.Orientation * 45;
             }
             else
             {
@@ -182,8 +184,7 @@ namespace Steepshot.CustomViews
 
         #endregion
 
-        #region Constructors
-
+        #region Constructors        
         public CropView(Context context) : base(context)
         {
             Initialize(context);
@@ -246,23 +247,23 @@ namespace Steepshot.CustomViews
             return true;
         }
 
-        public void SetImagePath(string path, ImageParameters parameters)
+        public void SetImage(GalleryMediaModel model)
         {
             _cancellationTokenSource?.Cancel();
             _cancellationTokenSource = new CancellationTokenSource();
 
-            _reloadImage = !path.Equals(_imageUri);
+            _reloadImage = model != _media;
 
             if (_reloadImage)
             {
-                _imageUri = path;
+                _media = model;
                 _drawable = null;
             }
 
-            var hasParameters = parameters != null;
+            var hasParameters = _media.Parameters != null;
 
             if (_useStrictBounds)
-                Configure(hasParameters ? ScaleType.Undefined : ScaleType.Bind, parameters?.Copy(), StrictRatio, StrictRatio, StrictRatio);
+                Configure(hasParameters ? ScaleType.Undefined : ScaleType.Bind, _media.Parameters?.Copy(), StrictRatio, StrictRatio, StrictRatio);
             else
                 Configure(hasParameters ? _currentScaleType : ScaleType.Square, null, MinimumRatio, MaximumRatio, DefaultRatio);
 
@@ -522,7 +523,7 @@ namespace Steepshot.CustomViews
                 if (Looper.MyLooper() == null)
                     Looper.Prepare();
 
-                using (var bitmap = BitmapUtils.DecodeSampledBitmapFromFile(Context, Uri.Parse(_imageUri), targetWidth, targetHeight))
+                using (var bitmap = BitmapUtils.DecodeSampledBitmapFromFile(Context, Uri.Parse(_media.Path), targetWidth, targetHeight))
                 {
                     var matrix = new Matrix();
                     matrix.PostRotate(angle);
