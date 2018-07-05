@@ -177,6 +177,11 @@
         TransferFail,
         Select,
         SelectToken,
-        ActiveKeyPrivacy
+        ActiveKeyPrivacy,
+        SteemitAccount,
+        GolosAccount,
+        Connect,
+        Logout,
+        SwitchTo,
     }
 }

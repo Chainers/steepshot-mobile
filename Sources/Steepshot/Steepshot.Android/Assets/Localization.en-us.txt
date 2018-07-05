@@ -228,6 +228,11 @@
         "RegisterThroughSteemCreate":"Sign up with SteemCreate",
         "Use":"Use",
         "Close":"Close",
+        "SteemitAccount":"Steemit account",
+        "GolosAccount":"Golos account",
+        "Connect":"Connect",
+        "Logout":"Log out",
+        "SwitchTo":"Switch to",
 
         "<h1>Server Error (500)</h1>": "(500) Server Error",
         "<h1>Not Found</h1>":"Not Found",

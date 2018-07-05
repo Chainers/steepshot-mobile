@@ -255,6 +255,11 @@
     <AndroidResource Include="Resources\drawable-xxhdpi\ic_blocktrade.png" />
     <AndroidResource Include="Resources\drawable-xxhdpi\ic_steem.png" />
     <AndroidResource Include="Resources\drawable-xxhdpi\ic_steemcreate.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_steemit.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_golos.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_steemit.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_golos.png" />
+    <AndroidResource Include="Resources\layout\lyt_account_popup.axml" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\drawable\splash.xml" />
