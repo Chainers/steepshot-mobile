@@ -183,5 +183,8 @@
         Connect,
         Logout,
         SwitchTo,
+        Recipient,
+        Amount,
+        Time
     }
 }

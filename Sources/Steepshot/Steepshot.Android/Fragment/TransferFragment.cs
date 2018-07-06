@@ -516,10 +516,13 @@ namespace Steepshot.Fragment
             if (_transferFacade.UserBalance == null)
                 return;
 
-            var transferResponse = await Presenter.TryTransfer(_transferFacade.Recipient.Author, double.Parse(_transferAmountEdit.Text, CultureInfo.InvariantCulture), _pickedCoin, _transferFacade.UserBalance.ChainCurrency, _transferCommentEdit.Text);
+            var amount = double.Parse(_transferAmountEdit.Text, CultureInfo.InvariantCulture);
+
+            var transferResponse = await Presenter.TryTransfer(_transferFacade.Recipient.Author, amount, _pickedCoin, _transferFacade.UserBalance.ChainCurrency, _transferCommentEdit.Text);
             if (transferResponse.IsSuccess)
             {
-                Toast.MakeText(Activity, AppSettings.LocalizationManager.GetText(LocalizationKeys.TransferSuccess), ToastLength.Short).Show();
+                var succes = new SuccessfullTrxDialog(Activity, _transferFacade.Recipient.Author, $"{amount} {_pickedCoin}", DateTime.Now);
+                succes.Show();
                 ClearEdits();
             }
             else
