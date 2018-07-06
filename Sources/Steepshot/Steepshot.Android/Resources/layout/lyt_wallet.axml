@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/rgb250_250_250">
+    <include
+        layout="@layout/lyt_wallet_top" />
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="20dp">
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="240dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="80dp"
+            android:padding="20dp"
+            android:background="@drawable/white_rounded_border16dip">
+            <Button
+                android:id="@+id/transfer_btn"
+                android:textColor="@color/white"
+                android:textSize="14sp"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="90dp"
+                android:gravity="center"
+                android:background="@drawable/orange_rounded_border16dip"
+                android:elevation="0dp" />
+            <LinearLayout
+                android:id="@+id/token_actions"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:weightSum="100">
+                <Button
+                    android:id="@+id/token_action1"
+                    android:textColor="@color/white"
+                    android:textSize="14sp"
+                    android:layout_width="0dp"
+                    android:layout_height="50dp"
+                    android:layout_weight="48"
+                    android:gravity="center"
+                    android:background="@drawable/white_rounded_border16dip"
+                    android:elevation="0dp" />
+                <Space
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="4" />
+                <Button
+                    android:id="@+id/token_action2"
+                    android:textColor="@color/white"
+                    android:textSize="14sp"
+                    android:layout_width="0dp"
+                    android:layout_height="50dp"
+                    android:layout_weight="48"
+                    android:gravity="center"
+                    android:background="@drawable/white_rounded_border16dip"
+                    android:elevation="0dp" />
+            </LinearLayout>
+        </LinearLayout>
+        <android.support.v4.view.ViewPager
+            android:id="@+id/wallet_pager"
+            android:background="@android:color/transparent"
+            android:layout_width="match_parent"
+            android:layout_height="170dp" />
+    </RelativeLayout>
+    <LinearLayout
+        android:id="@+id/transactions_block"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:background="@drawable/white_rounded_border16dip" />
+</LinearLayout>

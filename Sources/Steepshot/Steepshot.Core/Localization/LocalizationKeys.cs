@@ -185,6 +185,7 @@
         SwitchTo,
         Recipient,
         Amount,
-        Time
+        Time,
+        Wallet
     }
 }

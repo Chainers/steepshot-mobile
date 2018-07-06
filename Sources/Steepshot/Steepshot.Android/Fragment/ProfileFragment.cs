@@ -537,7 +537,8 @@ namespace Steepshot.Fragment
             switch (type)
             {
                 case ActionType.Balance:
-                    ((BaseActivity)Activity).OpenNewContentFragment(new TransferFragment());
+                    ((BaseActivity)Activity).OpenNewContentFragment(new WalletFragment());
+                    //((BaseActivity)Activity).OpenNewContentFragment(new TransferFragment());
                     break;
                 case ActionType.Followers:
                     Activity.Intent.PutExtra(FollowersFragment.IsFollowersExtra, true);
