@@ -215,7 +215,9 @@ namespace Steepshot.iOS.Views
 
             var balanceTap = new UITapGestureRecognizer(() =>
             {
-                NavigationController.PushViewController(new WalletViewController(), true);
+                var vc = new WalletViewController();
+                vc.HidesBottomBarWhenPushed = true;
+                NavigationController.PushViewController(vc, true);
             });
 
             _profileHeader.Balance.UserInteractionEnabled = true;
