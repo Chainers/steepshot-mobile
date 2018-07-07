@@ -165,7 +165,7 @@ namespace Steepshot.iOS.Views
                 {
                     if (_isPostingMode)
                     {
-                        AppSettings.User.AddAndSwitchUser(Username, password.Text, BasePresenter.Chain);
+                        AppSettings.User.AddAndSwitchUser(Username, password.Text, AccountInfoResponse, BasePresenter.Chain);
 
                         var myViewController = new MainTabBarController();
                         AppDelegate.InitialViewController = myViewController;

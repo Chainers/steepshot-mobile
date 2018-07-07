@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using CoreGraphics;
 using FFImageLoading;
 using Foundation;
-using iOS.Hardware;
 using Steepshot.Core.Errors;
 using Steepshot.Core.Models;
 using Steepshot.Core.Models.Common;
@@ -15,6 +14,7 @@ using Steepshot.iOS.Helpers;
 using Steepshot.iOS.ViewControllers;
 using Steepshot.iOS.ViewSources;
 using UIKit;
+using static Steepshot.iOS.Helpers.DeviceHelper;
 
 namespace Steepshot.iOS.Views
 {
@@ -154,7 +154,7 @@ namespace Steepshot.iOS.Views
             }
             else
             {
-                if (DeviceModel.Model(DeviceHardware.HardwareModel) == "iPhone10,6")
+                if (GetVersion() == HardwareVersion.iPhoneX)
                     sliderCollectionOffset.Constant = 35;
                 NavigationController.SetNavigationBarHidden(true, false);
             }

@@ -1,6 +1,6 @@
 ﻿using Foundation;
-using iOS.Hardware;
 using Steepshot.Core.Services;
+using Steepshot.iOS.Helpers;
 using UIKit;
 
 namespace Steepshot.iOS.Services
@@ -19,7 +19,7 @@ namespace Steepshot.iOS.Services
 
         public string GetModel()
         {
-            return DeviceModel.Model(DeviceHardware.HardwareModel);
+            return DeviceHelper.GetVersion().ToString();
         }
 
         public string GetOsVersion()
