@@ -476,7 +476,7 @@ namespace Steepshot.iOS.Views
         {
             var model = new PushNotificationsModel(AppSettings.User.UserInfo, !UserIsWatched)
             {
-                WatchedUser = Username
+                WatchedUser = Username,
             };
             var response = await BasePresenter.TrySubscribeForPushes(model);
             if (response.IsSuccess)
