@@ -430,6 +430,7 @@
     <Compile Include="Helpers\DeviceHelper.cs" />
     <Compile Include="Views\RegistrationViewController.cs" />
     <Compile Include="Views\RegistrationCompletionViewController.cs" />
+    <Compile Include="Cells\ProfileHeaderViewCell.cs" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\ic_photo_holder.png" />

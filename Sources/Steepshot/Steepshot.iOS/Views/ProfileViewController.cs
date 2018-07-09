@@ -110,7 +110,7 @@ namespace Steepshot.iOS.Views
 
             SetBackButton();
 
-            if (Username == AppSettings.User.Login && AppSettings.User.IsAuthenticated)
+            if (Username == AppSettings.User.Login && AppSettings.User.HasPostingPermission)
                 SetVotePowerView();
             GetUserInfo();
             GetPosts();
