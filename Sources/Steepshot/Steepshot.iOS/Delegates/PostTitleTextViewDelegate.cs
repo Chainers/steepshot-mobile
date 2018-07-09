@@ -8,11 +8,12 @@ namespace Steepshot.iOS.Helpers
     {
         public UILabel Placeholder;
         public Action EditingStartedAction;
+        public Action EditingEndedAction;
 
         public override void EditingStarted(UITextView textView)
         {
-            EditingStartedAction?.Invoke();
             Placeholder.Hidden = true;
+            EditingStartedAction?.Invoke();
         }
 
         public override void EditingEnded(UITextView textView)
@@ -21,6 +22,7 @@ namespace Steepshot.iOS.Helpers
                 Placeholder.Hidden = true;
             else
                 Placeholder.Hidden = false;
+            EditingEndedAction?.Invoke();
         }
     }
 

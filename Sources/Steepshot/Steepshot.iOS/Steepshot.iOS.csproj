@@ -365,10 +365,7 @@
     <Compile Include="Views\WelcomeViewController.designer.cs">
       <DependentUpon>WelcomeViewController.cs</DependentUpon>
     </Compile>
-    <Compile Include="Helpers\CollectionViewFlowDelegate.cs" />
-    <Compile Include="Helpers\CommentsTextViewDelegate.cs" />
     <Compile Include="Cells\LoaderCell.cs" />
-    <Compile Include="Helpers\TabBarDelegate.cs" />
     <Compile Include="ViewSources\LocalTagsCollectionViewSource.cs" />
     <Compile Include="Cells\LocalTagCollectionViewCell.cs" />
     <Compile Include="Cells\LocalTagCollectionViewCell.designer.cs">
@@ -379,7 +376,6 @@
       <DependentUpon>TagTableViewCell.cs</DependentUpon>
     </Compile>
     <Compile Include="ViewSources\TagsTableViewSource.cs" />
-    <Compile Include="Helpers\TagFieldDelegate.cs" />
     <Compile Include="ViewSources\AccountsTableViewSource.cs" />
     <Compile Include="Cells\AccountTableViewCell.cs" />
     <Compile Include="Cells\AccountTableViewCell.designer.cs">
@@ -389,7 +385,6 @@
     <Compile Include="Cells\NewFeedCollectionViewCell.cs" />
     <Compile Include="Helpers\CellHeightCalculator.cs" />
     <Compile Include="Models\CellSizeHelper.cs" />
-    <Compile Include="Helpers\PostTitleTextViewDelegate.cs" />
     <Compile Include="Views\PhotoPreviewViewController.cs" />
     <Compile Include="Views\PhotoPreviewViewController.designer.cs">
       <DependentUpon>PhotoPreviewViewController.cs</DependentUpon>
@@ -430,6 +425,12 @@
     <Compile Include="Helpers\DeviceHelper.cs" />
     <Compile Include="Views\RegistrationViewController.cs" />
     <Compile Include="Views\RegistrationCompletionViewController.cs" />
+    <Compile Include="Delegates\TagFieldDelegate.cs" />
+    <Compile Include="Delegates\TabBarDelegate.cs" />
+    <Compile Include="Delegates\PostTitleTextViewDelegate.cs" />
+    <Compile Include="Delegates\CollectionViewFlowDelegate.cs" />
+    <Compile Include="Delegates\CommentsTextViewDelegate.cs" />
+    <Compile Include="Views\TransferViewControllerDesigner.cs" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\ic_photo_holder.png" />
