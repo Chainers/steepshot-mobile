@@ -335,7 +335,7 @@ namespace Steepshot.iOS.Cells
                 userLocation.Text = userData.Location;
             }
 
-            if (AppSettings.User.IsAuthenticated && userData.Username != AppSettings.User.Login)
+            if (AppSettings.User.HasPostingPermission && userData.Username != AppSettings.User.Login)
             {
                 followButton.Frame = new CGRect(new CGPoint(mainMargin, descriptionY),
                                                 new CGSize(UIScreen.MainScreen.Bounds.Width - mainMargin * 2, 40));
