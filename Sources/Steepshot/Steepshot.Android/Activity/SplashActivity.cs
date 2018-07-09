@@ -43,7 +43,7 @@ namespace Steepshot.Activity
             {
                 case Intent.ActionSend:
                     {
-                        if (AppSettings.User.IsAuthenticated)
+                        if (AppSettings.User.HasPostingPermission)
                         {
                             var uri = (Android.Net.Uri)Intent.GetParcelableExtra(Intent.ExtraStream);
                             var fragmentTransaction = SupportFragmentManager.BeginTransaction();
@@ -63,13 +63,13 @@ namespace Steepshot.Activity
                     }
                 case Intent.ActionView:
                     {
-                        var intent = new Intent(this, AppSettings.User.IsAuthenticated ? typeof(RootActivity) : typeof(GuestActivity));
+                        var intent = new Intent(this, AppSettings.User.HasPostingPermission ? typeof(RootActivity) : typeof(GuestActivity));
                         intent.PutExtra(AppLinkingExtra, Intent?.Data?.Path);
                         StartActivity(intent);
                         return;
                     }
             }
-            StartActivity(AppSettings.User.IsAuthenticated ? typeof(RootActivity) : typeof(GuestActivity));
+            StartActivity(AppSettings.User.HasPostingPermission ? typeof(RootActivity) : typeof(GuestActivity));
         }
 
         private void InitPushes()

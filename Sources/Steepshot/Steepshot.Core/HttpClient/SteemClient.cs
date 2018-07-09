@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -243,45 +244,19 @@ namespace Steepshot.Core.HttpClient
                 if (keys == null)
                     return new OperationResult<VoidResponse>(new AppError(LocalizationKeys.WrongPrivateActimeKey));
 
-                var lookupAccountNames = _operationManager.LookupAccountNames(new[] { model.Login, model.Recipient }, CancellationToken.None);
                 var result = new OperationResult<VoidResponse>();
-                if (lookupAccountNames.IsError)
-                {
-                    OnError(lookupAccountNames, result);
-                    return result;
-                }
-
-                if (lookupAccountNames.Result.Length != 2 || lookupAccountNames.Result.Any(r => r == null))
-                {
-                    result.Error = new ValidationError(LocalizationKeys.UnexpectedProfileData);
-                    return result;
-                }
-
-                var accInfo = lookupAccountNames.Result.First(i => i.Name.Equals(model.Login));
 
                 Asset asset;
                 switch (model.CurrencyType)
                 {
                     case CurrencyType.Steem:
                         {
-                            if (accInfo.Balance.Value < model.Value)
-                            {
-                                result.Error = new ValidationError(LocalizationKeys.InsufficientBalance, accInfo.Balance.ToString());
-                                return result;
-                            }
-
-                            asset = new Asset(model.Value, model.Precussion, accInfo.Balance.Currency);
+                            asset = new Asset(model.Value, model.Precussion, model.ChainCurrency);
                             break;
                         }
                     case CurrencyType.Sbd:
                         {
-                            if (accInfo.SbdBalance.Value < model.Value)
-                            {
-                                result.Error = new ValidationError(LocalizationKeys.InsufficientBalance, accInfo.SbdBalance.ToString());
-                                return result;
-                            }
-
-                            asset = new Asset(model.Value, model.Precussion, accInfo.SbdBalance.Currency);
+                            asset = new Asset(model.Value, model.Precussion, model.ChainCurrency);
                             break;
                         }
                     default:
@@ -418,6 +393,22 @@ namespace Steepshot.Core.HttpClient
                     PublicPostingKeys = acc.Posting.KeyAuths.Select(i => i.Key.Data).ToArray(),
                     PublicActiveKeys = acc.Active.KeyAuths.Select(i => i.Key.Data).ToArray(),
                     Metadata = JsonConverter.Deserialize<AccountMetadata>(acc.JsonMetadata)
+                };
+
+                result.Result.Balances = new Dictionary<CurrencyType, BalanceModel>
+                {
+                    {CurrencyType.Steem, new BalanceModel
+                    {
+                        Value = acc.Balance.Value,
+                        Precision = acc.Balance.Precision,
+                        ChainCurrency = acc.Balance.Currency
+                    } },
+                    {CurrencyType.Sbd, new BalanceModel
+                    {
+                        Value = acc.SbdBalance.Value,
+                        Precision = acc.SbdBalance.Precision,
+                        ChainCurrency = acc.SbdBalance.Currency
+                    } }
                 };
 
                 return result;

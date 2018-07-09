@@ -71,7 +71,7 @@ namespace Steepshot.iOS
             }
 
             Window = new CustomWindow();
-            if (AppSettings.User.IsAuthenticated)
+            if (AppSettings.User.HasPostingPermission)
                 InitialViewController = new MainTabBarController();
             else
                 InitialViewController = new PreSearchViewController();
@@ -102,7 +102,7 @@ namespace Steepshot.iOS
         public override bool OpenUrl(UIApplication app, NSUrl url, NSDictionary options)
         {
             var tabController = Window.RootViewController as UINavigationController;
-            if (AppSettings.User.IsAuthenticated)
+            if (AppSettings.User.HasPostingPermission)
             {
                 var urlCollection = url.ToString().Replace("steepshot://", string.Empty);
                 var nsFileManager = new NSFileManager();

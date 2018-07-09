@@ -86,7 +86,7 @@ namespace Steepshot.Adapter
                         var itemView = (SwipeLayout)LayoutInflater.From(parent.Context)
                             .Inflate(Resource.Layout.lyt_comment_item, parent, false);
                         itemView.ClickToClose = true;
-                        itemView.SwipeEnabled = AppSettings.User.IsAuthenticated;
+                        itemView.SwipeEnabled = AppSettings.User.HasPostingPermission;
                         itemView.Opening += SwipeLayoutOnOpening;
                         var vh = new CommentViewHolder(itemView, CommentAction, AutoLinkAction, RootClickAction);
                         return vh;
@@ -231,7 +231,7 @@ namespace Steepshot.Adapter
 
             _context = itemView.RootView.Context;
 
-            _reply.Visibility = AppSettings.User.IsAuthenticated ? ViewStates.Visible : ViewStates.Gone;
+            _reply.Visibility = AppSettings.User.HasPostingPermission ? ViewStates.Visible : ViewStates.Gone;
         }
 
         private async Task LikeSet(bool isFlag)

@@ -193,7 +193,7 @@ namespace Steepshot.iOS.Cells
 
             var likelongtap = new UILongPressGestureRecognizer((UILongPressGestureRecognizer obj) =>
             {
-                if (AppSettings.User.IsAuthenticated && !_currentPost.Vote)
+                if (AppSettings.User.HasPostingPermission && !_currentPost.Vote)
                 {
                     if (obj.State == UIGestureRecognizerState.Began)
                     {
@@ -273,7 +273,7 @@ namespace Steepshot.iOS.Cells
 
             _flagsLabel.Hidden = _currentPost.NetFlags == 0;
             _likesLabel.Hidden = _currentPost.NetLikes == 0;
-            _replyLabel.Hidden = _currentPost.Author == AppSettings.User.Login || !AppSettings.User.IsAuthenticated;
+            _replyLabel.Hidden = _currentPost.Author == AppSettings.User.Login || !AppSettings.User.HasPostingPermission;
 
             if (_currentPost.Body != Core.Constants.DeletedPostText)
             {

@@ -8,74 +8,153 @@
     <include
         android:id="@+id/toolbar"
         layout="@layout/top_panel" />
-    <TextView
-        android:id="@+id/version_textview"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="App version: 0.0.1 Build: 33.0.0"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="18dp"
-        android:textSize="12sp"
-        android:textColor="@color/rgb151_155_158"
-        android:maxLines="1" />
     <ScrollView
         android:id="@+id/scroll"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/toolbar"
-        android:layout_above="@id/version_textview">
-        <RelativeLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/accounts_list"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:layout_marginBottom="20dp" />
-            <RelativeLayout
-                android:id="@+id/button_with_loader"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/accounts_list"
-                android:layout_marginLeft="15dp"
-                android:layout_marginRight="15dp"
-                android:layout_marginBottom="40dp">
-                <Button
-                    android:id="@+id/add_account"
-                    android:layout_width="match_parent"
-                    android:layout_height="50dp"
-                    android:textColor="@color/white"
-                    android:textAllCaps="false"
-                    android:background="@drawable/steem_login_border"
-                    android:layout_below="@id/accounts_list"
-                    android:textSize="14sp"
-                    android:text="Add account" />
-                <ProgressBar
-                    android:id="@+id/add_account_loading_spinner"
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"
-                    android:indeterminateTintMode="src_atop"
-                    android:indeterminateTint="@color/white"
-                    android:layout_centerInParent="true"
-                    android:visibility="gone"
-                    android:elevation="10dp" />
-            </RelativeLayout>
+        android:layout_below="@id/toolbar">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@color/light_gray_fa">
             <LinearLayout
-                android:orientation="vertical"
+                android:id="@+id/accounts"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="15dp"
-                android:layout_marginRight="15dp"
-                android:layout_below="@id/button_with_loader">
-                <View
+                android:orientation="vertical"
+                android:layout_marginTop="20dp"
+                android:paddingLeft="30dp"
+                android:paddingRight="30dp"
+                android:showDividers="middle"
+                android:divider="@drawable/settings_separator"
+                android:background="@color/white">
+                <LinearLayout
+                    android:id="@+id/steem_account"
+                    android:orientation="horizontal"
                     android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="@color/rgb244_244_246" />
+                    android:layout_height="70dp"
+                    android:gravity="center_vertical">
+                    <ImageView
+                        android:id="@+id/steem_avatar"
+                        android:layout_width="38dp"
+                        android:layout_height="38dp"
+                        android:layout_marginRight="25dp"
+                        android:visibility="gone"
+                        android:src="@drawable/ic_holder" />
+                    <TextView
+                        android:id="@+id/steem_title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/rgb15_24_30"
+                        android:textSize="14dp"
+                        android:layout_weight="1" />
+                    <ImageView
+                        android:id="@+id/steem_logo"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_steemit"
+                        android:visibility="gone"
+                        android:layout_marginLeft="10dp"
+                        android:layout_marginRight="20dp" />
+                    <ImageView
+                        android:id="@+id/steem_state"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:visibility="gone"
+                        android:src="@drawable/ic_checked" />
+                    <RelativeLayout
+                        android:id="@+id/steem_button_lyt"
+                        android:layout_width="wrap_content"
+                        android:layout_height="40dp">
+                        <Button
+                            android:id="@+id/steem_button"
+                            android:layout_width="100dp"
+                            android:layout_height="40dp"
+                            android:textColor="@color/white"
+                            android:textAllCaps="false"
+                            android:background="@drawable/follow_button_corners" />
+                        <ProgressBar
+                            android:id="@+id/steem_spinner"
+                            android:layout_width="50dp"
+                            android:layout_height="50dp"
+                            android:indeterminateTintMode="src_atop"
+                            android:indeterminateTint="@color/white"
+                            android:layout_centerInParent="true"
+                            android:visibility="gone"
+                            android:elevation="10dp" />
+                    </RelativeLayout>
+                </LinearLayout>
+                <LinearLayout
+                    android:id="@+id/golos_account"
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="70dp"
+                    android:gravity="center_vertical">
+                    <ImageView
+                        android:id="@+id/golos_avatar"
+                        android:layout_width="38dp"
+                        android:layout_height="38dp"
+                        android:src="@drawable/ic_holder"
+                        android:layout_marginRight="25dp"
+                        android:visibility="gone" />
+                    <TextView
+                        android:id="@+id/golos_title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/rgb15_24_30"
+                        android:textSize="14dp"
+                        android:layout_weight="1" />
+                    <ImageView
+                        android:id="@+id/golos_logo"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_golos"
+                        android:visibility="gone"
+                        android:layout_marginLeft="10dp"
+                        android:layout_marginRight="20dp" />
+                    <ImageView
+                        android:id="@+id/golos_state"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_checked"
+                        android:visibility="gone" />
+                    <RelativeLayout
+                        android:id="@+id/golos_button_lyt"
+                        android:layout_width="wrap_content"
+                        android:layout_height="40dp">
+                        <Button
+                            android:id="@+id/golos_button"
+                            android:layout_width="100dp"
+                            android:layout_height="40dp"
+                            android:textColor="@color/white"
+                            android:textAllCaps="false"
+                            android:background="@drawable/first_post_button" />
+                        <ProgressBar
+                            android:id="@+id/golos_spinner"
+                            android:layout_width="50dp"
+                            android:layout_height="50dp"
+                            android:indeterminateTintMode="src_atop"
+                            android:indeterminateTint="@color/white"
+                            android:layout_centerInParent="true"
+                            android:visibility="gone"
+                            android:elevation="10dp" />
+                    </RelativeLayout>
+                </LinearLayout>
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="10dp"
+                android:paddingLeft="30dp"
+                android:paddingRight="30dp"
+                android:showDividers="middle"
+                android:divider="@drawable/settings_separator"
+                android:background="@color/white">
                 <RelativeLayout
                     android:layout_width="wrap_content"
-                    android:layout_height="59dp">
+                    android:layout_height="80dp">
                     <TextView
                         android:id="@+id/nsfw_switch_text"
                         android:layout_width="wrap_content"
@@ -90,13 +169,9 @@
                         android:layout_centerVertical="true"
                         android:layout_alignParentRight="true" />
                 </RelativeLayout>
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="@color/rgb244_244_246" />
                 <RelativeLayout
                     android:layout_width="wrap_content"
-                    android:layout_height="59dp">
+                    android:layout_height="80dp">
                     <TextView
                         android:id="@+id/low_switch_text"
                         android:layout_width="wrap_content"
@@ -111,13 +186,9 @@
                         android:layout_centerVertical="true"
                         android:layout_alignParentRight="true" />
                 </RelativeLayout>
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="@color/rgb244_244_246" />
                 <RelativeLayout
                     android:layout_width="wrap_content"
-                    android:layout_height="59dp">
+                    android:layout_height="80dp">
                     <TextView
                         android:id="@+id/power_switch_text"
                         android:layout_width="wrap_content"
@@ -132,37 +203,41 @@
                         android:layout_centerVertical="true"
                         android:layout_alignParentRight="true" />
                 </RelativeLayout>
-                <include
-                    layout="@layout/lyt_notifications_settings" />
+            </LinearLayout>
+            <include
+                layout="@layout/lyt_notifications_settings" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="10dp"
+                android:paddingLeft="30dp"
+                android:paddingRight="30dp"
+                android:showDividers="middle"
+                android:divider="@drawable/settings_separator"
+                android:background="@color/white">
                 <Button
                     android:id="@+id/btn_guide"
                     android:layout_width="match_parent"
-                    android:layout_height="59dp"
+                    android:layout_height="80dp"
                     android:textSize="@dimen/dp_button_text"
                     android:textAllCaps="false"
                     android:textColor="@color/rgb15_24_30"
                     android:background="@android:color/transparent"
                     android:gravity="center_vertical"
                     android:drawableRight="@drawable/ic_forward" />
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="@color/rgb244_244_246" />
                 <Button
                     android:id="@+id/dtn_terms_of_service"
                     android:layout_width="match_parent"
-                    android:layout_height="59dp"
+                    android:layout_height="80dp"
                     android:textSize="@dimen/dp_button_text"
                     android:textAllCaps="false"
                     android:textColor="@color/rgb15_24_30"
                     android:background="@android:color/transparent"
                     android:gravity="center_vertical"
                     android:drawableRight="@drawable/ic_forward" />
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="@color/rgb244_244_246" />
                 <android.support.v7.widget.AppCompatButton
+                    android:id="@+id/tests"
                     android:text="Tests"
                     android:textSize="@dimen/dp_button_text"
                     android:textAllCaps="false"
@@ -173,10 +248,22 @@
                     android:gravity="center"
                     android:padding="10dp"
                     android:layout_marginTop="1dp"
-                    android:id="@+id/tests"
-                    android:visibility="invisible"
+                    android:visibility="gone"
                     style="?android:attr/borderlessButtonStyle" />
             </LinearLayout>
-        </RelativeLayout>
+            <TextView
+                android:id="@+id/version_textview"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="App version: 0.0.1 Build: 33.0.0"
+                android:textAlignment="center"
+                android:paddingTop="16dp"
+                android:paddingBottom="33dp"
+                android:textSize="12sp"
+                android:textColor="@color/rgb151_155_158"
+                android:background="@color/light_gray_fa"
+                android:maxLines="1" />
+        </LinearLayout>
     </ScrollView>
 </RelativeLayout>

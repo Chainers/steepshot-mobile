@@ -43,7 +43,7 @@ namespace Steepshot.Integration
             if (args.IsAuthenticated)
             {
                 var opt = GetOptionsOrDefault<ModuleOptionsModel>(AppId);
-                
+
                 if (args.Account.Properties.ContainsKey(AccessTokenKeyName))
                     opt.AccessToken = args.Account.Properties[AccessTokenKeyName];
 

@@ -24,7 +24,7 @@ namespace Steepshot.iOS.ViewControllers
 
         protected async void Vote(Post post)
         {
-            if (!AppSettings.User.IsAuthenticated)
+            if (!AppSettings.User.HasPostingPermission)
             {
                 LoginTapped(null, null);
                 return;
@@ -84,7 +84,7 @@ namespace Steepshot.iOS.ViewControllers
 
         protected async Task FlagPhoto(Post post)
         {
-            if (!AppSettings.User.IsAuthenticated)
+            if (!AppSettings.User.HasPostingPermission)
             {
                 LoginTapped(null, null);
                 return;

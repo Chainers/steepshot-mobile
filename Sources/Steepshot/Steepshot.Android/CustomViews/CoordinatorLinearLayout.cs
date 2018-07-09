@@ -136,7 +136,7 @@ namespace Steepshot.CustomViews
             }
         }
 
-        private void SwitchToWhole()
+        public bool SwitchToWhole()
         {
             if (!_scroller.IsFinished)
             {
@@ -144,8 +144,10 @@ namespace Steepshot.CustomViews
             }
             _scroller.StartScroll(0, ScrollY, 0, -ScrollY, DEFAULT_DURATION);
             PostInvalidate();
+            var switched = _state != WHOLE_STATE;
             _state = WHOLE_STATE;
             _beingDragged = false;
+            return switched;
         }
 
         private void SwitchToTop()

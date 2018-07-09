@@ -84,7 +84,6 @@ namespace Steepshot.Core.HttpClient
                 return new OperationResult<VoidResponse>(new ValidationError(results));
 
             var result = await _ditchClient.ValidatePrivateKey(model, ct);
-            Trace("login-with-posting", model.Login, result.Error, string.Empty, ct);//.Wait(5000);
             return result;
         }
 

@@ -1,4 +1,7 @@
-﻿using Newtonsoft.Json;
+﻿using System.Collections.Generic;
+using Newtonsoft.Json;
+using Steepshot.Core.Models.Common;
+using Steepshot.Core.Models.Requests;
 
 namespace Steepshot.Core.Models.Responses
 {
@@ -9,6 +12,8 @@ namespace Steepshot.Core.Models.Responses
         public byte[][] PublicActiveKeys { get; set; }
 
         public AccountMetadata Metadata { get; set; }
+
+        public Dictionary<CurrencyType, BalanceModel> Balances { get; set; }
     }
 
     public class Profile

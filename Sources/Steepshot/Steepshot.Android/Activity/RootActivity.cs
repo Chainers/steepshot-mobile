@@ -59,7 +59,7 @@ namespace Steepshot.Activity
             _tabLayout.TabSelected += OnTabLayoutOnTabSelected;
             _tabLayout.TabReselected += OnTabLayoutOnTabReselected;
 
-            if (AppSettings.User.IsAuthenticated)
+            if (AppSettings.User.HasPostingPermission)
                 OneSignal.Current.IdsAvailable(OneSignalCallback);
         }
 
