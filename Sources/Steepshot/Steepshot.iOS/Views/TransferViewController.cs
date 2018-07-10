@@ -72,28 +72,24 @@ namespace Steepshot.iOS.Views
 
         private void OnRecipientChanged()
         {
-            if (_transferFacade.Recipient != null)
+            var isRecipientSetted = _transferFacade?.Recipient == null;
+
+            if (_recipientAvatar.Hidden != isRecipientSetted)
             {
-                UIView.Animate(0.2, () =>
-                {
-                    _recipientAvatar.Hidden = false;
-                    _recipientAvatar.LayoutIfNeeded();
-                });
-            }
-            else
-            {
-                UIView.Animate(0.2, () =>
-                {
-                    _recipientAvatar.Hidden = true;
-                    _recipientAvatar.LayoutIfNeeded();
-                });
+                InvokeOnMainThread(() =>
+               {
+                   UIView.Animate(0.2, () =>
+                   {
+                       _recipientAvatar.Hidden = isRecipientSetted;
+                       _recipientAvatar.LayoutIfNeeded();
+                   });
+               });
             }
 
             if (!string.IsNullOrEmpty(_transferFacade?.Recipient?.Avatar))
-                ImageLoader.Load(_transferFacade.Recipient.Avatar, _recipientAvatar, size: new CGSize(40, 40), placeHolder: "ic_noavatar.png");
+                ImageLoader.Load(_transferFacade?.Recipient?.Avatar, _recipientAvatar, size: new CGSize(40, 40), placeHolder: "ic_noavatar.png");
             else
                 _recipientAvatar.Image = UIImage.FromBundle("ic_noavatar");
-            _recepientTextField.Text = _transferFacade.Recipient.Author;
         }
 
         private void CellAction(ActionType type, UserFriend recipient)
@@ -137,7 +133,7 @@ namespace Steepshot.iOS.Views
         private void CoinSelected(CurrencyType pickedCoin)
         {
             _pickedCoin = pickedCoin;
-            _pickerLabel.Text = _pickedCoin.ToString();
+            _pickerLabel.Text = _pickedCoin.ToString().ToUpper();
             _transferFacade.UserBalance = AppSettings.User.AccountInfo?.Balances?[_pickedCoin];
         }
 
@@ -194,7 +190,8 @@ namespace Steepshot.iOS.Views
 
             if (!(searchResult is CanceledError))
             {
-                _noResultViewTags.Hidden = _transferFacade.UserFriendPresenter.Count > 0;
+                if (_recepientTextField.IsFirstResponder)
+                    _noResultViewTags.Hidden = _transferFacade.UserFriendPresenter.Count > 0;
                 _usersLoader.StopAnimating();
 
                 if (!_isWarningOpen && searchResult != null)
@@ -242,8 +239,8 @@ namespace Steepshot.iOS.Views
             else
             {
                 var shift = -90;
-                _tagsHorizontalAlignment.Constant = shift;
-                _tagsNotFoundHorizontalAlignment.Constant = shift;
+                _userLoaderHorizontalAlignment.Constant = shift;
+                _usersNotFoundHorizontalAlignment.Constant = shift;
                 warningView.Hidden = false;
 
                 if (_tableScrollAmount == 0)
@@ -272,48 +269,10 @@ namespace Steepshot.iOS.Views
             {
                 warningView.Hidden = true;
                 warningViewToBottomConstraint.Constant = -_tableScrollAmount + 60;
-                _tagsNotFoundHorizontalAlignment.Constant = 0;
-                _tagsHorizontalAlignment.Constant = 0;
+                _usersNotFoundHorizontalAlignment.Constant = 0;
+                _userLoaderHorizontalAlignment.Constant = 0;
                 ScrollTheView(false);
             }
-        }
-    }
-
-    public class CoinPickerViewModel : UIPickerViewModel
-    {
-        private readonly List<CurrencyType> _coins;
-
-        public CoinPickerViewModel(List<CurrencyType> coins)
-        {
-            _coins = coins;
-        }
-
-        public override nint GetRowsInComponent(UIPickerView pickerView, nint component)
-        {
-            return _coins.Count;
-        }
-
-        public override nint GetComponentCount(UIPickerView pickerView)
-        {
-            return 1;
-        }
-
-        public override UIView GetView(UIPickerView pickerView, nint row, nint component, UIView view)
-        {
-            var selected = row == pickerView.SelectedRowInComponent(component);
-            var pickerLabel = new UILabel();
-            pickerLabel.TextColor = UIColor.Black;
-            pickerLabel.Text = _coins[(int)row].ToString();
-            pickerLabel.Font = selected ? Constants.Regular27 : Constants.Light27;
-            pickerLabel.TextAlignment = UITextAlignment.Center;
-            pickerLabel.TextColor = selected ? UIColor.Red : UIColor.Black;
-            return pickerLabel;
-        }
-
-        [Export("pickerView:didSelectRow:inComponent:")]
-        public override void Selected(UIPickerView pickerView, nint row, nint component)
-        {
-            pickerView.ReloadComponent(0);
         }
     }
 }

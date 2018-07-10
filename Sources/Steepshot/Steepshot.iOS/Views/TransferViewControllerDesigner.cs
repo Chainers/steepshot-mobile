@@ -10,6 +10,8 @@ using Steepshot.iOS.ViewSources;
 using Steepshot.iOS.Cells;
 using Steepshot.Core.Localization;
 using Steepshot.iOS.Helpers;
+using System.Collections.Generic;
+using Steepshot.Core.Models.Requests;
 
 namespace Steepshot.iOS.Views
 {
@@ -23,8 +25,8 @@ namespace Steepshot.iOS.Views
         private UITableView _usersTable;
         private FollowTableViewSource _userTableSource;
         private UIActivityIndicatorView _usersLoader;
-        private NSLayoutConstraint _tagsHorizontalAlignment;
-        private NSLayoutConstraint _tagsNotFoundHorizontalAlignment;
+        private NSLayoutConstraint _userLoaderHorizontalAlignment;
+        private NSLayoutConstraint _usersNotFoundHorizontalAlignment;
         private NSLayoutConstraint warningViewToBottomConstraint;
         private UIView warningView;
         private UILabel _noResultViewTags = new UILabel();
@@ -34,6 +36,7 @@ namespace Steepshot.iOS.Views
         private BaseTextViewDelegate _memoTextViewDelegate;
         private nfloat _tableScrollAmount;
         private bool _isWarningOpen;
+        private CustomAlertView _alert;
 
         private void SetupTable()
         {
@@ -65,7 +68,7 @@ namespace Steepshot.iOS.Views
             _usersLoader.StopAnimating();
             View.AddSubview(_usersLoader);
 
-            _tagsHorizontalAlignment = _usersLoader.AutoAlignAxis(ALAxis.Horizontal, _usersTable);
+            _userLoaderHorizontalAlignment = _usersLoader.AutoAlignAxis(ALAxis.Horizontal, _usersTable);
             _usersLoader.AutoAlignAxis(ALAxis.Vertical, _usersTable);
         }
 
@@ -75,7 +78,7 @@ namespace Steepshot.iOS.Views
             NavigationItem.SetLeftBarButtonItem(leftBarButton, true);
             NavigationController.NavigationBar.TintColor = Constants.R15G24B30;
 
-            NavigationItem.Title = "Transfer";
+            NavigationItem.Title = AppSettings.LocalizationManager.GetText(LocalizationKeys.Transfer);
 
             _balance = new UILabel()
             {
@@ -133,6 +136,10 @@ namespace Steepshot.iOS.Views
             }, AppSettings.LocalizationManager.GetText(LocalizationKeys.RecipientNameHint));
             _recepientTextField.EditingChanged += EditingChanged;
             _recepientTextField.Layer.CornerRadius = 25;
+            _recepientTextField.EditingChanged += (object sender, EventArgs e) =>
+            {
+                _transferFacade.Recipient = null;
+            };
 
             recipientStackView.AddArrangedSubview(_recepientTextField);
 
@@ -159,6 +166,7 @@ namespace Steepshot.iOS.Views
                 _prevQuery = string.Empty;
                 _transferFacade.Recipient = null;
                 _transferFacade.UserFriendPresenter.Clear();
+                _recepientTextField.Text = _transferFacade?.Recipient?.Author;
             };
 
             UILabel amountLabel = new UILabel();
@@ -194,93 +202,98 @@ namespace Steepshot.iOS.Views
             pickerView.UserInteractionEnabled = true;
             var pickerTap = new UITapGestureRecognizer(() =>
             {
-                UIView popup = new UIView();
-                popup.ClipsToBounds = true;
-                popup.Layer.CornerRadius = 15;
-                popup.BackgroundColor = UIColor.White;
-                View.AddSubview(popup);
-                var dialogWidth = UIScreen.MainScreen.Bounds.Width - 10 * 2;
-                popup.AutoSetDimension(ALDimension.Width, dialogWidth);
-
-                var commonMargin = 20;
-
-                var title = new UILabel();
-                title.Font = Constants.Semibold14;
-                title.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.SelectToken);
-                title.SizeToFit();
-                popup.AddSubview(title);
-                title.AutoPinEdgeToSuperviewEdge(ALEdge.Top);
-                title.AutoAlignAxisToSuperviewAxis(ALAxis.Vertical);
-                title.AutoSetDimension(ALDimension.Height, 70);
-
-                UIPickerView picker = new UIPickerView();
-                picker.Model = new CoinPickerViewModel(_coins);
-                popup.AddSubview(picker);
-
-                picker.AutoSetDimension(ALDimension.Width, dialogWidth - commonMargin * 2);
-                picker.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, title);
-                picker.AutoAlignAxisToSuperviewAxis(ALAxis.Vertical);
-                picker.SizeToFit();
-
-                var topSeparator = new UIView();
-                topSeparator.BackgroundColor = Constants.R245G245B245;
-                popup.AddSubview(topSeparator);
-
-                topSeparator.AutoPinEdge(ALEdge.Bottom, ALEdge.Top, picker);
-                topSeparator.AutoPinEdgeToSuperviewEdge(ALEdge.Left, commonMargin);
-                topSeparator.AutoPinEdgeToSuperviewEdge(ALEdge.Right, commonMargin);
-                topSeparator.AutoSetDimension(ALDimension.Height, 1);
-
-                var separator = new UIView();
-                separator.BackgroundColor = Constants.R245G245B245;
-                popup.AddSubview(separator);
-
-                separator.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, picker);
-                separator.AutoPinEdgeToSuperviewEdge(ALEdge.Left, commonMargin);
-                separator.AutoPinEdgeToSuperviewEdge(ALEdge.Right, commonMargin);
-                separator.AutoSetDimension(ALDimension.Height, 1);
-
-                var selectButton = new UIButton();
-                selectButton.SetTitle(AppSettings.LocalizationManager.GetText(LocalizationKeys.Select), UIControlState.Normal);
-                selectButton.SetTitleColor(UIColor.White, UIControlState.Normal);
-                selectButton.Layer.CornerRadius = 25;
-                selectButton.Font = Constants.Bold14;
-                popup.AddSubview(selectButton);
-
-                selectButton.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, separator, 20);
-                selectButton.AutoPinEdgeToSuperviewEdge(ALEdge.Right, commonMargin);
-                selectButton.AutoPinEdgeToSuperviewEdge(ALEdge.Left, commonMargin);
-                selectButton.AutoSetDimension(ALDimension.Height, 50);
-                selectButton.LayoutIfNeeded();
-
-                var cancelButton = new UIButton();
-                cancelButton.SetTitle(AppSettings.LocalizationManager.GetText(LocalizationKeys.Close), UIControlState.Normal);
-                cancelButton.SetTitleColor(UIColor.Black, UIControlState.Normal);
-                cancelButton.Layer.CornerRadius = 25;
-                cancelButton.Font = Constants.Semibold14;
-                cancelButton.Layer.BorderWidth = 1;
-                cancelButton.Layer.BorderColor = Constants.R245G245B245.CGColor;
-                popup.AddSubview(cancelButton);
-
-                cancelButton.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, selectButton, 20);
-                cancelButton.AutoPinEdgeToSuperviewEdge(ALEdge.Left, commonMargin);
-                cancelButton.AutoPinEdgeToSuperviewEdge(ALEdge.Right, commonMargin);
-                cancelButton.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom, commonMargin);
-                cancelButton.AutoSetDimension(ALDimension.Height, 50);
-
-                NavigationController.View.EndEditing(true);
-
-                var alert = new CustomAlertView(popup, TabBarController);
-
-                selectButton.TouchDown += (sender, e) =>
+                if (_alert == null)
                 {
-                    CoinSelected(_coins[(int)picker.SelectedRowInComponent(0)]);
-                    alert.Hide();
-                };
-                cancelButton.TouchDown += (sender, e) => { alert.Hide(); };
+                    var popup = new UIView();
+                    popup.ClipsToBounds = true;
+                    popup.Layer.CornerRadius = 15;
+                    popup.BackgroundColor = UIColor.White;
+                    View.AddSubview(popup);
+                    var dialogWidth = UIScreen.MainScreen.Bounds.Width - 10 * 2;
+                    popup.AutoSetDimension(ALDimension.Width, dialogWidth);
 
-                popup.SizeToFit();
-                Constants.CreateGradient(selectButton, 25);
+                    var commonMargin = 20;
+
+                    var title = new UILabel();
+                    title.Font = Constants.Semibold14;
+                    title.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.SelectToken);
+                    title.SizeToFit();
+                    popup.AddSubview(title);
+                    title.AutoPinEdgeToSuperviewEdge(ALEdge.Top);
+                    title.AutoAlignAxisToSuperviewAxis(ALAxis.Vertical);
+                    title.AutoSetDimension(ALDimension.Height, 70);
+
+                    UIPickerView picker = new UIPickerView();
+                    picker.Select(_coins.IndexOf(_pickedCoin), 0, true);
+                    picker.Model = new CoinPickerViewModel(_coins);
+                    popup.AddSubview(picker);
+
+                    picker.AutoSetDimension(ALDimension.Width, dialogWidth - commonMargin * 2);
+                    picker.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, title);
+                    picker.AutoAlignAxisToSuperviewAxis(ALAxis.Vertical);
+                    picker.SizeToFit();
+
+                    var topSeparator = new UIView();
+                    topSeparator.BackgroundColor = Constants.R245G245B245;
+                    popup.AddSubview(topSeparator);
+
+                    topSeparator.AutoPinEdge(ALEdge.Bottom, ALEdge.Top, picker);
+                    topSeparator.AutoPinEdgeToSuperviewEdge(ALEdge.Left, commonMargin);
+                    topSeparator.AutoPinEdgeToSuperviewEdge(ALEdge.Right, commonMargin);
+                    topSeparator.AutoSetDimension(ALDimension.Height, 1);
+
+                    var separator = new UIView();
+                    separator.BackgroundColor = Constants.R245G245B245;
+                    popup.AddSubview(separator);
+
+                    separator.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, picker);
+                    separator.AutoPinEdgeToSuperviewEdge(ALEdge.Left, commonMargin);
+                    separator.AutoPinEdgeToSuperviewEdge(ALEdge.Right, commonMargin);
+                    separator.AutoSetDimension(ALDimension.Height, 1);
+
+                    var selectButton = new UIButton();
+                    selectButton.SetTitle(AppSettings.LocalizationManager.GetText(LocalizationKeys.Select), UIControlState.Normal);
+                    selectButton.SetTitleColor(UIColor.White, UIControlState.Normal);
+                    selectButton.Layer.CornerRadius = 25;
+                    selectButton.Font = Constants.Bold14;
+                    popup.AddSubview(selectButton);
+
+                    selectButton.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, separator, 20);
+                    selectButton.AutoPinEdgeToSuperviewEdge(ALEdge.Right, commonMargin);
+                    selectButton.AutoPinEdgeToSuperviewEdge(ALEdge.Left, commonMargin);
+                    selectButton.AutoSetDimension(ALDimension.Height, 50);
+                    selectButton.LayoutIfNeeded();
+
+                    var cancelButton = new UIButton();
+                    cancelButton.SetTitle(AppSettings.LocalizationManager.GetText(LocalizationKeys.Close), UIControlState.Normal);
+                    cancelButton.SetTitleColor(UIColor.Black, UIControlState.Normal);
+                    cancelButton.Layer.CornerRadius = 25;
+                    cancelButton.Font = Constants.Semibold14;
+                    cancelButton.Layer.BorderWidth = 1;
+                    cancelButton.Layer.BorderColor = Constants.R245G245B245.CGColor;
+                    popup.AddSubview(cancelButton);
+
+                    cancelButton.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, selectButton, 20);
+                    cancelButton.AutoPinEdgeToSuperviewEdge(ALEdge.Left, commonMargin);
+                    cancelButton.AutoPinEdgeToSuperviewEdge(ALEdge.Right, commonMargin);
+                    cancelButton.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom, commonMargin);
+                    cancelButton.AutoSetDimension(ALDimension.Height, 50);
+
+                    NavigationController.View.EndEditing(true);
+
+                    _alert = new CustomAlertView(popup, TabBarController);
+
+                    selectButton.TouchDown += (sender, e) =>
+                    {
+                        CoinSelected(_coins[(int)picker.SelectedRowInComponent(0)]);
+                        _alert.Hide();
+                    };
+                    cancelButton.TouchDown += (sender, e) => { _alert.Hide(); };
+
+                    popup.SizeToFit();
+                    Constants.CreateGradient(selectButton, 25);
+                }
+                _alert.Show();
             });
             pickerView.AddGestureRecognizer(pickerTap);
             View.AddSubview(pickerView);
@@ -358,7 +371,7 @@ namespace Steepshot.iOS.Views
 
             _transferButton = new UIButton();
             _transferButton.SetTitleColor(UIColor.White, UIControlState.Normal);
-            _transferButton.SetTitle(AppSettings.LocalizationManager.GetText(LocalizationKeys.Transfer), UIControlState.Normal);
+            _transferButton.SetTitle(AppSettings.LocalizationManager.GetText(LocalizationKeys.Transfer).ToUpper(), UIControlState.Normal);
             _transferButton.Layer.CornerRadius = 25;
             _transferButton.Font = Constants.Bold14;
             _transferButton.TouchDown += Transfer;
@@ -387,7 +400,7 @@ namespace Steepshot.iOS.Views
             View.AddSubview(_noResultViewTags);
             _noResultViewTags.AutoPinEdge(ALEdge.Right, ALEdge.Right, _usersTable, -18);
             _noResultViewTags.AutoPinEdge(ALEdge.Left, ALEdge.Left, _usersTable, 18);
-            _tagsNotFoundHorizontalAlignment = _noResultViewTags.AutoAlignAxis(ALAxis.Horizontal, _usersTable);
+            _usersNotFoundHorizontalAlignment = _noResultViewTags.AutoAlignAxis(ALAxis.Horizontal, _usersTable);
 
             warningView = new UIView();
             warningView.ClipsToBounds = true;
@@ -448,6 +461,44 @@ namespace Steepshot.iOS.Views
             _memoTextView.AddSubview(placeholderLabel);
 
             _memoTextViewDelegate.Placeholder = placeholderLabel;
+        }
+    }
+
+    public class CoinPickerViewModel : UIPickerViewModel
+    {
+        private readonly List<CurrencyType> _coins;
+
+        public CoinPickerViewModel(List<CurrencyType> coins)
+        {
+            _coins = coins;
+        }
+
+        public override nint GetRowsInComponent(UIPickerView pickerView, nint component)
+        {
+            return _coins.Count;
+        }
+
+        public override nint GetComponentCount(UIPickerView pickerView)
+        {
+            return 1;
+        }
+
+        public override UIView GetView(UIPickerView pickerView, nint row, nint component, UIView view)
+        {
+            var selected = row == pickerView.SelectedRowInComponent(component);
+            var pickerLabel = new UILabel();
+            pickerLabel.TextColor = UIColor.Black;
+            pickerLabel.Text = _coins[(int)row].ToString().ToUpper();
+            pickerLabel.Font = selected ? Constants.Regular27 : Constants.Light27;
+            pickerLabel.TextAlignment = UITextAlignment.Center;
+            pickerLabel.TextColor = selected ? UIColor.Red : UIColor.Black;
+            return pickerLabel;
+        }
+
+        [Export("pickerView:didSelectRow:inComponent:")]
+        public override void Selected(UIPickerView pickerView, nint row, nint component)
+        {
+            pickerView.ReloadComponent(0);
         }
     }
 }
