@@ -117,7 +117,7 @@ namespace Steepshot.iOS.ViewControllers
 
         private void DeleteAlert(Post post)
         {
-            if (_alert != null)
+            if (_alert == null)
             {
                 var titleText = AppSettings.LocalizationManager.GetText(LocalizationKeys.DeleteAlertTitle);
                 var messageText = AppSettings.LocalizationManager.GetText(LocalizationKeys.DeleteAlertMessage);
