@@ -189,6 +189,9 @@ namespace Steepshot.Fragment
             RecipientsAdapter.RecipientSelected += RecipientSelected;
 
             _recipientsList.SetLayoutManager(new LinearLayoutManager(Activity));
+            var scrollListener = new ScrollListener();
+            scrollListener.ScrolledToBottom += ScrollListenerOnScrolledToBottom;
+            _recipientsList.AddOnScrollListener(scrollListener);
             _recipientsList.SetAdapter(RecipientsAdapter);
 
             _recipientSearch.TextChanged += RecipientSearchOnTextChanged;
@@ -239,6 +242,11 @@ namespace Steepshot.Fragment
                 _activityRoot.ViewTreeObserver.GlobalLayout -= OnKeyboardClosing;
                 _activityRoot.ViewTreeObserver.GlobalLayout += OnKeyboardOpening;
             }
+        }
+
+        private void ScrollListenerOnScrolledToBottom()
+        {
+            _transferFacade.TryLoadNextSearchUser(_prevQuery);
         }
 
         private void PresenterOnSourceChanged(Status obj)
@@ -363,8 +371,10 @@ namespace Steepshot.Fragment
 
         private void RecipientSearchClearOnClick(object sender, EventArgs e)
         {
+            _prevQuery = string.Empty;
             _recipientSearch.Text = string.Empty;
             _transferFacade.Recipient = null;
+            _transferFacade.UserFriendPresenter.Clear();
         }
 
         private void TransferAmountEditOnTextChanged(object sender, TextChangedEventArgs e)
@@ -391,7 +401,7 @@ namespace Steepshot.Fragment
             if (response.IsSuccess)
             {
                 AppSettings.User.AccountInfo = response.Result;
-                _transferFacade.UserBalance = AppSettings.User.AccountInfo?.Balances?[_pickedCoin];
+                _transferFacade.UserBalance = AppSettings.User.AccountInfo?.Balances?.Find(x => x.CurrencyType == _pickedCoin);
             }
             _balance.Visibility = ViewStates.Visible;
             _balanceLoader.Visibility = ViewStates.Gone;
@@ -401,7 +411,7 @@ namespace Steepshot.Fragment
         {
             _pickedCoin = pickedCoin;
             _transferCoinName.Text = _pickedCoin.ToString();
-            _transferFacade.UserBalance = AppSettings.User.AccountInfo?.Balances?[_pickedCoin];
+            _transferFacade.UserBalance = AppSettings.User.AccountInfo?.Balances?.Find(x => x.CurrencyType == _pickedCoin);
             switch (pickedCoin)
             {
                 case CurrencyType.Steem:

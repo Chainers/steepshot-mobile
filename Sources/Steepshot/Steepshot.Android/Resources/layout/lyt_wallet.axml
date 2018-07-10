@@ -7,6 +7,7 @@
     <include
         layout="@layout/lyt_wallet_top" />
     <RelativeLayout
+        android:id="@+id/actions"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
@@ -14,7 +15,7 @@
         <LinearLayout
             android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="240dp"
+            android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
             android:layout_marginTop="80dp"
@@ -33,7 +34,7 @@
             <LinearLayout
                 android:id="@+id/token_actions"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="50dp"
                 android:layout_marginTop="10dp"
                 android:weightSum="100">
                 <Button
@@ -41,7 +42,7 @@
                     android:textColor="@color/white"
                     android:textSize="14sp"
                     android:layout_width="0dp"
-                    android:layout_height="50dp"
+                    android:layout_height="match_parent"
                     android:layout_weight="48"
                     android:gravity="center"
                     android:background="@drawable/white_rounded_border16dip"
@@ -55,7 +56,7 @@
                     android:textColor="@color/white"
                     android:textSize="14sp"
                     android:layout_width="0dp"
-                    android:layout_height="50dp"
+                    android:layout_height="match_parent"
                     android:layout_weight="48"
                     android:gravity="center"
                     android:background="@drawable/white_rounded_border16dip"
