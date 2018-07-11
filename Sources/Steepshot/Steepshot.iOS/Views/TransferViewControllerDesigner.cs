@@ -52,7 +52,7 @@ namespace Steepshot.iOS.Views
             _usersTable.AutoPinEdgeToSuperviewEdge(ALEdge.Left);
             _usersTable.AutoPinEdgeToSuperviewEdge(ALEdge.Right);
 
-            _userTableSource = new FollowTableViewSource(_transferFacade.UserFriendPresenter, _usersTable);
+            _userTableSource = new FollowTableViewSource(_transferFacade.UserFriendPresenter, _usersTable, true);
             _userTableSource.ScrolledToBottom += GetItems;
             _userTableSource.CellAction += CellAction;
             _usersTable.Source = _userTableSource;
