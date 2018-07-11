@@ -12,6 +12,7 @@ using Steepshot.Core.Localization;
 using Steepshot.iOS.Helpers;
 using System.Collections.Generic;
 using Steepshot.Core.Models.Requests;
+using System.Globalization;
 
 namespace Steepshot.iOS.Views
 {
@@ -37,6 +38,8 @@ namespace Steepshot.iOS.Views
         private nfloat _tableScrollAmount;
         private bool _isWarningOpen;
         private CustomAlertView _alert;
+        private UIActivityIndicatorView _tranfserLoader;
+        private UILabel memoLabel;
 
         private void SetupTable()
         {
@@ -80,25 +83,22 @@ namespace Steepshot.iOS.Views
 
             NavigationItem.Title = AppSettings.LocalizationManager.GetText(LocalizationKeys.Transfer);
 
-            _balance = new UILabel()
+            _balance = new UILabel(new CGRect(0, 0, 100, 50))
             {
                 Font = Constants.Semibold20,
                 TextColor = Constants.R151G155B158,
                 TextAlignment = UITextAlignment.Right,
             };
 
+            var rightBarButton = new UIBarButtonItem(_balance);
+            NavigationItem.RightBarButtonItem = rightBarButton;
+
             _balanceLoader = new UIActivityIndicatorView();
             _balanceLoader.ActivityIndicatorViewStyle = UIActivityIndicatorViewStyle.White;
             _balanceLoader.Color = Constants.R231G72B0;
             _balanceLoader.HidesWhenStopped = true;
             _balance.AddSubview(_balanceLoader);
-
             _balanceLoader.AutoCenterInSuperview();
-
-            var rightBarButton = new UIBarButtonItem(_balance);
-            NavigationItem.RightBarButtonItem = rightBarButton;
-
-            _balance.AutoSetDimension(ALDimension.Width, 100);
         }
 
         private void CreateView()
@@ -316,16 +316,16 @@ namespace Steepshot.iOS.Views
             _pickerLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 3);
             _pickerLabel.AutoPinEdge(ALEdge.Right, ALEdge.Left, pickerImage);
 
-            var y = new UIStackView();
-            y.Axis = UILayoutConstraintAxis.Vertical;
-            View.AddSubview(y);
+            var bottomStackView = new UIStackView();
+            bottomStackView.Axis = UILayoutConstraintAxis.Vertical;
+            View.AddSubview(bottomStackView);
 
-            y.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 15);
-            y.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, _amountTextField, 5);
-            y.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 15);
-            y.Spacing = 16;
+            bottomStackView.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 15);
+            bottomStackView.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, _amountTextField, 5);
+            bottomStackView.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 15);
+            bottomStackView.Spacing = 16;
 
-            UILabel memoLabel = new UILabel();
+            memoLabel = new UILabel();
             memoLabel.Text = "+ add comment";
             memoLabel.TextColor = Constants.R255G71B5;
             memoLabel.Font = Constants.Semibold14;
@@ -343,7 +343,7 @@ namespace Steepshot.iOS.Views
             });
 
             memoLabel.AddGestureRecognizer(memoTap);
-            y.AddArrangedSubview(memoLabel);
+            bottomStackView.AddArrangedSubview(memoLabel);
 
             memoLabel.AutoSetDimension(ALDimension.Height, 30);
 
@@ -364,13 +364,14 @@ namespace Steepshot.iOS.Views
                 base.ScrollTheView(false);
             };
 
-            y.AddArrangedSubview(_memoTextView);
+            bottomStackView.AddArrangedSubview(_memoTextView);
 
             _memoTextView.AutoSetDimension(ALDimension.Height, 80);
             var buttonWrapper = new UIView();
 
             _transferButton = new UIButton();
             _transferButton.SetTitleColor(UIColor.White, UIControlState.Normal);
+            _transferButton.SetTitleColor(UIColor.Clear, UIControlState.Disabled);
             _transferButton.SetTitle(AppSettings.LocalizationManager.GetText(LocalizationKeys.Transfer).ToUpper(), UIControlState.Normal);
             _transferButton.Layer.CornerRadius = 25;
             _transferButton.Font = Constants.Bold14;
@@ -384,7 +385,15 @@ namespace Steepshot.iOS.Views
             _transferButton.AutoPinEdgeToSuperviewEdge(ALEdge.Right);
             Constants.CreateShadow(_transferButton, Constants.R204G204B204, 0.7f, 25, 10, 12);
 
-            y.AddArrangedSubview(buttonWrapper);
+            _tranfserLoader = new UIActivityIndicatorView();
+            _tranfserLoader.ActivityIndicatorViewStyle = UIActivityIndicatorViewStyle.White;
+            _tranfserLoader.HidesWhenStopped = true;
+            buttonWrapper.AddSubview(_tranfserLoader);
+
+            _tranfserLoader.AutoAlignAxis(ALAxis.Horizontal, _transferButton);
+            _tranfserLoader.AutoAlignAxis(ALAxis.Vertical, _transferButton);
+
+            bottomStackView.AddArrangedSubview(buttonWrapper);
 
             buttonWrapper.AutoSetDimension(ALDimension.Height, 65);
 
@@ -440,6 +449,141 @@ namespace Steepshot.iOS.Views
                 RemoveFocus();
             });
             View.AddGestureRecognizer(tap);
+        }
+
+        private CustomAlertView _successAlert;
+        private UILabel recipientValue;
+        private UILabel amountValue;
+
+        private void ShowSuccessPopUp()
+        {
+            if (_successAlert == null)
+            {
+                var popup = new UIView();
+                popup.ClipsToBounds = true;
+                popup.Layer.CornerRadius = 15;
+                popup.BackgroundColor = UIColor.White;
+                View.AddSubview(popup);
+                var dialogWidth = UIScreen.MainScreen.Bounds.Width - 10 * 2;
+                popup.AutoSetDimension(ALDimension.Width, dialogWidth);
+
+                var commonMargin = 20;
+                var image = new UIImageView();
+                image.Image = UIImage.FromBundle("ic_stamp");
+                image.ContentMode = UIViewContentMode.Center;
+                popup.AddSubview(image);
+
+                image.AutoAlignAxisToSuperviewAxis(ALAxis.Vertical);
+                image.AutoPinEdgeToSuperviewEdge(ALEdge.Top, 30);
+
+                var label = new UILabel();
+                label.Text = "Transaction completed successfully!";
+                label.Font = DeviceHelper.IsSmallDevice ? Constants.Light23 : Constants.Light27;
+                label.Lines = 2;
+                label.TextAlignment = UITextAlignment.Center;
+
+                popup.AddSubview(label);
+
+                label.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, image, 30);
+                label.AutoPinEdgeToSuperviewEdge(ALEdge.Left, commonMargin);
+                label.AutoPinEdgeToSuperviewEdge(ALEdge.Right, commonMargin);
+
+                var recipientView = new UIView();
+                recipientView.BackgroundColor = Constants.R250G250B250;
+                recipientView.Layer.CornerRadius = 10;
+                recipientView.ClipsToBounds = true;
+                popup.AddSubview(recipientView);
+
+                recipientView.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, label, 37);
+                recipientView.AutoPinEdgeToSuperviewEdge(ALEdge.Left, commonMargin);
+                recipientView.AutoPinEdgeToSuperviewEdge(ALEdge.Right, commonMargin);
+                recipientView.AutoSetDimension(ALDimension.Height, 50);
+
+                var recipientLabel = new UILabel();
+                recipientLabel.Text = "Recipient";
+                recipientLabel.Font = Constants.Regular14;
+                recipientView.AddSubview(recipientLabel);
+
+                recipientLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 20);
+                recipientLabel.AutoAlignAxisToSuperviewAxis(ALAxis.Horizontal);
+                recipientLabel.SetContentCompressionResistancePriority(1000, UILayoutConstraintAxis.Horizontal);
+
+                recipientValue = new UILabel();
+                recipientValue.Font = Constants.Semibold14;
+                recipientValue.TextColor = Constants.R255G34B5;
+                recipientValue.TextAlignment = UITextAlignment.Right;
+                recipientView.AddSubview(recipientValue);
+
+                recipientValue.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 20);
+                recipientValue.AutoPinEdge(ALEdge.Left, ALEdge.Right, recipientLabel, 20);
+                recipientValue.AutoAlignAxisToSuperviewAxis(ALAxis.Horizontal);
+
+                var amountView = new UIView();
+                amountView.BackgroundColor = Constants.R250G250B250;
+                amountView.Layer.CornerRadius = 10;
+                amountView.ClipsToBounds = true;
+                popup.AddSubview(amountView);
+
+                amountView.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, recipientView, 10);
+                amountView.AutoPinEdgeToSuperviewEdge(ALEdge.Left, commonMargin);
+                amountView.AutoPinEdgeToSuperviewEdge(ALEdge.Right, commonMargin);
+                amountView.AutoSetDimension(ALDimension.Height, 50);
+
+                var amountLabel = new UILabel();
+                amountLabel.Text = "Amount";
+                amountLabel.Font = Constants.Regular14;
+                amountView.AddSubview(amountLabel);
+
+                amountLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 20);
+                amountLabel.AutoAlignAxisToSuperviewAxis(ALAxis.Horizontal);
+                amountLabel.SetContentCompressionResistancePriority(1000, UILayoutConstraintAxis.Horizontal);
+
+                amountValue = new UILabel();
+                amountValue.Font = Constants.Semibold14;
+                amountValue.TextColor = Constants.R255G34B5;
+                amountValue.TextAlignment = UITextAlignment.Right;
+                amountView.AddSubview(amountValue);
+
+                amountValue.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 20);
+                amountValue.AutoPinEdge(ALEdge.Left, ALEdge.Right, amountLabel, 20);
+                amountValue.AutoAlignAxisToSuperviewAxis(ALAxis.Horizontal);
+
+                var separator = new UIView();
+                separator.BackgroundColor = Constants.R245G245B245;
+                popup.AddSubview(separator);
+
+                separator.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, amountView, 20);
+                separator.AutoPinEdgeToSuperviewEdge(ALEdge.Left, commonMargin);
+                separator.AutoPinEdgeToSuperviewEdge(ALEdge.Right, commonMargin);
+                separator.AutoSetDimension(ALDimension.Height, 1);
+
+                var cancelButton = new UIButton();
+                cancelButton.SetTitle(AppSettings.LocalizationManager.GetText(LocalizationKeys.Close), UIControlState.Normal);
+                cancelButton.SetTitleColor(UIColor.Black, UIControlState.Normal);
+                cancelButton.Layer.CornerRadius = 25;
+                cancelButton.Font = Constants.Semibold14;
+                cancelButton.Layer.BorderWidth = 1;
+                cancelButton.Layer.BorderColor = Constants.R245G245B245.CGColor;
+                popup.AddSubview(cancelButton);
+
+                cancelButton.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, separator, 20);
+                cancelButton.AutoPinEdgeToSuperviewEdge(ALEdge.Left, commonMargin);
+                cancelButton.AutoPinEdgeToSuperviewEdge(ALEdge.Right, commonMargin);
+                cancelButton.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom, commonMargin);
+                cancelButton.AutoSetDimension(ALDimension.Height, 50);
+
+                NavigationController.View.EndEditing(true);
+
+                _successAlert = new CustomAlertView(popup, TabBarController);
+                cancelButton.TouchDown += (sender, e) => { _successAlert.Hide(); };
+
+                popup.SizeToFit();
+            }
+
+            recipientValue.Text = _transferFacade.Recipient.Author;
+            amountValue.Text = _amountTextField.Text;
+
+            _successAlert.Show();
         }
 
         private void SetPlaceholder()

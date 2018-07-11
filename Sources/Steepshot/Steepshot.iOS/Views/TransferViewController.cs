@@ -18,6 +18,7 @@ using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Models.Common;
 using Steepshot.iOS.Helpers;
 using System.Globalization;
+using System.Threading.Tasks;
 
 namespace Steepshot.iOS.Views
 {
@@ -76,14 +77,12 @@ namespace Steepshot.iOS.Views
 
             if (_recipientAvatar.Hidden != isRecipientSetted)
             {
-                InvokeOnMainThread(() =>
-               {
-                   UIView.Animate(0.2, () =>
-                   {
-                       _recipientAvatar.Hidden = isRecipientSetted;
-                       _recipientAvatar.LayoutIfNeeded();
-                   });
-               });
+                _recepientTextField.Text = _transferFacade?.Recipient?.Author;
+                UIView.Animate(0.2, () =>
+                {
+                    _recipientAvatar.Hidden = isRecipientSetted;
+                    _recipientAvatar.LayoutIfNeeded();
+                });
             }
 
             if (!string.IsNullOrEmpty(_transferFacade?.Recipient?.Avatar))
@@ -137,6 +136,15 @@ namespace Steepshot.iOS.Views
             _transferFacade.UserBalance = AppSettings.User.AccountInfo?.Balances?[_pickedCoin];
         }
 
+        private void TogglButtons(bool enabled)
+        {
+            _transferButton.Enabled = enabled;
+            _recepientTextField.Enabled = enabled;
+            _amountTextField.Enabled = enabled;
+            _memoTextView.UserInteractionEnabled = enabled;
+            memoLabel.UserInteractionEnabled = enabled;
+        }
+
         private async void Transfer(object sender, EventArgs e)
         {
             if (!AppSettings.User.HasActivePermission)
@@ -146,18 +154,45 @@ namespace Steepshot.iOS.Views
             }
 
             if (string.IsNullOrEmpty(_recepientTextField.Text) || string.IsNullOrEmpty(_amountTextField.Text))
+                return;
+
+            if (_transferFacade.UserBalance == null)
+                return;
+
+            var transferAmount = (long)(double.Parse(_amountTextField.Text, CultureInfo.InvariantCulture) *
+                                        Math.Pow(10, _transferFacade.UserBalance.Precision));
+
+            if (transferAmount == 0 || transferAmount > _transferFacade.UserBalance.Value)
+                return;
+
+            TogglButtons(false);
+
+            _tranfserLoader.StartAnimating();
+            RemoveFocus();
+
+            var transferResponse = await _presenter.TryTransfer(_transferFacade.Recipient.Author, double.Parse(_amountTextField.Text, CultureInfo.InvariantCulture), _pickedCoin, _transferFacade.UserBalance.ChainCurrency, _memoTextView.Text);
+
+            _tranfserLoader.StopAnimating();
+            TogglButtons(true);
+
+            if (transferResponse.IsSuccess)
             {
-                var transferResponse = await _presenter.TryTransfer(_transferFacade.Recipient.Author, double.Parse(_amountTextField.Text, CultureInfo.InvariantCulture), _pickedCoin, _transferFacade.UserBalance.ChainCurrency, _memoTextView.Text);
-                if (transferResponse.IsSuccess)
-                {
-                    //ClearEdits();
-                }
+                ShowSuccessPopUp();
+
+                _transferFacade.UserFriendPresenter.Clear();
+                _userTableSource.ClearPosition();
+                _recepientTextField.Clear();
+                _amountTextField.Clear();
+                _transferFacade.Recipient = null;
+                _memoTextView.Text = string.Empty;
             }
+            else
+                ShowAlert(transferResponse.Error);
         }
 
         private async void UpdateAccountInfo()
         {
-            _balance.Hidden = true;
+            _balance.TextColor = UIColor.Clear;
             _balanceLoader.StartAnimating();
             var response = await _transferFacade.TryGetAccountInfo(AppSettings.User.Login);
             if (response.IsSuccess)
@@ -165,7 +200,7 @@ namespace Steepshot.iOS.Views
                 AppSettings.User.AccountInfo = response.Result;
                 _transferFacade.UserBalance = AppSettings.User.AccountInfo?.Balances?[_pickedCoin];
             }
-            _balance.Hidden = false;
+            _balance.TextColor = Constants.R151G155B158;
             _balanceLoader.StopAnimating();
         }
 

@@ -35,6 +35,7 @@ namespace Steepshot.iOS.Helpers
         public static readonly UIColor R255G34B5 = UIColor.FromRGB(255, 34, 5);
         public static readonly UIColor R240G240B240 = UIColor.FromRGB(240, 240, 240);
         public static readonly UIColor R255G0B0 = UIColor.FromRGB(255, 0, 0);
+        public static readonly UIColor R250G250B250 = UIColor.FromRGB(250, 250, 250);
 
         public static readonly CGPoint StartGradientPoint = new CGPoint(0, 0.5f);
         public static readonly CGPoint EndGradientPoint = new CGPoint(1, 0.5f);
