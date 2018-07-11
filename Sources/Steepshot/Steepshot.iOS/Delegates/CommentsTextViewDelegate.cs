@@ -8,16 +8,6 @@ namespace Steepshot.iOS.Helpers
     {
         public Action<nfloat> ChangedAction;
 
-        public override bool ShouldChangeText(UITextView textView, NSRange range, string text)
-        {
-            if (text == "\n")
-            {
-                textView.ResignFirstResponder();
-                return false;
-            }
-            return true;
-        }
-
         public override void Changed(UITextView textView)
         {
             var size = textView.SizeThatFits(textView.Frame.Size).Height;

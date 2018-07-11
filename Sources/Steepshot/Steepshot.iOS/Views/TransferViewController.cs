@@ -153,10 +153,10 @@ namespace Steepshot.iOS.Views
                 return;
             }
 
-            if (string.IsNullOrEmpty(_recepientTextField.Text) || string.IsNullOrEmpty(_amountTextField.Text))
+            if (string.IsNullOrEmpty(_amountTextField.Text))
                 return;
 
-            if (_transferFacade.UserBalance == null)
+            if (_transferFacade.UserBalance == null || _transferFacade.Recipient == null)
                 return;
 
             var transferAmount = (long)(double.Parse(_amountTextField.Text, CultureInfo.InvariantCulture) *

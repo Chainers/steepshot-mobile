@@ -24,6 +24,16 @@ namespace Steepshot.iOS.Helpers
                 Placeholder.Hidden = false;
             EditingEndedAction?.Invoke();
         }
+
+        public override bool ShouldChangeText(UITextView textView, NSRange range, string text)
+        {
+            if (text == "\n")
+            {
+                textView.ResignFirstResponder();
+                return false;
+            }
+            return true;
+        }
     }
 
     public class PostTitleTextViewDelegate : BaseTextViewDelegate
@@ -37,12 +47,6 @@ namespace Steepshot.iOS.Helpers
 
         public override bool ShouldChangeText(UITextView textView, NSRange range, string text)
         {
-            /*
-            if (text == "\n")
-            {
-                textView.ResignFirstResponder();
-                return false;
-            }*/
             if ((textView.Text + text).Length > _textLimit)
                 return false;
             return true;
