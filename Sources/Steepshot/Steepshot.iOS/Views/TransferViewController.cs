@@ -19,6 +19,7 @@ using Steepshot.Core.Models.Common;
 using Steepshot.iOS.Helpers;
 using System.Globalization;
 using System.Threading.Tasks;
+using Steepshot.Core.Localization;
 
 namespace Steepshot.iOS.Views
 {
@@ -77,7 +78,8 @@ namespace Steepshot.iOS.Views
 
             if (_recipientAvatar.Hidden != isRecipientSetted)
             {
-                _recepientTextField.Text = _transferFacade?.Recipient?.Author;
+                if(!string.IsNullOrEmpty(_transferFacade?.Recipient?.Author))
+                    _recepientTextField.Text = _transferFacade.Recipient.Author;
                 UIView.Animate(0.2, () =>
                 {
                     _recipientAvatar.Hidden = isRecipientSetted;
@@ -153,17 +155,26 @@ namespace Steepshot.iOS.Views
                 return;
             }
 
-            if (string.IsNullOrEmpty(_amountTextField.Text))
-                return;
-
             if (_transferFacade.UserBalance == null || _transferFacade.Recipient == null)
+            {
+                ShowAlert(LocalizationKeys.WrongRecipientName);
                 return;
+            }
 
-            var transferAmount = (long)(double.Parse(_amountTextField.Text, CultureInfo.InvariantCulture) *
+            if (string.IsNullOrEmpty(_amountTextField.Text))
+            {
+                ShowAlert(LocalizationKeys.WrongTransferAmount);
+                return;
+            }
+
+            var transferAmount = (long)(double.Parse(_amountTextField.Text.Replace(',', '.'), CultureInfo.InvariantCulture) *
                                         Math.Pow(10, _transferFacade.UserBalance.Precision));
 
             if (transferAmount == 0 || transferAmount > _transferFacade.UserBalance.Value)
+            {
+                ShowAlert(LocalizationKeys.WrongTransferAmount);
                 return;
+            }
 
             TogglButtons(false);
 

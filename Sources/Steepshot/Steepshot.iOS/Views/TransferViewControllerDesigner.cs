@@ -182,8 +182,8 @@ namespace Steepshot.iOS.Views
             _amountTextField = new SearchTextField(() =>
             {
                 RemoveFocus();
-            }, AppSettings.LocalizationManager.GetText(LocalizationKeys.TransferAmountHint));
-            _amountTextField.KeyboardType = UIKeyboardType.NumbersAndPunctuation;
+            }, AppSettings.LocalizationManager.GetText(LocalizationKeys.TransferAmountHint), new AmountFieldDelegate());
+            _amountTextField.KeyboardType = UIKeyboardType.DecimalPad;
             _amountTextField.Layer.CornerRadius = 25;
             View.AddSubview(_amountTextField);
 

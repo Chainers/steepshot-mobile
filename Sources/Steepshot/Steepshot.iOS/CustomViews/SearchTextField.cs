@@ -24,7 +24,7 @@ namespace Steepshot.iOS.CustomViews
             private set;
         }
 
-        public SearchTextField(Action returnButtonTapped, string placeholder)
+        public SearchTextField(Action returnButtonTapped, string placeholder, BaseTextFieldDelegate deleg = null)
         {
             var rightView = new UIView();
 
@@ -71,7 +71,7 @@ namespace Steepshot.iOS.CustomViews
             Layer.CornerRadius = 20;
             TintColor = Constants.R255G71B5;
 
-            Delegate = new TagFieldDelegate() { DoneTapped = returnButtonTapped };
+            Delegate = deleg ?? new TagFieldDelegate() { DoneTapped = returnButtonTapped };
             EditingChanged += DoEditingChanged;
             LayoutLoader();
         }
@@ -86,7 +86,7 @@ namespace Steepshot.iOS.CustomViews
         {
             Text = string.Empty;
             ClearButton.Hidden = true;
-            ((TagFieldDelegate)Delegate).ChangeBackground(this);
+            ((BaseTextFieldDelegate)Delegate).ChangeBackground(this);
             LayoutLoader();
         }
 
