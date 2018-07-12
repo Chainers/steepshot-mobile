@@ -44,15 +44,15 @@ namespace Steepshot.iOS.CustomViews
             rightView.AddSubview(Loader);
             rightView.AddSubview(ClearButton);
 
-            ClearButton.AutoSetDimensionsToSize(new CGSize(16,16));
-            ClearButton.AutoPinEdge(ALEdge.Left, ALEdge.Right, Loader, 5);
+            ClearButton.AutoCenterInSuperview();
+            ClearButton.AutoSetDimensionsToSize(new CGSize(37,37));
             ClearButton.AutoAlignAxis(ALAxis.Horizontal, Loader);
             Loader.AutoSetDimensionsToSize(new CGSize(16, 16));
             Loader.AutoPinEdgeToSuperviewEdge(ALEdge.Top);
             _loaderLeftMargin = Loader.AutoPinEdgeToSuperviewEdge(ALEdge.Left);
 
             RightView = rightView;
-            rightView.AutoSetDimensionsToSize(new CGSize(37, 16));
+            rightView.AutoSetDimensionsToSize(new CGSize(37, 37));
             RightViewMode = UITextFieldViewMode.Always;
 
             var _searchPlaceholderAttributes = new UIStringAttributes
