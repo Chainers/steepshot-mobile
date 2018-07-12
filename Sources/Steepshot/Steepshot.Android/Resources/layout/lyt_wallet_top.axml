@@ -28,5 +28,5 @@
         android:layout_centerVertical="true"
         android:layout_alignParentRight="true"
         android:layout_marginRight="30dp"
-        android:src="@drawable/ic_os_notification_fallback_white_24dp" />
+        android:src="@drawable/ic_claim_rewards" />
 </RelativeLayout>

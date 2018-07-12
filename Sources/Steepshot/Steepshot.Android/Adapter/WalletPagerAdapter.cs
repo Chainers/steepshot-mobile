@@ -10,6 +10,7 @@ using Android.Views;
 using Android.Widget;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
+using Steepshot.Utils;
 using Object = Java.Lang.Object;
 
 namespace Steepshot.Adapter
@@ -78,26 +79,49 @@ namespace Steepshot.Adapter
 
     public class TokenCardHolder : RecyclerView.ViewHolder
     {
-        public bool HasExtraButtons { get; private set; }
-        private ImageView _holderImage;
+        private readonly ImageView _holderImage;
+        private readonly TextView _balanceTitle;
+        private readonly TextView _balance;
+        private readonly TextView _tokenBalanceTitle;
+        private readonly TextView _tokenBalance;
+        private readonly TextView _tokenBalanceTitle2;
+        private readonly TextView _tokenBalance2;
 
         public TokenCardHolder(View itemView) : base(itemView)
         {
             _holderImage = itemView.FindViewById<ImageView>(Resource.Id.token_logo);
+            _balanceTitle = itemView.FindViewById<TextView>(Resource.Id.balance_title);
+            _balance = itemView.FindViewById<TextView>(Resource.Id.balance);
+            _tokenBalanceTitle = itemView.FindViewById<TextView>(Resource.Id.token_balance_title);
+            _tokenBalance = itemView.FindViewById<TextView>(Resource.Id.token_balance);
+            _tokenBalanceTitle2 = itemView.FindViewById<TextView>(Resource.Id.token_balance_title2);
+            _tokenBalance2 = itemView.FindViewById<TextView>(Resource.Id.token_balance2);
+
+            _balanceTitle.Typeface = Style.Semibold;
+            _balance.Typeface = Style.Semibold;
+            _tokenBalanceTitle.Typeface = Style.Semibold;
+            _tokenBalance.Typeface = Style.Semibold;
+            _tokenBalanceTitle2.Typeface = Style.Semibold;
+            _tokenBalance2.Typeface = Style.Semibold;
+
         }
 
         public void UpdateData(BalanceModel balance)
         {
-            var dr = RoundedBitmapDrawableFactory.Create(ItemView.Resources, BitmapFactory.DecodeResource(ItemView.Resources, Resource.Drawable.ic_eos_logo));
+            var dr = RoundedBitmapDrawableFactory.Create(ItemView.Resources, BitmapFactory.DecodeResource(ItemView.Resources, Resource.Drawable.wallet_card_bg1));
             dr.CornerRadius = TypedValue.ApplyDimension(ComplexUnitType.Dip, 16, ItemView.Resources.DisplayMetrics);
             _holderImage.SetImageDrawable(dr);
             switch (balance.CurrencyType)
             {
                 case CurrencyType.Steem:
-                    HasExtraButtons = true;
+                    _balanceTitle.Text = "Accaount balance";
+                    _balance.Text = "$ 99999.999";
+                    _tokenBalanceTitle.Text = balance.CurrencyType.ToString();
+                    _tokenBalance.Text = "999";
+                    _tokenBalanceTitle2.Text = balance.CurrencyType.ToString();
+                    _tokenBalance2.Text = "999";
                     break;
                 case CurrencyType.Sbd:
-                    HasExtraButtons = true;
                     break;
                 case CurrencyType.Golos:
                     break;

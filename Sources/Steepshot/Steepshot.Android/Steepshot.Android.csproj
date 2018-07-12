@@ -69,6 +69,7 @@
     <Compile Include="Adapter\SpinnerAdapter.cs" />
     <Compile Include="Activity\ActiveSignInActivity.cs" />
     <Compile Include="Adapter\RecipientsAdapter.cs" />
+    <Compile Include="Adapter\TrxHistoryAdapter.cs" />
     <Compile Include="Adapter\WalletPagerAdapter.cs" />
     <Compile Include="Base\App.cs" />
     <Compile Include="Base\BaseSignInActivity.cs" />
@@ -930,19 +931,39 @@
     </AndroidResource>
   </ItemGroup>
   <ItemGroup>
-    <AndroidResource Include="Resources\drawable-mdpi\ic_eos_logo.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_eos_logo.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_eos_logo.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable\orange_rounded_border16dip.xml" />
+    <AndroidResource Include="Resources\drawable\orange_rounded_border12dip.xml" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\layout\lyt_wallet_top.axml">
+      <SubType>Designer</SubType>
+    </AndroidResource>
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable-mdpi\ic_claim_rewards.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_claim_rewards.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_claim_rewards.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable-mdpi\wallet_card_bg1.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable-xhdpi\wallet_card_bg1.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable-xxhdpi\wallet_card_bg1.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable\grey_rounded_border12dip.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable\wallet_dot_selector.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\layout\lyt_trx_history.axml">
       <SubType>Designer</SubType>
     </AndroidResource>
   </ItemGroup>
