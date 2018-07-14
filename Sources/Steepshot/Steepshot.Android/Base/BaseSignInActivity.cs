@@ -118,8 +118,7 @@ namespace Steepshot.Base
             }
             catch (Exception ex)
             {
-                AppSettings.Reporter.SendCrash(ex);
-                this.ShowAlert(LocalizationKeys.UnknownError, ToastLength.Short);
+                this.ShowAlert(ex, ToastLength.Short);
             }
         }
 

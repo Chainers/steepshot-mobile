@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\NUnit.3.10.1\build\NUnit.props" Condition="Exists('..\packages\NUnit.3.10.1\build\NUnit.props')" />
   <Import Project="..\packages\Xamarin.Build.Download.0.4.11\build\Xamarin.Build.Download.props" Condition="Exists('..\packages\Xamarin.Build.Download.0.4.11\build\Xamarin.Build.Download.props')" />
   <Import Project="..\packages\Xamarin.Build.Download.0.4.2\build\Xamarin.Build.Download.props" Condition="Exists('..\packages\Xamarin.Build.Download.0.4.2\build\Xamarin.Build.Download.props')" />
   <PropertyGroup>
@@ -394,17 +395,17 @@
     <Reference Include="Com.OneSignal.Abstractions, Version=3.2.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Com.OneSignal.3.2.0\lib\MonoAndroid10\Com.OneSignal.Abstractions.dll</HintPath>
     </Reference>
-    <Reference Include="Cryptography.ECDSA, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Cryptography.ECDSA.Secp256K1.1.1.0\lib\netstandard2.0\Cryptography.ECDSA.dll</HintPath>
+    <Reference Include="Cryptography.ECDSA, Version=1.1.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Cryptography.ECDSA.Secp256K1.1.1.2\lib\netstandard2.0\Cryptography.ECDSA.dll</HintPath>
     </Reference>
-    <Reference Include="Ditch.Core, Version=3.2.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Ditch.Core.3.2.0-alpha\lib\netstandard2.0\Ditch.Core.dll</HintPath>
+    <Reference Include="Ditch.Core, Version=4.0.0.1, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Ditch.Core.4.0.0-alpha1\lib\netstandard2.0\Ditch.Core.dll</HintPath>
     </Reference>
-    <Reference Include="Ditch.Golos, Version=3.2.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Ditch.Golos.3.2.0-alpha\lib\netstandard2.0\Ditch.Golos.dll</HintPath>
+    <Reference Include="Ditch.Golos, Version=4.0.0.1, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Ditch.Golos.4.0.0-alpha1\lib\netstandard2.0\Ditch.Golos.dll</HintPath>
     </Reference>
-    <Reference Include="Ditch.Steem.Old, Version=0.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Ditch.Steem.Old.0.1.0-alpha\lib\netstandard2.0\Ditch.Steem.Old.dll</HintPath>
+    <Reference Include="Ditch.Steem, Version=4.0.0.2, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Ditch.Steem.4.0.0-alpha3\lib\netstandard2.0\Ditch.Steem.dll</HintPath>
     </Reference>
     <Reference Include="FastAndroidCamera, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\FastAndroidCamera.2.0.0\lib\MonoAndroid403\FastAndroidCamera.dll</HintPath>
@@ -416,6 +417,9 @@
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.11.0.2\lib\netstandard2.0\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="nunit.framework, Version=3.10.1.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
+      <HintPath>..\packages\NUnit.3.10.1\lib\netstandard2.0\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="OneSignal.Android.Binding, Version=3.2.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Com.OneSignal.3.2.0\lib\MonoAndroid10\OneSignal.Android.Binding.dll</HintPath>
@@ -936,4 +940,10 @@
   <Import Project="..\packages\Xamarin.GooglePlayServices.TagManager.V4.Impl.60.1142.1\build\MonoAndroid80\Xamarin.GooglePlayServices.TagManager.V4.Impl.targets" Condition="Exists('..\packages\Xamarin.GooglePlayServices.TagManager.V4.Impl.60.1142.1\build\MonoAndroid80\Xamarin.GooglePlayServices.TagManager.V4.Impl.targets')" />
   <Import Project="..\packages\Xamarin.GooglePlayServices.Analytics.60.1142.1\build\MonoAndroid80\Xamarin.GooglePlayServices.Analytics.targets" Condition="Exists('..\packages\Xamarin.GooglePlayServices.Analytics.60.1142.1\build\MonoAndroid80\Xamarin.GooglePlayServices.Analytics.targets')" />
   <Import Project="..\packages\Xamarin.Android.Support.v7.CardView.27.0.2.1\build\MonoAndroid81\Xamarin.Android.Support.v7.CardView.targets" Condition="Exists('..\packages\Xamarin.Android.Support.v7.CardView.27.0.2.1\build\MonoAndroid81\Xamarin.Android.Support.v7.CardView.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\NUnit.3.10.1\build\NUnit.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\NUnit.3.10.1\build\NUnit.props'))" />
+  </Target>
 </Project>

@@ -1,16 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Cryptography.ECDSA;
-using Ditch.Core.Errors;
 using Ditch.Core.JsonRpc;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Serializing;
 using Newtonsoft.Json.Linq;
-using Steepshot.Core.Errors;
 using Steepshot.Core.Models.Responses;
 
 namespace Steepshot.Core.HttpClient
@@ -55,7 +51,7 @@ namespace Steepshot.Core.HttpClient
         public abstract Task<OperationResult<AccountInfoResponse>> GetAccountInfo(string userName, CancellationToken ct);
 
         public abstract bool TryReconnectChain(CancellationToken token);
-        
+
         protected List<byte[]> ToKeyArr(string postingKey)
         {
             var key = ToKey(postingKey);
@@ -79,26 +75,6 @@ namespace Steepshot.Core.HttpClient
                 //todo nothing
             }
             return null;
-        }
-
-        protected void OnError<T>(JsonRpcResponse response, OperationResult<T> operationResult)
-        {
-            if (response.IsError)
-            {
-                if (response.Error is SystemError systemError)
-                {
-                    operationResult.Error = new HttpError(systemError);
-
-                }
-                else if (response.Error is ResponseError responseError)
-                {
-                    operationResult.Error = new BlockchainError(responseError);
-                }
-                else
-                {
-                    operationResult.Error = new ServerError(response.Error);
-                }
-            }
         }
 
         protected string UpdateProfileJson(string jsonMetadata, UpdateUserProfileModel model)

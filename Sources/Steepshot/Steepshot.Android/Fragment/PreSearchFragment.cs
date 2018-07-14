@@ -23,11 +23,11 @@ using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
 using Steepshot.Core.Models;
-using Steepshot.Core.Errors;
 using Steepshot.Core.Localization;
 using Steepshot.Interfaces;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Utils;
+using OperationCanceledException = System.OperationCanceledException;
 
 namespace Steepshot.Fragment
 {
@@ -587,7 +587,7 @@ namespace Steepshot.Fragment
                 Presenter.Clear();
             }
 
-            ErrorBase error;
+            Exception error;
             if (string.IsNullOrEmpty(tag))
                 error = await Presenter.TryLoadNextTopPosts();
             else
@@ -596,10 +596,10 @@ namespace Steepshot.Fragment
             if (!IsInitialized)
                 return;
 
-            if (error is CanceledError)
+            if (error is OperationCanceledException)
                 return;
 
-            Context.ShowAlert(error);
+            Context.ShowAlert(error, ToastLength.Short);
 
             if (error == null)
             {

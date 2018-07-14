@@ -65,8 +65,7 @@ namespace Steepshot.Core.Integration
             }
             catch (Exception ex)
             {
-                AppSettings.Reporter.SendCrash(ex);
-                return new OperationResult<MediaModel>(new AppError(LocalizationKeys.PhotoUploadError));
+                return new OperationResult<MediaModel>(new InternalError(LocalizationKeys.PhotoUploadError, ex));
             }
             finally
             {

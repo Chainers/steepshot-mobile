@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Steepshot.Core.Interfaces
+﻿namespace Steepshot.Core.Interfaces
 {
     public interface IListPresenter
     {

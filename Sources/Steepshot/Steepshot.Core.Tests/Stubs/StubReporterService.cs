@@ -7,14 +7,16 @@ namespace Steepshot.Core.Tests.Stubs
 {
     public class StubReporterService : IReporterService
     {
-        public void SendMessage(string message)
+        public string SendMessage(string message)
         {
             Console.WriteLine(message);
+            return string.Empty;
         }
 
-        public void SendCrash(Exception ex)
+        public string SendCrash(Exception ex)
         {
             Console.WriteLine($"{ex.Message}{Environment.NewLine}{ex.StackTrace}");
+            return String.Empty;
         }
 
         public void SendCrash(Exception ex, object param1)

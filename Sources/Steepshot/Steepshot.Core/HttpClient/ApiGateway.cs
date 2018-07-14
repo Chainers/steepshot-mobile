@@ -7,7 +7,6 @@ using System.Net.Http;
 using System.Text;
 using Steepshot.Core.Serializing;
 using Steepshot.Core.Models.Common;
-using System.Net;
 using Steepshot.Core.Models.Responses;
 using System.IO;
 using System.Linq;
@@ -98,7 +97,7 @@ namespace Steepshot.Core.HttpClient
             var result = await CreateResult<MediaModel>(response, token);
 
             if (result.IsSuccess && result.Result == null)
-                result.Error = new AppError(LocalizationKeys.ServeUnexpectedError);
+                result.Error = new ValidationError(LocalizationKeys.ServeUnexpectedError);
 
             return result;
         }
@@ -117,18 +116,14 @@ namespace Steepshot.Core.HttpClient
             return await CreateResult<NsfwRate>(response, token);
         }
 
-        protected virtual async Task<OperationResult<T>> CreateResult<T>(HttpResponseMessage response,
-            CancellationToken ct)
+        protected virtual async Task<OperationResult<T>> CreateResult<T>(HttpResponseMessage response, CancellationToken ct)
         {
             var result = new OperationResult<T>();
 
-            // HTTP error
-            if (response.StatusCode == HttpStatusCode.InternalServerError ||
-                response.StatusCode != HttpStatusCode.OK &&
-                response.StatusCode != HttpStatusCode.Created)
+            if (!response.IsSuccessStatusCode)
             {
-                var content = await response.Content.ReadAsStringAsync();
-                result.Error = new ServerError(response.StatusCode, content);
+                var rawResponse = await response.Content.ReadAsStringAsync();
+                result.Error = new RequestError(response.RequestMessage.ToString(), rawResponse);
                 return result;
             }
 
@@ -150,7 +145,7 @@ namespace Steepshot.Core.HttpClient
                         }
                     default:
                         {
-                            result.Error = new AppError(LocalizationKeys.UnsupportedMime);
+                            result.Error = new ValidationError(LocalizationKeys.UnsupportedMime);
                             break;
                         }
                 }

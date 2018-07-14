@@ -8,7 +8,6 @@ using Android.Views;
 using Android.Widget;
 using Com.OneSignal;
 using CheeseBind;
-using Steepshot.Adapter;
 using Steepshot.Base;
 using Steepshot.Core;
 using Steepshot.Core.Extensions;
@@ -23,10 +22,6 @@ using Steepshot.Core.Authorization;
 using System.Collections.Generic;
 using Android.Graphics;
 using Android.Support.Design.Widget;
-using Steepshot.CustomViews;
-using Refractored.Controls;
-using Square.Picasso;
-using Steepshot.Core.Errors;
 
 namespace Steepshot.Activity
 {

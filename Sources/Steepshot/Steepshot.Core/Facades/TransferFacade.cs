@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Steepshot.Core.Errors;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Presenters;
@@ -42,7 +41,7 @@ namespace Steepshot.Core.Facades
             _preSignInPresenter = new PreSignInPresenter();
         }
 
-        public async Task<ErrorBase> TryLoadNextSearchUser(string query) => await UserFriendPresenter.TryLoadNextSearchUser(query);
+        public async Task<Exception> TryLoadNextSearchUser(string query) => await UserFriendPresenter.TryLoadNextSearchUser(query);
         public async Task<OperationResult<AccountInfoResponse>> TryGetAccountInfo(string login) => await _preSignInPresenter.TryGetAccountInfo(login);
 
         public void TasksCancel(bool andDispose = false)

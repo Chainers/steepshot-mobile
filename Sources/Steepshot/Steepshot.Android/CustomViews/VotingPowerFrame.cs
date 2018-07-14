@@ -2,7 +2,6 @@
 using Android.Content.Res;
 using Android.Graphics;
 using Android.OS;
-using Android.Support.V4.Content;
 using Android.Util;
 using Android.Widget;
 

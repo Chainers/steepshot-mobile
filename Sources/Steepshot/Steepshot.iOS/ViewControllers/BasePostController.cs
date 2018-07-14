@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using CoreGraphics;
 using Foundation;
 using PureLayout.Net;
-using Steepshot.Core.Errors;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models;
 using Steepshot.Core.Models.Common;
@@ -34,7 +33,7 @@ namespace Steepshot.iOS.ViewControllers
                 return;
 
             var error = await _presenter.TryVote(post);
-            if (error is CanceledError)
+            if (error is OperationCanceledException)
                 return;
 
             ShowAlert(error);

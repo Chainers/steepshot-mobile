@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading.Tasks;
 using Android.Content;
 using Android.Graphics;
 using Android.Graphics.Drawables;

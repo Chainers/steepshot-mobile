@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Ditch.Core;
 using Ditch.Core.JsonRpc;
 using Steepshot.Core.HttpClient;
 using Steepshot.Core.Models.Common;

@@ -2,7 +2,6 @@
 using System.Threading;
 using Foundation;
 using PureLayout.Net;
-using Steepshot.Core.Errors;
 using Steepshot.Core.Models;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Presenters;
@@ -172,13 +171,13 @@ namespace Steepshot.iOS.Views
             _tagField.Loader.StartAnimating();
             _previousQuery = _tagField.Text;
 
-            ErrorBase error = null;
+            Exception error = null;
             if (_tagField.Text.Length == 0)
                 error = await _presenter.TryGetTopTags();
             else if (_tagField.Text.Length > 1)
                 error = await _presenter.TryLoadNext(_tagField.Text, showUnknownTag : true);
 
-            if(!(error is CanceledError))
+            if(!(error is OperationCanceledException))
                 _tagField.Loader.StopAnimating();
             ShowAlert(error);
         }
