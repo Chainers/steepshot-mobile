@@ -103,18 +103,25 @@ namespace Steepshot.Utils
             if (error is ValidationError validationError)
                 return lm.GetText(validationError);
 
+
             var url = AppSettings.Reporter.SendCrash(error);
+            var msg = string.Empty;
 
             if (error is InternalError internalError)
-                return lm.GetText(internalError.Key);
-
-            if (error is RequestError requestError)
+            {
+                msg = lm.GetText(internalError.Key);
+            }
+            else if (error is RequestError requestError)
             {
                 if (!string.IsNullOrEmpty(requestError.RawResponse))
-                    return lm.GetText(requestError.RawResponse);
+                    msg = lm.GetText(requestError.RawResponse);
+            }
+            else
+            {
+                msg = lm.GetText(error.Message);
             }
 
-            return lm.GetText(LocalizationKeys.UnexpectedError);
+            return string.IsNullOrEmpty(msg) ? lm.GetText(LocalizationKeys.UnexpectedError) : msg;
         }
 
         private static bool IsSkeepError(Exception error)
