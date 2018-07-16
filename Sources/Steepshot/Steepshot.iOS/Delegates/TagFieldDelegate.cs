@@ -32,9 +32,13 @@ namespace Steepshot.iOS.Helpers
     {
         public override bool ShouldChangeCharacters(UITextField textField, Foundation.NSRange range, string replacementString)
         {
-            if (replacementString.Contains(" "))
+            if (replacementString == string.Empty)
+                return true;
+            if ((textField.Text + replacementString).Length == 17)
                 return false;
-            return true;
+            if (Regex.IsMatch(replacementString, @"[_\w\.-]+"))
+                return true;
+            return false;
         }
     }
 

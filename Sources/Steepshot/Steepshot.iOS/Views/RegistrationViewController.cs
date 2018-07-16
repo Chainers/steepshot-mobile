@@ -137,7 +137,15 @@ namespace Steepshot.iOS.Views
             _username.ReturnKeyType = UIReturnKeyType.Next;
             _username.EditingChanged += (object sender, EventArgs e) => 
             {
-                _timer.Change(500, Timeout.Infinite);
+                if (string.IsNullOrEmpty(_username.Text))
+                {
+                    _presenter.TasksCancel();
+                    _timer.Change(Timeout.Infinite, Timeout.Infinite);
+                    _usernameUnderline.BackgroundColor = Constants.R240G240B240;
+                    _usernameLabel.Hidden = true;
+                }
+                else
+                    _timer.Change(500, Timeout.Infinite);
             };
             View.AddSubview(_username);
 
@@ -183,17 +191,25 @@ namespace Steepshot.iOS.Views
 
         private void CheckMail(object sender, EventArgs e)
         {
-            var isValid = _mailChecker.IsValidEmail(_email.Text);
-
-            if (isValid)
+            if (string.IsNullOrEmpty(_email.Text))
             {
                 _emailUnderline.BackgroundColor = Constants.R240G240B240;
                 _emailLabel.Hidden = true;
             }
             else
             {
-                _emailUnderline.BackgroundColor = Constants.R255G0B0;
-                _emailLabel.Hidden = false;
+                var isValid = _mailChecker.IsValidEmail(_email.Text);
+
+                if (isValid)
+                {
+                    _emailUnderline.BackgroundColor = Constants.R240G240B240;
+                    _emailLabel.Hidden = true;
+                }
+                else
+                {
+                    _emailUnderline.BackgroundColor = Constants.R255G0B0;
+                    _emailLabel.Hidden = false;
+                }
             }
         }
 
@@ -212,7 +228,11 @@ namespace Steepshot.iOS.Views
             var error = await _presenter.TryGetAccountInfo(_username.Text);
 
             if (error is CanceledError)
+            {
+                if (string.IsNullOrEmpty(_username.Text))
+                    _loader.StopAnimating();
                 return;
+            }
 
             if (error?.Message == "User not found")
             {

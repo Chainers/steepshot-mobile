@@ -431,6 +431,7 @@
     <Compile Include="Delegates\CollectionViewFlowDelegate.cs" />
     <Compile Include="Delegates\CommentsTextViewDelegate.cs" />
     <Compile Include="Views\TransferViewControllerDesigner.cs" />
+    <Compile Include="Cells\CardCollectionViewCell.cs" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\ic_photo_holder.png" />
@@ -558,6 +559,8 @@
     <BundleResource Include="Resources\ic_currency_picker%403x.png" />
     <BundleResource Include="Resources\ic_stamp%402x.png" />
     <BundleResource Include="Resources\ic_stamp%403x.png" />
+    <BundleResource Include="Resources\ic_present%402x.png" />
+    <BundleResource Include="Resources\ic_present%403x.png" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="..\Steepshot.Android\Assets\Localization.en-us.txt">
