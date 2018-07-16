@@ -34,8 +34,7 @@ namespace Steepshot.Core.HttpClient
             };
         }
 
-        public async Task<OperationResult<T>> Get<T>(string endpoint, Dictionary<string, object> parameters,
-            CancellationToken token)
+        public async Task<OperationResult<T>> Get<T>(string endpoint, Dictionary<string, object> parameters, CancellationToken token)
         {
             var param = string.Empty;
             if (parameters != null && parameters.Count > 0)

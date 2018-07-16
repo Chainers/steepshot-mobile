@@ -279,7 +279,7 @@ namespace Steepshot.Core.HttpClient
             var op = new FollowOperation(model.Login, "steepshot", Ditch.Golos.Models.FollowType.Blog, model.Login);
             var properties = new DynamicGlobalPropertyObject
             {
-                HeadBlockId = "0",
+                HeadBlockId = "0000000000000000000000000000000000000000",
                 Time = DateTime.Now,
                 HeadBlockNumber = 0
             };

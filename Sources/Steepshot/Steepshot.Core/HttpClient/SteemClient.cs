@@ -16,6 +16,8 @@ using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Utils;
 using Ditch.Core;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Steepshot.Core.Models.Responses;
 
 namespace Steepshot.Core.HttpClient
@@ -257,12 +259,14 @@ namespace Steepshot.Core.HttpClient
             var op = new FollowOperation(model.Login, "steepshot", Ditch.Steem.Models.FollowType.Blog, model.Login);
             var properties = new DynamicGlobalPropertyObject
             {
-                HeadBlockId = "0",
+                HeadBlockId = "0000000000000000000000000000000000000000",
                 Time = DateTime.Now,
                 HeadBlockNumber = 0
             };
             var tr = await _operationManager.CreateTransaction(properties, keys, op, ct);
-            return new OperationResult<object>() { Result = tr };
+
+            var conv = JsonConvert.SerializeObject(tr, _operationManager.CondenserJsonSerializerSettings);
+            return new OperationResult<object> { Result = JsonConvert.DeserializeObject<JObject>(conv) };
         }
 
         public override async Task<OperationResult<VoidResponse>> ValidatePrivateKey(ValidatePrivateKeyModel model, CancellationToken ct)
