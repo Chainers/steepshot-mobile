@@ -145,7 +145,7 @@ namespace Steepshot.Core.HttpClient
                 ops = new BaseOperation[]
                 {
                         op,
-                        new BeneficiariesOperation(model.Login, model.Permlink,new Asset(1000000000, Config.SteemNaiSbd) ,beneficiaries)
+                        new BeneficiariesOperation(model.Login, model.Permlink,new Asset(1000000000, Config.SteemAssetNumSbd) ,beneficiaries)
                 };
             }
             else
