@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
+using Steepshot.Core.Errors;
 using Steepshot.Core.HttpClient;
 using Steepshot.Core.Services;
 
@@ -83,6 +84,16 @@ namespace Steepshot.Core.Localization
             }
             return false;
         }
+
+        public string GetText(ValidationError validationError)
+        {
+            if (validationError.Key.HasValue)
+            {
+                return GetText(validationError.Key.ToString(), validationError.Parameters);
+            }
+            return GetText(validationError.Message);
+        }
+
 
         public string GetText(LocalizationKeys key, params object[] args)
         {

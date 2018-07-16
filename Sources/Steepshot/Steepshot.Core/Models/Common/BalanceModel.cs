@@ -2,8 +2,14 @@
 {
     public class BalanceModel
     {
-        public long Value;
-        public byte Precision;
-        public string ChainCurrency;
+        public string Value;
+
+        public byte MaxDecimals;
+
+        public BalanceModel(string value, byte maxDecimals)
+        {
+            Value = value;
+            MaxDecimals = maxDecimals;
+        }
     }
 }

@@ -14,7 +14,6 @@ using Newtonsoft.Json;
 using Refractored.Controls;
 using Square.Picasso;
 using Steepshot.Base;
-using Steepshot.Core.Errors;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Presenters;
@@ -253,7 +252,7 @@ namespace Steepshot.Activity
                 if (IsDestroyed)
                     return;
 
-                if (error == null || error is CanceledError)
+                if (error == null || error is OperationCanceledException)
                 {
                     SetProfileChart(_tabLayout.LayoutParameters.Height);
                     break;

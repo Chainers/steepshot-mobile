@@ -4,6 +4,9 @@ cd ..\Sources\
 del *.user /S /Q 
 
 FOR /R %%f IN (.) DO (
+	if "%%~nf"=="packages"	(	
+		rmdir /S /Q "%%f"
+	)
 	if "%%~nf"=="obj" (
 		rmdir /S /Q "%%f"
 	)

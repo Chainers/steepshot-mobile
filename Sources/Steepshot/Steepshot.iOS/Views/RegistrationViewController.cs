@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading;
 using PureLayout.Net;
-using Steepshot.Core.Errors;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 using Steepshot.iOS.Helpers;
@@ -209,7 +208,7 @@ namespace Steepshot.iOS.Views
 
             var error = await _presenter.TryGetAccountInfo(_username.Text);
 
-            if (error is CanceledError)
+            if (error is OperationCanceledException)
                 return;
 
             if (error?.Message == "User not found")

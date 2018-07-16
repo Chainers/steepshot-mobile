@@ -3,7 +3,6 @@ using System.Linq;
 using Android.OS;
 using Android.Support.V4.App;
 using Steepshot.Core.Authorization;
-using Steepshot.Core.Presenters;
 using Steepshot.Fragment;
 using Steepshot.Core.Utils;
 

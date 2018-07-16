@@ -4,14 +4,12 @@ using CoreGraphics;
 using Foundation;
 using PureLayout.Net;
 using Steepshot.Core;
-using Steepshot.Core.Errors;
 using Steepshot.Core.Facades;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 using Steepshot.iOS.CustomViews;
 using Constants = Steepshot.iOS.Helpers.Constants;
-using Steepshot.Core.Extensions;
 using Steepshot.iOS.ViewControllers;
 using UIKit;
 using Steepshot.iOS.ViewSources;
@@ -152,7 +150,7 @@ namespace Steepshot.iOS.Views
         private void OnUserBalanceChanged()
         {
             if (_transferFacade.UserBalance != null)
-                _balance.Text = _transferFacade.UserBalance.Value.ToFormattedCurrencyString(_transferFacade.UserBalance.Precision, null, ".");
+                _balance.Text = $"{_transferFacade.UserBalance.Value} {_pickedCoin.ToString()}";
         }
 
         private void CoinSelected(CurrencyType pickedCoin)
@@ -249,7 +247,7 @@ namespace Steepshot.iOS.Views
             }
             var searchResult = await _transferFacade.TryLoadNextSearchUser(_recepientTextField.Text);
 
-            if (!(searchResult is CanceledError))
+            if (!(searchResult is OperationCanceledException))
             {
                 _noResultViewTags.Hidden = _transferFacade.UserFriendPresenter.Count > 0;
                 _usersLoader.StopAnimating();

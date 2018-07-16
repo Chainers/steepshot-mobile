@@ -1,8 +1,7 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Android.App;
 using Android.Content;
-using Android.Text.Method;
-using Android.Text.Util;
 using Android.Views;
 using Android.Widget;
 using Steepshot.Core.Errors;
@@ -13,9 +12,9 @@ namespace Steepshot.Utils
 {
     public static class MessageHelper
     {
-        public static void ShowAlert(this Context context, ErrorBase error)
+        public static void ShowAlert(this Context context, Exception error)
         {
-            if (error == null || error is CanceledError)
+            if (IsSkeepError(error))
                 return;
 
             var message = GetMsg(error);
@@ -41,9 +40,9 @@ namespace Steepshot.Utils
             Toast.MakeText(context, message, length).Show();
         }
 
-        public static void ShowAlert(this Context context, ErrorBase error, ToastLength length)
+        public static void ShowAlert(this Context context, Exception error, ToastLength length)
         {
-            if (error == null || error is CanceledError)
+            if (IsSkeepError(error))
                 return;
 
             var message = GetMsg(error);
@@ -54,9 +53,9 @@ namespace Steepshot.Utils
             Toast.MakeText(context, message, length).Show();
         }
 
-        public static void ShowInteractiveMessage(this Context context, ErrorBase error, EventHandler<DialogClickEventArgs> tryAgainAction, EventHandler<DialogClickEventArgs> forgetAction)
+        public static void ShowInteractiveMessage(this Context context, Exception error, EventHandler<DialogClickEventArgs> tryAgainAction, EventHandler<DialogClickEventArgs> forgetAction)
         {
-            if (error == null || error is CanceledError)
+            if (IsSkeepError(error))
                 return;
 
             var message = GetMsg(error);
@@ -69,9 +68,7 @@ namespace Steepshot.Utils
             CreateAndShowDialog(context, message, pBtn, tryAgainAction, nBtn, forgetAction);
         }
 
-        private static void CreateAndShowDialog(Context context, string msg,
-            string positiveButtonText, EventHandler<DialogClickEventArgs> positiveButtonAction = null,
-            string negativeButtonText = null, EventHandler<DialogClickEventArgs> negativeButtonAction = null)
+        private static void CreateAndShowDialog(Context context, string msg, string positiveButtonText, EventHandler<DialogClickEventArgs> positiveButtonAction = null, string negativeButtonText = null, EventHandler<DialogClickEventArgs> negativeButtonAction = null)
         {
             var alert = new AlertDialog.Builder(context);
             if (msg.Contains("https:"))
@@ -99,31 +96,46 @@ namespace Steepshot.Utils
             dialog.Show();
         }
 
-        private static string GetMsg(ErrorBase error)
+        private static string GetMsg(Exception error)
         {
-            var message = error.Message;
-            if (string.IsNullOrWhiteSpace(message))
-                return message;
-
             var lm = AppSettings.LocalizationManager;
-            if (!lm.ContainsKey(message))
+
+            if (error is ValidationError validationError)
+                return lm.GetText(validationError);
+
+
+            var url = AppSettings.Reporter.SendCrash(error);
+            var msg = string.Empty;
+
+            if (error is InternalError internalError)
             {
-                if (error is BlockchainError blError)
-                {
-                    AppSettings.Reporter.SendMessage($"New message: {LocalizationManager.NormalizeKey(blError.Message)}{Environment.NewLine}Full Message:{blError.FullMessage}");
-                }
-                else
-                {
-                    AppSettings.Reporter.SendMessage($"New message: {LocalizationManager.NormalizeKey(message)}");
-                }
-                message = nameof(LocalizationKeys.UnexpectedError);
+                msg = lm.GetText(internalError.Key);
+            }
+            else if (error is RequestError requestError)
+            {
+                if (!string.IsNullOrEmpty(requestError.RawResponse))
+                    msg = lm.GetText(requestError.RawResponse);
+            }
+            else
+            {
+                msg = lm.GetText(error.Message);
             }
 
-            var txt = lm.GetText(message);
-            if (error.Parameters != null)
-                txt = string.Format(txt, error.Parameters);
+            return string.IsNullOrEmpty(msg) ? lm.GetText(LocalizationKeys.UnexpectedError) : msg;
+        }
 
-            return txt;
+        private static bool IsSkeepError(Exception error)
+        {
+            if (error == null || error is TaskCanceledException || error is OperationCanceledException)
+                return true;
+
+            if (error is RequestError requestError)
+            {
+                if (requestError.Exception is TaskCanceledException || requestError.Exception is OperationCanceledException)
+                    return true;
+            }
+
+            return false;
         }
     }
 }

@@ -289,7 +289,7 @@ namespace Steepshot.Fragment
         private void OnUserBalanceChanged()
         {
             if (_transferFacade.UserBalance != null)
-                _balance.Text = $"{_transferFacade.UserBalance.Value.ToFormattedCurrencyString(_transferFacade.UserBalance.Precision, _pickedCoin.ToString(), ".")}";
+                _balance.Text = $"{_transferFacade.UserBalance.Value} {_pickedCoin.ToString()}";
         }
 
         private void OnRecipientChanged()
@@ -315,7 +315,8 @@ namespace Steepshot.Fragment
                     Picasso.With(Activity).Load(Resource.Drawable.ic_holder).Into(_recipientAvatar);
                 _recipientAvatar.Visibility = ViewStates.Visible;
 
-                Activity.RunOnUiThread(() => {
+                Activity.RunOnUiThread(() =>
+                {
                     _recipientSearch.Text = _transferFacade.Recipient.Author;
                 });
             }
@@ -464,10 +465,9 @@ namespace Steepshot.Fragment
                 return await Validate();
             }
 
-            var transferAmount = (long)(double.Parse(_transferAmountEdit.Text, CultureInfo.InvariantCulture) *
-                                        Math.Pow(10, _transferFacade.UserBalance.Precision));
+            var transferAmount = double.Parse(_transferAmountEdit.Text, CultureInfo.InvariantCulture);
 
-            if (transferAmount == 0 || transferAmount > _transferFacade.UserBalance.Value)
+            if (Math.Abs(transferAmount) < 0.0000001 || transferAmount > double.Parse(_transferFacade.UserBalance.Value, CultureInfo.InvariantCulture))
             {
                 Toast.MakeText(Activity, AppSettings.LocalizationManager.GetText(LocalizationKeys.WrongTransferAmount), ToastLength.Short).Show();
                 return false;
@@ -501,7 +501,7 @@ namespace Steepshot.Fragment
             if (_transferFacade.UserBalance == null)
                 return;
 
-            var transferResponse = await Presenter.TryTransfer(_transferFacade.Recipient.Author, double.Parse(_transferAmountEdit.Text, CultureInfo.InvariantCulture), _pickedCoin, _transferFacade.UserBalance.ChainCurrency, _transferCommentEdit.Text);
+            var transferResponse = await Presenter.TryTransfer(_transferFacade.Recipient.Author, _transferAmountEdit.Text, _pickedCoin, _transferCommentEdit.Text);
             if (transferResponse.IsSuccess)
             {
                 Toast.MakeText(Activity, AppSettings.LocalizationManager.GetText(LocalizationKeys.TransferSuccess), ToastLength.Short).Show();

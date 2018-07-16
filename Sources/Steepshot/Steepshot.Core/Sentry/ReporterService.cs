@@ -4,7 +4,6 @@ using System.IO;
 using System.Net;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Steepshot.Core.Presenters;
 using Steepshot.Core.Sentry.Models;
 using Steepshot.Core.Services;
 using Steepshot.Core.Utils;
@@ -23,21 +22,29 @@ namespace Steepshot.Core.Sentry
             _dsn = new Dsn(dsn);
         }
 
-        public void SendMessage(string message)
+        public string SendMessage(string message)
         {
+            if (!AppSettings.ConnectionService.IsConnectionAvailable())
+                return string.Empty; //TODO: need to store locale
+
             var packet = GetPacket();
             packet.Level = "info";
             packet.Message = message;
             var eventId = Send(packet, _dsn);
+            return $"{eventId}";
         }
 
-        public void SendCrash(Exception ex)
+        public string SendCrash(Exception ex)
         {
+            if (!AppSettings.ConnectionService.IsConnectionAvailable())
+                return string.Empty; //TODO: need to store locale
+
             var packet = GetPacket();
             packet.Level = "error";
             packet.Extra = new ExceptionData(ex);
             packet.Exceptions = SentryException.GetList(ex);
             var eventId = Send(packet, _dsn);
+            return $"{eventId}";
         }
 
         private JsonPacket GetPacket()
@@ -61,7 +68,7 @@ namespace Steepshot.Core.Sentry
             };
         }
 
-        public string Send(JsonPacket packet, Dsn dsn)
+        private string Send(JsonPacket packet, Dsn dsn)
         {
             try
             {

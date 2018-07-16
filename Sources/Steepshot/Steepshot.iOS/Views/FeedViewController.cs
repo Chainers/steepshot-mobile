@@ -184,7 +184,7 @@ namespace Steepshot.iOS.Views
 
         protected override async Task GetPosts(bool shouldStartAnimating = true, bool clearOld = false)
         {
-            ErrorBase error;
+            Exception error;
             do
             {
                 if (shouldStartAnimating)

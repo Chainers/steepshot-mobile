@@ -1,6 +1,6 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
-using Steepshot.Core.Errors;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
@@ -22,12 +22,12 @@ namespace Steepshot.Core.Presenters
 
     public sealed class LolPresenter : ListPresenter<string>
     {
-        public async Task<ErrorBase> TryGetAccountInfo(string login)
+        public async Task<Exception> TryGetAccountInfo(string login)
         {
             return await RunAsSingleTask(GetAccountInfo, login);
         }
 
-        private async Task<ErrorBase> GetAccountInfo(string login, CancellationToken ct)
+        private async Task<Exception> GetAccountInfo(string login, CancellationToken ct)
         {
             var req = new UserProfileModel(login);
             var response = await Api.GetUserProfile(req, ct);

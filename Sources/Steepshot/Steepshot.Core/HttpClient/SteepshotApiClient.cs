@@ -6,9 +6,7 @@ using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Serializing;
-using System.Linq;
 using Ditch.Core.JsonRpc;
-using Steepshot.Core.Errors;
 using System;
 
 namespace Steepshot.Core.HttpClient
@@ -80,8 +78,8 @@ namespace Steepshot.Core.HttpClient
         public async Task<OperationResult<VoidResponse>> ValidatePrivateKey(ValidatePrivateKeyModel model, CancellationToken ct)
         {
             var results = Validate(model);
-            if (results.Any())
-                return new OperationResult<VoidResponse>(new ValidationError(results));
+            if (results != null)
+                return new OperationResult<VoidResponse>(results);
 
             var result = await _ditchClient.ValidatePrivateKey(model, ct);
             return result;
@@ -90,8 +88,8 @@ namespace Steepshot.Core.HttpClient
         public async Task<OperationResult<Post>> Vote(VoteModel model, CancellationToken ct)
         {
             var results = Validate(model);
-            if (results.Any())
-                return new OperationResult<Post>(new ValidationError(results));
+            if (results != null)
+                return new OperationResult<Post>(results);
 
             var result = await _ditchClient.Vote(model, ct);
 
@@ -101,7 +99,7 @@ namespace Steepshot.Core.HttpClient
             if (!result.IsSuccess)
                 return new OperationResult<Post>(result.Error);
 
-            OperationResult<Post> postInfo = null;
+            OperationResult<Post> postInfo;
             if (model.IsComment) //TODO: << delete when comment update support will added on backend
             {
                 postInfo = new OperationResult<Post> { Result = model.Post };
@@ -127,8 +125,8 @@ namespace Steepshot.Core.HttpClient
         public async Task<OperationResult<VoidResponse>> Follow(FollowModel model, CancellationToken ct)
         {
             var results = Validate(model);
-            if (results.Any())
-                return new OperationResult<VoidResponse>(new ValidationError(results));
+            if (results != null)
+                return new OperationResult<VoidResponse>(results);
 
             var result = await _ditchClient.Follow(model, ct);
             await Trace($"user/{model.Username}/{model.Type.ToString().ToLowerInvariant()}", model.Login, result.Error, model.Username, ct);
@@ -138,8 +136,8 @@ namespace Steepshot.Core.HttpClient
         public async Task<OperationResult<VoidResponse>> CreateOrEditComment(CreateOrEditCommentModel model, CancellationToken ct)
         {
             var results = Validate(model);
-            if (results.Any())
-                return new OperationResult<VoidResponse>(new ValidationError(results));
+            if (results != null)
+                return new OperationResult<VoidResponse>(results);
 
             if (!model.IsEditMode)
             {
@@ -193,8 +191,8 @@ namespace Steepshot.Core.HttpClient
                 return null;
 
             var results = Validate(model);
-            if (results.Any())
-                return new OperationResult<MediaModel>(new ValidationError(results));
+            if (results != null)
+                return new OperationResult<MediaModel>(results);
 
             var trxResp = await _ditchClient.GetVerifyTransaction(model, ct);
 
@@ -210,8 +208,8 @@ namespace Steepshot.Core.HttpClient
         public async Task<OperationResult<VoidResponse>> DeletePostOrComment(DeleteModel model, CancellationToken ct)
         {
             var results = Validate(model);
-            if (results.Any())
-                return new OperationResult<VoidResponse>(new ValidationError(results));
+            if (results != null)
+                return new OperationResult<VoidResponse>(results);
 
             if (model.IsEnableToDelete)
             {
@@ -233,8 +231,8 @@ namespace Steepshot.Core.HttpClient
         public async Task<OperationResult<VoidResponse>> UpdateUserProfile(UpdateUserProfileModel model, CancellationToken ct)
         {
             var results = Validate(model);
-            if (results.Any())
-                return new OperationResult<VoidResponse>(new ValidationError(results));
+            if (results != null)
+                return new OperationResult<VoidResponse>(results);
 
             return await _ditchClient.UpdateUserProfile(model, ct);
         }
@@ -249,8 +247,8 @@ namespace Steepshot.Core.HttpClient
             model.VerifyTransaction = trxResp.Result;
 
             var results = Validate(model);
-            if (results.Any())
-                return new OperationResult<object>(new ValidationError(results));
+            if (results != null)
+                return new OperationResult<object>(results);
 
             var endpoint = $"{BaseUrl}/{GatewayVersion.V1P1}/{(model.Subscribe ? "subscribe" : "unsubscribe")}";
 
@@ -260,8 +258,8 @@ namespace Steepshot.Core.HttpClient
         public async Task<OperationResult<VoidResponse>> Transfer(TransferModel model, CancellationToken ct)
         {
             var results = Validate(model);
-            if (results.Any())
-                return new OperationResult<VoidResponse>(new ValidationError(results));
+            if (results != null)
+                return new OperationResult<VoidResponse>(results);
 
             return await _ditchClient.Transfer(model, ct);
         }

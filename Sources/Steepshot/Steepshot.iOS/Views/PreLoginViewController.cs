@@ -1,7 +1,6 @@
 ﻿using System;
 using Steepshot.Core;
 using Steepshot.Core.Presenters;
-using Steepshot.iOS.Helpers;
 using Steepshot.iOS.ViewControllers;
 using UIKit;
 using Constants = Steepshot.iOS.Helpers.Constants;

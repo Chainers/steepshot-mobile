@@ -92,7 +92,6 @@ namespace Steepshot.Activity
 
         private void OnTaskSchedulerOnUnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs e)
         {
-            AppSettings.Reporter.SendCrash(e.Exception);
             this.ShowAlert(LocalizationKeys.UnexpectedError, Android.Widget.ToastLength.Short);
         }
 
@@ -101,14 +100,13 @@ namespace Steepshot.Activity
             var ex = e.ExceptionObject as Exception;
             if (ex != null)
                 ex = new Exception(e.ExceptionObject.ToString());
-            AppSettings.Reporter.SendCrash(ex);
-            this.ShowAlert(LocalizationKeys.UnexpectedError, Android.Widget.ToastLength.Short);
+
+            this.ShowAlert(ex, Android.Widget.ToastLength.Short);
         }
 
         private void OnUnhandledExceptionRaiser(object sender, RaiseThrowableEventArgs e)
         {
-            AppSettings.Reporter.SendCrash(e.Exception);
-            this.ShowAlert(LocalizationKeys.UnexpectedError, Android.Widget.ToastLength.Short);
+            this.ShowAlert(e.Exception, Android.Widget.ToastLength.Short);
         }
     }
 }

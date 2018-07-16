@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Threading.Tasks;
 using CoreGraphics;
-using FFImageLoading;
 using Foundation;
 using PureLayout.Net;
-using Steepshot.Core.Extensions;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models;
 using Steepshot.Core.Models.Common;
@@ -18,7 +16,6 @@ using Steepshot.iOS.Helpers;
 using Steepshot.iOS.ViewControllers;
 using Steepshot.iOS.ViewSources;
 using UIKit;
-using Steepshot.Core.Extensions;
 
 namespace Steepshot.iOS.Views
 {
