@@ -50,6 +50,8 @@ namespace Steepshot.Core.HttpClient
 
         public abstract Task<OperationResult<AccountInfoResponse>> GetAccountInfo(string userName, CancellationToken ct);
 
+        public abstract Task<OperationResult<AccountHistoryResponse[]>> GetAccountHistory(string userName, CancellationToken ct);
+
         public abstract bool TryReconnectChain(CancellationToken token);
 
         protected List<byte[]> ToKeyArr(string postingKey)

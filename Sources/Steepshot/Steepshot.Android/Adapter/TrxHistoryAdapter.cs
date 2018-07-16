@@ -1,10 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using Android.Content;
 using Android.Graphics;
 using Android.Support.V7.Widget;
 using Android.Util;
 using Android.Views;
+using Steepshot.Core.HttpClient;
 using Steepshot.Utils;
 
 namespace Steepshot.Adapter
@@ -16,11 +16,15 @@ namespace Steepshot.Adapter
 
     public class TrxHistoryAdapter : RecyclerView.Adapter
     {
-        public TrxHistoryAdapter()
-        {
-        }
+        private AccountHistoryResponse[] _accountHistory;
 
-        public override int ItemCount => 10;
+        public override int ItemCount => _accountHistory?.Length ?? 0;
+
+        public void SetAccountHistory(AccountHistoryResponse[] accountHistory)
+        {
+            _accountHistory = accountHistory;
+            NotifyDataSetChanged();
+        }
 
         public override void OnBindViewHolder(RecyclerView.ViewHolder holder, int position)
         {

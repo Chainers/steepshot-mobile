@@ -385,6 +385,85 @@ namespace Steepshot.Core.HttpClient
 
             return result;
         }
+
+        private string[] AccountHistoryFilter = {
+            TransferOperation.OperationName,
+            TransferToVestingOperation.OperationName,
+            WithdrawVestingOperation.OperationName
+        };
+
+        public override async Task<OperationResult<AccountHistoryResponse[]>> GetAccountHistory(string userName, CancellationToken ct)
+        {
+            if (!TryReconnectChain(ct))
+                return new OperationResult<AccountHistoryResponse[]>(new ValidationError(LocalizationKeys.EnableConnectToBlockchain));
+
+            var result = new OperationResult<AccountHistoryResponse[]>();
+
+            var resp = await _operationManager.GetAccountHistory(userName, ulong.MaxValue, 10000, CancellationToken.None);
+            if (resp.IsError)
+            {
+                result.Error = new RequestError(resp);
+                return result;
+            }
+
+            result.Result = resp.Result.Where(Filter).Select(Transform).ToArray();
+
+            return result;
+        }
+
+        private bool Filter(KeyValuePair<uint, AppliedOperation> arg)
+        {
+            BaseOperation baseOperation = arg.Value.Op;
+            return AccountHistoryFilter.Contains(baseOperation.TypeName);
+        }
+
+        private AccountHistoryResponse Transform(KeyValuePair<uint, AppliedOperation> arg)
+        {
+            BaseOperation baseOperation = arg.Value.Op;
+            switch (baseOperation.TypeName)
+            {
+                case TransferOperation.OperationName:
+                    {
+                        var typed = (TransferOperation)baseOperation;
+                        return new AccountHistoryResponse
+                        {
+                            DateTime = arg.Value.Timestamp,
+                            Type = OperationType.Transfer,
+                            From = typed.From,
+                            To = typed.To,
+                            Amount = typed.Amount.ToString(),
+                            Memo = typed.Memo
+                        };
+                    }
+                case TransferToVestingOperation.OperationName:
+                    {
+                        var typed = (TransferToVestingOperation)baseOperation;
+                        return new AccountHistoryResponse
+                        {
+                            DateTime = arg.Value.Timestamp,
+                            Type = OperationType.PowerUp,
+                            From = typed.From,
+                            To = typed.To,
+                            Amount = typed.Amount.ToString()
+                        };
+                    }
+                case WithdrawVestingOperation.OperationName:
+                    {
+                        var typed = (WithdrawVestingOperation)baseOperation;
+                        return new AccountHistoryResponse
+                        {
+                            DateTime = arg.Value.Timestamp,
+                            Type = OperationType.PowerDown,
+                            From = typed.Account,
+                            To = typed.Account,
+                            Amount = typed.VestingShares.ToString()
+                        };
+                    }
+                default:
+                    throw new NotImplementedException();
+            }
+
+        }
         #endregion
     }
 }

@@ -28,6 +28,8 @@ namespace Steepshot.Fragment
 #pragma warning restore 0649
 
         private int _pageOffset;
+        private TrxHistoryAdapter TrxHistoryAdapter;
+
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
@@ -63,13 +65,15 @@ namespace Steepshot.Fragment
             var walletPageAdapter = new WalletPagerAdapter(_walletPager);
             _walletPager.Adapter = walletPageAdapter;
 
-            _trxHistory.SetAdapter(new TrxHistoryAdapter());
+            TrxHistoryAdapter = new TrxHistoryAdapter();
+            _trxHistory.SetAdapter(TrxHistoryAdapter);
             _trxHistory.SetLayoutManager(new LinearLayoutManager(Activity));
             _trxHistory.AddItemDecoration(new Adapter.DividerItemDecoration(Activity));
 
             _transferBtn.Click += TransferBtnOnClick;
 
             UpdateAccountInfo();
+            UpdateAccountHistory();
         }
 
         public override void OnDetach()
@@ -89,9 +93,22 @@ namespace Steepshot.Fragment
             }
         }
 
-        private void TransferBtnOnClick(object sender, EventArgs e)
+        private async void UpdateAccountHistory()
         {
-            ((BaseActivity)Activity).OpenNewContentFragment(new TransferFragment());
+            var response = await Presenter.TryGetAccountHistory(AppSettings.User.Login);
+            if (response.IsSuccess)
+            {
+                ((WalletPagerAdapter)_walletPager.Adapter).UpdateData(AppSettings.User.AccountInfo.Balances);
+            }
+        }
+
+        private async void TransferBtnOnClick(object sender, EventArgs e)
+        {
+            var response = await Presenter.TryGetAccountHistory(AppSettings.User.Login);
+            if (response.IsSuccess)
+            {
+                TrxHistoryAdapter.SetAccountHistory(response.Result);
+            }
         }
     }
 }

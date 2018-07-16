@@ -75,6 +75,11 @@ namespace Steepshot.Core.HttpClient
             return await _ditchClient.GetAccountInfo(userName, ct);
         }
 
+        public async Task<OperationResult<AccountHistoryResponse[]>> GetAccountHistory(string userName, CancellationToken ct)
+        {
+            return await _ditchClient.GetAccountHistory(userName, ct);
+        }
+
         public async Task<OperationResult<VoidResponse>> ValidatePrivateKey(ValidatePrivateKeyModel model, CancellationToken ct)
         {
             var results = Validate(model);
