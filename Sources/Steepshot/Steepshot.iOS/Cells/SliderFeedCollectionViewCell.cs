@@ -1,6 +1,5 @@
 ﻿using System;
 using CoreGraphics;
-using FFImageLoading;
 using FFImageLoading.Work;
 using Foundation;
 using Steepshot.Core.Models.Common;

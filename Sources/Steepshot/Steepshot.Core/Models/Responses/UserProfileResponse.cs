@@ -1,5 +1,4 @@
 using System;
-using Ditch.Core;
 using Newtonsoft.Json;
 
 namespace Steepshot.Core.Models.Responses

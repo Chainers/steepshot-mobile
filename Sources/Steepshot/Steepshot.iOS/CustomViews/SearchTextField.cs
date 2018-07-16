@@ -71,7 +71,7 @@ namespace Steepshot.iOS.CustomViews
             Layer.CornerRadius = 20;
             TintColor = Constants.R255G71B5;
 
-            Delegate = new TagFieldDelegate(returnButtonTapped);
+            Delegate = new TagFieldDelegate() { DoneTapped = returnButtonTapped };
             EditingChanged += DoEditingChanged;
             LayoutLoader();
         }

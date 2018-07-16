@@ -4,21 +4,29 @@ using UIKit;
 
 namespace Steepshot.iOS.Helpers
 {
-    public class TagFieldDelegate : UITextFieldDelegate
+    public class BaseTextFieldDelegate : UITextFieldDelegate
     {
-        private Action _doneTapped;
-
-        public TagFieldDelegate(Action doneTapped)
-        {
-            _doneTapped = doneTapped;
-        }
+        public Action DoneTapped;
 
         public override bool ShouldReturn(UITextField textField)
         {
-            _doneTapped?.Invoke();
+            DoneTapped?.Invoke();
             return true;
         }
+    }
 
+    public class UsernameDelegate : BaseTextFieldDelegate
+    {
+        public override bool ShouldChangeCharacters(UITextField textField, Foundation.NSRange range, string replacementString)
+        {
+            if (replacementString.Contains(" "))
+                return false;
+            return true;
+        }
+    }
+
+    public class TagFieldDelegate : BaseTextFieldDelegate
+    {
         public override bool ShouldChangeCharacters(UITextField textField, Foundation.NSRange range, string replacementString)
         {
             if (replacementString == "")

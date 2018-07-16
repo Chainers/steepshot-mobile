@@ -1,25 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Ditch.Steem.Old.Models.Operations;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Serializing;
-using DitchFollowType = Ditch.Steem.Old.Models.Enums.FollowType;
-using DitchBeneficiary = Ditch.Steem.Old.Models.Operations.Beneficiary;
 using Ditch.Core.JsonRpc;
-using Ditch.Steem.Old;
-using Ditch.Steem.Old.Models.Objects;
-using Ditch.Steem.Old.Models.Other;
+using Ditch.Steem;
+using Ditch.Steem.Models;
+using Ditch.Steem.Operations;
 using Steepshot.Core.Errors;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Utils;
-using Cryptography.ECDSA;
+using Ditch.Core;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Steepshot.Core.Models.Responses;
-
 
 namespace Steepshot.Core.HttpClient
 {
@@ -34,7 +33,8 @@ namespace Steepshot.Core.HttpClient
 
         public SteemClient(JsonNetConverter jsonConverter) : base(jsonConverter)
         {
-            _operationManager = new OperationManager();
+            var httpManager = new HttpManager();
+            _operationManager = new OperationManager(httpManager);
         }
 
         public override bool TryReconnectChain(CancellationToken token)
@@ -53,8 +53,17 @@ namespace Steepshot.Core.HttpClient
                         .OrderBy(n => n.Order)
                         .Select(n => n.Url)
                         .ToArray();
-                    if (cUrls.Any() && _operationManager.TryConnectTo(cUrls, token))
-                        EnableWrite = true;
+                    foreach (var url in cUrls)
+                    {
+                        if (token.IsCancellationRequested)
+                            break;
+
+                        if (_operationManager.ConnectTo(url, token))
+                        {
+                            EnableWrite = true;
+                            break;
+                        }
+                    }
                 }
             }
             catch (Exception)
@@ -71,209 +80,169 @@ namespace Steepshot.Core.HttpClient
 
         #region Post requests
 
+        private async Task<OperationResult<VoidResponse>> Broadcast(List<byte[]> keys, BaseOperation[] ops, CancellationToken ct)
+        {
+            var resp = await _operationManager.BroadcastOperationsSynchronousLikeSteemit(keys, ops, ct);
+
+            var result = new OperationResult<VoidResponse>();
+            if (resp.IsError)
+                result.Error = new RequestError(resp);
+            else
+                result.Result = new VoidResponse();
+            return result;
+        }
+
         public override async Task<OperationResult<VoidResponse>> Vote(VoteModel model, CancellationToken ct)
         {
-            return await Task.Run(() =>
-            {
-                if (!TryReconnectChain(ct))
-                    return new OperationResult<VoidResponse>(new AppError(LocalizationKeys.EnableConnectToBlockchain));
+            if (!TryReconnectChain(ct))
+                return new OperationResult<VoidResponse>(new ValidationError(LocalizationKeys.EnableConnectToBlockchain));
 
-                var keys = ToKeyArr(model.PostingKey);
-                if (keys == null)
-                    return new OperationResult<VoidResponse>(new AppError(LocalizationKeys.WrongPrivatePostingKey));
+            var keys = ToKeyArr(model.PostingKey);
+            if (keys == null)
+                return new OperationResult<VoidResponse>(new ValidationError(LocalizationKeys.WrongPrivatePostingKey));
 
-                short weigth = 0;
-                if (model.Type == VoteType.Up)
-                    weigth = (short)(AppSettings.User.VotePower * 100);
-                if (model.Type == VoteType.Flag)
-                    weigth = -10000;
+            short weigth = 0;
+            if (model.Type == VoteType.Up)
+                weigth = (short)(AppSettings.User.VotePower * 100);
+            if (model.Type == VoteType.Flag)
+                weigth = -10000;
 
-                var op = new VoteOperation(model.Login, model.Author, model.Permlink, weigth);
-                var resp = _operationManager.BroadcastOperationsSynchronous(keys, ct, op);
-
-                var result = new OperationResult<VoidResponse>();
-                if (!resp.IsError)
-                    result.Result = new VoidResponse();
-                else
-                    OnError(resp, result);
-
-                return result;
-            }, ct);
+            var op = new VoteOperation(model.Login, model.Author, model.Permlink, weigth);
+            return await Broadcast(keys, new BaseOperation[] { op }, ct);
         }
 
         public override async Task<OperationResult<VoidResponse>> Follow(FollowModel model, CancellationToken ct)
         {
-            return await Task.Run(() =>
-            {
-                if (!TryReconnectChain(ct))
-                    return new OperationResult<VoidResponse>(new AppError(LocalizationKeys.EnableConnectToBlockchain));
+            if (!TryReconnectChain(ct))
+                return new OperationResult<VoidResponse>(new ValidationError(LocalizationKeys.EnableConnectToBlockchain));
 
-                var keys = ToKeyArr(model.PostingKey);
-                if (keys == null)
-                    return new OperationResult<VoidResponse>(new AppError(LocalizationKeys.WrongPrivatePostingKey));
+            var keys = ToKeyArr(model.PostingKey);
+            if (keys == null)
+                return new OperationResult<VoidResponse>(new ValidationError(LocalizationKeys.WrongPrivatePostingKey));
 
-                var op = model.Type == FollowType.Follow
-                    ? new FollowOperation(model.Login, model.Username, DitchFollowType.Blog, model.Login)
-                    : new UnfollowOperation(model.Login, model.Username, model.Login);
-                var resp = _operationManager.BroadcastOperationsSynchronous(keys, ct, op);
+            var op = model.Type == Models.Enums.FollowType.Follow
+                ? new FollowOperation(model.Login, model.Username, Ditch.Steem.Models.FollowType.Blog, model.Login)
+                : new UnfollowOperation(model.Login, model.Username, model.Login);
 
-                var result = new OperationResult<VoidResponse>();
-
-                if (!resp.IsError)
-                    result.Result = new VoidResponse();
-                else
-                    OnError(resp, result);
-
-                return result;
-            }, ct);
+            return await Broadcast(keys, new BaseOperation[] { op }, ct);
         }
 
         public override async Task<OperationResult<VoidResponse>> CreateOrEdit(CommentModel model, CancellationToken ct)
         {
-            return await Task.Run(() =>
+            if (!TryReconnectChain(ct))
+                return new OperationResult<VoidResponse>(new ValidationError(LocalizationKeys.EnableConnectToBlockchain));
+
+            var keys = ToKeyArr(model.PostingKey);
+            if (keys == null)
+                return new OperationResult<VoidResponse>(new ValidationError(LocalizationKeys.WrongPrivatePostingKey));
+
+            var op = new CommentOperation(model.ParentAuthor, model.ParentPermlink, model.Author, model.Permlink, model.Title, model.Body, model.JsonMetadata);
+
+            BaseOperation[] ops;
+            if (model.Beneficiaries != null && model.Beneficiaries.Any())
             {
-                if (!TryReconnectChain(ct))
-                    return new OperationResult<VoidResponse>(new AppError(LocalizationKeys.EnableConnectToBlockchain));
-
-                var keys = ToKeyArr(model.PostingKey);
-                if (keys == null)
-                    return new OperationResult<VoidResponse>(new AppError(LocalizationKeys.WrongPrivatePostingKey));
-
-                var op = new CommentOperation(model.ParentAuthor, model.ParentPermlink, model.Author, model.Permlink, model.Title, model.Body, model.JsonMetadata);
-
-                BaseOperation[] ops;
-                if (model.Beneficiaries != null && model.Beneficiaries.Any())
+                var beneficiaries = model.Beneficiaries
+                    .Select(i => new Ditch.Steem.Operations.Beneficiary(i.Account, i.Weight))
+                    .ToArray();
+                ops = new BaseOperation[]
                 {
-                    var beneficiaries = model.Beneficiaries
-                        .Select(i => new DitchBeneficiary(i.Account, i.Weight))
-                        .ToArray();
-                    ops = new BaseOperation[]
-                    {
                         op,
-                        new BeneficiariesOperation(model.Login, model.Permlink,new Asset(1000000000,3,"SBD") ,beneficiaries)
-                    };
-                }
-                else
-                {
-                    ops = new BaseOperation[] { op };
-                }
+                        new BeneficiariesOperation(model.Login, model.Permlink,new Asset(1000000000, Config.SteemAssetNumSbd) ,beneficiaries)
+                };
+            }
+            else
+            {
+                ops = new BaseOperation[] { op };
+            }
 
-                var resp = _operationManager.BroadcastOperationsSynchronous(keys, ct, ops);
-
-                var result = new OperationResult<VoidResponse>();
-                if (!resp.IsError)
-                {
-                    result.Result = new VoidResponse();
-                }
-                else
-                    OnError(resp, result);
-
-                return result;
-            }, ct);
+            return await Broadcast(keys, ops, ct);
         }
 
         public override async Task<OperationResult<VoidResponse>> Delete(DeleteModel model, CancellationToken ct)
         {
-            return await Task.Run(() =>
-            {
-                if (!TryReconnectChain(ct))
-                    return new OperationResult<VoidResponse>(new AppError(LocalizationKeys.EnableConnectToBlockchain));
+            if (!TryReconnectChain(ct))
+                return new OperationResult<VoidResponse>(new ValidationError(LocalizationKeys.EnableConnectToBlockchain));
 
-                var keys = ToKeyArr(model.PostingKey);
-                if (keys == null)
-                    return new OperationResult<VoidResponse>(new AppError(LocalizationKeys.WrongPrivatePostingKey));
+            var keys = ToKeyArr(model.PostingKey);
+            if (keys == null)
+                return new OperationResult<VoidResponse>(new ValidationError(LocalizationKeys.WrongPrivatePostingKey));
 
-                var op = new DeleteCommentOperation(model.Author, model.Permlink);
-                var resp = _operationManager.BroadcastOperationsSynchronous(keys, ct, op);
+            var op = new DeleteCommentOperation(model.Author, model.Permlink);
 
-                var result = new OperationResult<VoidResponse>();
-                if (!resp.IsError)
-                    result.Result = new VoidResponse();
-                else
-                    OnError(resp, result);
-                return result;
-            }, ct);
+            return await Broadcast(keys, new BaseOperation[] { op }, ct);
         }
 
         public override async Task<OperationResult<VoidResponse>> UpdateUserProfile(UpdateUserProfileModel model, CancellationToken ct)
         {
-            return await Task.Run(() =>
+            if (!TryReconnectChain(ct))
+                return new OperationResult<VoidResponse>(new ValidationError(LocalizationKeys.EnableConnectToBlockchain));
+
+            var keys = ToKeyArr(model.ActiveKey);
+            if (keys == null)
+                return new OperationResult<VoidResponse>(new ValidationError(LocalizationKeys.WrongPrivateActimeKey));
+
+            var args = new FindAccountsArgs
             {
-                if (!TryReconnectChain(ct))
-                    return new OperationResult<VoidResponse>(new AppError(LocalizationKeys.EnableConnectToBlockchain));
-
-                var keys = ToKeyArr(model.ActiveKey);
-                if (keys == null)
-                    return new OperationResult<VoidResponse>(new AppError(LocalizationKeys.WrongPrivateActimeKey));
-
-                var resp = _operationManager.LookupAccountNames(new[] { model.Login }, CancellationToken.None);
-                var result = new OperationResult<VoidResponse>();
-                if (resp.IsError)
-                {
-                    OnError(resp, result);
-                    return result;
-                }
-
-                var profile = resp.Result.Length == 1 ? resp.Result[0] : null;
-                if (profile == null)
-                {
-                    result.Error = new BlockchainError(LocalizationKeys.UnexpectedProfileData);
-                    return result;
-                }
-
-                var editedMeta = UpdateProfileJson(profile.JsonMetadata, model);
-
-                var op = new AccountUpdateOperation(model.Login, profile.MemoKey, editedMeta);
-                var resp2 = _operationManager.BroadcastOperationsSynchronous(keys, ct, op);
-                if (!resp2.IsError)
-                    result.Result = new VoidResponse();
-                else
-                    OnError(resp2, result);
+                Accounts = new[] { model.Login }
+            };
+            var resp = await _operationManager.FindAccounts(args, CancellationToken.None);
+            var result = new OperationResult<VoidResponse>();
+            if (resp.IsError)
+            {
+                result.Error = new RequestError(resp);
                 return result;
-            }, ct);
+            }
+
+            var profile = resp.Result.Accounts.Length == 1 ? resp.Result.Accounts[0] : null;
+            if (profile == null)
+            {
+                result.Error = new ValidationError(LocalizationKeys.UnexpectedProfileData);
+                return result;
+            }
+
+            var editedMeta = UpdateProfileJson(profile.JsonMetadata, model);
+
+            var op = new AccountUpdateOperation(model.Login, profile.MemoKey, editedMeta);
+
+            return await Broadcast(keys, new BaseOperation[] { op }, ct);
         }
 
         public override async Task<OperationResult<VoidResponse>> Transfer(TransferModel model, CancellationToken ct)
         {
-            return await Task.Run(() =>
+            if (!TryReconnectChain(ct))
+                return new OperationResult<VoidResponse>(new ValidationError(LocalizationKeys.EnableConnectToBlockchain));
+
+            var keys = ToKeyArr(model.ActiveKey);
+            if (keys == null)
+                return new OperationResult<VoidResponse>(new ValidationError(LocalizationKeys.WrongPrivateActimeKey));
+
+            var result = new OperationResult<VoidResponse>();
+
+            Asset asset = new Asset();
+            asset.NumberFormat = NumberFormatInfo.InvariantInfo;
+            switch (model.CurrencyType)
             {
-                if (!TryReconnectChain(ct))
-                    return new OperationResult<VoidResponse>(new AppError(LocalizationKeys.EnableConnectToBlockchain));
+                case CurrencyType.Steem:
+                    {
+                        asset.FromOldFormat($"{model.Value} {Config.Steem}");
+                        break;
+                    }
+                case CurrencyType.Sbd:
+                    {
+                        asset.FromOldFormat($"{model.Value} {Config.Sbd}");
+                        break;
+                    }
+                default:
+                    {
+                        result.Error = new ValidationError(LocalizationKeys.UnsupportedCurrency, model.CurrencyType.ToString());
+                        return result;
+                    }
+            }
 
-                var keys = ToKeyArr(model.ActiveKey);
-                if (keys == null)
-                    return new OperationResult<VoidResponse>(new AppError(LocalizationKeys.WrongPrivateActimeKey));
+            var t = asset.ToOldFormatString();
+            var op = new TransferOperation(model.Login, model.Recipient, asset, model.Memo);
 
-                var result = new OperationResult<VoidResponse>();
-
-                Asset asset;
-                switch (model.CurrencyType)
-                {
-                    case CurrencyType.Steem:
-                        {
-                            asset = new Asset(model.Value, model.Precussion, model.ChainCurrency);
-                            break;
-                        }
-                    case CurrencyType.Sbd:
-                        {
-                            asset = new Asset(model.Value, model.Precussion, model.ChainCurrency);
-                            break;
-                        }
-                    default:
-                        {
-                            result.Error = new ValidationError(LocalizationKeys.UnsupportedCurrency, model.CurrencyType.ToString());
-                            return result;
-                        }
-                }
-
-                var op = new TransferOperation(model.Login, model.Recipient, asset, model.Memo);
-                var resp = _operationManager.BroadcastOperationsSynchronous(keys, ct, op);
-                if (!resp.IsError)
-                    result.Result = new VoidResponse();
-                else
-                    OnError(resp, result);
-                return result;
-            }, ct);
+            return await Broadcast(keys, new BaseOperation[] { op }, ct);
         }
 
         #endregion Post requests
@@ -282,137 +251,131 @@ namespace Steepshot.Core.HttpClient
         public override async Task<OperationResult<object>> GetVerifyTransaction(AuthorizedPostingModel model, CancellationToken ct)
         {
             if (!TryReconnectChain(ct))
-                return new OperationResult<object>(new AppError(LocalizationKeys.EnableConnectToBlockchain));
+                return new OperationResult<object>(new ValidationError(LocalizationKeys.EnableConnectToBlockchain));
 
             var keys = ToKeyArr(model.PostingKey);
             if (keys == null)
-                return new OperationResult<object>(new AppError(LocalizationKeys.WrongPrivatePostingKey));
+                return new OperationResult<object>(new ValidationError(LocalizationKeys.WrongPrivatePostingKey));
 
-            return await Task.Run(() =>
+            var op = new FollowOperation(model.Login, "steepshot", Ditch.Steem.Models.FollowType.Blog, model.Login);
+            var properties = new DynamicGlobalPropertyObject
             {
-                var op = new FollowOperation(model.Login, "steepshot", DitchFollowType.Blog, model.Login);
-                var properties = new DynamicGlobalPropertyObject
-                {
-                    HeadBlockId = Hex.ToString(_operationManager.ChainId),
-                    Time = DateTime.Now,
-                    HeadBlockNumber = 0
-                };
-                var tr = _operationManager.CreateTransaction(properties, keys, ct, op);
-                return new OperationResult<object>() { Result = tr };
-            }, ct);
+                HeadBlockId = "0000000000000000000000000000000000000000",
+                Time = DateTime.Now,
+                HeadBlockNumber = 0
+            };
+            var tr = await _operationManager.CreateTransaction(properties, keys, op, ct);
+
+            var conv = JsonConvert.SerializeObject(tr, _operationManager.CondenserJsonSerializerSettings);
+            return new OperationResult<object> { Result = JsonConvert.DeserializeObject<JObject>(conv) };
         }
 
         public override async Task<OperationResult<VoidResponse>> ValidatePrivateKey(ValidatePrivateKeyModel model, CancellationToken ct)
         {
-            return await Task.Run(() =>
+            var keys = ToKey(model.PrivateKey);
+            if (keys == null)
             {
-                var keys = ToKey(model.PrivateKey);
-                if (keys == null)
-                {
-                    switch (model.KeyRoleType)
-                    {
-                        case KeyRoleType.Active:
-                            return new OperationResult<VoidResponse>(new AppError(LocalizationKeys.WrongPrivateActimeKey));
-                        case KeyRoleType.Posting:
-                            return new OperationResult<VoidResponse>(new AppError(LocalizationKeys.WrongPrivatePostingKey));
-                    }
-                }
-
-                if (!TryReconnectChain(ct))
-                {
-                    return new OperationResult<VoidResponse>(new AppError(LocalizationKeys.EnableConnectToBlockchain));
-                }
-
-                var result = new OperationResult<VoidResponse>();
-
-                var lookupAccountNames = _operationManager.LookupAccountNames(new[] { model.Login }, CancellationToken.None);
-                if (lookupAccountNames.IsError)
-                {
-                    OnError(lookupAccountNames, result);
-                    return result;
-                }
-
-                if (lookupAccountNames.Result.Length != 1 || lookupAccountNames.Result[0] == null)
-                {
-                    return new OperationResult<VoidResponse>(new ValidationError(LocalizationKeys.UnexpectedProfileData));
-                }
-
-                Authority authority = null;
-
                 switch (model.KeyRoleType)
                 {
                     case KeyRoleType.Active:
-                        authority = lookupAccountNames.Result[0].Active;
-                        break;
+                        return new OperationResult<VoidResponse>(new ValidationError(LocalizationKeys.WrongPrivateActimeKey));
                     case KeyRoleType.Posting:
-                        authority = lookupAccountNames.Result[0].Posting;
-                        break;
+                        return new OperationResult<VoidResponse>(new ValidationError(LocalizationKeys.WrongPrivatePostingKey));
                 }
+            }
 
-                var isSame = KeyHelper.ValidatePrivateKey(keys, authority.KeyAuths.Select(i => i.Key.Data).ToArray());
+            if (!TryReconnectChain(ct))
+            {
+                return new OperationResult<VoidResponse>(new ValidationError(LocalizationKeys.EnableConnectToBlockchain));
+            }
 
-                if (isSame)
-                    return new OperationResult<VoidResponse>(new VoidResponse());
+            var result = new OperationResult<VoidResponse>();
 
-                switch (model.KeyRoleType)
-                {
-                    case KeyRoleType.Active:
-                        return new OperationResult<VoidResponse>(new AppError(LocalizationKeys.WrongPrivateActimeKey));
-                    default:
-                        return new OperationResult<VoidResponse>(new AppError(LocalizationKeys.WrongPrivatePostingKey));
-                }
-            }, ct);
+
+            var args = new FindAccountsArgs
+            {
+                Accounts = new[] { model.Login }
+            };
+            var resp = await _operationManager.FindAccounts(args, CancellationToken.None);
+            if (resp.IsError)
+            {
+                result.Error = new RequestError(resp);
+                return result;
+            }
+
+            if (resp.Result.Accounts.Length != 1 || resp.Result.Accounts[0] == null)
+            {
+                return new OperationResult<VoidResponse>(new ValidationError(LocalizationKeys.UnexpectedProfileData));
+            }
+
+            Authority authority;
+
+            switch (model.KeyRoleType)
+            {
+                case KeyRoleType.Active:
+                    authority = resp.Result.Accounts[0].Active;
+                    break;
+                case KeyRoleType.Posting:
+                    authority = resp.Result.Accounts[0].Posting;
+                    break;
+                default:
+                    throw new NotImplementedException();
+            }
+
+            var isSame = KeyHelper.ValidatePrivateKey(keys, authority.KeyAuths.Select(i => i.Key.Data).ToArray());
+
+            if (isSame)
+                return new OperationResult<VoidResponse>(new VoidResponse());
+
+            switch (model.KeyRoleType)
+            {
+                case KeyRoleType.Active:
+                    return new OperationResult<VoidResponse>(new ValidationError(LocalizationKeys.WrongPrivateActimeKey));
+                default:
+                    return new OperationResult<VoidResponse>(new ValidationError(LocalizationKeys.WrongPrivatePostingKey));
+            }
         }
 
         public override async Task<OperationResult<AccountInfoResponse>> GetAccountInfo(string userName, CancellationToken ct)
         {
-            return await Task.Run(() =>
+            if (!TryReconnectChain(ct))
             {
-                if (!TryReconnectChain(ct))
-                {
-                    return new OperationResult<AccountInfoResponse>(new AppError(LocalizationKeys.EnableConnectToBlockchain));
-                }
+                return new OperationResult<AccountInfoResponse>(new ValidationError(LocalizationKeys.EnableConnectToBlockchain));
+            }
 
-                var result = new OperationResult<AccountInfoResponse>();
+            var result = new OperationResult<AccountInfoResponse>();
 
-                var lookupAccountNames = _operationManager.LookupAccountNames(new[] { userName }, CancellationToken.None);
-                if (lookupAccountNames.IsError)
-                {
-                    OnError(lookupAccountNames, result);
-                    return result;
-                }
-
-                if (lookupAccountNames.Result.Length != 1 || lookupAccountNames.Result[0] == null)
-                {
-                    return new OperationResult<AccountInfoResponse>(new ValidationError(LocalizationKeys.UnexpectedProfileData));
-                }
-
-                var acc = lookupAccountNames.Result[0];
-                result.Result = new AccountInfoResponse
-                {
-                    PublicPostingKeys = acc.Posting.KeyAuths.Select(i => i.Key.Data).ToArray(),
-                    PublicActiveKeys = acc.Active.KeyAuths.Select(i => i.Key.Data).ToArray(),
-                    Metadata = JsonConverter.Deserialize<AccountMetadata>(acc.JsonMetadata)
-                };
-
-                result.Result.Balances = new List<BalanceModel> { new BalanceModel
-                {
-                        Value = acc.Balance.Value,
-                        Precision = acc.Balance.Precision,
-                        ChainCurrency = acc.Balance.Currency,
-                        CurrencyType = CurrencyType.Steem
-                },
-                new BalanceModel
-                {
-                        Value = acc.SbdBalance.Value,
-                        Precision = acc.SbdBalance.Precision,
-                        ChainCurrency = acc.SbdBalance.Currency,
-                        CurrencyType = CurrencyType.Sbd
-                } };
-
+            var args = new FindAccountsArgs
+            {
+                Accounts = new[] { userName }
+            };
+            var resp = await _operationManager.FindAccounts(args, CancellationToken.None);
+            if (resp.IsError)
+            {
+                result.Error = new RequestError(resp);
                 return result;
+            }
 
-            }, ct);
+            if (resp.Result.Accounts.Length != 1 || resp.Result.Accounts[0] == null)
+            {
+                return new OperationResult<AccountInfoResponse>(new ValidationError(LocalizationKeys.UnexpectedProfileData));
+            }
+
+            var acc = resp.Result.Accounts[0];
+            result.Result = new AccountInfoResponse
+            {
+                PublicPostingKeys = acc.Posting.KeyAuths.Select(i => i.Key.Data).ToArray(),
+                PublicActiveKeys = acc.Active.KeyAuths.Select(i => i.Key.Data).ToArray(),
+                Metadata = JsonConverter.Deserialize<AccountMetadata>(acc.JsonMetadata)
+            };
+
+            result.Result.Balances = new List<BalanceModel>
+            {
+                new BalanceModel(acc.Balance.ToDoubleString(), 3, CurrencyType.Steem),
+                new BalanceModel(acc.SbdBalance.ToDoubleString(), 3, CurrencyType.Sbd)
+            };
+
+            return result;
         }
         #endregion
     }

@@ -1,5 +1,4 @@
 using System;
-using Steepshot.Core.Errors;
 
 namespace Steepshot.Core.Models.Common
 {
@@ -7,13 +6,13 @@ namespace Steepshot.Core.Models.Common
     {
         public bool IsSuccess => Error == null;
 
-        public ErrorBase Error { get; set; }
+        public Exception Error { get; set; }
 
         public OperationResult()
         {
         }
 
-        public OperationResult(ErrorBase error)
+        public OperationResult(Exception error)
         {
             Error = error;
         }
@@ -25,7 +24,7 @@ namespace Steepshot.Core.Models.Common
 
         public OperationResult() { }
 
-        public OperationResult(ErrorBase error) : base(error) { }
+        public OperationResult(Exception error) : base(error) { }
 
         public OperationResult(T result)
         {

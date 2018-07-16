@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using CoreGraphics;
-using FFImageLoading;
 using Foundation;
-using iOS.Hardware;
 using Steepshot.Core.Errors;
 using Steepshot.Core.Models;
 using Steepshot.Core.Models.Common;
@@ -15,6 +13,7 @@ using Steepshot.iOS.Helpers;
 using Steepshot.iOS.ViewControllers;
 using Steepshot.iOS.ViewSources;
 using UIKit;
+using static Steepshot.iOS.Helpers.DeviceHelper;
 
 namespace Steepshot.iOS.Views
 {
@@ -154,7 +153,7 @@ namespace Steepshot.iOS.Views
             }
             else
             {
-                if (DeviceModel.Model(DeviceHardware.HardwareModel) == "iPhone10,6")
+                if (GetVersion() == HardwareVersion.iPhoneX)
                     sliderCollectionOffset.Constant = 35;
                 NavigationController.SetNavigationBarHidden(true, false);
             }
@@ -282,7 +281,7 @@ namespace Steepshot.iOS.Views
 
         protected override async Task GetPosts(bool shouldStartAnimating = true, bool clearOld = false)
         {
-            ErrorBase error;
+            Exception error;
             do
             {
                 if (shouldStartAnimating)
@@ -310,7 +309,7 @@ namespace Steepshot.iOS.Views
                     error = await _presenter.TryGetSearchedPosts();
                 }
 
-                if (error is CanceledError)
+                if (error is OperationCanceledException)
                     return;
 
                 if (_refreshControl.Refreshing)

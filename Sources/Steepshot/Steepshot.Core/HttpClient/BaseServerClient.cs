@@ -31,8 +31,8 @@ namespace Steepshot.Core.HttpClient
                 return null;
 
             var results = Validate(model);
-            if (results.Any())
-                return new OperationResult<ListResponse<Post>>(new ValidationError(results));
+            if (results != null)
+                return new OperationResult<ListResponse<Post>>(results);
 
             var parameters = new Dictionary<string, object>();
             AddOffsetLimitParameters(parameters, model.Offset, model.Limit);
@@ -49,8 +49,8 @@ namespace Steepshot.Core.HttpClient
                 return null;
 
             var results = Validate(request);
-            if (results.Any())
-                return new OperationResult<ListResponse<Post>>(new ValidationError(results));
+            if (results != null)
+                return new OperationResult<ListResponse<Post>>(results);
 
             var parameters = new Dictionary<string, object>();
             AddOffsetLimitParameters(parameters, request.Offset, request.Limit);
@@ -67,8 +67,8 @@ namespace Steepshot.Core.HttpClient
                 return null;
 
             var results = Validate(model);
-            if (results.Any())
-                return new OperationResult<ListResponse<Post>>(new ValidationError(results));
+            if (results != null)
+                return new OperationResult<ListResponse<Post>>(results);
 
             var parameters = new Dictionary<string, object>();
             AddOffsetLimitParameters(parameters, model.Offset, model.Limit);
@@ -85,8 +85,8 @@ namespace Steepshot.Core.HttpClient
                 return null;
 
             var results = Validate(model);
-            if (results.Any())
-                return new OperationResult<ListResponse<Post>>(new ValidationError(results));
+            if (results != null)
+                return new OperationResult<ListResponse<Post>>(results);
 
             var parameters = new Dictionary<string, object>();
             AddOffsetLimitParameters(parameters, model.Offset, model.Limit);
@@ -103,8 +103,8 @@ namespace Steepshot.Core.HttpClient
                 return null;
 
             var results = Validate(model);
-            if (results.Any())
-                return new OperationResult<ListResponse<UserFriend>>(new ValidationError(results));
+            if (results != null)
+                return new OperationResult<ListResponse<UserFriend>>(results);
 
             var parameters = new Dictionary<string, object>();
             AddOffsetLimitParameters(parameters, model.Offset, model.Limit);
@@ -122,8 +122,8 @@ namespace Steepshot.Core.HttpClient
                 return null;
 
             var results = Validate(model);
-            if (results.Any())
-                return new OperationResult<ListResponse<Post>>(new ValidationError(results));
+            if (results != null)
+                return new OperationResult<ListResponse<Post>>(results);
 
             var parameters = new Dictionary<string, object>();
             AddOffsetLimitParameters(parameters, model.Offset, model.Limit);
@@ -143,8 +143,8 @@ namespace Steepshot.Core.HttpClient
                 return null;
 
             var results = Validate(model);
-            if (results.Any())
-                return new OperationResult<UserProfileResponse>(new ValidationError(results));
+            if (results != null)
+                return new OperationResult<UserProfileResponse>(results);
 
             var parameters = new Dictionary<string, object>();
             AddLoginParameter(parameters, model.Login);
@@ -154,15 +154,15 @@ namespace Steepshot.Core.HttpClient
             var endpoint = $"{BaseUrl}/{GatewayVersion.V1P1}/user/{model.Username}/info";
             return await Gateway.Get<UserProfileResponse>(endpoint, parameters, token);
         }
-        
+
         public async Task<OperationResult<ListResponse<UserFriend>>> GetUserFriends(UserFriendsModel model, CancellationToken token)
         {
             if (!EnableRead)
                 return null;
 
             var results = Validate(model);
-            if (results.Any())
-                return new OperationResult<ListResponse<UserFriend>>(new ValidationError(results));
+            if (results != null)
+                return new OperationResult<ListResponse<UserFriend>>(results);
 
             var parameters = new Dictionary<string, object>();
             AddOffsetLimitParameters(parameters, model.Offset, model.Limit);
@@ -178,8 +178,8 @@ namespace Steepshot.Core.HttpClient
                 return null;
 
             var results = Validate(model);
-            if (results.Any())
-                return new OperationResult<Post>(new ValidationError(results));
+            if (results != null)
+                return new OperationResult<Post>(results);
 
             var parameters = new Dictionary<string, object>();
             AddLoginParameter(parameters, model.Login);
@@ -195,8 +195,8 @@ namespace Steepshot.Core.HttpClient
                 return null;
 
             var results = Validate(model);
-            if (results.Any())
-                return new OperationResult<ListResponse<UserFriend>>(new ValidationError(results));
+            if (results != null)
+                return new OperationResult<ListResponse<UserFriend>>(results);
 
             var parameters = new Dictionary<string, object>();
             AddLoginParameter(parameters, model.Login);
@@ -213,8 +213,8 @@ namespace Steepshot.Core.HttpClient
                 return null;
 
             var results = Validate(model);
-            if (results.Any())
-                return new OperationResult<UserExistsResponse>(new ValidationError(results));
+            if (results != null)
+                return new OperationResult<UserExistsResponse>(results);
 
             var parameters = new Dictionary<string, object>();
             var endpoint = $"{BaseUrl}/{GatewayVersion.V1}/user/{model.Username}/exists";
@@ -227,8 +227,8 @@ namespace Steepshot.Core.HttpClient
                 return null;
 
             var results = Validate(request);
-            if (results.Any())
-                return new OperationResult<ListResponse<SearchResult>>(new ValidationError(results));
+            if (results != null)
+                return new OperationResult<ListResponse<SearchResult>>(results);
 
             var parameters = new Dictionary<string, object>();
             AddOffsetLimitParameters(parameters, request.Offset, request.Limit);
@@ -251,8 +251,8 @@ namespace Steepshot.Core.HttpClient
                 return null;
 
             var results = Validate(model);
-            if (results.Any())
-                return new OperationResult<ListResponse<SearchResult>>(new ValidationError(results));
+            if (results != null)
+                return new OperationResult<ListResponse<SearchResult>>(results);
 
             var query = Transliteration.ToEng(model.Query);
             if (query != model.Query)
@@ -278,7 +278,7 @@ namespace Steepshot.Core.HttpClient
             return result;
         }
 
-        protected async Task<OperationResult<VoidResponse>> Trace(string endpoint, string login, ErrorBase resultErrors, string target, CancellationToken token)
+        protected async Task<OperationResult<VoidResponse>> Trace(string endpoint, string login, Exception resultErrors, string target, CancellationToken token)
         {
             if (!EnableRead)
                 return null;
@@ -328,8 +328,8 @@ namespace Steepshot.Core.HttpClient
         public async Task<OperationResult<PreparePostResponse>> PreparePost(PreparePostModel model, CancellationToken ct)
         {
             var results = Validate(model);
-            if (results.Any())
-                return new OperationResult<PreparePostResponse>(new ValidationError(results));
+            if (results != null)
+                return new OperationResult<PreparePostResponse>(results);
 
             var endpoint = $"{BaseUrl}/{GatewayVersion.V1P1}/post/prepare";
             return await Gateway.Post<PreparePostResponse, PreparePostModel>(endpoint, model, ct);
@@ -370,12 +370,17 @@ namespace Steepshot.Core.HttpClient
             parameters.Add("show_low_rated", Convert.ToInt32(request.ShowLowRated));
         }
 
-        protected List<ValidationResult> Validate<T>(T request)
+        protected ValidationError Validate<T>(T request)
         {
             var results = new List<ValidationResult>();
             var context = new ValidationContext(request);
             Validator.TryValidateObject(request, context, results, true);
-            return results;
+            if (results.Any())
+            {
+                var msg = results.Select(m => m.ErrorMessage).First();
+                return new ValidationError(msg);
+            }
+            return null;
         }
     }
 }

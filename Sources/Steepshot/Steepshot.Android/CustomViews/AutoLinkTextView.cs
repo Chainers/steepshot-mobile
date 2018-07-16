@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
 using Android.Content;
 using Android.Graphics;
 using Android.Runtime;

@@ -72,7 +72,7 @@ namespace Steepshot.Core.Presenters
             LazyLoadTimer.Dispose();
         }
 
-        private static Task<ErrorBase> TryСonect(CancellationToken token)
+        private static Task<Exception> TryСonect(CancellationToken token)
         {
             return Task.Run(async () =>
             {
@@ -85,7 +85,7 @@ namespace Steepshot.Core.Presenters
                     if (!isConnected)
                         OnAllert?.Invoke(LocalizationKeys.EnableConnectToBlockchain);
                     else
-                        return (ErrorBase)null;
+                        return (Exception)null;
 
                     await Task.Delay(5000, token);
 
@@ -168,25 +168,20 @@ namespace Steepshot.Core.Presenters
             {
                 var available = ConnectionService.IsConnectionAvailable();
                 if (!available)
-                    return new OperationResult<TResult>(new AppError(LocalizationKeys.InternetUnavailable));
+                    return new OperationResult<TResult>(new ValidationError(LocalizationKeys.InternetUnavailable));
 
                 return await func(ct);
             }
-            catch (ErrorBase ex)
-            {
-                return new OperationResult<TResult>(ex);
-            }
             catch (Exception ex)
             {
-                if (ct.IsCancellationRequested || ex is OperationCanceledException)
-                    return new OperationResult<TResult>(new CanceledError());
+                if (ct.IsCancellationRequested)
+                    return new OperationResult<TResult>(new OperationCanceledException());
 
                 var available = ConnectionService.IsConnectionAvailable();
                 if (!available)
-                    return new OperationResult<TResult>(new AppError(LocalizationKeys.InternetUnavailable));
+                    return new OperationResult<TResult>(new ValidationError(LocalizationKeys.InternetUnavailable));
 
-                AppSettings.Reporter.SendCrash(ex);
-                return new OperationResult<TResult>(new AppError(LocalizationKeys.UnknownError));
+                return new OperationResult<TResult>(ex);
             }
         }
 
@@ -196,25 +191,20 @@ namespace Steepshot.Core.Presenters
             {
                 var available = ConnectionService.IsConnectionAvailable();
                 if (!available)
-                    return new OperationResult<TResult>(new AppError(LocalizationKeys.InternetUnavailable));
+                    return new OperationResult<TResult>(new ValidationError(LocalizationKeys.InternetUnavailable));
 
                 return await func(param1, ct);
             }
-            catch (ErrorBase ex)
-            {
-                return new OperationResult<TResult>(ex);
-            }
             catch (Exception ex)
             {
-                if (ct.IsCancellationRequested || ex is OperationCanceledException)
-                    return new OperationResult<TResult>(new CanceledError());
+                if (ct.IsCancellationRequested)
+                    return new OperationResult<TResult>(new OperationCanceledException());
 
                 var available = ConnectionService.IsConnectionAvailable();
                 if (!available)
-                    return new OperationResult<TResult>(new AppError(LocalizationKeys.InternetUnavailable));
+                    return new OperationResult<TResult>(new ValidationError(LocalizationKeys.InternetUnavailable));
 
-                AppSettings.Reporter.SendCrash(ex);
-                return new OperationResult<TResult>(new AppError(LocalizationKeys.UnknownError));
+                return new OperationResult<TResult>(ex);
             }
         }
 
@@ -224,110 +214,90 @@ namespace Steepshot.Core.Presenters
             {
                 var available = ConnectionService.IsConnectionAvailable();
                 if (!available)
-                    return new OperationResult<TResult>(new AppError(LocalizationKeys.InternetUnavailable));
+                    return new OperationResult<TResult>(new ValidationError(LocalizationKeys.InternetUnavailable));
 
                 return await func(param1, param2, ct);
             }
-            catch (ErrorBase ex)
-            {
-                return new OperationResult<TResult>(ex);
-            }
             catch (Exception ex)
             {
-                if (ct.IsCancellationRequested || ex is OperationCanceledException)
-                    return new OperationResult<TResult>(new CanceledError());
+                if (ct.IsCancellationRequested)
+                    return new OperationResult<TResult>(new OperationCanceledException());
 
                 var available = ConnectionService.IsConnectionAvailable();
                 if (!available)
-                    return new OperationResult<TResult>(new AppError(LocalizationKeys.InternetUnavailable));
+                    return new OperationResult<TResult>(new ValidationError(LocalizationKeys.InternetUnavailable));
 
-                AppSettings.Reporter.SendCrash(ex);
-                return new OperationResult<TResult>(new AppError(LocalizationKeys.UnknownError));
+                return new OperationResult<TResult>(ex);
             }
         }
 
 
-        protected static async Task<ErrorBase> TryRunTask(Func<CancellationToken, Task<ErrorBase>> func, CancellationToken ct)
+        protected static async Task<Exception> TryRunTask(Func<CancellationToken, Task<Exception>> func, CancellationToken ct)
         {
             try
             {
                 var available = ConnectionService.IsConnectionAvailable();
                 if (!available)
-                    return new AppError(LocalizationKeys.InternetUnavailable);
+                    return new ValidationError(LocalizationKeys.InternetUnavailable);
 
                 return await func(ct);
             }
-            catch (ErrorBase ex)
-            {
-                return ex;
-            }
             catch (Exception ex)
             {
-                if (ct.IsCancellationRequested || ex is OperationCanceledException)
-                    return new CanceledError();
+                if (ct.IsCancellationRequested)
+                    return new OperationCanceledException();
 
                 var available = ConnectionService.IsConnectionAvailable();
                 if (!available)
-                    return new AppError(LocalizationKeys.InternetUnavailable);
+                    return new ValidationError(LocalizationKeys.InternetUnavailable);
 
-                AppSettings.Reporter.SendCrash(ex);
-                return new AppError(LocalizationKeys.UnknownError);
+                return ex;
             }
         }
 
-        protected static async Task<ErrorBase> TryRunTask<T1>(Func<T1, CancellationToken, Task<ErrorBase>> func, CancellationToken ct, T1 param1)
+        protected static async Task<Exception> TryRunTask<T1>(Func<T1, CancellationToken, Task<Exception>> func, CancellationToken ct, T1 param1)
         {
             try
             {
                 var available = ConnectionService.IsConnectionAvailable();
                 if (!available)
-                    return new AppError(LocalizationKeys.InternetUnavailable);
+                    return new ValidationError(LocalizationKeys.InternetUnavailable);
 
                 return await func(param1, ct);
             }
-            catch (ErrorBase ex)
-            {
-                return ex;
-            }
             catch (Exception ex)
             {
-                if (ct.IsCancellationRequested || ex is OperationCanceledException)
-                    return new CanceledError();
+                if (ct.IsCancellationRequested)
+                    return new OperationCanceledException();
 
                 var available = ConnectionService.IsConnectionAvailable();
                 if (!available)
-                    return new AppError(LocalizationKeys.InternetUnavailable);
+                    return new ValidationError(LocalizationKeys.InternetUnavailable);
 
-                AppSettings.Reporter.SendCrash(ex);
-                return new AppError(LocalizationKeys.UnknownError);
+                return ex;
             }
         }
 
-        protected static async Task<ErrorBase> TryRunTask<T1, T2>(Func<T1, T2, CancellationToken, Task<ErrorBase>> func, CancellationToken ct, T1 param1, T2 param2)
+        protected static async Task<Exception> TryRunTask<T1, T2>(Func<T1, T2, CancellationToken, Task<Exception>> func, CancellationToken ct, T1 param1, T2 param2)
         {
             try
             {
                 var available = ConnectionService.IsConnectionAvailable();
                 if (!available)
-                    return new AppError(LocalizationKeys.InternetUnavailable);
+                    return new ValidationError(LocalizationKeys.InternetUnavailable);
 
                 return await func(param1, param2, ct);
             }
-            catch (ErrorBase ex)
-            {
-                return ex;
-            }
             catch (Exception ex)
             {
-                if (ct.IsCancellationRequested || ex is OperationCanceledException)
-                    return new CanceledError();
+                if (ct.IsCancellationRequested)
+                    return new OperationCanceledException();
 
                 var available = ConnectionService.IsConnectionAvailable();
                 if (!available)
-                    return new AppError(LocalizationKeys.InternetUnavailable);
+                    return new ValidationError(LocalizationKeys.InternetUnavailable);
 
-                AppSettings.Reporter.SendCrash(ex);
-                return new AppError(LocalizationKeys.UnknownError);
+                return ex;
             }
         }
 
