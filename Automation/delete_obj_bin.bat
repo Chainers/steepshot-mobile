@@ -2,12 +2,10 @@ cd ..\Sources\
 @echo off
 
 del *.user /S /Q 
+rmdir /S /Q Steepshot\packages
 
 FOR /R %%f IN (.) DO (
-	if "%%~nf"=="packages"	(	
-		rmdir /S /Q "%%f"
-	)
-	if "%%~nf"=="obj" (
+		if "%%~nf"=="obj" (
 		rmdir /S /Q "%%f"
 	)
 	if "%%~nf"=="bin"	(	
