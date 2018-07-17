@@ -185,7 +185,7 @@ namespace Steepshot.Fragment
         }
 
         protected abstract Task OnPostAsync();
-       
+
         protected void EnablePostAndEdit(bool enabled)
         {
             if (enabled)
@@ -235,6 +235,7 @@ namespace Steepshot.Fragment
                 EnabledPost();
                 BasePresenter.ProfileUpdateType = ProfileUpdateType.Full;
                 Activity.ShowAlert(LocalizationKeys.PostDelay, ToastLength.Long);
+                Activity.ShowAlert(LocalizationKeys.PostDelay, ToastLength.Short);
                 if (Activity is SplashActivity || Activity is CameraActivity)
                     Activity.Finish();
                 else

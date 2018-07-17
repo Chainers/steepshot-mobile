@@ -122,7 +122,7 @@
         "DeleteAlertMessage": "This action can not be undone.",
         "PowerOfLike": "Power of like {0}%",
         "TitleForAcceptToS": "By pressing any of the buttons you agree with our <a href=\"https://steepshot.org/terms-of-service\">Terms of Service</a> & <a href=\"https://steepshot.org/privacy-policy\">Privacy policy</a>",
-        "PostDelay": "If you don't see the post in your profile, please give it a few minutes to sync from the blockchain",
+        "PostDelay": "Post has been successfully created. If you don't see the post in your profile, please give it a few minutes to sync from the blockchain",
         "SignInButtonText": "Sign in with {0}",
         "CreateButtonText": "Create new account",
         "EnterAccountText": "Enter to your account",
