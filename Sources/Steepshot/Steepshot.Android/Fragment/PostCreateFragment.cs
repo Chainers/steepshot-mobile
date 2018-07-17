@@ -155,7 +155,8 @@ namespace Steepshot.Fragment
             _model.Title = _title.Text;
             _model.Description = _description.Text;
             _model.Tags = _localTagsAdapter.LocalTags.ToArray();
-            TryCreateOrEditPost();
+            if (await TryCreateOrEditPost())
+                Activity.ShowAlert(LocalizationKeys.PostDelay, ToastLength.Long);
         }
 
         private void RatioBtnOnClick(object sender, EventArgs eventArgs)

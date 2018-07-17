@@ -399,13 +399,13 @@ namespace Steepshot.Core.HttpClient
 
                 result.Result.Balances = new Dictionary<CurrencyType, BalanceModel>
                 {
-                    {CurrencyType.Steem, new BalanceModel
+                    {CurrencyType.Golos, new BalanceModel
                     {
                         Value = acc.Balance.Value,
                         Precision = acc.Balance.Precision,
                         ChainCurrency = acc.Balance.Currency
                     } },
-                    {CurrencyType.Sbd, new BalanceModel
+                    {CurrencyType.Gbg, new BalanceModel
                     {
                         Value = acc.SbdBalance.Value,
                         Precision = acc.SbdBalance.Precision,

@@ -13,6 +13,7 @@ namespace Steepshot.Core.Models.Responses
 
         public AccountMetadata Metadata { get; set; }
 
+        [JsonIgnore]
         public Dictionary<CurrencyType, BalanceModel> Balances { get; set; }
     }
 

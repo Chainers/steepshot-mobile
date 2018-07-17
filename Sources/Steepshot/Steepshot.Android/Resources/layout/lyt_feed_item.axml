@@ -195,8 +195,8 @@
         <ImageButton
             android:id="@+id/btn_like_scale"
             android:background="@android:color/transparent"
-          android:focusable="false"
-          android:focusableInTouchMode="false"
+            android:focusable="false"
+            android:focusableInTouchMode="false"
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:scaleType="center"
@@ -237,7 +237,6 @@
             android:id="@+id/first_comment"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="                                                                                                                                                          "
             android:clickable="true"
             android:layout_marginTop="15dp"
             android:layout_marginLeft="15dp"

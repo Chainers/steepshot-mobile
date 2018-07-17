@@ -184,6 +184,7 @@ namespace Steepshot.Fragment
             _emptyQueryLabel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.EmptyQuery);
             _transferBtn.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Transfer);
 
+            _recipientSearch.SetFilters(new[] { new TextInputFilter(TextInputFilter.TagFilter) });
             _commentShape = new GradientDrawable();
             _commentShape.SetCornerRadius(BitmapUtils.DpToPixel(20, Resources));
             _commentShape.SetColor(Style.R244G244B246);
@@ -194,7 +195,7 @@ namespace Steepshot.Fragment
             _coinPickDialog = new CoinPickDialog(Activity, _coins);
             _coinPickDialog.Window.RequestFeature(WindowFeatures.NoTitle);
             _coinPickDialog.CoinSelected += CoinSelected;
-            CoinSelected(CurrencyType.Steem);
+            CoinSelected(_coins[0]);
 
             RecipientsAdapter.RecipientSelected += RecipientSelected;
 

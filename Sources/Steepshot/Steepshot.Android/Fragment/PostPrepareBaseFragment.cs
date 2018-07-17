@@ -217,33 +217,33 @@ namespace Steepshot.Fragment
             TryCreateOrEditPost();
         }
 
-        protected async void TryCreateOrEditPost()
+        protected async Task<bool> TryCreateOrEditPost()
         {
             if (_model.Media == null)
             {
                 EnabledPost();
-                return;
+                return false;
             }
 
             var resp = await Presenter.TryCreateOrEditPost(_model);
             if (!IsInitialized)
-                return;
+                return false;
 
             if (resp.IsSuccess)
             {
                 AppSettings.User.UserInfo.LastPostTime = DateTime.Now;
                 EnabledPost();
                 BasePresenter.ProfileUpdateType = ProfileUpdateType.Full;
-                Activity.ShowAlert(LocalizationKeys.PostDelay, ToastLength.Long);
-                Activity.ShowAlert(LocalizationKeys.PostDelay, ToastLength.Short);
                 if (Activity is SplashActivity || Activity is CameraActivity)
                     Activity.Finish();
                 else
                     ((BaseActivity)Activity).OnBackPressed();
+                return true;
             }
             else
             {
                 Activity.ShowInteractiveMessage(resp.Error, TryAgainAction, ForgetAction);
+                return false;
             }
         }
 
