@@ -561,6 +561,8 @@
     <BundleResource Include="Resources\ic_stamp%403x.png" />
     <BundleResource Include="Resources\ic_present%402x.png" />
     <BundleResource Include="Resources\ic_present%403x.png" />
+    <BundleResource Include="Resources\ic_blue_card%402x.png" />
+    <BundleResource Include="Resources\ic_blue_card%403x.png" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="..\Steepshot.Android\Assets\Localization.en-us.txt">

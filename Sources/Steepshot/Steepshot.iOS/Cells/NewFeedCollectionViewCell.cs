@@ -336,7 +336,6 @@ namespace Steepshot.iOS.Cells
                 _scheduledWorkBody[i] = ImageLoader.Load(_currentPost.Media[i].Url,
                                                          _bodyImage[i],
                                                          2, LoadingPriority.Highest);
-                                             
             }
             if (_currentPost.Media.Length > 1)
             {
