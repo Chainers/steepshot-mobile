@@ -163,11 +163,10 @@
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:text="Login"
-        android:background="@drawable/blue_circle_border"
+        android:background="@drawable/blue_radius12dip"
         android:layout_marginBottom="17dp"
         android:textColor="@color/white"
-        android:textSize="14sp"
-        android:textAllCaps="false" />
+        android:textSize="14sp" />
     <android.support.v4.view.ViewPager
         android:id="@+id/post_prev_pager"
         android:background="@android:color/white"

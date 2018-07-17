@@ -24,6 +24,7 @@ using Steepshot.Core.Localization;
 using Steepshot.Core.Models;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
+using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 using Steepshot.CustomViews;
@@ -122,6 +123,15 @@ namespace Steepshot.Fragment
             _transferFacade.OnUserBalanceChanged += OnUserBalanceChanged;
         }
 
+        public TransferFragment(UserProfileResponse user) : this()
+        {
+            _transferFacade.Recipient = new UserFriend()
+            {
+                Author = user.Username,
+                Avatar = user.ProfileImage
+            };
+        }
+
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
             if (!IsInitialized)
@@ -209,6 +219,11 @@ namespace Steepshot.Fragment
             _transferFacade.UserFriendPresenter.SourceChanged += PresenterOnSourceChanged;
 
             UpdateAccountInfo();
+            if (_transferFacade.Recipient != null)
+            {
+                _recipientSearch.Text = _transferFacade.Recipient.Author;
+                OnRecipientChanged();
+            }
         }
 
         public override void OnDetach()
@@ -294,6 +309,9 @@ namespace Steepshot.Fragment
 
         private void OnRecipientChanged()
         {
+            if (!IsInitialized)
+                return;
+
             if (_transferFacade.Recipient != null)
             {
                 if (!string.IsNullOrEmpty(_transferFacade.Recipient.Avatar))
@@ -315,7 +333,8 @@ namespace Steepshot.Fragment
                     Picasso.With(Activity).Load(Resource.Drawable.ic_holder).Into(_recipientAvatar);
                 _recipientAvatar.Visibility = ViewStates.Visible;
 
-                Activity.RunOnUiThread(() => {
+                Activity.RunOnUiThread(() =>
+                {
                     _recipientSearch.Text = _transferFacade.Recipient.Author;
                 });
             }
@@ -353,7 +372,13 @@ namespace Steepshot.Fragment
 
         private void RecipientSearchOnKeyPress(object sender, View.KeyEventArgs e)
         {
-            _transferBtn.RequestFocus();
+            if (e.Event != null && (e.KeyCode == Keycode.Enter))
+            {
+                _transferBtn.RequestFocus();
+                e.Handled = true;
+                return;
+            }
+            e.Handled = false;
         }
 
         private void RecipientSearchClearOnClick(object sender, EventArgs e)
@@ -412,6 +437,8 @@ namespace Steepshot.Fragment
                 ? ViewStates.Gone
                 : ViewStates.Visible;
             _transferBtn.RequestFocus();
+            _transferCommentTitle.SetTextColor(Color.Black);
+            _transferCommentTitle.Click -= TransferCommentTitleOnClick;
         }
 
         private void TransferCommentEditOnTextChanged(object sender, TextChangedEventArgs e)
@@ -504,7 +531,8 @@ namespace Steepshot.Fragment
             var transferResponse = await Presenter.TryTransfer(_transferFacade.Recipient.Author, double.Parse(_transferAmountEdit.Text, CultureInfo.InvariantCulture), _pickedCoin, _transferFacade.UserBalance.ChainCurrency, _transferCommentEdit.Text);
             if (transferResponse.IsSuccess)
             {
-                Toast.MakeText(Activity, AppSettings.LocalizationManager.GetText(LocalizationKeys.TransferSuccess), ToastLength.Short).Show();
+                var succes = new SuccessfullTrxDialog(Activity, _transferFacade.Recipient.Author, $"{_transferAmountEdit.Text} {_pickedCoin}", DateTime.Now);
+                succes.Show();
                 ClearEdits();
             }
             else

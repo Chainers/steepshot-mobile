@@ -569,7 +569,8 @@ namespace Steepshot.Adapter
             _author.Text = post.Author;
 
             if (!string.IsNullOrEmpty(Post.Avatar))
-                Picasso.With(Context).Load(Post.Avatar).Placeholder(Resource.Drawable.ic_holder).Resize(300, 0).Priority(Picasso.Priority.Low).Into(_avatar, null, OnPicassoError);
+                Picasso.With(Context).Load(Post.Avatar.GetProxy(_avatar.LayoutParameters.Width, _avatar.LayoutParameters.Height)).Placeholder(Resource.Drawable.ic_holder).Priority(Picasso.Priority.Low).Into(_avatar, null, () =>
+                Picasso.With(Context).Load(Post.Avatar).Placeholder(Resource.Drawable.ic_holder).NoFade().Into(_avatar));
             else
                 Picasso.With(context).Load(Resource.Drawable.ic_holder).Into(_avatar);
 
@@ -592,7 +593,7 @@ namespace Steepshot.Adapter
                 _topLikers.AddView(topLikersAvatar, layoutParams);
                 var avatarUrl = Post.TopLikersAvatars[i];
                 if (!string.IsNullOrEmpty(avatarUrl))
-                    Picasso.With(Context).Load(avatarUrl).Placeholder(Resource.Drawable.ic_holder).Resize(240, 0).Priority(Picasso.Priority.Low).Into(topLikersAvatar, null,
+                    Picasso.With(Context).Load(avatarUrl.GetProxy(topLikersSize, topLikersSize)).Placeholder(Resource.Drawable.ic_holder).Priority(Picasso.Priority.Low).Into(topLikersAvatar, null,
                         () =>
                         {
                             Picasso.With(context).Load(Resource.Drawable.ic_holder).Into(topLikersAvatar);
@@ -673,11 +674,6 @@ namespace Steepshot.Adapter
         {
             ((RelativeLayout.LayoutParams)NsfwMask.LayoutParameters).AddRule(LayoutRules.Below, Resource.Id.title);
             ((RelativeLayout.LayoutParams)NsfwMask.LayoutParameters).AddRule(LayoutRules.Above, Resource.Id.subtitle);
-        }
-
-        private void OnPicassoError()
-        {
-            Picasso.With(Context).Load(Post.Avatar).Placeholder(Resource.Drawable.ic_holder).NoFade().Into(_avatar);
         }
 
         protected enum PostPagerType

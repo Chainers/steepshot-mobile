@@ -43,8 +43,7 @@
             android:text="Follow"
             android:layout_marginLeft="3dp"
             android:layout_marginRight="3dp"
-            android:layout_centerInParent="true"
-            android:textAllCaps="false" />
+            android:layout_centerInParent="true" />
     </RelativeLayout>
     <RelativeLayout
         android:id="@+id/text_container"

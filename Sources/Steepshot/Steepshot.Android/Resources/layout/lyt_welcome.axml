@@ -27,7 +27,7 @@
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:layout_above="@id/terms"
-        android:background="@drawable/circle_border"
+        android:background="@drawable/white_radius12dip_edge_grey"
         android:textColor="@color/rgb15_24_30"
         android:textSize="14sp"
         android:textAllCaps="false"
@@ -46,10 +46,9 @@
             android:id="@+id/golos_login"
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:background="@drawable/blue_circle_border"
+            android:background="@drawable/blue_radius12dip"
             android:textColor="@color/white"
-            android:textSize="14sp"
-            android:textAllCaps="false" />
+            android:textSize="14sp" />
         <ProgressBar
             android:id="@+id/golos_loading_spinner"
             android:layout_width="50dp"
@@ -73,10 +72,9 @@
             android:id="@+id/steem_login"
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:background="@drawable/steem_login_border"
+            android:background="@drawable/orange_radius12dip"
             android:textColor="@color/white"
-            android:textSize="14sp"
-            android:textAllCaps="false" />
+            android:textSize="14sp" />
         <ProgressBar
             android:id="@+id/steem_loading_spinner"
             android:layout_width="50dp"

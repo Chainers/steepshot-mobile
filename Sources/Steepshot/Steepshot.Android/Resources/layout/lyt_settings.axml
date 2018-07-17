@@ -129,7 +129,7 @@
                             android:layout_height="40dp"
                             android:textColor="@color/white"
                             android:textAllCaps="false"
-                            android:background="@drawable/first_post_button" />
+                            android:background="@drawable/blue_radius12dip" />
                         <ProgressBar
                             android:id="@+id/golos_spinner"
                             android:layout_width="50dp"

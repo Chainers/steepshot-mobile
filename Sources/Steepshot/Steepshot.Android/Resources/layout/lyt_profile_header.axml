@@ -31,54 +31,31 @@
                 android:textSize="12sp"
                 android:visibility="invisible" />
         </Steepshot.CustomViews.VotingPowerFrame>
-        <RelativeLayout
-            android:id="@+id/follow_container"
-            android:layout_width="108dp"
-            android:layout_height="43dp"
+        <LinearLayout
+            android:id="@+id/name_place"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="30dp"
             android:layout_centerVertical="true"
-            android:layout_alignParentRight="true"
-            android:layout_marginRight="29dp">
-            <ProgressBar
-                android:id="@+id/loading_spinner"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:indeterminateTintMode="src_atop"
-                android:indeterminateTint="@android:color/white"
-                android:layout_centerInParent="true"
-                android:elevation="10dp"
-                android:visibility="gone" />
-            <Button
-                android:id="@+id/follow_button"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@drawable/follow_button_corners"
-                android:textSize="14sp"
-                android:textColor="@android:color/white"
-                android:layout_margin="3dp"
-                android:text="Follow"
-                android:textAllCaps="false" />
-        </RelativeLayout>
+            android:layout_toRightOf="@id/voting_power">
+            <TextView
+                android:id="@+id/profile_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Your Name"
+                android:textSize="20sp"
+                android:textColor="@color/rgb151_155_158" />
+            <TextView
+                android:id="@+id/place"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Location"
+                android:textSize="12sp"
+                android:textColor="@color/rgb151_155_158"
+                android:layout_marginTop="1dp" />
+        </LinearLayout>
     </RelativeLayout>
-    <TextView
-        android:id="@+id/profile_name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Your Name"
-        android:textSize="20sp"
-        android:textColor="@color/rgb151_155_158"
-        android:layout_below="@+id/top_profile_layout"
-        android:layout_alignLeft="@+id/top_profile_layout"
-        android:layout_marginTop="9dp" />
-    <TextView
-        android:id="@+id/place"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Location"
-        android:textSize="12sp"
-        android:textColor="@color/rgb151_155_158"
-        android:layout_below="@+id/profile_name"
-        android:layout_alignLeft="@+id/profile_name"
-        android:layout_marginTop="1dp" />
     <TextView
         android:id="@+id/description"
         android:layout_width="wrap_content"
@@ -86,8 +63,8 @@
         android:text="About you..."
         android:textSize="14sp"
         android:textColor="@color/rgb151_155_158"
-        android:layout_below="@+id/place"
-        android:layout_alignLeft="@+id/place"
+        android:layout_below="@id/top_profile_layout"
+        android:layout_alignLeft="@id/top_profile_layout"
         android:layout_marginTop="11dp"
         android:layout_marginRight="29dp" />
     <Steepshot.CustomViews.AutoLinkTextView
@@ -97,21 +74,66 @@
         android:text="your website"
         android:textSize="14sp"
         android:textColor="@color/rgb151_155_158"
-        android:layout_below="@+id/description"
-        android:layout_alignLeft="@+id/description"
+        android:layout_below="@id/description"
+        android:layout_alignLeft="@id/description"
         android:layout_marginTop="5dp"
         android:layout_marginRight="29dp"
         customAttrs:urlColor="@color/rgb231_72_0"
         customAttrs:selectedColor="@color/rgb231_72_0"
         customAttrs:underlineEnabled="true" />
     <LinearLayout
+        android:id="@+id/actions"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_below="@id/site"
+        android:layout_margin="30dp"
+        android:weightSum="100">
+        <RelativeLayout
+            android:id="@+id/follow_container"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="49">
+            <ProgressBar
+                android:id="@+id/loading_spinner"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:indeterminateTintMode="src_atop"
+                android:indeterminateTint="@android:color/white"
+                android:layout_centerInParent="true"
+                android:elevation="10dp"
+                android:visibility="gone" />
+            <Button
+                android:id="@+id/follow_button"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/white_radius12dip_edge_grey"
+                android:textSize="14sp"
+                android:textColor="@android:color/white"
+                android:text="Follow" />
+        </RelativeLayout>
+        <Space
+            android:id="@+id/btn_space"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="2" />
+        <Button
+            android:id="@+id/transfer_button"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="49"
+            android:layout_alignParentRight="true"
+            android:background="@drawable/orange_radius12dip"
+            android:textSize="14sp"
+            android:textColor="@android:color/white" />
+    </LinearLayout>
+    <LinearLayout
         android:id="@+id/photos_btn"
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
         android:orientation="vertical"
-        android:layout_below="@+id/site"
-        android:layout_alignLeft="@+id/site"
-        android:layout_marginTop="19dp">
+        android:layout_below="@id/actions"
+        android:layout_alignLeft="@id/actions">
         <TextView
             android:id="@+id/photos_count"
             android:layout_width="wrap_content"
@@ -135,9 +157,8 @@
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
         android:orientation="vertical"
-        android:layout_below="@+id/site"
-        android:layout_toRightOf="@+id/photos_btn"
-        android:layout_marginTop="19dp"
+        android:layout_below="@id/actions"
+        android:layout_toRightOf="@id/photos_btn"
         android:layout_marginLeft="50dp"
         android:clickable="true"
         android:background="?android:attr/selectableItemBackground">
@@ -164,9 +185,8 @@
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
         android:orientation="vertical"
-        android:layout_below="@+id/site"
-        android:layout_toRightOf="@+id/following_btn"
-        android:layout_marginTop="19dp"
+        android:layout_below="@id/actions"
+        android:layout_toRightOf="@id/following_btn"
         android:layout_marginLeft="50dp"
         android:clickable="true"
         android:background="?android:attr/selectableItemBackground">
@@ -194,7 +214,7 @@
         android:layout_height="49dp"
         android:layout_marginTop="25dp"
         android:layout_marginBottom="2dp"
-        android:layout_below="@+id/photos_btn"
+        android:layout_below="@id/photos_btn"
         android:clickable="true"
         android:background="?android:attr/selectableItemBackground">
         <View

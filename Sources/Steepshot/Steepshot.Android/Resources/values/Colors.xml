@@ -35,4 +35,5 @@
   <item name="rgb245_245_245" type="color">#F5F5F5</item>
   <item name="rgb250_250_250" type="color">#FAFAFA</item>
   <item name="rgb254_249_229" type="color">#FEF9E5</item>
+  <item name="rgb255_24_5" type="color">#FF1805</item>
 </resources>

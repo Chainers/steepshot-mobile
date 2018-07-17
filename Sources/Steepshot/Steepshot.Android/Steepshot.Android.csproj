@@ -76,6 +76,7 @@
     <Compile Include="CustomViews\CoinPickDialog.cs" />
     <Compile Include="CustomViews\ExpandableTextView.cs" />
     <Compile Include="CustomViews\MediaPager.cs" />
+    <Compile Include="CustomViews\SuccessfullTrxDialog.cs" />
     <Compile Include="CustomViews\TouchableSpan.cs" />
     <Compile Include="Fragment\PostCreateFragment.cs" />
     <Compile Include="Fragment\PostPrepareBaseFragment.cs" />
@@ -171,6 +172,9 @@
     <None Include="app.config" />
     <AndroidAsset Include="Assets\Config.txt.template" />
     <AndroidAsset Include="Assets\IntegrationModuleConfig.txt.template" />
+    <AndroidAsset Include="Assets\SFUIDisplay-Light.otf" />
+    <AndroidAsset Include="Assets\SFUIDisplay-Regular.otf" />
+    <AndroidAsset Include="Assets\SFUIDisplay-Semibold.otf" />
     <None Include="packages.config" />
     <None Include="Resources\AboutResources.txt" />
     <None Include="Properties\AndroidManifest.xml" />
@@ -202,7 +206,7 @@
     <AndroidResource Include="Resources\drawable-xhdpi\ic_edit.png" />
     <AndroidResource Include="Resources\drawable-xxhdpi\ic_edit.png" />
     <AndroidResource Include="Resources\layout\lyt_local_tags_item.axml" />
-    <AndroidResource Include="Resources\drawable\white_rounded_border.xml" />
+    <AndroidResource Include="Resources\drawable\white_radius12dip_edge_grey.xml" />
     <AndroidResource Include="Resources\drawable-mdpi\ic_close_black.png" />
     <AndroidResource Include="Resources\drawable-xhdpi\ic_close_black.png" />
     <AndroidResource Include="Resources\drawable-xxhdpi\ic_close_black.png" />
@@ -213,7 +217,7 @@
     <AndroidResource Include="Resources\drawable-mdpi\ic_more.png" />
     <AndroidResource Include="Resources\drawable-xhdpi\ic_more.png" />
     <AndroidResource Include="Resources\drawable-xxhdpi\ic_more.png" />
-    <AndroidResource Include="Resources\drawable\blue_circle_border.xml" />
+    <AndroidResource Include="Resources\drawable\blue_radius12dip.xml" />
     <AndroidResource Include="Resources\drawable-mdpi\ic_new_like_filled.png" />
     <AndroidResource Include="Resources\drawable-xhdpi\ic_new_like_filled.png" />
     <AndroidResource Include="Resources\drawable-xxhdpi\ic_new_like_filled.png" />
@@ -659,8 +663,7 @@
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\drawable\settings_separator.xml" />
-    <AndroidResource Include="Resources\drawable\first_post_button.xml" />
-    <AndroidResource Include="Resources\drawable\steem_login_border.xml" />
+    <AndroidResource Include="Resources\drawable\orange_radius12dip.xml" />
     <AndroidResource Include="Resources\drawable\welcome_screen_background.xml" />
     <AndroidResource Include="Resources\drawable\popup_background.xml" />
   </ItemGroup>
@@ -895,6 +898,29 @@
     <AndroidResource Include="Resources\layout\lyt_transfer_top.axml">
       <SubType>Designer</SubType>
     </AndroidResource>
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable\white_radius100dip_edge_grey.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable\white_radius12dip_edge_black.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\layout\lyt_successfull_transaction.axml">
+      <SubType>Designer</SubType>
+    </AndroidResource>
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable\grey_radius10dip.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable-mdpi\ic_trx_success.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_trx_success.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_trx_success.png" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <Import Project="..\packages\Xamarin.Build.Download.0.4.2\build\Xamarin.Build.Download.targets" Condition="Exists('..\packages\Xamarin.Build.Download.0.4.2\build\Xamarin.Build.Download.targets')" />
