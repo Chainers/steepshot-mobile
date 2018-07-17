@@ -135,7 +135,7 @@ namespace Steepshot.iOS.Views
             View.AddSubview(transfer);
 
             transfer.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, _pageControl, 20);
-            transfer.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 20);
+            transfer.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 10);
             transfer.AutoSetDimension(ALDimension.Height, 50);
 
             var more = new UIButton();
