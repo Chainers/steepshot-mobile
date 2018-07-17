@@ -475,7 +475,7 @@ namespace Steepshot.iOS.Views
             {
                 WatchedUser = Username,
             };
-            var response = await BasePresenter.TrySubscribeForPushes(model);
+            var response = await _presenter.TrySubscribeForPushes(model);
             if (response.IsSuccess)
             {
                 if (UserIsWatched)

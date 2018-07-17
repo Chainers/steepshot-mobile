@@ -1,16 +1,16 @@
 ﻿using System;
 using System.IO;
 using System.Threading;
-using Steepshot.Core.HttpClient;
 using System.Threading.Tasks;
 using NUnit.Framework;
+using Steepshot.Core.Clients;
 
 namespace Steepshot.Core.Tests.HttpClient
 {
     [TestFixture]
     public class ApiGatewayTest : BaseTests
     {
-        readonly ApiGateway _api = new ApiGateway();
+        readonly ExtendedHttpClient _api = new ExtendedHttpClient();
 
         [Test]
         public async Task NsfwCheckTest()

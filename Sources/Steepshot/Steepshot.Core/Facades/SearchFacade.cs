@@ -23,12 +23,12 @@ namespace Steepshot.Core.Facades
                 if (searchType == SearchType.Tags)
                 {
                     TagsPresenter.NotifySourceChanged(nameof(TrySearchCategories), true);
-                    TagsPresenter.TasksCancel(false);
+                    TagsPresenter.TasksCancel();
                 }
                 else
                 {
                     UserFriendPresenter.NotifySourceChanged(nameof(TrySearchCategories), true);
-                    UserFriendPresenter.TasksCancel(false);
+                    UserFriendPresenter.TasksCancel();
                 }
 
                 return new OperationCanceledException();
@@ -43,10 +43,10 @@ namespace Steepshot.Core.Facades
             return await UserFriendPresenter.TryLoadNextSearchUser(query);
         }
 
-        public void TasksCancel(bool andDispose = false)
+        public void TasksCancel()
         {
-            UserFriendPresenter.TasksCancel(andDispose);
-            TagsPresenter.TasksCancel(andDispose);
+            UserFriendPresenter.TasksCancel();
+            TagsPresenter.TasksCancel();
         }
     }
 }

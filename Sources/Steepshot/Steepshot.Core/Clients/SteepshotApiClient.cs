@@ -1,69 +1,66 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Ditch.Core.JsonRpc;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Steepshot.Core.Extensions;
+using Steepshot.Core.HttpClient;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
-using Steepshot.Core.Serializing;
-using Ditch.Core.JsonRpc;
-using System;
 
-namespace Steepshot.Core.HttpClient
+namespace Steepshot.Core.Clients
 {
     public class SteepshotApiClient : BaseServerClient
     {
         private readonly Dictionary<KnownChains, Beneficiary[]> _beneficiariesCash;
-        private readonly object _synk;
+        private readonly BaseDitchClient _ditchClient;
+        public KnownChains Chain { get; }
 
-        private CancellationTokenSource _ctsMain;
-        private BaseDitchClient _ditchClient;
-
-        public SteepshotApiClient()
+        public SteepshotApiClient(ExtendedHttpClient httpClient, KnownChains chain)
         {
-            Gateway = new ApiGateway();
-            JsonConverter = new JsonNetConverter();
+            HttpClient = httpClient;
             _beneficiariesCash = new Dictionary<KnownChains, Beneficiary[]>();
-            _synk = new object();
-        }
+            Chain = chain;
 
-        public void InitConnector(KnownChains chain, bool isDev)
-        {
-            var sUrl = string.Empty;
             switch (chain)
             {
-                case KnownChains.Steem when isDev:
-                    sUrl = Constants.SteemUrlQa;
-                    break;
                 case KnownChains.Steem:
-                    sUrl = Constants.SteemUrl;
-                    break;
-                case KnownChains.Golos when isDev:
-                    sUrl = Constants.GolosUrlQa;
+                    BaseUrl = Constants.SteemUrl;
                     break;
                 case KnownChains.Golos:
-                    sUrl = Constants.GolosUrl;
+                    BaseUrl = Constants.GolosUrl;
                     break;
             }
 
-            lock (_synk)
+            _ditchClient = chain == KnownChains.Steem
+                ? (BaseDitchClient)new SteemClient(HttpClient)
+                : new GolosClient();
+
+            EnableRead = true;
+        }
+
+        public void SetDev(bool isDev)
+        {
+            switch (Chain)
             {
-                if (!string.IsNullOrEmpty(BaseUrl))
-                {
-                    _ditchClient.EnableWrite = false;
-                    _ctsMain.Cancel();
-                }
-
-                _ctsMain = new CancellationTokenSource();
-
-                _ditchClient = chain == KnownChains.Steem
-                    ? (BaseDitchClient)new SteemClient(JsonConverter)
-                    : new GolosClient(JsonConverter);
-
-                BaseUrl = sUrl;
-                EnableRead = true;
+                case KnownChains.Steem when isDev:
+                    BaseUrl = Constants.SteemUrlQa;
+                    break;
+                case KnownChains.Steem:
+                    BaseUrl = Constants.SteemUrl;
+                    break;
+                case KnownChains.Golos when isDev:
+                    BaseUrl = Constants.GolosUrlQa;
+                    break;
+                case KnownChains.Golos:
+                    BaseUrl = Constants.GolosUrl;
+                    break;
             }
         }
+
 
         public bool TryReconnectChain(CancellationToken token)
         {
@@ -173,7 +170,7 @@ namespace Steepshot.Core.HttpClient
                 return new OperationResult<VoidResponse>(operationResult.Error);
 
             var preparedData = operationResult.Result;
-            var meta = JsonConverter.Serialize(preparedData.JsonMetadata);
+            var meta = JsonConvert.SerializeObject(preparedData.JsonMetadata);
             var commentModel = new CommentModel(model, preparedData.Body, meta);
             if (!model.IsEditMode)
                 commentModel.Beneficiaries = preparedData.Beneficiaries;
@@ -204,10 +201,10 @@ namespace Steepshot.Core.HttpClient
             if (!trxResp.IsSuccess)
                 return new OperationResult<MediaModel>(trxResp.Error);
 
-            model.VerifyTransaction = JsonConverter.Serialize(trxResp.Result);
+            model.VerifyTransaction = trxResp.Result;
 
             var endpoint = $"{BaseUrl}/{GatewayVersion.V1P1}/media/upload";
-            return await Gateway.UploadMedia(endpoint, model, ct);
+            return await HttpClient.UploadMedia(endpoint, model, ct);
         }
 
         public async Task<OperationResult<VoidResponse>> DeletePostOrComment(DeleteModel model, CancellationToken ct)
@@ -249,7 +246,7 @@ namespace Steepshot.Core.HttpClient
             if (!trxResp.IsSuccess)
                 return new OperationResult<object>(trxResp.Error);
 
-            model.VerifyTransaction = trxResp.Result;
+            model.VerifyTransaction = JsonConvert.DeserializeObject<JObject>(trxResp.Result);
 
             var results = Validate(model);
             if (results != null)
@@ -257,7 +254,7 @@ namespace Steepshot.Core.HttpClient
 
             var endpoint = $"{BaseUrl}/{GatewayVersion.V1P1}/{(model.Subscribe ? "subscribe" : "unsubscribe")}";
 
-            return await Gateway.Post<object, PushNotificationsModel>(endpoint, model, ct);
+            return await HttpClient.Post<object, PushNotificationsModel>(endpoint, model, ct);
         }
 
         public async Task<OperationResult<VoidResponse>> Transfer(TransferModel model, CancellationToken ct)

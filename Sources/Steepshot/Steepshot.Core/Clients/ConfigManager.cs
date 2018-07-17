@@ -4,7 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Steepshot.Core.Services;
 
-namespace Steepshot.Core.HttpClient
+namespace Steepshot.Core.Clients
 {
     public class ConfigManager
     {
@@ -30,13 +30,13 @@ namespace Steepshot.Core.HttpClient
                 GolosNodeConfigs = assetHelper.GolosNodesConfig();
         }
 
-        public async Task Update(ApiGateway gateway, KnownChains knownChains, CancellationToken token)
+        public async Task Update(SteepshotApiClient steepshotApiClient, CancellationToken token)
         {
-            switch (knownChains)
+            switch (steepshotApiClient.Chain)
             {
                 case KnownChains.Golos:
                     {
-                        var conf = await gateway.Get<List<NodeConfig>>(GolosUpdateUrl, token);
+                        var conf = await steepshotApiClient.HttpClient.Get<List<NodeConfig>>(GolosUpdateUrl, token);
                         if (conf.IsSuccess)
                         {
                             GolosNodeConfigs = conf.Result;
@@ -46,7 +46,7 @@ namespace Steepshot.Core.HttpClient
                     }
                 case KnownChains.Steem:
                     {
-                        var conf = await gateway.Get<List<NodeConfig>>(SteemUpdateUrl, token);
+                        var conf = await steepshotApiClient.HttpClient.Get<List<NodeConfig>>(SteemUpdateUrl, token);
                         if (conf.IsSuccess)
                         {
                             SteemNodeConfigs = conf.Result;

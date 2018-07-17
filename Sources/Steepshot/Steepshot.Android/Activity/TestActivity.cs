@@ -40,7 +40,7 @@ namespace Steepshot.Activity
         private async void RunApiTest(object sender, EventArgs e)
         {
             //TODO: add cancel support
-            var module = new InstagramModule(Presenter.OpenApi.Gateway, AppSettings.User);
+            var module = new InstagramModule(Presenter.OpenApi, AppSettings.User);
             if (module.IsAuthorized())
             {
                 module.TryCreateNewPost(CancellationToken.None);

@@ -1,37 +1,39 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Steepshot.Core.Models.Common;
-using Steepshot.Core.Models.Requests;
-using Steepshot.Core.Serializing;
-using Ditch.Core.JsonRpc;
-using Ditch.Golos;
-using Ditch.Golos.Models;
-using Ditch.Golos.Operations;
-using Steepshot.Core.Errors;
-using Steepshot.Core.Models.Enums;
-using Steepshot.Core.Localization;
 using Ditch.Core;
+using Ditch.Core.JsonRpc;
+using Ditch.Steem;
+using Ditch.Steem.Models;
+using Ditch.Steem.Operations;
+using Newtonsoft.Json;
+using Steepshot.Core.Errors;
+using Steepshot.Core.HttpClient;
+using Steepshot.Core.Localization;
+using Steepshot.Core.Models.Common;
+using Steepshot.Core.Models.Enums;
+using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Utils;
+using OperationType = Steepshot.Core.HttpClient.OperationType;
 
-namespace Steepshot.Core.HttpClient
+namespace Steepshot.Core.Clients
 {
-    internal class GolosClient : BaseDitchClient
+    internal class SteemClient : BaseDitchClient
     {
         private readonly OperationManager _operationManager;
 
 
         public override bool IsConnected => _operationManager.IsConnected;
 
-        public override KnownChains Chain => KnownChains.Golos;
+        public override KnownChains Chain => KnownChains.Steem;
 
-
-        public GolosClient(JsonNetConverter jsonConverter) : base(jsonConverter)
+        public SteemClient(System.Net.Http.HttpClient httpClient)
         {
-            var httpManager = new HttpManager();
+            var httpManager = new HttpManager(httpClient);
             _operationManager = new OperationManager(httpManager);
         }
 
@@ -46,7 +48,7 @@ namespace Steepshot.Core.HttpClient
                 Monitor.Enter(SyncConnection, ref lockWasTaken);
                 if (!EnableWrite)
                 {
-                    var cUrls = AppSettings.ConfigManager.GolosNodeConfigs
+                    var cUrls = AppSettings.ConfigManager.SteemNodeConfigs
                         .Where(n => n.IsEnabled)
                         .OrderBy(n => n.Order)
                         .Select(n => n.Url)
@@ -78,6 +80,18 @@ namespace Steepshot.Core.HttpClient
 
         #region Post requests
 
+        private async Task<OperationResult<VoidResponse>> Broadcast(List<byte[]> keys, BaseOperation[] ops, CancellationToken ct)
+        {
+            var resp = await _operationManager.BroadcastOperationsSynchronousLikeSteemit(keys, ops, ct);
+
+            var result = new OperationResult<VoidResponse>();
+            if (resp.IsError)
+                result.Error = new RequestError(resp);
+            else
+                result.Result = new VoidResponse();
+            return result;
+        }
+
         public override async Task<OperationResult<VoidResponse>> Vote(VoteModel model, CancellationToken ct)
         {
             if (!TryReconnectChain(ct))
@@ -89,20 +103,12 @@ namespace Steepshot.Core.HttpClient
 
             short weigth = 0;
             if (model.Type == VoteType.Up)
-                weigth = 10000;
+                weigth = (short)(AppSettings.User.VotePower * 100);
             if (model.Type == VoteType.Flag)
                 weigth = -10000;
 
             var op = new VoteOperation(model.Login, model.Author, model.Permlink, weigth);
-            var resp = await _operationManager.BroadcastOperationsSynchronous(keys, ct, op);
-
-            var result = new OperationResult<VoidResponse>();
-            if (resp.IsError)
-                result.Error = new RequestError(resp);
-            else
-                result.Result = new VoidResponse();
-
-            return result;
+            return await Broadcast(keys, new BaseOperation[] { op }, ct);
         }
 
         public override async Task<OperationResult<VoidResponse>> Follow(FollowModel model, CancellationToken ct)
@@ -115,18 +121,10 @@ namespace Steepshot.Core.HttpClient
                 return new OperationResult<VoidResponse>(new ValidationError(LocalizationKeys.WrongPrivatePostingKey));
 
             var op = model.Type == Models.Enums.FollowType.Follow
-                ? new FollowOperation(model.Login, model.Username, Ditch.Golos.Models.FollowType.Blog, model.Login)
+                ? new FollowOperation(model.Login, model.Username, Ditch.Steem.Models.FollowType.Blog, model.Login)
                 : new UnfollowOperation(model.Login, model.Username, model.Login);
-            var resp = await _operationManager.BroadcastOperationsSynchronous(keys, ct, op);
 
-            var result = new OperationResult<VoidResponse>();
-
-            if (resp.IsError)
-                result.Error = new RequestError(resp);
-            else
-                result.Result = new VoidResponse();
-
-            return result;
+            return await Broadcast(keys, new BaseOperation[] { op }, ct);
         }
 
         public override async Task<OperationResult<VoidResponse>> CreateOrEdit(CommentModel model, CancellationToken ct)
@@ -144,12 +142,12 @@ namespace Steepshot.Core.HttpClient
             if (model.Beneficiaries != null && model.Beneficiaries.Any())
             {
                 var beneficiaries = model.Beneficiaries
-                    .Select(i => new Ditch.Golos.Operations.Beneficiary(i.Account, i.Weight))
+                    .Select(i => new Ditch.Steem.Operations.Beneficiary(i.Account, i.Weight))
                     .ToArray();
                 ops = new BaseOperation[]
                 {
                         op,
-                        new BeneficiariesOperation(model.Login, model.Permlink, "GBG", beneficiaries)
+                        new BeneficiariesOperation(model.Login, model.Permlink,new Asset(1000000000, Config.SteemAssetNumSbd) ,beneficiaries)
                 };
             }
             else
@@ -157,15 +155,7 @@ namespace Steepshot.Core.HttpClient
                 ops = new BaseOperation[] { op };
             }
 
-            var resp = await _operationManager.BroadcastOperationsSynchronous(keys, ct, ops);
-
-            var result = new OperationResult<VoidResponse>();
-            if (resp.IsError)
-                result.Error = new RequestError(resp);
-            else
-                result.Result = new VoidResponse();
-
-            return result;
+            return await Broadcast(keys, ops, ct);
         }
 
         public override async Task<OperationResult<VoidResponse>> Delete(DeleteModel model, CancellationToken ct)
@@ -178,14 +168,8 @@ namespace Steepshot.Core.HttpClient
                 return new OperationResult<VoidResponse>(new ValidationError(LocalizationKeys.WrongPrivatePostingKey));
 
             var op = new DeleteCommentOperation(model.Author, model.Permlink);
-            var resp = await _operationManager.BroadcastOperationsSynchronous(keys, ct, op);
 
-            var result = new OperationResult<VoidResponse>();
-            if (resp.IsError)
-                result.Error = new RequestError(resp);
-            else
-                result.Result = new VoidResponse();
-            return result;
+            return await Broadcast(keys, new BaseOperation[] { op }, ct);
         }
 
         public override async Task<OperationResult<VoidResponse>> UpdateUserProfile(UpdateUserProfileModel model, CancellationToken ct)
@@ -197,7 +181,11 @@ namespace Steepshot.Core.HttpClient
             if (keys == null)
                 return new OperationResult<VoidResponse>(new ValidationError(LocalizationKeys.WrongPrivateActimeKey));
 
-            var resp = await _operationManager.LookupAccountNames(new[] { model.Login }, CancellationToken.None);
+            var args = new FindAccountsArgs
+            {
+                Accounts = new[] { model.Login }
+            };
+            var resp = await _operationManager.FindAccounts(args, CancellationToken.None);
             var result = new OperationResult<VoidResponse>();
             if (resp.IsError)
             {
@@ -205,7 +193,7 @@ namespace Steepshot.Core.HttpClient
                 return result;
             }
 
-            var profile = resp.Result.Length == 1 ? resp.Result[0] : null;
+            var profile = resp.Result.Accounts.Length == 1 ? resp.Result.Accounts[0] : null;
             if (profile == null)
             {
                 result.Error = new ValidationError(LocalizationKeys.UnexpectedProfileData);
@@ -215,12 +203,8 @@ namespace Steepshot.Core.HttpClient
             var editedMeta = UpdateProfileJson(profile.JsonMetadata, model);
 
             var op = new AccountUpdateOperation(model.Login, profile.MemoKey, editedMeta);
-            var resp2 = await _operationManager.BroadcastOperationsSynchronous(keys, ct, op);
-            if (resp2.IsError)
-                result.Error = new RequestError(resp2);
-            else
-                result.Result = new VoidResponse();
-            return result;
+
+            return await Broadcast(keys, new BaseOperation[] { op }, ct);
         }
 
         public override async Task<OperationResult<VoidResponse>> Transfer(TransferModel model, CancellationToken ct)
@@ -234,17 +218,20 @@ namespace Steepshot.Core.HttpClient
 
             var result = new OperationResult<VoidResponse>();
 
-            Asset asset;
+            var asset = new Asset
+            {
+                NumberFormat = NumberFormatInfo.InvariantInfo
+            };
             switch (model.CurrencyType)
             {
-                case CurrencyType.Golos:
+                case CurrencyType.Steem:
                     {
-                        asset = new Asset($"{model.Value} GOLOS");
+                        asset.FromOldFormat($"{model.Value} {Config.Steem}");
                         break;
                     }
-                case CurrencyType.Gbg:
+                case CurrencyType.Sbd:
                     {
-                        asset = new Asset($"{model.Value} GBG");
+                        asset.FromOldFormat($"{model.Value} {Config.Sbd}");
                         break;
                     }
                 default:
@@ -255,28 +242,23 @@ namespace Steepshot.Core.HttpClient
             }
 
             var op = new TransferOperation(model.Login, model.Recipient, asset, model.Memo);
-            var resp = await _operationManager.BroadcastOperationsSynchronous(keys, ct, op);
-            if (resp.IsError)
-                result.Error = new RequestError(resp);
-            else
-                result.Result = new VoidResponse();
-            return result;
+
+            return await Broadcast(keys, new BaseOperation[] { op }, ct);
         }
 
         #endregion Post requests
 
         #region Get
-
-        public override async Task<OperationResult<object>> GetVerifyTransaction(AuthorizedPostingModel model, CancellationToken ct)
+        public override async Task<OperationResult<string>> GetVerifyTransaction(AuthorizedPostingModel model, CancellationToken ct)
         {
             if (!TryReconnectChain(ct))
-                return new OperationResult<object>(new ValidationError(LocalizationKeys.EnableConnectToBlockchain));
+                return new OperationResult<string>(new ValidationError(LocalizationKeys.EnableConnectToBlockchain));
 
             var keys = ToKeyArr(model.PostingKey);
             if (keys == null)
-                return new OperationResult<object>(new ValidationError(LocalizationKeys.WrongPrivatePostingKey));
+                return new OperationResult<string>(new ValidationError(LocalizationKeys.WrongPrivatePostingKey));
 
-            var op = new FollowOperation(model.Login, "steepshot", Ditch.Golos.Models.FollowType.Blog, model.Login);
+            var op = new FollowOperation(model.Login, "steepshot", Ditch.Steem.Models.FollowType.Blog, model.Login);
             var properties = new DynamicGlobalPropertyObject
             {
                 HeadBlockId = "0000000000000000000000000000000000000000",
@@ -284,7 +266,9 @@ namespace Steepshot.Core.HttpClient
                 HeadBlockNumber = 0
             };
             var tr = await _operationManager.CreateTransaction(properties, keys, op, ct);
-            return new OperationResult<object>() { Result = tr };
+
+            var conv = JsonConvert.SerializeObject(tr, _operationManager.CondenserJsonSerializerSettings);
+            return new OperationResult<string> { Result = conv };
         }
 
         public override async Task<OperationResult<VoidResponse>> ValidatePrivateKey(ValidatePrivateKeyModel model, CancellationToken ct)
@@ -308,14 +292,19 @@ namespace Steepshot.Core.HttpClient
 
             var result = new OperationResult<VoidResponse>();
 
-            var resp = await _operationManager.LookupAccountNames(new[] { model.Login }, CancellationToken.None);
+
+            var args = new FindAccountsArgs
+            {
+                Accounts = new[] { model.Login }
+            };
+            var resp = await _operationManager.FindAccounts(args, CancellationToken.None);
             if (resp.IsError)
             {
                 result.Error = new RequestError(resp);
                 return result;
             }
 
-            if (resp.Result.Length != 1 || resp.Result[0] == null)
+            if (resp.Result.Accounts.Length != 1 || resp.Result.Accounts[0] == null)
             {
                 return new OperationResult<VoidResponse>(new ValidationError(LocalizationKeys.UnexpectedProfileData));
             }
@@ -325,10 +314,10 @@ namespace Steepshot.Core.HttpClient
             switch (model.KeyRoleType)
             {
                 case KeyRoleType.Active:
-                    authority = resp.Result[0].Active;
+                    authority = resp.Result.Accounts[0].Active;
                     break;
                 case KeyRoleType.Posting:
-                    authority = resp.Result[0].Posting;
+                    authority = resp.Result.Accounts[0].Posting;
                     break;
                 default:
                     throw new NotImplementedException();
@@ -357,36 +346,41 @@ namespace Steepshot.Core.HttpClient
 
             var result = new OperationResult<AccountInfoResponse>();
 
-            var resp = await _operationManager.LookupAccountNames(new[] { userName }, CancellationToken.None);
+            var args = new FindAccountsArgs
+            {
+                Accounts = new[] { userName }
+            };
+            var resp = await _operationManager.FindAccounts(args, CancellationToken.None);
             if (resp.IsError)
             {
                 result.Error = new RequestError(resp);
                 return result;
             }
 
-            if (resp.Result.Length != 1 || resp.Result[0] == null)
+            if (resp.Result.Accounts.Length != 1 || resp.Result.Accounts[0] == null)
             {
                 return new OperationResult<AccountInfoResponse>(new ValidationError(LocalizationKeys.UnexpectedProfileData));
             }
 
-            var acc = resp.Result[0];
+            var acc = resp.Result.Accounts[0];
             result.Result = new AccountInfoResponse
             {
+                Chains = KnownChains.Steem,
                 PublicPostingKeys = acc.Posting.KeyAuths.Select(i => i.Key.Data).ToArray(),
                 PublicActiveKeys = acc.Active.KeyAuths.Select(i => i.Key.Data).ToArray(),
-                Metadata = JsonConverter.Deserialize<AccountMetadata>(acc.JsonMetadata)
-            };
-
-            result.Result.Balances = new List<BalanceModel>
-            {
-                new BalanceModel(acc.Balance.ToDoubleString(), 3, CurrencyType.Golos),
-                new BalanceModel(acc.SbdBalance.ToDoubleString(), 3, CurrencyType.Gbg)
+                Metadata = JsonConvert.DeserializeObject<AccountMetadata>(acc.JsonMetadata),
+                Balances = new List<BalanceModel>
+                {
+                    new BalanceModel(acc.Balance.ToDoubleString(), 3, CurrencyType.Steem),
+                    new BalanceModel(acc.SbdBalance.ToDoubleString(), 3, CurrencyType.Sbd)
+                }
             };
 
             return result;
         }
 
-        private string[] AccountHistoryFilter = {
+        private readonly string[] _accountHistoryFilter = {
+            ClaimRewardBalanceOperation.OperationName,
             TransferOperation.OperationName,
             TransferToVestingOperation.OperationName,
             WithdrawVestingOperation.OperationName
@@ -399,14 +393,20 @@ namespace Steepshot.Core.HttpClient
 
             var result = new OperationResult<AccountHistoryResponse[]>();
 
-            var resp = await _operationManager.GetAccountHistory(userName, ulong.MaxValue, 10000, CancellationToken.None);
+            var args = new GetAccountHistoryArgs
+            {
+                Account = userName,
+                Start = ulong.MaxValue,
+                Limit = 10000
+            };
+            var resp = await _operationManager.CondenserGetAccountHistory(args, CancellationToken.None);
             if (resp.IsError)
             {
                 result.Error = new RequestError(resp);
                 return result;
             }
 
-            result.Result = resp.Result.Where(Filter).Select(Transform).ToArray();
+            result.Result = resp.Result.History.Where(Filter).Select(Transform).ToArray();
 
             return result;
         }
@@ -414,7 +414,7 @@ namespace Steepshot.Core.HttpClient
         private bool Filter(KeyValuePair<uint, AppliedOperation> arg)
         {
             BaseOperation baseOperation = arg.Value.Op;
-            return AccountHistoryFilter.Contains(baseOperation.TypeName);
+            return _accountHistoryFilter.Contains(baseOperation.TypeName);
         }
 
         private AccountHistoryResponse Transform(KeyValuePair<uint, AppliedOperation> arg)
@@ -459,11 +459,24 @@ namespace Steepshot.Core.HttpClient
                             Amount = typed.VestingShares.ToString()
                         };
                     }
+                case ClaimRewardBalanceOperation.OperationName:
+                    {
+                        var typed = (ClaimRewardBalanceOperation)baseOperation;
+                        return new AccountHistoryResponse
+                        {
+                            DateTime = arg.Value.Timestamp,
+                            Type = OperationType.PowerDown,
+                            From = typed.Account,
+                            To = typed.Account,
+                            Amount = $"{typed.RewardSteem} {typed.RewardSbd} {typed.RewardVests}"
+                        };
+                    }
                 default:
                     throw new NotImplementedException();
             }
-
         }
+
+
         #endregion
     }
 }

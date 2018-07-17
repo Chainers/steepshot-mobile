@@ -60,7 +60,7 @@ namespace Steepshot.iOS.Views
             qrButton.Font = Constants.Semibold14;
 #if DEBUG
             var di = AppSettings.AssetHelper.GetDebugInfo();
-            if (BasePresenter.Chain == KnownChains.Steem)
+            if (AppDelegate.MainChain == KnownChains.Steem)
                 password.Text = di.SteemTestWif;
             else
                 password.Text = di.GolosTestWif;
@@ -165,7 +165,7 @@ namespace Steepshot.iOS.Views
                 {
                     if (_isPostingMode)
                     {
-                        AppSettings.User.AddAndSwitchUser(Username, password.Text, AccountInfoResponse, BasePresenter.Chain);
+                        AppSettings.User.AddAndSwitchUser(Username, password.Text, AccountInfoResponse);
 
                         var myViewController = new MainTabBarController();
                         AppDelegate.InitialViewController = myViewController;

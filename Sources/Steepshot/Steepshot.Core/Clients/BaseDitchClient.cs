@@ -3,31 +3,29 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Ditch.Core.JsonRpc;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using Steepshot.Core.HttpClient;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
-using Steepshot.Core.Serializing;
-using Newtonsoft.Json.Linq;
 using Steepshot.Core.Models.Responses;
 
-namespace Steepshot.Core.HttpClient
+namespace Steepshot.Core.Clients
 {
     internal abstract class BaseDitchClient
     {
-        protected readonly JsonNetConverter JsonConverter;
         protected readonly object SyncConnection;
 
-
         public volatile bool EnableWrite;
-
+        
 
         public abstract KnownChains Chain { get; }
 
         public abstract bool IsConnected { get; }
 
 
-        protected BaseDitchClient(JsonNetConverter jsonConverter)
+        protected BaseDitchClient()
         {
-            JsonConverter = jsonConverter;
             SyncConnection = new object();
         }
 
@@ -40,7 +38,7 @@ namespace Steepshot.Core.HttpClient
 
         public abstract Task<OperationResult<VoidResponse>> CreateOrEdit(CommentModel model, CancellationToken ct);
 
-        public abstract Task<OperationResult<object>> GetVerifyTransaction(AuthorizedPostingModel model, CancellationToken ct);
+        public abstract Task<OperationResult<string>> GetVerifyTransaction(AuthorizedPostingModel model, CancellationToken ct);
 
         public abstract Task<OperationResult<VoidResponse>> Delete(DeleteModel model, CancellationToken ct);
 
@@ -82,14 +80,14 @@ namespace Steepshot.Core.HttpClient
         protected string UpdateProfileJson(string jsonMetadata, UpdateUserProfileModel model)
         {
             var meta = string.IsNullOrEmpty(jsonMetadata) ? "{}" : jsonMetadata;
-            var jMeta = JsonConverter.Deserialize<JObject>(meta);
+            var jMeta = JsonConvert.DeserializeObject<JObject>(meta);
             var jProfile = GetOrCreateJObject(jMeta, "profile");
             UpdateJValue(jProfile, "profile_image", model.ProfileImage);
             UpdateJValue(jProfile, "name", model.Name);
             UpdateJValue(jProfile, "location", model.Location);
             UpdateJValue(jProfile, "website", model.Website);
             UpdateJValue(jProfile, "about", model.About);
-            return JsonConverter.Serialize(jMeta);
+            return JsonConvert.SerializeObject(jMeta);
         }
 
         protected JObject GetOrCreateJObject(JObject jObject, string name)

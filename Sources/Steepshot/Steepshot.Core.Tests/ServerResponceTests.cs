@@ -5,10 +5,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using Steepshot.Core.Authorization;
-using Steepshot.Core.HttpClient;
+using Steepshot.Core.Clients;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Enums;
-using Steepshot.Core.Serializing;
 using Steepshot.Core.Tests.Stubs;
 
 namespace Steepshot.Core.Tests
@@ -22,11 +21,10 @@ namespace Steepshot.Core.Tests
 
         static ServerResponseTests()
         {
-            var converter = new JsonNetConverter();
             Gateway = new Dictionary<KnownChains, BaseServerClient>
             {
-                {KnownChains.Steem, new StubServerClient(converter, IsDev ? Constants.SteemUrlQa : Constants.SteemUrl)},
-                {KnownChains.Golos, new StubServerClient(converter, IsDev ? Constants.GolosUrlQa : Constants.GolosUrl)},
+                {KnownChains.Steem, new StubServerClient( IsDev ? Constants.SteemUrlQa : Constants.SteemUrl)},
+                {KnownChains.Golos, new StubServerClient( IsDev ? Constants.GolosUrlQa : Constants.GolosUrl)},
             };
 
             Users = new Dictionary<KnownChains, UserInfo>

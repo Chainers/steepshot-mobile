@@ -5,16 +5,16 @@ using System.Reflection;
 using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Steepshot.Core.HttpClient;
 using Steepshot.Core.Models.Common;
 using System.Threading.Tasks;
 using System.Net.Http;
 using System.Threading;
 using NUnit.Framework;
+using Steepshot.Core.Clients;
 
 namespace Steepshot.Core.Tests.Stubs
 {
-    public class StubApiGateway : ApiGateway
+    public class StubExtendedHttpClient : ExtendedHttpClient
     {
         protected override async Task<OperationResult<T>> CreateResult<T>(HttpResponseMessage response, CancellationToken token)
         {

@@ -260,7 +260,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Helpers\AssetsHelper.cs" />
+    <Compile Include="Helpers\AssetHelper.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="AppDelegate.cs" />
     <Compile Include="ViewControllers\MainTabBarController.cs" />

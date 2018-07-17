@@ -164,7 +164,7 @@ namespace Steepshot.Fragment
             _postButton.Text = string.Empty;
             EnablePostAndEdit(false);
 
-            var isConnected = BasePresenter.ConnectionService.IsConnectionAvailable();
+            var isConnected = AppSettings.ConnectionService.IsConnectionAvailable();
 
             if (!isConnected)
             {
@@ -232,7 +232,7 @@ namespace Steepshot.Fragment
             {
                 AppSettings.User.UserInfo.LastPostTime = DateTime.Now;
                 EnabledPost();
-                BasePresenter.ProfileUpdateType = ProfileUpdateType.Full;
+                AppSettings.ProfileUpdateType = ProfileUpdateType.Full;
                 Activity.ShowAlert(LocalizationKeys.PostDelay, ToastLength.Long);
                 if (Activity is SplashActivity || Activity is CameraActivity)
                     Activity.Finish();

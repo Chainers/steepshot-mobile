@@ -4,7 +4,6 @@ using PureLayout.Net;
 using Steepshot.Core.Extensions;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Models.Requests;
-using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 using Steepshot.iOS.Helpers;
 using Steepshot.iOS.ViewControllers;
@@ -82,7 +81,7 @@ namespace Steepshot.iOS.Views
             {
                 Subscriptions = PushSettings.FlagToStringList()
             };
-            var resp = await BasePresenter.TrySubscribeForPushes(model);
+            var resp = await _presenter.TrySubscribeForPushes(model);
             if (resp.IsSuccess)
                 AppSettings.User.PushSettings = PushSettings;
             else

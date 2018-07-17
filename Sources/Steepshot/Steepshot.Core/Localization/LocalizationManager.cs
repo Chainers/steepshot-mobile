@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
+using Steepshot.Core.Clients;
 using Steepshot.Core.Errors;
-using Steepshot.Core.HttpClient;
 using Steepshot.Core.Services;
 
 namespace Steepshot.Core.Localization
@@ -36,7 +36,7 @@ namespace Steepshot.Core.Localization
             return null;
         }
 
-        public async void Update(ApiGateway gateway)
+        public async void Update(ExtendedHttpClient gateway)
         {
             var rez = await gateway.Get<LocalizationModel>(UpdateUrl, CancellationToken.None);
             if (!rez.IsSuccess)

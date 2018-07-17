@@ -1,11 +1,17 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Autofac;
 using Com.OneSignal;
+using Com.OneSignal.Abstractions;
 using Foundation;
+using Steepshot.Core;
+using Steepshot.Core.Authorization;
+using Steepshot.Core.Clients;
+using Steepshot.Core.Extensions;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Enums;
-using Steepshot.Core.Extensions;
+using Steepshot.Core.Sentry;
 using Steepshot.Core.Services;
 using Steepshot.Core.Utils;
 using Steepshot.iOS.Helpers;
@@ -13,9 +19,7 @@ using Steepshot.iOS.Services;
 using Steepshot.iOS.ViewControllers;
 using Steepshot.iOS.Views;
 using UIKit;
-using Steepshot.Core.HttpClient;
-using System.Collections.Generic;
-using Steepshot.Core.Authorization;
+using Constants = Steepshot.Core.Constants;
 
 namespace Steepshot.iOS
 {
@@ -24,48 +28,26 @@ namespace Steepshot.iOS
     {
         public override UIWindow Window { get; set; }
         public static UIViewController InitialViewController;
+        public static ExtendedHttpClient HttpClient;
+        public static SteepshotApiClient SteemClient;
+        public static SteepshotApiClient GolosClient;
+
+        public static KnownChains MainChain { get; set; } = KnownChains.Steem;
 
         public override bool FinishedLaunching(UIApplication application, NSDictionary launchOptions)
         {
-            var builder = new ContainerBuilder();
-            var saverService = new SaverService();
-            var dataProvider = new UserManager(saverService);
-            var appInfo = new AppInfo();
-            var connectionService = new ConnectionService();
-            var assetsHelper = new AssetsHelper();
-
-            var localizationManager = new LocalizationManager(saverService, assetsHelper);
-            var configManager = new ConfigManager(saverService, assetsHelper);
-
-            var ravenClientDSN = assetsHelper.GetConfigInfo().RavenClientDsn;
-            var reporterService = new Core.Sentry.ReporterService(appInfo, ravenClientDSN);
-
-            builder.RegisterInstance(configManager).As<ConfigManager>().SingleInstance();
-            builder.RegisterInstance(localizationManager).As<LocalizationManager>().SingleInstance();
-            builder.RegisterInstance(assetsHelper).As<IAssetHelper>().SingleInstance();
-            builder.RegisterInstance(appInfo).As<IAppInfo>().SingleInstance();
-            builder.RegisterInstance(saverService).As<ISaverService>().SingleInstance();
-            builder.RegisterInstance(dataProvider).As<UserManager>().SingleInstance();
-            builder.RegisterInstance(reporterService).As<IReporterService>().SingleInstance();
-            builder.RegisterInstance(connectionService).As<IConnectionService>().SingleInstance();
-
-            AppSettings.Container = builder.Build();
+            InitIoC();
+            InitClients();
 
             GAService.Instance.InitializeGAService();
 
-            AppDomain.CurrentDomain.UnhandledException += (object sender, UnhandledExceptionEventArgs e) =>
-            {
-                AppSettings.Reporter.SendCrash((Exception)e.ExceptionObject);
-            };
-            TaskScheduler.UnobservedTaskException += (object sender, UnobservedTaskExceptionEventArgs e) =>
-            {
-                AppSettings.Reporter.SendCrash(e.Exception);
-            };
+            AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
+            TaskScheduler.UnobservedTaskException += OnUnobservedTaskException;
 
             if (AppSettings.AppInfo.GetModel() != "Simulator")
             {
                 OneSignal.Current.StartInit("77fa644f-3280-4e87-9f14-1f0c7ddf8ca5")
-                         .InFocusDisplaying(Com.OneSignal.Abstractions.OSInFocusDisplayOption.Notification)
+                         .InFocusDisplaying(OSInFocusDisplayOption.Notification)
                          .HandleNotificationOpened(HandleNotificationOpened)
                          .EndInit();
             }
@@ -81,7 +63,59 @@ namespace Steepshot.iOS
             return true;
         }
 
-        private void HandleNotificationOpened(Com.OneSignal.Abstractions.OSNotificationOpenedResult result)
+        private void OnUnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs e)
+        {
+            AppSettings.Reporter.SendCrash(e.Exception);
+        }
+
+        private void OnUnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
+            AppSettings.Reporter.SendCrash((Exception)e.ExceptionObject);
+        }
+
+        private void InitIoC()
+        {
+            if (AppSettings.Container == null)
+            {
+                var builder = new ContainerBuilder();
+                var saverService = new SaverService();
+                var dataProvider = new UserManager(saverService);
+                var appInfo = new AppInfo();
+                var assetsHelper = new AssetHelper();
+                var connectionService = new ConnectionService();
+
+                var localizationManager = new LocalizationManager(saverService, assetsHelper);
+                var configManager = new ConfigManager(saverService, assetsHelper);
+
+                builder.RegisterInstance(assetsHelper).As<IAssetHelper>().SingleInstance();
+                builder.RegisterInstance(appInfo).As<IAppInfo>().SingleInstance();
+                builder.RegisterInstance(saverService).As<ISaverService>().SingleInstance();
+                builder.RegisterInstance(dataProvider).As<UserManager>().SingleInstance();
+                builder.RegisterInstance(connectionService).As<IConnectionService>().SingleInstance();
+                builder.RegisterInstance(localizationManager).As<LocalizationManager>().SingleInstance();
+                builder.RegisterInstance(configManager).As<ConfigManager>().SingleInstance();
+                var configInfo = assetsHelper.GetConfigInfo();
+                var reporterService = new ReporterService(appInfo, configInfo.RavenClientDsn);
+                builder.RegisterInstance(reporterService).As<IReporterService>().SingleInstance();
+                AppSettings.Container = builder.Build();
+            }
+        }
+
+        private void InitClients()
+        {
+            MainChain = AppSettings.User.Chain;
+
+            if (HttpClient == null)
+            {
+                HttpClient = new ExtendedHttpClient();
+                SteemClient = new SteepshotApiClient(HttpClient, KnownChains.Steem);
+                GolosClient = new SteepshotApiClient(HttpClient, KnownChains.Golos);
+
+                AppSettings.LocalizationManager.Update(HttpClient);
+            }
+        }
+
+        private void HandleNotificationOpened(OSNotificationOpenedResult result)
         {
             var type = result.notification.payload.additionalData["type"].ToString();
             var data = result.notification.payload.additionalData["data"].ToString();
@@ -94,7 +128,7 @@ namespace Steepshot.iOS
                     InitialViewController.NavigationController.PushViewController(new PostViewController(data), false);
                     break;
                 case string follow when follow.Equals(PushSettings.Follow.GetEnumDescription()):
-                    InitialViewController.NavigationController.PushViewController(new ProfileViewController() { Username = data }, false);
+                    InitialViewController.NavigationController.PushViewController(new ProfileViewController { Username = data }, false);
                     break;
             }
         }
@@ -109,12 +143,12 @@ namespace Steepshot.iOS
                 var imageData = nsFileManager.Contents(urlCollection);
                 var sharedPhoto = UIImage.LoadFromData(imageData);
 
-                var inSampleSize = ImageHelper.CalculateInSampleSize(sharedPhoto.Size, Core.Constants.PhotoMaxSize, Core.Constants.PhotoMaxSize);
+                var inSampleSize = ImageHelper.CalculateInSampleSize(sharedPhoto.Size, Constants.PhotoMaxSize, Constants.PhotoMaxSize);
                 var deviceRatio = UIScreen.MainScreen.Bounds.Width / UIScreen.MainScreen.Bounds.Height;
-                var x = ((float)inSampleSize.Width - Core.Constants.PhotoMaxSize * (float)deviceRatio) / 2f;
+                var x = ((float)inSampleSize.Width - Constants.PhotoMaxSize * (float)deviceRatio) / 2f;
 
                 sharedPhoto = ImageHelper.CropImage(sharedPhoto, 0, 0, (float)inSampleSize.Width, (float)inSampleSize.Height, inSampleSize);
-                var descriptionViewController = new DescriptionViewController(new List<Tuple<NSDictionary, UIImage>>() { new Tuple<NSDictionary, UIImage>(null, sharedPhoto) }, "jpg");
+                var descriptionViewController = new DescriptionViewController(new List<Tuple<NSDictionary, UIImage>> { new Tuple<NSDictionary, UIImage>(null, sharedPhoto) }, "jpg");
                 tabController.PushViewController(descriptionViewController, false);
             }
             else

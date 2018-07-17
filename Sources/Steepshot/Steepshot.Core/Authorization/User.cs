@@ -195,7 +195,7 @@ namespace Steepshot.Core.Authorization
             }
         }
 
-        public void AddAndSwitchUser(string login, string pass, AccountInfoResponse accountInfo, KnownChains chain)
+        public void AddAndSwitchUser(string login, string pass, AccountInfoResponse accountInfo)
         {
             if (!string.IsNullOrEmpty(Login) && UserInfo.PostingKey == null)
             {
@@ -208,7 +208,7 @@ namespace Steepshot.Core.Authorization
             {
                 Login = login,
                 AccountInfo = accountInfo,
-                Chain = chain,
+                Chain = accountInfo.Chains,
                 PostingKey = pass,
             };
 

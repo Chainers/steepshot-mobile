@@ -550,21 +550,30 @@ namespace Steepshot.Adapter
                 _likes.Text = AppSettings.LocalizationManager.GetText(Post.NetLikes == 1 ? LocalizationKeys.Like : LocalizationKeys.Likes, post.NetLikes);
             }
             else
+            {
                 _likes.Visibility = ViewStates.Gone;
+            }
+
             if (post.NetFlags > 0)
             {
                 _flags.Visibility = _flagsIcon.Visibility = ViewStates.Visible;
                 _flags.Text = $"{post.NetFlags}";
             }
             else
+            {
                 _flags.Visibility = _flagsIcon.Visibility = ViewStates.Gone;
+            }
+
             if (post.TotalPayoutReward > 0)
             {
                 _cost.Visibility = ViewStates.Visible;
-                _cost.Text = BasePresenter.ToFormatedCurrencyString(post.TotalPayoutReward);
+                _cost.Text = StringHelper.ToFormatedCurrencyString(post.TotalPayoutReward, App.MainChain);
             }
             else
+            {
                 _cost.Visibility = ViewStates.Gone;
+            }
+
             _time.Text = post.Created.ToPostTime();
             _author.Text = post.Author;
 

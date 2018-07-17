@@ -2,7 +2,7 @@
 using System.IO;
 using Android.Content.Res;
 using Newtonsoft.Json;
-using Steepshot.Core.HttpClient;
+using Steepshot.Core.Clients;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Utils;
 using Steepshot.Core.Services;

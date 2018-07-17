@@ -14,24 +14,18 @@ using System.Net.Http.Headers;
 using Steepshot.Core.Errors;
 using Steepshot.Core.Localization;
 
-namespace Steepshot.Core.HttpClient
+namespace Steepshot.Core.Clients
 {
-    public class ApiGateway
+    public class ExtendedHttpClient : System.Net.Http.HttpClient
     {
         private const string NsfwCheckerUrl = "https://nsfwchecker.com/api/nsfw_recognizer";
         private const string NsfwUrlCheckerUrl = "https://nsfwchecker.com/api/nsfw_url_recognizer";
         protected readonly JsonNetConverter JsonNetConverter;
-
-
-        private readonly System.Net.Http.HttpClient _client;
-
-        public ApiGateway()
+        
+        public ExtendedHttpClient()
         {
             JsonNetConverter = new JsonNetConverter();
-            _client = new System.Net.Http.HttpClient
-            {
-                MaxResponseContentBufferSize = 256000
-            };
+            MaxResponseContentBufferSize = 256000;
         }
 
         public async Task<OperationResult<T>> Get<T>(string endpoint, Dictionary<string, object> parameters, CancellationToken token)
@@ -41,13 +35,13 @@ namespace Steepshot.Core.HttpClient
                 param = "?" + string.Join("&", parameters.Select(i => $"{i.Key}={i.Value}"));
 
             var url = $"{endpoint}{param}";
-            var response = await _client.GetAsync(url, token);
+            var response = await GetAsync(url, token);
             return await CreateResult<T>(response, token);
         }
 
         public async Task<OperationResult<T>> Get<T>(string url, CancellationToken token)
         {
-            var response = await _client.GetAsync(url, token);
+            var response = await GetAsync(url, token);
             return await CreateResult<T>(response, token);
         }
 
@@ -61,21 +55,29 @@ namespace Steepshot.Core.HttpClient
                 content = new StringContent(param, Encoding.UTF8, "application/json");
             }
 
-            var response = await _client.PostAsync(url, content, token);
+            var response = await PostAsync(url, content, token);
             return await CreateResult<T>(response, token);
         }
 
         public async Task<OperationResult<T>> Post<T, TData>(string url, TData data, CancellationToken token)
         {
-            HttpContent content = null;
-            if (data != null)
+            try
             {
-                var param = JsonNetConverter.Serialize(data);
-                content = new StringContent(param, Encoding.UTF8, "application/json");
-            }
+                HttpContent content = null;
+                if (data != null)
+                {
+                    var param = JsonNetConverter.Serialize(data);
+                    content = new StringContent(param, Encoding.UTF8, "application/json");
+                }
 
-            var response = await _client.PostAsync(url, content, token);
-            return await CreateResult<T>(response, token);
+                var response = await PostAsync(url, content, token);
+                return await CreateResult<T>(response, token);
+            }
+            catch (Exception e)
+            {
+                throw;
+            }
+          
         }
 
         public async Task<OperationResult<MediaModel>> UploadMedia(string url, UploadMediaModel model,
@@ -92,7 +94,7 @@ namespace Steepshot.Core.HttpClient
                 {new StringContent(model.GenerateThumbnail.ToString()), "generate_thumbnail"}
             };
 
-            var response = await _client.PostAsync(url, multiContent, token);
+            var response = await PostAsync(url, multiContent, token);
             var result = await CreateResult<MediaModel>(response, token);
 
             if (result.IsSuccess && result.Result == null)
@@ -104,14 +106,14 @@ namespace Steepshot.Core.HttpClient
         public async Task<OperationResult<NsfwRate>> NsfwCheck(Stream stream, CancellationToken token)
         {
             var multiContent = new MultipartFormDataContent { { new StreamContent(stream), "image", "nsfw" } };
-            var response = await _client.PostAsync(NsfwCheckerUrl, multiContent, token);
+            var response = await PostAsync(NsfwCheckerUrl, multiContent, token);
             return await CreateResult<NsfwRate>(response, token);
         }
 
         public async Task<OperationResult<NsfwRate>> NsfwCheck(string url, CancellationToken token)
         {
             var multiContent = new MultipartFormDataContent { { new StringContent(url), "url" } };
-            var response = await _client.PostAsync(NsfwUrlCheckerUrl, multiContent, token);
+            var response = await PostAsync(NsfwUrlCheckerUrl, multiContent, token);
             return await CreateResult<NsfwRate>(response, token);
         }
 
@@ -155,7 +157,7 @@ namespace Steepshot.Core.HttpClient
 
         public async Task<string> Get(string url)
         {
-            var response = _client.GetAsync(url);
+            var response = GetAsync(url);
             return await response.Result.Content.ReadAsStringAsync();
         }
     }

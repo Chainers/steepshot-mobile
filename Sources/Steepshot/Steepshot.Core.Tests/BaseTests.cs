@@ -4,7 +4,6 @@ using System.Configuration;
 using System.IO;
 using Autofac;
 using NUnit.Framework;
-using Steepshot.Core.HttpClient;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Services;
 using Steepshot.Core.Tests.Stubs;
@@ -12,6 +11,7 @@ using Steepshot.Core.Utils;
 using System.ComponentModel.DataAnnotations;
 using Newtonsoft.Json;
 using Steepshot.Core.Authorization;
+using Steepshot.Core.Clients;
 using Steepshot.Core.Localization;
 
 namespace Steepshot.Core.Tests
@@ -19,6 +19,7 @@ namespace Steepshot.Core.Tests
     public class BaseTests
     {
         private const bool IsDev = true;
+        private static readonly ExtendedHttpClient ExtendedHttpClient;
         protected static readonly Dictionary<KnownChains, UserInfo> Users;
         protected static readonly Dictionary<KnownChains, SteepshotApiClient> Api;
 
@@ -38,6 +39,7 @@ namespace Steepshot.Core.Tests
 
             AppSettings.Container = builder.Build();
             AppSettings.IsDev = IsDev;
+            ExtendedHttpClient = new ExtendedHttpClient();
 
             Users = new Dictionary<KnownChains, UserInfo>
             {
@@ -47,12 +49,12 @@ namespace Steepshot.Core.Tests
 
             Api = new Dictionary<KnownChains, SteepshotApiClient>
             {
-                {KnownChains.Steem, new SteepshotApiClient()},
-                {KnownChains.Golos, new SteepshotApiClient()},
+                {KnownChains.Steem, new SteepshotApiClient(ExtendedHttpClient, KnownChains.Steem)},
+                {KnownChains.Golos, new SteepshotApiClient(ExtendedHttpClient, KnownChains.Golos)},
             };
 
-            Api[KnownChains.Steem].InitConnector(KnownChains.Steem, IsDev);
-            Api[KnownChains.Golos].InitConnector(KnownChains.Golos, IsDev);
+            Api[KnownChains.Steem].SetDev(IsDev);
+            Api[KnownChains.Golos].SetDev(IsDev);
         }
 
         protected string GetTestImagePath()

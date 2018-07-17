@@ -121,12 +121,12 @@ namespace Steepshot.Fragment
                         if (!_isActivated)
                         {
                             GetUserPosts();
-                            BasePresenter.ProfileUpdateType = ProfileUpdateType.None;
+                            AppSettings.ProfileUpdateType = ProfileUpdateType.None;
                         }
                         _isActivated = true;
                     }
                     else
-                        BasePresenter.ProfileUpdateType = ProfileUpdateType.Full;
+                        AppSettings.ProfileUpdateType = ProfileUpdateType.Full;
                 }
                 base.UserVisibleHint = value;
             }
@@ -434,7 +434,7 @@ namespace Steepshot.Fragment
 
             isSubscription = true;
 
-            var result = await BasePresenter.TrySubscribeForPushes(model);
+            var result = await Presenter.TrySubscribeForPushes(model);
             if (result.IsSuccess)
             {
                 isSubscribed = !isSubscribed;
@@ -691,10 +691,10 @@ namespace Steepshot.Fragment
 
         private void UpdateProfile()
         {
-            if (BasePresenter.ProfileUpdateType != ProfileUpdateType.None)
+            if (AppSettings.ProfileUpdateType != ProfileUpdateType.None)
             {
-                UpdatePage(BasePresenter.ProfileUpdateType);
-                BasePresenter.ProfileUpdateType = ProfileUpdateType.None;
+                UpdatePage(AppSettings.ProfileUpdateType);
+                AppSettings.ProfileUpdateType = ProfileUpdateType.None;
             }
         }
     }

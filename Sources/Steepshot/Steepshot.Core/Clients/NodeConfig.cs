@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace Steepshot.Core.HttpClient
+namespace Steepshot.Core.Clients
 {
     [JsonObject(MemberSerialization.OptIn)]
     public class NodeConfig

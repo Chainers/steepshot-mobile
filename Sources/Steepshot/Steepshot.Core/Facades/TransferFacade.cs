@@ -44,10 +44,10 @@ namespace Steepshot.Core.Facades
         public async Task<Exception> TryLoadNextSearchUser(string query) => await UserFriendPresenter.TryLoadNextSearchUser(query);
         public async Task<OperationResult<AccountInfoResponse>> TryGetAccountInfo(string login) => await _preSignInPresenter.TryGetAccountInfo(login);
 
-        public void TasksCancel(bool andDispose = false)
+        public void TasksCancel()
         {
-            _preSignInPresenter.TasksCancel(andDispose);
-            UserFriendPresenter.TasksCancel(andDispose);
+            _preSignInPresenter.TasksCancel();
+            UserFriendPresenter.TasksCancel();
         }
     }
 }

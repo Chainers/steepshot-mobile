@@ -9,6 +9,7 @@ using System.Net;
 using System.Collections;
 using System.Data;
 using Steepshot.Core.Interfaces;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Presenters
 {
@@ -54,7 +55,7 @@ namespace Steepshot.Core.Presenters
 
         protected async Task<Exception> RunAsSingleTask(Func<CancellationToken, Task<Exception>> func, bool cancelPrevTask = true)
         {
-            var available = ConnectionService.IsConnectionAvailable();
+            var available = AppSettings.ConnectionService.IsConnectionAvailable();
             if (!available)
                 return new ValidationError(LocalizationKeys.InternetUnavailable);
 
@@ -84,7 +85,7 @@ namespace Steepshot.Core.Presenters
                 if (ts.IsCancellationRequested)
                     return new OperationCanceledException();
 
-                available = ConnectionService.IsConnectionAvailable();
+                available = AppSettings.ConnectionService.IsConnectionAvailable();
                 if (!available)
                     return new ValidationError(LocalizationKeys.InternetUnavailable);
 
@@ -105,7 +106,7 @@ namespace Steepshot.Core.Presenters
 
         protected async Task<Exception> RunAsSingleTask<T1>(Func<T1, CancellationToken, Task<Exception>> func, T1 param1, bool cancelPrevTask = true)
         {
-            var available = ConnectionService.IsConnectionAvailable();
+            var available = AppSettings.ConnectionService.IsConnectionAvailable();
             if (!available)
                 return new ValidationError(LocalizationKeys.InternetUnavailable);
 
@@ -135,7 +136,7 @@ namespace Steepshot.Core.Presenters
                 if (ts.IsCancellationRequested)
                     return new OperationCanceledException();
 
-                available = ConnectionService.IsConnectionAvailable();
+                available = AppSettings.ConnectionService.IsConnectionAvailable();
                 if (!available)
                     return new ValidationError(LocalizationKeys.InternetUnavailable);
 

@@ -1,13 +1,16 @@
 ﻿using Autofac;
 using Steepshot.Core.Authorization;
-using Steepshot.Core.HttpClient;
+using Steepshot.Core.Clients;
 using Steepshot.Core.Localization;
+using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Services;
 
 namespace Steepshot.Core.Utils
 {
     public static class AppSettings
     {
+        public static ProfileUpdateType ProfileUpdateType = ProfileUpdateType.None;
+
         public static IContainer Container { get; set; }
 
         private static IReporterService _reporter;

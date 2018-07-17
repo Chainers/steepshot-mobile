@@ -93,7 +93,7 @@ namespace Steepshot.iOS.ViewControllers
                 {
                     Subscriptions = PushSettings.All.FlagToStringList()
                 };
-                var response = await BasePresenter.TrySubscribeForPushes(model);
+                var response = await _presenter.TrySubscribeForPushes(model);
                 if (response.IsSuccess)
                     AppSettings.User.PushesPlayerId = playerId;
             }

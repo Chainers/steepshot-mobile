@@ -6,6 +6,7 @@ namespace Steepshot.Core.Utils
 {
     public class StringHelper
     {
+        private static readonly CultureInfo CultureInfo = CultureInfo.InvariantCulture;
         private bool invalid = false;
 
         public bool IsValidEmail(string strIn)
@@ -38,6 +39,11 @@ namespace Steepshot.Core.Utils
                 invalid = true;
             }
             return match.Groups[1].Value + domainName;
+        }
+
+        public static string ToFormatedCurrencyString(double value, KnownChains chain)
+        {
+            return $"{(chain == KnownChains.Steem ? "$" : "₽")} {value.ToString("F", CultureInfo)}";
         }
     }
 }

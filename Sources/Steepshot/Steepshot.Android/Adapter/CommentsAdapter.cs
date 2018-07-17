@@ -20,6 +20,7 @@ using Steepshot.Core.Utils;
 using Steepshot.CustomViews;
 using AndroidSwipeLayout;
 using AndroidSwipeLayout.Adapters;
+using Steepshot.Base;
 
 namespace Steepshot.Adapter
 {
@@ -448,7 +449,7 @@ namespace Steepshot.Adapter
             if (post.TotalPayoutReward > 0)
             {
                 _cost.Visibility = ViewStates.Visible;
-                _cost.Text = BasePresenter.ToFormatedCurrencyString(post.TotalPayoutReward);
+                _cost.Text = StringHelper.ToFormatedCurrencyString(post.TotalPayoutReward, App.MainChain);
             }
             else
                 _cost.Visibility = ViewStates.Gone;

@@ -72,7 +72,7 @@ namespace Steepshot.Activity
                 var model = new PushNotificationsModel(AppSettings.User.UserInfo, playerId, true);
                 model.Subscriptions = PushSettings.All.FlagToStringList();
 
-                var response = await BasePresenter.TrySubscribeForPushes(model);
+                var response = await Presenter.TrySubscribeForPushes(model);
                 if (response.IsSuccess)
                 {
                     AppSettings.User.PushesPlayerId = playerId;
@@ -147,7 +147,7 @@ namespace Steepshot.Activity
         protected override void OnResume()
         {
             base.OnResume();
-            if (BasePresenter.ProfileUpdateType != ProfileUpdateType.None)
+            if (AppSettings.ProfileUpdateType != ProfileUpdateType.None)
             {
                 SelectTab(_adapter.Count - 1);
             }
