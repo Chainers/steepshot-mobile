@@ -23,7 +23,6 @@ namespace Steepshot.Core.HttpClient
         private const string NsfwUrlCheckerUrl = "https://nsfwchecker.com/api/nsfw_url_recognizer";
         protected readonly JsonNetConverter JsonNetConverter;
 
-
         private readonly System.Net.Http.HttpClient _client;
 
         public ApiGateway()
@@ -143,9 +142,13 @@ namespace Steepshot.Core.HttpClient
                 {
                     case "text/plain":
                     case "application/json":
+                    case "text/html":
                         {
                             var content = await response.Content.ReadAsStringAsync();
-                            result.Result = JsonNetConverter.Deserialize<T>(content);
+                            if (string.IsNullOrEmpty(content))
+                                result.Result = default(T);
+                            else
+                                result.Result = JsonNetConverter.Deserialize<T>(content);
                             break;
                         }
                     default:

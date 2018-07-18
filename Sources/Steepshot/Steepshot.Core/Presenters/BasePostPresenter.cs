@@ -299,6 +299,11 @@ namespace Steepshot.Core.Presenters
             base.Clear(isNotify);
         }
 
+        public async Task<OperationResult<string>> CheckServiceStatus()
+        {
+            return await Api.CheckRegistrationServiceStatus(CancellationToken.None);
+        }
+
         #region IDisposable Support
         private bool _disposedValue = false; // To detect redundant calls
 

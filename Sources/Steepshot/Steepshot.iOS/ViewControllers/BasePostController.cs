@@ -42,9 +42,11 @@ namespace Steepshot.iOS.ViewControllers
                 ((MainTabBarController)TabBarController)?.UpdateProfile();
         }
 
-        protected void LoginTapped(object sender, EventArgs e)
+        protected virtual async void LoginTapped(object sender, EventArgs e)
         {
-            var myViewController = new WelcomeViewController();
+            var response = await _presenter.CheckServiceStatus();
+
+            var myViewController = new WelcomeViewController(response.IsSuccess);
             NavigationController.PushViewController(myViewController, true);
         }
 

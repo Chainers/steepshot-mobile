@@ -119,7 +119,7 @@ namespace Steepshot.iOS
             }
             else
             {
-                tabController.PushViewController(new WelcomeViewController(), false);
+                tabController.PushViewController(new WelcomeViewController(false), false);
             }
             return true;
         }

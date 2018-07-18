@@ -46,6 +46,9 @@ namespace Steepshot.iOS.Views
 		UIKit.NSLayoutConstraint searchTopMargin { get; set; }
 
 		[Outlet]
+		UIKit.UIActivityIndicatorView signInLoader { get; set; }
+
+		[Outlet]
 		UIKit.UICollectionView sliderCollection { get; set; }
 
 		[Outlet]
@@ -122,6 +125,11 @@ namespace Steepshot.iOS.Views
 				sliderCollection = null;
 			}
 
+			if (sliderCollectionOffset != null) {
+				sliderCollectionOffset.Dispose ();
+				sliderCollectionOffset = null;
+			}
+
 			if (switcher != null) {
 				switcher.Dispose ();
 				switcher = null;
@@ -137,9 +145,9 @@ namespace Steepshot.iOS.Views
 				topConstraint = null;
 			}
 
-			if (sliderCollectionOffset != null) {
-				sliderCollectionOffset.Dispose ();
-				sliderCollectionOffset = null;
+			if (signInLoader != null) {
+				signInLoader.Dispose ();
+				signInLoader = null;
 			}
 		}
 	}
