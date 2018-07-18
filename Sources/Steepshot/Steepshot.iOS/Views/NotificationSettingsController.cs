@@ -4,6 +4,7 @@ using PureLayout.Net;
 using Steepshot.Core.Extensions;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Models.Requests;
+using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 using Steepshot.iOS.Helpers;
 using Steepshot.iOS.ViewControllers;
@@ -11,7 +12,7 @@ using UIKit;
 
 namespace Steepshot.iOS.Views
 {
-    public class NotificationSettingsController : BaseViewController
+    public class NotificationSettingsController : BaseViewControllerWithPresenter<UserProfilePresenter>
     {
         private readonly UISwitch _notificationUpvotesSwitch = new UISwitch();
         private readonly UISwitch _notificationCommentsUpvotesSwitch = new UISwitch();
