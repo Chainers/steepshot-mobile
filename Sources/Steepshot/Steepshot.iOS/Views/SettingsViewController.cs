@@ -67,7 +67,7 @@ namespace Steepshot.iOS.Views
             forwardImage4.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 0f);
 
             var appInfoService = AppSettings.Container.Resolve<IAppInfo>();
-            versionLabel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.AppVersion2, appInfoService.GetAppVersion(), appInfoService.GetBuildVersion());
+            versionLabel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.AppVersion, appInfoService.GetAppVersion(), appInfoService.GetBuildVersion());
 
             reportButton.TouchDown += SendReport;
             termsButton.TouchDown += ShowTos;

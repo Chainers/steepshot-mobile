@@ -1,4 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.IO;
+using System.Xml;
+using Newtonsoft.Json;
+using System.Collections.Generic;
 using System.Threading;
 using Steepshot.Core.HttpClient;
 using Steepshot.Core.Services;
@@ -7,9 +11,9 @@ namespace Steepshot.Core.Localization
 {
     public class LocalizationManager
     {
+        public const string UpdateUrl = "https://raw.githubusercontent.com/Chainers/steepshot-mobile/master/References/Languages/{0}/dic.xml";
         public const string Localization = "Localization";
-        private const string UpdateUrl = "https://raw.githubusercontent.com/Chainers/steepshot-mobile/master/Sources/Steepshot/Steepshot.Android/Assets/Localization.en-us.txt";
-        public const string DefaultLang = "en-us";
+        public const string DefaultLang = "en";
 
         private readonly ISaverService _saverService;
         private readonly Dictionary<string, LocalizationModel> _localizationModel;
@@ -20,7 +24,7 @@ namespace Steepshot.Core.Localization
         public LocalizationManager(ISaverService saverService, IAssetsHelper assetsHelper)
         {
             _saverService = saverService;
-            _localizationModel = _saverService.Get<Dictionary<string, LocalizationModel>>(Localization);
+            _localizationModel = _saverService.Get<Dictionary<string, LocalizationModel>>(Localization) ?? new Dictionary<string, LocalizationModel>();
 
             Model = _localizationModel.ContainsKey(DefaultLang)
                 ? _localizationModel[DefaultLang]
@@ -37,49 +41,70 @@ namespace Steepshot.Core.Localization
 
         public async void Update(ApiGateway gateway)
         {
-            var rez = await gateway.Get<LocalizationModel>(UpdateUrl, CancellationToken.None);
+            var rez = await gateway.Get<string>(string.Format(UpdateUrl, Model.Lang), CancellationToken.None);
             if (!rez.IsSuccess)
                 return;
 
-            var model = rez.Result;
-            var changed = Reset(model);
+            var xml = rez.Result;
+            var changed = Update(xml);
             if (changed)
             {
-                if (_localizationModel.ContainsKey(model.Lang))
-                    _localizationModel[model.Lang] = model;
-                else
-                    _localizationModel.Add(model.Lang, model);
-
+                if (!_localizationModel.ContainsKey(Model.Lang))
+                    _localizationModel.Add(Model.Lang, Model);
                 _saverService.Save(Localization, _localizationModel);
             }
         }
 
-        private bool Reset(LocalizationModel model)
+        public bool Update(string xml)
         {
+            XmlTextReader reader = null;
+            StringReader sReader = null;
             try
             {
-                var changed = false;
-                if (Model.Lang.Equals(model.Lang) && model.Version > Model.Version)
+                sReader = new StringReader(xml);
+                reader = new XmlTextReader(sReader);
+
+                while (reader.Read())
                 {
-                    changed = true;
-                    foreach (var item in model.Map)
+                    if (reader.NodeType == XmlNodeType.Element && reader.Name.Equals("resources") && reader.AttributeCount == 1)
                     {
-                        if (Model.Map.ContainsKey(item.Key))
+                        var version = reader.GetAttribute("version");
+                        if (version == null || int.Parse(version) <= Model.Version)
+                            return false;
+
+                        Model.Version = int.Parse(version);
+                        break;
+                    }
+                }
+
+                while (reader.Read())
+                {
+                    if (reader.NodeType == XmlNodeType.Element && reader.Name.Equals("string") && reader.HasAttributes)
+                    {
+                        var json = reader.GetAttribute("name");
+                        var names = JsonConvert.DeserializeObject<string[]>(json);
+                        reader.Read();
+                        var value = reader.Value;
+
+                        foreach (var name in names)
                         {
-                            Model.Map[item.Key] = item.Value;
-                        }
-                        else
-                        {
-                            Model.Map.Add(item.Key, item.Value);
+                            if (Model.Map.ContainsKey(name))
+                                Model.Map[name] = value;
+                            else
+                                Model.Map.Add(name, value);
                         }
                     }
-                    Model.Version = model.Version;
                 }
-                return changed;
+                return true;
             }
-            catch
+            catch (Exception ex)
             {
-                //to do nothing
+                //TODO log Warn
+            }
+            finally
+            {
+                sReader?.Close();
+                reader?.Close();
             }
             return false;
         }

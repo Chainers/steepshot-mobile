@@ -122,7 +122,7 @@ namespace Steepshot.Core.Tests.Localization
         [TestCase(nameof(LocalizationKeys.Retry))]
         [TestCase(nameof(LocalizationKeys.Delete))]
         [TestCase(nameof(LocalizationKeys.PutYourComment))]
-        [TestCase(nameof(LocalizationKeys.AppVersion2))]
+        [TestCase(nameof(LocalizationKeys.AppVersion))]
         [TestCase(nameof(LocalizationKeys.QueryMinLength))]
         [TestCase(nameof(LocalizationKeys.EnterPostTitle))]
         [TestCase(nameof(LocalizationKeys.EnterPostDescription))]

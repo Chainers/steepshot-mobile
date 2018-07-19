@@ -23,8 +23,11 @@ namespace Steepshot.Core.Tests.Stubs
 
         public LocalizationModel GetLocalization(string lang)
         {
-            var jsonLocalization = File.ReadAllText($"{AppDomain.CurrentDomain.BaseDirectory}\\Localization.en-us.txt");
-            return JsonConvert.DeserializeObject<LocalizationModel>(jsonLocalization);
+            return new LocalizationModel
+            {
+                Lang = LocalizationManager.DefaultLang,
+                Map = new Dictionary<string, string>()
+            };
         }
 
         public List<NodeConfig> SteemNodesConfig()
