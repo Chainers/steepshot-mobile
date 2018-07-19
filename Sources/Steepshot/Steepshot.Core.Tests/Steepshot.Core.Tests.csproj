@@ -70,6 +70,10 @@
     <None Include="supersocket.sh" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\..\References\Languages\en\dic.xml">
+      <Link>Data\dic.xml</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <Content Include="Data\cat.jpg" />
   </ItemGroup>
   <ItemGroup>

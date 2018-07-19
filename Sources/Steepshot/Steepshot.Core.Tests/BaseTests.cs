@@ -28,17 +28,16 @@ namespace Steepshot.Core.Tests
 
             var saverService = new StubSaverService();
             var assetsHelper = new AssetsHelperStub();
-
-            var en = File.ReadAllText($"{AppDomain.CurrentDomain.BaseDirectory}\\dic.xml");
-            var localizationManager = new LocalizationManager(saverService, assetsHelper);
-            Assert.IsTrue(localizationManager.Update(en));
+            var lm = new LocalizationManager(saverService, assetsHelper);
+            var en = File.ReadAllText($"{AppDomain.CurrentDomain.BaseDirectory}\\Data\\dic.xml");
+            lm.Update(en);
 
             builder.RegisterInstance(assetsHelper).As<IAssetsHelper>().SingleInstance();
             builder.RegisterInstance(new StubAppInfo()).As<IAppInfo>().SingleInstance();
             builder.RegisterInstance(new UserManager(saverService)).As<UserManager>().SingleInstance();
             builder.RegisterInstance(saverService).As<ISaverService>().SingleInstance();
             builder.RegisterInstance(new StubConnectionService()).As<IConnectionService>().SingleInstance();
-            builder.RegisterInstance(localizationManager).As<LocalizationManager>().SingleInstance();
+            builder.RegisterInstance(lm).As<LocalizationManager>().SingleInstance();
             builder.RegisterType<StubReporterService>().As<IReporterService>().SingleInstance();
 
             AppSettings.Container = builder.Build();

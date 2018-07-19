@@ -24,7 +24,7 @@ namespace Steepshot.Core.Localization
         public LocalizationManager(ISaverService saverService, IAssetsHelper assetsHelper)
         {
             _saverService = saverService;
-            _localizationModel = _saverService.Get<Dictionary<string, LocalizationModel>>(Localization);
+            _localizationModel = _saverService.Get<Dictionary<string, LocalizationModel>>(Localization) ?? new Dictionary<string, LocalizationModel>();
 
             Model = _localizationModel.ContainsKey(DefaultLang)
                 ? _localizationModel[DefaultLang]
@@ -48,7 +48,11 @@ namespace Steepshot.Core.Localization
             var xml = rez.Result;
             var changed = Update(xml);
             if (changed)
+            {
+                if (!_localizationModel.ContainsKey(Model.Lang))
+                    _localizationModel.Add(Model.Lang, Model);
                 _saverService.Save(Localization, _localizationModel);
+            }
         }
 
         public bool Update(string xml)
