@@ -118,6 +118,16 @@ namespace Steepshot.iOS.Helpers
         }
     }
 
+    public class CardCollectionViewFlowDelegate : UICollectionViewDelegateFlowLayout
+    {
+        public Action CardsScrolled;
+
+        public override void Scrolled(UIScrollView scrollView)
+        {
+            CardsScrolled?.Invoke();
+        }
+    }
+
     public class SliderFlowLayout : UICollectionViewFlowLayout
     {
         private CGPoint mostRecentOffset = new CGPoint();

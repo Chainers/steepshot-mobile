@@ -1,9 +1,7 @@
 ﻿using System;
 using CoreGraphics;
 using PureLayout.Net;
-using Steepshot.Core.Localization;
 using Steepshot.Core.Presenters;
-using Steepshot.Core.Utils;
 using Steepshot.iOS.Cells;
 using Steepshot.iOS.Helpers;
 using Steepshot.iOS.ViewControllers;
@@ -14,42 +12,38 @@ namespace Steepshot.iOS.Views
 {
     public class WalletViewController : BaseViewControllerWithPresenter<WalletPresenter>
     {
-        private SliderCollectionViewFlowDelegate _sliderGridDelegate;
+        private CardCollectionViewFlowDelegate _sliderGridDelegate;
         private UICollectionView sliderCollection;
+        private UIPageControl _pageControl;
 
         public override void ViewDidLoad()
         {
             base.ViewDidLoad();
-
-            View.BackgroundColor = UIColor.White;
-
+            View.BackgroundColor = Constants.R250G250B250;
+            /*
             var _sendButton = new UIButton();
             _sendButton.SetTitleColor(UIColor.Black, UIControlState.Normal);
             _sendButton.SetTitle("Send money", UIControlState.Normal);
-            _sendButton.TouchDown+= (object sender, EventArgs e) => 
-            {
-                NavigationController.PushViewController(new TransferViewController(), true);
-            };
+            _sendButton.TouchDown += (object sender, EventArgs e) =>
+             {
+                 NavigationController.PushViewController(new TransferViewController(), true);
+             };
 
             View.Add(_sendButton);
 
             _sendButton.AutoCenterInSuperview();
-
+*/
             SetBackButton();
             SetupTable();
         }
 
         private void SetupTable()
         {
-            var kek = new CGSize(UIScreen.MainScreen.Bounds.Width - 20f * 2f, (UIScreen.MainScreen.Bounds.Width - 20f * 2f) * 0.676f);
-
-            var y = 190f / 335f;
-
-            var yu = ((UIScreen.MainScreen.Bounds.Width - 20f * 2f) * y / 2) + 20;
-
-            var yuo = ((UIScreen.MainScreen.Bounds.Width - 20f * 2f) * y) + 25;
-
-            //var lol = kek / 2f - yu;
+            var cellProportion = 240f / 335f;
+            var cellSize = new CGSize(UIScreen.MainScreen.Bounds.Width - 20f * 2f, (UIScreen.MainScreen.Bounds.Width - 20f * 2f) * cellProportion);
+            var cardProportion = 190f / 335f;
+            var cardCenter = ((UIScreen.MainScreen.Bounds.Width - 20f * 2f) * cardProportion / 2) + 20;
+            var cardBottom = ((UIScreen.MainScreen.Bounds.Width - 20f * 2f) * cardProportion) + 25;
 
             var cardBehind = new UIView();
             cardBehind.BackgroundColor = UIColor.FromRGB(255, 255, 255);
@@ -57,17 +51,15 @@ namespace Steepshot.iOS.Views
             CreateShadowFromZeplin(cardBehind, UIColor.FromRGB(0, 0, 0), 0.03f, 0, 1, 1, 0);
             View.AddSubview(cardBehind);
 
-            cardBehind.AutoPinEdgeToSuperviewEdge(ALEdge.Top, yu);
+            cardBehind.AutoPinEdgeToSuperviewEdge(ALEdge.Top, cardCenter);
             cardBehind.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 10);
             cardBehind.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 10);
-            cardBehind.AutoSetDimension(ALDimension.Height, yu + 115);
+            cardBehind.AutoSetDimension(ALDimension.Height, cardCenter + 115);
 
             sliderCollection = new UICollectionView(CGRect.Null, new SliderFlowLayout()
             {
                 ScrollDirection = UICollectionViewScrollDirection.Horizontal,
-                ItemSize = kek,// new CGSize(UIScreen.MainScreen.Bounds.Width - 20 * 2, (UIScreen.MainScreen.Bounds.Width - 20 * 2) * 0.676),
-                //ItemSize = new CGSize(UIScreen.MainScreen.Bounds.Width - 12 * 2, yu),
-                //MinimumInteritemSpacing = 100,
+                ItemSize = cellSize,
                 MinimumLineSpacing = 10,
                 SectionInset = new UIEdgeInsets(0, 20, 0, 20),
             });
@@ -78,52 +70,37 @@ namespace Steepshot.iOS.Views
             sliderCollection.AutoPinEdgeToSuperviewEdge(ALEdge.Top, 20);
             sliderCollection.AutoPinEdgeToSuperviewEdge(ALEdge.Left);
             sliderCollection.AutoPinEdgeToSuperviewEdge(ALEdge.Right);
-            sliderCollection.AutoSetDimension(ALDimension.Height, kek.Height);
+            sliderCollection.AutoSetDimension(ALDimension.Height, cellSize.Height);
 
-            _sliderGridDelegate = new SliderCollectionViewFlowDelegate(sliderCollection, null);
-            //_sliderGridDelegate.ScrolledToBottom += ScrolledToBottom;
+            _sliderGridDelegate = new CardCollectionViewFlowDelegate();
+            _sliderGridDelegate.CardsScrolled += () =>
+            {
+                var pageWidth = cellSize.Width + 20;
+                _pageControl.CurrentPage = (int)Math.Floor((sliderCollection.ContentOffset.X - pageWidth / 2) / pageWidth) + 1;
+            };
 
             var _sliderCollectionViewSource = new CardsCollectionViewSource();
-            _sliderCollectionViewSource.root = View;
-
-            View.BackgroundColor = Constants.R250G250B250;
-
 
             sliderCollection.DecelerationRate = UIScrollView.DecelerationRateFast;
             sliderCollection.ShowsHorizontalScrollIndicator = false;
 
             sliderCollection.Layer.MasksToBounds = false;
+            sliderCollection.ClipsToBounds = false;
             sliderCollection.Source = _sliderCollectionViewSource;
             sliderCollection.RegisterClassForCell(typeof(LoaderCollectionCell), nameof(LoaderCollectionCell));
             sliderCollection.RegisterClassForCell(typeof(SliderFeedCollectionViewCell), nameof(SliderFeedCollectionViewCell));
-
             sliderCollection.DelaysContentTouches = false;
+            sliderCollection.Delegate = _sliderGridDelegate;
 
             _pageControl = new UIPageControl();
             _pageControl.PageIndicatorTintColor = UIColor.FromRGB(0, 0, 0).ColorWithAlpha(0.1f);
             _pageControl.CurrentPageIndicatorTintColor = UIColor.FromRGB(0, 0, 0).ColorWithAlpha(0.4f);
             _pageControl.UserInteractionEnabled = false;
+            _pageControl.Pages = 8;
             View.AddSubview(_pageControl);
 
-            _pageControl.Pages = 6;
-            //_pageControl.SizeToFit();
-
-
-            _pageControl.AutoPinEdgeToSuperviewEdge(ALEdge.Top, yuo);
+            _pageControl.AutoPinEdgeToSuperviewEdge(ALEdge.Top, cardBottom);
             _pageControl.AutoAlignAxis(ALAxis.Vertical, sliderCollection);
-            //_pageControl.SizeToFit();
-            //_pageControl.Frame = new CGRect(new CGPoint(0, _photoScroll.Frame.Bottom - 30), _pageControl.Frame.Size);
-
-            //_sliderCollectionViewSource.CellAction += CellAction;
-            //_sliderCollectionViewSource.TagAction += TagAction;
-            //sliderCollection.Delegate = _sliderGridDelegate;
-
-            /*
-            SliderAction += (isOpening) =>
-            {
-                if (!sliderCollection.Hidden)
-                    sliderCollection.ScrollEnabled = !isOpening;
-            };*/
 
             var transfer = new UIButton();
             transfer.SetTitle("TRANSFER", UIControlState.Normal);
@@ -135,14 +112,11 @@ namespace Steepshot.iOS.Views
             View.AddSubview(transfer);
 
             transfer.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, _pageControl, 20);
-            transfer.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 10);
+            transfer.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 20);
             transfer.AutoSetDimension(ALDimension.Height, 50);
 
             var more = new UIButton();
-            //transfer.SetTitle("TRANSFER", UIControlState.Normal);
-            //transfer.Font = Constants.Bold14;
-            more.BackgroundColor = Constants.R250G250B250;//  UIColor.FromRGB(255, 24, 5);
-            //transfer.SetTitleColor(UIColor.White, UIControlState.Normal);
+            more.BackgroundColor = Constants.R250G250B250;
             more.SetImage(UIImage.FromBundle("ic_more"), UIControlState.Normal);
             more.Layer.CornerRadius = 12;
             more.ClipsToBounds = true;
@@ -150,11 +124,9 @@ namespace Steepshot.iOS.Views
 
             more.AutoAlignAxis(ALAxis.Horizontal, transfer);
             more.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 20);
-            more.AutoPinEdge(ALEdge.Left, ALEdge.Right, transfer, 20);
+            more.AutoPinEdge(ALEdge.Left, ALEdge.Right, transfer, 10);
             more.AutoSetDimensionsToSize(new CGSize(50, 50));
         }
-
-        private UIPageControl _pageControl;
 
         private void SetBackButton()
         {

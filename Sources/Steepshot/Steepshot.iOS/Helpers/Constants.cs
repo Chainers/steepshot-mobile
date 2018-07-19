@@ -11,6 +11,7 @@ namespace Steepshot.iOS.Helpers
         public const string UserContextKey = "UserContext";
 
         public static readonly UIFont Bold14 = UIFont.FromName("OpenSans-Bold", 14f);
+        public static readonly UIFont Bold34 = UIFont.FromName("OpenSans-Bold", 34f);
         public static readonly UIFont Semibold12 = UIFont.FromName("OpenSans-Semibold", 12f);
         public static readonly UIFont Semibold14 = UIFont.FromName("OpenSans-Semibold", 14f);
         public static readonly UIFont Semibold16 = UIFont.FromName("OpenSans-Semibold", 16f);
@@ -37,6 +38,7 @@ namespace Steepshot.iOS.Helpers
         public static readonly UIColor R255G0B0 = UIColor.FromRGB(255, 0, 0);
         public static readonly UIColor R250G250B250 = UIColor.FromRGB(250, 250, 250);
         public static readonly UIColor R74G144B226 = UIColor.FromRGB(74, 144, 226);
+        public static readonly UIColor R255G255B255 = UIColor.FromRGB(255, 255, 255);
 
         public static readonly CGPoint StartGradientPoint = new CGPoint(0, 0.5f);
         public static readonly CGPoint EndGradientPoint = new CGPoint(1, 0.5f);
@@ -47,7 +49,7 @@ namespace Steepshot.iOS.Helpers
 
         public static readonly TimeSpan ImageCacheDuration = TimeSpan.FromDays(2);
 
-        public static void CreateGradient (UIView view, nfloat cornerRadius)
+        public static void CreateGradient(UIView view, nfloat cornerRadius)
         {
             var gradient = new CAGradientLayer();
             gradient.Frame = view.Bounds;
@@ -81,6 +83,27 @@ namespace Steepshot.iOS.Helpers
             view.Layer.ShadowRadius = shadowRadius;
             view.Layer.ShadowOpacity = opacity;
             view.Layer.ShadowColor = color.CGColor;
+        }
+
+        public static void CreateShadowFromZeplin(UIView view, UIColor color, float alpha, float x, float y, float blur, float spread)
+        {
+            {
+                view.Layer.MasksToBounds = false;
+                view.Layer.ShadowColor = color.CGColor;
+                view.Layer.ShadowOpacity = alpha;
+                view.Layer.ShadowOffset = new CGSize(x, y);
+                view.Layer.ShadowRadius = blur / 2f;
+                if (spread == 0)
+                {
+                    view.Layer.ShadowPath = null;
+                }
+                else
+                {
+                    var dx = -spread;
+                    var rect = view.Layer.Bounds.Inset(dx, dx);
+                    view.Layer.ShadowPath = UIBezierPath.FromRect(rect).CGPath;
+                }
+            }
         }
     }
 

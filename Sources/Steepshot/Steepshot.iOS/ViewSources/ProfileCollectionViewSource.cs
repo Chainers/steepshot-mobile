@@ -84,24 +84,6 @@ namespace Steepshot.iOS.ViewSources
         }
     }
 
-    public class CardsCollectionViewSource : UICollectionViewSource
-    {
-        public UIView root;
-
-        public override nint GetItemsCount(UICollectionView collectionView, nint section)
-        {
-            //var count = _presenter.Count;
-            return 10; //count == 0 || _presenter.IsLastReaded ? count : count + 1;
-        }
-
-        public override UICollectionViewCell GetCell(UICollectionView collectionView, NSIndexPath indexPath)
-        {
-            var t =(CardCollectionViewCell)collectionView.DequeueReusableCell(nameof(CardCollectionViewCell), indexPath);
-            t.root = root;
-            return t;
-        }
-    }
-
     public class SliderCollectionViewSource : UICollectionViewSource
     {
         public event Action<ActionType, Post> CellAction;

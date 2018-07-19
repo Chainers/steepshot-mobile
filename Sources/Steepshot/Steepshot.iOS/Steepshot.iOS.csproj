@@ -432,6 +432,7 @@
     <Compile Include="Delegates\CommentsTextViewDelegate.cs" />
     <Compile Include="Views\TransferViewControllerDesigner.cs" />
     <Compile Include="Cells\CardCollectionViewCell.cs" />
+    <Compile Include="ViewSources\CardsCollectionViewSource.cs" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\ic_photo_holder.png" />
@@ -563,6 +564,20 @@
     <BundleResource Include="Resources\ic_present%403x.png" />
     <BundleResource Include="Resources\ic_blue_card%402x.png" />
     <BundleResource Include="Resources\ic_blue_card%403x.png" />
+    <BundleResource Include="Resources\ic_light_red_card%403x.png" />
+    <BundleResource Include="Resources\ic_light_red_card%402x.png" />
+    <BundleResource Include="Resources\ic_grey_card%403x.png" />
+    <BundleResource Include="Resources\ic_grey_card%402x.png" />
+    <BundleResource Include="Resources\ic_purple_card%403x.png" />
+    <BundleResource Include="Resources\ic_purple_card%402x.png" />
+    <BundleResource Include="Resources\ic_pink_card%402x.png" />
+    <BundleResource Include="Resources\ic_pink_card%403x.png" />
+    <BundleResource Include="Resources\ic_orange_card%402x.png" />
+    <BundleResource Include="Resources\ic_orange_card%403x.png" />
+    <BundleResource Include="Resources\ic_green_card%402x.png" />
+    <BundleResource Include="Resources\ic_green_card%403x.png" />
+    <BundleResource Include="Resources\ic_red_card%403x.png" />
+    <BundleResource Include="Resources\ic_red_card%402x.png" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="..\Steepshot.Android\Assets\Localization.en-us.txt">
