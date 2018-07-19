@@ -1,11 +1,13 @@
-﻿using System.Text;
+﻿using System;
+using System.IO;
+using System.Xml;
 using Newtonsoft.Json;
 
 namespace Steepshot.Core.Localization
 {
     public class LocalizationManager
     {
-        public const string UpdateUrl = "https://raw.githubusercontent.com/Chainers/steepshot-mobile/master/Sources/Steepshot/Steepshot.Android/Assets/Localization.en-us.txt";
+        public const string UpdateUrl = "https://raw.githubusercontent.com/Chainers/steepshot-mobile/master/References/Languages/{0}/dic.xml";
 
         public LocalizationModel Model { get; }
 
@@ -18,27 +20,43 @@ namespace Steepshot.Core.Localization
         {
             try
             {
-                var changed = false;
-                var model = JsonConvert.DeserializeObject<LocalizationModel>(content);
-                if (Model.Lang.Equals(model.Lang) && model.Version > Model.Version)
+                var sReader = new StringReader(content);
+                var reader = new XmlTextReader(sReader);
+
+                while (reader.Read())
                 {
-                    changed = true;
-                    foreach (var item in model.Map)
+                    if (reader.NodeType == XmlNodeType.Element && reader.Name.Equals("resources") && reader.AttributeCount == 1)
                     {
-                        if (Model.Map.ContainsKey(item.Key))
+                        var version = reader.GetAttribute("version");
+                        if (version == null || int.Parse(version) <= Model.Version)
+                            return false;
+
+                        Model.Version = int.Parse(version);
+                        break;
+                    }
+                }
+                
+                while (reader.Read())
+                {
+                    if (reader.NodeType == XmlNodeType.Element && reader.Name.Equals("string") && reader.HasAttributes)
+                    {
+                        var json = reader.GetAttribute("name");
+                        var names = JsonConvert.DeserializeObject<string[]>(json);
+                        reader.Read();
+                        var value = reader.Value;
+
+                        foreach (var name in names)
                         {
-                            Model.Map[item.Key] = item.Value;
-                        }
-                        else
-                        {
-                            Model.Map.Add(item.Key, item.Value);
+                            if (Model.Map.ContainsKey(name))
+                                Model.Map[name] = value;
+                            else
+                                Model.Map.Add(name, value);
                         }
                     }
-                    Model.Version = model.Version;
                 }
-                return changed;
+                return true;
             }
-            catch
+            catch (Exception ex)
             {
                 //to do nothing
             }

@@ -114,7 +114,7 @@
         Retry,
         Delete,
         PutYourComment,
-        AppVersion2,
+        AppVersion,
         QueryMinLength,
         EnterPostTitle,
         EnterPostDescription,

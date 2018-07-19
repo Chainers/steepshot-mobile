@@ -70,7 +70,7 @@ namespace Steepshot.Activity
             _viewTitle.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.AppSettingsTitle);
             _nsfwSwitchText.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.ShowNsfw);
             _lowSwitchText.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.ShowLowRated);
-            _versionText.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.AppVersion2, appInfoService.GetAppVersion(), appInfoService.GetBuildVersion());
+            _versionText.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.AppVersion, appInfoService.GetAppVersion(), appInfoService.GetBuildVersion());
             _addButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.AddAccountText);
             _guideButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Guidelines);
             _termsButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.ToS);

@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
 using Cryptography.ECDSA;
-using Ditch.Core;
 using Steepshot.Core.Authority;
 using Steepshot.Core.Errors;
 using Steepshot.Core.HttpClient;
@@ -78,11 +76,19 @@ namespace Steepshot.Core.Presenters
 
         private static async Task UpdateLocalizationAsync()
         {
-            var content = await Api.Gateway.Get(LocalizationManager.UpdateUrl);
-            var changed = AppSettings.LocalizationManager.Reset(content);
-            if (changed)
+            try
             {
-                AppSettings.DataProvider.UpdateLocalization(AppSettings.LocalizationManager.Model);
+                var path = string.Format(LocalizationManager.UpdateUrl, AppSettings.LocalizationManager);
+                var content = await Api.Gateway.Get(path);
+                var changed = AppSettings.LocalizationManager.Reset(content);
+                if (changed)
+                {
+                    AppSettings.DataProvider.UpdateLocalization(AppSettings.LocalizationManager.Model);
+                }
+            }
+            catch (Exception e)
+            {
+                //TODO: Send Warn
             }
         }
 

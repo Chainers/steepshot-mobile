@@ -25,13 +25,17 @@ namespace Steepshot.Core.Tests
         static BaseTests()
         {
             var builder = new ContainerBuilder();
-            
-            var jsonLocalization = File.ReadAllText($"{AppDomain.CurrentDomain.BaseDirectory}\\Localization.en-us.txt");
+
+            var en = File.ReadAllText($"{AppDomain.CurrentDomain.BaseDirectory}\\dic.xml");
+            var localizationModel = new LocalizationModel();
+            var localizationManager = new LocalizationManager(localizationModel);
+            Assert.IsTrue(localizationManager.Reset(en));
+
             builder.RegisterInstance(new StubAppInfo()).As<IAppInfo>().SingleInstance();
             builder.RegisterInstance(new StubDataProvider()).As<IDataProvider>().SingleInstance();
             builder.RegisterInstance(new StubSaverService()).As<ISaverService>().SingleInstance();
             builder.RegisterInstance(new StubConnectionService()).As<IConnectionService>().SingleInstance();
-            builder.RegisterInstance(new LocalizationManager(JsonConvert.DeserializeObject<LocalizationModel>(jsonLocalization))).As<LocalizationManager>().SingleInstance();
+            builder.RegisterInstance(localizationManager).As<LocalizationManager>().SingleInstance();
             builder.RegisterType<StubReporterService>().As<IReporterService>().SingleInstance();
 
             AppSettings.Container = builder.Build();
