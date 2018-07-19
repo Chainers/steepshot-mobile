@@ -71,25 +71,7 @@ namespace Steepshot.Core.Presenters
             AppSettings.LocalizationManager.Update(Api.Gateway);
             LazyLoadTimer.Dispose();
         }
-      
-        private static async Task UpdateLocalizationAsync()
-        {
-            try
-            {
-                var path = string.Format(LocalizationManager.UpdateUrl, AppSettings.LocalizationManager);
-                var content = await Api.Gateway.Get(path);
-                var changed = AppSettings.LocalizationManager.Reset(content);
-                if (changed)
-                {
-                    AppSettings.DataProvider.UpdateLocalization(AppSettings.LocalizationManager.Model);
-                }
-            }
-            catch (Exception e)
-            {
-                //TODO: Send Warn
-            }
-        }
-      
+
         private static Task<ErrorBase> TryСonect(CancellationToken token)
         {
             return Task.Run(async () =>

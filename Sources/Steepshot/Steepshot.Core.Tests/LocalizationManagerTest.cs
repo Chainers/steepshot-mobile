@@ -2,6 +2,7 @@
 using System.IO;
 using NUnit.Framework;
 using Steepshot.Core.Localization;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Tests
 {
@@ -12,8 +13,9 @@ namespace Steepshot.Core.Tests
         public void Test()
         {
             var en = File.ReadAllText($"{AppDomain.CurrentDomain.BaseDirectory}\\dic.xml");
-            var lm = new LocalizationManager(new LocalizationModel());
-            Assert.IsTrue(lm.Reset(en));
+            var lm = AppSettings.LocalizationManager;
+            lm.Model.Version = 0;
+            Assert.IsTrue(lm.Update(en));
             var acc = lm.GetText(LocalizationKeys.Account);
             Assert.IsFalse(string.IsNullOrEmpty(acc));
         }

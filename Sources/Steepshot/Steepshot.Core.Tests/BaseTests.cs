@@ -25,16 +25,15 @@ namespace Steepshot.Core.Tests
         static BaseTests()
         {
             var builder = new ContainerBuilder();
-          
-            var en = File.ReadAllText($"{AppDomain.CurrentDomain.BaseDirectory}\\dic.xml");
-            var localizationModel = new LocalizationModel();
-            var localizationManager = new LocalizationManager(localizationModel);
-            Assert.IsTrue(localizationManager.Reset(en));
-          
+
             var saverService = new StubSaverService();
             var assetsHelper = new AssetsHelperStub();
 
-            builder.RegisterInstance(assetsHelper).As<IAssetsHelper>().SingleInstance();          
+            var en = File.ReadAllText($"{AppDomain.CurrentDomain.BaseDirectory}\\dic.xml");
+            var localizationManager = new LocalizationManager(saverService, assetsHelper);
+            Assert.IsTrue(localizationManager.Update(en));
+
+            builder.RegisterInstance(assetsHelper).As<IAssetsHelper>().SingleInstance();
             builder.RegisterInstance(new StubAppInfo()).As<IAppInfo>().SingleInstance();
             builder.RegisterInstance(new UserManager(saverService)).As<UserManager>().SingleInstance();
             builder.RegisterInstance(saverService).As<ISaverService>().SingleInstance();

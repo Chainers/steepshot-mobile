@@ -656,9 +656,6 @@
     </AndroidResource>
   </ItemGroup>
   <ItemGroup>
-    <AndroidAsset Include="Assets\Localization.en-us.txt" />
-  </ItemGroup>
-  <ItemGroup>
     <AndroidResource Include="Resources\drawable\popup_separator.xml" />
   </ItemGroup>
   <ItemGroup>

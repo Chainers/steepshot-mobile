@@ -2,7 +2,7 @@
 using System.IO;
 using System.Xml;
 using Newtonsoft.Json;
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Threading;
 using Steepshot.Core.HttpClient;
 using Steepshot.Core.Services;
@@ -13,7 +13,7 @@ namespace Steepshot.Core.Localization
     {
         public const string UpdateUrl = "https://raw.githubusercontent.com/Chainers/steepshot-mobile/master/References/Languages/{0}/dic.xml";
         public const string Localization = "Localization";
-        public const string DefaultLang = "en-us";
+        public const string DefaultLang = "en";
 
         private readonly ISaverService _saverService;
         private readonly Dictionary<string, LocalizationModel> _localizationModel;
@@ -41,29 +41,24 @@ namespace Steepshot.Core.Localization
 
         public async void Update(ApiGateway gateway)
         {
-            var rez = await gateway.Get<LocalizationModel>(UpdateUrl, CancellationToken.None);
+            var rez = await gateway.Get<string>(string.Format(UpdateUrl, Model.Lang), CancellationToken.None);
             if (!rez.IsSuccess)
                 return;
 
-            var model = rez.Result;
-            var changed = Reset(model);
+            var xml = rez.Result;
+            var changed = Update(xml);
             if (changed)
-            {
-                if (_localizationModel.ContainsKey(model.Lang))
-                    _localizationModel[model.Lang] = model;
-                else
-                    _localizationModel.Add(model.Lang, model);
-
                 _saverService.Save(Localization, _localizationModel);
-            }
         }
 
-        private bool Reset(LocalizationModel model)
+        public bool Update(string xml)
         {
+            XmlTextReader reader = null;
+            StringReader sReader = null;
             try
             {
-                var sReader = new StringReader(content);
-                var reader = new XmlTextReader(sReader);
+                sReader = new StringReader(xml);
+                reader = new XmlTextReader(sReader);
 
                 while (reader.Read())
                 {
@@ -77,7 +72,7 @@ namespace Steepshot.Core.Localization
                         break;
                     }
                 }
-                
+
                 while (reader.Read())
                 {
                     if (reader.NodeType == XmlNodeType.Element && reader.Name.Equals("string") && reader.HasAttributes)
@@ -100,7 +95,12 @@ namespace Steepshot.Core.Localization
             }
             catch (Exception ex)
             {
-                //to do nothing
+                //TODO log Warn
+            }
+            finally
+            {
+                sReader?.Close();
+                reader?.Close();
             }
             return false;
         }
