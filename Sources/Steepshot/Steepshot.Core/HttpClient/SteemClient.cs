@@ -3,23 +3,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Ditch.Core.Helpers;
-using Ditch.Steem;
-using Ditch.Steem.Models.Operations;
+using Ditch.Core;
+using Ditch.Steem.Old.Models.Operations;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
-using Steepshot.Core.Models.Responses;
-using Steepshot.Core.Serializing;
-using DitchFollowType = Ditch.Steem.Models.Enums.FollowType;
-using DitchBeneficiary = Ditch.Steem.Models.Operations.Beneficiary;
-using Ditch.Core;
+using Steepshot.Core.Serializing;   
+using DitchFollowType = Ditch.Steem.Old.Models.Enums.FollowType;
+using DitchBeneficiary = Ditch.Steem.Old.Models.Operations.Beneficiary;
 using Ditch.Core.JsonRpc;
-using Ditch.Steem.Models.ApiObj;
-using Ditch.Steem.Models.Objects;
 using Steepshot.Core.Errors;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Localization;
-using Steepshot.Core.Presenters;
+using Steepshot.Core.Utils;
+using Cryptography.ECDSA;
+using Ditch.Steem.Old;
+using Ditch.Steem.Old.Models.Objects;
+using Ditch.Steem.Old.Models.Other;
 
 namespace Steepshot.Core.HttpClient
 {
@@ -27,13 +26,14 @@ namespace Steepshot.Core.HttpClient
     {
         private readonly OperationManager _operationManager;
 
+
         public override bool IsConnected => _operationManager.IsConnected;
+
+        public override KnownChains Chain => KnownChains.Steem;
 
         public SteemClient(JsonNetConverter jsonConverter) : base(jsonConverter)
         {
-            var jss = GetJsonSerializerSettings();
-            var cm = new HttpManager(jss);
-            _operationManager = new OperationManager(cm, jss);
+            _operationManager = new OperationManager();
         }
 
         public override bool TryReconnectChain(CancellationToken token)
@@ -47,9 +47,12 @@ namespace Steepshot.Core.HttpClient
                 Monitor.Enter(SyncConnection, ref lockWasTaken);
                 if (!EnableWrite)
                 {
-                    var cUrls = new List<string> { "https://api.steemit.com", "https://steemd.steepshot.org" };
-                    var conectedTo = _operationManager.TryConnectTo(cUrls, token);
-                    if (!string.IsNullOrEmpty(conectedTo))
+                    var cUrls = AppSettings.ConfigManager.SteemNodeConfigs
+                        .Where(n => n.IsEnabled)
+                        .OrderBy(n => n.Order)
+                        .Select(n => n.Url)
+                        .ToArray();
+                    if (cUrls.Any() && _operationManager.TryConnectTo(cUrls, token))
                         EnableWrite = true;
                 }
             }
@@ -67,46 +70,32 @@ namespace Steepshot.Core.HttpClient
 
         #region Post requests
 
-        public override async Task<OperationResult<VoteResponse>> Vote(VoteModel model, CancellationToken ct)
+        public override async Task<OperationResult<VoidResponse>> Vote(VoteModel model, CancellationToken ct)
         {
             return await Task.Run(() =>
             {
                 if (!TryReconnectChain(ct))
-                    return new OperationResult<VoteResponse>(new AppError(LocalizationKeys.EnableConnectToBlockchain));
+                    return new OperationResult<VoidResponse>(new AppError(LocalizationKeys.EnableConnectToBlockchain));
 
                 var keys = ToKeyArr(model.PostingKey);
                 if (keys == null)
-                    return new OperationResult<VoteResponse>(new AppError(LocalizationKeys.WrongPrivatePostingKey));
+                    return new OperationResult<VoidResponse>(new AppError(LocalizationKeys.WrongPrivatePostingKey));
 
                 short weigth = 0;
                 if (model.Type == VoteType.Up)
-                    weigth = (short)(BasePresenter.User.VotePower * 100);
+                    weigth = (short)(AppSettings.User.VotePower * 100);
                 if (model.Type == VoteType.Flag)
                     weigth = -10000;
 
                 var op = new VoteOperation(model.Login, model.Author, model.Permlink, weigth);
                 var resp = _operationManager.BroadcastOperationsSynchronous(keys, ct, op);
 
-                var result = new OperationResult<VoteResponse>();
+                var result = new OperationResult<VoidResponse>();
                 if (!resp.IsError)
-                {
-                    var dt = DateTime.Now;
-                    var content = _operationManager.GetContent(model.Author, model.Permlink, ct);
-                    if (!content.IsError)
-                    {
-                        //Convert Asset type to double
-                        result.Result = new VoteResponse()
-                        {
-                            NewTotalPayoutReward = (content.Result.TotalPayoutValue + content.Result.CuratorPayoutValue + content.Result.PendingPayoutValue).ToDouble(),
-                            NetVotes = content.Result.NetVotes,
-                            VoteTime = dt
-                        };
-                    }
-                }
+                    result.Result = new VoidResponse();
                 else
-                {
                     OnError(resp, result);
-                }
+
                 return result;
             }, ct);
         }
@@ -185,7 +174,7 @@ namespace Steepshot.Core.HttpClient
                     ops = new BaseOperation[]
                     {
                         op,
-                        new BeneficiariesOperation(model.Login, model.Permlink, "SBD", beneficiaries)
+                        new BeneficiariesOperation(model.Login, model.Permlink,new Asset(1000000000,3,"SBD") ,beneficiaries)
                     };
                 }
                 else
@@ -268,7 +257,6 @@ namespace Steepshot.Core.HttpClient
             }, ct);
         }
 
-
         #endregion Post requests
 
         #region Get
@@ -284,7 +272,7 @@ namespace Steepshot.Core.HttpClient
             return await Task.Run(() =>
             {
                 var op = new FollowOperation(model.Login, "steepshot", DitchFollowType.Blog, model.Login);
-                var properties = new DynamicGlobalPropertyApiObj
+                var properties = new DynamicGlobalPropertyObject
                 {
                     HeadBlockId = Hex.ToString(_operationManager.ChainId),
                     Time = DateTime.Now,

@@ -2,8 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Android;
 using Android.Content;
+using Android.Content.PM;
 using Android.Graphics;
+using Android.Graphics.Drawables;
 using Android.Hardware;
 using Android.Locations;
 using Android.Media;
@@ -28,7 +31,7 @@ namespace Steepshot.Fragment
     {
         private Location _currentLocation;
         private LocationManager _locationManager;
-        private bool isGpsEnable = true;
+        private bool isGpsEnable = false;
 
         private const bool FullScreen = true;
         private const int GalleryRequestCode = 228;
@@ -64,9 +67,7 @@ namespace Steepshot.Fragment
         {
             base.OnViewCreated(view, savedInstanceState);
 
-            _locationManager = (LocationManager)Context.GetSystemService(Context.LocationService);
-            var criteriaForLocationService = new Criteria { Accuracy = Accuracy.NoRequirement };
-            _locationManager.RequestLocationUpdates(0, 0, criteriaForLocationService, this, null);
+            ((BaseActivity)Activity).RequestPermissions(BaseActivity.CommonPermissionsRequestCode, Manifest.Permission.AccessCoarseLocation, Manifest.Permission.AccessFineLocation);
 
             if (Camera.NumberOfCameras < 2)
                 _revertButton.Visibility = ViewStates.Gone;
@@ -84,12 +85,27 @@ namespace Steepshot.Fragment
             GetGalleryIcon();
         }
 
+        public override void OnRequestPermissionsResult(int requestCode, string[] permissions, [GeneratedEnum] Permission[] grantResults)
+        {
+            if (requestCode == GalleryRequestCode && !grantResults.Any(x => x != Permission.Granted))
+            {
+                _locationManager = (LocationManager)Context.GetSystemService(Context.LocationService);
+                var criteriaForLocationService = new Criteria { Accuracy = Accuracy.NoRequirement };
+                _locationManager.RequestLocationUpdates(0, 0, criteriaForLocationService, this, null);
+                GpsButtonOnClick(null, null);
+            }
+            base.OnRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
+
         private void GpsButtonOnClick(object sender, EventArgs eventArgs)
         {
             _gpsButton.Enabled = false;
 
-            isGpsEnable = !isGpsEnable;
-            _gpsButton.SetImageResource(isGpsEnable ? Resource.Drawable.ic_gps : Resource.Drawable.ic_gps_n);
+            if (!((BaseActivity)Activity).RequestPermissions(BaseActivity.CommonPermissionsRequestCode, Manifest.Permission.AccessCoarseLocation, Manifest.Permission.AccessFineLocation))
+            {
+                isGpsEnable = !isGpsEnable;
+                _gpsButton.SetImageResource(isGpsEnable ? Resource.Drawable.ic_gps : Resource.Drawable.ic_gps_n);
+            }
 
             _gpsButton.Enabled = true;
         }
@@ -514,24 +530,35 @@ namespace Steepshot.Fragment
         {
             string[] projection = {
                 MediaStore.Images.ImageColumns.Id,
-                MediaStore.Images.ImageColumns.Data,
-                MediaStore.Images.ImageColumns.BucketDisplayName,
-                MediaStore.Images.ImageColumns.DateTaken,
-                MediaStore.Images.ImageColumns.MimeType
+                MediaStore.Images.ImageColumns.Data
             };
             var cursor = Context.ContentResolver
                 .Query(MediaStore.Images.Media.ExternalContentUri, projection, null, null, MediaStore.Images.ImageColumns.DateTaken + " DESC");
 
-            if (cursor.MoveToFirst())
+            if (cursor != null && cursor.Count > 0)
             {
-                var imageLocation = cursor.GetString(1);
-                var imageFile = new Java.IO.File(imageLocation);
-                if (imageFile.Exists())
+                var idInd = cursor.GetColumnIndex(MediaStore.Images.ImageColumns.Id);
+                var pathInd = cursor.GetColumnIndex(MediaStore.Images.ImageColumns.Data);
+
+                while (cursor.MoveToNext())
                 {
-                    var bitmap = BitmapUtils.DecodeSampledBitmapFromFile(imageFile.Path, 300, 300);
-                    bitmap = BitmapUtils.RotateImageIfRequired(bitmap, imageFile.Path);
-                    _galleryIcon.SetImageBitmap(bitmap);
+                    var imageId = cursor.GetLong(idInd);
+                    var imageLocation = cursor.GetString(pathInd);
+                    var imageFile = new Java.IO.File(imageLocation);
+                    if (imageFile.Exists())
+                    {
+                        using (var bitmap = MediaStore.Images.Thumbnails.GetThumbnail(Context.ContentResolver, imageId,
+                            ThumbnailKind.MicroKind, null))
+                        {
+                            _galleryIcon.SetImageBitmap(bitmap);
+                        }
+                        break;
+                    }
                 }
+            }
+            else
+            {
+                _galleryIcon.SetImageDrawable(new ColorDrawable(Style.R245G245B245));
             }
         }
 

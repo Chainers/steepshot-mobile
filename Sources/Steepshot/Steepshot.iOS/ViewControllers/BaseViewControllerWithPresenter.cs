@@ -1,8 +1,9 @@
-﻿using Steepshot.Core.Presenters;
+﻿using System;
+using Steepshot.Core.Presenters;
 
 namespace Steepshot.iOS.ViewControllers
 {
-    public abstract class BaseViewControllerWithPresenter<T> : BaseViewController where T : BasePresenter
+    public abstract class BaseViewControllerWithPresenter<T> : BaseViewController where T : BasePresenter, new()
     {
         protected T _presenter;
 
@@ -12,6 +13,14 @@ namespace Steepshot.iOS.ViewControllers
             base.ViewDidLoad();
         }
 
-        protected abstract void CreatePresenter();
+        protected virtual void CreatePresenter()
+        {
+            _presenter = new T();
+        }
+
+        protected virtual void GoBack(object sender, EventArgs e)
+        {
+            NavigationController.PopViewController(true);
+        }
     }
 }

@@ -8,6 +8,7 @@ using Steepshot.Core.Localization;
 using Steepshot.Core.Models;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
+using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
@@ -16,6 +17,7 @@ using Steepshot.iOS.Helpers;
 using Steepshot.iOS.ViewControllers;
 using Steepshot.iOS.ViewSources;
 using UIKit;
+using Steepshot.Core.Extensions;
 
 namespace Steepshot.iOS.Views
 {
@@ -28,7 +30,7 @@ namespace Steepshot.iOS.Views
         }
 
         private UserProfileResponse _userData;
-        public string Username = BasePresenter.User.Login;
+        public string Username = AppSettings.User.Login;
         private ProfileCollectionViewSource _collectionViewSource;
         private UIRefreshControl _refreshControl;
         private bool _isPostsLoading;
@@ -41,6 +43,7 @@ namespace Steepshot.iOS.Views
         private UIView powerPopup;
         private UILabel powerText;
         private bool isPowerOpen;
+        private bool UserIsWatched => AppSettings.User.WatchedUsers.Contains(Username);
 
         public override void ViewDidLoad()
         {
@@ -90,6 +93,12 @@ namespace Steepshot.iOS.Views
             sliderCollection.RegisterClassForCell(typeof(SliderFeedCollectionViewCell), nameof(SliderFeedCollectionViewCell));
             sliderCollection.Delegate = _sliderGridDelegate;
 
+            SliderAction += (isOpening) =>
+            {
+                if (!sliderCollection.Hidden)
+                    sliderCollection.ScrollEnabled = !isOpening;
+            };
+
             _profileHeader = new ProfileHeaderViewController(ProfileHeaderLoaded);
             collectionView.ContentInset = new UIEdgeInsets(300, 0, 0, 0);
             collectionView.AddSubview(_profileHeader.View);
@@ -102,7 +111,7 @@ namespace Steepshot.iOS.Views
                 ((MainTabBarController)TabBarController).SameTabTapped += SameTabTapped;
             SetBackButton();
 
-            if (Username == BasePresenter.User.Login && BasePresenter.User.IsAuthenticated)
+            if (Username == AppSettings.User.Login && AppSettings.User.IsAuthenticated)
                 SetVotePowerView();
             GetUserInfo();
             GetPosts();
@@ -140,7 +149,7 @@ namespace Steepshot.iOS.Views
             switchButton = new UIBarButtonItem(UIImage.FromBundle("ic_grid_nonactive"), UIBarButtonItemStyle.Plain, SwitchLayout);
             switchButton.TintColor = Constants.R231G72B0;
 
-            if (Username == BasePresenter.User.Login)
+            if (Username == AppSettings.User.Login)
             {
                 NavigationItem.Title = "My Profile";
                 var settingsButton = new UIBarButtonItem(UIImage.FromBundle("ic_settings"), UIBarButtonItemStyle.Plain, GoToSettings);
@@ -153,7 +162,9 @@ namespace Steepshot.iOS.Views
                 var leftBarButton = new UIBarButtonItem(UIImage.FromBundle("ic_back_arrow"), UIBarButtonItemStyle.Plain, GoBack);
                 leftBarButton.TintColor = Constants.R15G24B30;
                 NavigationItem.LeftBarButtonItem = leftBarButton;
-                NavigationItem.RightBarButtonItem = switchButton;
+                var settingsButton = new UIBarButtonItem(UIImage.FromBundle("ic_more"), UIBarButtonItemStyle.Plain, ShowPushSetting);
+                settingsButton.TintColor = Constants.R151G155B158;
+                NavigationItem.RightBarButtonItems = new UIBarButtonItem[] { settingsButton, switchButton };
             }
         }
 
@@ -168,7 +179,7 @@ namespace Steepshot.iOS.Views
             _refreshControl.EndRefreshing();
         }
 
-        private void SourceChanged(Status status)
+        protected override void SourceChanged(Status status)
         {
             if (sliderCollection.Hidden)
             {
@@ -203,7 +214,7 @@ namespace Steepshot.iOS.Views
 
             var avatarTap = new UITapGestureRecognizer(() =>
             {
-                if (isPowerOpen || Username != BasePresenter.User.Login)
+                if (isPowerOpen || Username != AppSettings.User.Login)
                     return;
 
                 UIView.Animate(0.3f, 0f, UIViewAnimationOptions.CurveEaseOut, () =>
@@ -247,7 +258,7 @@ namespace Steepshot.iOS.Views
             switch (type)
             {
                 case ActionType.Profile:
-                    if (post.Author == BasePresenter.User.Login)
+                    if (post.Author == AppSettings.User.Login)
                         return;
                     var myViewController = new ProfileViewController();
                     myViewController.Username = post.Author;
@@ -317,7 +328,7 @@ namespace Steepshot.iOS.Views
                 {
                     _userData = _presenter.UserProfileResponse;
 
-                    if (Username == BasePresenter.User.Login)
+                    if (Username == AppSettings.User.Login)
                         _profileHeader.PowerFrame.ChangePercents((int)_userData.VotingPower);
                     else
                         _profileHeader.PowerFrame.ChangePercents(0);
@@ -344,13 +355,19 @@ namespace Steepshot.iOS.Views
                         _profileHeader.DescriptionLabel.Text = _userData.About;
                     }
 
-                    if (!string.IsNullOrEmpty(_userData.ProfileImage))
+                    if (!string.IsNullOrEmpty(_userData.ProfileImage.GetProxy(300, 300)))
+                        ImageService.Instance.LoadUrl(_userData.ProfileImage, TimeSpan.FromDays(30))
+                                             .FadeAnimation(false, false, 0)
+                                             .LoadingPlaceholder("ic_noavatar.png")
+                                             .ErrorPlaceholder("ic_noavatar.png").Error((f) =>
+                    {
                         ImageService.Instance.LoadUrl(_userData.ProfileImage, TimeSpan.FromDays(30))
                                              .FadeAnimation(false, false, 0)
                                              .LoadingPlaceholder("ic_noavatar.png")
                                              .ErrorPlaceholder("ic_noavatar.png")
                                              .DownSample(width: (int)300)
                                              .Into(_profileHeader.Avatar);
+                    }).Into(_profileHeader.Avatar);
                     else
                         _profileHeader.Avatar.Image = UIImage.FromBundle("ic_noavatar");
 
@@ -434,6 +451,41 @@ namespace Steepshot.iOS.Views
         {
             var myViewController = new SettingsViewController();
             TabBarController.NavigationController.PushViewController(myViewController, true);
+        }
+
+        private void ShowPushSetting(object sender, EventArgs e)
+        {
+            var actionSheetAlert = UIAlertController.Create(null, null, UIAlertControllerStyle.ActionSheet);
+
+            if (UserIsWatched)
+            {
+                actionSheetAlert.AddAction(UIAlertAction.Create(AppSettings.LocalizationManager.GetText(LocalizationKeys.UnwatchUser),
+                                                                UIAlertActionStyle.Default, PushesOnClick));
+            }
+            else
+            {
+                actionSheetAlert.AddAction(UIAlertAction.Create(AppSettings.LocalizationManager.GetText(LocalizationKeys.WatchUser),
+                                                                UIAlertActionStyle.Default, PushesOnClick));
+            }
+
+            actionSheetAlert.AddAction(UIAlertAction.Create("Cancel", UIAlertActionStyle.Cancel, null));
+            PresentViewController(actionSheetAlert, true, null);
+        }
+
+        private async void PushesOnClick(object sender)
+        {
+            var model = new PushNotificationsModel(AppSettings.User.UserInfo, !UserIsWatched)
+            {
+                WatchedUser = Username
+            };
+            var response = await BasePresenter.TrySubscribeForPushes(model);
+            if (response.IsSuccess)
+            {
+                if (UserIsWatched)
+                    AppSettings.User.WatchedUsers.Remove(Username);
+                else
+                    AppSettings.User.WatchedUsers.Add(Username);
+            }
         }
 
         private void SwitchLayout(object sender, EventArgs e)

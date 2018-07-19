@@ -17,6 +17,7 @@ using CheeseBind;
 using Steepshot.Activity;
 using Steepshot.Adapter;
 using Steepshot.Base;
+using Steepshot.Core;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
@@ -89,9 +90,9 @@ namespace Steepshot.Fragment
             {
                 if (_profilePagerAdapter == null)
                 {
-                    _profilePagerAdapter = new PostPagerAdapter<PreSearchPresenter>(Context, Presenter);
+                    _profilePagerAdapter = new PostPagerAdapter<PreSearchPresenter>(_postPager, Context, Presenter);
                     _profilePagerAdapter.PostAction += PostAction;
-                    _profilePagerAdapter.TagAction += TagAction;
+                    _profilePagerAdapter.AutoLinkAction += AutoLinkAction;
                     _profilePagerAdapter.CloseAction += CloseAction;
                 }
                 return _profilePagerAdapter;
@@ -107,7 +108,7 @@ namespace Steepshot.Fragment
                 {
                     _profileFeedAdapter = new FeedAdapter<PreSearchPresenter>(Context, Presenter);
                     _profileFeedAdapter.PostAction += PostAction;
-                    _profileFeedAdapter.TagAction += TagAction;
+                    _profileFeedAdapter.AutoLinkAction += AutoLinkAction;
                 }
                 return _profileFeedAdapter;
             }
@@ -191,7 +192,7 @@ namespace Steepshot.Fragment
             {
                 base.OnViewCreated(view, savedInstanceState);
 
-                if (BasePresenter.User.IsAuthenticated)
+                if (AppSettings.User.IsAuthenticated)
                     _loginButton.Visibility = ViewStates.Gone;
 
                 Presenter.SourceChanged += PresenterSourceChanged;
@@ -230,7 +231,7 @@ namespace Steepshot.Fragment
 
                 _gridItemDecoration = new GridItemDecoration();
 
-                _tabSettings = BasePresenter.User.GetTabSettings(nameof(PreSearchFragment));
+                _tabSettings = AppSettings.User.GetTabSettings(nameof(PreSearchFragment));
                 SwitchListAdapter(_tabSettings.IsGridView);
                 _postsList.AddOnScrollListener(_scrollListner);
 
@@ -247,7 +248,7 @@ namespace Steepshot.Fragment
                 _refresher.Refresh += RefresherRefresh;
 
                 _emptyQueryLabel.Typeface = Style.Light;
-                _emptyQueryLabel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.EmptyCategory);
+                _emptyQueryLabel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.EmptyQuery);
 
                 _searchToolbarLayout.Click += OnSearch;
 
@@ -298,7 +299,6 @@ namespace Steepshot.Fragment
         {
             if (pageScrollStateChangedEventArgs.State == 0)
             {
-                _profilePagerAdapter.CurrentItem = _postPager.CurrentItem;
                 _postsList.ScrollToPosition(_postPager.CurrentItem);
                 if (_postsList.GetLayoutManager() is GridLayoutManager manager)
                 {
@@ -321,7 +321,6 @@ namespace Steepshot.Fragment
         public void OpenPost(Post post)
         {
             _postPager.SetCurrentItem(Presenter.IndexOf(post), false);
-            _profilePagerAdapter.CurrentItem = _postPager.CurrentItem;
             _profilePagerAdapter.NotifyDataSetChanged();
             _postPager.Visibility = ViewStates.Visible;
             _postsList.Visibility = ViewStates.Gone;
@@ -392,7 +391,7 @@ namespace Steepshot.Fragment
         private void OnSwitcherClick(object sender, EventArgs e)
         {
             _tabSettings.IsGridView = !(_postsList.GetLayoutManager() is GridLayoutManager);
-            BasePresenter.User.Save();
+            AppSettings.User.Save();
             SwitchListAdapter(_tabSettings.IsGridView);
         }
 
@@ -471,7 +470,7 @@ namespace Steepshot.Fragment
             {
                 case ActionType.Like:
                     {
-                        if (BasePresenter.User.IsAuthenticated)
+                        if (AppSettings.User.IsAuthenticated)
                         {
                             var error = await Presenter.TryVote(post);
                             if (!IsInitialized)
@@ -505,7 +504,7 @@ namespace Steepshot.Fragment
                     {
                         if (post == null)
                             return;
-                        if (post.Children == 0 && !BasePresenter.User.IsAuthenticated)
+                        if (post.Children == 0 && !AppSettings.User.IsAuthenticated)
                         {
                             OpenLogin();
                             return;
@@ -519,13 +518,13 @@ namespace Steepshot.Fragment
                         if (post == null)
                             return;
 
-                        if (BasePresenter.User.Login != post.Author)
+                        if (AppSettings.User.Login != post.Author)
                             ((BaseActivity)Activity).OpenNewContentFragment(new ProfileFragment(post.Author));
                         break;
                     }
                 case ActionType.Flag:
                     {
-                        if (!BasePresenter.User.IsAuthenticated)
+                        if (!AppSettings.User.IsAuthenticated)
                             return;
 
                         var error = await Presenter.TryFlag(post);
@@ -563,7 +562,7 @@ namespace Steepshot.Fragment
                         var shareIntent = new Intent(Intent.ActionSend);
                         shareIntent.SetType("text/plain");
                         shareIntent.PutExtra(Intent.ExtraSubject, post.Title);
-                        shareIntent.PutExtra(Intent.ExtraText, AppSettings.LocalizationManager.GetText(LocalizationKeys.PostLink, post.Url));
+                        shareIntent.PutExtra(Intent.ExtraText, string.Format(AppSettings.User.Chain == KnownChains.Steem ? Constants.SteemPostUrl : Constants.GolosPostUrl, post.Url));
                         StartActivity(Intent.CreateChooser(shareIntent, AppSettings.LocalizationManager.GetText(LocalizationKeys.Sharepost)));
                         break;
                     }
@@ -572,28 +571,7 @@ namespace Steepshot.Fragment
                         OpenPost(post);
                         break;
                     }
-                case ActionType.Preview:
-                    {
-                        if (post == null)
-                            return;
-
-                        var intent = new Intent(Context, typeof(PostPreviewActivity));
-                        intent.PutExtra(PostPreviewActivity.PhotoExtraPath, post.Media[0].Url);
-                        StartActivity(intent);
-                        break;
-                    }
             }
-        }
-
-        private void TagAction(string tag)
-        {
-            if (tag != null)
-            {
-                Activity.Intent.PutExtra(SearchFragment.SearchExtra, tag);
-                ((BaseActivity)Activity).OpenNewContentFragment(new PreSearchFragment());
-            }
-            else
-                _adapter.NotifyDataSetChanged();
         }
 
         private void CloseAction()

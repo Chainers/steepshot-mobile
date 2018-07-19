@@ -28,6 +28,9 @@ namespace Steepshot.iOS.Views
 		UIKit.UISwitch lowRatedSwitch { get; set; }
 
 		[Outlet]
+		UIKit.UIButton notificationSettings { get; set; }
+
+		[Outlet]
 		UIKit.UILabel nsfwLabel { get; set; }
 
 		[Outlet]
@@ -58,6 +61,11 @@ namespace Steepshot.iOS.Views
 			if (addAccountButton != null) {
 				addAccountButton.Dispose ();
 				addAccountButton = null;
+			}
+
+			if (guideButton != null) {
+				guideButton.Dispose ();
+				guideButton = null;
 			}
 
 			if (lowRatedLabel != null) {
@@ -105,9 +113,9 @@ namespace Steepshot.iOS.Views
 				versionLabel = null;
 			}
 
-			if (guideButton != null) {
-				guideButton.Dispose ();
-				guideButton = null;
+			if (notificationSettings != null) {
+				notificationSettings.Dispose ();
+				notificationSettings = null;
 			}
 		}
 	}

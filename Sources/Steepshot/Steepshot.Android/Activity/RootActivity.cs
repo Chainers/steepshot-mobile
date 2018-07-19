@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Android.App;
 using Android.Content;
@@ -8,25 +9,31 @@ using Android.Support.V4.Content;
 using Android.Views;
 using Android.Widget;
 using Com.OneSignal;
-using Com.OneSignal.Abstractions;
 using CheeseBind;
+using Newtonsoft.Json;
 using Refractored.Controls;
 using Square.Picasso;
 using Steepshot.Base;
 using Steepshot.Core.Errors;
-using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Enums;
+using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Presenters;
 using Steepshot.CustomViews;
 using Steepshot.Fragment;
 using Steepshot.Interfaces;
 using Steepshot.Utils;
+using Steepshot.Core.Extensions;
+using Steepshot.Core.Utils;
+using System.Linq;
+using Android;
+using Android.Runtime;
 
 namespace Steepshot.Activity
 {
     [Activity(Label = Core.Constants.Steepshot, ScreenOrientation = ScreenOrientation.Portrait, LaunchMode = LaunchMode.SingleTask)]
     public sealed class RootActivity : BaseActivityWithPresenter<UserProfilePresenter>, IClearable
     {
+        public const string NotificationData = "NotificationData";
         private Adapter.PagerAdapter _adapter;
         private TabLayout.Tab _prevTab;
         private int _tabHeight;
@@ -52,44 +59,61 @@ namespace Steepshot.Activity
             _tabLayout.TabSelected += OnTabLayoutOnTabSelected;
             _tabLayout.TabReselected += OnTabLayoutOnTabReselected;
 
-            if (BasePresenter.User.IsAuthenticated)
-                InitPushes();
+            if (AppSettings.User.IsAuthenticated)
+                OneSignal.Current.IdsAvailable(OneSignalCallback);
         }
 
-        private void InitPushes() => Task.Run(() =>
-                                                    {
-                                                        OneSignal.Current.StartInit("77fa644f-3280-4e87-9f14-1f0c7ddf8ca5")
-                                                        .InFocusDisplaying(OSInFocusDisplayOption.None)
-                                                        .HandleNotificationOpened(OneSignalNotificationOpened)
-                                                        .EndInit();
-                                                        OneSignal.Current.IdsAvailable(OneSignalCallback);
-                                                    });
-
-        private void OneSignalNotificationOpened(OSNotificationOpenedResult result)
+        private async void OneSignalCallback(string playerId, string pushToken)
         {
-            var type = result.notification.payload.additionalData["type"].ToString();
-            var data = result.notification.payload.additionalData["data"].ToString();
-            switch (type)
+            OneSignal.Current.SendTag("username", AppSettings.User.Login);
+            OneSignal.Current.SendTag("player_id", playerId);
+
+            if (AppSettings.User.IsFirstRun || string.IsNullOrEmpty(AppSettings.User.PushesPlayerId) || !AppSettings.User.PushesPlayerId.Equals(playerId))
             {
-                case string upvote when upvote.Equals(PushSubscription.Upvote.GetEnumDescription()):
-                case string commentUpvote when commentUpvote.Equals(PushSubscription.UpvoteComment.GetEnumDescription()):
-                case string comment when comment.Equals(PushSubscription.Comment.GetEnumDescription()):
-                case string userPost when userPost.Equals(PushSubscription.User.GetEnumDescription()):
-                    OpenNewContentFragment(new SinglePostFragment(data));
-                    break;
-                case string follow when follow.Equals(PushSubscription.Follow.GetEnumDescription()):
-                    OpenNewContentFragment(new ProfileFragment(data));
-                    break;
+                var model = new PushNotificationsModel(AppSettings.User.UserInfo, playerId, true);
+                model.Subscriptions = PushSettings.All.FlagToStringList();
+
+                var response = await BasePresenter.TrySubscribeForPushes(model);
+                if (response.IsSuccess)
+                {
+                    AppSettings.User.PushesPlayerId = playerId;
+                    AppSettings.User.PushSettings = PushSettings.All;
+                }
             }
         }
 
-        private void OneSignalCallback(string playerId, string pushToken)
+        public void HandleNotification(Intent intent)
         {
-            OneSignal.Current.SendTag("username", BasePresenter.User.Login);
-            OneSignal.Current.SendTag("player_id", playerId);
-            if (string.IsNullOrEmpty(BasePresenter.User.PushesPlayerId) || !BasePresenter.User.PushesPlayerId.Equals(playerId))
-                Presenter.TrySubscribeForPushes(PushSubscriptionAction.Subscribe, playerId, new[] { PushSubscription.Upvote, PushSubscription.Follow, PushSubscription.Comment, PushSubscription.UpvoteComment });
-            BasePresenter.User.PushesPlayerId = playerId;
+            var jsonData = intent.GetStringExtra(NotificationData);
+            intent.RemoveExtra(NotificationData);
+            if (jsonData != null)
+            {
+                var data = JsonConvert.DeserializeObject<Dictionary<string, string>>(jsonData);
+                if (data != null)
+                {
+                    var type = data["type"];
+                    var link = data["data"];
+                    switch (type)
+                    {
+                        case string upvote when upvote.Equals(PushSettings.Upvote.GetEnumDescription()):
+                        case string commentUpvote when commentUpvote.Equals(PushSettings.UpvoteComment.GetEnumDescription()):
+                        case string comment when comment.Equals(PushSettings.Comment.GetEnumDescription()):
+                        case string userPost when userPost.Equals(PushSettings.User.GetEnumDescription()):
+                            OpenNewContentFragment(new SinglePostFragment(link));
+                            break;
+                        case string follow when follow.Equals(PushSettings.Follow.GetEnumDescription()):
+                            OpenNewContentFragment(new ProfileFragment(link));
+                            break;
+                    }
+                }
+            }
+        }
+
+        protected override void OnNewIntent(Intent intent)
+        {
+            HandleNotification(intent);
+            HandleLink(intent);
+            base.OnNewIntent(intent);
         }
 
         public override void OpenNewContentFragment(BaseFragment frag)
@@ -101,12 +125,13 @@ namespace Steepshot.Activity
         public override void OnBackPressed()
         {
             CurrentHostFragment = _adapter.GetItem(_viewPager.CurrentItem) as HostFragment;
-            if (CurrentHostFragment != null)
+            var fragments = CurrentHostFragment?.ChildFragmentManager?.Fragments;
+            if (fragments?.Count > 0)
             {
-                var fragments = CurrentHostFragment.ChildFragmentManager.Fragments;
-                if (fragments[fragments.Count - 1] is ICanOpenPost fragment)
-                    if (fragment.ClosePost())
-                        return;
+                var lastFragment = fragments.Last();
+                if (lastFragment is ICanOpenPost openPostFrg && openPostFrg.ClosePost() ||
+                    lastFragment is BaseFragment baseFrg && baseFrg.OnBackPressed())
+                    return;
             }
 
             if (CurrentHostFragment == null || !CurrentHostFragment.HandleBackPressed(SupportFragmentManager))
@@ -129,28 +154,33 @@ namespace Steepshot.Activity
             }
         }
 
+        public override void OnRequestPermissionsResult(int requestCode, string[] permissions, [GeneratedEnum] Permission[] grantResults)
+        {
+            if (requestCode == CommonPermissionsRequestCode && !grantResults.Any(x => x != Permission.Granted))
+            {
+                var intent = new Intent(this, typeof(CameraActivity));
+                StartActivity(intent);
+            }
+            base.OnRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
+
         private void OnTabLayoutOnTabSelected(object sender, TabLayout.TabSelectedEventArgs e)
         {
             if (e.Tab.Position == 2)
             {
-                if (PermissionChecker.CheckSelfPermission(this, Android.Manifest.Permission.Camera) == (int)Permission.Granted
-                    && PermissionChecker.CheckSelfPermission(this, Android.Manifest.Permission.WriteExternalStorage) == (int)Permission.Granted)
+                _prevTab.Select();
+
+                if (!RequestPermissions(CommonPermissionsRequestCode, Manifest.Permission.Camera, Manifest.Permission.ReadExternalStorage, Manifest.Permission.WriteExternalStorage))
                 {
-                    _prevTab.Select();
                     var intent = new Intent(this, typeof(CameraActivity));
                     StartActivity(intent);
-                }
-                else
-                {
-                    //Replace for Permission request
-                    this.ShowAlert(LocalizationKeys.CheckPermission);
                 }
             }
             else
             {
                 SelectTab(e.Tab.Position);
                 _prevTab = e.Tab;
-                BasePresenter.User.SelectedTab = e.Tab.Position;
+                AppSettings.User.SelectedTab = e.Tab.Position;
             }
         }
 
@@ -181,8 +211,8 @@ namespace Steepshot.Activity
                     SetProfileChart(_tabLayout.LayoutParameters.Height);
                 tab.SetIcon(ContextCompat.GetDrawable(this, _adapter.TabIconsInactive[i]));
             }
-            SelectTab(BasePresenter.User.SelectedTab);
-            _prevTab = _tabLayout.GetTabAt(BasePresenter.User.SelectedTab);
+            SelectTab(AppSettings.User.SelectedTab);
+            _prevTab = _tabLayout.GetTabAt(AppSettings.User.SelectedTab);
             _viewPager.OffscreenPageLimit = _adapter.Count - 1;
         }
 
@@ -219,7 +249,7 @@ namespace Steepshot.Activity
         {
             do
             {
-                var error = await Presenter.TryGetUserInfo(BasePresenter.User.Login);
+                var error = await Presenter.TryGetUserInfo(AppSettings.User.Login);
                 if (IsDestroyed)
                     return;
 

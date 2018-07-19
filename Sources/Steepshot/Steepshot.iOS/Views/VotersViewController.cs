@@ -72,17 +72,12 @@ namespace Steepshot.iOS.Views
             NavigationItem.Title = _presenter.VotersType.GetDescription();
         }
 
-        private void GoBack(object sender, EventArgs e)
-        {
-            NavigationController.PopViewController(true);
-        }
-
         private void CellAction(ActionType type, UserFriend user)
         {
             switch (type)
             {
                 case ActionType.Profile:
-                    if (user.Author == BasePresenter.User.Login)
+                    if (user.Author == AppSettings.User.Login)
                         return;
                     var myViewController = new ProfileViewController();
                     myViewController.Username = user.Author;

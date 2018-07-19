@@ -1,108 +1,139 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/root_view"
+<com.daimajia.swipe.SwipeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/comment_swipe"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:clickable="true"
-    android:padding="13dp"
-    android:background="@color/white">
-    <refractored.controls.CircleImageView xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/avatar"
-        android:layout_width="20dp"
-        android:layout_height="20dp"
-        android:src="@drawable/ic_holder" />
-    <TextView
-        android:id="@+id/sender_name"
+    android:layout_height="wrap_content">
+    <LinearLayout
+        android:id="@+id/suboptions"
         android:layout_width="wrap_content"
-        android:layout_height="20dp"
-        android:textColor="@color/rgb15_24_30"
-        android:textSize="14sp"
-        android:layout_toEndOf="@+id/avatar"
-        android:layout_marginStart="9dp"
-        android:gravity="center"
-        android:text="Landon Vargasonis" />
-    <TextView
-        android:id="@+id/time"
-        android:layout_width="wrap_content"
-        android:layout_height="20dp"
-        android:textColor="@color/rgb151_155_158"
-        android:textSize="12sp"
-        android:layout_alignParentRight="true"
-        android:gravity="center"
-        android:text="22 Apr 2017" />
-    <ImageButton
-        android:id="@+id/more"
-        android:layout_width="40dp"
-        android:layout_height="20dp"
-        android:src="@drawable/ic_more"
-        android:background="@android:color/transparent"
-        android:layout_marginStart="9dp"
-        android:gravity="center"
-        android:layout_toLeftOf="@id/time" />
-    <RelativeLayout
-        android:id="@+id/comment_text_layout"
+        android:layout_height="match_parent"
+        android:paddingTop="20dp"
+        android:orientation="horizontal">
+        <ImageButton
+            android:id="@+id/flag_btn"
+            android:layout_width="75dp"
+            android:layout_height="match_parent"
+            android:background="@color/rgb250_250_250"
+            android:src="@drawable/ic_flag" />
+        <ImageButton
+            android:id="@+id/edit_btn"
+            android:layout_width="75dp"
+            android:layout_height="match_parent"
+            android:background="@color/rgb250_250_250"
+            android:src="@drawable/ic_edit" />
+        <ImageButton
+            android:id="@+id/delete_btn"
+            android:layout_width="75dp"
+            android:layout_height="match_parent"
+            android:background="@color/rgb250_250_250"
+            android:src="@drawable/ic_delete" />
+    </LinearLayout>
+    <RelativeLayout xmlns:customAttrs="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/root_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignStart="@id/avatar"
-        android:layout_below="@id/sender_name"
-        android:layout_marginTop="10dp">
-        <ImageButton
-            android:id="@+id/like_btn"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:src="@drawable/ic_new_like"
-            android:background="@android:color/transparent"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true" />
-        <TextView
-            android:layout_toLeftOf="@id/like_btn"
-            android:id="@+id/comment_text"
+        android:clickable="true"
+        android:padding="13dp"
+        android:background="@color/white">
+        <RelativeLayout
+            android:id="@+id/header"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <refractored.controls.CircleImageView
+                android:id="@+id/avatar"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:src="@drawable/ic_holder" />
+            <TextView
+                android:id="@+id/sender_name"
+                android:layout_width="wrap_content"
+                android:layout_height="20dp"
+                android:textColor="@color/rgb15_24_30"
+                android:textSize="14sp"
+                android:layout_toEndOf="@+id/avatar"
+                android:layout_marginLeft="10dp"
+                android:gravity="center"
+                android:layout_centerVertical="true"
+                android:text="Landon Vargasonis" />
+            <TextView
+                android:id="@+id/time"
+                android:layout_width="wrap_content"
+                android:layout_height="20dp"
+                android:textColor="@color/rgb151_155_158"
+                android:textSize="12sp"
+                android:layout_alignParentRight="true"
+                android:gravity="center"
+                android:layout_centerVertical="true"
+                android:text="22 Apr 2017" />
+        </RelativeLayout>
+        <RelativeLayout
+            android:id="@+id/comment_text_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="14sp"
-            android:textColor="@color/rgb15_24_30"
-            android:autoLink="web"
-            android:linksClickable="true"
-            android:text="In using milk for cooking purposes, it should be remembered that being more dense than water, when heated, less steam escapes, and consequently it boils sooner than does water. " />
+            android:layout_alignStart="@id/avatar"
+            android:layout_below="@id/header"
+            android:layout_marginTop="10dp">
+            <ImageButton
+                android:id="@+id/like_btn"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/ic_new_like"
+                android:background="@android:color/transparent"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true" />
+            <Steepshot.CustomViews.ExpandableTextView
+                android:layout_toLeftOf="@id/like_btn"
+                android:id="@+id/comment_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="14sp"
+                android:textColor="@color/rgb15_24_30"
+                customAttrs:urlColor="@color/rgb255_34_5"
+                customAttrs:mentionColor="@color/rgb255_34_5"
+                customAttrs:selectedColor="@color/rgb255_34_5"
+                customAttrs:underlineEnabled="true"
+                customAttrs:linkModes="hashtag|mention|url"
+                android:text="In using milk for cooking purposes, it should be remembered that being more dense than water, when heated, less steam escapes, and consequently it boils sooner than does water. " />
+        </RelativeLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:layout_below="@id/comment_text_layout"
+            android:orientation="horizontal">
+            <TextView
+                android:id="@+id/reply_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:textSize="12sp"
+                android:textColor="@color/rgb151_155_158"
+                android:layout_marginEnd="29dp" />
+            <TextView
+                android:id="@+id/likes"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="12sp"
+                android:textColor="@color/rgb151_155_158"
+                android:clickable="true"
+                android:layout_marginEnd="33dp"
+                android:text="15 Like's" />
+            <TextView
+                android:id="@+id/flags"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="12sp"
+                android:textColor="@color/rgb151_155_158"
+                android:clickable="true"
+                android:layout_marginEnd="33dp"
+                android:text="15 flags" />
+            <TextView
+                android:id="@+id/cost"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="12sp"
+                android:textColor="@color/rgb151_155_158"
+                android:text="$11.04" />
+        </LinearLayout>
     </RelativeLayout>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="2dp"
-        android:layout_below="@id/comment_text_layout"
-        android:orientation="horizontal">
-        <TextView
-            android:id="@+id/reply_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:clickable="true"
-            android:textSize="12sp"
-            android:textColor="@color/rgb151_155_158"
-            android:layout_marginEnd="29dp" />
-        <TextView
-            android:id="@+id/likes"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="12sp"
-            android:textColor="@color/rgb151_155_158"
-            android:clickable="true"
-            android:layout_marginEnd="33dp"
-            android:text="15 Like's" />
-        <TextView
-            android:id="@+id/flags"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="12sp"
-            android:textColor="@color/rgb151_155_158"
-            android:clickable="true"
-            android:layout_marginEnd="33dp"
-            android:text="15 flags" />
-        <TextView
-            android:id="@+id/cost"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="12sp"
-            android:textColor="@color/rgb151_155_158"
-            android:text="$11.04" />
-    </LinearLayout>
-</RelativeLayout>
+</com.daimajia.swipe.SwipeLayout>

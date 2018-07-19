@@ -80,7 +80,7 @@ namespace Steepshot.iOS.Views
             switch (type)
             {
                 case ActionType.Profile:
-                    if (user.Author == BasePresenter.User.Login)
+                    if (user.Author == AppSettings.User.Login)
                         return;
                     var myViewController = new ProfileViewController();
                     myViewController.Username = user.Author;

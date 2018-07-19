@@ -9,27 +9,26 @@ using Steepshot.Core.Localization;
 using System.Net;
 using System.Collections;
 using System.Data;
+using Steepshot.Core.Interfaces;
 
 namespace Steepshot.Core.Presenters
 {
-    public abstract class ListPresenter<T> : BasePresenter, IList<T>
+    public abstract class ListPresenter<T> : BasePresenter, IList<T>, IListPresenter
     {
         private readonly object _sync;
         private CancellationTokenSource _singleTaskCancellationTokenSource;
-
         protected const int ServerMaxCount = 40;
         protected readonly List<T> Items;
         protected string OffsetUrl = string.Empty;
+        public event Action<Status> SourceChanged;
 
         public bool IsLastReaded { get; protected set; }
-        public event Action<Status> SourceChanged;
 
         protected ListPresenter()
         {
             _sync = new object();
             Items = new List<T>();
         }
-
 
         public virtual void Clear(bool isNotify)
         {
@@ -53,7 +52,6 @@ namespace Steepshot.Core.Presenters
                 _singleTaskCancellationTokenSource = null;
             }
         }
-
 
         protected async Task<ErrorBase> RunAsSingleTask(Func<CancellationToken, Task<ErrorBase>> func, bool cancelPrevTask = true)
         {

@@ -9,12 +9,13 @@ using Steepshot.Core.Serializing;
 using System.Linq;
 using Ditch.Core.JsonRpc;
 using Steepshot.Core.Errors;
+using System;
 
 namespace Steepshot.Core.HttpClient
 {
     public class SteepshotApiClient : BaseServerClient
     {
-        private readonly Dictionary<string, Beneficiary[]> _beneficiariesCash;
+        private readonly Dictionary<KnownChains, Beneficiary[]> _beneficiariesCash;
         private readonly object _synk;
 
         private CancellationTokenSource _ctsMain;
@@ -24,7 +25,7 @@ namespace Steepshot.Core.HttpClient
         {
             Gateway = new ApiGateway();
             JsonConverter = new JsonNetConverter();
-            _beneficiariesCash = new Dictionary<string, Beneficiary[]>();
+            _beneficiariesCash = new Dictionary<KnownChains, Beneficiary[]>();
             _synk = new object();
         }
 
@@ -49,7 +50,7 @@ namespace Steepshot.Core.HttpClient
 
             lock (_synk)
             {
-                if (!string.IsNullOrEmpty(Gateway.BaseUrl))
+                if (!string.IsNullOrEmpty(BaseUrl))
                 {
                     _ditchClient.EnableWrite = false;
                     _ctsMain.Cancel();
@@ -61,7 +62,7 @@ namespace Steepshot.Core.HttpClient
                     ? (BaseDitchClient)new SteemClient(JsonConverter)
                     : new GolosClient(JsonConverter);
 
-                Gateway.BaseUrl = sUrl;
+                BaseUrl = sUrl;
                 EnableRead = true;
             }
         }
@@ -82,15 +83,41 @@ namespace Steepshot.Core.HttpClient
             return result;
         }
 
-        public async Task<OperationResult<VoteResponse>> Vote(VoteModel model, CancellationToken ct)
+        public async Task<OperationResult<Post>> Vote(VoteModel model, CancellationToken ct)
         {
             var results = Validate(model);
             if (results.Any())
-                return new OperationResult<VoteResponse>(new ValidationError(results));
+                return new OperationResult<Post>(new ValidationError(results));
 
             var result = await _ditchClient.Vote(model, ct);
+
+            var startDelay = DateTime.Now;
+
             await Trace($"post/@{model.Author}/{model.Permlink}/{model.Type.GetDescription()}", model.Login, result.Error, $"@{model.Author}/{model.Permlink}", ct);
-            return result;
+            if (!result.IsSuccess)
+                return new OperationResult<Post>(result.Error);
+
+            OperationResult<Post> postInfo = null;
+            if (model.IsComment) //TODO: << delete when comment update support will added on backend
+            {
+                postInfo = new OperationResult<Post> { Result = model.Post };
+            }
+            else
+            {
+                var infoModel = new NamedInfoModel($"@{model.Author}/{model.Permlink}")
+                {
+                    Login = model.Login,
+                    ShowLowRated = true,
+                    ShowNsfw = true
+                };
+                postInfo = await GetPostInfo(infoModel, ct);
+            }
+
+            var delay = (int)(model.VoteDelay - (DateTime.Now - startDelay).TotalMilliseconds);
+            if (delay > 100)
+                await Task.Delay(delay, ct);
+
+            return postInfo;
         }
 
         public async Task<OperationResult<VoidResponse>> Follow(FollowModel model, CancellationToken ct)
@@ -112,7 +139,7 @@ namespace Steepshot.Core.HttpClient
 
             if (!model.IsEditMode)
             {
-                var bKey = $"{_ditchClient.GetType()}";
+                var bKey = _ditchClient.Chain;
                 if (_beneficiariesCash.ContainsKey(bKey))
                 {
                     model.Beneficiaries = _beneficiariesCash[bKey];
@@ -172,7 +199,7 @@ namespace Steepshot.Core.HttpClient
 
             model.VerifyTransaction = JsonConverter.Serialize(trxResp.Result);
 
-            var endpoint = $"{GatewayVersion.V1P1}/media/upload";
+            var endpoint = $"{BaseUrl}/{GatewayVersion.V1P1}/media/upload";
             return await Gateway.UploadMedia(endpoint, model, ct);
         }
 
@@ -221,7 +248,7 @@ namespace Steepshot.Core.HttpClient
             if (results.Any())
                 return new OperationResult<object>(new ValidationError(results));
 
-            var endpoint = $"{GatewayVersion.V1P1}/{(model.Subscribe ? "subscribe" : "unsubscribe")}";
+            var endpoint = $"{BaseUrl}/{GatewayVersion.V1P1}/{(model.Subscribe ? "subscribe" : "unsubscribe")}";
 
             return await Gateway.Post<object, PushNotificationsModel>(endpoint, model, ct);
         }

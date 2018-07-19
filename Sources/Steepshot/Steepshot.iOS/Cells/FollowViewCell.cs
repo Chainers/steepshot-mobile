@@ -1,12 +1,12 @@
 ﻿using System;
-using FFImageLoading;
 using FFImageLoading.Work;
 using Foundation;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
-using Steepshot.Core.Presenters;
+using Steepshot.Core.Utils;
 using UIKit;
 using Constants = Steepshot.iOS.Helpers.Constants;
+using Steepshot.iOS.Helpers;
 
 namespace Steepshot.iOS.Cells
 {
@@ -70,14 +70,7 @@ namespace Steepshot.iOS.Cells
             _currentUser = user;
             _scheduledWorkAvatar?.Cancel();
             if (!string.IsNullOrEmpty(_currentUser.Avatar))
-            {
-                _scheduledWorkAvatar = ImageService.Instance.LoadUrl(_currentUser.Avatar, TimeSpan.FromDays(30))
-                                                   .FadeAnimation(false, false, 0)
-                                                   .LoadingPlaceholder("ic_noavatar.png")
-                                                   .ErrorPlaceholder("ic_noavatar.png")
-                                                   .DownSample(200)
-                                                   .Into(avatar);
-            }
+                _scheduledWorkAvatar = ImageLoader.Load(_currentUser.Avatar, avatar, placeHolder: "ic_noavatar.png");
             else
                 avatar.Image = UIImage.FromBundle("ic_noavatar");
 
@@ -89,7 +82,7 @@ namespace Steepshot.iOS.Cells
 
         private void DecorateFollowButton()
         {
-            if(!BasePresenter.User.IsAuthenticated || _currentUser.Author == BasePresenter.User.Login)
+            if(!AppSettings.User.IsAuthenticated || _currentUser.Author == AppSettings.User.Login)
             {
                 followButton.Hidden = true;
                 return;

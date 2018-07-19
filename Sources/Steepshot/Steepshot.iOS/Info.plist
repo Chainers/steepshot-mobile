@@ -11,7 +11,7 @@
 	<key>CFBundleIdentifier</key>
 	<string>com.chainartsoft.Steepshot</string>
 	<key>CFBundleShortVersionString</key>
-	<string>0.2.0</string>
+	<string>0.3.1</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>MinimumOSVersion</key>
@@ -33,12 +33,13 @@
 	<key>XSAppIconAssets</key>
 	<string>Assets.xcassets/AppIcon.appiconset</string>
 	<key>CFBundleVersion</key>
-	<string>55.0.0</string>
+	<string>58.0.0</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>Fonts/OpenSans-Regular.ttf</string>
 		<string>Fonts/OpenSans-Semibold.ttf</string>
 		<string>Fonts/OpenSans-Light.ttf</string>
+		<string>Fonts/OpenSans-Bold.ttf</string>
 	</array>
 	<key>CFBundleURLTypes</key>
 	<array>
@@ -55,5 +56,9 @@
 	</array>
 	<key>UIStatusBarStyle</key>
 	<string>UIStatusBarStyleLightContent</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>remote-notification</string>
+	</array>
 </dict>
 </plist>

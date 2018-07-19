@@ -10,6 +10,7 @@ using Steepshot.Core.Localization;
 using Steepshot.Core.Utils;
 using PureLayout.Net;
 using Steepshot.iOS.Helpers;
+using Steepshot.iOS.Views;
 
 namespace Steepshot.iOS.ViewControllers
 {
@@ -17,8 +18,8 @@ namespace Steepshot.iOS.ViewControllers
     {
         private static readonly CultureInfo CultureInfo = CultureInfo.InvariantCulture;
 
-        public static string Tos => BasePresenter.User.IsDev ? "https://qa.steepshot.org/terms-of-service" : "https://steepshot.org/terms-of-service";
-        public static string Pp => BasePresenter.User.IsDev ? "https://qa.steepshot.org/privacy-policy" : "https://steepshot.org/privacy-policy";
+        public static string Tos => AppSettings.User.IsDev ? "https://qa.steepshot.org/terms-of-service" : "https://steepshot.org/terms-of-service";
+        public static string Pp => AppSettings.User.IsDev ? "https://qa.steepshot.org/privacy-policy" : "https://steepshot.org/privacy-policy";
 
         protected UIView Activeview;
         protected nfloat ScrollAmount = 0.0f;
@@ -32,8 +33,21 @@ namespace Steepshot.iOS.ViewControllers
         private static readonly nfloat _alertWidth = 270;
 
         public static bool ShouldProfileUpdate { get; set; }
-        public static Action CloseSliderAction;
-        public static bool IsSliderOpen;
+        public static Action<bool> SliderAction;
+        private static bool _isSliderOpen;
+
+        public static bool IsSliderOpen
+        {
+            get
+            {
+                return _isSliderOpen;
+            }
+            set
+            {
+                SliderAction?.Invoke(value);
+                _isSliderOpen = value;
+            }
+        }
 
         public override void ViewDidAppear(bool animated)
         {
@@ -222,7 +236,7 @@ namespace Steepshot.iOS.ViewControllers
             });
         }
 
-        protected void ShowAlert(ErrorBase error)
+        protected void ShowAlert(ErrorBase error, Action<UIAlertAction> okAction = null)
         {
             if (error == null || error is CanceledError)
                 return;
@@ -246,7 +260,7 @@ namespace Steepshot.iOS.ViewControllers
             }
 
             var alert = UIAlertController.Create(null, lm.GetText(message), UIAlertControllerStyle.Alert);
-            alert.AddAction(UIAlertAction.Create(lm.GetText(LocalizationKeys.Ok), UIAlertActionStyle.Cancel, null));
+            alert.AddAction(UIAlertAction.Create(lm.GetText(LocalizationKeys.Ok), UIAlertActionStyle.Cancel, okAction));
             PresentViewController(alert, true, null);
         }
 
@@ -277,6 +291,13 @@ namespace Steepshot.iOS.ViewControllers
             alert.AddAction(UIAlertAction.Create(lm.GetText(leftButtonText), UIAlertActionStyle.Cancel, leftButtonAction));
             alert.AddAction(UIAlertAction.Create(lm.GetText(rightButtonText), UIAlertActionStyle.Default, rightButtonAction));
             PresentViewController(alert, true, null);
+        }
+
+        protected void TagAction(string tag)
+        {
+            var myViewController = new PreSearchViewController();
+            myViewController.CurrentPostCategory = tag;
+            NavigationController.PushViewController(myViewController, true);
         }
     }
 

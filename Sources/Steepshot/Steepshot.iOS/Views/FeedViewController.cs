@@ -12,6 +12,7 @@ using Steepshot.iOS.ViewSources;
 using UIKit;
 using CoreGraphics;
 using Steepshot.Core.Errors;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.iOS.Views
 {
@@ -24,13 +25,7 @@ namespace Steepshot.iOS.Views
         private bool _isFeedRefreshing;
         private SliderCollectionViewFlowDelegate _sliderGridDelegate;
 
-        protected override void CreatePresenter()
-        {
-            _presenter = new FeedPresenter();
-            _presenter.SourceChanged += SourceChanged;
-        }
-
-        private void SourceChanged(Status status)
+        protected override void SourceChanged(Status status)
         {
             if (!feedCollection.Hidden)
             {
@@ -71,8 +66,6 @@ namespace Steepshot.iOS.Views
             feedCollection.Source = _collectionViewSource;
             feedCollection.RegisterClassForCell(typeof(NewFeedCollectionViewCell), nameof(NewFeedCollectionViewCell));
             feedCollection.RegisterClassForCell(typeof(LoaderCollectionCell), nameof(LoaderCollectionCell));
-            feedCollection.RegisterClassForCell(typeof(FeedCollectionViewCell), nameof(FeedCollectionViewCell));
-            feedCollection.RegisterNibForCell(UINib.FromName(nameof(FeedCollectionViewCell), NSBundle.MainBundle), nameof(FeedCollectionViewCell));
             feedCollection.Add(_refreshControl);
             feedCollection.Delegate = _gridDelegate;
             feedCollection.DelaysContentTouches = false;
@@ -103,9 +96,15 @@ namespace Steepshot.iOS.Views
             _sliderCollectionViewSource.TagAction += TagAction;
             sliderCollection.Delegate = _sliderGridDelegate;
 
+            SliderAction += (isOpening) =>
+            {
+                if (!sliderCollection.Hidden)
+                    sliderCollection.ScrollEnabled = !isOpening;
+            };
+
             if (TabBarController != null)
             {
-                TabBarController.NavigationController.NavigationBar.TintColor = Helpers.Constants.R15G24B30;
+                TabBarController.NavigationController.NavigationBar.TintColor = Constants.R15G24B30;
                 TabBarController.NavigationController.NavigationBar.BarTintColor = UIColor.White;
                 TabBarController.NavigationController.SetNavigationBarHidden(true, false);
             }
@@ -135,7 +134,7 @@ namespace Steepshot.iOS.Views
             switch (type)
             {
                 case ActionType.Profile:
-                    if (post.Author == BasePresenter.User.Login)
+                    if (post.Author == AppSettings.User.Login)
                         return;
                     var myViewController = new ProfileViewController();
                     myViewController.Username = post.Author;
@@ -143,7 +142,6 @@ namespace Steepshot.iOS.Views
                     break;
                 case ActionType.Preview:
                     if (feedCollection.Hidden)
-                        //NavigationController.PushViewController(new PostViewController(post, _gridDelegate.Variables[_presenter.IndexOf(post)], _presenter), false);
                         NavigationController.PushViewController(new ImagePreviewViewController(post.Body) { HidesBottomBarWhenPushed = true }, true);
                     else
                     {

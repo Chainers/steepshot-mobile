@@ -4,4 +4,21 @@
     <attr name="votingPower" format="float"/>
     <attr name="votingPowerWidth" format="dimension"/>
   </declare-styleable>
+  <declare-styleable name="AutoLinkTextView">
+    <attr name="android:text"/>
+    <attr name="underlineEnabled" format="boolean"/>
+    <attr name="hashtagColor" format="color"/>
+    <attr name="mentionColor" format="color"/>
+    <attr name="phoneColor" format="color"/>
+    <attr name="emailColor" format="color"/>
+    <attr name="urlColor" format="color"/>
+    <attr name="selectedColor" format="color"/>
+    <attr name="linkModes">
+      <flag name="hashtag" value="1"/>
+      <flag name="mention" value="2"/>
+      <flag name="phone" value="4"/>
+      <flag name="email" value="8"/>
+      <flag name="url" value="16"/>
+    </attr>
+  </declare-styleable>
 </resources>

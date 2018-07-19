@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Threading.Tasks;
 using Steepshot.Core.Errors;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Presenters;
@@ -21,11 +23,17 @@ namespace Steepshot.Core.Facades
             if (!string.IsNullOrEmpty(query) && (query.Length == 1 || (query.Length == 2 && searchType == SearchType.People)) || string.IsNullOrEmpty(query) && searchType == SearchType.People)
             {
                 if (searchType == SearchType.Tags)
+                {
                     TagsPresenter.NotifySourceChanged(nameof(TrySearchCategories), true);
+                    TagsPresenter.TasksCancel(false);
+                }
                 else
+                {
                     UserFriendPresenter.NotifySourceChanged(nameof(TrySearchCategories), true);
-
-                return null;
+                    UserFriendPresenter.TasksCancel(false);
+                }
+                
+                return new ValidationError();
             }
 
             if (string.IsNullOrEmpty(query))

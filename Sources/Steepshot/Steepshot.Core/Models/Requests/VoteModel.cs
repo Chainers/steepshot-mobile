@@ -9,19 +9,25 @@ namespace Steepshot.Core.Models.Requests
     [JsonObject(MemberSerialization.OptIn)]
     public class VoteModel : AuthorizedModel
     {
-        public readonly string Permlink;
+        public Post Post { get; }
 
-        public readonly string Author;
+        public string Permlink => Post.Permlink;
+
+        public string Author => Post.Author;
+
+        public bool IsComment => Post.IsComment;
 
         [JsonProperty]
         [Required]
         public VoteType Type { get; }
 
+
+        public int VoteDelay { get; set; } = 3000;
+
         public VoteModel(UserInfo user, Post post, VoteType type) : base(user)
         {
+            Post = post;
             Type = type;
-            Author = post.Author;
-            Permlink = post.Permlink;
         }
     }
 }

@@ -4,8 +4,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white">
-    <include
-        layout="@layout/top_panel" />
     <FrameLayout
         android:id="@+id/single_post"
         android:layout_below="@id/top_panel"

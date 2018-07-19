@@ -8,47 +8,45 @@ using UIKit;
 
 namespace Steepshot.iOS.ViewSources
 {
-    public class TagsTableViewSource : UITableViewSource
+    public class TagsTableViewSource : BaseUITableViewSource
     {
         private readonly string _cellIdentifier = nameof(TagTableViewCell);
-        private readonly TagsPresenter _presenter;
         private readonly TagPickerFacade _tagPickerFacade;
         public Action<ActionType, string> CellAction;
+        private bool _hidePlus;
 
-        public TagsTableViewSource(TagPickerFacade tagPickerFacade)
+        public TagsTableViewSource(TagsPresenter presenter, UITableView tableView, bool hidePlus = false) : base(presenter, tableView)
         {
-            _tagPickerFacade = tagPickerFacade;
-        }
-
-        public TagsTableViewSource(TagsPresenter presenter)
-        {
-            _presenter = presenter;
+            _hidePlus = hidePlus;
         }
 
         public override UITableViewCell GetCell(UITableView tableView, NSIndexPath indexPath)
         {
-            var cell = (TagTableViewCell)tableView.DequeueReusableCell(_cellIdentifier, indexPath);
+            var cell = tableView.DequeueReusableCell(_cellIdentifier, indexPath);
 
-            if (!cell.IsCellActionSet)
-                cell.CellAction += CellAction;
+            if (!((TagTableViewCell)cell).IsCellActionSet)
+            {
+                ((TagTableViewCell)cell).CellAction += CellAction;
+                ((TagTableViewCell)cell).HidePlus = _hidePlus;
+            }
 
-            var tag = _presenter != null
-                ? _presenter[indexPath.Row].Name
+            var tag = Presenter != null
+                ? ((TagsPresenter)Presenter)[indexPath.Row].Name
                 : _tagPickerFacade[indexPath.Row];
 
-            cell.UpdateCell(tag);
+            ((TagTableViewCell)cell).UpdateCell(tag);
             return cell;
         }
 
         public override nint RowsInSection(UITableView tableview, nint section)
         {
-            return _presenter != null ? _presenter.Count : _tagPickerFacade.Count;
+            return Presenter != null ? Presenter.Count : _tagPickerFacade.Count;
         }
 
         public NSIndexPath IndexOfTag(string tag)
         {
-            var index = _presenter != null
-                ? _presenter.FindIndex(t => t.Name == tag)
+            var index = Presenter != null
+                ? ((TagsPresenter)Presenter).FindIndex(t => t.Name == tag)
                 : _tagPickerFacade.IndexOf(tag);
             if (index == -1)
                 return null;

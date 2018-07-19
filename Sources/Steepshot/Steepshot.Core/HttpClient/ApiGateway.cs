@@ -25,7 +25,6 @@ namespace Steepshot.Core.HttpClient
 
 
         private readonly System.Net.Http.HttpClient _client;
-        public string BaseUrl { get; set; }
 
         public ApiGateway()
         {
@@ -36,25 +35,26 @@ namespace Steepshot.Core.HttpClient
             };
         }
 
-        public async Task<OperationResult<T>> Get<T>(string endpoint, Dictionary<string, object> parameters, CancellationToken token)
+        public async Task<OperationResult<T>> Get<T>(string endpoint, Dictionary<string, object> parameters,
+            CancellationToken token)
         {
             var param = string.Empty;
             if (parameters != null && parameters.Count > 0)
                 param = "?" + string.Join("&", parameters.Select(i => $"{i.Key}={i.Value}"));
 
-            var url = $"{BaseUrl}/{endpoint}{param}";
+            var url = $"{endpoint}{param}";
             var response = await _client.GetAsync(url, token);
             return await CreateResult<T>(response, token);
         }
 
-        public async Task<OperationResult<T>> Get<T>(string endpoint, CancellationToken token)
+        public async Task<OperationResult<T>> Get<T>(string url, CancellationToken token)
         {
-            var url = $"{BaseUrl}/{endpoint}";
             var response = await _client.GetAsync(url, token);
             return await CreateResult<T>(response, token);
         }
 
-        public async Task<OperationResult<T>> Post<T>(string endpoint, Dictionary<string, object> parameters, CancellationToken token)
+        public async Task<OperationResult<T>> Post<T>(string url, Dictionary<string, object> parameters,
+            CancellationToken token)
         {
             HttpContent content = null;
             if (parameters != null && parameters.Count > 0)
@@ -63,12 +63,11 @@ namespace Steepshot.Core.HttpClient
                 content = new StringContent(param, Encoding.UTF8, "application/json");
             }
 
-            var url = $"{BaseUrl}/{endpoint}";
             var response = await _client.PostAsync(url, content, token);
             return await CreateResult<T>(response, token);
         }
 
-        public async Task<OperationResult<T>> Post<T, TData>(string endpoint, TData data, CancellationToken token)
+        public async Task<OperationResult<T>> Post<T, TData>(string url, TData data, CancellationToken token)
         {
             HttpContent content = null;
             if (data != null)
@@ -77,12 +76,12 @@ namespace Steepshot.Core.HttpClient
                 content = new StringContent(param, Encoding.UTF8, "application/json");
             }
 
-            var url = $"{BaseUrl}/{endpoint}";
             var response = await _client.PostAsync(url, content, token);
             return await CreateResult<T>(response, token);
         }
 
-        public async Task<OperationResult<MediaModel>> UploadMedia(string endpoint, UploadMediaModel model, CancellationToken token)
+        public async Task<OperationResult<MediaModel>> UploadMedia(string url, UploadMediaModel model,
+            CancellationToken token)
         {
             var fTitle = Guid.NewGuid().ToString();
 
@@ -95,7 +94,6 @@ namespace Steepshot.Core.HttpClient
                 {new StringContent(model.GenerateThumbnail.ToString()), "generate_thumbnail"}
             };
 
-            var url = $"{BaseUrl}/{endpoint}";
             var response = await _client.PostAsync(url, multiContent, token);
             var result = await CreateResult<MediaModel>(response, token);
 
@@ -119,7 +117,8 @@ namespace Steepshot.Core.HttpClient
             return await CreateResult<NsfwRate>(response, token);
         }
 
-        protected virtual async Task<OperationResult<T>> CreateResult<T>(HttpResponseMessage response, CancellationToken ct)
+        protected virtual async Task<OperationResult<T>> CreateResult<T>(HttpResponseMessage response,
+            CancellationToken ct)
         {
             var result = new OperationResult<T>();
 
@@ -140,14 +139,20 @@ namespace Steepshot.Core.HttpClient
 
             if (mediaType != null)
             {
-                if (mediaType.Equals("application/json"))
+                switch (mediaType)
                 {
-                    var content = await response.Content.ReadAsStringAsync();
-                    result.Result = JsonNetConverter.Deserialize<T>(content);
-                }
-                else
-                {
-                    result.Error = new AppError(LocalizationKeys.UnsupportedMime);
+                    case "text/plain":
+                    case "application/json":
+                        {
+                            var content = await response.Content.ReadAsStringAsync();
+                            result.Result = JsonNetConverter.Deserialize<T>(content);
+                            break;
+                        }
+                    default:
+                        {
+                            result.Error = new AppError(LocalizationKeys.UnsupportedMime);
+                            break;
+                        }
                 }
             }
 

@@ -9,5 +9,9 @@ namespace Steepshot.Core.Errors
         public ValidationError(List<ValidationResult> results) : base(results.FirstOrDefault()?.ErrorMessage)
         {
         }
+
+        public ValidationError() : base(string.Empty)
+        {
+        }
     }
 }

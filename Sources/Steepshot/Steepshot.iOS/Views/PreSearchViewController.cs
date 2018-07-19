@@ -8,6 +8,7 @@ using Steepshot.Core.Models;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Presenters;
+using Steepshot.Core.Utils;
 using Steepshot.iOS.Cells;
 using Steepshot.iOS.Helpers;
 using Steepshot.iOS.ViewControllers;
@@ -88,7 +89,13 @@ namespace Steepshot.iOS.Views
             collectionView.Delegate = _gridDelegate;
             sliderCollection.Delegate = _sliderGridDelegate;
 
-            if (!BasePresenter.User.IsAuthenticated && CurrentPostCategory == null)
+            SliderAction += (isOpening) =>
+            {
+                if (!sliderCollection.Hidden)
+                    sliderCollection.ScrollEnabled = !isOpening;
+            };
+
+            if (!AppSettings.User.IsAuthenticated && CurrentPostCategory == null)
             {
                 loginButton.Hidden = false;
                 loginButton.Layer.CornerRadius = 25;
@@ -116,7 +123,7 @@ namespace Steepshot.iOS.Views
 
             var searchTap = new UITapGestureRecognizer(SearchTapped);
             searchButton.AddGestureRecognizer(searchTap);
-            if(TabBarController != null)
+            if (TabBarController != null)
                 ((MainTabBarController)TabBarController).SameTabTapped += SameTabTapped;
 
             GetPosts();
@@ -146,7 +153,7 @@ namespace Steepshot.iOS.Views
             }
             else
             {
-                if(DeviceModel.Model(DeviceHardware.HardwareModel) == "iPhone10,6")
+                if (DeviceModel.Model(DeviceHardware.HardwareModel) == "iPhone10,6")
                     sliderCollectionOffset.Constant = 35;
                 NavigationController.SetNavigationBarHidden(true, false);
             }
@@ -197,14 +204,14 @@ namespace Steepshot.iOS.Views
             switch (type)
             {
                 case ActionType.Profile:
-                    if (post.Author == BasePresenter.User.Login)
+                    if (post.Author == AppSettings.User.Login)
                         return;
                     var myViewController = new ProfileViewController();
                     myViewController.Username = post.Author;
                     NavigationController.PushViewController(myViewController, true);
                     break;
                 case ActionType.Preview:
-                    if(collectionView.Hidden)
+                    if (collectionView.Hidden)
                         //NavigationController.PushViewController(new PostViewController(post, _gridDelegate.Variables[_presenter.IndexOf(post)], _presenter), false);
                         NavigationController.PushViewController(new ImagePreviewViewController(post.Body) { HidesBottomBarWhenPushed = true }, true);
                     else
@@ -326,7 +333,7 @@ namespace Steepshot.iOS.Views
             NavigationController.PushViewController(myViewController, true);
         }
 
-        private void SourceChanged(Status status)
+        protected override void SourceChanged(Status status)
         {
             if (!collectionView.Hidden)
             {

@@ -21,12 +21,22 @@
                 android:layout_height="30dp"
                 android:src="@drawable/ic_holder" />
         </LinearLayout>
+        <ImageButton
+            android:id="@+id/more"
+            android:layout_width="40dp"
+            android:layout_height="match_parent"
+            android:layout_alignParentRight="true"
+            android:background="@android:color/transparent"
+            android:src="@drawable/ic_more"
+            android:layout_marginRight="10dp"
+            android:layout_centerHorizontal="true" />
         <RelativeLayout
             android:id="@+id/text_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
             android:layout_toRightOf="@id/avatar_container"
+            android:layout_toLeftOf="@id/more"
             android:layout_centerVertical="true">
             <TextView
                 android:id="@+id/author_name"
@@ -48,15 +58,6 @@
                 android:maxLines="1"
                 android:text="34 min ago" />
         </RelativeLayout>
-        <ImageButton
-            android:id="@+id/more"
-            android:layout_width="40dp"
-            android:layout_height="match_parent"
-            android:layout_alignParentRight="true"
-            android:background="@android:color/transparent"
-            android:src="@drawable/ic_more"
-            android:layout_marginRight="10dp"
-            android:layout_centerHorizontal="true" />
     </RelativeLayout>
     <RelativeLayout
         android:id="@+id/photos_container"
@@ -168,12 +169,9 @@
         android:layout_below="@id/photos_container"
         android:layout_width="match_parent"
         android:layout_height="60dp"
-        android:layout_marginTop="-10dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
+        android:layout_marginTop="-5dp"
         android:gravity="center_vertical"
         android:elevation="2dp"
-        android:clickable="true"
         android:background="@drawable/popup_background"
         android:visibility="gone">
         <TextView
@@ -197,15 +195,18 @@
         <ImageButton
             android:id="@+id/btn_like_scale"
             android:background="@android:color/transparent"
+          android:focusable="false"
+          android:focusableInTouchMode="false"
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:scaleType="center"
             android:src="@drawable/ic_new_like_selected"
-            android:layout_marginRight="10dp"
+            android:layout_marginRight="20dp"
             android:layout_centerVertical="true"
             android:layout_alignParentRight="true" />
         <Steepshot.CustomViews.LikeScaleBar
             android:id="@+id/like_scale"
+            android:layout_marginRight="15dp"
             android:layout_toRightOf="@id/separator"
             android:layout_toLeftOf="@id/btn_like_scale"
             android:layout_width="match_parent"

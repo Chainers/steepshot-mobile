@@ -11,13 +11,14 @@ using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Services;
 using Steepshot.Core.Localization;
+using Steepshot.Core.Models.Requests;
 
 namespace Steepshot.Core.Presenters
 {
     public abstract class BasePresenter
     {
         private static readonly CultureInfo CultureInfo;
-        protected static readonly SteepshotApiClient Api;
+        public static readonly SteepshotApiClient Api;
         private static readonly Timer LazyLoadTimer;
         private static readonly object CtsSync;
         private static CancellationTokenSource _reconecTokenSource;
@@ -27,7 +28,7 @@ namespace Steepshot.Core.Presenters
 
         public static ProfileUpdateType ProfileUpdateType = ProfileUpdateType.None;
         public static event Action<LocalizationKeys> OnAllert;
-        public static readonly User User;
+
 
         public static IConnectionService ConnectionService => _connectionService ?? (_connectionService = AppSettings.ConnectionService);
 
@@ -35,8 +36,6 @@ namespace Steepshot.Core.Presenters
         {
             get
             {
-                if (AppSettings.AppInfo.GetPlatform() == "iOS")
-                    return "SBD";
                 return Chain == KnownChains.Steem ? "$" : "₽";
             }
         }
@@ -48,9 +47,8 @@ namespace Steepshot.Core.Presenters
         {
             CtsSync = new object();
             CultureInfo = CultureInfo.InvariantCulture;
-            User = new User();
-            User.Load();
-            Chain = User.Chain;
+
+            Chain = AppSettings.User.Chain;
 
             Api = new SteepshotApiClient();
 
@@ -69,11 +67,11 @@ namespace Steepshot.Core.Presenters
             var ts = GetReconectToken();
             TryRunTask(TryСonect, ts);
             // static constructor initialization.
-            var init = new Secp256k1Manager();
-            UpdateLocalizationAsync();
+            var init = new Secp256K1Manager();
+            AppSettings.LocalizationManager.Update(Api.Gateway);
             LazyLoadTimer.Dispose();
         }
-
+      
         private static async Task UpdateLocalizationAsync()
         {
             try
@@ -91,11 +89,12 @@ namespace Steepshot.Core.Presenters
                 //TODO: Send Warn
             }
         }
-
+      
         private static Task<ErrorBase> TryСonect(CancellationToken token)
         {
             return Task.Run(async () =>
             {
+                await AppSettings.ConfigManager.Update(Api.Gateway, Chain, token);
                 do
                 {
                     token.ThrowIfCancellationRequested();
@@ -130,7 +129,7 @@ namespace Steepshot.Core.Presenters
             if (Chain == userInfo.Chain)
                 return;
 
-            User.SwitchUser(userInfo);
+            AppSettings.User.SwitchUser(userInfo);
 
             Chain = userInfo.Chain;
 
@@ -171,6 +170,13 @@ namespace Steepshot.Core.Presenters
 
             return ts;
         }
+
+
+        public static async Task<OperationResult<object>> TrySubscribeForPushes(PushNotificationsModel model)
+        {
+            return await TryRunTask<PushNotificationsModel, object>(Api.SubscribeForPushes, CancellationToken.None, model);
+        }
+
 
         #region TryRunTask
 

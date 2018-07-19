@@ -14,11 +14,6 @@ namespace Steepshot.iOS.Views
 {
     public partial class LoginViewController : BaseViewControllerWithPresenter<SignInPresenter>
     {
-        protected override void CreatePresenter()
-        {
-            _presenter = new SignInPresenter();
-        }
-
         public string AvatarLink { get; set; }
         public string Username { get; set; }
 
@@ -78,11 +73,6 @@ namespace Steepshot.iOS.Views
             NavigationItem.Title = AppSettings.LocalizationManager.GetText(LocalizationKeys.PasswordViewTitleText);
         }
 
-        private void GoBack(object sender, EventArgs e)
-        {
-            NavigationController.PopViewController(true);
-        }
-
         private void EyeButtonTouch(object sender, EventArgs e)
         {
             password.SecureTextEntry = !password.SecureTextEntry;
@@ -131,7 +121,7 @@ namespace Steepshot.iOS.Views
                 var response = await _presenter.TrySignIn(Username, password.Text);
                 if (response.IsSuccess)
                 {
-                    BasePresenter.User.AddAndSwitchUser(Username, password.Text, BasePresenter.Chain);
+                    AppSettings.User.AddAndSwitchUser(Username, password.Text, BasePresenter.Chain);
 
                     var myViewController = new MainTabBarController();
                     AppDelegate.InitialViewController = myViewController;

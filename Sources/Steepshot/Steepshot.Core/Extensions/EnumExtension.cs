@@ -1,7 +1,10 @@
-﻿using System;
+﻿using Steepshot.Core.Models.Enums;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Serialization;
 
 namespace Steepshot.Core.Extensions
 {
@@ -14,6 +17,36 @@ namespace Steepshot.Core.Extensions
                 .GetCustomAttributes(typeof(DisplayAttribute), false)
                 .SingleOrDefault() as DisplayAttribute;
             return attribute == null ? value.ToString() : attribute.Description;
+        }
+
+        public static List<string> FlagToStringList(this Enum value)
+        {
+            var list = new List<string>();
+            var type = value.GetType();
+            var allFields = type.GetFields();
+
+            foreach (var field in allFields)
+            {
+                if (!field.IsStatic)
+                    continue;
+
+                var en = Enum.Parse(type, field.Name) as Enum;
+                if (!value.HasFlag(en))
+                    continue;
+
+                if (field.GetCustomAttribute(typeof(EnumMemberAttribute), false) is EnumMemberAttribute attribute)
+                    list.Add(attribute.Value);
+            }
+            return list;
+        }
+
+        public static string GetEnumDescription(this Enum value)
+        {
+            var fi = value.GetType().GetField(value.ToString());
+            var attributes = fi.GetCustomAttributes(typeof(EnumMemberAttribute), false);
+            if (attributes.Length > 0)
+                return ((EnumMemberAttribute)attributes[0]).Value;
+            return value.ToString();
         }
     }
 }

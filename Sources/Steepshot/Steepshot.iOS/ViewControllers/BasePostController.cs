@@ -1,22 +1,30 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using CoreGraphics;
 using Foundation;
+using PureLayout.Net;
 using Steepshot.Core.Errors;
 using Steepshot.Core.Localization;
+using Steepshot.Core.Models;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
+using Steepshot.iOS.CustomViews;
+using Steepshot.iOS.Helpers;
 using Steepshot.iOS.Views;
 using UIKit;
 
 namespace Steepshot.iOS.ViewControllers
 {
-    public abstract class BasePostController<T> : BaseViewControllerWithPresenter<T> where T : BasePostPresenter
+    public abstract class BasePostController<T> : BaseViewControllerWithPresenter<T> where T : BasePostPresenter, new()
     {
+        private UIView dialog;
+        private UIButton rightButton;
+
         protected async void Vote(Post post)
         {
-            if (!BasePresenter.User.IsAuthenticated)
+            if (!AppSettings.User.IsAuthenticated)
             {
                 LoginTapped(null, null);
                 return;
@@ -46,11 +54,14 @@ namespace Steepshot.iOS.ViewControllers
             if (actions != null)
                 foreach (var action in actions)
                     actionSheetAlert.AddAction(action);
-            if (post.Author == BasePresenter.User.Login)
+            if (post.Author == AppSettings.User.Login)
             {
-                //for edit and delete
-                //actionSheetAlert.AddAction(UIAlertAction.Create("Edit post", UIAlertActionStyle.Default, null));
-                //actionSheetAlert.AddAction(UIAlertAction.Create("Delete post", UIAlertActionStyle.Default, null));
+                if (post.CashoutTime > post.Created)
+                {
+                    actionSheetAlert.AddAction(UIAlertAction.Create(AppSettings.LocalizationManager.GetText(LocalizationKeys.EditPost), UIAlertActionStyle.Default, obj => EditPost(post)));
+
+                    actionSheetAlert.AddAction(UIAlertAction.Create(AppSettings.LocalizationManager.GetText(LocalizationKeys.DeletePost), UIAlertActionStyle.Default, obj => DeleteAlert(post)));
+                }
             }
             else
             {
@@ -65,15 +76,15 @@ namespace Steepshot.iOS.ViewControllers
 
         protected void HidePhoto(Post post)
         {
-            BasePresenter.User.PostBlackList.Add(post.Url);
-            BasePresenter.User.Save();
+            AppSettings.User.PostBlackList.Add(post.Url);
+            AppSettings.User.Save();
 
             _presenter.HidePost(post);
         }
 
         protected async Task FlagPhoto(Post post)
         {
-            if (!BasePresenter.User.IsAuthenticated)
+            if (!AppSettings.User.IsAuthenticated)
             {
                 LoginTapped(null, null);
                 return;
@@ -104,25 +115,153 @@ namespace Steepshot.iOS.ViewControllers
             PresentViewController(activityController, true, null);
         }
 
-        protected abstract void SameTabTapped();
-
-        protected void GoBack(object sender, EventArgs e)
+        private void DeleteAlert(Post post)
         {
-            NavigationController.PopViewController(true);
+            var titleText = AppSettings.LocalizationManager.GetText(LocalizationKeys.DeleteAlertTitle);
+            var messageText = AppSettings.LocalizationManager.GetText(LocalizationKeys.DeleteAlertMessage);
+            var leftButtonText = AppSettings.LocalizationManager.GetText(LocalizationKeys.Cancel);
+            var rightButtonText = AppSettings.LocalizationManager.GetText(LocalizationKeys.Delete);
+
+            var commonMargin = 20;
+            var dialogWidth = UIScreen.MainScreen.Bounds.Width - 10 * 2;
+
+            dialog = new UIView();
+            dialog.ClipsToBounds = true;
+            dialog.Layer.CornerRadius = 15;
+            dialog.BackgroundColor = UIColor.White;
+
+            dialog.AutoSetDimension(ALDimension.Width, dialogWidth);
+
+            // Title
+
+            var title = new UILabel();
+            title.Lines = 3;
+            title.LineBreakMode = UILineBreakMode.WordWrap;
+            title.UserInteractionEnabled = false;
+            title.Font = Constants.Regular20;
+            title.TextAlignment = UITextAlignment.Center;
+            title.Text = titleText;
+            title.BackgroundColor = UIColor.Clear;
+            dialog.AddSubview(title);
+
+            title.AutoPinEdgeToSuperviewEdge(ALEdge.Top, 24);
+            title.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 10);
+            title.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 10);
+
+            var size = title.SizeThatFits(new CGSize(dialogWidth - commonMargin * 2, 0));
+            title.AutoSetDimension(ALDimension.Height, size.Height);
+
+            // Alert message
+
+            var message = new UILabel();
+            message.Lines = 9;
+            message.LineBreakMode = UILineBreakMode.WordWrap;
+            message.UserInteractionEnabled = false;
+            message.Font = Constants.Regular14;
+            message.TextAlignment = UITextAlignment.Center;
+            message.Text = messageText;
+            message.BackgroundColor = UIColor.Clear;
+            dialog.AddSubview(message);
+
+            message.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, title, 22);
+            message.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 10);
+            message.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 10);
+
+            size = message.SizeThatFits(new CGSize(dialogWidth - commonMargin * 2, 0));
+            message.AutoSetDimension(ALDimension.Height, size.Height);
+
+            // Separator
+
+            var separator = new UIView();
+            separator.BackgroundColor = Constants.R245G245B245;
+            dialog.AddSubview(separator);
+
+            separator.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, message, 26);
+            separator.AutoPinEdgeToSuperviewEdge(ALEdge.Left, commonMargin);
+            separator.AutoPinEdgeToSuperviewEdge(ALEdge.Right, commonMargin);
+            separator.AutoSetDimension(ALDimension.Height, 1);
+
+            var leftButton = CreateButton(leftButtonText, UIColor.Black);
+            leftButton.Font = Constants.Semibold14;
+            leftButton.Layer.BorderWidth = 1;
+            leftButton.Layer.BorderColor = Constants.R245G245B245.CGColor;
+            dialog.AddSubview(leftButton);
+
+            leftButton.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, separator, 20);
+            leftButton.AutoPinEdgeToSuperviewEdge(ALEdge.Left, commonMargin);
+            leftButton.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom, commonMargin);
+            leftButton.AutoSetDimension(ALDimension.Width, dialogWidth / 2 - 27);
+            leftButton.AutoSetDimension(ALDimension.Height, 50);
+
+            rightButton = CreateButton(rightButtonText, UIColor.White);
+            rightButton.Font = Constants.Bold14;
+            dialog.AddSubview(rightButton);
+
+            rightButton.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, separator, 20);
+            rightButton.AutoPinEdge(ALEdge.Left, ALEdge.Right, leftButton, 15);
+            rightButton.AutoPinEdgeToSuperviewEdge(ALEdge.Right, commonMargin);
+            rightButton.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom, commonMargin);
+            rightButton.AutoSetDimension(ALDimension.Width, dialogWidth / 2 - 27);
+            rightButton.AutoSetDimension(ALDimension.Height, 50);
+            rightButton.LayoutIfNeeded();
+
+            NavigationController.View.EndEditing(true);
+
+            var alert = new CustomAlertView(dialog, TabBarController);
+
+            leftButton.TouchDown += (sender, e) => { alert.Hide(); };
+            rightButton.TouchDown += (sender, e) => { DeletePost(post, alert.Hide); };
+
+            Constants.CreateGradient(rightButton, 25);
+            Constants.CreateShadow(rightButton, Constants.R231G72B0, 0.5f, 25, 10, 12);
         }
+
+        private async void DeletePost(Post post, Action action)
+        {
+            action.Invoke();
+
+            var error = await _presenter.TryDeletePost(post);
+
+            if (error != null)
+                ShowAlert(error);
+        }
+
+        private void EditPost(Post post)
+        {
+            var editPostViewController = new PostEditViewController(post);
+            TabBarController.NavigationController.PushViewController(editPostViewController, true);
+        }
+
+        public UIButton CreateButton(string title, UIColor titleColor)
+        {
+            var button = new UIButton();
+            button.SetTitle(title, UIControlState.Normal);
+            button.SetTitleColor(titleColor, UIControlState.Normal);
+            button.Layer.CornerRadius = 25;
+
+            return button;
+        }
+
+        protected abstract void SameTabTapped();
+        protected abstract Task GetPosts(bool shouldStartAnimating = true, bool clearOld = false);
+        protected abstract void SourceChanged(Status status);
 
         protected async void ScrolledToBottom()
         {
             await GetPosts(false, false);
         }
 
-        protected abstract Task GetPosts(bool shouldStartAnimating = true, bool clearOld = false);
-
         protected void TagAction(string tag)
         {
             var myViewController = new PreSearchViewController();
             myViewController.CurrentPostCategory = tag;
             NavigationController.PushViewController(myViewController, true);
+        }
+
+        protected override void CreatePresenter()
+        {
+            _presenter = new T();
+            _presenter.SourceChanged += SourceChanged;
         }
     }
 }

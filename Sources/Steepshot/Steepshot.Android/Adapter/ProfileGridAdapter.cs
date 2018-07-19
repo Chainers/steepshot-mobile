@@ -7,6 +7,7 @@ using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
 using Square.Picasso;
+using Steepshot.Core.Extensions;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Models.Responses;
@@ -76,13 +77,13 @@ namespace Steepshot.Adapter
         }
     }
 
-    public sealed class HeaderViewHolder : RecyclerView.ViewHolder, ITarget
+    public sealed class HeaderViewHolder : RecyclerView.ViewHolder
     {
         private readonly Context _context;
         private readonly TextView _name;
         private readonly TextView _place;
         private readonly TextView _description;
-        private readonly TextView _site;
+        private readonly AutoLinkTextView _site;
         private readonly TextView _photosCount;
         private readonly TextView _photosTitle;
         private readonly TextView _followingCount;
@@ -112,7 +113,7 @@ namespace Steepshot.Adapter
             _name = itemView.FindViewById<TextView>(Resource.Id.profile_name);
             _place = itemView.FindViewById<TextView>(Resource.Id.place);
             _description = itemView.FindViewById<TextView>(Resource.Id.description);
-            _site = itemView.FindViewById<TextView>(Resource.Id.site);
+            _site = itemView.FindViewById<AutoLinkTextView>(Resource.Id.site);
             _photosCount = itemView.FindViewById<TextView>(Resource.Id.photos_count);
             _photosTitle = itemView.FindViewById<TextView>(Resource.Id.photos_title);
             _followingCount = itemView.FindViewById<TextView>(Resource.Id.following_count);
@@ -158,6 +159,14 @@ namespace Steepshot.Adapter
             _balanceContainer.Click += OnBalanceContainerOnClick;
             _followButton.Click += OnFollowButtonOnClick;
             _profileImage.Click += ProfileImageOnClick;
+            _site.LinkClick += LinkClick;
+        }
+
+        private void LinkClick(AutoLinkType type, string url)
+        {
+            var intent = new Intent(Intent.ActionView);
+            intent.SetData(Android.Net.Uri.Parse(url));
+            _context.StartActivity(intent);
         }
 
         private void ProfileImageOnClick(object sender, EventArgs eventArgs)
@@ -196,22 +205,21 @@ namespace Steepshot.Adapter
             _userAvatar = profile.ProfileImage;
             if (!string.IsNullOrEmpty(_userAvatar))
             {
-                Picasso.With(_context).Load(_userAvatar).Placeholder(Resource.Drawable.ic_holder)
+                Picasso.With(_context).Load(_userAvatar.GetProxy(_profileImage.LayoutParameters.Width, _profileImage.LayoutParameters.Height))
+                      .Placeholder(Resource.Drawable.ic_holder)
                       .NoFade()
-                      .Resize(300, 300)
-                      .CenterCrop()
-                      .Into(_profileImage, OnSuccess, OnError);
+                      .Into(_profileImage, null, OnError);
             }
             else
                 Picasso.With(_context).Load(Resource.Drawable.ic_holder).Into(_profileImage);
 
-            if (profile.Username.Equals(BasePresenter.User.Login, StringComparison.OrdinalIgnoreCase))
+            if (profile.Username.Equals(AppSettings.User.Login, StringComparison.OrdinalIgnoreCase))
             {
                 _votingPower.VotingPower = (float)profile.VotingPower;
                 _votingPower.Draw = true;
             }
 
-            if (string.Equals(BasePresenter.User.Login, profile.Username, StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(AppSettings.User.Login, profile.Username, StringComparison.OrdinalIgnoreCase))
             {
                 _followButton.Visibility = ViewStates.Gone;
             }
@@ -255,14 +263,14 @@ namespace Steepshot.Adapter
                 _name.Text = profile.Name;
                 _name.SetTextColor(Style.R15G24B30);
             }
-            else if (!string.Equals(BasePresenter.User.Login, profile.Username, StringComparison.OrdinalIgnoreCase))
+            else if (!string.Equals(AppSettings.User.Login, profile.Username, StringComparison.OrdinalIgnoreCase))
             {
                 _name.Visibility = ViewStates.Gone;
             }
 
             if (!string.IsNullOrEmpty(profile.Location))
                 _place.Text = profile.Location.Trim();
-            else if (!string.Equals(BasePresenter.User.Login, profile.Username, StringComparison.OrdinalIgnoreCase))
+            else if (!string.Equals(AppSettings.User.Login, profile.Username, StringComparison.OrdinalIgnoreCase))
                 _place.Visibility = ViewStates.Gone;
 
             if (!string.IsNullOrEmpty(profile.About))
@@ -270,17 +278,17 @@ namespace Steepshot.Adapter
                 _description.Text = profile.About;
                 _description.SetTextColor(Style.R15G24B30);
             }
-            else if (!string.Equals(BasePresenter.User.Login, profile.Username, StringComparison.OrdinalIgnoreCase))
+            else if (!string.Equals(AppSettings.User.Login, profile.Username, StringComparison.OrdinalIgnoreCase))
             {
                 _description.Visibility = ViewStates.Gone;
             }
 
             if (!string.IsNullOrEmpty(profile.Website))
             {
-                _site.Text = profile.Website;
+                _site.AutoLinkText = profile.Website;
                 _site.SetTextColor(Style.R231G72B00);
             }
-            else if (!string.Equals(BasePresenter.User.Login, profile.Username, StringComparison.OrdinalIgnoreCase))
+            else if (!string.Equals(AppSettings.User.Login, profile.Username, StringComparison.OrdinalIgnoreCase))
             {
                 _site.Visibility = ViewStates.Gone;
             }
@@ -292,26 +300,9 @@ namespace Steepshot.Adapter
             _balance.Text = BasePresenter.ToFormatedCurrencyString(profile.EstimatedBalance);
         }
 
-        public void OnBitmapFailed(Drawable p0)
-        {
-        }
-
-        public void OnBitmapLoaded(Bitmap p0, Picasso.LoadedFrom p1)
-        {
-            _profileImage.SetImageBitmap(p0);
-        }
-
-        public void OnPrepareLoad(Drawable p0)
-        {
-        }
-
-        private void OnSuccess()
-        {
-        }
-
         private void OnError()
         {
-            Picasso.With(_context).Load(_userAvatar).Placeholder(Resource.Drawable.ic_holder).NoFade().Into(this);
+            Picasso.With(_context).Load(_userAvatar).Placeholder(Resource.Drawable.ic_holder).NoFade().Into(_profileImage);
         }
     }
 }

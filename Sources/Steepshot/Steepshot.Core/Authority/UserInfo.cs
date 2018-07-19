@@ -36,11 +36,15 @@ namespace Steepshot.Core.Authority
 
         public short VotePower { get; set; } = 100;
 
-        public List<PushSubscription> PushSubscriptions { get; set; } = new List<PushSubscription> { PushSubscription.Upvote, PushSubscription.UpvoteComment, PushSubscription.Comment, PushSubscription.Follow, PushSubscription.User };
+        public PushSettings PushSettings { get; set; } = PushSettings.All;
 
         public List<string> WatchedUsers { get; set; } = new List<string>();
 
         public string PushesPlayerId { get; set; } = string.Empty;
+
+        public bool IsFirstRun { get; set; } = true;
+
+        public bool ShowVotingSlider { get; set; }
     }
 
     public sealed class Navigation

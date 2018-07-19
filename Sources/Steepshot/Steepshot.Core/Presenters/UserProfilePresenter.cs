@@ -5,6 +5,7 @@ using Steepshot.Core.Errors;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Models.Enums;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Presenters
 {
@@ -29,11 +30,11 @@ namespace Steepshot.Core.Presenters
         {
             var request = new UserPostsModel(UserName)
             {
-                Login = User.Login,
+                Login = AppSettings.User.Login,
                 Offset = OffsetUrl,
                 Limit = string.IsNullOrEmpty(OffsetUrl) ? ItemsLimit : ItemsLimit + 1,
-                ShowNsfw = User.IsNsfw,
-                ShowLowRated = User.IsLowRated
+                ShowNsfw = AppSettings.User.IsNsfw,
+                ShowLowRated = AppSettings.User.IsLowRated
             };
 
             ErrorBase error;
@@ -57,9 +58,9 @@ namespace Steepshot.Core.Presenters
         {
             var req = new UserProfileModel(user)
             {
-                Login = User.Login,
-                ShowNsfw = User.IsNsfw,
-                ShowLowRated = User.IsLowRated
+                Login = AppSettings.User.Login,
+                ShowNsfw = AppSettings.User.IsNsfw,
+                ShowLowRated = AppSettings.User.IsLowRated
             };
             var response = await Api.GetUserProfile(req, ct);
 
@@ -71,7 +72,7 @@ namespace Steepshot.Core.Presenters
             }
             return response.Error;
         }
-
+       
 
         public async Task<ErrorBase> TryFollow()
         {
@@ -91,7 +92,7 @@ namespace Steepshot.Core.Presenters
         private async Task<ErrorBase> Follow(UserProfileResponse userProfileResponse, CancellationToken ct)
         {
             var hasFollowed = userProfileResponse.HasFollowed;
-            var request = new FollowModel(User.UserInfo, hasFollowed ? FollowType.UnFollow : FollowType.Follow, UserName);
+            var request = new FollowModel(AppSettings.User.UserInfo, hasFollowed ? FollowType.UnFollow : FollowType.Follow, UserName);
             var response = await Api.Follow(request, ct);
 
             if (response.IsSuccess)
@@ -125,30 +126,6 @@ namespace Steepshot.Core.Presenters
         private async Task<ErrorBase> UpdateUserProfile(UpdateUserProfileModel model, CancellationToken ct)
         {
             var response = await Api.UpdateUserProfile(model, ct);
-            return response.Error;
-        }
-
-        public async Task<ErrorBase> TrySubscribeForPushes(PushSubscriptionAction action, string playerId, PushSubscription[] subscriptions = null)
-        {
-            var model = new PushNotificationsModel(User.UserInfo, playerId, subscriptions, action == PushSubscriptionAction.Subscribe);
-            return await TrySubscribeForPushes(model);
-        }
-
-        public async Task<ErrorBase> TrySubscribeForPushes(PushSubscriptionAction action, string playerId, string watchedUser)
-        {
-            var model = new PushNotificationsModel(User.UserInfo, playerId, watchedUser, action == PushSubscriptionAction.Subscribe);
-            return await TrySubscribeForPushes(model);
-        }
-
-        private async Task<ErrorBase> TrySubscribeForPushes(PushNotificationsModel model)
-        {
-            var error = await TryRunTask(SubscribeForPushes, OnDisposeCts.Token, model);
-            return error;
-        }
-
-        private async Task<ErrorBase> SubscribeForPushes(PushNotificationsModel model, CancellationToken ct)
-        {
-            var response = await Api.SubscribeForPushes(model, OnDisposeCts.Token);
             return response.Error;
         }
 

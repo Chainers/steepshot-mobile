@@ -11,12 +11,10 @@ using Android.Views;
 using Android.Widget;
 using Apmem;
 using CheeseBind;
-using Cryptography.ECDSA;
 using Steepshot.Activity;
 using Steepshot.Adapter;
 using Steepshot.Base;
 using Steepshot.Core.Errors;
-using Steepshot.Core.Extensions;
 using Steepshot.Core.Facades;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models;
@@ -33,7 +31,7 @@ namespace Steepshot.Fragment
     {
         #region Fields
 
-        protected readonly TimeSpan PostingLimit = TimeSpan.FromMinutes(5);
+        protected TimeSpan PostingLimit;
         protected Timer _timer;
         protected GalleryHorizontalAdapter _galleryAdapter;
         protected SelectedTagsAdapter _localTagsAdapter;
@@ -41,7 +39,7 @@ namespace Steepshot.Fragment
         protected PreparePostModel _model;
         protected string _previousQuery;
         protected TagPickerFacade _tagPickerFacade;
-
+        protected bool isSpammer;
 
 #pragma warning disable 0649, 4014
         [BindView(Resource.Id.btn_back)] protected ImageButton _backButton;
@@ -101,6 +99,7 @@ namespace Steepshot.Fragment
             base.OnViewCreated(view, savedInstanceState);
 
             _tag.Hint = AppSettings.LocalizationManager.GetText(LocalizationKeys.Hashtag);
+            _tag.SetFilters(new IInputFilter[] { new TextInputFilter(TextInputFilter.TagFilter), new InputFilterLengthFilter(40) });
             _tagLabel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Hashtag);
             _title.Hint = AppSettings.LocalizationManager.GetText(LocalizationKeys.EnterPostTitle);
             _description.Hint = AppSettings.LocalizationManager.GetText(LocalizationKeys.EnterPostDescription);
@@ -140,8 +139,7 @@ namespace Steepshot.Fragment
             _rootLayout.Click += OnRootLayoutClick;
 
             _timer = new Timer(OnTimer);
-            _model = new PreparePostModel(BasePresenter.User.UserInfo, AppSettings.AppInfo.GetModel());
-            SetPostingTimer();
+            _model = new PreparePostModel(AppSettings.User.UserInfo, AppSettings.AppInfo.GetModel());
         }
 
         public override void OnDetach()
@@ -162,47 +160,51 @@ namespace Steepshot.Fragment
             });
         }
 
-        protected async void OnPost(object sender, EventArgs e)
+        private async void OnPost(object sender, EventArgs e)
         {
-            _postButton.Enabled = false;
-            _title.Enabled = false;
-            _description.Enabled = false;
-            _tag.Enabled = false;
-            _localTagsAdapter.Enabled = false;
             _postButton.Text = string.Empty;
-            _loadingSpinner.Visibility = ViewStates.Visible;
+            EnablePostAndEdit(false);
+
+            var isConnected = BasePresenter.ConnectionService.IsConnectionAvailable();
+
+            if (!isConnected)
+            {
+                Activity.ShowAlert(LocalizationKeys.InternetUnavailable);
+                EnabledPost();
+                return;
+            }
+
+            if (string.IsNullOrEmpty(_title.Text))
+            {
+                Activity.ShowAlert(LocalizationKeys.EmptyTitleField, ToastLength.Long);
+                EnabledPost();
+                return;
+            }
+
             await OnPostAsync();
         }
 
         protected abstract Task OnPostAsync();
-
-        protected async void SetPostingTimer()
+       
+        protected void EnablePostAndEdit(bool enabled)
         {
-            var timepassed = DateTime.Now - BasePresenter.User.UserInfo.LastPostTime;
-            _postButton.Enabled = false;
-            while (timepassed < PostingLimit)
-            {
-                _postButton.Text = (PostingLimit - timepassed).ToString("mm\\:ss");
-                await Task.Delay(1000);
-                if (!IsInitialized)
-                    return;
-                timepassed = DateTime.Now - BasePresenter.User.UserInfo.LastPostTime;
-            }
-            _postButton.Enabled = true;
-            _postButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PublishButtonText);
+            if (enabled)
+                _loadingSpinner.Visibility = ViewStates.Gone;
+            else
+                _loadingSpinner.Visibility = ViewStates.Visible;
+
+            _postButton.Enabled = enabled;
+            _title.Enabled = enabled;
+            _description.Enabled = enabled;
+            _tag.Enabled = enabled;
+            _localTagsAdapter.Enabled = enabled;
+            _tagLabel.Enabled = enabled;
         }
 
         protected void EnabledPost()
         {
-            _postButton.Enabled = true;
             _postButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PublishButtonText);
-
-            _loadingSpinner.Visibility = ViewStates.Gone;
-
-            _title.Enabled = true;
-            _description.Enabled = true;
-            _tag.Enabled = true;
-            _localTagsAdapter.Enabled = true;
+            EnablePostAndEdit(true);
         }
 
         protected void ForgetAction(object o, DialogClickEventArgs dialogClickEventArgs)
@@ -229,7 +231,7 @@ namespace Steepshot.Fragment
 
             if (resp.IsSuccess)
             {
-                BasePresenter.User.UserInfo.LastPostTime = DateTime.Now;
+                AppSettings.User.UserInfo.LastPostTime = DateTime.Now;
                 EnabledPost();
                 BasePresenter.ProfileUpdateType = ProfileUpdateType.Full;
                 Activity.ShowAlert(LocalizationKeys.PostDelay, ToastLength.Long);
@@ -304,7 +306,6 @@ namespace Steepshot.Fragment
 
         protected bool AddTag(string tag)
         {
-            tag = tag.NormalizeTag();
             tag = tag.Trim();
             if (string.IsNullOrWhiteSpace(tag) || _localTagsAdapter.LocalTags.Count >= 20 || _localTagsAdapter.LocalTags.Any(t => t == tag))
                 return false;
@@ -360,7 +361,6 @@ namespace Steepshot.Fragment
         protected async Task SearchTextChanged()
         {
             var text = _tag.Text;
-            text = text.NormalizeTag();
 
             if (_previousQuery == text || text.Length == 1)
                 return;

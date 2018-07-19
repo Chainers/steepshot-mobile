@@ -4,6 +4,7 @@ using Steepshot.Core.Errors;
 using Steepshot.Core.Extensions;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Enums;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Presenters
 {
@@ -25,11 +26,11 @@ namespace Steepshot.Core.Presenters
         {
             var request = new PostsModel(PostType)
             {
-                Login = User.Login,
+                Login = AppSettings.User.Login,
                 Limit = string.IsNullOrEmpty(OffsetUrl) ? ItemsLimit : ItemsLimit + 1,
                 Offset = OffsetUrl,
-                ShowNsfw = User.IsNsfw,
-                ShowLowRated = User.IsLowRated
+                ShowNsfw = AppSettings.User.IsNsfw,
+                ShowLowRated = AppSettings.User.IsLowRated
             };
 
             ErrorBase error;
@@ -55,11 +56,11 @@ namespace Steepshot.Core.Presenters
         {
             var request = new PostsByCategoryModel(PostType, Tag.TagToEn())
             {
-                Login = User.Login,
+                Login = AppSettings.User.Login,
                 Limit = string.IsNullOrEmpty(OffsetUrl) ? ItemsLimit : ItemsLimit + 1,
                 Offset = OffsetUrl,
-                ShowNsfw = User.IsNsfw,
-                ShowLowRated = User.IsLowRated
+                ShowNsfw = AppSettings.User.IsNsfw,
+                ShowLowRated = AppSettings.User.IsLowRated
             };
 
             ErrorBase error;

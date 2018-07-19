@@ -15,6 +15,7 @@ using CheeseBind;
 using Steepshot.Activity;
 using Steepshot.Adapter;
 using Steepshot.Base;
+using Steepshot.Core;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
@@ -24,6 +25,7 @@ using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Interfaces;
 using Steepshot.Core.Errors;
+using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Utils;
 
 namespace Steepshot.Fragment
@@ -41,7 +43,8 @@ namespace Steepshot.Fragment
         private ProfileSpanSizeLookup _profileSpanSizeLookup;
         private RecyclerView.Adapter _adapter;
         private Dialog _moreActionsDialog;
-        private bool UserIsWatched => BasePresenter.User.WatchedUsers.Contains(_profileId);
+        private bool isSubscribed;
+        private bool isSubscription;
 
 #pragma warning disable 0649, 4014
         [BindView(Resource.Id.btn_back)] private ImageButton _backButton;
@@ -66,9 +69,9 @@ namespace Steepshot.Fragment
             {
                 if (_profilePagerAdapter == null)
                 {
-                    _profilePagerAdapter = new PostPagerAdapter<UserProfilePresenter>(Context, Presenter);
+                    _profilePagerAdapter = new PostPagerAdapter<UserProfilePresenter>(_postPager, Context, Presenter);
                     _profilePagerAdapter.PostAction += PostAction;
-                    _profilePagerAdapter.TagAction += TagAction;
+                    _profilePagerAdapter.AutoLinkAction += AutoLinkAction;
                     _profilePagerAdapter.CloseAction += CloseAction;
                 }
                 return _profilePagerAdapter;
@@ -85,7 +88,7 @@ namespace Steepshot.Fragment
                     _profileFeedAdapter = new ProfileFeedAdapter(Context, Presenter);
                     _profileFeedAdapter.PostAction += PostAction;
                     _profileFeedAdapter.ProfileAction += ProfileAction;
-                    _profileFeedAdapter.TagAction += TagAction;
+                    _profileFeedAdapter.AutoLinkAction += AutoLinkAction;
                 }
                 return _profileFeedAdapter;
             }
@@ -196,9 +199,9 @@ namespace Steepshot.Fragment
 
                 _gridItemDecoration = new GridItemDecoration(true);
 
-                _tabSettings = BasePresenter.User.Login.Equals(_profileId)
-                    ? BasePresenter.User.GetTabSettings($"User_{nameof(ProfileFragment)}")
-                    : BasePresenter.User.GetTabSettings(nameof(ProfileFragment));
+                _tabSettings = AppSettings.User.Login.Equals(_profileId)
+                    ? AppSettings.User.GetTabSettings($"User_{nameof(ProfileFragment)}")
+                    : AppSettings.User.GetTabSettings(nameof(ProfileFragment));
 
                 SwitchListAdapter(_tabSettings.IsGridView);
 
@@ -226,11 +229,12 @@ namespace Steepshot.Fragment
 
                 _firstPostButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.CreateFirstPostText);
 
-                if (_profileId != BasePresenter.User.Login)
+                if (_profileId != AppSettings.User.Login)
                 {
                     _settings.Visibility = ViewStates.Gone;
                     _backButton.Visibility = ViewStates.Visible;
                     _more.Visibility = ViewStates.Visible;
+                    _more.Enabled = false;
                     _login.Text = _profileId;
                     LoadProfile();
                     GetUserPosts();
@@ -272,7 +276,6 @@ namespace Steepshot.Fragment
         {
             if (pageScrollStateChangedEventArgs.State == 0)
             {
-                _profilePagerAdapter.CurrentItem = _postPager.CurrentItem;
                 _postsList.ScrollToPosition(_postPager.CurrentItem + 1);
                 if (_postsList.GetLayoutManager() is GridLayoutManager manager)
                 {
@@ -295,7 +298,6 @@ namespace Steepshot.Fragment
         public void OpenPost(Post post)
         {
             _postPager.SetCurrentItem(Presenter.IndexOf(post), false);
-            _profilePagerAdapter.CurrentItem = _postPager.CurrentItem;
             _profilePagerAdapter.NotifyDataSetChanged();
             _postPager.Visibility = ViewStates.Visible;
             _postsList.Visibility = ViewStates.Gone;
@@ -342,7 +344,7 @@ namespace Steepshot.Fragment
                 if (status.Sender == nameof(UserProfilePresenter.TryFollow) || status.Sender == nameof(UserProfilePresenter.TryGetUserInfo))
                 {
                     _firstPostButton.Visibility =
-                        _profileId == BasePresenter.User.Login && Presenter.UserProfileResponse.PostCount == 0 && Presenter.UserProfileResponse.HiddenPostCount == 0
+                        _profileId == AppSettings.User.Login && Presenter.UserProfileResponse.PostCount == 0 && Presenter.UserProfileResponse.HiddenPostCount == 0
                             ? ViewStates.Visible
                             : ViewStates.Gone;
                 }
@@ -387,55 +389,59 @@ namespace Steepshot.Fragment
 
         private void MoreOnClick(object sender, EventArgs eventArgs)
         {
-            var inflater = (LayoutInflater)Context.GetSystemService(Context.LayoutInflaterService);
-            using (var dialogView = inflater.Inflate(Resource.Layout.lyt_profile_popup, null))
+            if (!isSubscription)
             {
-                dialogView.SetMinimumWidth((int)(Resources.DisplayMetrics.WidthPixels * 0.8));
-                var pushes = dialogView.FindViewById<Button>(Resource.Id.pushes);
-                if (UserIsWatched)
+                var inflater = (LayoutInflater)Context.GetSystemService(Context.LayoutInflaterService);
+                using (var dialogView = inflater.Inflate(Resource.Layout.lyt_profile_popup, null))
                 {
-                    pushes.SetTextColor(Style.R255G34B5);
-                    pushes.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.UnwatchUser);
+                    dialogView.SetMinimumWidth((int)(Resources.DisplayMetrics.WidthPixels * 0.8));
+                    var pushes = dialogView.FindViewById<Button>(Resource.Id.pushes);
+                    if (isSubscribed)
+                    {
+                        pushes.SetTextColor(Style.R255G34B5);
+                        pushes.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.UnwatchUser);
+                    }
+                    else
+                    {
+                        pushes.SetTextColor(Color.Black);
+                        pushes.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.WatchUser);
+                    }
+
+                    pushes.Typeface = Style.Semibold;
+
+                    var cancel = dialogView.FindViewById<Button>(Resource.Id.cancel);
+                    cancel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Cancel);
+                    cancel.Typeface = Style.Semibold;
+
+                    pushes.Click -= PushesOnClick;
+                    pushes.Click += PushesOnClick;
+
+                    cancel.Click -= CancelDialog;
+                    cancel.Click += CancelDialog;
+
+                    _moreActionsDialog.SetContentView(dialogView);
+                    dialogView.SetBackgroundColor(Color.Transparent);
+                    _moreActionsDialog.Window.FindViewById(Resource.Id.design_bottom_sheet).SetBackgroundColor(Color.Transparent);
+                    _moreActionsDialog.Show();
                 }
-                else
-                {
-                    pushes.SetTextColor(Color.Black);
-                    pushes.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.WatchUser);
-                }
-                pushes.Typeface = Style.Semibold;
-
-                var cancel = dialogView.FindViewById<Button>(Resource.Id.cancel);
-                cancel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Cancel);
-                cancel.Typeface = Style.Semibold;
-
-                pushes.Click -= PushesOnClick;
-                pushes.Click += PushesOnClick;
-
-                cancel.Click -= CancelDialog;
-                cancel.Click += CancelDialog;
-
-                _moreActionsDialog.SetContentView(dialogView);
-                dialogView.SetBackgroundColor(Color.Transparent);
-                _moreActionsDialog.Window.FindViewById(Resource.Id.design_bottom_sheet).SetBackgroundColor(Color.Transparent);
-                _moreActionsDialog.Show();
             }
         }
 
         private async void PushesOnClick(object sender, EventArgs eventArgs)
         {
             _moreActionsDialog.Dismiss();
-            if (UserIsWatched)
+            var model = new PushNotificationsModel(AppSettings.User.UserInfo, !isSubscribed);
+            model.WatchedUser = _profileId;
+
+            isSubscription = true;
+
+            var result = await BasePresenter.TrySubscribeForPushes(model);
+            if (result.IsSuccess)
             {
-                var error = await Presenter.TrySubscribeForPushes(PushSubscriptionAction.Unsubscribe, BasePresenter.User.PushesPlayerId, _profileId);
-                if (error == null)
-                    BasePresenter.User.WatchedUsers.Remove(_profileId);
+                isSubscribed = !isSubscribed;
             }
-            else
-            {
-                var error = await Presenter.TrySubscribeForPushes(PushSubscriptionAction.Subscribe, BasePresenter.User.PushesPlayerId, _profileId);
-                if (error == null)
-                    BasePresenter.User.WatchedUsers.Add(_profileId);
-            }
+
+            isSubscription = false;
         }
 
         private void CancelDialog(object sender, EventArgs e)
@@ -468,7 +474,7 @@ namespace Steepshot.Fragment
         private void OnSwitcherClick(object sender, EventArgs e)
         {
             _tabSettings.IsGridView = !(_postsList.GetLayoutManager() is GridLayoutManager);
-            BasePresenter.User.Save();
+            AppSettings.User.Save();
             SwitchListAdapter(_tabSettings.IsGridView);
         }
 
@@ -507,6 +513,8 @@ namespace Steepshot.Fragment
                 if (error == null || error is CanceledError)
                 {
                     _listLayout.Visibility = ViewStates.Visible;
+                    _more.Enabled = true;
+                    isSubscribed = Presenter.UserProfileResponse.IsSubscribed;
                     break;
                 }
 
@@ -518,7 +526,7 @@ namespace Steepshot.Fragment
             } while (true);
 
             _firstPostButton.Visibility =
-                    _profileId == BasePresenter.User.Login && Presenter.UserProfileResponse.PostCount == 0 && Presenter.UserProfileResponse.HiddenPostCount == 0
+                    _profileId == AppSettings.User.Login && Presenter.UserProfileResponse.PostCount == 0 && Presenter.UserProfileResponse.HiddenPostCount == 0
                     ? ViewStates.Visible
                     : ViewStates.Gone;
             _loadingSpinner.Visibility = ViewStates.Gone;
@@ -543,7 +551,7 @@ namespace Steepshot.Fragment
                     ((BaseActivity)Activity).OpenNewContentFragment(new FollowersFragment());
                     break;
                 case ActionType.Follow:
-                    if (BasePresenter.User.IsAuthenticated)
+                    if (AppSettings.User.IsAuthenticated)
                     {
                         var error = await Presenter.TryFollow();
                         if (!IsInitialized)
@@ -575,7 +583,7 @@ namespace Steepshot.Fragment
             {
                 case ActionType.Like:
                     {
-                        if (BasePresenter.User.IsAuthenticated)
+                        if (AppSettings.User.IsAuthenticated)
                         {
                             var error = await Presenter.TryVote(post);
                             if (!IsInitialized)
@@ -604,7 +612,7 @@ namespace Steepshot.Fragment
                     {
                         if (post == null)
                             return;
-                        if (post.Children == 0 && !BasePresenter.User.IsAuthenticated)
+                        if (post.Children == 0 && !AppSettings.User.IsAuthenticated)
                         {
                             OpenLogin();
                             return;
@@ -624,7 +632,7 @@ namespace Steepshot.Fragment
                     }
                 case ActionType.Flag:
                     {
-                        if (!BasePresenter.User.IsAuthenticated)
+                        if (!AppSettings.User.IsAuthenticated)
                             return;
 
                         var error = await Presenter.TryFlag(post);
@@ -658,7 +666,7 @@ namespace Steepshot.Fragment
                         var shareIntent = new Intent(Intent.ActionSend);
                         shareIntent.SetType("text/plain");
                         shareIntent.PutExtra(Intent.ExtraSubject, post.Title);
-                        shareIntent.PutExtra(Intent.ExtraText, AppSettings.LocalizationManager.GetText(LocalizationKeys.PostLink, post.Url));
+                        shareIntent.PutExtra(Intent.ExtraText, string.Format(AppSettings.User.Chain == KnownChains.Steem ? Constants.SteemPostUrl : Constants.GolosPostUrl, post.Url));
                         StartActivity(Intent.CreateChooser(shareIntent, AppSettings.LocalizationManager.GetText(LocalizationKeys.Sharepost)));
                         break;
                     }
@@ -667,29 +675,9 @@ namespace Steepshot.Fragment
                         OpenPost(post);
                         break;
                     }
-                case ActionType.Preview:
-                    {
-                        if (post == null)
-                            return;
-
-                        var intent = new Intent(Context, typeof(PostPreviewActivity));
-                        intent.PutExtra(PostPreviewActivity.PhotoExtraPath, post.Media[0].Url);
-                        StartActivity(intent);
-                        break;
-                    }
             }
         }
 
-        private void TagAction(string tag)
-        {
-            if (tag != null)
-            {
-                Activity.Intent.PutExtra(SearchFragment.SearchExtra, tag);
-                ((BaseActivity)Activity).OpenNewContentFragment(new PreSearchFragment());
-            }
-            else
-                _postsList.GetAdapter()?.NotifyDataSetChanged();
-        }
         private void CloseAction()
         {
             ClosePost();

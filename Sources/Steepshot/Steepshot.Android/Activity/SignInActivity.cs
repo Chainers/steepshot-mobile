@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Linq;
 using Android.App;
 using Android.Content;
 using Android.Content.PM;
 using Android.Graphics;
 using Android.Graphics.Drawables;
 using Android.OS;
+using Android.Runtime;
 using Android.Support.V4.Content;
 using Android.Support.V7.Widget;
 using Android.Views;
@@ -93,43 +95,49 @@ namespace Steepshot.Activity
             Cheeseknife.Reset(this);
         }
 
-        private async void OnButtonScanDefaultViewOnClick(object sender, EventArgs e)
+        public override void OnRequestPermissionsResult(int requestCode, string[] permissions, [GeneratedEnum] Permission[] grantResults)
         {
-            if (PermissionChecker.CheckSelfPermission(this, Android.Manifest.Permission.Camera) == (int)Permission.Granted
-                    && PermissionChecker.CheckSelfPermission(this, Android.Manifest.Permission.WriteExternalStorage) == (int)Permission.Granted)
+            if (requestCode == CommonPermissionsRequestCode && !grantResults.Any(x => x != Permission.Granted))
+                ScanQR();
+            base.OnRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
+
+        private async void ScanQR()
+        {
+            try
             {
-                try
+                //Tell our scanner to use the default overlay
+                _scanner.UseCustomOverlay = false;
+
+                //We can customize the top and bottom text of the default overlay
+                _scanner.TopText = AppSettings.LocalizationManager.GetText(LocalizationKeys.CameraHoldUp);
+                _scanner.BottomText = AppSettings.LocalizationManager.GetText(LocalizationKeys.WaitforScan);
+
+                //Start scanning
+                var result = await _scanner.Scan();
+
+                if (IsFinishing || IsDestroyed)
+                    return;
+
+                if (result != null)
                 {
-                    //Tell our scanner to use the default overlay
-                    _scanner.UseCustomOverlay = false;
-
-                    //We can customize the top and bottom text of the default overlay
-                    _scanner.TopText = AppSettings.LocalizationManager.GetText(LocalizationKeys.CameraHoldUp);
-                    _scanner.BottomText = AppSettings.LocalizationManager.GetText(LocalizationKeys.WaitforScan);
-
-                    //Start scanning
-                    var result = await _scanner.Scan();
-
-                    if (IsFinishing || IsDestroyed)
-                        return;
-
-                    if (result != null)
-                    {
-                        _password.Text = result.Text;
-                        SignInBtn_Click(_signInBtn, null);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    AppSettings.Reporter.SendCrash(ex);
-                    this.ShowAlert(LocalizationKeys.UnknownError, ToastLength.Short);
+                    _password.Text = result.Text;
+                    SignInBtn_Click(_signInBtn, null);
                 }
             }
-            else
+            catch (Exception ex)
             {
-                //Replace for Permission request
-                this.ShowAlert(LocalizationKeys.CheckPermission);
+                AppSettings.Reporter.SendCrash(ex);
+                this.ShowAlert(LocalizationKeys.UnknownError, ToastLength.Short);
             }
+        }
+
+        private void OnButtonScanDefaultViewOnClick(object sender, EventArgs e)
+        {
+            if (!RequestPermissions(CommonPermissionsRequestCode,
+                Android.Manifest.Permission.Camera,
+                Android.Manifest.Permission.WriteExternalStorage))
+                ScanQR();
         }
 
         private void GoBack(object sender, EventArgs e)
@@ -144,9 +152,15 @@ namespace Steepshot.Activity
             var login = _username;
             var pass = _password?.Text;
 
-            if (string.IsNullOrEmpty(login) || string.IsNullOrEmpty(pass))
+            if (string.IsNullOrEmpty(login))
             {
                 this.ShowAlert(LocalizationKeys.EmptyLogin, ToastLength.Short);
+                return;
+            }
+
+            if (string.IsNullOrEmpty(pass))
+            {
+                this.ShowAlert(LocalizationKeys.EmptyPostingKey, ToastLength.Short);
                 return;
             }
 
@@ -160,7 +174,7 @@ namespace Steepshot.Activity
 
             if (response.IsSuccess)
             {
-                BasePresenter.User.AddAndSwitchUser(login, pass, BasePresenter.Chain);
+                AppSettings.User.AddAndSwitchUser(login, pass, BasePresenter.Chain);
                 var intent = new Intent(this, typeof(RootActivity));
                 intent.AddFlags(ActivityFlags.NewTask | ActivityFlags.ClearTask);
                 StartActivity(intent);
@@ -195,7 +209,7 @@ namespace Steepshot.Activity
 
         public void OnBitmapLoaded(Bitmap p0, Picasso.LoadedFrom p1)
         {
-            _profileImage.SetImageBitmap(p0);
+            _profileImage?.SetImageBitmap(p0);
         }
 
         public void OnPrepareLoad(Drawable p0)

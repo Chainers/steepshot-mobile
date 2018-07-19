@@ -1,12 +1,15 @@
 ﻿using Android.App;
+using Android.Content;
+using Android.Content.PM;
 using Android.OS;
 using Steepshot.Base;
 using Steepshot.Fragment;
 using Steepshot.Interfaces;
+using System.Linq;
 
 namespace Steepshot.Activity
 {
-    [Activity(ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait)]
+    [Activity(ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait, LaunchMode = LaunchMode.SingleTask)]
     public sealed class GuestActivity : BaseActivity, IClearable
     {
         protected override void OnCreate(Bundle savedInstanceState)
@@ -20,14 +23,21 @@ namespace Steepshot.Activity
             fragmentTransaction.Commit();
         }
 
+        protected override void OnNewIntent(Intent intent)
+        {
+            HandleLink(intent);
+            base.OnNewIntent(intent);
+        }
+
         public override void OnBackPressed()
         {
-            if (CurrentHostFragment != null)
+            var fragments = CurrentHostFragment?.ChildFragmentManager?.Fragments;
+            if (fragments?.Count > 0)
             {
-                var fragments = CurrentHostFragment.ChildFragmentManager.Fragments;
-                if (fragments[fragments.Count - 1] is ICanOpenPost fragment)
-                    if (fragment.ClosePost())
-                        return;
+                var lastFragment = fragments.Last();
+                if (lastFragment is ICanOpenPost openPostFrg && openPostFrg.ClosePost() ||
+                    lastFragment is BaseFragment baseFrg && baseFrg.OnBackPressed())
+                    return;
             }
 
             if (CurrentHostFragment == null || !CurrentHostFragment.HandleBackPressed(SupportFragmentManager))

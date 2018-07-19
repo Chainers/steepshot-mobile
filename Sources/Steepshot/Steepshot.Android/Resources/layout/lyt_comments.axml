@@ -18,48 +18,48 @@
         android:id="@+id/message"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:paddingLeft="15dp"
+        android:paddingRight="15dp"
         android:minHeight="60dp"
         android:layout_alignParentBottom="true"
         android:background="@color/white">
         <RelativeLayout
-            android:id="@+id/btn_post"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
-            android:clickable="true">
-            <ImageView
-                android:id="@+id/btn_post_image"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_marginLeft="10dp"
-                android:layout_centerInParent="true"
-                android:src="@drawable/ic_send"
-                android:background="@drawable/white_rounded_border"
-                android:scaleType="center" />
-            <ProgressBar
-                android:id="@+id/send_spinner"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:indeterminateTintMode="src_atop"
-                android:layout_centerInParent="true"
-                android:visibility="invisible"
-                android:indeterminateTint="@color/rgb231_72_0" />
-        </RelativeLayout>
-        <LinearLayout
+            android:id="@+id/input_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:minHeight="60dp"
-            android:layout_toLeftOf="@id/btn_post">
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp">
+            <RelativeLayout
+                android:id="@+id/btn_post"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:clickable="true">
+                <ImageView
+                    android:id="@+id/btn_post_image"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_centerInParent="true"
+                    android:src="@drawable/ic_send"
+                    android:background="@drawable/white_rounded_border"
+                    android:scaleType="center" />
+                <ProgressBar
+                    android:id="@+id/send_spinner"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:indeterminateTintMode="src_atop"
+                    android:layout_centerInParent="true"
+                    android:visibility="invisible"
+                    android:indeterminateTint="@color/rgb231_72_0" />
+            </RelativeLayout>
             <EditText
                 android:id="@+id/text_input"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_toLeftOf="@id/btn_post"
                 android:minHeight="40dp"
-                android:layout_marginLeft="15dp"
-                android:layout_marginTop="9dp"
-                android:layout_marginBottom="11dp"
-                android:background="@drawable/white_rounded_border"
                 android:textSize="14sp"
                 android:textColor="@color/rgb15_24_30"
                 android:textColorHint="@color/rgb151_155_158"
@@ -70,55 +70,34 @@
                 android:paddingBottom="10dp"
                 android:paddingRight="20dp"
                 android:maxLines="4" />
-        </LinearLayout>
-    </RelativeLayout>
-    <RelativeLayout
-        android:id="@+id/comment_edit"
-        android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:background="@color/white"
-        android:layout_above="@id/message"
-        android:clickable="true"
-        android:visibility="gone">
-        <ImageButton
-            android:id="@+id/comment_cancel_edit"
-            android:layout_width="10dp"
-            android:layout_height="10dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginRight="15dp"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentRight="true"
-            android:src="@drawable/ic_close_black" />
+        </RelativeLayout>
         <RelativeLayout
+            android:id="@+id/edit_controls"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_toLeftOf="@id/comment_cancel_edit">
-            <View
-                android:id="@+id/comment_edit_separator"
-                android:layout_width="2px"
-                android:layout_height="match_parent"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="10dp"
-                android:layout_marginLeft="30dp"
-                android:layout_marginRight="10dp"
-                android:background="@color/rgb244_244_246" />
-            <TextView
-                android:id="@+id/comment_edit_message"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:textColor="@color/black"
+            android:layout_height="40dp"
+            android:layout_below="@id/input_container"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp"
+            android:visibility="gone">
+            <Button
+                android:id="@+id/cancel"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:minWidth="150dp"
+                android:layout_alignParentLeft="true"
+                android:background="@drawable/white_rounded_border"
+                android:textAllCaps="false"
+                android:textSize="14sp" />
+            <Button
+                android:id="@+id/save"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:minWidth="150dp"
+                android:layout_alignParentRight="true"
+                android:background="@drawable/white_rounded_border"
+                android:textAllCaps="false"
                 android:textSize="14sp"
-                android:text="Edit message"
-                android:layout_toRightOf="@id/comment_edit_separator" />
-            <TextView
-                android:id="@+id/comment_edit_text"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textColor="@color/black"
-                android:textSize="14sp"
-                android:layout_toRightOf="@id/comment_edit_separator"
-                android:layout_below="@id/comment_edit_message" />
+                android:textColor="@color/rgb255_34_5" />
         </RelativeLayout>
     </RelativeLayout>
     <android.support.v7.widget.RecyclerView
@@ -127,7 +106,7 @@
         android:layout_height="match_parent"
         android:visibility="gone"
         android:layout_below="@id/toolbar"
-        android:layout_above="@id/comment_edit" />
+        android:layout_above="@id/message" />
     <ProgressBar
         android:id="@+id/loading_spinner"
         android:layout_width="wrap_content"

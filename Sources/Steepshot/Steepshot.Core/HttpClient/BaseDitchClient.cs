@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Ditch.Core.Errors;
@@ -9,7 +8,6 @@ using Ditch.Core.JsonRpc;
 using Newtonsoft.Json;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
-using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Serializing;
 using Newtonsoft.Json.Linq;
 using Steepshot.Core.Errors;
@@ -18,13 +16,17 @@ namespace Steepshot.Core.HttpClient
 {
     internal abstract class BaseDitchClient
     {
-        private readonly Regex _errorMsg = new Regex(@"(?<=[\w\s\(\)&|\.<>=]+:\s+)[a-z\s0-9.]*", RegexOptions.IgnoreCase);
         protected readonly JsonNetConverter JsonConverter;
         protected readonly object SyncConnection;
 
+
         public volatile bool EnableWrite;
 
+
+        public abstract KnownChains Chain { get; }
+
         public abstract bool IsConnected { get; }
+
 
         protected BaseDitchClient(JsonNetConverter jsonConverter)
         {
@@ -33,7 +35,7 @@ namespace Steepshot.Core.HttpClient
         }
 
 
-        public abstract Task<OperationResult<VoteResponse>> Vote(VoteModel model, CancellationToken ct);
+        public abstract Task<OperationResult<VoidResponse>> Vote(VoteModel model, CancellationToken ct);
 
         public abstract Task<OperationResult<VoidResponse>> Follow(FollowModel model, CancellationToken ct);
 
@@ -53,7 +55,7 @@ namespace Steepshot.Core.HttpClient
         {
             try
             {
-                var key = Ditch.Core.Helpers.Base58.TryGetBytes(postingKey);
+                var key = Ditch.Core.Base58.DecodePrivateWif(postingKey);
                 if (key == null || key.Length != 32)
                     return null;
                 return new List<byte[]> { key };
@@ -84,19 +86,7 @@ namespace Steepshot.Core.HttpClient
                 }
             }
         }
-
-
-        protected static JsonSerializerSettings GetJsonSerializerSettings()
-        {
-            var rez = new JsonSerializerSettings
-            {
-                DateFormatString = "yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK",
-                Culture = CultureInfo.InvariantCulture
-            };
-            return rez;
-        }
-
-
+        
         protected string UpdateProfileJson(string jsonMetadata, UpdateUserProfileModel model)
         {
             var meta = string.IsNullOrEmpty(jsonMetadata) ? "{}" : jsonMetadata;

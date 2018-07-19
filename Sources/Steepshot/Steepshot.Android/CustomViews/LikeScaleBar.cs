@@ -55,7 +55,7 @@ namespace Steepshot.CustomViews
                 if (delta < 1 + _stopDelta)
                 {
                     _stopDelta = 5;
-                    SetProgress(offsetProgress, true);
+                    Progress = offsetProgress;
                     break;
                 }
                 if (delta < deltaLimit && _stopDelta != 0)
@@ -68,7 +68,7 @@ namespace Steepshot.CustomViews
             if (Progress < 1)
             {
                 _stopDelta = 0;
-                SetProgress(1, true);
+                Progress = 1;
             }
         }
 

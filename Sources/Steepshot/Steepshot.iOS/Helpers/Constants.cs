@@ -10,11 +10,14 @@ namespace Steepshot.iOS.Helpers
     {
         public const string UserContextKey = "UserContext";
 
+        public static readonly UIFont Bold14 = UIFont.FromName("OpenSans-Bold", 14f);
         public static readonly UIFont Semibold14 = UIFont.FromName("OpenSans-Semibold", 14f);
         public static readonly UIFont Semibold16 = UIFont.FromName("OpenSans-Semibold", 16f);
         public static readonly UIFont Semibold20 = UIFont.FromName("OpenSans-Semibold", 20f);
         public static readonly UIFont Regular12 = UIFont.FromName("OpenSans", 12f);
         public static readonly UIFont Regular14 = UIFont.FromName("OpenSans", 14f);
+        public static readonly UIFont Regular16 = UIFont.FromName("OpenSans", 16f);
+        public static readonly UIFont Regular20 = UIFont.FromName("OpenSans", 20f);
         public static readonly UIFont Light27 = UIFont.FromName("OpenSans-Light", 27f);
 
         public static readonly UIColor R15G24B30 = UIColor.FromRGB(15, 24, 30);
@@ -25,6 +28,7 @@ namespace Steepshot.iOS.Helpers
         public static readonly UIColor R245G245B245 = UIColor.FromRGB(245, 245, 245);
         public static readonly UIColor R255G81B4 = UIColor.FromRGB(255, 81, 4);
         public static readonly UIColor R255G71B5 = UIColor.FromRGB(255, 71, 5);
+        public static readonly UIColor R255G34B5 = UIColor.FromRGB(255, 34, 5);
 
         public static readonly CGPoint StartGradientPoint = new CGPoint(0, 0.5f);
         public static readonly CGPoint EndGradientPoint = new CGPoint(1, 0.5f);

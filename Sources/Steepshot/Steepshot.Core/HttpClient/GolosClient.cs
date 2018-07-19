@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Ditch.Core.Helpers;
+using Ditch.Core;
 using Ditch.Golos;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
@@ -18,21 +18,24 @@ using Ditch.Golos.Models.Objects;
 using Steepshot.Core.Errors;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Localization;
+using Cryptography.ECDSA;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.HttpClient
 {
     internal class GolosClient : BaseDitchClient
     {
-        private double GbgKof = 2.4645;//TODO: get value from server
         private readonly OperationManager _operationManager;
+
 
         public override bool IsConnected => _operationManager.IsConnected;
 
+        public override KnownChains Chain => KnownChains.Golos;
+
+
         public GolosClient(JsonNetConverter jsonConverter) : base(jsonConverter)
         {
-            var jss = GetJsonSerializerSettings();
-            var cm = new WebSocketManager(jss);
-            _operationManager = new OperationManager(cm, jss);
+            _operationManager = new OperationManager();
         }
 
         public override bool TryReconnectChain(CancellationToken token)
@@ -46,9 +49,12 @@ namespace Steepshot.Core.HttpClient
                 Monitor.Enter(SyncConnection, ref lockWasTaken);
                 if (!EnableWrite)
                 {
-                    var cUrls = new List<string> { "wss://golosd.steepshot.org", "wss://ws.golos.io" };
-                    var conectedTo = _operationManager.TryConnectTo(cUrls, token);
-                    if (!string.IsNullOrEmpty(conectedTo))
+                    var cUrls = AppSettings.ConfigManager.GolosNodeConfigs
+                        .Where(n => n.IsEnabled)
+                        .OrderBy(n => n.Order)
+                        .Select(n => n.Url)
+                        .ToArray();
+                    if (cUrls.Any() && _operationManager.TryConnectTo(cUrls, token))
                         EnableWrite = true;
                 }
             }
@@ -66,16 +72,16 @@ namespace Steepshot.Core.HttpClient
 
         #region Post requests
 
-        public override async Task<OperationResult<VoteResponse>> Vote(VoteModel model, CancellationToken ct)
+        public override async Task<OperationResult<VoidResponse>> Vote(VoteModel model, CancellationToken ct)
         {
             return await Task.Run(() =>
             {
                 if (!TryReconnectChain(ct))
-                    return new OperationResult<VoteResponse>(new AppError(LocalizationKeys.EnableConnectToBlockchain));
+                    return new OperationResult<VoidResponse>(new AppError(LocalizationKeys.EnableConnectToBlockchain));
 
                 var keys = ToKeyArr(model.PostingKey);
                 if (keys == null)
-                    return new OperationResult<VoteResponse>(new AppError(LocalizationKeys.WrongPrivatePostingKey));
+                    return new OperationResult<VoidResponse>(new AppError(LocalizationKeys.WrongPrivatePostingKey));
 
                 short weigth = 0;
                 if (model.Type == VoteType.Up)
@@ -86,26 +92,12 @@ namespace Steepshot.Core.HttpClient
                 var op = new VoteOperation(model.Login, model.Author, model.Permlink, weigth);
                 var resp = _operationManager.BroadcastOperationsSynchronous(keys, ct, op);
 
-                var result = new OperationResult<VoteResponse>();
+                var result = new OperationResult<VoidResponse>();
                 if (!resp.IsError)
-                {
-                    var dt = DateTime.Now;
-                    var content = _operationManager.GetContent(model.Author, model.Permlink, ct);
-                    if (!content.IsError)
-                    {
-                        //Convert Asset type to double
-                        result.Result = new VoteResponse()
-                        {
-                            NewTotalPayoutReward = GbgKof * (content.Result.TotalPayoutValue + content.Result.CuratorPayoutValue + content.Result.PendingPayoutValue).ToDouble(),
-                            NetVotes = content.Result.NetVotes,
-                            VoteTime = dt
-                        };
-                    }
-                }
+                    result.Result = new VoidResponse();
                 else
-                {
                     OnError(resp, result);
-                }
+
                 return result;
             }, ct);
         }

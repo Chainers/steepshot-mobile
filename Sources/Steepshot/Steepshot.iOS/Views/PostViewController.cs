@@ -1,46 +1,40 @@
 ﻿using System;
 using System.Threading.Tasks;
 using CoreGraphics;
-using Steepshot.Core.Errors;
 using Steepshot.Core.Localization;
+using Steepshot.Core.Models;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 using Steepshot.iOS.Cells;
-using Steepshot.iOS.Models;
 using Steepshot.iOS.ViewControllers;
 using UIKit;
 
 namespace Steepshot.iOS.Views
 {
-    public partial class PostViewController : BaseViewController
+    public partial class PostViewController : BasePostController<SinglePostPresenter>
     {
-        private Post _post;
-        private CellSizeHelper _size;
-        private BasePostPresenter _presenter;
+        private string _url;
         private FeedCellBuilder _cell;
         private nfloat _tabBarHeight;
 
-        public PostViewController(Post post, CellSizeHelper size, BasePostPresenter presenter)
+        public PostViewController(string url)
         {
-            _post = post;
-            _presenter = presenter;
-            _size = size;
-            _presenter.SourceChanged += (obj) =>
-            {
-                _cell.UpdateCell(_post, _size);
-            };
+            _url = url;
         }
 
         public override void ViewDidLoad()
         {
             base.ViewDidLoad();
 
+            LoadPost();
+
             NavigationController.NavigationBar.Translucent = false;
-            if(TabBarController != null)
+            if (TabBarController != null)
                 _tabBarHeight = TabBarController.TabBar.Frame.Height;
 
+            scrollView.Bounces = false;
             scrollView.Frame = new CGRect(scrollView.Frame.X, scrollView.Frame.Y,
                                           UIScreen.MainScreen.Bounds.Width,
                                           UIScreen.MainScreen.Bounds.Height - NavigationController.NavigationBar.Frame.Height);
@@ -49,6 +43,19 @@ namespace Steepshot.iOS.Views
             _cell.CellAction += CellAction;
             _cell.TagAction += TagAction;
             SetBackButton();
+        }
+
+        private async void LoadPost()
+        {
+            if (!string.IsNullOrEmpty(_url))
+            {
+                var error = await _presenter.TryLoadPostInfo(_url);
+                loader.StopAnimating();
+                ShowAlert(error,(UIAlertAction obj) =>
+                {
+                    NavigationController.PopViewController(true);
+                });
+            }
         }
 
         public override void ViewWillAppear(bool animated)
@@ -60,7 +67,6 @@ namespace Steepshot.iOS.Views
                     TabBarController.View.Frame = new CGRect(0, 0, TabBarController.View.Frame.Width, TabBarController.View.Frame.Height + _tabBarHeight);
                 });
             }
-            scrollView.ContentSize = new CGSize(UIScreen.MainScreen.Bounds.Width, _cell.UpdateCell(_post, _size));
             base.ViewWillAppear(animated);
         }
 
@@ -68,6 +74,7 @@ namespace Steepshot.iOS.Views
         {
             if (TabBarController != null)
                 TabBarController.View.Frame = new CGRect(0, 0, TabBarController.View.Frame.Width, TabBarController.View.Frame.Height - _tabBarHeight);
+            _presenter.TasksCancel();
             base.ViewWillDisappear(animated);
         }
 
@@ -76,14 +83,7 @@ namespace Steepshot.iOS.Views
             var leftBarButton = new UIBarButtonItem(UIImage.FromBundle("ic_back_arrow"), UIBarButtonItemStyle.Plain, GoBack);
             NavigationItem.LeftBarButtonItem = leftBarButton;
             NavigationController.NavigationBar.TintColor = Helpers.Constants.R15G24B30;
-            NavigationItem.Title = "Photo";
-        }
-
-        private void TagAction(string tag)
-        {
-            var myViewController = new PreSearchViewController();
-            myViewController.CurrentPostCategory = tag;
-            NavigationController.PushViewController(myViewController, true);
+            NavigationItem.Title = AppSettings.LocalizationManager.GetText(LocalizationKeys.SinglePost);
         }
 
         private void CellAction(ActionType type, Post post)
@@ -91,7 +91,7 @@ namespace Steepshot.iOS.Views
             switch (type)
             {
                 case ActionType.Profile:
-                    if (post.Author == BasePresenter.User.Login)
+                    if (post.Author == AppSettings.User.Login)
                         return;
                     var myViewController = new ProfileViewController();
                     myViewController.Username = post.Author;
@@ -117,71 +117,26 @@ namespace Steepshot.iOS.Views
                     Vote(post);
                     break;
                 case ActionType.More:
-                    Flag(post);
+                    Flagged(post);
                     break;
                 default:
                     break;
             }
         }
 
-        private async void Vote(Post post)
+        protected override void SameTabTapped() { }
+
+        protected override Task GetPosts(bool shouldStartAnimating = true, bool clearOld = false)
         {
-            if (!BasePresenter.User.IsAuthenticated)
-            {
-                LoginTapped();
-                return;
-            }
-
-            if (post == null)
-                return;
-
-            var error = await _presenter.TryVote(post);
-            if (error is CanceledError)
-                return;
-
-            ShowAlert(error);
+            throw new NotImplementedException();
         }
 
-        private void Flag(Post post)
+        protected override void SourceChanged(Status status)
         {
-            UIAlertController actionSheetAlert = UIAlertController.Create(null, null, UIAlertControllerStyle.ActionSheet);
-            actionSheetAlert.AddAction(UIAlertAction.Create(AppSettings.LocalizationManager.GetText(LocalizationKeys.FlagPhoto), UIAlertActionStyle.Default, obj => FlagPhoto(post)));
-            actionSheetAlert.AddAction(UIAlertAction.Create(AppSettings.LocalizationManager.GetText(LocalizationKeys.HidePhoto), UIAlertActionStyle.Default, obj => HidePhoto(post)));
-            actionSheetAlert.AddAction(UIAlertAction.Create(AppSettings.LocalizationManager.GetText(LocalizationKeys.Cancel), UIAlertActionStyle.Cancel, null));
-            PresentViewController(actionSheetAlert, true, null);
-        }
-
-        private void HidePhoto(Post post)
-        {
-            BasePresenter.User.PostBlackList.Add(post.Url);
-            BasePresenter.User.Save();
-            _presenter.HidePost(post);
-            GoBack(null, null);
-        }
-
-        private async Task FlagPhoto(Post post)
-        {
-            if (!BasePresenter.User.IsAuthenticated)
-            {
-                LoginTapped();
-                return;
-            }
-
-            if (post == null)
-                return;
-
-            var error = await _presenter.TryFlag(post);
-            ShowAlert(error);
-        }
-
-        private void GoBack(object sender, EventArgs e)
-        {
-            NavigationController.PopViewController(false);
-        }
-
-        private void LoginTapped()
-        {
-            NavigationController.PushViewController(new WelcomeViewController(), true);
+            scrollView.Hidden = false;
+            loader.StopAnimating();
+            var size = Helpers.CellHeightCalculator.Calculate(_presenter.PostInfo);
+            scrollView.ContentSize = new CGSize(UIScreen.MainScreen.Bounds.Width, _cell.UpdateCell(_presenter.PostInfo, size));
         }
     }
 }

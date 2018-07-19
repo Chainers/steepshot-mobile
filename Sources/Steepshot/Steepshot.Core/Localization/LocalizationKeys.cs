@@ -19,6 +19,7 @@
         EmptyActiveKey,
         EmptyCategory,
         PhotoProcessingError,
+        PhotoUploadError,
         ErrorCameraScale,
         ErrorCameraZoom,
         InternetUnavailable,
@@ -111,6 +112,7 @@
         DeletePost,
         CopyLink,
         Cancel,
+        Save,
         Retry,
         Delete,
         PutYourComment,
@@ -148,5 +150,16 @@
         Posts5minLimit,
         PostsDayLimit,
         EmptyCommentField,
+        TagSearchWarning,
+        NoResultText,
+        DuplicateTag,
+        RegistrationWith,
+        RegisterWithEmail,
+        RegisterThroughSteemit,
+        RegisterThroughBlocktrades,
+        RegisterThroughSteemCreate,
+        Use,
+        Close,
+        VotingPowerSetting
     }
 }

@@ -1,14 +1,17 @@
-﻿using Android.Content;
+﻿using System;
+using Android.Content;
 using Android.Content.Res;
 using Android.Graphics;
 using Android.Graphics.Drawables;
 using Android.Media;
-using Android.Net;
 using Android.OS;
 using Android.Provider;
 using Android.Views;
 using System.Collections.Generic;
 using System.Reflection;
+using Environment = Android.OS.Environment;
+using File = Java.IO.File;
+using Uri = Android.Net.Uri;
 
 namespace Steepshot.Utils
 {
@@ -76,13 +79,19 @@ namespace Steepshot.Utils
             return rotatedImg;
         }
 
-        public static Bitmap DecodeSampledBitmapFromFile(string fileDescriptor, int reqWidth, int reqHeight)
+        public static Bitmap DecodeSampledBitmapFromFile(Context context, Uri uri, int reqWidth, int reqHeight)
         {
-            var options = new BitmapFactory.Options { InJustDecodeBounds = true };
-            BitmapFactory.DecodeFile(fileDescriptor, options);
-            options.InSampleSize = CalculateInSampleSize(options, reqWidth, reqHeight);
-            options.InJustDecodeBounds = false;
-            return BitmapFactory.DecodeFile(fileDescriptor, options);
+            if (uri.Scheme == null || !uri.Scheme.Equals("content"))
+                uri = Uri.FromFile(new File(uri.ToString()));
+            using (var fd = context.ContentResolver.OpenAssetFileDescriptor(uri, "r"))
+            {
+                var options = new BitmapFactory.Options { InJustDecodeBounds = true };
+                BitmapFactory.DecodeFileDescriptor(fd.FileDescriptor, null, options);
+                options.InSampleSize = CalculateInSampleSize(options, reqWidth, reqHeight);
+                options.InJustDecodeBounds = false;
+                var bmp = BitmapFactory.DecodeFileDescriptor(fd.FileDescriptor, null, options);
+                return bmp;
+            }
         }
 
         public static int CalculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight)
@@ -119,16 +128,102 @@ namespace Steepshot.Utils
             return new BitmapDrawable(view.Context.Resources, bitmap);
         }
 
-        public static string GetRealPathFromURI(Uri contentUri, Context context)
+        private static string GetRealPathFromMediaStore(Context context, Uri uri, string whereClause)
         {
-            var proj = new[] { MediaStore.Images.ImageColumns.Data };
-            var cursor = context.ContentResolver.Query(contentUri, proj, null, null, null);
-            var index = cursor.GetColumnIndexOrThrow(MediaStore.Images.ImageColumns.Data);
-            cursor.MoveToFirst();
+            string ret = null;
 
-            return cursor.GetString(index);
+            var cursor = context.ContentResolver.Query(uri, null, whereClause, null, null);
+
+            if (cursor != null && cursor.MoveToFirst())
+            {
+                var columnName = MediaStore.Images.ImageColumns.Data;
+                var ind = cursor.GetColumnIndex(columnName);
+                ret = ind > 0 ? cursor.GetString(ind) : uri.ToString();
+                cursor.Close();
+            }
+
+            return ret;
         }
 
+        public static string GetUriRealPath(Context context, Uri uri)
+        {
+            if (uri == null)
+                return null;
+
+            string ret = "";
+
+            if (context != null)
+            {
+                if ("content".Equals(uri.Scheme, StringComparison.OrdinalIgnoreCase))
+                {
+                    ret = "com.google.android.apps.photos.content".Equals(uri.Authority) ? uri.LastPathSegment : GetRealPathFromMediaStore(context, uri, null);
+                }
+                else if ("file".Equals(uri.Scheme, StringComparison.OrdinalIgnoreCase))
+                {
+                    ret = uri.Path;
+                }
+                else if (DocumentsContract.IsDocumentUri(context, uri)) // Document uri
+                {
+                    var documentId = DocumentsContract.GetDocumentId(uri);
+                    var uriAuthority = uri.Authority;
+
+                    if ("com.android.providers.media.documents".Equals(uriAuthority))
+                    {
+                        string[] idArr = documentId.Split(':');
+                        if (idArr.Length == 2)
+                        {
+                            var docType = idArr[0];
+                            var realDocId = idArr[1];
+
+                            var mediaContentUri = MediaStore.Images.Media.ExternalContentUri;
+
+                            switch (docType)
+                            {
+                                case "image":
+                                    mediaContentUri = MediaStore.Images.Media.ExternalContentUri;
+                                    break;
+                                case "video":
+                                    mediaContentUri = MediaStore.Video.Media.ExternalContentUri;
+                                    break;
+                                case "audio":
+                                    mediaContentUri = MediaStore.Audio.Media.ExternalContentUri;
+                                    break;
+
+                            }
+
+                            var whereClause = MediaStore.Images.ImageColumns.Id + " = " + realDocId;
+
+                            ret = GetRealPathFromMediaStore(context, mediaContentUri, whereClause);
+                        }
+
+                    }
+                    else if ("com.android.providers.downloads.documents".Equals(uriAuthority))
+                    {
+                        var downloadUri = Uri.Parse("content://downloads/public_downloads");
+                        var downloadUriAppendId = ContentUris.WithAppendedId(downloadUri, long.Parse(documentId));
+
+                        ret = GetRealPathFromMediaStore(context, downloadUriAppendId, null);
+
+                    }
+                    else if ("com.android.externalstorage.documents".Equals(uriAuthority))
+                    {
+                        string[] idArr = documentId.Split(':');
+                        if (idArr.Length == 2)
+                        {
+                            var type = idArr[0];
+                            var realDocId = idArr[1];
+
+                            if ("primary".Equals(type, StringComparison.OrdinalIgnoreCase))
+                            {
+                                ret = Environment.ExternalStorageDirectory + "/" + realDocId;
+                            }
+                        }
+                    }
+                }
+            }
+
+            return ret;
+        }
 
         public static void CopyExif(string source, string destination, Dictionary<string, string> replace)
         {
@@ -183,11 +278,11 @@ namespace Steepshot.Utils
                     if (dic.ContainsKey(key))
                     {
                         dublicate.Add(key);
-                        var file = new Java.IO.File(dic[key]);
+                        var file = new File(dic[key]);
                         if (file.Exists())
                             file.Delete();
 
-                        file = new Java.IO.File(value);
+                        file = new File(value);
                         if (file.Exists())
                             file.Delete();
 
@@ -197,7 +292,7 @@ namespace Steepshot.Utils
                     }
                     else if (dublicate.Contains(key))
                     {
-                        var file = new Java.IO.File(value);
+                        var file = new File(value);
                         if (file.Exists())
                             file.Delete();
                     }

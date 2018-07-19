@@ -1,9 +1,15 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using Com.OneSignal;
 using CoreGraphics;
 using FFImageLoading;
 using Steepshot.Core.Errors;
+using Steepshot.Core.Extensions;
+using Steepshot.Core.Models.Enums;
+using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Presenters;
+using Steepshot.Core.Utils;
 using Steepshot.iOS.Helpers;
 using Steepshot.iOS.Views;
 using UIKit;
@@ -65,11 +71,35 @@ namespace Steepshot.iOS.ViewControllers
             _avatar.Layer.CornerRadius = _avatar.Frame.Width / 2;
             _avatar.ClipsToBounds = true;
             _avatar.Image = UIImage.FromBundle("ic_noavatar");
+            _avatar.ContentMode = UIViewContentMode.ScaleAspectFill;
 
-            _presenter = new UserProfilePresenter() { UserName = BasePresenter.User.Login };
+            _presenter = new UserProfilePresenter() { UserName = AppSettings.User.Login };
 
             TabBar.Subviews[3].AddSubview(_powerFrame);
             InitializePowerFrame();
+            if (AppSettings.AppInfo.GetModel() != "Simulator")
+                InitPushes();
+        }
+
+        private void InitPushes() => Task.Run(() =>
+        {
+            OneSignal.Current.IdsAvailable(OneSignalCallback);
+        });
+
+        private async void OneSignalCallback(string playerId, string pushToken)
+        {
+            OneSignal.Current.SendTag("username", AppSettings.User.Login);
+            OneSignal.Current.SendTag("player_id", playerId);
+            if (string.IsNullOrEmpty(AppSettings.User.PushesPlayerId) || !AppSettings.User.PushesPlayerId.Equals(playerId))
+            {
+                var model = new PushNotificationsModel(AppSettings.User.UserInfo, playerId, true)
+                {
+                    Subscriptions = PushSettings.All.FlagToStringList()
+                };
+                var response = await BasePresenter.TrySubscribeForPushes(model);
+                if (response.IsSuccess)
+                    AppSettings.User.PushesPlayerId = playerId;
+            }
         }
 
         public async void UpdateProfile()
@@ -83,14 +113,14 @@ namespace Steepshot.iOS.ViewControllers
         {
             do
             {
-                var error = await _presenter.TryGetUserInfo(BasePresenter.User.Login);
+                var error = await _presenter.TryGetUserInfo(AppSettings.User.Login);
                 if (error == null || error is CanceledError)
                 {
                     _powerFrame.ChangePercents((int)_presenter.UserProfileResponse.VotingPower);
                     ImageService.Instance.LoadUrl(_presenter.UserProfileResponse.ProfileImage, TimeSpan.FromDays(30))
                                              .FadeAnimation(false, false, 0)
                                              .DownSample(width: (int)100)
-                                .Into(_avatar);
+                                             .Into(_avatar);
                     break;
                 }
                 await Task.Delay(5000);

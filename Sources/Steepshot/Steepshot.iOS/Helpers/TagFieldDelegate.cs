@@ -1,5 +1,5 @@
 ﻿using System;
-using Foundation;
+using System.Text.RegularExpressions;
 using UIKit;
 
 namespace Steepshot.iOS.Helpers
@@ -21,19 +21,18 @@ namespace Steepshot.iOS.Helpers
 
         public override bool ShouldChangeCharacters(UITextField textField, Foundation.NSRange range, string replacementString)
         {
-            if (replacementString == "-" && textField.Text.Length > 0)
+            if (replacementString == "")
                 return true;
-            if (replacementString == " " && textField.Text.Length == 0)
-                return false;
-            if (replacementString.Length > 1)
-                return false;
-            if (!string.IsNullOrEmpty(replacementString) && Char.IsDigit(Char.Parse(replacementString)) && textField.Text.Length == 0)
-                return false;
-            if (!string.IsNullOrEmpty(replacementString) && !(replacementString == " " || Char.IsLetterOrDigit(Char.Parse(replacementString))))
-                return false;
+
             if ((replacementString + textField.Text).Length > 40)
                 return false;
-            return true;
+
+            if (replacementString.Contains(" "))
+                return false;
+
+            if (Regex.IsMatch(replacementString, @"[_\w/.-]+"))
+                return true;
+            return false;
         }
 
         public override void EditingStarted(UITextField textField)

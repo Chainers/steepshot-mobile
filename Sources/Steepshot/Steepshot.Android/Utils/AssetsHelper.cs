@@ -2,6 +2,7 @@
 using System.IO;
 using Android.Content.Res;
 using Newtonsoft.Json;
+using Steepshot.Core.HttpClient;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Utils;
 using Steepshot.Core.Services;
@@ -55,6 +56,17 @@ namespace Steepshot.Utils
             }
             return hs;
         }
+
+        public List<NodeConfig> SteemNodesConfig()
+        {
+            return TryReadAsset<List<NodeConfig>>("SteemNodesConfig.txt");
+        }
+
+        public List<NodeConfig> GolosNodesConfig()
+        {
+            return TryReadAsset<List<NodeConfig>>("GolosNodesConfig.txt");
+        }
+
 
         private T TryReadAsset<T>(string file) where T : new()
         {

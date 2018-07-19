@@ -7,6 +7,7 @@ using CheeseBind;
 using Steepshot.Activity;
 using Steepshot.Adapter;
 using Steepshot.Base;
+using Steepshot.Core;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models;
 using Steepshot.Core.Models.Common;
@@ -21,9 +22,7 @@ namespace Steepshot.Fragment
     {
 #pragma warning disable 0649, 4014
         [BindView(Resource.Id.right_btns_layout)] private LinearLayout _rightButtons;
-        [BindView(Resource.Id.left_btns_layout)] private LinearLayout _leftButtons;
         [BindView(Resource.Id.single_post)] private FrameLayout _container;
-        [BindView(Resource.Id.btn_back)] private ImageButton _backButton;
         [BindView(Resource.Id.close)] private ImageButton _closeButton;
         [BindView(Resource.Id.loading_spinner)] private ProgressBar _loadingBar;
         [BindView(Resource.Id.profile_login)] private TextView _header;
@@ -31,7 +30,7 @@ namespace Steepshot.Fragment
 
         private PostViewHolder _postViewHolder;
         private PostViewHolder PostViewHolder => _postViewHolder ?? (_postViewHolder = new PostViewHolder(InflatedView,
-                                                     PostAction, TagAction, null,
+                                                     PostAction, AutoLinkAction, null,
                                                      Context.Resources.DisplayMetrics.WidthPixels));
         private readonly string _url;
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -51,15 +50,10 @@ namespace Steepshot.Fragment
 
             base.OnViewCreated(view, savedInstanceState);
 
-            _rightButtons.Visibility = ViewStates.Gone;
-            _closeButton.Visibility = ViewStates.Gone;
             _container.Visibility = ViewStates.Gone;
-            _leftButtons.Visibility = _backButton.Visibility = _loadingBar.Visibility = ViewStates.Visible;
+            _loadingBar.Visibility = ViewStates.Visible;
 
-            _header.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.SinglePost);
-            _header.Typeface = Style.Semibold;
-
-            _backButton.Click += BackButtonOnClick;
+            _closeButton.Click += BackButtonOnClick;
 
             if (!string.IsNullOrEmpty(_url))
             {
@@ -96,7 +90,7 @@ namespace Steepshot.Fragment
             {
                 case ActionType.Like:
                     {
-                        if (!BasePresenter.User.IsAuthenticated)
+                        if (!AppSettings.User.IsAuthenticated)
                             return;
 
                         var error = await Presenter.TryVote(post);
@@ -134,7 +128,7 @@ namespace Steepshot.Fragment
                     }
                 case ActionType.Flag:
                     {
-                        if (!BasePresenter.User.IsAuthenticated)
+                        if (!AppSettings.User.IsAuthenticated)
                             return;
 
                         var error = await Presenter.TryFlag(post);
@@ -173,7 +167,7 @@ namespace Steepshot.Fragment
                         var shareIntent = new Intent(Intent.ActionSend);
                         shareIntent.SetType("text/plain");
                         shareIntent.PutExtra(Intent.ExtraSubject, post.Title);
-                        shareIntent.PutExtra(Intent.ExtraText, AppSettings.LocalizationManager.GetText(LocalizationKeys.PostLink, post.Url));
+                        shareIntent.PutExtra(Intent.ExtraText, string.Format(AppSettings.User.Chain == KnownChains.Steem ? Constants.SteemPostUrl : Constants.GolosPostUrl, post.Url));
                         StartActivity(Intent.CreateChooser(shareIntent, AppSettings.LocalizationManager.GetText(LocalizationKeys.Sharepost)));
                         break;
                     }
