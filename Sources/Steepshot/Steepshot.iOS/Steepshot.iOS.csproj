@@ -433,6 +433,9 @@
     <Compile Include="Views\TransferViewControllerDesigner.cs" />
     <Compile Include="Cells\CardCollectionViewCell.cs" />
     <Compile Include="ViewSources\CardsCollectionViewSource.cs" />
+    <Compile Include="Cells\TransactionCollectionViewCell.cs" />
+    <Compile Include="ViewSources\TransferCollectionViewSource.cs" />
+    <Compile Include="Cells\TransactionHeaderCollectionViewCell.cs" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\ic_photo_holder.png" />

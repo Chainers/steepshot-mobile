@@ -12,14 +12,18 @@ namespace Steepshot.iOS.Views
 {
     public class WalletViewController : BaseViewControllerWithPresenter<WalletPresenter>
     {
-        private CardCollectionViewFlowDelegate _sliderGridDelegate;
-        private UICollectionView sliderCollection;
+        private CardCollectionViewFlowDelegate _cardsGridDelegate;
+        private UICollectionView _cardsCollection;
+        private UICollectionView _historyCollection;
         private UIPageControl _pageControl;
+        private UIView _cardBehind = new UIView();
 
         public override void ViewDidLoad()
         {
             base.ViewDidLoad();
             View.BackgroundColor = Constants.R250G250B250;
+
+
             /*
             var _sendButton = new UIButton();
             _sendButton.SetTitleColor(UIColor.Black, UIControlState.Normal);
@@ -34,10 +38,45 @@ namespace Steepshot.iOS.Views
             _sendButton.AutoCenterInSuperview();
 */
             SetBackButton();
-            SetupTable();
+            SetupCardsCollection();
+            SetupHistoryCollection();
         }
 
-        private void SetupTable()
+        private void SetupHistoryCollection()
+        {
+            var historyLabel = new UILabel();
+            historyLabel.Text = "Transaction history";
+            historyLabel.Font = Constants.Regular20;
+            historyLabel.TextColor = UIColor.Black;
+
+            View.AddSubview(historyLabel);
+
+            historyLabel.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, _cardBehind, 27);
+            historyLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 20);
+
+            _historyCollection = new UICollectionView(CGRect.Null, new UICollectionViewFlowLayout()
+            {
+                //ScrollDirection = UICollectionViewScrollDirection.Horizontal,
+                ItemSize = new CGSize(UIScreen.MainScreen.Bounds.Width, 86),
+                MinimumLineSpacing = 0,
+                //SectionInset = new UIEdgeInsets(40, 0, 0, 0),
+                HeaderReferenceSize = new CGSize(UIScreen.MainScreen.Bounds.Width, 53),
+                FooterReferenceSize = new CGSize(0, 0),
+            });
+            _historyCollection.BackgroundColor = UIColor.Clear;
+            _historyCollection.RegisterClassForCell(typeof(TransactionCollectionViewCell), nameof(TransactionCollectionViewCell));
+            _historyCollection.RegisterClassForSupplementaryView(typeof(TransactionHeaderCollectionViewCell), UICollectionElementKindSection.Header, nameof(TransactionHeaderCollectionViewCell));
+            View.Add(_historyCollection);
+
+            _historyCollection.Source = new TransferCollectionViewSource();
+
+            _historyCollection.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, historyLabel, 10);
+            _historyCollection.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom);
+            _historyCollection.AutoPinEdgeToSuperviewEdge(ALEdge.Left);
+            _historyCollection.AutoPinEdgeToSuperviewEdge(ALEdge.Right);
+        }
+
+        private void SetupCardsCollection()
         {
             var cellProportion = 240f / 335f;
             var cellSize = new CGSize(UIScreen.MainScreen.Bounds.Width - 20f * 2f, (UIScreen.MainScreen.Bounds.Width - 20f * 2f) * cellProportion);
@@ -45,52 +84,51 @@ namespace Steepshot.iOS.Views
             var cardCenter = ((UIScreen.MainScreen.Bounds.Width - 20f * 2f) * cardProportion / 2) + 20;
             var cardBottom = ((UIScreen.MainScreen.Bounds.Width - 20f * 2f) * cardProportion) + 25;
 
-            var cardBehind = new UIView();
-            cardBehind.BackgroundColor = UIColor.FromRGB(255, 255, 255);
-            cardBehind.Layer.CornerRadius = 16;
-            CreateShadowFromZeplin(cardBehind, UIColor.FromRGB(0, 0, 0), 0.03f, 0, 1, 1, 0);
-            View.AddSubview(cardBehind);
+            _cardBehind.BackgroundColor = UIColor.FromRGB(255, 255, 255);
+            _cardBehind.Layer.CornerRadius = 16;
+            Constants.CreateShadowFromZeplin(_cardBehind, UIColor.FromRGB(0, 0, 0), 0.03f, 0, 1, 1, 0);
+            View.AddSubview(_cardBehind);
 
-            cardBehind.AutoPinEdgeToSuperviewEdge(ALEdge.Top, cardCenter);
-            cardBehind.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 10);
-            cardBehind.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 10);
-            cardBehind.AutoSetDimension(ALDimension.Height, cardCenter + 115);
+            _cardBehind.AutoPinEdgeToSuperviewEdge(ALEdge.Top, cardCenter);
+            _cardBehind.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 10);
+            _cardBehind.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 10);
+            _cardBehind.AutoSetDimension(ALDimension.Height, cardCenter + 115);
 
-            sliderCollection = new UICollectionView(CGRect.Null, new SliderFlowLayout()
+            _cardsCollection = new UICollectionView(CGRect.Null, new SliderFlowLayout()
             {
                 ScrollDirection = UICollectionViewScrollDirection.Horizontal,
                 ItemSize = cellSize,
                 MinimumLineSpacing = 10,
                 SectionInset = new UIEdgeInsets(0, 20, 0, 20),
             });
-            sliderCollection.BackgroundColor = UIColor.Clear;
-            sliderCollection.RegisterClassForCell(typeof(CardCollectionViewCell), nameof(CardCollectionViewCell));
-            View.Add(sliderCollection);
+            _cardsCollection.BackgroundColor = UIColor.Clear;
+            _cardsCollection.RegisterClassForCell(typeof(CardCollectionViewCell), nameof(CardCollectionViewCell));
+            View.Add(_cardsCollection);
 
-            sliderCollection.AutoPinEdgeToSuperviewEdge(ALEdge.Top, 20);
-            sliderCollection.AutoPinEdgeToSuperviewEdge(ALEdge.Left);
-            sliderCollection.AutoPinEdgeToSuperviewEdge(ALEdge.Right);
-            sliderCollection.AutoSetDimension(ALDimension.Height, cellSize.Height);
+            _cardsCollection.AutoPinEdgeToSuperviewEdge(ALEdge.Top, 20);
+            _cardsCollection.AutoPinEdgeToSuperviewEdge(ALEdge.Left);
+            _cardsCollection.AutoPinEdgeToSuperviewEdge(ALEdge.Right);
+            _cardsCollection.AutoSetDimension(ALDimension.Height, cellSize.Height);
 
-            _sliderGridDelegate = new CardCollectionViewFlowDelegate();
-            _sliderGridDelegate.CardsScrolled += () =>
+            _cardsGridDelegate = new CardCollectionViewFlowDelegate();
+            _cardsGridDelegate.CardsScrolled += () =>
             {
                 var pageWidth = cellSize.Width + 20;
-                _pageControl.CurrentPage = (int)Math.Floor((sliderCollection.ContentOffset.X - pageWidth / 2) / pageWidth) + 1;
+                _pageControl.CurrentPage = (int)Math.Floor((_cardsCollection.ContentOffset.X - pageWidth / 2) / pageWidth) + 1;
             };
 
-            var _sliderCollectionViewSource = new CardsCollectionViewSource();
+            var _cardsCollectionViewSource = new CardsCollectionViewSource();
 
-            sliderCollection.DecelerationRate = UIScrollView.DecelerationRateFast;
-            sliderCollection.ShowsHorizontalScrollIndicator = false;
+            _cardsCollection.DecelerationRate = UIScrollView.DecelerationRateFast;
+            _cardsCollection.ShowsHorizontalScrollIndicator = false;
 
-            sliderCollection.Layer.MasksToBounds = false;
-            sliderCollection.ClipsToBounds = false;
-            sliderCollection.Source = _sliderCollectionViewSource;
-            sliderCollection.RegisterClassForCell(typeof(LoaderCollectionCell), nameof(LoaderCollectionCell));
-            sliderCollection.RegisterClassForCell(typeof(SliderFeedCollectionViewCell), nameof(SliderFeedCollectionViewCell));
-            sliderCollection.DelaysContentTouches = false;
-            sliderCollection.Delegate = _sliderGridDelegate;
+            _cardsCollection.Layer.MasksToBounds = false;
+            _cardsCollection.ClipsToBounds = false;
+            _cardsCollection.Source = _cardsCollectionViewSource;
+            _cardsCollection.RegisterClassForCell(typeof(LoaderCollectionCell), nameof(LoaderCollectionCell));
+            _cardsCollection.RegisterClassForCell(typeof(SliderFeedCollectionViewCell), nameof(SliderFeedCollectionViewCell));
+            _cardsCollection.DelaysContentTouches = false;
+            _cardsCollection.Delegate = _cardsGridDelegate;
 
             _pageControl = new UIPageControl();
             _pageControl.PageIndicatorTintColor = UIColor.FromRGB(0, 0, 0).ColorWithAlpha(0.1f);
@@ -100,7 +138,7 @@ namespace Steepshot.iOS.Views
             View.AddSubview(_pageControl);
 
             _pageControl.AutoPinEdgeToSuperviewEdge(ALEdge.Top, cardBottom);
-            _pageControl.AutoAlignAxis(ALAxis.Vertical, sliderCollection);
+            _pageControl.AutoAlignAxis(ALAxis.Vertical, _cardsCollection);
 
             var transfer = new UIButton();
             transfer.SetTitle("TRANSFER", UIControlState.Normal);
@@ -139,26 +177,26 @@ namespace Steepshot.iOS.Views
             var rightBarButton = new UIBarButtonItem(UIImage.FromBundle("ic_present"), UIBarButtonItemStyle.Plain, GoBack);
             NavigationItem.RightBarButtonItem = rightBarButton;
         }
+    }
 
-        private void CreateShadowFromZeplin(UIView view, UIColor color, float alpha, float x, float y, float blur, float spread)
+    public class Transfer
+    {
+        public DateTime Time
         {
-            {
-                view.Layer.MasksToBounds = false;
-                view.Layer.ShadowColor = color.CGColor;
-                view.Layer.ShadowOpacity = alpha;
-                view.Layer.ShadowOffset = new CGSize(x, y);
-                view.Layer.ShadowRadius = blur / 2f;
-                if (spread == 0)
-                {
-                    view.Layer.ShadowPath = null;
-                }
-                else
-                {
-                    var dx = -spread;
-                    var rect = view.Layer.Bounds.Inset(dx, dx);
-                    view.Layer.ShadowPath = UIBezierPath.FromRect(rect).CGPath;
-                }
-            }
+            get;
+            set;
+        }
+
+        public string To
+        {
+            get;
+            set;
+        }
+
+        public string Amount
+        {
+            get;
+            set;
         }
     }
 }
