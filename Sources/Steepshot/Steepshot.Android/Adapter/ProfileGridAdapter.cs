@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading.Tasks;
 using Android.Content;
 using Android.Graphics;
 using Android.Graphics.Drawables;
@@ -141,7 +140,7 @@ namespace Steepshot.Adapter
             _followingTitle.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Following);
             _followersTitle.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Followers);
             _balanceText.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.AccountBalance);
-            _transferButton.Text = "send token";//AppSettings.LocalizationManager.GetText(LocalizationKeys.Transfer);
+            _transferButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.SendTokens);
 
             _name.Typeface = Style.Semibold;
             _place.Typeface = Style.Regular;

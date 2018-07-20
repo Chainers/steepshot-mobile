@@ -213,6 +213,7 @@
 		"ActiveKeyPrivacy":"We store your keys in the device. We never send them to the server.",
 		"Recipient":"Recipient",
         "Amount":"Amount",
+		"SendTokens":" Send tokens",
 
         "<h1>Server Error (500)</h1>": "(500) Server Error",
         "<h1>Not Found</h1>":"Not Found",

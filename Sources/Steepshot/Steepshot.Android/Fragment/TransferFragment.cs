@@ -184,7 +184,7 @@ namespace Steepshot.Fragment
             _emptyQueryLabel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.EmptyQuery);
             _transferBtn.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Transfer);
 
-            _recipientSearch.SetFilters(new[] { new TextInputFilter(TextInputFilter.TagFilter) });
+            _recipientSearch.SetFilters(new IInputFilter[] { new TextInputFilter(TextInputFilter.TagFilter) });
             _commentShape = new GradientDrawable();
             _commentShape.SetCornerRadius(BitmapUtils.DpToPixel(20, Resources));
             _commentShape.SetColor(Style.R244G244B246);
@@ -532,7 +532,7 @@ namespace Steepshot.Fragment
             var transferResponse = await Presenter.TryTransfer(_transferFacade.Recipient.Author, double.Parse(_transferAmountEdit.Text, CultureInfo.InvariantCulture), _pickedCoin, _transferFacade.UserBalance.ChainCurrency, _transferCommentEdit.Text);
             if (transferResponse.IsSuccess)
             {
-                var succes = new SuccessfullTrxDialog(Activity, _transferFacade.Recipient.Author, $"{_transferAmountEdit.Text} {_pickedCoin}", DateTime.Now);
+                var succes = new SuccessfullTrxDialog(Activity, _transferFacade.Recipient.Author, $"{_transferAmountEdit.Text} {_pickedCoin.ToString().ToUpper()}");
                 succes.Show();
                 ClearEdits();
             }

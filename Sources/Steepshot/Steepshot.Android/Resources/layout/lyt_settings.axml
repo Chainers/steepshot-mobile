@@ -66,7 +66,7 @@
                     <RelativeLayout
                         android:id="@+id/steem_button_lyt"
                         android:layout_width="wrap_content"
-                        android:layout_height="40dp">
+                        android:layout_height="wrap_content">
                         <Button
                             android:id="@+id/steem_button"
                             android:layout_width="100dp"
@@ -75,8 +75,8 @@
                             android:background="@drawable/orange_btn_style" />
                         <ProgressBar
                             android:id="@+id/steem_spinner"
-                            android:layout_width="50dp"
-                            android:layout_height="50dp"
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
                             android:indeterminateTintMode="src_atop"
                             android:indeterminateTint="@color/white"
                             android:layout_centerInParent="true"
@@ -121,7 +121,7 @@
                     <RelativeLayout
                         android:id="@+id/golos_button_lyt"
                         android:layout_width="wrap_content"
-                        android:layout_height="40dp">
+                        android:layout_height="wrap_content">
                         <Button
                             android:id="@+id/golos_button"
                             android:layout_width="100dp"
@@ -130,8 +130,8 @@
                             android:background="@drawable/blue_btn_style" />
                         <ProgressBar
                             android:id="@+id/golos_spinner"
-                            android:layout_width="50dp"
-                            android:layout_height="50dp"
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
                             android:indeterminateTintMode="src_atop"
                             android:indeterminateTint="@color/white"
                             android:layout_centerInParent="true"

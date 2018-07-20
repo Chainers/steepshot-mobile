@@ -15,13 +15,11 @@ namespace Steepshot.CustomViews
     {
         private readonly string _recipient;
         private readonly string _amount;
-        private readonly DateTime _time;
 
-        public SuccessfullTrxDialog(Context context, string recipient, string amount, DateTime time) : this(context)
+        public SuccessfullTrxDialog(Context context, string recipient, string amount) : this(context)
         {
             _recipient = recipient;
             _amount = amount;
-            _time = time;
         }
 
         private SuccessfullTrxDialog(Context context) : base(context)

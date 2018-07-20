@@ -7,7 +7,6 @@ using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
 using CheeseBind;
-using Refractored.Controls;
 using Steepshot.Base;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Utils;
@@ -42,7 +41,7 @@ namespace Steepshot.Activity
 
             if (string.IsNullOrEmpty(pass))
             {
-                this.ShowAlert(LocalizationKeys.EmptyPostingKey, ToastLength.Short);
+                this.ShowAlert(LocalizationKeys.EmptyActiveKey, ToastLength.Short);
                 return;
             }
 

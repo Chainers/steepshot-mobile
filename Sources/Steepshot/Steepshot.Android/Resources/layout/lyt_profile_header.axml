@@ -57,14 +57,14 @@
             android:id="@+id/actions"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
+            android:layout_marginTop="7dp"
             android:layout_below="@id/name_place"
             android:layout_alignLeft="@id/name_place">
             <RelativeLayout
                 android:id="@+id/follow_container"
                 android:layout_width="wrap_content"
                 android:layout_height="30dp"
-                android:layout_marginBottom="5dp">
+                android:layout_marginBottom="7dp">
                 <ProgressBar
                     android:id="@+id/loading_spinner"
                     android:layout_width="30dp"
@@ -126,6 +126,7 @@
         android:id="@+id/photos_btn"
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
+        android:layout_marginTop="10dp"
         android:orientation="vertical"
         android:layout_below="@id/site"
         android:layout_alignLeft="@id/site">
@@ -151,6 +152,7 @@
         android:id="@+id/following_btn"
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
+        android:layout_marginTop="10dp"
         android:orientation="vertical"
         android:layout_below="@id/site"
         android:layout_toRightOf="@id/photos_btn"
@@ -179,6 +181,7 @@
         android:id="@+id/followers_btn"
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
+        android:layout_marginTop="10dp"
         android:orientation="vertical"
         android:layout_below="@id/site"
         android:layout_toRightOf="@id/following_btn"
@@ -207,7 +210,7 @@
         android:id="@+id/balance_container"
         android:layout_width="wrap_content"
         android:layout_height="49dp"
-        android:layout_marginTop="25dp"
+        android:layout_marginTop="10dp"
         android:layout_marginBottom="2dp"
         android:layout_below="@id/photos_btn"
         android:clickable="true"

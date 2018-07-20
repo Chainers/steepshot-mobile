@@ -184,6 +184,7 @@
         Logout,
         SwitchTo,
         Recipient,
-        Amount
+        Amount,
+        SendTokens
     }
 }
