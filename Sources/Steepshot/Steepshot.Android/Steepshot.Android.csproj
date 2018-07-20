@@ -206,7 +206,7 @@
     <AndroidResource Include="Resources\drawable-xhdpi\ic_edit.png" />
     <AndroidResource Include="Resources\drawable-xxhdpi\ic_edit.png" />
     <AndroidResource Include="Resources\layout\lyt_local_tags_item.axml" />
-    <AndroidResource Include="Resources\drawable\white_radius12dip_edge_grey.xml" />
+    <AndroidResource Include="Resources\drawable\white_btn_style_edge_grey.xml" />
     <AndroidResource Include="Resources\drawable-mdpi\ic_close_black.png" />
     <AndroidResource Include="Resources\drawable-xhdpi\ic_close_black.png" />
     <AndroidResource Include="Resources\drawable-xxhdpi\ic_close_black.png" />
@@ -217,7 +217,7 @@
     <AndroidResource Include="Resources\drawable-mdpi\ic_more.png" />
     <AndroidResource Include="Resources\drawable-xhdpi\ic_more.png" />
     <AndroidResource Include="Resources\drawable-xxhdpi\ic_more.png" />
-    <AndroidResource Include="Resources\drawable\blue_radius12dip.xml" />
+    <AndroidResource Include="Resources\drawable\blue_btn_style.xml" />
     <AndroidResource Include="Resources\drawable-mdpi\ic_new_like_filled.png" />
     <AndroidResource Include="Resources\drawable-xhdpi\ic_new_like_filled.png" />
     <AndroidResource Include="Resources\drawable-xxhdpi\ic_new_like_filled.png" />
@@ -663,7 +663,7 @@
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\drawable\settings_separator.xml" />
-    <AndroidResource Include="Resources\drawable\orange_radius12dip.xml" />
+    <AndroidResource Include="Resources\drawable\orange_btn_style.xml" />
     <AndroidResource Include="Resources\drawable\welcome_screen_background.xml" />
     <AndroidResource Include="Resources\drawable\popup_background.xml" />
   </ItemGroup>
@@ -903,7 +903,7 @@
     <AndroidResource Include="Resources\drawable\white_radius100dip_edge_grey.xml" />
   </ItemGroup>
   <ItemGroup>
-    <AndroidResource Include="Resources\drawable\white_radius12dip_edge_black.xml" />
+    <AndroidResource Include="Resources\drawable\white_btn_style_edge_black.xml" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\layout\lyt_successfull_transaction.axml">

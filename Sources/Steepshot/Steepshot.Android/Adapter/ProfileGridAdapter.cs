@@ -102,7 +102,6 @@ namespace Steepshot.Adapter
         private readonly Button _transferButton;
         private readonly ProgressBar _loadingSpinner;
         private readonly VotingPowerFrame _votingPower;
-        private readonly Space _space;
 
         private readonly Action<ActionType> _profileAction;
 
@@ -131,7 +130,6 @@ namespace Steepshot.Adapter
             _profileImage = itemView.FindViewById<Refractored.Controls.CircleImageView>(Resource.Id.profile_image);
             _followingBtn = itemView.FindViewById<LinearLayout>(Resource.Id.following_btn);
             _followersBtn = itemView.FindViewById<LinearLayout>(Resource.Id.followers_btn);
-            _space = itemView.FindViewById<Space>(Resource.Id.btn_space);
             _balanceContainer = itemView.FindViewById<RelativeLayout>(Resource.Id.balance_container);
             _followContainer = itemView.FindViewById<RelativeLayout>(Resource.Id.follow_container);
             _followButton = itemView.FindViewById<Button>(Resource.Id.follow_button);
@@ -143,7 +141,7 @@ namespace Steepshot.Adapter
             _followingTitle.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Following);
             _followersTitle.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Followers);
             _balanceText.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.AccountBalance);
-            _transferButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Transfer);
+            _transferButton.Text = "send token";//AppSettings.LocalizationManager.GetText(LocalizationKeys.Transfer);
 
             _name.Typeface = Style.Semibold;
             _place.Typeface = Style.Regular;
@@ -231,10 +229,7 @@ namespace Steepshot.Adapter
             {
                 _votingPower.VotingPower = (float)profile.VotingPower;
                 _votingPower.Draw = true;
-                _followButton.Visibility = ViewStates.Gone;
-                ((LinearLayout.LayoutParams)_space.LayoutParameters).Weight = 0;
-                ((LinearLayout.LayoutParams)_followContainer.LayoutParameters).Weight = 0;
-                ((LinearLayout.LayoutParams)_transferButton.LayoutParameters).Weight = 100;
+                _followContainer.Visibility = ViewStates.Gone;
             }
             else
             {
@@ -260,7 +255,7 @@ namespace Steepshot.Adapter
                     }
                     else
                     {
-                        background.SetColors(new int[] { Style.R255G24B5, Style.R255G24B5 });
+                        background.SetColors(new int[] { Style.R255G121B4, Style.R255G22B5 });
                         background.SetOrientation(GradientDrawable.Orientation.LeftRight);
                         background.SetStroke(0, Color.White);
                         _followButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Follow);

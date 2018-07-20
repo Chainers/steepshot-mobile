@@ -48,7 +48,7 @@
                 android:textColor="@color/white"
                 android:textSize="14sp"
                 android:gravity="center"
-                android:background="@drawable/orange_radius12dip" />
+                android:background="@drawable/orange_btn_style" />
             <ProgressBar
                 android:id="@+id/loading_spinner"
                 android:layout_width="40dp"

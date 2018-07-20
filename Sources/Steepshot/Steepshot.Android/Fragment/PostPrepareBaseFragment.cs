@@ -303,6 +303,11 @@ namespace Steepshot.Fragment
             _tag.Visibility = _tagsListContainer.Visibility = openTags ? ViewStates.Visible : ViewStates.Gone;
             _photosContainer.Visibility = _titleContainer.Visibility = _descriptionContainer.Visibility = _tagLabelContainer.Visibility = _tagsFlow.Visibility = _postBtnContainer.Visibility = openTags ? ViewStates.Gone : ViewStates.Visible;
             _localTagsList.Visibility = openTags && _localTagsAdapter.LocalTags.Count > 0 ? ViewStates.Visible : ViewStates.Gone;
+            if (!openTags)
+            {
+                _descriptionScrollContainer.Post(() =>
+                _descriptionScrollContainer.FullScroll(FocusSearchDirection.Down));
+            }
         }
 
         protected bool AddTag(string tag)

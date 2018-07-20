@@ -1,6 +1,6 @@
 {
     "Lang": "en-us",
-    "Version": 15,
+    "Version": 16,
     "Map": {
 
         "ObsoleteTextStart":"ObsoleteBlock",
@@ -198,11 +198,11 @@
         "NoResultText":"Sorry, no results found. Please, try again",
         "VotingPowerSetting":"Show voting slider",
 		"Transfer":"Transfer",
-		"RecipientName":"Recipient name",
+		"RecipientName":"To",
         "RecipientNameHint":"Search",
-        "TransferAmount":"Transfer amount",
+        "TransferAmount":"Amount",
         "TransferAmountHint":"0",
-        "TransferComment":"+ Add comment",
+        "TransferComment":"+ message",
         "TranferCommentHint":"Enter comment", 
 		"WrongRecipientName":"Check recipient name",
         "WrongTransferAmount":"Check transfer amount",

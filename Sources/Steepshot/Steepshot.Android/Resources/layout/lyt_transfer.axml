@@ -122,6 +122,7 @@
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
                             android:textSize="14sp"
+                            android:textAllCaps="true"
                             android:textColor="@color/rgb255_34_5" />
                         <ImageView
                             android:layout_width="8dp"
@@ -198,7 +199,7 @@
                         android:layout_height="50dp"
                         android:gravity="center"
                         android:focusableInTouchMode="true"
-                        android:background="@drawable/orange_radius12dip"
+                        android:background="@drawable/orange_btn_style"
                         android:elevation="0dp" />
                 </RelativeLayout>
             </LinearLayout>

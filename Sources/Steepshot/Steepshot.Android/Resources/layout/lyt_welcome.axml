@@ -27,7 +27,7 @@
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:layout_above="@id/terms"
-        android:background="@drawable/white_radius12dip_edge_grey"
+        android:background="@drawable/white_btn_style_edge_grey"
         android:textColor="@color/rgb15_24_30"
         android:textSize="14sp"
         android:textAllCaps="false"
@@ -46,7 +46,7 @@
             android:id="@+id/golos_login"
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:background="@drawable/blue_radius12dip"
+            android:background="@drawable/blue_btn_style"
             android:textColor="@color/white"
             android:textSize="14sp" />
         <ProgressBar
@@ -72,7 +72,7 @@
             android:id="@+id/steem_login"
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:background="@drawable/orange_radius12dip"
+            android:background="@drawable/orange_btn_style"
             android:textColor="@color/white"
             android:textSize="14sp" />
         <ProgressBar

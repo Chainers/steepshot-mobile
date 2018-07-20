@@ -277,7 +277,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="50dp"
                     android:textColor="@color/white"
-                    android:background="@drawable/orange_radius12dip"
+                    android:background="@drawable/orange_btn_style"
                     android:layout_centerInParent="true"
                     android:textSize="14sp" />
             </RelativeLayout>

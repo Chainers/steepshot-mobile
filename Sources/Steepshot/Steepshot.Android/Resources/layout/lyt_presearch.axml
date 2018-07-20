@@ -163,7 +163,7 @@
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:text="Login"
-        android:background="@drawable/blue_radius12dip"
+        android:background="@drawable/blue_btn_style"
         android:layout_marginBottom="17dp"
         android:textColor="@color/white"
         android:textSize="14sp" />

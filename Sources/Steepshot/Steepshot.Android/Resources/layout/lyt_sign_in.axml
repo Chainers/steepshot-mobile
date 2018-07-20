@@ -60,7 +60,7 @@
         android:layout_height="50dp"
         android:gravity="center"
         android:layout_below="@id/input_password_separator"
-        android:background="@drawable/orange_radius12dip"
+        android:background="@drawable/orange_btn_style"
         android:layout_marginRight="15dp"
         android:layout_marginLeft="15dp"
         android:layout_marginTop="29dp" />
@@ -79,7 +79,7 @@
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:textColor="@color/rgb15_24_30"
-        android:background="@drawable/white_radius12dip_edge_grey"
+        android:background="@drawable/white_btn_style_edge_grey"
         android:textSize="@dimen/dp_button_text"
         android:layout_marginRight="15dp"
         android:layout_marginLeft="15dp"

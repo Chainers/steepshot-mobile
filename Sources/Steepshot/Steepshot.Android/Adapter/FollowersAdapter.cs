@@ -188,7 +188,7 @@ namespace Steepshot.Adapter
                         }
                         else
                         {
-                            background.SetColors(new int[] { Style.R255G24B5, Style.R255G24B5 });
+                            background.SetColors(new int[] { Style.R255G121B4, Style.R255G22B5 });
                             background.SetOrientation(GradientDrawable.Orientation.LeftRight);
                             background.SetStroke(0, Color.White);
                             _followButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Follow);
@@ -197,7 +197,7 @@ namespace Steepshot.Adapter
                         _followButton.Enabled = true;
                         _loader.Visibility = ViewStates.Gone;
                     }
-                    background.SetCornerRadius(TypedValue.ApplyDimension(ComplexUnitType.Dip, 12, _context.Resources.DisplayMetrics));
+                    background.SetCornerRadius(TypedValue.ApplyDimension(ComplexUnitType.Dip, 25, _context.Resources.DisplayMetrics));
                     _followButton.Background = background;
                 }
             }

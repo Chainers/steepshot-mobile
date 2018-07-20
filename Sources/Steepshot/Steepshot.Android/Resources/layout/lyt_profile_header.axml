@@ -18,12 +18,12 @@
             customAttrs:votingPowerWidth="3dp">
             <refractored.controls.CircleImageView
                 android:id="@+id/profile_image"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
                 android:src="@drawable/ic_holder" />
             <TextView
                 android:id="@+id/voting_power_message"
-                android:layout_width="100dp"
+                android:layout_width="80dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:gravity="center"
@@ -36,8 +36,7 @@
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="30dp"
-            android:layout_centerVertical="true"
+            android:layout_marginLeft="15dp"
             android:layout_toRightOf="@id/voting_power">
             <TextView
                 android:id="@+id/profile_name"
@@ -50,11 +49,53 @@
                 android:id="@+id/place"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Location"
                 android:textSize="12sp"
                 android:textColor="@color/rgb151_155_158"
                 android:layout_marginTop="1dp" />
         </LinearLayout>
+        <RelativeLayout
+            android:id="@+id/actions"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:layout_below="@id/name_place"
+            android:layout_alignLeft="@id/name_place">
+            <RelativeLayout
+                android:id="@+id/follow_container"
+                android:layout_width="wrap_content"
+                android:layout_height="30dp"
+                android:layout_marginBottom="5dp">
+                <ProgressBar
+                    android:id="@+id/loading_spinner"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:indeterminateTintMode="src_atop"
+                    android:indeterminateTint="@android:color/white"
+                    android:layout_centerInParent="true"
+                    android:elevation="10dp"
+                    android:visibility="gone" />
+                <Button
+                    android:id="@+id/follow_button"
+                    android:layout_width="150dp"
+                    android:layout_height="match_parent"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
+                    android:background="@drawable/white_btn_style_edge_grey"
+                    android:textSize="14sp"
+                    android:textColor="@android:color/white"
+                    android:text="Follow" />
+            </RelativeLayout>
+            <Button
+                android:id="@+id/transfer_button"
+                android:layout_width="150dp"
+                android:layout_height="30dp"
+                android:layout_below="@id/follow_container"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:background="@drawable/orange_btn_style"
+                android:textSize="14sp"
+                android:textColor="@android:color/white" />
+        </RelativeLayout>
     </RelativeLayout>
     <TextView
         android:id="@+id/description"
@@ -65,7 +106,7 @@
         android:textColor="@color/rgb151_155_158"
         android:layout_below="@id/top_profile_layout"
         android:layout_alignLeft="@id/top_profile_layout"
-        android:layout_marginTop="11dp"
+        android:layout_marginTop="25dp"
         android:layout_marginRight="29dp" />
     <Steepshot.CustomViews.AutoLinkTextView
         android:id="@+id/site"
@@ -82,58 +123,12 @@
         customAttrs:selectedColor="@color/rgb231_72_0"
         customAttrs:underlineEnabled="true" />
     <LinearLayout
-        android:id="@+id/actions"
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_below="@id/site"
-        android:layout_margin="30dp"
-        android:weightSum="100">
-        <RelativeLayout
-            android:id="@+id/follow_container"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="49">
-            <ProgressBar
-                android:id="@+id/loading_spinner"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:indeterminateTintMode="src_atop"
-                android:indeterminateTint="@android:color/white"
-                android:layout_centerInParent="true"
-                android:elevation="10dp"
-                android:visibility="gone" />
-            <Button
-                android:id="@+id/follow_button"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@drawable/white_radius12dip_edge_grey"
-                android:textSize="14sp"
-                android:textColor="@android:color/white"
-                android:text="Follow" />
-        </RelativeLayout>
-        <Space
-            android:id="@+id/btn_space"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="2" />
-        <Button
-            android:id="@+id/transfer_button"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="49"
-            android:layout_alignParentRight="true"
-            android:background="@drawable/orange_radius12dip"
-            android:textSize="14sp"
-            android:textColor="@android:color/white" />
-    </LinearLayout>
-    <LinearLayout
         android:id="@+id/photos_btn"
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
         android:orientation="vertical"
-        android:layout_below="@id/actions"
-        android:layout_alignLeft="@id/actions">
+        android:layout_below="@id/site"
+        android:layout_alignLeft="@id/site">
         <TextView
             android:id="@+id/photos_count"
             android:layout_width="wrap_content"
@@ -157,7 +152,7 @@
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
         android:orientation="vertical"
-        android:layout_below="@id/actions"
+        android:layout_below="@id/site"
         android:layout_toRightOf="@id/photos_btn"
         android:layout_marginLeft="50dp"
         android:clickable="true"
@@ -185,7 +180,7 @@
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
         android:orientation="vertical"
-        android:layout_below="@id/actions"
+        android:layout_below="@id/site"
         android:layout_toRightOf="@id/following_btn"
         android:layout_marginLeft="50dp"
         android:clickable="true"

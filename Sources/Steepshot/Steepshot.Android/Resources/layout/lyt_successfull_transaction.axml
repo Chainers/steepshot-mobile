@@ -85,7 +85,7 @@
         android:layout_height="50dp"
         android:textAllCaps="false"
         android:gravity="center"
-        android:background="@drawable/white_radius12dip_edge_grey"
+        android:background="@drawable/white_btn_style_edge_grey"
         android:layout_marginTop="10dp"
         android:layout_marginBottom="10dp"
         android:elevation="0dp" />
