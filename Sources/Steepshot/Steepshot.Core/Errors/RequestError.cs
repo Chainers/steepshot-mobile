@@ -10,9 +10,46 @@ namespace Steepshot.Core.Errors
 
         public JObject ResponseError { get; set; }
 
-        public string RawRequest { get; set; }
 
-        public string RawResponse { get; set; }
+        public string RawRequest
+        {
+            get
+            {
+                if (Data.Contains("RawRequest"))
+                    return (string)Data["RawRequest"];
+                return string.Empty;
+            }
+            set
+            {
+                if (!string.IsNullOrEmpty(value))
+                {
+                    if (Data.Contains("RawRequest"))
+                        Data["RawRequest"] = value;
+                    else
+                        Data.Add("RawRequest", value);
+                }
+            }
+        }
+
+        public string RawResponse
+        {
+            get
+            {
+                if (Data.Contains("RawResponse"))
+                    return (string)Data["RawResponse"];
+                return string.Empty;
+            }
+            set
+            {
+                if (!string.IsNullOrEmpty(value))
+                {
+                    if (Data.Contains("RawResponse"))
+                        Data["RawResponse"] = value;
+                    else
+                        Data.Add("RawResponse", value);
+                }
+            }
+        }
 
 
         public RequestError(Exception ex)
@@ -26,17 +63,12 @@ namespace Steepshot.Core.Errors
             RawResponse = rawResponse;
         }
 
-        public override string ToString()
-        {
-            return $"Exception:{Environment.NewLine}{Exception}{Environment.NewLine}RawRequest:{Environment.NewLine}{RawRequest}{Environment.NewLine}RawResponse:{Environment.NewLine}{RawResponse}";
-        }
-
         public RequestError(JsonRpcResponse response)
         {
-            Exception = response.Exception;
-            ResponseError = response.ResponseError;
             RawRequest = response.RawRequest;
             RawResponse = response.RawResponse;
+            Exception = response.Exception;
+            ResponseError = response.ResponseError;
         }
     }
 }

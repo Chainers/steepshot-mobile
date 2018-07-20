@@ -187,7 +187,7 @@ namespace Steepshot.iOS.Views
             }
             catch (Exception ex)
             {
-                AppSettings.Reporter.SendCrash(ex);
+                AppSettings.Reporter.Error(ex);
             }
             finally
             {

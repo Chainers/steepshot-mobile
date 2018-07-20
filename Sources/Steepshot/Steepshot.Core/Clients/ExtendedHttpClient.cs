@@ -21,7 +21,7 @@ namespace Steepshot.Core.Clients
         private const string NsfwCheckerUrl = "https://nsfwchecker.com/api/nsfw_recognizer";
         private const string NsfwUrlCheckerUrl = "https://nsfwchecker.com/api/nsfw_url_recognizer";
         protected readonly JsonNetConverter JsonNetConverter;
-        
+
         public ExtendedHttpClient()
         {
             JsonNetConverter = new JsonNetConverter();
@@ -45,8 +45,7 @@ namespace Steepshot.Core.Clients
             return await CreateResult<T>(response, token);
         }
 
-        public async Task<OperationResult<T>> Post<T>(string url, Dictionary<string, object> parameters,
-            CancellationToken token)
+        public async Task<OperationResult<T>> Post<T>(string url, Dictionary<string, object> parameters, CancellationToken token)
         {
             HttpContent content = null;
             if (parameters != null && parameters.Count > 0)
@@ -77,7 +76,7 @@ namespace Steepshot.Core.Clients
             {
                 throw;
             }
-          
+
         }
 
         public async Task<OperationResult<MediaModel>> UploadMedia(string url, UploadMediaModel model,

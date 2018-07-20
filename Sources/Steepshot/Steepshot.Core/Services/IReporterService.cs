@@ -4,8 +4,12 @@ namespace Steepshot.Core.Services
 {
     public interface IReporterService
     {
-        string SendMessage(string message);
+        void Fatal(Exception ex);
 
-        string SendCrash(Exception ex);
+        void Error(Exception ex);
+
+        void Warning(Exception ex);
+
+        void Info(Exception ex);
     }
 }

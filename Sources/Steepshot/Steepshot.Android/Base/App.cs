@@ -3,7 +3,6 @@ using Android.Runtime;
 using Autofac;
 using Square.Picasso;
 using Steepshot.Core.Localization;
-using Steepshot.Core.Sentry;
 using Steepshot.Core.Services;
 using Steepshot.Core.Utils;
 using Steepshot.Services;
@@ -12,6 +11,8 @@ using System;
 using Steepshot.Core;
 using Steepshot.Core.Authorization;
 using Steepshot.Core.Clients;
+using Steepshot.Core.Errors;
+using Steepshot.Core.Sentry;
 
 namespace Steepshot.Base
 {
@@ -31,13 +32,13 @@ namespace Steepshot.Base
         {
         }
 
-
         public override void OnCreate()
         {
             base.OnCreate();
             InitIoC(Context.Assets);
             InitPicassoCache();
-            InitClients();
+
+            AppSettings.LocalizationManager.Update(HttpClient);
         }
 
         private void InitPicassoCache()
@@ -55,6 +56,8 @@ namespace Steepshot.Base
         {
             if (AppSettings.Container == null)
             {
+                HttpClient = new ExtendedHttpClient();
+
                 var builder = new ContainerBuilder();
                 var saverService = new SaverService();
                 var dataProvider = new UserManager(saverService);
@@ -73,23 +76,14 @@ namespace Steepshot.Base
                 builder.RegisterInstance(localizationManager).As<LocalizationManager>().SingleInstance();
                 builder.RegisterInstance(configManager).As<ConfigManager>().SingleInstance();
                 var configInfo = assetsHelper.GetConfigInfo();
-                var reporterService = new ReporterService(appInfo, configInfo.RavenClientDsn);
+                var reporterService = new ReporterService(HttpClient, appInfo, configInfo.RavenClientDsn);
+                //var reporterService = new MsLogService();
                 builder.RegisterInstance(reporterService).As<IReporterService>().SingleInstance();
                 AppSettings.Container = builder.Build();
-            }
-        }
 
-        private void InitClients()
-        {
-            MainChain = AppSettings.User.Chain;
-
-            if (HttpClient == null)
-            {
-                HttpClient = new ExtendedHttpClient();
+                MainChain = AppSettings.User.Chain;
                 SteemClient = new SteepshotApiClient(HttpClient, KnownChains.Steem);
                 GolosClient = new SteepshotApiClient(HttpClient, KnownChains.Golos);
-
-                AppSettings.LocalizationManager.Update(HttpClient);
             }
         }
     }

@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Net;
+using System.Net.Http;
+using System.Text;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using Steepshot.Core.Sentry.Models;
 using Steepshot.Core.Services;
 using Steepshot.Core.Utils;
@@ -14,42 +14,55 @@ namespace Steepshot.Core.Sentry
     {
         private readonly IAppInfo _appInfoService;
         private readonly Dsn _dsn;
+        private System.Net.Http.HttpClient HttpClient { get; set; }
 
-
-        public ReporterService(IAppInfo appInfoService, string dsn)
+        public ReporterService(System.Net.Http.HttpClient httpClient, IAppInfo appInfoService, string dsn)
         {
+            HttpClient = httpClient;
             _appInfoService = appInfoService;
             _dsn = new Dsn(dsn);
         }
 
-        public string SendMessage(string message)
-        {
-            if (!AppSettings.ConnectionService.IsConnectionAvailable())
-                return string.Empty; //TODO: need to store locale
 
-            var packet = GetPacket();
-            packet.Level = "info";
-            packet.Message = message;
-            var eventId = Send(packet, _dsn);
-            return $"{eventId}";
+        public async void Fatal(Exception ex)
+        {
+            await Send(ex, "fatal");
         }
 
-        public string SendCrash(Exception ex)
+        public async void Error(Exception ex)
+        {
+            await Send(ex, "error");
+        }
+
+        public async void Warning(Exception ex)
+        {
+            await Send(ex, "warning");
+        }
+
+        public async void Info(Exception ex)
+        {
+            await Send(ex, "info");
+        }
+
+
+        private async Task Send(Exception ex, string level)
         {
             if (!AppSettings.ConnectionService.IsConnectionAvailable())
-                return string.Empty; //TODO: need to store locale
+                return; //TODO: need to store locale
 
             var packet = GetPacket();
-            packet.Level = "error";
+            packet.Level = level;
             packet.Extra = new ExceptionData(ex);
             packet.Exceptions = SentryException.GetList(ex);
-            var eventId = Send(packet, _dsn);
-            return $"{eventId}";
+            await Send(packet, _dsn);
         }
 
         private JsonPacket GetPacket()
         {
-            var login = AppSettings.User?.Login ?? "unauthorized";
+            var login = AppSettings.User?.Login;
+            if (string.IsNullOrEmpty(login))
+                login = "unauthorized";
+
             var appVersion = _appInfoService.GetAppVersion();
             var buildVersion = _appInfoService.GetBuildVersion();
             return new JsonPacket
@@ -68,45 +81,19 @@ namespace Steepshot.Core.Sentry
             };
         }
 
-        private string Send(JsonPacket packet, Dsn dsn)
+        private async Task Send(JsonPacket packet, Dsn dsn)
         {
             try
             {
                 var ts = (long)(DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalSeconds;
-                var webRequest = (HttpWebRequest)WebRequest.Create(dsn.SentryUri);
-                webRequest.Method = "POST";
-                webRequest.Accept = "application/json";
-                webRequest.Headers["X-Sentry-Auth"] = $"Sentry sentry_version={7},sentry_client=steepshot/1, sentry_timestamp={ts}, sentry_key={dsn.PublicKey}, sentry_secret={dsn.PrivateKey}";
-                webRequest.ContentType = "application/json; charset=utf-8";
-
-                using (var s = webRequest.GetRequestStreamAsync().Result)
-                {
-                    var txt = packet.ToString();
-                    using (var sw = new StreamWriter(s))
-                    {
-                        sw.Write(txt);
-                    }
-                }
-
-                using (var wr = webRequest.GetResponseAsync().Result)
-                {
-                    using (var responseStream = wr.GetResponseStream())
-                    {
-                        if (responseStream == null)
-                            return null;
-
-                        using (var sr = new StreamReader(responseStream))
-                        {
-                            var content = sr.ReadToEnd();
-                            var response = JsonConvert.DeserializeObject<JObject>(content);
-                            return response.Value<string>("id");
-                        }
-                    }
-                }
+                var json = JsonConvert.SerializeObject(packet, Formatting.Indented);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                content.Headers.Add("X-Sentry-Auth", $"Sentry sentry_version={7},sentry_client=steepshot/1, sentry_timestamp={ts}, sentry_key={dsn.PublicKey}, sentry_secret={dsn.PrivateKey}");
+                await HttpClient.PostAsync(dsn.SentryUri, content);
             }
-            catch (Exception exception)
+            catch
             {
-                return exception.Message;
+                //todo nothing
             }
         }
     }

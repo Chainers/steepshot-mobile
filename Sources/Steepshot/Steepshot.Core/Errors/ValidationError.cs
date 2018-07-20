@@ -8,6 +8,9 @@ namespace Steepshot.Core.Errors
         public object[] Parameters { get; set; }
         public LocalizationKeys? Key { get; set; }
 
+        public override string Message => ToString();
+
+
         public ValidationError(string message)
             : base(message)
         {
@@ -22,6 +25,14 @@ namespace Steepshot.Core.Errors
         public ValidationError(LocalizationKeys key)
         {
             Key = key;
+        }
+
+        public override string ToString()
+        {
+            if (Parameters == null)
+                return Key.ToString();
+
+            return string.Format($"{Key} {string.Join(",", Parameters)}");
         }
     }
 }

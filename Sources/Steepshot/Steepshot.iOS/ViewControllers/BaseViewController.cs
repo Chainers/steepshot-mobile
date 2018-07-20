@@ -266,7 +266,7 @@ namespace Steepshot.iOS.ViewControllers
                 return lm.GetText(validationError);
 
 
-            var url = AppSettings.Reporter.SendCrash(error);
+            AppSettings.Reporter.Error(error);
             var msg = string.Empty;
 
             if (error is InternalError internalError)

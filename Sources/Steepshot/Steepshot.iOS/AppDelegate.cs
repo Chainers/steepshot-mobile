@@ -37,7 +37,8 @@ namespace Steepshot.iOS
         public override bool FinishedLaunching(UIApplication application, NSDictionary launchOptions)
         {
             InitIoC();
-            InitClients();
+
+            AppSettings.LocalizationManager.Update(HttpClient);
 
             GAService.Instance.InitializeGAService();
 
@@ -65,18 +66,20 @@ namespace Steepshot.iOS
 
         private void OnUnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs e)
         {
-            AppSettings.Reporter.SendCrash(e.Exception);
+            AppSettings.Reporter.Error(e.Exception);
         }
 
         private void OnUnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
-            AppSettings.Reporter.SendCrash((Exception)e.ExceptionObject);
+            AppSettings.Reporter.Error((Exception)e.ExceptionObject);
         }
 
         private void InitIoC()
         {
             if (AppSettings.Container == null)
             {
+                HttpClient = new ExtendedHttpClient();
+
                 var builder = new ContainerBuilder();
                 var saverService = new SaverService();
                 var dataProvider = new UserManager(saverService);
@@ -95,23 +98,13 @@ namespace Steepshot.iOS
                 builder.RegisterInstance(localizationManager).As<LocalizationManager>().SingleInstance();
                 builder.RegisterInstance(configManager).As<ConfigManager>().SingleInstance();
                 var configInfo = assetsHelper.GetConfigInfo();
-                var reporterService = new ReporterService(appInfo, configInfo.RavenClientDsn);
+                var reporterService = new ReporterService(HttpClient, appInfo, configInfo.RavenClientDsn);
                 builder.RegisterInstance(reporterService).As<IReporterService>().SingleInstance();
                 AppSettings.Container = builder.Build();
-            }
-        }
 
-        private void InitClients()
-        {
-            MainChain = AppSettings.User.Chain;
-
-            if (HttpClient == null)
-            {
-                HttpClient = new ExtendedHttpClient();
+                MainChain = AppSettings.User.Chain;
                 SteemClient = new SteepshotApiClient(HttpClient, KnownChains.Steem);
                 GolosClient = new SteepshotApiClient(HttpClient, KnownChains.Golos);
-
-                AppSettings.LocalizationManager.Update(HttpClient);
             }
         }
 

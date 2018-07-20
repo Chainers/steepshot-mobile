@@ -434,7 +434,7 @@ namespace Steepshot.iOS.Views
             catch (Exception ex)
             {
                 errorMessage.Hidden = false;
-                AppSettings.Reporter.SendCrash(ex);
+                AppSettings.Reporter.Error(ex);
             }
             finally
             {
