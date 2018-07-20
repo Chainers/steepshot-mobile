@@ -13,8 +13,8 @@ namespace Steepshot.Core.Utils
 
         public static IContainer Container { get; set; }
 
-        private static IReporterService _reporter;
-        public static IReporterService Reporter => _reporter ?? (_reporter = Container.Resolve<IReporterService>());
+        private static ILogService _log;
+        public static ILogService Logger => _log ?? (_log = Container.Resolve<ILogService>());
 
         private static ISaverService _saverService;
         public static ISaverService SaverService => _saverService ?? (_saverService = Container.Resolve<ISaverService>());

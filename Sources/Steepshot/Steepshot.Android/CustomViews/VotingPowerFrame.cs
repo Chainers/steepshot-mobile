@@ -4,6 +4,7 @@ using Android.Graphics;
 using Android.OS;
 using Android.Util;
 using Android.Widget;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.CustomViews
 {
@@ -26,6 +27,10 @@ namespace Steepshot.CustomViews
                 ta = context.ObtainStyledAttributes(attrs, Resource.Styleable.VotingPowerFrame, 0, 0);
                 VotingPower = ta.GetFloat(Resource.Styleable.VotingPowerFrame_votingPower, 100.0f);
                 VotingPowerWidth = ta.GetDimensionPixelSize(Resource.Styleable.VotingPowerFrame_votingPowerWidth, 5);
+            }
+            catch (System.Exception ex)
+            {
+                AppSettings.Logger.Warning(ex);
             }
             finally
             {

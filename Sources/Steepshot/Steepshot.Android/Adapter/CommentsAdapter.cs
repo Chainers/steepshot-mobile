@@ -14,6 +14,7 @@ using Steepshot.Core.Presenters;
 using Steepshot.Utils;
 using System.Threading.Tasks;
 using Android.App;
+using Android.OS;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Utils;
@@ -190,7 +191,7 @@ namespace Steepshot.Adapter
         private readonly Action _rootAction;
         private readonly Context _context;
         private readonly RelativeLayout _rootView;
-        private bool isAnimationRuning = false;
+        private CancellationSignal _isAnimationRuning;
 
         private Post _post;
 
@@ -237,45 +238,9 @@ namespace Steepshot.Adapter
 
         private async Task LikeSet(bool isFlag)
         {
-            try
-            {
-                isAnimationRuning = true;
-                _likeOrFlag.ScaleX = 0.7f;
-                _likeOrFlag.ScaleY = 0.7f;
-
-                if (isFlag)
-                    _likeOrFlag.SetImageResource(Resource.Drawable.ic_flag_active);
-                else
-                    _likeOrFlag.SetImageResource(Resource.Drawable.ic_new_like_filled);
-
-                var tick = 0;
-                do
-                {
-                    if (!isAnimationRuning)
-                        return;
-
-                    tick++;
-
-                    var mod = tick % 6;
-                    if (mod != 5)
-                    {
-                        _likeOrFlag.ScaleX += 0.05f;
-                        _likeOrFlag.ScaleY += 0.05f;
-                    }
-                    else
-                    {
-                        _likeOrFlag.ScaleX = 0.7f;
-                        _likeOrFlag.ScaleY = 0.7f;
-                    }
-
-                    await Task.Delay(100);
-
-                } while (true);
-            }
-            catch
-            {
-                //todo nothing
-            }
+            _isAnimationRuning?.Cancel();
+            _isAnimationRuning = new CancellationSignal();
+            await AnimationHelper.PulseLike(_likeOrFlag, isFlag, _isAnimationRuning);
         }
 
         private void EditOnClick(object sender, EventArgs eventArgs)
@@ -395,15 +360,16 @@ namespace Steepshot.Adapter
             else
                 Picasso.With(context).Load(Resource.Drawable.ic_holder).Into(_avatar);
 
-            if (isAnimationRuning && !post.VoteChanging)
+            if (_isAnimationRuning != null && !_isAnimationRuning.IsCanceled && !post.VoteChanging)
             {
-                isAnimationRuning = false;
+                _isAnimationRuning.Cancel();
+                _isAnimationRuning = null;
                 _likeOrFlag.ScaleX = 1f;
                 _likeOrFlag.ScaleY = 1f;
             }
             if (!BasePostPresenter.IsEnableVote)
             {
-                if (post.VoteChanging && !isAnimationRuning)
+                if (post.VoteChanging && (_isAnimationRuning == null || _isAnimationRuning.IsCanceled))
                 {
                     LikeSet(false);
                 }

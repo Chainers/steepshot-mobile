@@ -20,6 +20,7 @@ using Refractored.Controls;
 using Steepshot.Base;
 using Steepshot.Core.Errors;
 using Steepshot.Core.Localization;
+using Steepshot.Core.Utils;
 using Steepshot.Utils;
 using Camera = Android.Hardware.Camera;
 using Format = Android.Graphics.Format;
@@ -221,9 +222,10 @@ namespace Steepshot.Fragment
                 _camera.SetParameters(parameters);
                 _camera?.TakePicture(this, null, this);
             }
-            catch
+            catch (Exception ex)
             {
                 _shotButton.Enabled = true;
+                AppSettings.Logger.Warning(ex);
             }
         }
 

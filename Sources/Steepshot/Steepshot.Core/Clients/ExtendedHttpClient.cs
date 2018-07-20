@@ -13,6 +13,7 @@ using System.Linq;
 using System.Net.Http.Headers;
 using Steepshot.Core.Errors;
 using Steepshot.Core.Localization;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Clients
 {
@@ -60,27 +61,18 @@ namespace Steepshot.Core.Clients
 
         public async Task<OperationResult<T>> Post<T, TData>(string url, TData data, CancellationToken token)
         {
-            try
+            HttpContent content = null;
+            if (data != null)
             {
-                HttpContent content = null;
-                if (data != null)
-                {
-                    var param = JsonNetConverter.Serialize(data);
-                    content = new StringContent(param, Encoding.UTF8, "application/json");
-                }
-
-                var response = await PostAsync(url, content, token);
-                return await CreateResult<T>(response, token);
-            }
-            catch (Exception e)
-            {
-                throw;
+                var param = JsonNetConverter.Serialize(data);
+                content = new StringContent(param, Encoding.UTF8, "application/json");
             }
 
+            var response = await PostAsync(url, content, token);
+            return await CreateResult<T>(response, token);
         }
 
-        public async Task<OperationResult<MediaModel>> UploadMedia(string url, UploadMediaModel model,
-            CancellationToken token)
+        public async Task<OperationResult<MediaModel>> UploadMedia(string url, UploadMediaModel model, CancellationToken token)
         {
             var fTitle = Guid.NewGuid().ToString();
 

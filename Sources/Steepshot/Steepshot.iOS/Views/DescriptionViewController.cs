@@ -759,7 +759,8 @@ namespace Steepshot.iOS.Views
                                 InvokeOnMainThread(() =>
                                 {
                                     //Remake this
-                                    ShowDialog(photoUploadResponse[0].Error, LocalizationKeys.Cancel, LocalizationKeys.Retry, (arg) =>
+                                    ShowDialog(photoUploadResponse[0].Error, LocalizationKeys.Cancel,
+                                        LocalizationKeys.Retry, (arg) =>
                                         {
                                             shouldReturn = true;
                                             mre.Set();
@@ -806,14 +807,12 @@ namespace Steepshot.iOS.Views
                         {
                             InvokeOnMainThread(() =>
                             {
-                                ShowDialog(response.Error, LocalizationKeys.Cancel, LocalizationKeys.Retry, (arg) =>
-                                {
-                                    mre.Set();
-                                }, (arg) =>
-                                {
-                                    pushToBlockchainRetry = true;
-                                    mre.Set();
-                                });
+                                ShowDialog(response.Error, LocalizationKeys.Cancel, LocalizationKeys.Retry,
+                                    (arg) => { mre.Set(); }, (arg) =>
+                                    {
+                                        pushToBlockchainRetry = true;
+                                        mre.Set();
+                                    });
                             });
 
                             mre.Reset();
@@ -824,18 +823,20 @@ namespace Steepshot.iOS.Views
                             InvokeOnMainThread(() =>
                             {
                                 ShouldProfileUpdate = true;
-                                NavigationController.ViewControllers = new UIViewController[] { NavigationController.ViewControllers[0], this };
+                                NavigationController.ViewControllers = new UIViewController[]
+                                    {NavigationController.ViewControllers[0], this};
                                 NavigationController.PopViewController(false);
                             });
                         }
                     } while (pushToBlockchainRetry);
                 }
+                catch (Exception ex)
+                {
+                    AppSettings.Logger.Warning(ex);
+                }
                 finally
                 {
-                    InvokeOnMainThread(() =>
-                    {
-                        EnablePostAndEdit(true);
-                    });
+                    InvokeOnMainThread(() => { EnablePostAndEdit(true); });
                 }
             });
         }

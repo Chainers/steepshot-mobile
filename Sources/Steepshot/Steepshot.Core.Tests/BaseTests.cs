@@ -35,7 +35,7 @@ namespace Steepshot.Core.Tests
             builder.RegisterInstance(saverService).As<ISaverService>().SingleInstance();
             builder.RegisterInstance(new StubConnectionService()).As<IConnectionService>().SingleInstance();
             builder.RegisterInstance(new LocalizationManager(saverService, assetsHelper)).As<LocalizationManager>().SingleInstance();
-            builder.RegisterType<StubReporterService>().As<IReporterService>().SingleInstance();
+            builder.RegisterType<StubLogService>().As<ILogService>().SingleInstance();
 
             AppSettings.Container = builder.Build();
             AppSettings.IsDev = IsDev;

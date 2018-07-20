@@ -2,7 +2,7 @@
 
 namespace Steepshot.Core.Services
 {
-    public interface IReporterService
+    public interface ILogService
     {
         void Fatal(Exception ex);
 

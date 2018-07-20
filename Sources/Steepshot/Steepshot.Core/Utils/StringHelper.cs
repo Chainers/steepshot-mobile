@@ -34,9 +34,14 @@ namespace Steepshot.Core.Utils
             {
                 domainName = idn.GetAscii(domainName);
             }
-            catch (ArgumentException)
+            catch (ArgumentException ex)
             {
                 invalid = true;
+                AppSettings.Logger.Warning(ex);
+            }
+            catch (Exception ex)
+            {
+                AppSettings.Logger.Warning(ex);
             }
             return match.Groups[1].Value + domainName;
         }

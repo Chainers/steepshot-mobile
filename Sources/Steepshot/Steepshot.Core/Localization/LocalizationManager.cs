@@ -3,6 +3,7 @@ using System.Threading;
 using Steepshot.Core.Clients;
 using Steepshot.Core.Errors;
 using Steepshot.Core.Services;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Localization
 {
@@ -78,9 +79,9 @@ namespace Steepshot.Core.Localization
                 }
                 return changed;
             }
-            catch
+            catch (System.Exception ex)
             {
-                //to do nothing
+                AppSettings.Logger.Warning(ex);
             }
             return false;
         }

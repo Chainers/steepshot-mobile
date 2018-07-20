@@ -160,34 +160,30 @@ namespace Steepshot.iOS.Views
             loginButton.SetTitleColor(UIColor.Clear, UIControlState.Disabled);
             try
             {
-                var isvalid = KeyHelper.ValidatePrivateKey(password.Text, _isPostingMode ? AccountInfoResponse.PublicPostingKeys : AccountInfoResponse.PublicActiveKeys);
-                if (isvalid)
+                if (!KeyHelper.ValidatePrivateKey(password.Text, _isPostingMode ? AccountInfoResponse.PublicPostingKeys : AccountInfoResponse.PublicActiveKeys))
                 {
-                    if (_isPostingMode)
-                    {
-                        AppSettings.User.AddAndSwitchUser(Username, password.Text, AccountInfoResponse);
+                    ShowCustomAlert(LocalizationKeys.WrongPrivatePostingKey, password);
+                    return;
+                }
 
-                        var myViewController = new MainTabBarController();
-                        AppDelegate.InitialViewController = myViewController;
-                        NavigationController.ViewControllers = new UIViewController[] { myViewController, this };
-                        NavigationController.PopViewController(true);
-                    }
-                    else
-                    {
-                        AppSettings.User.ActiveKey = password.Text;
-                        NavigationController.PopViewController(true);
-                    }
+                if (_isPostingMode)
+                {
+                    AppSettings.User.AddAndSwitchUser(Username, password.Text, AccountInfoResponse);
+
+                    var myViewController = new MainTabBarController();
+                    AppDelegate.InitialViewController = myViewController;
+                    NavigationController.ViewControllers = new UIViewController[] { myViewController, this };
+                    NavigationController.PopViewController(true);
                 }
                 else
-                    ShowCustomAlert(LocalizationKeys.WrongPrivatePostingKey, password);
-            }
-            catch (ArgumentNullException)
-            {
-                ShowCustomAlert(LocalizationKeys.WrongPrivatePostingKey, password);
+                {
+                    AppSettings.User.ActiveKey = password.Text;
+                    NavigationController.PopViewController(true);
+                }
             }
             catch (Exception ex)
             {
-                AppSettings.Reporter.Error(ex);
+                ShowAlert(ex);
             }
             finally
             {

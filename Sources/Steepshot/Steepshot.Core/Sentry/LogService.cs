@@ -10,13 +10,13 @@ using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Sentry
 {
-    public sealed class ReporterService : IReporterService
+    public sealed class LogService : ILogService
     {
         private readonly IAppInfo _appInfoService;
         private readonly Dsn _dsn;
         private System.Net.Http.HttpClient HttpClient { get; set; }
 
-        public ReporterService(System.Net.Http.HttpClient httpClient, IAppInfo appInfoService, string dsn)
+        public LogService(System.Net.Http.HttpClient httpClient, IAppInfo appInfoService, string dsn)
         {
             HttpClient = httpClient;
             _appInfoService = appInfoService;

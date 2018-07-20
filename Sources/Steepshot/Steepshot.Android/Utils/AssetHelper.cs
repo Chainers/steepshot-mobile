@@ -56,9 +56,9 @@ namespace Steepshot.Utils
                 }
                 stream.Dispose();
             }
-            catch
+            catch (System.Exception ex)
             {
-                //to do nothing
+                AppSettings.Logger.Warning(ex);
             }
             return hs;
         }
@@ -96,9 +96,9 @@ namespace Steepshot.Utils
                     return JsonConvert.DeserializeObject<T>(txt);
                 }
             }
-            catch
+            catch (System.Exception ex)
             {
-                //to do nothing
+                AppSettings.Logger.Warning(ex);
             }
             return new T();
         }

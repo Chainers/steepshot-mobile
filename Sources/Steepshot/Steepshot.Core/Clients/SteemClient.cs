@@ -66,9 +66,9 @@ namespace Steepshot.Core.Clients
                     }
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                //todo nothing
+                AppSettings.Logger.Warning(ex);
             }
             finally
             {

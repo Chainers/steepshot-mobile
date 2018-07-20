@@ -9,6 +9,7 @@ using Steepshot.Core.HttpClient;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Clients
 {
@@ -70,9 +71,9 @@ namespace Steepshot.Core.Clients
                     return null;
                 return key;
             }
-            catch (Exception)
+            catch (System.Exception ex)
             {
-                //todo nothing
+                AppSettings.Logger.Warning(ex);
             }
             return null;
         }

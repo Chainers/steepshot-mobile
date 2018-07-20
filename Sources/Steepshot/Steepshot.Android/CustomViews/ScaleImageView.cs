@@ -13,6 +13,7 @@ using Java.Lang;
 using Math = System.Math;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Errors;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.CustomViews
 {
@@ -285,22 +286,24 @@ namespace Steepshot.CustomViews
 
         protected override void OnDraw(Canvas canvas)
         {
-            _onDrawReady = true;
-            _imageRenderedAtLeastOnce = true;
-            if (_delayedZoomVariables != null)
-            {
-                SetZoom(_delayedZoomVariables.Scale, _delayedZoomVariables.FocusX, _delayedZoomVariables.FocusY, _delayedZoomVariables.ScaleType);
-                _delayedZoomVariables = null;
-            }
             try
             {
+                _onDrawReady = true;
+                _imageRenderedAtLeastOnce = true;
+                if (_delayedZoomVariables != null)
+                {
+                    SetZoom(_delayedZoomVariables.Scale, _delayedZoomVariables.FocusX, _delayedZoomVariables.FocusY, _delayedZoomVariables.ScaleType);
+                    _delayedZoomVariables = null;
+                }
+
                 base.OnDraw(canvas);
+
+                DrawReady?.Invoke(null, EventArgs.Empty);
             }
-            catch
+            catch (System.Exception ex)
             {
-                Console.WriteLine("ERROR RECYCLE BITMAP");
+                AppSettings.Logger.Warning(ex);
             }
-            DrawReady?.Invoke(null, EventArgs.Empty);
         }
 
         protected override void OnConfigurationChanged(Configuration newConfig)
@@ -1162,9 +1165,9 @@ namespace Steepshot.CustomViews
                     _currX = startX;
                     _currY = startY;
                 }
-                catch
+                catch (System.Exception ex)
                 {
-                    //todo nothing
+                    AppSettings.Logger.Warning(ex);
                 }
             }
 
@@ -1200,9 +1203,9 @@ namespace Steepshot.CustomViews
                         _view.CompatPostOnAnimation(this);
                     }
                 }
-                catch
+                catch (System.Exception ex)
                 {
-                    //todo nothing
+                    AppSettings.Logger.Warning(ex);
                 }
             }
         }

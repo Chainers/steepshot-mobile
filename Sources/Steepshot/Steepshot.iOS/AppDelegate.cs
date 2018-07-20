@@ -66,12 +66,12 @@ namespace Steepshot.iOS
 
         private void OnUnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs e)
         {
-            AppSettings.Reporter.Error(e.Exception);
+            AppSettings.Logger.Error(e.Exception);
         }
 
         private void OnUnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
-            AppSettings.Reporter.Error((Exception)e.ExceptionObject);
+            AppSettings.Logger.Error((Exception)e.ExceptionObject);
         }
 
         private void InitIoC()
@@ -98,8 +98,8 @@ namespace Steepshot.iOS
                 builder.RegisterInstance(localizationManager).As<LocalizationManager>().SingleInstance();
                 builder.RegisterInstance(configManager).As<ConfigManager>().SingleInstance();
                 var configInfo = assetsHelper.GetConfigInfo();
-                var reporterService = new ReporterService(HttpClient, appInfo, configInfo.RavenClientDsn);
-                builder.RegisterInstance(reporterService).As<IReporterService>().SingleInstance();
+                var reporterService = new LogService(HttpClient, appInfo, configInfo.RavenClientDsn);
+                builder.RegisterInstance(reporterService).As<ILogService>().SingleInstance();
                 AppSettings.Container = builder.Build();
 
                 MainChain = AppSettings.User.Chain;

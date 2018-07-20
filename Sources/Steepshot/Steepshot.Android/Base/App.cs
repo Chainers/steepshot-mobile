@@ -76,9 +76,9 @@ namespace Steepshot.Base
                 builder.RegisterInstance(localizationManager).As<LocalizationManager>().SingleInstance();
                 builder.RegisterInstance(configManager).As<ConfigManager>().SingleInstance();
                 var configInfo = assetsHelper.GetConfigInfo();
-                var reporterService = new ReporterService(HttpClient, appInfo, configInfo.RavenClientDsn);
+                var reporterService = new LogService(HttpClient, appInfo, configInfo.RavenClientDsn);
                 //var reporterService = new MsLogService();
-                builder.RegisterInstance(reporterService).As<IReporterService>().SingleInstance();
+                builder.RegisterInstance(reporterService).As<ILogService>().SingleInstance();
                 AppSettings.Container = builder.Build();
 
                 MainChain = AppSettings.User.Chain;

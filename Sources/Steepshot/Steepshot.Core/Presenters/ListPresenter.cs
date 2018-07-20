@@ -72,6 +72,7 @@ namespace Steepshot.Core.Presenters
                 _singleTaskCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(OnDisposeCts.Token);
                 ts = _singleTaskCancellationTokenSource.Token;
             }
+
             try
             {
                 return await func(ts);
@@ -123,6 +124,7 @@ namespace Steepshot.Core.Presenters
                 _singleTaskCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(OnDisposeCts.Token);
                 ts = _singleTaskCancellationTokenSource.Token;
             }
+
             try
             {
                 return await func(param1, ts);

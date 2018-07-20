@@ -12,6 +12,7 @@ using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Clients
 {
@@ -295,9 +296,9 @@ namespace Steepshot.Core.Clients
                     result.Result = new VoidResponse();
                 return result;
             }
-            catch
+            catch (Exception ex)
             {
-                //todo nothing
+                AppSettings.Logger.Warning(ex);
             }
             return null;
         }

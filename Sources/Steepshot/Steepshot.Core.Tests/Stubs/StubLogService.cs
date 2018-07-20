@@ -5,7 +5,7 @@ using System;
 
 namespace Steepshot.Core.Tests.Stubs
 {
-    public class StubReporterService : IReporterService
+    public class StubLogService : ILogService
     {
         public void Fatal(Exception ex)
         {
