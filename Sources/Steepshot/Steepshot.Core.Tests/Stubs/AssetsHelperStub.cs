@@ -23,13 +23,14 @@ namespace Steepshot.Core.Tests.Stubs
 
         public LocalizationModel GetLocalization(string lang)
         {
-            return TryReadAsset<LocalizationModel>($"Localization.{lang}.txt");
-        }
-
-
-        public LocalizationModel GetLocalization()
-        {
-            return TryReadAsset<LocalizationModel>("InstagramModuleOptions.txt");
+            var en = File.ReadAllText($"{AppDomain.CurrentDomain.BaseDirectory}\\Data\\dic.xml");
+            var model = new LocalizationModel
+            {
+                Lang = LocalizationManager.DefaultLang,
+                Map = new Dictionary<string, string>()
+            };
+            LocalizationManager.Update(en, model);
+            return model;
         }
 
         public HashSet<string> TryReadCensoredWords()

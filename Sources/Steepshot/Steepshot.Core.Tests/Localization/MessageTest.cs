@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using Newtonsoft.Json;
 using NUnit.Framework;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Utils;
@@ -26,7 +29,7 @@ namespace Steepshot.Core.Tests.Localization
         public void GetText(string key)
         {
             Console.Write($"{key} => ");
-            Assert.IsTrue(LocalizationManager.ContainsKey(key));
+            Assert.IsFalse(string.IsNullOrEmpty(LocalizationManager.GetText(key)));
             var text = LocalizationManager.GetText(key);
             Console.WriteLine(text);
             Assert.IsFalse(string.IsNullOrEmpty(text));
@@ -42,7 +45,7 @@ namespace Steepshot.Core.Tests.Localization
 
             foreach (var key in keys)
             {
-                if (!LocalizationManager.ContainsKey(key))
+                if (string.IsNullOrEmpty(LocalizationManager.GetText(key)))
                     str += " {key}";
             }
 
@@ -54,5 +57,26 @@ namespace Steepshot.Core.Tests.Localization
         {
             Assert.IsTrue(LocalizationManager.Model.Version == 15);
         }
+
+        [Test]
+        public void TestT()
+        {
+            var json = File.ReadAllText($"{AppDomain.CurrentDomain.BaseDirectory}\\Localization.en-us.txt");
+            var lm = JsonConvert.DeserializeObject<LocalizationModel>(json);
+
+            var ls = new List<string>();
+
+            foreach (var itm in lm.Map)
+            {
+                var t = LocalizationManager.GetText(itm.Key);
+
+                if (!t.Equals(itm.Value))
+                {
+                    ls.Add($"{itm.Key} |> {itm.Value}");
+                }
+            }
+            Console.WriteLine(string.Join(Environment.NewLine, ls));
+        }
+
     }
 }

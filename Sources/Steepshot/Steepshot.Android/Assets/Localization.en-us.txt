@@ -43,7 +43,7 @@
         "Forbidden": "{0} Forbidden. (The request was valid, but the server is refusing action. Try to log in.)",
         "NotFound": "{0} NotFound. (The requested resource could not be found but may be available in the future.)",
         "InternalServerError": "{0} InternalServerError. (A generic error message, given when an unexpected condition was encountered and no more specific message is suitable.)",
-        "BadGateway": "{0} BadGateway. (The server was acting as a gateway or proxy and received an invalid response from the upstream server) ",
+        "BadGateway": "{0} BadGateway. (The server was acting as a gateway or proxy and received an invalid response from the upstream server)",
         "GatewayTimeout": "{statusCode} GatewayTimeout. (The server was acting as a gateway or proxy and did not receive a timely response from the upstream server. Try repeat request a little later.)",
         "HttpErrorCode": "({statusCode}) Some error on server side.",
 

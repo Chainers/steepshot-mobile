@@ -682,9 +682,6 @@
     </AndroidResource>
   </ItemGroup>
   <ItemGroup>
-    <AndroidAsset Include="Assets\Localization.en-us.txt" />
-  </ItemGroup>
-  <ItemGroup>
     <AndroidResource Include="Resources\drawable\popup_separator.xml" />
   </ItemGroup>
   <ItemGroup>
@@ -843,9 +840,10 @@
   </ItemGroup>
   <ItemGroup>
     <AndroidAsset Include="Assets\SteemNodesConfig.txt" />
-  </ItemGroup>
-  <ItemGroup>
     <AndroidAsset Include="Assets\GolosNodesConfig.txt" />
+    <AndroidAsset Include="..\..\..\References\Languages\en\dic.xml">
+      <Link>Assets\Languages\en\dic.xml</Link>
+    </AndroidAsset>
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\drawable-mdpi\ic_delete.png" />
