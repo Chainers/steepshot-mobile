@@ -4,8 +4,10 @@ using System.Xml;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Threading;
-using Steepshot.Core.HttpClient;
+using Steepshot.Core.Clients;
+using Steepshot.Core.Errors;
 using Steepshot.Core.Services;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Localization
 {
@@ -21,14 +23,14 @@ namespace Steepshot.Core.Localization
         public LocalizationModel Model { get; }
 
 
-        public LocalizationManager(ISaverService saverService, IAssetsHelper assetsHelper)
+        public LocalizationManager(ISaverService saverService, IAssetHelper assetHelper)
         {
             _saverService = saverService;
             _localizationModel = _saverService.Get<Dictionary<string, LocalizationModel>>(Localization) ?? new Dictionary<string, LocalizationModel>();
 
             Model = _localizationModel.ContainsKey(DefaultLang)
                 ? _localizationModel[DefaultLang]
-                : assetsHelper.GetLocalization(DefaultLang);
+                : assetHelper.GetLocalization(DefaultLang);
         }
 
 
@@ -39,14 +41,14 @@ namespace Steepshot.Core.Localization
             return null;
         }
 
-        public async void Update(ApiGateway gateway)
+        public async void Update(ExtendedHttpClient gateway)
         {
             var rez = await gateway.Get<string>(string.Format(UpdateUrl, Model.Lang), CancellationToken.None);
             if (!rez.IsSuccess)
                 return;
 
             var xml = rez.Result;
-            var changed = Update(xml);
+            var changed = Update(xml, Model);
             if (changed)
             {
                 if (!_localizationModel.ContainsKey(Model.Lang))
@@ -55,7 +57,7 @@ namespace Steepshot.Core.Localization
             }
         }
 
-        public bool Update(string xml)
+        public static bool Update(string xml, LocalizationModel model)
         {
             XmlTextReader reader = null;
             StringReader sReader = null;
@@ -69,10 +71,10 @@ namespace Steepshot.Core.Localization
                     if (reader.NodeType == XmlNodeType.Element && reader.Name.Equals("resources") && reader.AttributeCount == 1)
                     {
                         var version = reader.GetAttribute("version");
-                        if (version == null || int.Parse(version) <= Model.Version)
+                        if (version == null || int.Parse(version) <= model.Version)
                             return false;
 
-                        Model.Version = int.Parse(version);
+                        model.Version = int.Parse(version);
                         break;
                     }
                 }
@@ -88,10 +90,14 @@ namespace Steepshot.Core.Localization
 
                         foreach (var name in names)
                         {
-                            if (Model.Map.ContainsKey(name))
-                                Model.Map[name] = value;
+                            value = value
+                                .Replace("\\\"", "\"")
+                                .Replace("\\\n", "\n")
+                                .Replace("\\\n", "\n");
+                            if (model.Map.ContainsKey(name))
+                                model.Map[name] = value;
                             else
-                                Model.Map.Add(name, value);
+                                model.Map.Add(name, value);
                         }
                     }
                 }
@@ -99,7 +105,7 @@ namespace Steepshot.Core.Localization
             }
             catch (Exception ex)
             {
-                //TODO log Warn
+                AppSettings.Logger.Warning(ex);
             }
             finally
             {
@@ -109,25 +115,20 @@ namespace Steepshot.Core.Localization
             return false;
         }
 
+        public string GetText(ValidationError validationError)
+        {
+            if (validationError.Key.HasValue)
+            {
+                return GetText(validationError.Key.ToString(), validationError.Parameters);
+            }
+            return GetText(validationError.Message);
+        }
+
+
         public string GetText(LocalizationKeys key, params object[] args)
         {
             var ks = key.ToString();
             return GetText(ks, args);
-        }
-
-        public bool ContainsKey(string key)
-        {
-            var contains = Model.Map.ContainsKey(key);
-            if (!contains)
-            {
-                key = NormalizeKey(key);
-                foreach (var item in Model.Map)
-                {
-                    if (key.StartsWith(item.Key))
-                        return true;
-                }
-            }
-            return contains;
         }
 
         public static string NormalizeKey(string key)
@@ -159,12 +160,12 @@ namespace Steepshot.Core.Localization
                 }
                 if (string.IsNullOrEmpty(result))
                 {
+                    var t = 0;
                     foreach (var item in Model.Map)
                     {
-                        if (key.Contains(item.Key))
+                        if (key.Contains(item.Key) && t < item.Key.Length)
                         {
                             result = item.Value;
-                            break;
                         }
                     }
                 }

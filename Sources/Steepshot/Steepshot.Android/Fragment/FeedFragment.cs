@@ -193,7 +193,7 @@ namespace Steepshot.Fragment
             if (!IsInitialized)
                 return;
 
-            Context.ShowAlert(error);
+            Context.ShowAlert(error, ToastLength.Short);
 
             _bar.Visibility = ViewStates.Gone;
             _refresher.Refreshing = false;
@@ -238,7 +238,7 @@ namespace Steepshot.Fragment
             {
                 case ActionType.Like:
                     {
-                        if (!AppSettings.User.IsAuthenticated)
+                        if (!AppSettings.User.HasPostingPermission)
                             return;
 
                         var error = await Presenter.TryVote(post);
@@ -282,7 +282,7 @@ namespace Steepshot.Fragment
                     }
                 case ActionType.Flag:
                     {
-                        if (!AppSettings.User.IsAuthenticated)
+                        if (!AppSettings.User.HasPostingPermission)
                             return;
 
                         var error = await Presenter.TryFlag(post);

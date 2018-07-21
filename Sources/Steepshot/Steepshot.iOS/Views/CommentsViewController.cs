@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using CoreGraphics;
 using Foundation;
-using Steepshot.Core.Errors;
 using Steepshot.Core.Models;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
@@ -15,7 +14,7 @@ using UIKit;
 using Steepshot.Core.Utils;
 using Steepshot.Core.Localization;
 using PureLayout.Net;
-using iOS.Hardware;
+using static Steepshot.iOS.Helpers.DeviceHelper;
 
 namespace Steepshot.iOS.Views
 {
@@ -146,7 +145,7 @@ namespace Steepshot.iOS.Views
             View.AddSubview(_rootView);
 
             _rootView.AutoPinEdgeToSuperviewEdge(ALEdge.Top);
-            if (DeviceModel.Model(DeviceHardware.HardwareModel) == "iPhone10,6")
+            if (GetVersion() == HardwareVersion.iPhoneX)
                 _rootView.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom, 34);
             else
                 _rootView.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom);
@@ -200,7 +199,7 @@ namespace Steepshot.iOS.Views
 
         public override void ViewWillLayoutSubviews()
         {
-            if (!AppSettings.User.IsAuthenticated)
+            if (!AppSettings.User.HasPostingPermission)
                 _commentView.Hidden = true;
         }
 
@@ -307,7 +306,7 @@ namespace Steepshot.iOS.Views
             _tableProgressBar.StartAnimating();
             _presenter.Clear();
             var error = await _presenter.TryLoadNextComments(Post);
-            if (error is CanceledError)
+            if (error is OperationCanceledException)
                 return;
             ShowAlert(error);
             _tableProgressBar.StopAnimating();
@@ -315,7 +314,7 @@ namespace Steepshot.iOS.Views
 
         private async Task Vote(Post post)
         {
-            if (!AppSettings.User.IsAuthenticated)
+            if (!AppSettings.User.HasPostingPermission)
             {
                 LoginTapped();
                 return;
@@ -329,7 +328,7 @@ namespace Steepshot.iOS.Views
 
         public async Task FlagComment(Post post)
         {
-            if (!AppSettings.User.IsAuthenticated)
+            if (!AppSettings.User.HasPostingPermission)
             {
                 LoginTapped();
                 return;
@@ -372,7 +371,7 @@ namespace Steepshot.iOS.Views
             if (response.IsSuccess)
             {
                 CancelTap(null, null);
-               
+
                 var error = await _presenter.TryLoadNextComments(Post);
 
                 ShowAlert(error);
@@ -389,7 +388,7 @@ namespace Steepshot.iOS.Views
             if (!_buttonsContainer.Hidden)
                 return;
 
-            if (!AppSettings.User.IsAuthenticated)
+            if (!AppSettings.User.HasPostingPermission)
             {
                 LoginTapped();
                 return;
@@ -397,7 +396,7 @@ namespace Steepshot.iOS.Views
 
             var error = await _presenter.TryDeleteComment(post, Post);
 
-            if(error == null)
+            if (error == null)
                 Post.Children--;
 
             ShowAlert(error);
@@ -421,7 +420,7 @@ namespace Steepshot.iOS.Views
 
         public void EditComment(Post post)
         {
-            if (!AppSettings.User.IsAuthenticated)
+            if (!AppSettings.User.HasPostingPermission)
             {
                 LoginTapped();
                 return;

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Steepshot.Core.Errors;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Enums;
@@ -11,7 +10,7 @@ using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Presenters
 {
-    public sealed class UserFriendPresenter : ListPresenter<UserFriend>, IDisposable
+    public class UserFriendPresenter : ListPresenter<UserFriend>, IDisposable
     {
         private const int ItemsLimit = 40;
         public FriendsType? FollowType { get; set; }
@@ -29,14 +28,14 @@ namespace Steepshot.Core.Presenters
                 return Items.FindAll(match);
         }
 
-        public async Task<ErrorBase> TryLoadNextPostVoters(string url)
+        public async Task<Exception> TryLoadNextPostVoters(string url)
         {
             if (IsLastReaded)
                 return null;
             return await RunAsSingleTask(LoadNextPostVoters, url);
         }
 
-        private async Task<ErrorBase> LoadNextPostVoters(string url, CancellationToken ct)
+        private async Task<Exception> LoadNextPostVoters(string url, CancellationToken ct)
         {
             if (!VotersType.HasValue)
                 return null;
@@ -72,14 +71,14 @@ namespace Steepshot.Core.Presenters
         }
 
 
-        public async Task<ErrorBase> TryLoadNextUserFriends(string username)
+        public async Task<Exception> TryLoadNextUserFriends(string username)
         {
             if (IsLastReaded)
                 return null;
             return await RunAsSingleTask(LoadNextUserFriends, username);
         }
 
-        private async Task<ErrorBase> LoadNextUserFriends(string username, CancellationToken ct)
+        private async Task<Exception> LoadNextUserFriends(string username, CancellationToken ct)
         {
             if (!FollowType.HasValue)
                 return null;
@@ -116,13 +115,16 @@ namespace Steepshot.Core.Presenters
         }
 
 
-        public async Task<ErrorBase> TryLoadNextSearchUser(string query)
+        public async Task<Exception> TryLoadNextSearchUser(string query)
         {
             return await RunAsSingleTask(LoadNextSearchUser, query);
         }
 
-        private async Task<ErrorBase> LoadNextSearchUser(string query, CancellationToken ct)
+        private async Task<Exception> LoadNextSearchUser(string query, CancellationToken ct)
         {
+            if (string.IsNullOrEmpty(query) || query.Length <= 2)
+                return new OperationCanceledException();
+
             var request = new SearchWithQueryModel(query)
             {
                 Limit = ItemsLimit,
@@ -153,7 +155,7 @@ namespace Steepshot.Core.Presenters
             return response.Error;
         }
 
-        public async Task<ErrorBase> TryFollow(UserFriend item)
+        public async Task<Exception> TryFollow(UserFriend item)
         {
             item.FollowedChanging = true;
             NotifySourceChanged(nameof(TryFollow), true);
@@ -163,7 +165,7 @@ namespace Steepshot.Core.Presenters
             return error;
         }
 
-        private async Task<ErrorBase> Follow(UserFriend item, CancellationToken ct)
+        private async Task<Exception> Follow(UserFriend item, CancellationToken ct)
         {
             var hasFollowed = item.HasFollowed;
             var request = new FollowModel(AppSettings.User.UserInfo, item.HasFollowed ? Models.Enums.FollowType.UnFollow : Models.Enums.FollowType.Follow, item.Author);
@@ -185,7 +187,7 @@ namespace Steepshot.Core.Presenters
             }
             base.Clear(isNotify);
         }
-        
+
         #region IDisposable Support
         private bool _disposedValue = false; // To detect redundant calls
 

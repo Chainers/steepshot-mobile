@@ -16,15 +16,14 @@ using Steepshot.Activity;
 using Steepshot.Adapter;
 using Steepshot.Base;
 using Steepshot.Core;
+using Steepshot.Core.Authorization;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
 using Steepshot.Core.Models;
-using Steepshot.Core.Authority;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Interfaces;
-using Steepshot.Core.Errors;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Utils;
 
@@ -122,12 +121,12 @@ namespace Steepshot.Fragment
                         if (!_isActivated)
                         {
                             GetUserPosts();
-                            BasePresenter.ProfileUpdateType = ProfileUpdateType.None;
+                            AppSettings.ProfileUpdateType = ProfileUpdateType.None;
                         }
                         _isActivated = true;
                     }
                     else
-                        BasePresenter.ProfileUpdateType = ProfileUpdateType.Full;
+                        AppSettings.ProfileUpdateType = ProfileUpdateType.Full;
                 }
                 base.UserVisibleHint = value;
             }
@@ -377,7 +376,7 @@ namespace Steepshot.Fragment
             if (!IsInitialized)
                 return;
 
-            Context.ShowAlert(error);
+            Context.ShowAlert(error, ToastLength.Short);
             _listSpinner.Visibility = ViewStates.Gone;
         }
 
@@ -435,7 +434,7 @@ namespace Steepshot.Fragment
 
             isSubscription = true;
 
-            var result = await BasePresenter.TrySubscribeForPushes(model);
+            var result = await Presenter.TrySubscribeForPushes(model);
             if (result.IsSuccess)
             {
                 isSubscribed = !isSubscribed;
@@ -510,7 +509,7 @@ namespace Steepshot.Fragment
                 if (!IsInitialized)
                     return;
 
-                if (error == null || error is CanceledError)
+                if (error == null || error is System.OperationCanceledException)
                 {
                     _listLayout.Visibility = ViewStates.Visible;
                     _more.Enabled = true;
@@ -518,7 +517,7 @@ namespace Steepshot.Fragment
                     break;
                 }
 
-                Context.ShowAlert(error);
+                Context.ShowAlert(error, ToastLength.Short);
                 await Task.Delay(5000);
                 if (!IsInitialized)
                     return;
@@ -537,6 +536,7 @@ namespace Steepshot.Fragment
             switch (type)
             {
                 case ActionType.Balance:
+                    ((BaseActivity)Activity).OpenNewContentFragment(new WalletFragment());
                     break;
                 case ActionType.Followers:
                     Activity.Intent.PutExtra(FollowersFragment.IsFollowersExtra, true);
@@ -551,7 +551,7 @@ namespace Steepshot.Fragment
                     ((BaseActivity)Activity).OpenNewContentFragment(new FollowersFragment());
                     break;
                 case ActionType.Follow:
-                    if (AppSettings.User.IsAuthenticated)
+                    if (AppSettings.User.HasPostingPermission)
                     {
                         var error = await Presenter.TryFollow();
                         if (!IsInitialized)
@@ -583,7 +583,7 @@ namespace Steepshot.Fragment
             {
                 case ActionType.Like:
                     {
-                        if (AppSettings.User.IsAuthenticated)
+                        if (AppSettings.User.HasPostingPermission)
                         {
                             var error = await Presenter.TryVote(post);
                             if (!IsInitialized)
@@ -612,7 +612,7 @@ namespace Steepshot.Fragment
                     {
                         if (post == null)
                             return;
-                        if (post.Children == 0 && !AppSettings.User.IsAuthenticated)
+                        if (post.Children == 0 && !AppSettings.User.HasPostingPermission)
                         {
                             OpenLogin();
                             return;
@@ -632,7 +632,7 @@ namespace Steepshot.Fragment
                     }
                 case ActionType.Flag:
                     {
-                        if (!AppSettings.User.IsAuthenticated)
+                        if (!AppSettings.User.HasPostingPermission)
                             return;
 
                         var error = await Presenter.TryFlag(post);
@@ -691,10 +691,10 @@ namespace Steepshot.Fragment
 
         private void UpdateProfile()
         {
-            if (BasePresenter.ProfileUpdateType != ProfileUpdateType.None)
+            if (AppSettings.ProfileUpdateType != ProfileUpdateType.None)
             {
-                UpdatePage(BasePresenter.ProfileUpdateType);
-                BasePresenter.ProfileUpdateType = ProfileUpdateType.None;
+                UpdatePage(AppSettings.ProfileUpdateType);
+                AppSettings.ProfileUpdateType = ProfileUpdateType.None;
             }
         }
     }

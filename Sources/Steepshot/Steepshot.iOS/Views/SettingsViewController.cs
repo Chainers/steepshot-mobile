@@ -3,7 +3,6 @@ using Autofac;
 using Foundation;
 using MessageUI;
 using PureLayout.Net;
-using Steepshot.Core.Authority;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Services;
@@ -15,6 +14,7 @@ using UIKit;
 using Constants = Steepshot.iOS.Helpers.Constants;
 using Steepshot.Core.Localization;
 using Com.OneSignal;
+using Steepshot.Core.Authorization;
 
 namespace Steepshot.iOS.Views
 {
@@ -72,10 +72,10 @@ namespace Steepshot.iOS.Views
             reportButton.TouchDown += SendReport;
             termsButton.TouchDown += ShowTos;
             guideButton.TouchDown += ShowGuide;
-            notificationSettings.TouchDown += (object sender, EventArgs e) => 
+            notificationSettings.TouchDown += (object sender, EventArgs e) =>
             {
                 NavigationController.PushViewController(new NotificationSettingsController(), true);
-            };;
+            }; ;
             lowRatedSwitch.ValueChanged += SwitchLowRated;
             nsfwSwitch.ValueChanged += SwitchNSFW;
             SetBackButton();
@@ -111,14 +111,14 @@ namespace Steepshot.iOS.Views
         {
             AppSettings.User.IsLowRated = lowRatedSwitch.On;
         }
-/*
-        private void AddAccount()
-        {
-            var myViewController = new PreLoginViewController();
-            myViewController.NewAccountNetwork = BasePresenter.Chain == KnownChains.Steem ? KnownChains.Golos : KnownChains.Steem;
-            NavigationController.PushViewController(myViewController, true);
-        }
-*/
+        /*
+                private void AddAccount()
+                {
+                    var myViewController = new PreLoginViewController();
+                    myViewController.NewAccountNetwork = BasePresenter.Chain == KnownChains.Steem ? KnownChains.Golos : KnownChains.Steem;
+                    NavigationController.PushViewController(myViewController, true);
+                }
+        */
         private void RemoveAccount(UserInfo account)
         {
             AppSettings.User.Delete(account);
@@ -137,7 +137,7 @@ namespace Steepshot.iOS.Views
 
         private void SwitchAccount()
         {
-            
+
         }
 
         private void SetBackButton()
@@ -192,11 +192,12 @@ namespace Steepshot.iOS.Views
 */
         private void SwitchNetwork(UserInfo user)
         {
-            if (BasePresenter.Chain == user.Chain)
+            if (AppDelegate.MainChain == user.Chain)
                 return;
+
             AppSettings.User.SwitchUser(user);
             //HighlightView(user.Chain);
-            BasePresenter.SwitchChain(user.Chain);
+            AppDelegate.MainChain = user.Chain;
 
             SetAddButton();
 
@@ -225,7 +226,7 @@ namespace Steepshot.iOS.Views
             }
             else
             {
-                if (BasePresenter.Chain != account.Chain)
+                if (AppDelegate.MainChain != account.Chain)
                 {
                     SetAddButton();
                 }

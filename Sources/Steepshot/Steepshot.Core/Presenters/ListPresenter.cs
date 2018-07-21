@@ -4,12 +4,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using Steepshot.Core.Errors;
 using Steepshot.Core.Models;
-using Steepshot.Core.Utils;
 using Steepshot.Core.Localization;
 using System.Net;
 using System.Collections;
 using System.Data;
 using Steepshot.Core.Interfaces;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Presenters
 {
@@ -53,11 +53,11 @@ namespace Steepshot.Core.Presenters
             }
         }
 
-        protected async Task<ErrorBase> RunAsSingleTask(Func<CancellationToken, Task<ErrorBase>> func, bool cancelPrevTask = true)
+        protected async Task<Exception> RunAsSingleTask(Func<CancellationToken, Task<Exception>> func, bool cancelPrevTask = true)
         {
-            var available = ConnectionService.IsConnectionAvailable();
+            var available = AppSettings.ConnectionService.IsConnectionAvailable();
             if (!available)
-                return new AppError(LocalizationKeys.InternetUnavailable);
+                return new ValidationError(LocalizationKeys.InternetUnavailable);
 
             CancellationToken ts;
             lock (_sync)
@@ -67,39 +67,30 @@ namespace Steepshot.Core.Presenters
                     if (cancelPrevTask)
                         _singleTaskCancellationTokenSource.Cancel();
                     else
-                        return new CanceledError();
+                        return new OperationCanceledException();
                 }
                 _singleTaskCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(OnDisposeCts.Token);
                 ts = _singleTaskCancellationTokenSource.Token;
             }
+
             try
             {
                 return await func(ts);
             }
-            catch (OperationCanceledException)
-            {
-                return new CanceledError();
-            }
-            catch (ErrorBase ex)
-            {
-                return ex;
-            }
             catch (WebException ex)
             {
-                AppSettings.Reporter.SendCrash(ex);
-                return new RequestError();
+                return new RequestError(ex);
             }
             catch (Exception ex)
             {
                 if (ts.IsCancellationRequested)
-                    return new CanceledError();
+                    return new OperationCanceledException();
 
-                available = ConnectionService.IsConnectionAvailable();
+                available = AppSettings.ConnectionService.IsConnectionAvailable();
                 if (!available)
-                    return new AppError(LocalizationKeys.InternetUnavailable);
+                    return new ValidationError(LocalizationKeys.InternetUnavailable);
 
-                AppSettings.Reporter.SendCrash(ex);
-                return new AppError(LocalizationKeys.UnknownError);
+                return ex;
             }
             finally
             {
@@ -114,11 +105,11 @@ namespace Steepshot.Core.Presenters
             }
         }
 
-        protected async Task<ErrorBase> RunAsSingleTask<T1>(Func<T1, CancellationToken, Task<ErrorBase>> func, T1 param1, bool cancelPrevTask = true)
+        protected async Task<Exception> RunAsSingleTask<T1>(Func<T1, CancellationToken, Task<Exception>> func, T1 param1, bool cancelPrevTask = true)
         {
-            var available = ConnectionService.IsConnectionAvailable();
+            var available = AppSettings.ConnectionService.IsConnectionAvailable();
             if (!available)
-                return new AppError(LocalizationKeys.InternetUnavailable);
+                return new ValidationError(LocalizationKeys.InternetUnavailable);
 
             CancellationToken ts;
             lock (_sync)
@@ -128,39 +119,30 @@ namespace Steepshot.Core.Presenters
                     if (cancelPrevTask)
                         _singleTaskCancellationTokenSource.Cancel();
                     else
-                        return new CanceledError();
+                        return new OperationCanceledException();
                 }
                 _singleTaskCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(OnDisposeCts.Token);
                 ts = _singleTaskCancellationTokenSource.Token;
             }
+
             try
             {
                 return await func(param1, ts);
             }
-            catch (OperationCanceledException)
-            {
-                return new CanceledError();
-            }
-            catch (ErrorBase ex)
-            {
-                return ex;
-            }
             catch (WebException ex)
             {
-                AppSettings.Reporter.SendCrash(ex);
-                return new RequestError();
+                return new RequestError(ex);
             }
             catch (Exception ex)
             {
                 if (ts.IsCancellationRequested)
-                    return new CanceledError();
+                    return new OperationCanceledException();
 
-                available = ConnectionService.IsConnectionAvailable();
+                available = AppSettings.ConnectionService.IsConnectionAvailable();
                 if (!available)
-                    return new AppError(LocalizationKeys.InternetUnavailable);
+                    return new ValidationError(LocalizationKeys.InternetUnavailable);
 
-                AppSettings.Reporter.SendCrash(ex);
-                return new AppError(LocalizationKeys.UnknownError);
+                return ex;
             }
             finally
             {

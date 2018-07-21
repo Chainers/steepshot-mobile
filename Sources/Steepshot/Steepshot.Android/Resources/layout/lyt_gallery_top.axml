@@ -19,8 +19,12 @@
         android:layout_toRightOf="@id/arrow_back"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:minWidth="150dp"
         android:layout_centerVertical="true"
-        android:layout_marginLeft="20dp" />
+        android:layout_marginLeft="20dp"
+        android:dropDownVerticalOffset="49dp"
+        android:popupBackground="@drawable/spinner_dropdown"
+        android:elevation="0dp" />
     <ImageButton
         android:id="@+id/arrow_next"
         android:layout_width="50dp"

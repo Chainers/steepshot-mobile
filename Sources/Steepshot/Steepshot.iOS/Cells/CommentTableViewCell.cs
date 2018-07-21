@@ -84,7 +84,7 @@ namespace Steepshot.iOS.Cells
             _like.AutoSetDimensionsToSize(new CGSize(40, 50));
             _like.AutoAlignAxis(ALAxis.Horizontal, _commentText);
             _like.AutoPinEdge(ALEdge.Left, ALEdge.Right, _commentText);
-            _like.AutoPinEdge(ALEdge.Right, ALEdge.Right, _timestamp,11);
+            _like.AutoPinEdge(ALEdge.Right, ALEdge.Right, _timestamp, 11);
 
             _profileTapView = new UIView();
             _profileTapView.UserInteractionEnabled = true;
@@ -145,7 +145,7 @@ namespace Steepshot.iOS.Cells
 
             var tap = new UITapGestureRecognizer(() =>
             {
-                if(SwipeState == MGSwipeState.None)
+                if (SwipeState == MGSwipeState.None)
                     CellAction?.Invoke(ActionType.Profile, _currentPost);
             });
             var costTap = new UITapGestureRecognizer(() =>
@@ -193,7 +193,7 @@ namespace Steepshot.iOS.Cells
 
             var likelongtap = new UILongPressGestureRecognizer((UILongPressGestureRecognizer obj) =>
             {
-                if (AppSettings.User.IsAuthenticated && !_currentPost.Vote)
+                if (AppSettings.User.HasPostingPermission && !_currentPost.Vote)
                 {
                     if (obj.State == UIGestureRecognizerState.Began)
                     {
@@ -269,11 +269,11 @@ namespace Steepshot.iOS.Cells
 
             _likesLabel.Text = AppSettings.LocalizationManager.GetText(_currentPost.NetLikes == 1 ? LocalizationKeys.Like : LocalizationKeys.Likes, _currentPost.NetLikes);
             _flagsLabel.Text = AppSettings.LocalizationManager.GetText(_currentPost.NetFlags == 1 ? LocalizationKeys.Flag : LocalizationKeys.Flags, _currentPost.NetFlags);
-            _costLabel.Text = BasePresenter.ToFormatedCurrencyString(_currentPost.TotalPayoutReward);
+            _costLabel.Text = StringHelper.ToFormatedCurrencyString(_currentPost.TotalPayoutReward, AppDelegate.MainChain);
 
             _flagsLabel.Hidden = _currentPost.NetFlags == 0;
             _likesLabel.Hidden = _currentPost.NetLikes == 0;
-            _replyLabel.Hidden = _currentPost.Author == AppSettings.User.Login || !AppSettings.User.IsAuthenticated;
+            _replyLabel.Hidden = _currentPost.Author == AppSettings.User.Login || !AppSettings.User.HasPostingPermission;
 
             if (_currentPost.Body != Core.Constants.DeletedPostText)
             {

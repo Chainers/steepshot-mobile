@@ -8,10 +8,8 @@ using Android.Views;
 using Android.Widget;
 using Com.OneSignal;
 using CheeseBind;
-using Steepshot.Adapter;
 using Steepshot.Base;
 using Steepshot.Core;
-using Steepshot.Core.Authority;
 using Steepshot.Core.Extensions;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Enums;
@@ -20,19 +18,22 @@ using Steepshot.Core.Utils;
 using Steepshot.Utils;
 using Steepshot.Core.Models.Requests;
 using System.Threading.Tasks;
+using Steepshot.Core.Authorization;
+using System.Collections.Generic;
+using Android.Graphics;
+using Android.Support.Design.Widget;
 
 namespace Steepshot.Activity
 {
     [Activity(ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait)]
-    public sealed class SettingsActivity : BaseActivity
+    public sealed class SettingsActivity : BaseActivityWithPresenter<UserProfilePresenter>
     {
-        private AccountsAdapter _accountsAdapter;
+        private PushSettings PushSettings;
+        private BottomSheetDialog _propertiesActionsDialog;
         private bool _lowRatedChanged;
         private bool _nsfwChanged;
-        private PushSettings PushSettings;
 
 #pragma warning disable 0649, 4014
-        [BindView(Resource.Id.add_account)] private Button _addButton;
         [BindView(Resource.Id.dtn_terms_of_service)] private Button _termsButton;
         [BindView(Resource.Id.tests)] private AppCompatButton _testsButton;
         [BindView(Resource.Id.btn_guide)] private Button _guideButton;
@@ -45,8 +46,6 @@ namespace Steepshot.Activity
         [BindView(Resource.Id.btn_switcher)] private ImageButton _switcher;
         [BindView(Resource.Id.btn_settings)] private ImageButton _settings;
         [BindView(Resource.Id.btn_back)] private ImageButton _backButton;
-        [BindView(Resource.Id.accounts_list)] private RecyclerView _accountsList;
-        [BindView(Resource.Id.add_account_loading_spinner)] private ProgressBar _addAccountLoader;
         [BindView(Resource.Id.power_switch)] private SwitchCompat _powerSwitch;
         [BindView(Resource.Id.power_switch_text)] private TextView _powerSwitchText;
         [BindView(Resource.Id.header_text)] private TextView _notificationSettings;
@@ -60,6 +59,25 @@ namespace Steepshot.Activity
         [BindView(Resource.Id.comments_switch)] private SwitchCompat _notificationCommentsSwitch;
         [BindView(Resource.Id.posting)] private TextView _notificationPosting;
         [BindView(Resource.Id.posting_switch)] private SwitchCompat _notificationPostingSwitch;
+
+        [BindView(Resource.Id.steem_avatar)] private ImageView _steemAvatar;
+        [BindView(Resource.Id.steem_title)] private TextView _steemTitle;
+        [BindView(Resource.Id.steem_logo)] private ImageView _steemLogo;
+        [BindView(Resource.Id.steem_state)] private ImageView _steemState;
+        [BindView(Resource.Id.golos_avatar)] private ImageView _golosAvatar;
+        [BindView(Resource.Id.golos_title)] private TextView _golosTitle;
+        [BindView(Resource.Id.golos_logo)] private ImageView _golosLogo;
+        [BindView(Resource.Id.golos_state)] private ImageView _golosState;
+
+        [BindView(Resource.Id.steem_account)] private LinearLayout _steemLyt;
+        [BindView(Resource.Id.golos_account)] private LinearLayout _golosLyt;
+        [BindView(Resource.Id.steem_button)] private Button _steemConnectButton;
+        [BindView(Resource.Id.golos_button)] private Button _golosConnectButton;
+        [BindView(Resource.Id.steem_button_lyt)] private RelativeLayout _steemConnectLyt;
+        [BindView(Resource.Id.golos_button_lyt)] private RelativeLayout _golosConnectLyt;
+        [BindView(Resource.Id.steem_spinner)] private ProgressBar _steemLoader;
+        [BindView(Resource.Id.golos_spinner)] private ProgressBar _golosLoader;
+
 #pragma warning restore 0649
 
         protected override void OnCreate(Bundle savedInstanceState)
@@ -71,11 +89,13 @@ namespace Steepshot.Activity
             var appInfoService = AppSettings.AppInfo;
             var accounts = AppSettings.User.GetAllAccounts();
 
+            _propertiesActionsDialog = new BottomSheetDialog(this);
+            _propertiesActionsDialog.Window.RequestFeature(WindowFeatures.NoTitle);
+
             _viewTitle.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.AppSettingsTitle);
             _nsfwSwitchText.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.ShowNsfw);
             _lowSwitchText.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.ShowLowRated);
             _versionText.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.AppVersion, appInfoService.GetAppVersion(), appInfoService.GetBuildVersion());
-            _addButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.AddAccountText);
             _guideButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Guidelines);
             _termsButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.ToS);
             _powerSwitchText.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.VotingPowerSetting);
@@ -85,16 +105,21 @@ namespace Steepshot.Activity
             _notificationFollowing.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.NotificationFollow);
             _notificationComments.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.NotificationComment);
             _notificationPosting.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.NotificationPosting);
+            _steemConnectButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Connect);
+            _golosConnectButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Connect);
 
-            SetAddButton(accounts.Count);
+            SetupAccounts(accounts);
 
             _backButton.Visibility = ViewStates.Visible;
             _backButton.Click += GoBackClick;
             _switcher.Visibility = ViewStates.Gone;
             _settings.Visibility = ViewStates.Gone;
 
+            _steemTitle.Typeface = Style.Semibold;
+            _golosTitle.Typeface = Style.Semibold;
+            _steemConnectButton.Typeface = Style.Semibold;
+            _golosConnectButton.Typeface = Style.Semibold;
             _viewTitle.Typeface = Style.Semibold;
-            _addButton.Typeface = Style.Semibold;
             _versionText.Typeface = Style.Regular;
             _nsfwSwitchText.Typeface = Style.Semibold;
             _lowSwitchText.Typeface = Style.Semibold;
@@ -110,17 +135,31 @@ namespace Steepshot.Activity
             _guideButton.Typeface = Style.Semibold;
             _guideButton.Click += GuideClick;
 
-            _addButton.Click += AddAccountClick;
+            _steemConnectButton.Click += (sender, e) =>
+            {
+                _steemLoader.Visibility = ViewStates.Visible;
+                _steemConnectButton.Text = string.Empty;
+                _steemConnectButton.Enabled = false;
+                OnAccountAdd();
+            };
 
-            _accountsAdapter = new AccountsAdapter();
-            _accountsAdapter.AccountsList = accounts;
-            _accountsAdapter.DeleteAccount += OnAdapterDeleteAccount;
-            _accountsAdapter.PickAccount += OnAdapterPickAccount;
+            _golosConnectButton.Click += (sender, e) =>
+            {
+                _golosLoader.Visibility = ViewStates.Visible;
+                _golosConnectButton.Text = string.Empty;
+                _golosConnectButton.Enabled = false;
+                OnAccountAdd();
+            };
 
-            if (Build.VERSION.SdkInt >= Build.VERSION_CODES.Lollipop)
-                _accountsList.NestedScrollingEnabled = false;
-            _accountsList.SetLayoutManager(new LinearLayoutManager(this));
-            _accountsList.SetAdapter(_accountsAdapter);
+            _steemLyt.Click += (sender, e) =>
+            {
+                OpenAccountProperties(accounts.FirstOrDefault(p => p.Chain.Equals(KnownChains.Steem)));
+            };
+
+            _golosLyt.Click += (sender, e) =>
+            {
+                OpenAccountProperties(accounts.FirstOrDefault(p => p.Chain.Equals(KnownChains.Golos)));
+            };
 
             _nsfwSwitcher.Checked = AppSettings.User.IsNsfw;
             _lowRatedSwitcher.Checked = AppSettings.User.IsLowRated;
@@ -157,16 +196,18 @@ namespace Steepshot.Activity
 
         protected override void OnResume()
         {
-            _addAccountLoader.Visibility = ViewStates.Gone;
-            _addButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.AddAccountText);
-            _addButton.Enabled = true;
+            _steemLoader.Visibility = _golosLoader.Visibility = ViewStates.Gone;
+            _steemConnectButton.Text = _golosConnectButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Connect);
+            _steemConnectButton.Enabled = _golosConnectButton.Enabled = true;
+            _steemLoader.Visibility = _golosLoader.Visibility = ViewStates.Gone;
+
             base.OnResume();
         }
 
         public override void OnBackPressed()
         {
             if (_nsfwChanged || _lowRatedChanged)
-                BasePresenter.ProfileUpdateType = ProfileUpdateType.Full;
+                AppSettings.ProfileUpdateType = ProfileUpdateType.Full;
             base.OnBackPressed();
         }
 
@@ -221,7 +262,7 @@ namespace Steepshot.Activity
             var model = new PushNotificationsModel(AppSettings.User.UserInfo, true);
             model.Subscriptions = PushSettings.FlagToStringList();
 
-            var resp = await BasePresenter.TrySubscribeForPushes(model);
+            var resp = await Presenter.TrySubscribeForPushes(model);
             if (resp.IsSuccess)
                 AppSettings.User.PushSettings = PushSettings;
             else
@@ -246,7 +287,52 @@ namespace Steepshot.Activity
             var chainToDelete = userInfo.Chain;
             AppSettings.User.Delete(userInfo);
             RemoveChain(chainToDelete);
-            _accountsAdapter.NotifyDataSetChanged();
+        }
+
+        private void OpenAccountProperties(UserInfo account)
+        {
+            var inflater = (LayoutInflater)GetSystemService(LayoutInflaterService);
+            using (var dialogView = inflater.Inflate(Resource.Layout.lyt_account_popup, null))
+            {
+                var logout = dialogView.FindViewById<Button>(Resource.Id.logout);
+                logout.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Logout);
+                logout.Typeface = Style.Semibold;
+
+                var switchAccount = dialogView.FindViewById<Button>(Resource.Id.switch_account);
+                switchAccount.Text = $"{AppSettings.LocalizationManager.GetText(LocalizationKeys.SwitchTo)} {account.Login}";
+                switchAccount.Typeface = Style.Semibold;
+
+                if (account.Chain != AppSettings.User.Chain)
+                {
+                    switchAccount.Visibility = ViewStates.Visible;
+                }
+
+                var cancel = dialogView.FindViewById<Button>(Resource.Id.cancel);
+                cancel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Cancel);
+                cancel.Typeface = Style.Semibold;
+
+                logout.Click += (sender, e) =>
+                {
+                    OnAdapterDeleteAccount(account);
+                    _propertiesActionsDialog.Dismiss();
+                };
+
+                switchAccount.Click += (sender, e) =>
+                {
+                    OnAdapterPickAccount(account);
+                    _propertiesActionsDialog.Dismiss();
+                };
+
+                cancel.Click += (sender, e) =>
+                {
+                    _propertiesActionsDialog.Dismiss();
+                };
+
+                _propertiesActionsDialog.SetContentView(dialogView);
+                dialogView.SetBackgroundColor(Color.Transparent);
+                _propertiesActionsDialog.Window.FindViewById(Resource.Id.design_bottom_sheet).SetBackgroundColor(Color.Transparent);
+                _propertiesActionsDialog.Show();
+            }
         }
 
         private void GoBackClick(object sender, EventArgs e)
@@ -268,12 +354,9 @@ namespace Steepshot.Activity
             StartActivity(intent);
         }
 
-        private async void AddAccountClick(object sender, EventArgs e)
+        private async void OnAccountAdd()
         {
-            _addAccountLoader.Visibility = ViewStates.Visible;
-            _addButton.Text = string.Empty;
-            _addButton.Enabled = false;
-            await BasePresenter.SwitchChain(BasePresenter.Chain == KnownChains.Steem ? KnownChains.Golos : KnownChains.Steem);
+            App.MainChain = App.MainChain == KnownChains.Steem ? KnownChains.Golos : KnownChains.Steem;
             var intent = new Intent(this, typeof(PreSignInActivity));
             StartActivity(intent);
         }
@@ -286,9 +369,11 @@ namespace Steepshot.Activity
 
         private void SwitchChain(UserInfo user)
         {
-            if (BasePresenter.Chain != user.Chain)
+            if (App.MainChain != user.Chain)
             {
-                BasePresenter.SwitchChain(user);
+                App.MainChain = user.Chain;
+                AppSettings.User.SwitchUser(user);
+
                 var i = new Intent(ApplicationContext, typeof(RootActivity));
                 i.AddFlags(ActivityFlags.NewTask | ActivityFlags.ClearTask);
                 StartActivity(i);
@@ -307,9 +392,12 @@ namespace Steepshot.Activity
             }
             else
             {
-                if (BasePresenter.Chain == chain)
+                if (App.MainChain == chain)
                 {
-                    BasePresenter.SwitchChain(_accountsAdapter.AccountsList.First());
+                    var user = accounts.First();
+                    App.MainChain = user.Chain;
+                    AppSettings.User.SwitchUser(user);
+
                     var i = new Intent(ApplicationContext, typeof(RootActivity));
                     i.AddFlags(ActivityFlags.NewTask | ActivityFlags.ClearTask);
                     StartActivity(i);
@@ -317,17 +405,70 @@ namespace Steepshot.Activity
                 }
                 else
                 {
-                    SetAddButton(accounts.Count);
+                    SetupAccounts(accounts);
                 }
             }
         }
 
-        private void SetAddButton(int accountsCount)
+        private void SetupAccounts(List<UserInfo> accounts)
         {
-            if (accountsCount == 2)
-                _addButton.Visibility = ViewStates.Gone;
-            else
-                _addButton.Visibility = ViewStates.Visible;
+            _golosLyt.Enabled = false;
+            _steemLyt.Enabled = false;
+
+            //_steemAvatar.Visibility = _golosAvatar.Visibility = ViewStates.Gone;
+            _steemLogo.Visibility = _golosLogo.Visibility = ViewStates.Gone;
+            _steemState.Visibility = _golosState.Visibility = ViewStates.Gone;
+
+            _steemConnectButton.Visibility = _golosConnectButton.Visibility = ViewStates.Visible;
+            _steemConnectLyt.Visibility = _golosConnectLyt.Visibility = ViewStates.Visible;
+
+            _steemTitle.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.SteemitAccount);
+            _golosTitle.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.GolosAccount);
+
+            _steemTitle.SetTextColor(Color.Black);
+            _golosTitle.SetTextColor(Color.Black);
+
+            foreach (var account in accounts)
+            {
+                switch (account.Chain)
+                {
+                    case KnownChains.Steem:
+                        _steemLyt.Enabled = true;
+
+                        //_steemAvatar.Visibility = ViewStates.Visible;
+                        _steemLogo.Visibility = ViewStates.Visible;
+                        _steemState.Visibility = ViewStates.Visible;
+                        _steemConnectLyt.Visibility = ViewStates.Gone;
+
+                        _steemTitle.Text = account.Login;
+
+                        if (account.Chain == AppSettings.User.Chain)
+                        {
+                            _steemTitle.SetTextColor(Resources.GetColor(Resource.Color.rgb255_34_5));
+                            _steemState.SetImageResource(Resource.Drawable.ic_checked);
+                        }
+                        else
+                            _steemState.SetImageResource(Resource.Drawable.ic_unchecked);
+                        break;
+                    case KnownChains.Golos:
+                        _golosLyt.Enabled = true;
+
+                        //_golosAvatar.Visibility = ViewStates.Visible;
+                        _golosLogo.Visibility = ViewStates.Visible;
+                        _golosState.Visibility = ViewStates.Visible;
+                        _golosConnectLyt.Visibility = ViewStates.Gone;
+
+                        _golosTitle.Text = account.Login;
+                        if (account.Chain == AppSettings.User.Chain)
+                        {
+                            _golosTitle.SetTextColor(Resources.GetColor(Resource.Color.rgb255_34_5));
+                            _golosState.SetImageResource(Resource.Drawable.ic_checked);
+                        }
+                        else
+                            _golosState.SetImageResource(Resource.Drawable.ic_unchecked);
+                        break;
+                }
+            }
         }
     }
 }

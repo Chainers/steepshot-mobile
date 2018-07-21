@@ -12,7 +12,6 @@ using UIKit;
 using Steepshot.Core.Utils;
 using Steepshot.iOS.Helpers;
 using System.Threading.Tasks;
-using Steepshot.Core.Errors;
 
 namespace Steepshot.iOS.Views
 {
@@ -202,7 +201,7 @@ namespace Steepshot.iOS.Views
             }
 
             var error = await _searchFacade.TrySearchCategories(searchTextField.Text, _searchType);
-            if (error is CanceledError)
+            if (error is OperationCanceledException)
                 return false;
 
             if (shouldAnimate)
@@ -230,7 +229,7 @@ namespace Steepshot.iOS.Views
                 }
             }
 
-            ShowAlert(error);
+            //ShowAlert(error);
             return true;
         }
 

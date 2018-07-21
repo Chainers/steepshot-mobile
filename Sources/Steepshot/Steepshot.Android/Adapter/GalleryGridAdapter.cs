@@ -9,7 +9,7 @@ namespace Steepshot.Adapter
 {
     public class GalleryGridAdapter : RecyclerView.Adapter
     {
-        public Action<GalleryMediaModel> OnItemSelected;
+        public Action<GalleryMediaModel, int> OnItemSelected;
 
         private readonly int _cellSize;
         private GalleryMediaModel[] _media;
@@ -45,11 +45,11 @@ namespace Steepshot.Adapter
 
     public class GalleryGridViewHolder : RecyclerView.ViewHolder
     {
-        private readonly Action<GalleryMediaModel> _onItemSelected;
+        private readonly Action<GalleryMediaModel, int> _onItemSelected;
         private readonly SelectableImageView _image;
         private GalleryMediaModel _media;
 
-        public GalleryGridViewHolder(View itemView, Action<GalleryMediaModel> onItemSelected) : base(itemView)
+        public GalleryGridViewHolder(View itemView, Action<GalleryMediaModel, int> onItemSelected) : base(itemView)
         {
             _image = (SelectableImageView)itemView;
             _onItemSelected = onItemSelected;
@@ -58,7 +58,7 @@ namespace Steepshot.Adapter
 
         private void ItemViewOnClick(object sender, EventArgs eventArgs)
         {
-            _onItemSelected?.Invoke(_media);
+            _onItemSelected?.Invoke(_media, AdapterPosition);
         }
 
         public void Update(GalleryMediaModel media)

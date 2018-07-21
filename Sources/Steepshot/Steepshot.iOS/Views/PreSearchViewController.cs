@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using CoreGraphics;
 using Foundation;
-using iOS.Hardware;
 using Steepshot.Core.Errors;
 using Steepshot.Core.Models;
 using Steepshot.Core.Models.Common;
@@ -14,6 +13,7 @@ using Steepshot.iOS.Helpers;
 using Steepshot.iOS.ViewControllers;
 using Steepshot.iOS.ViewSources;
 using UIKit;
+using static Steepshot.iOS.Helpers.DeviceHelper;
 
 namespace Steepshot.iOS.Views
 {
@@ -95,7 +95,7 @@ namespace Steepshot.iOS.Views
                     sliderCollection.ScrollEnabled = !isOpening;
             };
 
-            if (!AppSettings.User.IsAuthenticated && CurrentPostCategory == null)
+            if (!AppSettings.User.HasPostingPermission && CurrentPostCategory == null)
             {
                 loginButton.Hidden = false;
                 loginButton.Layer.CornerRadius = 25;
@@ -153,7 +153,7 @@ namespace Steepshot.iOS.Views
             }
             else
             {
-                if (DeviceModel.Model(DeviceHardware.HardwareModel) == "iPhone10,6")
+                if (GetVersion() == HardwareVersion.iPhoneX)
                     sliderCollectionOffset.Constant = 35;
                 NavigationController.SetNavigationBarHidden(true, false);
             }
@@ -281,7 +281,7 @@ namespace Steepshot.iOS.Views
 
         protected override async Task GetPosts(bool shouldStartAnimating = true, bool clearOld = false)
         {
-            ErrorBase error;
+            Exception error;
             do
             {
                 if (shouldStartAnimating)
@@ -309,7 +309,7 @@ namespace Steepshot.iOS.Views
                     error = await _presenter.TryGetSearchedPosts();
                 }
 
-                if (error is CanceledError)
+                if (error is OperationCanceledException)
                     return;
 
                 if (_refreshControl.Refreshing)
@@ -337,11 +337,39 @@ namespace Steepshot.iOS.Views
         {
             if (!collectionView.Hidden)
             {
+                foreach (var item in _presenter)
+                {
+                    foreach (var url in item.Media)
+                    {
+                        if(_gridDelegate.IsGrid)
+                            ImageLoader.Preload(item.Media[0].Url, Constants.CellSize);
+                        else
+                            ImageLoader.Preload(url.Url, new CGSize(UIScreen.MainScreen.Bounds.Size.Width, UIScreen.MainScreen.Bounds.Size.Width));
+                    }
+                }
+
                 _gridDelegate.GenerateVariables();
                 collectionView.ReloadData();
             }
             else
             {
+                foreach (var item in _presenter)
+                {
+                    foreach (var url in item.Media)
+                    {
+                        if (_gridDelegate.IsGrid)
+                            ImageLoader.Preload(item.Media[0].Url, Constants.CellSize);
+                        else
+                            ImageLoader.Preload(url.Url, new CGSize(UIScreen.MainScreen.Bounds.Size.Width, UIScreen.MainScreen.Bounds.Size.Width));
+                    }
+                }
+
+
+                foreach (var item in _presenter)
+                {
+                    ImageLoader.Preload(item.Media[0].Url, new CGSize(UIScreen.MainScreen.Bounds.Width, UIScreen.MainScreen.Bounds.Width));
+                }
+
                 _sliderGridDelegate.GenerateVariables();
                 sliderCollection.ReloadData();
             }

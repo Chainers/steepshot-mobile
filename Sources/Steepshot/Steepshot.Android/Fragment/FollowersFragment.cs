@@ -110,14 +110,14 @@ namespace Steepshot.Fragment
             if (!IsInitialized)
                 return;
             Activity.RunOnUiThread(() => { _adapter.NotifyDataSetChanged(); });
-            BasePresenter.ProfileUpdateType = ProfileUpdateType.OnlyInfo;
+            AppSettings.ProfileUpdateType = ProfileUpdateType.OnlyInfo;
         }
 
         private async void Follow(UserFriend userFriend)
         {
             if (userFriend == null)
                 return;
-            if (AppSettings.User.IsAuthenticated)
+            if (AppSettings.User.HasPostingPermission)
             {
                 var error = await Presenter.TryFollow(userFriend);
                 if (!IsInitialized)

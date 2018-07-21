@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
 using Android.Content;
 using Android.Graphics;
 using Android.Runtime;
@@ -8,6 +7,7 @@ using Android.Support.V7.Widget;
 using Android.Text;
 using Android.Util;
 using Java.Util.Regex;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.CustomViews
 {
@@ -73,6 +73,10 @@ namespace Steepshot.CustomViews
                 {
                     AutoLinkText = attr_s.GetString(Resource.Styleable.AutoLinkTextView_android_text);
                 }
+            }
+            catch (Exception ex)
+            {
+                AppSettings.Logger.Warning(ex);
             }
             finally
             {

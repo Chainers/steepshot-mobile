@@ -120,7 +120,7 @@ namespace Steepshot.Fragment
             if (!IsInitialized)
                 return;
 
-            Context.ShowAlert(error);
+            Context.ShowAlert(error, ToastLength.Short);
             _bar.Visibility = ViewStates.Gone;
 
             _emptyQueryLabel.Visibility = Presenter.Count > 0 ? ViewStates.Invisible : ViewStates.Visible;
@@ -142,7 +142,7 @@ namespace Steepshot.Fragment
             if (userFriend == null)
                 return;
 
-            if (AppSettings.User.IsAuthenticated)
+            if (AppSettings.User.HasPostingPermission)
             {
                 var error = await Presenter.TryFollow(userFriend);
                 if (!IsInitialized)

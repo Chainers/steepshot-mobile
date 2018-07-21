@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using Android.App;
 using Android.OS;
 using Android.Widget;
@@ -7,6 +8,7 @@ using Steepshot.Base;
 using Steepshot.Core;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
+using Steepshot.Integration;
 
 namespace Steepshot.Activity
 {
@@ -38,8 +40,15 @@ namespace Steepshot.Activity
         private async void RunApiTest(object sender, EventArgs e)
         {
             //TODO: add cancel support
-            await _testContainer.RunServerTests();
-            await _testContainer.RunDitchApiTests();
+            var module = new InstagramModule(Presenter.OpenApi, AppSettings.User);
+            if (module.IsAuthorized())
+            {
+                module.TryCreateNewPost(CancellationToken.None);
+                return;
+            }
+            module.AuthToInstagram(this);
+            //await _testContainer.RunServerTests();
+            //await _testContainer.RunDitchApiTests();
         }
 
         [OnClick(Resource.Id.btn_back)]

@@ -1,15 +1,7 @@
 ﻿using System;
-using FFImageLoading;
-using FFImageLoading.Work;
 using Foundation;
 using Steepshot.Core.Models.Common;
-using Steepshot.Core.Extensions;
 using UIKit;
-using Steepshot.Core.Models.Enums;
-using Steepshot.Core.Presenters;
-using CoreGraphics;
-using Steepshot.Core.Localization;
-using Steepshot.Core.Utils;
 using Xamarin.TTTAttributedLabel;
 using PureLayout.Net;
 

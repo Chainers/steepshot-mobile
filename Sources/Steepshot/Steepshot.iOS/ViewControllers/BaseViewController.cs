@@ -1,10 +1,9 @@
 ﻿using System;
-using System.Globalization;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using CoreGraphics;
 using Foundation;
 using Steepshot.Core.Errors;
-using Steepshot.Core.Presenters;
 using UIKit;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Utils;
@@ -16,8 +15,6 @@ namespace Steepshot.iOS.ViewControllers
 {
     public class BaseViewController : UIViewController, IWillEnterForeground
     {
-        private static readonly CultureInfo CultureInfo = CultureInfo.InvariantCulture;
-
         public static string Tos => AppSettings.User.IsDev ? "https://qa.steepshot.org/terms-of-service" : "https://steepshot.org/terms-of-service";
         public static string Pp => AppSettings.User.IsDev ? "https://qa.steepshot.org/privacy-policy" : "https://steepshot.org/privacy-policy";
 
@@ -236,61 +233,71 @@ namespace Steepshot.iOS.ViewControllers
             });
         }
 
-        protected void ShowAlert(ErrorBase error, Action<UIAlertAction> okAction = null)
+        protected void ShowAlert(Exception error, Action<UIAlertAction> okAction = null)
         {
-            if (error == null || error is CanceledError)
+            if (IsSkeepError(error))
                 return;
 
-            var message = error.Message;
-            if (string.IsNullOrWhiteSpace(message))
-                return;
+            var message = GetMsg(error);
 
-            var lm = AppSettings.LocalizationManager;
-            if (!lm.ContainsKey(message))
-            {
-                if (error is BlockchainError blError)
-                {
-                    AppSettings.Reporter.SendMessage($"New message: {LocalizationManager.NormalizeKey(blError.Message)}{Environment.NewLine}Full Message:{blError.FullMessage}");
-                }
-                else
-                {
-                    AppSettings.Reporter.SendMessage($"New message: {LocalizationManager.NormalizeKey(message)}");
-                }
-                message = nameof(LocalizationKeys.UnexpectedError);
-            }
-
-            var alert = UIAlertController.Create(null, lm.GetText(message), UIAlertControllerStyle.Alert);
-            alert.AddAction(UIAlertAction.Create(lm.GetText(LocalizationKeys.Ok), UIAlertActionStyle.Cancel, okAction));
+            var alert = UIAlertController.Create(null, message, UIAlertControllerStyle.Alert);
+            alert.AddAction(UIAlertAction.Create(AppSettings.LocalizationManager.GetText(LocalizationKeys.Ok), UIAlertActionStyle.Cancel, okAction));
             PresentViewController(alert, true, null);
         }
 
-        protected void ShowDialog(ErrorBase error, LocalizationKeys leftButtonText, LocalizationKeys rightButtonText, Action<UIAlertAction> leftButtonAction = null, Action<UIAlertAction> rightButtonAction = null)
+        protected void ShowDialog(Exception error, LocalizationKeys leftButtonText, LocalizationKeys rightButtonText, Action<UIAlertAction> leftButtonAction = null, Action<UIAlertAction> rightButtonAction = null)
         {
-            if (error == null || error is CanceledError)
+            if (IsSkeepError(error))
                 return;
 
-            var message = error.Message;
-            if (string.IsNullOrWhiteSpace(message))
-                return;
+            var message = GetMsg(error);
 
+            var alert = UIAlertController.Create(null, message, UIAlertControllerStyle.Alert);
+            alert.AddAction(UIAlertAction.Create(AppSettings.LocalizationManager.GetText(leftButtonText), UIAlertActionStyle.Cancel, leftButtonAction));
+            alert.AddAction(UIAlertAction.Create(AppSettings.LocalizationManager.GetText(rightButtonText), UIAlertActionStyle.Default, rightButtonAction));
+            PresentViewController(alert, true, null);
+        }
+
+        private static string GetMsg(Exception error)
+        {
             var lm = AppSettings.LocalizationManager;
-            if (!lm.ContainsKey(message))
+          
+            if (error is ValidationError validationError)
+                return lm.GetText(validationError);
+
+
+            AppSettings.Logger.Error(error);
+            var msg = string.Empty;
+
+            if (error is InternalError internalError)
             {
-                if (error is BlockchainError blError)
-                {
-                    AppSettings.Reporter.SendMessage($"New message: {LocalizationManager.NormalizeKey(blError.Message)}{Environment.NewLine}Full Message:{blError.FullMessage}");
-                }
-                else
-                {
-                    AppSettings.Reporter.SendMessage($"New message: {LocalizationManager.NormalizeKey(message)}");
-                }
-                message = nameof(LocalizationKeys.UnexpectedError);
+                msg = lm.GetText(internalError.Key);
+            }
+            else if (error is RequestError requestError)
+            {
+                if (!string.IsNullOrEmpty(requestError.RawResponse))
+                    msg = lm.GetText(requestError.RawResponse);
+            }
+            else
+            {
+                msg = lm.GetText(error.Message);
             }
 
-            var alert = UIAlertController.Create(null, lm.GetText(message), UIAlertControllerStyle.Alert);
-            alert.AddAction(UIAlertAction.Create(lm.GetText(leftButtonText), UIAlertActionStyle.Cancel, leftButtonAction));
-            alert.AddAction(UIAlertAction.Create(lm.GetText(rightButtonText), UIAlertActionStyle.Default, rightButtonAction));
-            PresentViewController(alert, true, null);
+            return string.IsNullOrEmpty(msg) ? lm.GetText(LocalizationKeys.UnexpectedError) : msg;
+        }
+
+        private static bool IsSkeepError(Exception error)
+        {
+            if (error == null || error is TaskCanceledException || error is OperationCanceledException)
+                return true;
+
+            if (error is RequestError requestError)
+            {
+                if (requestError.Exception is TaskCanceledException || requestError.Exception is OperationCanceledException)
+                    return true;
+            }
+
+            return false;
         }
 
         protected void TagAction(string tag)

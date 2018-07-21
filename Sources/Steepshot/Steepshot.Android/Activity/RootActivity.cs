@@ -14,7 +14,6 @@ using Newtonsoft.Json;
 using Refractored.Controls;
 using Square.Picasso;
 using Steepshot.Base;
-using Steepshot.Core.Errors;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Presenters;
@@ -59,7 +58,7 @@ namespace Steepshot.Activity
             _tabLayout.TabSelected += OnTabLayoutOnTabSelected;
             _tabLayout.TabReselected += OnTabLayoutOnTabReselected;
 
-            if (AppSettings.User.IsAuthenticated)
+            if (AppSettings.User.HasPostingPermission)
                 OneSignal.Current.IdsAvailable(OneSignalCallback);
         }
 
@@ -73,7 +72,7 @@ namespace Steepshot.Activity
                 var model = new PushNotificationsModel(AppSettings.User.UserInfo, playerId, true);
                 model.Subscriptions = PushSettings.All.FlagToStringList();
 
-                var response = await BasePresenter.TrySubscribeForPushes(model);
+                var response = await Presenter.TrySubscribeForPushes(model);
                 if (response.IsSuccess)
                 {
                     AppSettings.User.PushesPlayerId = playerId;
@@ -148,7 +147,7 @@ namespace Steepshot.Activity
         protected override void OnResume()
         {
             base.OnResume();
-            if (BasePresenter.ProfileUpdateType != ProfileUpdateType.None)
+            if (AppSettings.ProfileUpdateType != ProfileUpdateType.None)
             {
                 SelectTab(_adapter.Count - 1);
             }
@@ -253,7 +252,7 @@ namespace Steepshot.Activity
                 if (IsDestroyed)
                     return;
 
-                if (error == null || error is CanceledError)
+                if (error == null || error is OperationCanceledException)
                 {
                     SetProfileChart(_tabLayout.LayoutParameters.Height);
                     break;

@@ -1,17 +1,20 @@
 ﻿using Autofac;
-using Steepshot.Core.Authority;
-using Steepshot.Core.HttpClient;
+using Steepshot.Core.Authorization;
+using Steepshot.Core.Clients;
 using Steepshot.Core.Localization;
+using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Services;
 
 namespace Steepshot.Core.Utils
 {
     public static class AppSettings
     {
+        public static ProfileUpdateType ProfileUpdateType = ProfileUpdateType.None;
+
         public static IContainer Container { get; set; }
 
-        private static IReporterService _reporter;
-        public static IReporterService Reporter => _reporter ?? (_reporter = Container.Resolve<IReporterService>());
+        private static ILogService _log;
+        public static ILogService Logger => _log ?? (_log = Container.Resolve<ILogService>());
 
         private static ISaverService _saverService;
         public static ISaverService SaverService => _saverService ?? (_saverService = Container.Resolve<ISaverService>());
@@ -25,8 +28,8 @@ namespace Steepshot.Core.Utils
         private static UserManager _dataProvider;
         public static UserManager DataProvider => _dataProvider ?? (_dataProvider = Container.Resolve<UserManager>());
 
-        private static IAssetsHelper _assetsesHelper;
-        public static IAssetsHelper AssetsesHelper => _assetsesHelper ?? (_assetsesHelper = Container.Resolve<IAssetsHelper>());
+        private static IAssetHelper _assetHelper;
+        public static IAssetHelper AssetHelper => _assetHelper ?? (_assetHelper = Container.Resolve<IAssetHelper>());
 
         private static LocalizationManager _localizationManager;
         public static LocalizationManager LocalizationManager => _localizationManager ?? (_localizationManager = Container.Resolve<LocalizationManager>());

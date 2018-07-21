@@ -1,7 +1,5 @@
-﻿using System;
-using Android.Content;
+﻿using Android.Content;
 using Android.Gms.Analytics;
-using Steepshot.Core.Services;
 
 namespace Steepshot.Services
 {

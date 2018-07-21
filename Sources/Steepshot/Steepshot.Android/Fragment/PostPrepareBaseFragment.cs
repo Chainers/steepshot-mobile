@@ -14,7 +14,6 @@ using CheeseBind;
 using Steepshot.Activity;
 using Steepshot.Adapter;
 using Steepshot.Base;
-using Steepshot.Core.Errors;
 using Steepshot.Core.Facades;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models;
@@ -165,7 +164,7 @@ namespace Steepshot.Fragment
             _postButton.Text = string.Empty;
             EnablePostAndEdit(false);
 
-            var isConnected = BasePresenter.ConnectionService.IsConnectionAvailable();
+            var isConnected = AppSettings.ConnectionService.IsConnectionAvailable();
 
             if (!isConnected)
             {
@@ -185,7 +184,7 @@ namespace Steepshot.Fragment
         }
 
         protected abstract Task OnPostAsync();
-       
+
         protected void EnablePostAndEdit(bool enabled)
         {
             if (enabled)
@@ -233,7 +232,7 @@ namespace Steepshot.Fragment
             {
                 AppSettings.User.UserInfo.LastPostTime = DateTime.Now;
                 EnabledPost();
-                BasePresenter.ProfileUpdateType = ProfileUpdateType.Full;
+                AppSettings.ProfileUpdateType = ProfileUpdateType.Full;
                 Activity.ShowAlert(LocalizationKeys.PostDelay, ToastLength.Long);
                 if (Activity is SplashActivity || Activity is CameraActivity)
                     Activity.Finish();
@@ -369,7 +368,7 @@ namespace Steepshot.Fragment
             _tagsList.ScrollToPosition(0);
             _tagPickerFacade.Clear();
 
-            ErrorBase error = null;
+            Exception error = null;
             if (text.Length == 0)
                 error = await _tagPickerFacade.TryGetTopTags();
             else if (text.Length > 1)
@@ -378,7 +377,7 @@ namespace Steepshot.Fragment
             if (IsInitialized)
                 return;
 
-            Activity.ShowAlert(error);
+            Activity.ShowAlert(error, ToastLength.Short);
         }
 
         protected void HideTagsList()

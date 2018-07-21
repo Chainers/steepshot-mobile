@@ -1,7 +1,6 @@
 ﻿using System;
 using CoreGraphics;
 using PureLayout.Net;
-using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 using Steepshot.iOS.Helpers;
 using UIKit;
@@ -73,7 +72,7 @@ namespace Steepshot.iOS.Views
 
         public void DecorateFollowButton(bool? hasFollowed, string currentUsername)
         {
-            if (!AppSettings.User.IsAuthenticated || currentUsername == AppSettings.User.Login)
+            if (!AppSettings.User.HasPostingPermission || currentUsername == AppSettings.User.Login)
             {
                 followButton.Hidden = true;
                 return;

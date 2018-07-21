@@ -17,6 +17,8 @@ namespace Steepshot.Utils
 
         public string Bucket { get; set; }
 
+        public int Orientation { get; set; }
+
         public bool Selected
         {
             get => _selected;

@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Android.Animation;
 using Android.Content;
@@ -9,6 +10,7 @@ using Android.Util;
 using Android.Views;
 using Android.Views.Animations;
 using Square.Picasso;
+using Steepshot.Core.Utils;
 using Steepshot.Utils;
 using Math = System.Math;
 using Uri = Android.Net.Uri;
@@ -27,7 +29,7 @@ namespace Steepshot.CustomViews
 
         #region Fields
 
-        private CancellationTokenSource _cancellationTokenSource;
+        private CancellationSignal _cancellationSignal;
 
         private const float MinimumRatio = 0.8f;
         private const float MaximumRatio = 1.92f;
@@ -39,7 +41,7 @@ namespace Steepshot.CustomViews
         private CropViewGrid _grid;
         private ImageParameters _drawableImageParameters;
 
-        private string _imageUri;
+        private GalleryMediaModel _media;
         private Drawable _drawable;
         private int _width;
         private int _height;
@@ -109,6 +111,8 @@ namespace Steepshot.CustomViews
                 _displayDrawableLeft = 0;
                 _displayDrawableTop = 0;
                 _drawableImageParameters = new ImageParameters();
+                if (_media != null)
+                    Rotation = _media.Orientation * 45;
             }
             else
             {
@@ -182,8 +186,7 @@ namespace Steepshot.CustomViews
 
         #endregion
 
-        #region Constructors
-
+        #region Constructors        
         public CropView(Context context) : base(context)
         {
             Initialize(context);
@@ -246,23 +249,23 @@ namespace Steepshot.CustomViews
             return true;
         }
 
-        public void SetImagePath(string path, ImageParameters parameters)
+        public void SetImage(GalleryMediaModel model)
         {
-            _cancellationTokenSource?.Cancel();
-            _cancellationTokenSource = new CancellationTokenSource();
+            _cancellationSignal?.Cancel();
+            _cancellationSignal = new CancellationSignal();
 
-            _reloadImage = !path.Equals(_imageUri);
+            _reloadImage = model != _media;
 
             if (_reloadImage)
             {
-                _imageUri = path;
+                _media = model;
                 _drawable = null;
             }
 
-            var hasParameters = parameters != null;
+            var hasParameters = _media.Parameters != null;
 
             if (_useStrictBounds)
-                Configure(hasParameters ? ScaleType.Undefined : ScaleType.Bind, parameters?.Copy(), StrictRatio, StrictRatio, StrictRatio);
+                Configure(hasParameters ? ScaleType.Undefined : ScaleType.Bind, _media.Parameters?.Copy(), StrictRatio, StrictRatio, StrictRatio);
             else
                 Configure(hasParameters ? _currentScaleType : ScaleType.Square, null, MinimumRatio, MaximumRatio, DefaultRatio);
 
@@ -481,7 +484,7 @@ namespace Steepshot.CustomViews
             {
                 IsBitmapReady = false;
 
-                var drawableRequest = await MakeDrawable(_cancellationTokenSource.Token, MaxImageSize, MaxImageSize, _drawableImageParameters.Rotation);
+                var drawableRequest = await MakeDrawable(_cancellationSignal, MaxImageSize, MaxImageSize, _drawableImageParameters.Rotation);
 
                 if (drawableRequest == null)
                 {
@@ -515,32 +518,36 @@ namespace Steepshot.CustomViews
             Grid.Draw(canvas);
         }
 
-        private Task<BitmapDrawable> MakeDrawable(CancellationToken token, int targetWidth, int targetHeight, float angle = 0) => Task.Run(() =>
+        private Task<BitmapDrawable> MakeDrawable(CancellationSignal signal, int targetWidth, int targetHeight, float angle = 0)
         {
-            try
+            return Task.Run(() =>
             {
-                if (Looper.MyLooper() == null)
-                    Looper.Prepare();
-
-                using (var bitmap = BitmapUtils.DecodeSampledBitmapFromFile(Context, Uri.Parse(_imageUri), targetWidth, targetHeight))
+                try
                 {
-                    var matrix = new Matrix();
-                    matrix.PostRotate(angle);
-                    var preparedBitmap = Bitmap.CreateBitmap(bitmap, 0, 0, bitmap.Width, bitmap.Height, matrix, false);
-                    _imageRawWidth = preparedBitmap.Width;
-                    _imageRawHeight = preparedBitmap.Height;
+                    if (Looper.MyLooper() == null)
+                        Looper.Prepare();
 
-                    if (token.IsCancellationRequested)
-                        return null;
+                    using (var bitmap = BitmapUtils.DecodeSampledBitmapFromFile(Context, Uri.Parse(_media.Path), targetWidth, targetHeight))
+                    {
+                        var matrix = new Matrix();
+                        matrix.PostRotate(angle);
+                        var preparedBitmap = Bitmap.CreateBitmap(bitmap, 0, 0, bitmap.Width, bitmap.Height, matrix, false);
+                        _imageRawWidth = preparedBitmap.Width;
+                        _imageRawHeight = preparedBitmap.Height;
 
-                    return new BitmapDrawable(Context.Resources, preparedBitmap);
+                        if (signal.IsCanceled)
+                            return null;
+
+                        return new BitmapDrawable(Context.Resources, preparedBitmap);
+                    }
                 }
-            }
-            catch
-            {
-                return null;
-            }
-        });
+                catch (Exception ex)
+                {
+                    AppSettings.Logger.Warning(ex);
+                    return null;
+                }
+            });
+        }
 
         private void Reset(ScaleType resetType)
         {

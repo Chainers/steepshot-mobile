@@ -1,7 +1,6 @@
 ﻿using System;
 using Steepshot.Core;
 using Steepshot.Core.Presenters;
-using Steepshot.iOS.Helpers;
 using Steepshot.iOS.ViewControllers;
 using UIKit;
 using Constants = Steepshot.iOS.Helpers.Constants;
@@ -23,8 +22,8 @@ namespace Steepshot.iOS.Views
             loginText.ShouldReturn += LoginShouldReturn;
             loginButton.TouchDown += Login;
 #if DEBUG
-            var di = AppSettings.AssetsesHelper.GetDebugInfo();
-            if (BasePresenter.Chain == KnownChains.Steem)
+            var di = AppSettings.AssetHelper.GetDebugInfo();
+            if (AppDelegate.MainChain == KnownChains.Steem)
                 loginText.Text = di.SteemTestLogin;
             else
                 loginText.Text = di.GolosTestLogin;
@@ -75,8 +74,8 @@ namespace Steepshot.iOS.Views
             {
                 var myViewController = new LoginViewController
                 {
-                    AvatarLink = response.Result.ProfileImage,
-                    Username = response.Result.Username
+                    AccountInfoResponse = response.Result,
+                    Username = loginText.Text
                 };
                 NavigationController.PushViewController(myViewController, true);
             }

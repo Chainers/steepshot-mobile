@@ -52,11 +52,15 @@ namespace Steepshot.iOS.Views
 
         private void CreateAccount(object sender, EventArgs e)
         {
+            var myViewController = new RegistrationViewController();
+            NavigationController.PushViewController(myViewController, true);
+
+            /*
             var sv = new SFSafariViewController(new Uri(Core.Constants.SteemitRegUrl));
             sv.Delegate = this;
 
             NavigationController.SetNavigationBarHidden(true, false);
-            NavigationController.PushViewController(sv, false);
+            NavigationController.PushViewController(sv, false);*/
         }
 
         [Export("safariViewControllerDidFinish:")]
@@ -84,7 +88,9 @@ namespace Steepshot.iOS.Views
 
         private void SwitchEnvironment(object sender, EventArgs e)
         {
-            BasePresenter.SwitchChain(((UISwitch)sender).On);
+            var isDev = ((UISwitch) sender).On;
+            AppDelegate.SteemClient.SetDev(isDev);
+            AppDelegate.GolosClient.SetDev(isDev);
         }
 
         private void ToggleDevSwitchVisibility()

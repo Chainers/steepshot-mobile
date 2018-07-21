@@ -18,16 +18,16 @@ using Steepshot.Activity;
 using Steepshot.Adapter;
 using Steepshot.Base;
 using Steepshot.Core;
+using Steepshot.Core.Authorization;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
 using Steepshot.Core.Models;
-using Steepshot.Core.Authority;
-using Steepshot.Core.Errors;
 using Steepshot.Core.Localization;
 using Steepshot.Interfaces;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Utils;
+using OperationCanceledException = System.OperationCanceledException;
 
 namespace Steepshot.Fragment
 {
@@ -192,7 +192,7 @@ namespace Steepshot.Fragment
             {
                 base.OnViewCreated(view, savedInstanceState);
 
-                if (AppSettings.User.IsAuthenticated)
+                if (AppSettings.User.HasPostingPermission)
                     _loginButton.Visibility = ViewStates.Gone;
 
                 Presenter.SourceChanged += PresenterSourceChanged;
@@ -470,7 +470,7 @@ namespace Steepshot.Fragment
             {
                 case ActionType.Like:
                     {
-                        if (AppSettings.User.IsAuthenticated)
+                        if (AppSettings.User.HasPostingPermission)
                         {
                             var error = await Presenter.TryVote(post);
                             if (!IsInitialized)
@@ -504,7 +504,7 @@ namespace Steepshot.Fragment
                     {
                         if (post == null)
                             return;
-                        if (post.Children == 0 && !AppSettings.User.IsAuthenticated)
+                        if (post.Children == 0 && !AppSettings.User.HasPostingPermission)
                         {
                             OpenLogin();
                             return;
@@ -524,7 +524,7 @@ namespace Steepshot.Fragment
                     }
                 case ActionType.Flag:
                     {
-                        if (!AppSettings.User.IsAuthenticated)
+                        if (!AppSettings.User.HasPostingPermission)
                             return;
 
                         var error = await Presenter.TryFlag(post);
@@ -587,7 +587,7 @@ namespace Steepshot.Fragment
                 Presenter.Clear();
             }
 
-            ErrorBase error;
+            Exception error;
             if (string.IsNullOrEmpty(tag))
                 error = await Presenter.TryLoadNextTopPosts();
             else
@@ -596,10 +596,10 @@ namespace Steepshot.Fragment
             if (!IsInitialized)
                 return;
 
-            if (error is CanceledError)
+            if (error is OperationCanceledException)
                 return;
 
-            Context.ShowAlert(error);
+            Context.ShowAlert(error, ToastLength.Short);
 
             if (error == null)
             {

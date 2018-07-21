@@ -12,6 +12,7 @@ using Steepshot.Core.Presenters;
 using System.Linq;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Utils;
+using Newtonsoft.Json;
 
 namespace Steepshot.Activity
 {
@@ -36,8 +37,8 @@ namespace Steepshot.Activity
             SetContentView(Resource.Layout.lyt_pre_sign_in);
             Cheeseknife.Bind(this);
 #if DEBUG
-            var di = AppSettings.AssetsesHelper.GetDebugInfo();
-            _username.Text = BasePresenter.Chain == KnownChains.Golos
+            var di = AppSettings.AssetHelper.GetDebugInfo();
+            _username.Text = AppSettings.User.Chain == KnownChains.Golos
                 ? di.GolosTestLogin
                 : di.SteemTestLogin;
 #endif
@@ -61,13 +62,13 @@ namespace Steepshot.Activity
             base.OnDestroy();
             Cheeseknife.Reset(this);
         }
-        
-        public override async void OnBackPressed()
+
+        public override void OnBackPressed()
         {
             base.OnBackPressed();
             var currentUser = AppSettings.User.GetAllAccounts().FirstOrDefault();
             if (currentUser != null)
-                await BasePresenter.SwitchChain(currentUser.Chain);
+                App.MainChain = currentUser.Chain;
         }
 
         private void GoBack(object sender, EventArgs e)
@@ -95,8 +96,8 @@ namespace Steepshot.Activity
             if (response.IsSuccess)
             {
                 var intent = new Intent(this, typeof(SignInActivity));
-                intent.PutExtra(SignInActivity.LoginExtraPath, response.Result.Username);
-                intent.PutExtra(SignInActivity.AvatarUrlExtraPath, response.Result.ProfileImage);
+                intent.PutExtra(SignInActivity.LoginExtraPath, login);
+                intent.PutExtra(SignInActivity.AccountInfoResponseExtraPath, JsonConvert.SerializeObject(response.Result));
                 StartActivity(intent);
             }
             else

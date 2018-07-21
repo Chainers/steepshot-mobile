@@ -5,14 +5,14 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Steepshot.Core.Authority;
-using Steepshot.Core.HttpClient;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Services;
 using Steepshot.Core.Utils;
 using Ditch.Core;
+using Steepshot.Core.Authorization;
+using Steepshot.Core.Clients;
 
 namespace Steepshot.Core
 {
@@ -208,8 +208,8 @@ namespace Steepshot.Core
             sb.Append($"{num}) LoginWithPostingKeyTest : ");
             StepFinished?.Invoke(sb.ToString());
 
-            var request = new AuthorizedModel(_user);
-            var response = _api.LoginWithPostingKey(request, CancellationToken.None).Result;
+            var request = new ValidatePrivateKeyModel(_user.Login, _user.PostingKey, KeyRoleType.Posting);
+            var response = _api.ValidatePrivateKey(request, CancellationToken.None).Result;
             if (!response.IsSuccess)
             {
                 sb.AppendLine($"fail. Reason:{Environment.NewLine} {response.Error.Message}");
