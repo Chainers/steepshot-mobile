@@ -47,9 +47,8 @@
                 android:text="Next step"
                 android:textColor="@color/white"
                 android:textSize="14sp"
-                android:textAllCaps="false"
                 android:gravity="center"
-                android:background="@drawable/steem_login_border" />
+                android:background="@drawable/orange_btn_style" />
             <ProgressBar
                 android:id="@+id/loading_spinner"
                 android:layout_width="40dp"

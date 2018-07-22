@@ -23,7 +23,7 @@ namespace Steepshot.iOS.ViewControllers
         private bool _isInitialized;
         private UserProfilePresenter _presenter;
         private CircleFrame _powerFrame;
-        private UIImageView _avatar;
+        public UIImageView _avatar;
 
         public MainTabBarController()
         {
@@ -117,10 +117,10 @@ namespace Steepshot.iOS.ViewControllers
                 if (error == null || error is CanceledError)
                 {
                     _powerFrame.ChangePercents((int)_presenter.UserProfileResponse.VotingPower);
-                    ImageService.Instance.LoadUrl(_presenter.UserProfileResponse.ProfileImage, TimeSpan.FromDays(30))
-                                             .FadeAnimation(false, false, 0)
-                                             .DownSample(width: (int)100)
-                                             .Into(_avatar);
+                    if (!string.IsNullOrEmpty(_presenter.UserProfileResponse.ProfileImage))
+                        ImageLoader.Load(_presenter.UserProfileResponse.ProfileImage, _avatar, size: new CGSize(300, 300));
+                    else
+                        _avatar.Image = UIImage.FromBundle("ic_noavatar");
                     break;
                 }
                 await Task.Delay(5000);

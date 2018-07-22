@@ -13,13 +13,14 @@ using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
 using Steepshot.Core.Utils;
+using Android.Util;
 
 namespace Steepshot.Adapter
 {
-    public sealed class FollowersAdapter : RecyclerView.Adapter
+    public class FollowersAdapter : RecyclerView.Adapter
     {
         private readonly Context _context;
-        private readonly ListPresenter<UserFriend> _presenter;
+        protected readonly ListPresenter<UserFriend> _presenter;
         public Action<UserFriend> FollowAction;
         public Action<UserFriend> UserAction;
 
@@ -196,7 +197,7 @@ namespace Steepshot.Adapter
                         _followButton.Enabled = true;
                         _loader.Visibility = ViewStates.Gone;
                     }
-                    background.SetCornerRadius(100);
+                    background.SetCornerRadius(TypedValue.ApplyDimension(ComplexUnitType.Dip, 25, _context.Resources.DisplayMetrics));
                     _followButton.Background = background;
                 }
             }

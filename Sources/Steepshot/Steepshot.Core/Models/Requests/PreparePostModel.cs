@@ -1,24 +1,24 @@
 ﻿using Newtonsoft.Json;
-using Steepshot.Core.Authority;
 using System.ComponentModel.DataAnnotations;
 using Ditch.Core;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Common;
 using System.Diagnostics;
+using Steepshot.Core.Authorization;
 
 namespace Steepshot.Core.Models.Requests
 {
     [DebuggerStepThrough]
     [JsonObject(MemberSerialization.OptIn)]
-    public class PreparePostModel : AuthorizedModel
+    public class PreparePostModel : AuthorizedPostingModel
     {
-        private string[] _tags;
+        private string[] _tags = new string[0];
         private string _permlink;
         private string _category;
         public const int TagLimit = 20;
 
         [JsonProperty]
-        public string Description { get; set; }
+        public string Description { get; set; } = string.Empty;
 
         public string Permlink
         {

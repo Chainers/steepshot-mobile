@@ -4,6 +4,7 @@ using CoreGraphics;
 using FFImageLoading;
 using Foundation;
 using PureLayout.Net;
+using Steepshot.Core.Extensions;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models;
 using Steepshot.Core.Models.Common;
@@ -111,7 +112,7 @@ namespace Steepshot.iOS.Views
                 ((MainTabBarController)TabBarController).SameTabTapped += SameTabTapped;
             SetBackButton();
 
-            if (Username == AppSettings.User.Login && AppSettings.User.IsAuthenticated)
+            if (Username == AppSettings.User.Login && AppSettings.User.HasPostingPermission)
                 SetVotePowerView();
             GetUserInfo();
             GetPosts();
@@ -211,6 +212,16 @@ namespace Steepshot.iOS.Views
                 var myViewController = new FollowViewController(FriendsType.Followers, _userData);
                 NavigationController.PushViewController(myViewController, true);
             };
+
+            var balanceTap = new UITapGestureRecognizer(() =>
+            {
+                var vc = new WalletViewController();
+                vc.HidesBottomBarWhenPushed = true;
+                NavigationController.PushViewController(vc, true);
+            });
+
+            _profileHeader.Balance.UserInteractionEnabled = true;
+            _profileHeader.Balance.AddGestureRecognizer(balanceTap);
 
             var avatarTap = new UITapGestureRecognizer(() =>
             {
@@ -355,19 +366,8 @@ namespace Steepshot.iOS.Views
                         _profileHeader.DescriptionLabel.Text = _userData.About;
                     }
 
-                    if (!string.IsNullOrEmpty(_userData.ProfileImage.GetProxy(300, 300)))
-                        ImageService.Instance.LoadUrl(_userData.ProfileImage, TimeSpan.FromDays(30))
-                                             .FadeAnimation(false, false, 0)
-                                             .LoadingPlaceholder("ic_noavatar.png")
-                                             .ErrorPlaceholder("ic_noavatar.png").Error((f) =>
-                    {
-                        ImageService.Instance.LoadUrl(_userData.ProfileImage, TimeSpan.FromDays(30))
-                                             .FadeAnimation(false, false, 0)
-                                             .LoadingPlaceholder("ic_noavatar.png")
-                                             .ErrorPlaceholder("ic_noavatar.png")
-                                             .DownSample(width: (int)300)
-                                             .Into(_profileHeader.Avatar);
-                    }).Into(_profileHeader.Avatar);
+                    if (!string.IsNullOrEmpty(_userData.ProfileImage))
+                        ImageLoader.Load(_userData.ProfileImage, _profileHeader.Avatar, size: new CGSize(300, 300));
                     else
                         _profileHeader.Avatar.Image = UIImage.FromBundle("ic_noavatar");
 
@@ -476,7 +476,7 @@ namespace Steepshot.iOS.Views
         {
             var model = new PushNotificationsModel(AppSettings.User.UserInfo, !UserIsWatched)
             {
-                WatchedUser = Username
+                WatchedUser = Username,
             };
             var response = await BasePresenter.TrySubscribeForPushes(model);
             if (response.IsSuccess)

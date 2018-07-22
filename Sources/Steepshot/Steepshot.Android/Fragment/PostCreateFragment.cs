@@ -70,7 +70,7 @@ namespace Steepshot.Fragment
                     layoutParams.SetMargins(margin, 0, margin, margin);
                     _previewContainer.LayoutParameters = layoutParams;
 
-                    _preview.SetImagePath(_media[0].Path, _media[0].Parameters);
+                    _preview.SetImage(_media[0]);
                     _ratioBtn.Click += RatioBtnOnClick;
                     _rotateBtn.Click += RotateBtnOnClick;
                 }
@@ -155,7 +155,8 @@ namespace Steepshot.Fragment
             _model.Title = _title.Text;
             _model.Description = _description.Text;
             _model.Tags = _localTagsAdapter.LocalTags.ToArray();
-            TryCreateOrEditPost();
+            if (await TryCreateOrEditPost())
+                Activity.ShowAlert(LocalizationKeys.PostDelay, ToastLength.Long);
         }
 
         private void RatioBtnOnClick(object sender, EventArgs eventArgs)

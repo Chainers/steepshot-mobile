@@ -78,7 +78,7 @@ namespace Steepshot.Fragment
             InitBucket();
             InitGalery();
 
-            var foldersAdapter = new ArrayAdapter(Activity, Android.Resource.Layout.SimpleSpinnerDropDownItem, _buckets);
+            var foldersAdapter = new SpinnerAdapter(Activity, Android.Resource.Layout.SimpleSpinnerDropDownItem, _buckets);
             _folders.Adapter = foldersAdapter;
             _folders.ItemSelected += FoldersOnItemSelected;
             _folders.SetSelection(0);
@@ -185,18 +185,24 @@ namespace Steepshot.Fragment
                     : _gallery.FirstOrDefault(m => m.Bucket.Equals(_selectedBucket, StringComparison.OrdinalIgnoreCase));
             }
 
-            OnItemSelected(selectedItem);
+            OnItemSelected(selectedItem, 0);
             _multiselectBtn.SetImageResource(_multiSelect ? Resource.Drawable.ic_multiselect_active : Resource.Drawable.ic_multiselect);
 
             _gridAdapter.NotifyDataSetChanged();
         }
 
-        private void OnItemSelected(GalleryMediaModel model)
+        private void OnItemSelected(GalleryMediaModel model, int position)
         {
             if (_multiSelect && _pickedItems.Count >= MaxPhotosAllowed && !(model.Selected || model.SelectionPosition > 0))
             {
                 Activity.ShowAlert(LocalizationKeys.PickedPhotosLimit, ToastLength.Short);
                 return;
+            }
+
+            if (_coordinator.SwitchToWhole())
+            {
+                _gridView.ScrollToPosition(position);
+                _gridView.ScrollBy(0, Resources.DisplayMetrics.WidthPixels);
             }
 
             for (int i = 0; i < _pickedItems.Count; i++)
@@ -247,7 +253,7 @@ namespace Steepshot.Fragment
                     }
 
                     if (!_multiSelect || _pickedItems.Count > 0)
-                        OnItemSelected(selectedItem);
+                        OnItemSelected(selectedItem, 0);
                     return;
                 }
             }
@@ -258,7 +264,7 @@ namespace Steepshot.Fragment
             }
 
             model.Selected = true;
-            _preview.SetImagePath(model.Path, model.Parameters);
+            _preview.SetImage(model);
         }
 
         private void FoldersOnItemSelected(object sender, AdapterView.ItemSelectedEventArgs itemSelectedEventArgs)
@@ -273,7 +279,7 @@ namespace Steepshot.Fragment
             _gridAdapter.SetMedia(set);
 
             if (set.Length > 0 && _pickedItems.Count == 0 || !_multiSelect)
-                OnItemSelected(set[0]);
+                OnItemSelected(set[0], 0);
         }
 
         private void InitBucket()
@@ -300,7 +306,8 @@ namespace Steepshot.Fragment
             {
                 MediaStore.Images.ImageColumns.Id,
                 MediaStore.Images.ImageColumns.Data,
-                MediaStore.Images.ImageColumns.BucketDisplayName
+                MediaStore.Images.ImageColumns.BucketDisplayName,
+                MediaStore.Images.ImageColumns.Orientation
             };
 
             var orderBy = $"{MediaStore.Images.ImageColumns.DateTaken} DESC";
@@ -311,6 +318,7 @@ namespace Steepshot.Fragment
                 var count = cursor.Count;
                 var idColumnIndex = cursor.GetColumnIndex(MediaStore.Images.ImageColumns.Id);
                 var dataColumnIndex = cursor.GetColumnIndex(MediaStore.Images.ImageColumns.Data);
+                var oriColumnIndex = cursor.GetColumnIndex(MediaStore.Images.ImageColumns.Orientation);
                 var bucketDisplayName = cursor.GetColumnIndex(MediaStore.Images.ImageColumns.BucketDisplayName);
                 _gallery = new GalleryMediaModel[count];
 
@@ -322,6 +330,7 @@ namespace Steepshot.Fragment
                         Id = cursor.GetLong(idColumnIndex),
                         Path = cursor.GetString(dataColumnIndex),
                         Bucket = cursor.GetString(bucketDisplayName),
+                        Orientation = cursor.GetInt(oriColumnIndex)
                     };
                 }
                 cursor.Close();

@@ -118,6 +118,9 @@
     <Reference Include="Ditch.Core, Version=3.2.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Ditch.Core.3.2.0-alpha\lib\netstandard2.0\Ditch.Core.dll</HintPath>
     </Reference>
+    <Reference Include="Ditch.Golos, Version=3.2.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Ditch.Golos.3.2.0-alpha\lib\netstandard2.0\Ditch.Golos.dll</HintPath>
+    </Reference>
     <Reference Include="Ditch.Steem.Old, Version=0.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Ditch.Steem.Old.0.1.0-alpha\lib\netstandard2.0\Ditch.Steem.Old.dll</HintPath>
     </Reference>
@@ -183,6 +186,9 @@
     </Reference>
     <Reference Include="Ditch.Golos, Version=3.2.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Ditch.Golos.3.2.0-alpha\lib\netstandard2.0\Ditch.Golos.dll</HintPath>
+    </Reference>
+    <Reference Include="Ditch.Core, Version=3.2.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Ditch.Core.3.2.0-alpha\lib\netstandard2.0\Ditch.Core.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -419,6 +425,11 @@
     <Compile Include="Helpers\Logger.cs" />
     <Compile Include="Delegates\TTTAttributedLabelFeedDelegate.cs" />
     <Compile Include="Helpers\ImageLoader.cs" />
+    <Compile Include="Views\WalletViewController.cs" />
+    <Compile Include="Views\TransferViewController.cs" />
+    <Compile Include="Helpers\DeviceHelper.cs" />
+    <Compile Include="Views\RegistrationViewController.cs" />
+    <Compile Include="Views\RegistrationCompletionViewController.cs" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\ic_photo_holder.png" />
@@ -542,6 +553,8 @@
     <BundleResource Include="Resources\ic_comment_like_active_disabled%403x.png" />
     <BundleResource Include="Resources\ic_comment_like_inactive%402x.png" />
     <BundleResource Include="Resources\ic_comment_like_inactive%403x.png" />
+    <BundleResource Include="Resources\ic_currency_picker%402x.png" />
+    <BundleResource Include="Resources\ic_currency_picker%403x.png" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="..\Steepshot.Android\Assets\Localization.en-us.txt">
@@ -563,18 +576,16 @@
     <BundleResource Include="..\Steepshot.Android\Assets\Config.txt">
       <Link>Config.txt</Link>
     </BundleResource>
-  </ItemGroup>
-  <ItemGroup>
     <BundleResource Include="..\Steepshot.Android\Assets\CensoredWords.txt">
       <Link>CensoredWords.txt</Link>
     </BundleResource>
-  </ItemGroup>
-  <ItemGroup>
     <BundleResource Include="..\Steepshot.Android\Assets\DebugWif.txt">
       <Link>DebugWif.txt</Link>
     </BundleResource>
+    <BundleResource Include="..\Steepshot.Android\Assets\IntegrationModuleConfig.txt">
+      <Link>IntegrationModuleConfig.txt</Link>
+    </BundleResource>
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
     <Folder Include="Delegates\" />
   </ItemGroup>

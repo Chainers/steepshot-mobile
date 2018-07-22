@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent"
+    android:padding="30dp"
+    android:background="@drawable/popup_background">
+    <TextView
+        android:id="@+id/dialog_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_marginBottom="25dp"
+        android:textSize="14sp"
+        android:textColor="@color/black" />
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2px"
+        android:background="@color/rgb244_244_246" />
+    <com.aigestudio.wheelpicker.WheelPicker
+        android:id="@+id/coin_picker"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:maxHeight="320dp"
+        android:layout_marginTop="25dp"
+        android:layout_marginBottom="25dp" />
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2px"
+        android:background="@color/rgb244_244_246" />
+    <Button
+        android:id="@+id/select_btn"
+        android:textColor="@color/white"
+        android:textSize="14sp"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:gravity="center"
+        android:background="@drawable/orange_btn_style"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="5dp"
+        android:elevation="0dp" />
+    <Button
+        android:id="@+id/cacncel_btn"
+        android:textColor="@color/black"
+        android:textSize="14sp"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:gravity="center"
+        android:background="@drawable/white_btn_style_edge_grey"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="1dp"
+        android:elevation="0dp" />
+</LinearLayout>

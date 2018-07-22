@@ -17,8 +17,7 @@
   <item name="login_gray" type="color">#F7F7F7</item>
   <item name="rgb55_176_233" type="color">#37B0E9</item>
   <item name="rgb58_176_227" type="color">#3AB0E3</item>
-
-
+  <item name="rgb54_126_199" type="color">#367EC7</item>
   <item name="rgb15_24_30" type="color">#0F181E</item>
   <item name="rgb151_155_158" type="color">#979B9E</item>
   <item name="rgb209_213_216" type="color">#D1D5D8</item>
@@ -36,4 +35,5 @@
   <item name="rgb245_245_245" type="color">#F5F5F5</item>
   <item name="rgb250_250_250" type="color">#FAFAFA</item>
   <item name="rgb254_249_229" type="color">#FEF9E5</item>
+  <item name="rgb255_24_5" type="color">#FF1805</item>
 </resources>

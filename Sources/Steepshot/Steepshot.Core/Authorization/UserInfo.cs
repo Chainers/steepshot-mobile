@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using Steepshot.Core.Models.Enums;
+using Steepshot.Core.Models.Responses;
 
-namespace Steepshot.Core.Authority
+namespace Steepshot.Core.Authorization
 {
     public sealed class UserInfo
     {
+        public AccountInfoResponse AccountInfo { get; set; }
+
         public int Id { get; set; }
 
         public KnownChains Chain { get; set; } = KnownChains.Steem;
@@ -13,6 +16,8 @@ namespace Steepshot.Core.Authority
         public string Login { get; set; } = string.Empty;
 
         public string PostingKey { get; set; } = string.Empty;
+
+        public string ActiveKey { get; set; } = string.Empty;
 
         public DateTimeOffset LoginTime { get; set; } = DateTime.Now;
 
@@ -45,6 +50,8 @@ namespace Steepshot.Core.Authority
         public bool IsFirstRun { get; set; } = true;
 
         public bool ShowVotingSlider { get; set; }
+
+        public Dictionary<string, string> Integration { get; set; } = new Dictionary<string, string>();
     }
 
     public sealed class Navigation

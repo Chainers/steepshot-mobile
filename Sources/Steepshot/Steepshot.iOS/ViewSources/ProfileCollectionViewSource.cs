@@ -1,5 +1,7 @@
 ﻿using System;
+using CoreGraphics;
 using Foundation;
+using Steepshot.Core.Models;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Presenters;
@@ -20,6 +22,7 @@ namespace Steepshot.iOS.ViewSources
         public ProfileCollectionViewSource(BasePostPresenter presenter, CollectionViewFlowDelegate flowDelegate)
         {
             _presenter = presenter;
+            _presenter.SourceChanged += SourceChanged;
             _flowDelegate = flowDelegate;
         }
 
@@ -63,6 +66,22 @@ namespace Steepshot.iOS.ViewSources
                 return cell;
             }
         }
+
+        private void SourceChanged(Status obj)
+        {
+            foreach (var item in _presenter)
+            {
+                if (IsGrid)
+                    ImageLoader.Preload(item.Media[0].Url, Constants.CellSize);
+                else
+                {
+                    foreach (var url in item.Media)
+                    {
+                        ImageLoader.Preload(url.Url, new CGSize(UIScreen.MainScreen.Bounds.Size.Width, UIScreen.MainScreen.Bounds.Size.Width));
+                    }
+                }
+            }
+        }
     }
 
     public class SliderCollectionViewSource : UICollectionViewSource
@@ -75,6 +94,7 @@ namespace Steepshot.iOS.ViewSources
         public SliderCollectionViewSource(BasePostPresenter presenter, SliderCollectionViewFlowDelegate flowDelegate)
         {
             _presenter = presenter;
+            _presenter.SourceChanged += SourceChanged;
             _flowDelegate = flowDelegate;
         }
 
@@ -109,6 +129,17 @@ namespace Steepshot.iOS.ViewSources
                     cell.TagAction += TagAction;
                 }
                 return cell;
+            }
+        }
+
+        private void SourceChanged(Status obj)
+        {
+            foreach (var item in _presenter)
+            {
+                foreach (var url in item.Media)
+                {
+                    ImageLoader.Preload(url.Url, new CGSize(UIScreen.MainScreen.Bounds.Size.Width, UIScreen.MainScreen.Bounds.Size.Width));
+                }
             }
         }
     }

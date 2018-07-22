@@ -16,11 +16,11 @@ using Steepshot.Activity;
 using Steepshot.Adapter;
 using Steepshot.Base;
 using Steepshot.Core;
+using Steepshot.Core.Authorization;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
 using Steepshot.Core.Models;
-using Steepshot.Core.Authority;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Interfaces;
@@ -536,7 +536,11 @@ namespace Steepshot.Fragment
         {
             switch (type)
             {
+                case ActionType.Transfer:
+                    ((BaseActivity)Activity).OpenNewContentFragment(Presenter.UserProfileResponse.Username.Equals(AppSettings.User.Login, StringComparison.OrdinalIgnoreCase) ? new TransferFragment() : new TransferFragment(Presenter.UserProfileResponse));
+                    break;
                 case ActionType.Balance:
+                    //((BaseActivity)Activity).OpenNewContentFragment(new TransferFragment());
                     break;
                 case ActionType.Followers:
                     Activity.Intent.PutExtra(FollowersFragment.IsFollowersExtra, true);
@@ -551,7 +555,7 @@ namespace Steepshot.Fragment
                     ((BaseActivity)Activity).OpenNewContentFragment(new FollowersFragment());
                     break;
                 case ActionType.Follow:
-                    if (AppSettings.User.IsAuthenticated)
+                    if (AppSettings.User.HasPostingPermission)
                     {
                         var error = await Presenter.TryFollow();
                         if (!IsInitialized)
@@ -583,7 +587,7 @@ namespace Steepshot.Fragment
             {
                 case ActionType.Like:
                     {
-                        if (AppSettings.User.IsAuthenticated)
+                        if (AppSettings.User.HasPostingPermission)
                         {
                             var error = await Presenter.TryVote(post);
                             if (!IsInitialized)
@@ -612,7 +616,7 @@ namespace Steepshot.Fragment
                     {
                         if (post == null)
                             return;
-                        if (post.Children == 0 && !AppSettings.User.IsAuthenticated)
+                        if (post.Children == 0 && !AppSettings.User.HasPostingPermission)
                         {
                             OpenLogin();
                             return;
@@ -632,7 +636,7 @@ namespace Steepshot.Fragment
                     }
                 case ActionType.Flag:
                     {
-                        if (!AppSettings.User.IsAuthenticated)
+                        if (!AppSettings.User.HasPostingPermission)
                             return;
 
                         var error = await Presenter.TryFlag(post);

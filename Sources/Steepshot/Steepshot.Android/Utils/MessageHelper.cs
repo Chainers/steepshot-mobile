@@ -119,7 +119,11 @@ namespace Steepshot.Utils
                 message = nameof(LocalizationKeys.UnexpectedError);
             }
 
-            return lm.GetText(message);
+            var txt = lm.GetText(message);
+            if (error.Parameters != null)
+                txt = string.Format(txt, error.Parameters);
+
+            return txt;
         }
     }
 }

@@ -58,10 +58,9 @@
         android:textSize="14sp"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:textAllCaps="false"
         android:gravity="center"
         android:layout_below="@id/input_password_separator"
-        android:background="@drawable/steem_login_border"
+        android:background="@drawable/orange_btn_style"
         android:layout_marginRight="15dp"
         android:layout_marginLeft="15dp"
         android:layout_marginTop="29dp" />
@@ -80,11 +79,20 @@
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:textColor="@color/rgb15_24_30"
-        android:background="@drawable/circle_border"
+        android:background="@drawable/white_btn_style_edge_grey"
         android:textSize="@dimen/dp_button_text"
-        android:textAllCaps="false"
         android:layout_marginRight="15dp"
         android:layout_marginLeft="15dp"
         android:layout_marginTop="20dp"
         android:layout_below="@+id/sign_in_btn" />
+    <TextView
+        android:id="@+id/privacy_politic"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="10dp"
+        android:gravity="center"
+        android:textSize="10sp"
+        android:textColor="@color/rgb244_244_246"
+        android:visibility="gone" />
 </RelativeLayout>
