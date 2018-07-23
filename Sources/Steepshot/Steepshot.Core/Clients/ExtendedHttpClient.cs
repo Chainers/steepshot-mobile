@@ -7,54 +7,46 @@ using System.Net.Http;
 using System.Text;
 using Steepshot.Core.Serializing;
 using Steepshot.Core.Models.Common;
-using System.Net;
 using Steepshot.Core.Models.Responses;
 using System.IO;
 using System.Linq;
 using System.Net.Http.Headers;
 using Steepshot.Core.Errors;
 using Steepshot.Core.Localization;
+using Steepshot.Core.Utils;
 
-namespace Steepshot.Core.HttpClient
+namespace Steepshot.Core.Clients
 {
-    public class ApiGateway
+    public class ExtendedHttpClient : System.Net.Http.HttpClient
     {
         private const string NsfwCheckerUrl = "https://nsfwchecker.com/api/nsfw_recognizer";
         private const string NsfwUrlCheckerUrl = "https://nsfwchecker.com/api/nsfw_url_recognizer";
         protected readonly JsonNetConverter JsonNetConverter;
 
-
-        private readonly System.Net.Http.HttpClient _client;
-
-        public ApiGateway()
+        public ExtendedHttpClient()
         {
             JsonNetConverter = new JsonNetConverter();
-            _client = new System.Net.Http.HttpClient
-            {
-                MaxResponseContentBufferSize = 256000
-            };
+            MaxResponseContentBufferSize = 256000;
         }
 
-        public async Task<OperationResult<T>> Get<T>(string endpoint, Dictionary<string, object> parameters,
-            CancellationToken token)
+        public async Task<OperationResult<T>> Get<T>(string endpoint, Dictionary<string, object> parameters, CancellationToken token)
         {
             var param = string.Empty;
             if (parameters != null && parameters.Count > 0)
                 param = "?" + string.Join("&", parameters.Select(i => $"{i.Key}={i.Value}"));
 
             var url = $"{endpoint}{param}";
-            var response = await _client.GetAsync(url, token);
+            var response = await GetAsync(url, token);
             return await CreateResult<T>(response, token);
         }
 
         public async Task<OperationResult<T>> Get<T>(string url, CancellationToken token)
         {
-            var response = await _client.GetAsync(url, token);
+            var response = await GetAsync(url, token);
             return await CreateResult<T>(response, token);
         }
 
-        public async Task<OperationResult<T>> Post<T>(string url, Dictionary<string, object> parameters,
-            CancellationToken token)
+        public async Task<OperationResult<T>> Post<T>(string url, Dictionary<string, object> parameters, CancellationToken token)
         {
             HttpContent content = null;
             if (parameters != null && parameters.Count > 0)
@@ -63,7 +55,7 @@ namespace Steepshot.Core.HttpClient
                 content = new StringContent(param, Encoding.UTF8, "application/json");
             }
 
-            var response = await _client.PostAsync(url, content, token);
+            var response = await PostAsync(url, content, token);
             return await CreateResult<T>(response, token);
         }
 
@@ -76,12 +68,11 @@ namespace Steepshot.Core.HttpClient
                 content = new StringContent(param, Encoding.UTF8, "application/json");
             }
 
-            var response = await _client.PostAsync(url, content, token);
+            var response = await PostAsync(url, content, token);
             return await CreateResult<T>(response, token);
         }
 
-        public async Task<OperationResult<MediaModel>> UploadMedia(string url, UploadMediaModel model,
-            CancellationToken token)
+        public async Task<OperationResult<MediaModel>> UploadMedia(string url, UploadMediaModel model, CancellationToken token)
         {
             var fTitle = Guid.NewGuid().ToString();
 
@@ -94,11 +85,11 @@ namespace Steepshot.Core.HttpClient
                 {new StringContent(model.GenerateThumbnail.ToString()), "generate_thumbnail"}
             };
 
-            var response = await _client.PostAsync(url, multiContent, token);
+            var response = await PostAsync(url, multiContent, token);
             var result = await CreateResult<MediaModel>(response, token);
 
             if (result.IsSuccess && result.Result == null)
-                result.Error = new AppError(LocalizationKeys.ServeUnexpectedError);
+                result.Error = new ValidationError(LocalizationKeys.ServeUnexpectedError);
 
             return result;
         }
@@ -106,29 +97,25 @@ namespace Steepshot.Core.HttpClient
         public async Task<OperationResult<NsfwRate>> NsfwCheck(Stream stream, CancellationToken token)
         {
             var multiContent = new MultipartFormDataContent { { new StreamContent(stream), "image", "nsfw" } };
-            var response = await _client.PostAsync(NsfwCheckerUrl, multiContent, token);
+            var response = await PostAsync(NsfwCheckerUrl, multiContent, token);
             return await CreateResult<NsfwRate>(response, token);
         }
 
         public async Task<OperationResult<NsfwRate>> NsfwCheck(string url, CancellationToken token)
         {
             var multiContent = new MultipartFormDataContent { { new StringContent(url), "url" } };
-            var response = await _client.PostAsync(NsfwUrlCheckerUrl, multiContent, token);
+            var response = await PostAsync(NsfwUrlCheckerUrl, multiContent, token);
             return await CreateResult<NsfwRate>(response, token);
         }
 
-        protected virtual async Task<OperationResult<T>> CreateResult<T>(HttpResponseMessage response,
-            CancellationToken ct)
+        protected virtual async Task<OperationResult<T>> CreateResult<T>(HttpResponseMessage response, CancellationToken ct)
         {
             var result = new OperationResult<T>();
 
-            // HTTP error
-            if (response.StatusCode == HttpStatusCode.InternalServerError ||
-                response.StatusCode != HttpStatusCode.OK &&
-                response.StatusCode != HttpStatusCode.Created)
+            if (!response.IsSuccessStatusCode)
             {
-                var content = await response.Content.ReadAsStringAsync();
-                result.Error = new ServerError(response.StatusCode, content);
+                var rawResponse = await response.Content.ReadAsStringAsync();
+                result.Error = new RequestError(response.RequestMessage.ToString(), rawResponse);
                 return result;
             }
 
@@ -150,7 +137,7 @@ namespace Steepshot.Core.HttpClient
                         }
                     default:
                         {
-                            result.Error = new AppError(LocalizationKeys.UnsupportedMime);
+                            result.Error = new ValidationError(LocalizationKeys.UnsupportedMime);
                             break;
                         }
                 }
@@ -161,7 +148,7 @@ namespace Steepshot.Core.HttpClient
 
         public async Task<string> Get(string url)
         {
-            var response = _client.GetAsync(url);
+            var response = GetAsync(url);
             return await response.Result.Content.ReadAsStringAsync();
         }
     }

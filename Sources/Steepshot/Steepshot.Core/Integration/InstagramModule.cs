@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using Newtonsoft.Json;
 using Steepshot.Core.Authorization;
-using Steepshot.Core.HttpClient;
+using Steepshot.Core.Clients;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Utils;
@@ -15,15 +15,13 @@ namespace Steepshot.Core.Integration
     public class InstagramModule : BaseModule
     {
         protected const string AppId = "com.instagram";
-        protected ApiGateway Gateway;
-        private Regex TagRegex = new Regex(@"(?<=#)[\w.-]*", RegexOptions.CultureInvariant);
+        private readonly Regex _tagRegex = new Regex(@"(?<=#)[\w.-]*", RegexOptions.CultureInvariant);
 
 
-        public InstagramModule(ApiGateway gateway, User user)
-        : base(user)
+        public InstagramModule(SteepshotApiClient client, User user) : base(client, user)
         {
-            Gateway = gateway;
         }
+
 
         public override bool IsAuthorized()
         {
@@ -44,7 +42,7 @@ namespace Steepshot.Core.Integration
                 {"access_token", acc.AccessToken},
             };
 
-            var rezult = await Gateway.Get<ModuleRecentMediaResult>("https://api.instagram.com/v1/users/self/media/recent/", args, token);
+            var rezult = await Client.HttpClient.Get<ModuleRecentMediaResult>("https://api.instagram.com/v1/users/self/media/recent/", args, token);
 
             if (!rezult.IsSuccess)
                 return;
@@ -75,7 +73,7 @@ namespace Steepshot.Core.Integration
                 Title = prevData.Caption.Text
             };
 
-            var tagsM = TagRegex.Matches(model.Title);
+            var tagsM = _tagRegex.Matches(model.Title);
             if (tagsM.Count > 0)
                 model.Tags = tagsM.Cast<Match>().Select(i => i.Value).ToArray();
 

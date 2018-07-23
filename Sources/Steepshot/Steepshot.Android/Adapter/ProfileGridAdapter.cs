@@ -6,6 +6,7 @@ using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
 using Square.Picasso;
+using Steepshot.Base;
 using Steepshot.Core.Extensions;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Enums;
@@ -304,7 +305,7 @@ namespace Steepshot.Adapter
             _followingCount.Text = profile.FollowingCount.ToString("#,##0");
             _followersCount.Text = profile.FollowersCount.ToString("#,##0");
 
-            _balance.Text = BasePresenter.ToFormatedCurrencyString(profile.EstimatedBalance);
+            _balance.Text = StringHelper.ToFormatedCurrencyString(profile.EstimatedBalance, App.MainChain);
         }
 
         private void OnError()

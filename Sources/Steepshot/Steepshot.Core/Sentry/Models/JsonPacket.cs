@@ -54,7 +54,7 @@ namespace Steepshot.Core.Sentry.Models
         /// Defaults to error.
         /// </summary>
         [JsonProperty(PropertyName = "level", NullValueHandling = NullValueHandling.Ignore, Required = Required.Always)]
-        public string Level { get; set; } = "error";
+        public string Level { get; set; }
 
         /// <summary>
         /// The name of the logger which created the record.
@@ -63,7 +63,7 @@ namespace Steepshot.Core.Sentry.Models
         /// Ex: "my.logger.name"
         /// </summary>
         [JsonProperty(PropertyName = "logger", NullValueHandling = NullValueHandling.Ignore)]
-        public string Logger { get; set; } = "root";
+        public string Logger { get; set; } = "Steepshot.Mobile";
 
         /// <summary>
         /// User-readable representation of this event
@@ -118,12 +118,12 @@ namespace Steepshot.Core.Sentry.Models
         [JsonProperty(PropertyName = "tags", NullValueHandling = NullValueHandling.Ignore)]
         public IDictionary<string, string> Tags { get; set; }
 
-        /// <summary>
-        /// Indicates when the logging record was created (in the Sentry client).
-        /// Defaults to DateTime.UtcNow()
-        /// </summary>
-        [JsonProperty(PropertyName = "timestamp", NullValueHandling = NullValueHandling.Ignore)]
-        public DateTime TimeStamp { get; set; } = DateTime.UtcNow;
+        ///// <summary>
+        ///// Indicates when the logging record was created (in the Sentry client).
+        ///// Defaults to DateTime.UtcNow()
+        ///// </summary>
+        //[JsonProperty(PropertyName = "timestamp", NullValueHandling = NullValueHandling.Ignore)]
+        //public DateTime TimeStamp { get; set; }
 
         /// <summary>
         /// Gets or sets the <see cref="SentryUser"/> object, which describes the authenticated User for a request.

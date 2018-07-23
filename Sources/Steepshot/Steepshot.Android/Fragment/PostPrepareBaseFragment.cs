@@ -14,7 +14,6 @@ using CheeseBind;
 using Steepshot.Activity;
 using Steepshot.Adapter;
 using Steepshot.Base;
-using Steepshot.Core.Errors;
 using Steepshot.Core.Facades;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models;
@@ -165,7 +164,7 @@ namespace Steepshot.Fragment
             _postButton.Text = string.Empty;
             EnablePostAndEdit(false);
 
-            var isConnected = BasePresenter.ConnectionService.IsConnectionAvailable();
+            var isConnected = AppSettings.ConnectionService.IsConnectionAvailable();
 
             if (!isConnected)
             {
@@ -233,18 +232,16 @@ namespace Steepshot.Fragment
             {
                 AppSettings.User.UserInfo.LastPostTime = DateTime.Now;
                 EnabledPost();
-                BasePresenter.ProfileUpdateType = ProfileUpdateType.Full;
+                AppSettings.ProfileUpdateType = ProfileUpdateType.Full;
                 if (Activity is SplashActivity || Activity is CameraActivity)
                     Activity.Finish();
                 else
                     ((BaseActivity)Activity).OnBackPressed();
                 return true;
             }
-            else
-            {
-                Activity.ShowInteractiveMessage(resp.Error, TryAgainAction, ForgetAction);
-                return false;
-            }
+
+            Activity.ShowInteractiveMessage(resp.Error, TryAgainAction, ForgetAction);
+            return false;
         }
 
         private void TagLabelOnClick(object sender, EventArgs e)
@@ -375,7 +372,7 @@ namespace Steepshot.Fragment
             _tagsList.ScrollToPosition(0);
             _tagPickerFacade.Clear();
 
-            ErrorBase error = null;
+            Exception error = null;
             if (text.Length == 0)
                 error = await _tagPickerFacade.TryGetTopTags();
             else if (text.Length > 1)
@@ -384,7 +381,7 @@ namespace Steepshot.Fragment
             if (IsInitialized)
                 return;
 
-            Activity.ShowAlert(error);
+            Activity.ShowAlert(error, ToastLength.Short);
         }
 
         protected void HideTagsList()

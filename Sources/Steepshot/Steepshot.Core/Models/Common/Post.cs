@@ -1,7 +1,5 @@
 using System;
-using System.Collections.Generic;
 using Newtonsoft.Json;
-using Steepshot.Core.Extensions;
 using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Models.Common

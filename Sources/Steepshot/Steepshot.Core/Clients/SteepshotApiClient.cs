@@ -1,71 +1,66 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Ditch.Core.JsonRpc;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Steepshot.Core.Extensions;
+using Steepshot.Core.HttpClient;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
-using Steepshot.Core.Serializing;
-using System.Linq;
-using Ditch.Core.JsonRpc;
-using Steepshot.Core.Errors;
-using System;
 
-namespace Steepshot.Core.HttpClient
+namespace Steepshot.Core.Clients
 {
     public class SteepshotApiClient : BaseServerClient
     {
         private readonly Dictionary<KnownChains, Beneficiary[]> _beneficiariesCash;
-        private readonly object _synk;
+        private readonly BaseDitchClient _ditchClient;
+        public KnownChains Chain { get; }
 
-        private CancellationTokenSource _ctsMain;
-        private BaseDitchClient _ditchClient;
-
-        public SteepshotApiClient()
+        public SteepshotApiClient(ExtendedHttpClient httpClient, KnownChains chain)
         {
-            Gateway = new ApiGateway();
-            JsonConverter = new JsonNetConverter();
+            HttpClient = httpClient;
             _beneficiariesCash = new Dictionary<KnownChains, Beneficiary[]>();
-            _synk = new object();
-        }
+            Chain = chain;
 
-        public void InitConnector(KnownChains chain, bool isDev)
-        {
-            var sUrl = string.Empty;
             switch (chain)
             {
-                case KnownChains.Steem when isDev:
-                    sUrl = Constants.SteemUrlQa;
-                    break;
                 case KnownChains.Steem:
-                    sUrl = Constants.SteemUrl;
-                    break;
-                case KnownChains.Golos when isDev:
-                    sUrl = Constants.GolosUrlQa;
+                    BaseUrl = Constants.SteemUrl;
                     break;
                 case KnownChains.Golos:
-                    sUrl = Constants.GolosUrl;
+                    BaseUrl = Constants.GolosUrl;
                     break;
             }
 
-            lock (_synk)
+            _ditchClient = chain == KnownChains.Steem
+                ? (BaseDitchClient)new SteemClient(HttpClient)
+                : new GolosClient();
+
+            EnableRead = true;
+        }
+
+        public void SetDev(bool isDev)
+        {
+            switch (Chain)
             {
-                if (!string.IsNullOrEmpty(BaseUrl))
-                {
-                    _ditchClient.EnableWrite = false;
-                    _ctsMain.Cancel();
-                }
-
-                _ctsMain = new CancellationTokenSource();
-
-                _ditchClient = chain == KnownChains.Steem
-                    ? (BaseDitchClient)new SteemClient(JsonConverter)
-                    : new GolosClient(JsonConverter);
-
-                BaseUrl = sUrl;
-                EnableRead = true;
+                case KnownChains.Steem when isDev:
+                    BaseUrl = Constants.SteemUrlQa;
+                    break;
+                case KnownChains.Steem:
+                    BaseUrl = Constants.SteemUrl;
+                    break;
+                case KnownChains.Golos when isDev:
+                    BaseUrl = Constants.GolosUrlQa;
+                    break;
+                case KnownChains.Golos:
+                    BaseUrl = Constants.GolosUrl;
+                    break;
             }
         }
+
 
         public bool TryReconnectChain(CancellationToken token)
         {
@@ -77,11 +72,16 @@ namespace Steepshot.Core.HttpClient
             return await _ditchClient.GetAccountInfo(userName, ct);
         }
 
+        public async Task<OperationResult<AccountHistoryResponse[]>> GetAccountHistory(string userName, CancellationToken ct)
+        {
+            return await _ditchClient.GetAccountHistory(userName, ct);
+        }
+
         public async Task<OperationResult<VoidResponse>> ValidatePrivateKey(ValidatePrivateKeyModel model, CancellationToken ct)
         {
             var results = Validate(model);
-            if (results.Any())
-                return new OperationResult<VoidResponse>(new ValidationError(results));
+            if (results != null)
+                return new OperationResult<VoidResponse>(results);
 
             var result = await _ditchClient.ValidatePrivateKey(model, ct);
             return result;
@@ -90,8 +90,8 @@ namespace Steepshot.Core.HttpClient
         public async Task<OperationResult<Post>> Vote(VoteModel model, CancellationToken ct)
         {
             var results = Validate(model);
-            if (results.Any())
-                return new OperationResult<Post>(new ValidationError(results));
+            if (results != null)
+                return new OperationResult<Post>(results);
 
             var result = await _ditchClient.Vote(model, ct);
 
@@ -101,7 +101,7 @@ namespace Steepshot.Core.HttpClient
             if (!result.IsSuccess)
                 return new OperationResult<Post>(result.Error);
 
-            OperationResult<Post> postInfo = null;
+            OperationResult<Post> postInfo;
             if (model.IsComment) //TODO: << delete when comment update support will added on backend
             {
                 postInfo = new OperationResult<Post> { Result = model.Post };
@@ -127,8 +127,8 @@ namespace Steepshot.Core.HttpClient
         public async Task<OperationResult<VoidResponse>> Follow(FollowModel model, CancellationToken ct)
         {
             var results = Validate(model);
-            if (results.Any())
-                return new OperationResult<VoidResponse>(new ValidationError(results));
+            if (results != null)
+                return new OperationResult<VoidResponse>(results);
 
             var result = await _ditchClient.Follow(model, ct);
             await Trace($"user/{model.Username}/{model.Type.ToString().ToLowerInvariant()}", model.Login, result.Error, model.Username, ct);
@@ -138,8 +138,8 @@ namespace Steepshot.Core.HttpClient
         public async Task<OperationResult<VoidResponse>> CreateOrEditComment(CreateOrEditCommentModel model, CancellationToken ct)
         {
             var results = Validate(model);
-            if (results.Any())
-                return new OperationResult<VoidResponse>(new ValidationError(results));
+            if (results != null)
+                return new OperationResult<VoidResponse>(results);
 
             if (!model.IsEditMode)
             {
@@ -170,7 +170,7 @@ namespace Steepshot.Core.HttpClient
                 return new OperationResult<VoidResponse>(operationResult.Error);
 
             var preparedData = operationResult.Result;
-            var meta = JsonConverter.Serialize(preparedData.JsonMetadata);
+            var meta = JsonConvert.SerializeObject(preparedData.JsonMetadata);
             var commentModel = new CommentModel(model, preparedData.Body, meta);
             if (!model.IsEditMode)
                 commentModel.Beneficiaries = preparedData.Beneficiaries;
@@ -193,25 +193,25 @@ namespace Steepshot.Core.HttpClient
                 return null;
 
             var results = Validate(model);
-            if (results.Any())
-                return new OperationResult<MediaModel>(new ValidationError(results));
+            if (results != null)
+                return new OperationResult<MediaModel>(results);
 
             var trxResp = await _ditchClient.GetVerifyTransaction(model, ct);
 
             if (!trxResp.IsSuccess)
                 return new OperationResult<MediaModel>(trxResp.Error);
 
-            model.VerifyTransaction = JsonConverter.Serialize(trxResp.Result);
+            model.VerifyTransaction = trxResp.Result;
 
             var endpoint = $"{BaseUrl}/{GatewayVersion.V1P1}/media/upload";
-            return await Gateway.UploadMedia(endpoint, model, ct);
+            return await HttpClient.UploadMedia(endpoint, model, ct);
         }
 
         public async Task<OperationResult<VoidResponse>> DeletePostOrComment(DeleteModel model, CancellationToken ct)
         {
             var results = Validate(model);
-            if (results.Any())
-                return new OperationResult<VoidResponse>(new ValidationError(results));
+            if (results != null)
+                return new OperationResult<VoidResponse>(results);
 
             if (model.IsEnableToDelete)
             {
@@ -233,8 +233,8 @@ namespace Steepshot.Core.HttpClient
         public async Task<OperationResult<VoidResponse>> UpdateUserProfile(UpdateUserProfileModel model, CancellationToken ct)
         {
             var results = Validate(model);
-            if (results.Any())
-                return new OperationResult<VoidResponse>(new ValidationError(results));
+            if (results != null)
+                return new OperationResult<VoidResponse>(results);
 
             return await _ditchClient.UpdateUserProfile(model, ct);
         }
@@ -246,22 +246,22 @@ namespace Steepshot.Core.HttpClient
             if (!trxResp.IsSuccess)
                 return new OperationResult<object>(trxResp.Error);
 
-            model.VerifyTransaction = trxResp.Result;
+            model.VerifyTransaction = JsonConvert.DeserializeObject<JObject>(trxResp.Result);
 
             var results = Validate(model);
-            if (results.Any())
-                return new OperationResult<object>(new ValidationError(results));
+            if (results != null)
+                return new OperationResult<object>(results);
 
             var endpoint = $"{BaseUrl}/{GatewayVersion.V1P1}/{(model.Subscribe ? "subscribe" : "unsubscribe")}";
 
-            return await Gateway.Post<object, PushNotificationsModel>(endpoint, model, ct);
+            return await HttpClient.Post<object, PushNotificationsModel>(endpoint, model, ct);
         }
 
         public async Task<OperationResult<VoidResponse>> Transfer(TransferModel model, CancellationToken ct)
         {
             var results = Validate(model);
-            if (results.Any())
-                return new OperationResult<VoidResponse>(new ValidationError(results));
+            if (results != null)
+                return new OperationResult<VoidResponse>(results);
 
             return await _ditchClient.Transfer(model, ct);
         }

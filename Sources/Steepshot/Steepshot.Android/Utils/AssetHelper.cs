@@ -2,7 +2,7 @@
 using System.IO;
 using Android.Content.Res;
 using Newtonsoft.Json;
-using Steepshot.Core.HttpClient;
+using Steepshot.Core.Clients;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Utils;
 using Steepshot.Core.Services;
@@ -20,23 +20,42 @@ namespace Steepshot.Utils
 
         public DebugInfo GetDebugInfo()
         {
-            return TryReadAsset<DebugInfo>("DebugWif.txt");
+            return TryReadJsonAsset<DebugInfo>("DebugWif.txt");
         }
 
         public ConfigInfo GetConfigInfo()
         {
-            return TryReadAsset<ConfigInfo>("Config.txt");
+            return TryReadJsonAsset<ConfigInfo>("Config.txt");
         }
 
         public LocalizationModel GetLocalization(string lang)
         {
-            return TryReadAsset<LocalizationModel>($"Localization.{lang}.txt");
+            try
+            {
+                string txt;
+                var stream = _assetManager.Open($@"Languages/{lang}/dic.xml");
+                using (var sr = new StreamReader(stream))
+                    txt = sr.ReadToEnd();
+
+                stream.Dispose();
+                if (!string.IsNullOrWhiteSpace(txt))
+                {
+                    var model = new LocalizationModel();
+                    LocalizationManager.Update(txt, model);
+                    return model;
+                }
+            }
+            catch (System.Exception ex)
+            {
+                AppSettings.Logger.Warning(ex);
+            }
+            return new LocalizationModel();
         }
 
 
         public LocalizationModel GetLocalization()
         {
-            return TryReadAsset<LocalizationModel>("InstagramModuleOptions.txt");
+            return TryReadJsonAsset<LocalizationModel>("InstagramModuleOptions.txt");
         }
 
         public HashSet<string> TryReadCensoredWords()
@@ -56,30 +75,30 @@ namespace Steepshot.Utils
                 }
                 stream.Dispose();
             }
-            catch
+            catch (System.Exception ex)
             {
-                //to do nothing
+                AppSettings.Logger.Warning(ex);
             }
             return hs;
         }
 
         public List<NodeConfig> SteemNodesConfig()
         {
-            return TryReadAsset<List<NodeConfig>>("SteemNodesConfig.txt");
+            return TryReadJsonAsset<List<NodeConfig>>("SteemNodesConfig.txt");
         }
 
         public List<NodeConfig> GolosNodesConfig()
         {
-            return TryReadAsset<List<NodeConfig>>("GolosNodesConfig.txt");
+            return TryReadJsonAsset<List<NodeConfig>>("GolosNodesConfig.txt");
         }
 
         public Dictionary<string, string> IntegrationModuleConfig()
         {
-            return TryReadAsset<Dictionary<string, string>>("IntegrationModuleConfig.txt");
+            return TryReadJsonAsset<Dictionary<string, string>>("IntegrationModuleConfig.txt");
         }
 
 
-        public T TryReadAsset<T>(string file)
+        public T TryReadJsonAsset<T>(string file)
             where T : new()
         {
             try
@@ -96,12 +115,11 @@ namespace Steepshot.Utils
                     return JsonConvert.DeserializeObject<T>(txt);
                 }
             }
-            catch
+            catch (System.Exception ex)
             {
-                //to do nothing
+                AppSettings.Logger.Warning(ex);
             }
             return new T();
         }
-
     }
 }

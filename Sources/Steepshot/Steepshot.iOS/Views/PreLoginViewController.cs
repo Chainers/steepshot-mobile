@@ -1,7 +1,6 @@
 ﻿using System;
 using Steepshot.Core;
 using Steepshot.Core.Presenters;
-using Steepshot.iOS.Helpers;
 using Steepshot.iOS.ViewControllers;
 using UIKit;
 using Constants = Steepshot.iOS.Helpers.Constants;
@@ -24,7 +23,7 @@ namespace Steepshot.iOS.Views
             loginButton.TouchDown += Login;
 #if DEBUG
             var di = AppSettings.AssetHelper.GetDebugInfo();
-            if (BasePresenter.Chain == KnownChains.Steem)
+            if (AppDelegate.MainChain == KnownChains.Steem)
                 loginText.Text = di.SteemTestLogin;
             else
                 loginText.Text = di.GolosTestLogin;

@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\NUnit.3.10.1\build\NUnit.props" Condition="Exists('..\packages\NUnit.3.10.1\build\NUnit.props')" />
   <Import Project="..\packages\Xamarin.Build.Download.0.4.11\build\Xamarin.Build.Download.props" Condition="Exists('..\packages\Xamarin.Build.Download.0.4.11\build\Xamarin.Build.Download.props')" />
   <Import Project="..\packages\Xamarin.Build.Download.0.4.2\build\Xamarin.Build.Download.props" Condition="Exists('..\packages\Xamarin.Build.Download.0.4.2\build\Xamarin.Build.Download.props')" />
   <PropertyGroup>
@@ -69,6 +70,8 @@
     <Compile Include="Adapter\SpinnerAdapter.cs" />
     <Compile Include="Activity\ActiveSignInActivity.cs" />
     <Compile Include="Adapter\RecipientsAdapter.cs" />
+    <Compile Include="Adapter\TrxHistoryAdapter.cs" />
+    <Compile Include="Adapter\WalletPagerAdapter.cs" />
     <Compile Include="Base\App.cs" />
     <Compile Include="Base\BaseSignInActivity.cs" />
     <Compile Include="CustomViews\AccurateMovementMethod.cs" />
@@ -81,6 +84,7 @@
     <Compile Include="Fragment\PostCreateFragment.cs" />
     <Compile Include="Fragment\PostPrepareBaseFragment.cs" />
     <Compile Include="Fragment\TransferFragment.cs" />
+    <Compile Include="Fragment\WalletFragment.cs" />
     <Compile Include="Integration\InstagramModule.cs" />
     <Compile Include="Utils\TextInputFilter.cs" />
     <Compile Include="Utils\NotificationExtender.cs" />
@@ -172,9 +176,6 @@
     <None Include="app.config" />
     <AndroidAsset Include="Assets\Config.txt.template" />
     <AndroidAsset Include="Assets\IntegrationModuleConfig.txt.template" />
-    <AndroidAsset Include="Assets\SFUIDisplay-Light.otf" />
-    <AndroidAsset Include="Assets\SFUIDisplay-Regular.otf" />
-    <AndroidAsset Include="Assets\SFUIDisplay-Semibold.otf" />
     <None Include="packages.config" />
     <None Include="Resources\AboutResources.txt" />
     <None Include="Properties\AndroidManifest.xml" />
@@ -398,17 +399,17 @@
     <Reference Include="Com.OneSignal.Abstractions, Version=3.2.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Com.OneSignal.3.2.0\lib\MonoAndroid10\Com.OneSignal.Abstractions.dll</HintPath>
     </Reference>
-    <Reference Include="Cryptography.ECDSA, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Cryptography.ECDSA.Secp256K1.1.1.0\lib\netstandard2.0\Cryptography.ECDSA.dll</HintPath>
+    <Reference Include="Cryptography.ECDSA, Version=1.1.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Cryptography.ECDSA.Secp256K1.1.1.2\lib\netstandard2.0\Cryptography.ECDSA.dll</HintPath>
     </Reference>
-    <Reference Include="Ditch.Core, Version=3.2.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Ditch.Core.3.2.0-alpha\lib\netstandard2.0\Ditch.Core.dll</HintPath>
+    <Reference Include="Ditch.Core, Version=4.0.0.1, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Ditch.Core.4.0.0-alpha1\lib\netstandard2.0\Ditch.Core.dll</HintPath>
     </Reference>
-    <Reference Include="Ditch.Golos, Version=3.2.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Ditch.Golos.3.2.0-alpha\lib\netstandard2.0\Ditch.Golos.dll</HintPath>
+    <Reference Include="Ditch.Golos, Version=4.0.0.1, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Ditch.Golos.4.0.0-alpha1\lib\netstandard2.0\Ditch.Golos.dll</HintPath>
     </Reference>
-    <Reference Include="Ditch.Steem.Old, Version=0.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Ditch.Steem.Old.0.1.0-alpha\lib\netstandard2.0\Ditch.Steem.Old.dll</HintPath>
+    <Reference Include="Ditch.Steem, Version=4.0.0.3, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Ditch.Steem.4.0.0-alpha3\lib\netstandard2.0\Ditch.Steem.dll</HintPath>
     </Reference>
     <Reference Include="FastAndroidCamera, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\FastAndroidCamera.2.0.0\lib\MonoAndroid403\FastAndroidCamera.dll</HintPath>
@@ -680,9 +681,6 @@
     </AndroidResource>
   </ItemGroup>
   <ItemGroup>
-    <AndroidAsset Include="Assets\Localization.en-us.txt" />
-  </ItemGroup>
-  <ItemGroup>
     <AndroidResource Include="Resources\drawable\popup_separator.xml" />
   </ItemGroup>
   <ItemGroup>
@@ -841,9 +839,10 @@
   </ItemGroup>
   <ItemGroup>
     <AndroidAsset Include="Assets\SteemNodesConfig.txt" />
-  </ItemGroup>
-  <ItemGroup>
     <AndroidAsset Include="Assets\GolosNodesConfig.txt" />
+    <AndroidAsset Include="..\..\..\References\Languages\en\dic.xml">
+      <Link>Assets\Languages\en\dic.xml</Link>
+    </AndroidAsset>
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\drawable-mdpi\ic_delete.png" />
@@ -900,18 +899,9 @@
     </AndroidResource>
   </ItemGroup>
   <ItemGroup>
-    <AndroidResource Include="Resources\drawable\white_radius100dip_edge_grey.xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable\white_btn_style_edge_black.xml" />
-  </ItemGroup>
-  <ItemGroup>
     <AndroidResource Include="Resources\layout\lyt_successfull_transaction.axml">
       <SubType>Designer</SubType>
     </AndroidResource>
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable\grey_radius10dip.xml" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\drawable-mdpi\ic_trx_success.png" />
@@ -921,6 +911,68 @@
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\drawable-xxhdpi\ic_trx_success.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable\grey_rounded_border10dip.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\layout\lyt_wallet.axml">
+      <SubType>Designer</SubType>
+    </AndroidResource>
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable\white_rounded_border16dip.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\layout\lyt_wallet_card.axml">
+      <SubType>Designer</SubType>
+    </AndroidResource>
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable\orange_rounded_border12dip.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\layout\lyt_wallet_top.axml">
+      <SubType>Designer</SubType>
+    </AndroidResource>
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable-mdpi\ic_claim_rewards.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_claim_rewards.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_claim_rewards.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable-mdpi\wallet_card_bg1.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable-xhdpi\wallet_card_bg1.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable-xxhdpi\wallet_card_bg1.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable\grey_rounded_border12dip.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable\wallet_dot_selector.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\layout\lyt_trx_history.axml">
+      <SubType>Designer</SubType>
+    </AndroidResource>
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable\grey_radius10dip.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable\white_radius100dip_edge_grey.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable\white_btn_style_edge_black.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <Import Project="..\packages\Xamarin.Build.Download.0.4.2\build\Xamarin.Build.Download.targets" Condition="Exists('..\packages\Xamarin.Build.Download.0.4.2\build\Xamarin.Build.Download.targets')" />

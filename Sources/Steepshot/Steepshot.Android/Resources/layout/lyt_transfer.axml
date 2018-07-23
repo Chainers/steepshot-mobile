@@ -63,33 +63,6 @@
                 </RelativeLayout>
             </RelativeLayout>
             <LinearLayout
-                android:id="@+id/recipient_search_list"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical"
-                android:visibility="gone">
-                <ProgressBar
-                    android:id="@+id/search_spinner"
-                    android:layout_width="35dp"
-                    android:layout_height="35dp"
-                    android:indeterminateTintMode="src_atop"
-                    android:indeterminateTint="@color/black"
-                    android:layout_marginBottom="50dp"
-                    android:layout_gravity="center"
-                    android:visibility="gone" />
-                <TextView
-                    android:id="@+id/empty_query_label"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textSize="27sp"
-                    android:textColor="@color/rgb15_24_30"
-                    android:visibility="gone" />
-                <android.support.v7.widget.RecyclerView
-                    android:id="@+id/users"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
-            </LinearLayout>
-            <LinearLayout
                 android:id="@+id/transfer_details_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -205,4 +178,31 @@
             </LinearLayout>
         </LinearLayout>
     </ScrollView>
+    <LinearLayout
+        android:id="@+id/recipient_search_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:visibility="gone">
+        <ProgressBar
+            android:id="@+id/search_spinner"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:indeterminateTintMode="src_atop"
+            android:indeterminateTint="@color/black"
+            android:layout_marginBottom="50dp"
+            android:layout_gravity="center"
+            android:visibility="gone" />
+        <TextView
+            android:id="@+id/empty_query_label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="27sp"
+            android:textColor="@color/rgb15_24_30"
+            android:visibility="gone" />
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/users"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </LinearLayout>
 </LinearLayout>

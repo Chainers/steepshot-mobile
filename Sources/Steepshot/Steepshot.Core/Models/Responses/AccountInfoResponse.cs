@@ -1,12 +1,13 @@
 ﻿using System.Collections.Generic;
 using Newtonsoft.Json;
 using Steepshot.Core.Models.Common;
-using Steepshot.Core.Models.Requests;
 
 namespace Steepshot.Core.Models.Responses
 {
     public class AccountInfoResponse
     {
+        public KnownChains Chains { get; set; }
+
         public byte[][] PublicPostingKeys { get; set; }
 
         public byte[][] PublicActiveKeys { get; set; }
@@ -14,7 +15,7 @@ namespace Steepshot.Core.Models.Responses
         public AccountMetadata Metadata { get; set; }
 
         [JsonIgnore]
-        public Dictionary<CurrencyType, BalanceModel> Balances { get; set; }
+        public List<BalanceModel> Balances { get; set; }
     }
 
     public class Profile

@@ -1,6 +1,6 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
-using Steepshot.Core.Errors;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Utils;
@@ -11,9 +11,9 @@ namespace Steepshot.Core.Presenters
     {
         public Post PostInfo { get; private set; }
 
-        public async Task<ErrorBase> TryLoadPostInfo(string url) => await TryRunTask(LoadPostInfo, OnDisposeCts.Token, url);
+        public async Task<Exception> TryLoadPostInfo(string url) => await TryRunTask(LoadPostInfo, OnDisposeCts.Token, url);
 
-        private async Task<ErrorBase> LoadPostInfo(string url, CancellationToken ct)
+        private async Task<Exception> LoadPostInfo(string url, CancellationToken ct)
         {
             var request = new NamedInfoModel(url)
             {
@@ -28,7 +28,7 @@ namespace Steepshot.Core.Presenters
             return error;
         }
 
-        protected ErrorBase ResponseProcessing(OperationResult<Post> response, string sender)
+        protected Exception ResponseProcessing(OperationResult<Post> response, string sender)
         {
             if (response == null)
                 return null;

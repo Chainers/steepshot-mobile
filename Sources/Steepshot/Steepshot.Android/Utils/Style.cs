@@ -21,7 +21,7 @@ namespace Steepshot.Utils
         public static readonly Color R255G81B4;
         public static readonly Color R245G245B245;
         public static readonly Color R254G249B229;
-        public static readonly Color R255G24B5;
+        public static readonly Color R230G230B230;
 
         public static readonly float TopPanelHeightInDp;
         public static readonly float TabBarHeightInDp;
@@ -47,7 +47,7 @@ namespace Steepshot.Utils
             R255G81B4 = BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(Application.Context, Resource.Color.rgb255_81_4));
             R245G245B245 = BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(Application.Context, Resource.Color.rgb245_245_245));
             R254G249B229 = BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(Application.Context, Resource.Color.rgb254_249_229));
-            R255G24B5 = BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(Application.Context, Resource.Color.rgb255_24_5));
+            R230G230B230 = BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(Application.Context, Resource.Color.rgb230_230_230));
 
             Density = Application.Context.Resources.DisplayMetrics.Density;
             TopPanelHeightInDp = Application.Context.Resources.GetDimension(Resource.Dimension.dp_top_panel_height) / Density;

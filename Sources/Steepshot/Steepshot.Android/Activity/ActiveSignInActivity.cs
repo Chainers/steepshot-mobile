@@ -62,7 +62,7 @@ namespace Steepshot.Activity
             }
 
             appCompatButton.Enabled = true;
-            appCompatButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.EnterAccountText);
+            appCompatButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.SignIn);
             _spinner.Visibility = ViewStates.Invisible;
         }
 

@@ -14,12 +14,12 @@ using Java.IO;
 using Steepshot.Adapter;
 using Steepshot.Base;
 using Steepshot.Core;
-using Steepshot.Core.Errors;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Utils;
 using Steepshot.Utils;
+using Exception = System.Exception;
 using ViewUtils = Steepshot.Utils.ViewUtils;
 
 namespace Steepshot.Fragment
@@ -249,8 +249,8 @@ namespace Steepshot.Fragment
             catch (Exception ex)
             {
                 _postButton.Enabled = false;
-                Context.ShowAlert(LocalizationKeys.UnexpectedError);
-                AppSettings.Reporter.SendCrash(ex);
+                AppSettings.Logger.Error(ex);
+                Context.ShowAlert(ex);
             }
             finally
             {
@@ -276,8 +276,8 @@ namespace Steepshot.Fragment
             }
             catch (Exception ex)
             {
-                AppSettings.Reporter.SendCrash(ex);
-                return new OperationResult<MediaModel>(new AppError(LocalizationKeys.PhotoUploadError));
+                await AppSettings.Logger.Error(ex);
+                return new OperationResult<MediaModel>(new Core.Errors.InternalError(LocalizationKeys.PhotoUploadError, ex));
             }
             finally
             {

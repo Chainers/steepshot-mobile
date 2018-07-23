@@ -1,14 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using Newtonsoft.Json;
-using Steepshot.Core.HttpClient;
+using Steepshot.Core.Clients;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Services;
 using Steepshot.Core.Utils;
 
 namespace Steepshot.iOS.Helpers
 {
-    public sealed class AssetsHelper : IAssetHelper
+    public sealed class AssetHelper : IAssetHelper
     {
         public DebugInfo GetDebugInfo()
         {
@@ -61,9 +62,9 @@ namespace Steepshot.iOS.Helpers
                     }
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                //to do nothing
+                AppSettings.Logger.Warning(ex);
             }
             return hs;
         }
@@ -81,9 +82,9 @@ namespace Steepshot.iOS.Helpers
                     }
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                //to do nothing
+                AppSettings.Logger.Warning(ex);
             }
             return new T();
         }
@@ -94,13 +95,11 @@ namespace Steepshot.iOS.Helpers
             {
                 var json = JsonConvert.SerializeObject(data);
                 if (File.Exists(file))
-                {
                     File.WriteAllText(file, json);
-                }
             }
-            catch
+            catch (Exception ex)
             {
-                //to do nothing
+                AppSettings.Logger.Warning(ex);
             }
         }
     }

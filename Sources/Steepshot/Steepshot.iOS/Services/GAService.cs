@@ -1,7 +1,5 @@
-﻿using System;
-using Foundation;
+﻿using Foundation;
 using Google.Analytics;
-using Steepshot.Core.Services;
 
 namespace Steepshot.iOS.Services
 {

@@ -1,14 +1,12 @@
-﻿using Steepshot.Core.HttpClient;
-using Steepshot.Core.Serializing;
+﻿using Steepshot.Core.Clients;
 
 namespace Steepshot.Core.Tests.Stubs
 {
     public class StubServerClient : BaseServerClient
     {
-        public StubServerClient(JsonNetConverter converter, string url)
+        public StubServerClient(string url)
         {
-            Gateway = new StubApiGateway();
-            JsonConverter = converter;
+            HttpClient = new StubExtendedHttpClient();
             BaseUrl = url;
             EnableRead = true;
         }

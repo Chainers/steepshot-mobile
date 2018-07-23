@@ -1,17 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using CoreGraphics;
 using Foundation;
 using PureLayout.Net;
 using Steepshot.Core;
-using Steepshot.Core.Errors;
 using Steepshot.Core.Facades;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 using Steepshot.iOS.CustomViews;
 using Constants = Steepshot.iOS.Helpers.Constants;
-using Steepshot.Core.Extensions;
 using Steepshot.iOS.ViewControllers;
 using UIKit;
 using Steepshot.iOS.ViewSources;
@@ -30,12 +29,12 @@ namespace Steepshot.iOS.Views
         private UILabel _pickerLabel = new UILabel();
         private SearchTextField _recepientTextField;
         private SearchTextField _amountTextField;
-        private readonly TransferFacade _transferFacade = new TransferFacade();
+        private TransferFacade _transferFacade;
         private Timer _timer;
         private List<CurrencyType> _coins;
         private CurrencyType _pickedCoin;
         private UITableView _usersTable;
-        private FollowTableViewSource _userTableSource; 
+        private FollowTableViewSource _userTableSource;
         private string _prevQuery = string.Empty;
         private UIActivityIndicatorView _usersLoader;
         private NSLayoutConstraint _tagsHorizontalAlignment;
@@ -49,6 +48,10 @@ namespace Steepshot.iOS.Views
         {
             base.ViewDidLoad();
 
+
+            var client = AppDelegate.MainChain == KnownChains.Steem ? AppDelegate.SteemClient : AppDelegate.GolosClient;
+            _transferFacade = new TransferFacade();
+            _transferFacade.SetClient(client);
             //_transferFacade.OnRecipientChanged += OnRecipientChanged;
             _transferFacade.OnUserBalanceChanged += OnUserBalanceChanged;
             _transferFacade.UserFriendPresenter.SourceChanged += PresenterOnSourceChanged;
@@ -84,7 +87,7 @@ namespace Steepshot.iOS.Views
             //_recipientSearchLoader.Visibility = ViewStates.Gone;
             //_emptyQueryLabel.Visibility = _transferFacade.UserFriendPresenter.Count == 0 ? ViewStates.Visible : ViewStates.Gone;
             //if (State == FragmentState.TransferPrepare)
-                //_transferFacade.Recipient = _transferFacade.Recipient ?? _transferFacade.UserFriendPresenter.FirstOrDefault(recipient => recipient.Author.Equals(_recipientSearch.Text));
+            //_transferFacade.Recipient = _transferFacade.Recipient ?? _transferFacade.UserFriendPresenter.FirstOrDefault(recipient => recipient.Author.Equals(_recipientSearch.Text));
         }
 
         private void CellAction(ActionType type, UserFriend recipient)
@@ -152,14 +155,14 @@ namespace Steepshot.iOS.Views
         private void OnUserBalanceChanged()
         {
             if (_transferFacade.UserBalance != null)
-                _balance.Text = _transferFacade.UserBalance.Value.ToFormattedCurrencyString(_transferFacade.UserBalance.Precision, null, ".");
+                _balance.Text = $"{_transferFacade.UserBalance.Value} {_pickedCoin.ToString()}";
         }
 
         private void CoinSelected(CurrencyType pickedCoin)
         {
             _pickedCoin = pickedCoin;
             _pickerLabel.Text = _pickedCoin.ToString();
-            _transferFacade.UserBalance = AppSettings.User.AccountInfo?.Balances?[_pickedCoin];
+            _transferFacade.UserBalance = AppSettings.User.AccountInfo?.Balances?.First(b => b.CurrencyType == pickedCoin);
         }
 
         private async void Transfer(object sender, EventArgs e)
@@ -224,7 +227,7 @@ namespace Steepshot.iOS.Views
             if (response.IsSuccess)
             {
                 AppSettings.User.AccountInfo = response.Result;
-                _transferFacade.UserBalance = AppSettings.User.AccountInfo?.Balances?[_pickedCoin];
+                _transferFacade.UserBalance = AppSettings.User.AccountInfo?.Balances?.First(b => b.CurrencyType == _pickedCoin);
             }
             _balance.Hidden = false;
             _balanceLoader.StopAnimating();
@@ -249,7 +252,7 @@ namespace Steepshot.iOS.Views
             }
             var searchResult = await _transferFacade.TryLoadNextSearchUser(_recepientTextField.Text);
 
-            if (!(searchResult is CanceledError))
+            if (!(searchResult is OperationCanceledException))
             {
                 _noResultViewTags.Hidden = _transferFacade.UserFriendPresenter.Count > 0;
                 _usersLoader.StopAnimating();
@@ -296,14 +299,16 @@ namespace Steepshot.iOS.Views
             recepientLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Top, 25);
             recepientLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 15);
 
-            _recepientTextField = new SearchTextField(() => {
+            _recepientTextField = new SearchTextField(() =>
+            {
                 _recepientTextField.ResignFirstResponder();
             }, "Search");
             _recepientTextField.EditingChanged += EditingChanged;
             _recepientTextField.Layer.CornerRadius = 25;
             View.AddSubview(_recepientTextField);
 
-            _recepientTextField.ClearButtonTapped += () => {
+            _recepientTextField.ClearButtonTapped += () =>
+            {
                 _transferFacade.UserFriendPresenter.Clear();
                 //_usersTable.ReloadData();
             };
@@ -325,7 +330,8 @@ namespace Steepshot.iOS.Views
             amountLabel.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, _recepientTextField, 25);
             amountLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 15);
 
-            _amountTextField = new SearchTextField(() => {
+            _amountTextField = new SearchTextField(() =>
+            {
 
             }, "0");
             _amountTextField.KeyboardType = UIKeyboardType.NumbersAndPunctuation;
@@ -345,7 +351,7 @@ namespace Steepshot.iOS.Views
             pickerView.Layer.BorderColor = Constants.R244G244B246.CGColor;
             pickerView.Layer.BorderWidth = 1;
             pickerView.UserInteractionEnabled = true;
-            var pickerTap = new UITapGestureRecognizer(() => 
+            var pickerTap = new UITapGestureRecognizer(() =>
             {
                 UIView popup = new UIView();
                 popup.ClipsToBounds = true;

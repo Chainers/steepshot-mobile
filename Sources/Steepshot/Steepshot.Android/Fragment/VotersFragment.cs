@@ -120,7 +120,7 @@ namespace Steepshot.Fragment
             if (!IsInitialized)
                 return;
 
-            Context.ShowAlert(error);
+            Context.ShowAlert(error, ToastLength.Short);
             _bar.Visibility = ViewStates.Gone;
 
             _emptyQueryLabel.Visibility = Presenter.Count > 0 ? ViewStates.Invisible : ViewStates.Visible;
