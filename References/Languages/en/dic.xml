@@ -112,7 +112,7 @@ About 6 inches away</string>
     <string name="[&quot;DeleteAlertMessage&quot;]">This action can not be undone.</string>
     <string name="[&quot;PowerOfLike&quot;]">Power of like {0}%</string>
     <string name="[&quot;TitleForAcceptToS&quot;]">By pressing any of the buttons you agree with our &lt;a href=\"https://steepshot.org/terms-of-service\"&gt;Terms of Service&lt;/a&gt; &amp; &lt;a href=\"https://steepshot.org/privacy-policy\"&gt;Privacy policy&lt;/a&gt;</string>
-    <string name="[&quot;PostDelay&quot;]">If you don't see the post in your profile, please give it a few minutes to sync from the blockchain</string>
+    <string name="[&quot;PostDelay&quot;]">Post has been successfully created. If you don't see the post in your profile, please give it a few minutes to sync from the blockchain</string>
     <string name="[&quot;SignInButtonText&quot;]">Sign in with {0}</string>
     <string name="[&quot;CreateButtonText&quot;]">Create new account</string>
     <string name="[&quot;EnterAccountText&quot;]">Enter to your account</string>
@@ -188,9 +188,9 @@ About 6 inches away</string>
     <string name="[&quot;NoResultText&quot;]">Sorry, no results found. Please, try again</string>
     <string name="[&quot;VotingPowerSetting&quot;]">Show voting slider</string>
     <string name="[&quot;Transfer&quot;]">Transfer</string>
-    <string name="[&quot;RecipientName&quot;]">Recipient name</string>
+    <string name="[&quot;RecipientName&quot;]">To</string>
     <string name="[&quot;RecipientNameHint&quot;]">Search</string>
-    <string name="[&quot;TransferAmount&quot;]">Transfer amount</string>
+    <string name="[&quot;TransferAmount&quot;]">Amount</string>
     <string name="[&quot;TransferAmountHint&quot;]">0</string>
     <string name="[&quot;TransferComment&quot;]">+ Add comment</string>
     <string name="[&quot;TranferCommentHint&quot;]">Enter comment</string>
@@ -271,4 +271,5 @@ About 6 inches away</string>
     <string name="[&quot;_callbacks.find( txid ) == _callbacks.end()&quot;]">Transaction is a duplicate</string>
     <string name="[&quot;The post is hidden from you. Please change your settings to see this post&quot;]">The post is hidden from you. Please change your settings to see this post</string>
     <string name="[&quot;DuplicateTag&quot;]">You have already added this tag</string>
+    <string name="[&quot;SendTokens&quot;]"> Send tokens</string>
 </resources>
