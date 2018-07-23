@@ -60,7 +60,7 @@ namespace Steepshot.iOS.Views
             qrButton.Font = Constants.Semibold14;
 #if DEBUG
             var di = AppSettings.AssetHelper.GetDebugInfo();
-            if (BasePresenter.Chain == KnownChains.Steem)
+            if (AppDelegate.MainChain == KnownChains.Steem)
                 password.Text = di.SteemTestWif;
             else
                 password.Text = di.GolosTestWif;
@@ -160,34 +160,30 @@ namespace Steepshot.iOS.Views
             loginButton.SetTitleColor(UIColor.Clear, UIControlState.Disabled);
             try
             {
-                var isvalid = KeyHelper.ValidatePrivateKey(password.Text, _isPostingMode ? AccountInfoResponse.PublicPostingKeys : AccountInfoResponse.PublicActiveKeys);
-                if (isvalid)
+                if (!KeyHelper.ValidatePrivateKey(password.Text, _isPostingMode ? AccountInfoResponse.PublicPostingKeys : AccountInfoResponse.PublicActiveKeys))
                 {
-                    if (_isPostingMode)
-                    {
-                        AppSettings.User.AddAndSwitchUser(Username, password.Text, AccountInfoResponse, BasePresenter.Chain);
+                    ShowCustomAlert(LocalizationKeys.WrongPrivatePostingKey, password);
+                    return;
+                }
 
-                        var myViewController = new MainTabBarController();
-                        AppDelegate.InitialViewController = myViewController;
-                        NavigationController.ViewControllers = new UIViewController[] { myViewController, this };
-                        NavigationController.PopViewController(true);
-                    }
-                    else
-                    {
-                        AppSettings.User.ActiveKey = password.Text;
-                        NavigationController.PopViewController(true);
-                    }
+                if (_isPostingMode)
+                {
+                    AppSettings.User.AddAndSwitchUser(Username, password.Text, AccountInfoResponse);
+
+                    var myViewController = new MainTabBarController();
+                    AppDelegate.InitialViewController = myViewController;
+                    NavigationController.ViewControllers = new UIViewController[] { myViewController, this };
+                    NavigationController.PopViewController(true);
                 }
                 else
-                    ShowCustomAlert(LocalizationKeys.WrongPrivatePostingKey, password);
-            }
-            catch (ArgumentNullException)
-            {
-                ShowCustomAlert(LocalizationKeys.WrongPrivatePostingKey, password);
+                {
+                    AppSettings.User.ActiveKey = password.Text;
+                    NavigationController.PopViewController(true);
+                }
             }
             catch (Exception ex)
             {
-                AppSettings.Reporter.SendCrash(ex);
+                ShowAlert(ex);
             }
             finally
             {

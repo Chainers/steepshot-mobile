@@ -17,8 +17,10 @@ using Steepshot.Core.Extensions;
 using Steepshot.Core.Models;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Threading;
 using Android.App;
 using Android.Graphics.Drawables;
+using Android.OS;
 using Android.Support.V4.View;
 using Steepshot.Base;
 using Steepshot.Core.Localization;
@@ -137,7 +139,7 @@ namespace Steepshot.Adapter
         private readonly LikeScaleBar _likeScaleBar;
         private readonly TextView _likeScalePower;
         protected readonly Context Context;
-        private bool _isAnimationRuning;
+        private CancellationSignal _isAnimationRuning;
 
         protected Post Post;
         public const string ClipboardTitle = "Steepshot's post link";
@@ -444,45 +446,9 @@ namespace Steepshot.Adapter
 
         private async Task LikeSet(bool isFlag)
         {
-            try
-            {
-                _isAnimationRuning = true;
-                _likeOrFlag.ScaleX = 0.7f;
-                _likeOrFlag.ScaleY = 0.7f;
-
-                if (isFlag)
-                    _likeOrFlag.SetImageResource(Resource.Drawable.ic_flag_active);
-                else
-                    _likeOrFlag.SetImageResource(Resource.Drawable.ic_new_like_filled);
-
-                var tick = 0;
-                do
-                {
-                    if (!_isAnimationRuning)
-                        return;
-
-                    tick++;
-
-                    var mod = tick % 6;
-                    if (mod != 5)
-                    {
-                        _likeOrFlag.ScaleX += 0.05f;
-                        _likeOrFlag.ScaleY += 0.05f;
-                    }
-                    else
-                    {
-                        _likeOrFlag.ScaleX = 0.7f;
-                        _likeOrFlag.ScaleY = 0.7f;
-                    }
-
-                    await Task.Delay(100);
-
-                } while (true);
-            }
-            catch
-            {
-                //todo nothing
-            }
+            _isAnimationRuning?.Cancel();
+            _isAnimationRuning = new CancellationSignal();
+            await AnimationHelper.PulseLike(_likeOrFlag, isFlag, _isAnimationRuning);
         }
 
         private void DoUserAction(object sender, EventArgs e)
@@ -550,26 +516,36 @@ namespace Steepshot.Adapter
                 _likes.Text = AppSettings.LocalizationManager.GetText(Post.NetLikes == 1 ? LocalizationKeys.Like : LocalizationKeys.Likes, post.NetLikes);
             }
             else
+            {
                 _likes.Visibility = ViewStates.Gone;
+            }
+
             if (post.NetFlags > 0)
             {
                 _flags.Visibility = _flagsIcon.Visibility = ViewStates.Visible;
                 _flags.Text = $"{post.NetFlags}";
             }
             else
+            {
                 _flags.Visibility = _flagsIcon.Visibility = ViewStates.Gone;
+            }
+
             if (post.TotalPayoutReward > 0)
             {
                 _cost.Visibility = ViewStates.Visible;
-                _cost.Text = BasePresenter.ToFormatedCurrencyString(post.TotalPayoutReward);
+                _cost.Text = StringHelper.ToFormatedCurrencyString(post.TotalPayoutReward, App.MainChain);
             }
             else
+            {
                 _cost.Visibility = ViewStates.Gone;
+            }
+
             _time.Text = post.Created.ToPostTime();
             _author.Text = post.Author;
 
             if (!string.IsNullOrEmpty(Post.Avatar))
-                Picasso.With(Context).Load(Post.Avatar).Placeholder(Resource.Drawable.ic_holder).Resize(300, 0).Priority(Picasso.Priority.Low).Into(_avatar, null, OnPicassoError);
+                Picasso.With(Context).Load(Post.Avatar.GetProxy(_avatar.LayoutParameters.Width, _avatar.LayoutParameters.Height)).Placeholder(Resource.Drawable.ic_holder).Priority(Picasso.Priority.Low).Into(_avatar, null, () =>
+                Picasso.With(Context).Load(Post.Avatar).Placeholder(Resource.Drawable.ic_holder).NoFade().Into(_avatar));
             else
                 Picasso.With(context).Load(Resource.Drawable.ic_holder).Into(_avatar);
 
@@ -592,7 +568,7 @@ namespace Steepshot.Adapter
                 _topLikers.AddView(topLikersAvatar, layoutParams);
                 var avatarUrl = Post.TopLikersAvatars[i];
                 if (!string.IsNullOrEmpty(avatarUrl))
-                    Picasso.With(Context).Load(avatarUrl).Placeholder(Resource.Drawable.ic_holder).Resize(240, 0).Priority(Picasso.Priority.Low).Into(topLikersAvatar, null,
+                    Picasso.With(Context).Load(avatarUrl.GetProxy(topLikersSize, topLikersSize)).Placeholder(Resource.Drawable.ic_holder).Priority(Picasso.Priority.Low).Into(topLikersAvatar, null,
                         () =>
                         {
                             Picasso.With(context).Load(Resource.Drawable.ic_holder).Into(topLikersAvatar);
@@ -609,15 +585,16 @@ namespace Steepshot.Adapter
                     ? AppSettings.LocalizationManager.GetText(LocalizationKeys.SeeComment)
                     : AppSettings.LocalizationManager.GetText(LocalizationKeys.ViewComments, post.Children);
 
-            if (_isAnimationRuning && !post.VoteChanging)
+            if (_isAnimationRuning != null && !_isAnimationRuning.IsCanceled && !post.VoteChanging)
             {
-                _isAnimationRuning = false;
+                _isAnimationRuning.Cancel();
+                _isAnimationRuning = null;
                 _likeOrFlag.ScaleX = 1f;
                 _likeOrFlag.ScaleY = 1f;
             }
             if (!BasePostPresenter.IsEnableVote)
             {
-                if (post.VoteChanging && !_isAnimationRuning)
+                if (post.VoteChanging && (_isAnimationRuning == null || _isAnimationRuning.IsCanceled))
                 {
                     LikeSet(false);
                 }
@@ -658,7 +635,7 @@ namespace Steepshot.Adapter
                 NsfwMaskSubMessage.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.FlagSubMessage);
                 _nsfwMaskActionButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.UnFlagPost);
             }
-            else if (Post.ShowMask && (Post.IsLowRated || Post.IsNsfw))
+            else if (Post.ShowMask && (Post.IsLowRated || Post.IsNsfw) && Post.Author != AppSettings.User.Login)
             {
                 NsfwMask.Visibility = ViewStates.Visible;
                 _nsfwMaskMessage.Text = AppSettings.LocalizationManager.GetText(Post.IsLowRated ? LocalizationKeys.LowRatedContent : LocalizationKeys.NsfwContent);
@@ -675,11 +652,6 @@ namespace Steepshot.Adapter
             ((RelativeLayout.LayoutParams)NsfwMask.LayoutParameters).AddRule(LayoutRules.Above, Resource.Id.subtitle);
         }
 
-        private void OnPicassoError()
-        {
-            Picasso.With(Context).Load(Post.Avatar).Placeholder(Resource.Drawable.ic_holder).NoFade().Into(_avatar);
-        }
-
         protected enum PostPagerType
         {
             Feed,
@@ -694,7 +666,6 @@ namespace Steepshot.Adapter
             private readonly ViewGroup.LayoutParams _layoutParams;
             private readonly Action<Post> _photoAction;
             private Post _post;
-            private MediaModel _photo; //TODO:KOA: Already contained in _post
 
             public PostPhotosPagerAdapter(Context context, ViewGroup.LayoutParams layoutParams, Action<Post> photoAction)
             {

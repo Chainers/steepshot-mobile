@@ -193,7 +193,7 @@ namespace Steepshot.Fragment
             if (!IsInitialized)
                 return;
 
-            Context.ShowAlert(error);
+            Context.ShowAlert(error, ToastLength.Short);
 
             _bar.Visibility = ViewStates.Gone;
             _refresher.Refreshing = false;

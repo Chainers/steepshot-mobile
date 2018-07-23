@@ -1,9 +1,7 @@
-﻿using System;
-
-namespace Steepshot.Core.Presenters
+﻿namespace Steepshot.Core.Presenters
 {
     public class WalletPresenter : BasePresenter
     {
-        
+
     }
 }

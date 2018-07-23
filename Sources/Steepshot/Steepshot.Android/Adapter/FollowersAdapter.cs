@@ -13,6 +13,7 @@ using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
 using Steepshot.Core.Utils;
+using Android.Util;
 
 namespace Steepshot.Adapter
 {
@@ -196,7 +197,7 @@ namespace Steepshot.Adapter
                         _followButton.Enabled = true;
                         _loader.Visibility = ViewStates.Gone;
                     }
-                    background.SetCornerRadius(100);
+                    background.SetCornerRadius(TypedValue.ApplyDimension(ComplexUnitType.Dip, 25, _context.Resources.DisplayMetrics));
                     _followButton.Background = background;
                 }
             }

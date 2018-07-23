@@ -18,6 +18,7 @@ using Android.Widget;
 using CheeseBind;
 using Refractored.Controls;
 using Steepshot.Base;
+using Steepshot.Core.Errors;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Utils;
 using Steepshot.Utils;
@@ -221,9 +222,10 @@ namespace Steepshot.Fragment
                 _camera.SetParameters(parameters);
                 _camera?.TakePicture(this, null, this);
             }
-            catch
+            catch (Exception ex)
             {
                 _shotButton.Enabled = true;
+                AppSettings.Logger.Warning(ex);
             }
         }
 
@@ -280,7 +282,7 @@ namespace Steepshot.Fragment
             SetCameraDisplayOrientation(_cameraId);
         }
 
-        public void SurfaceCreated(ISurfaceHolder holder)
+        public async void SurfaceCreated(ISurfaceHolder holder)
         {
             if (_camera == null)
                 return;
@@ -289,10 +291,10 @@ namespace Steepshot.Fragment
                 _camera.SetPreviewDisplay(holder);
                 _camera.StartPreview();
             }
-            catch (Java.IO.IOException ex)
+            catch (Exception ex)
             {
-                AppSettings.Reporter.SendCrash(ex);
-                Activity.ShowAlert(LocalizationKeys.CameraSettingError, ToastLength.Short);
+                await AppSettings.Logger.Error(ex);
+                Activity.ShowAlert(new InternalError(LocalizationKeys.CameraSettingError, ex), ToastLength.Short);
             }
         }
 
@@ -503,7 +505,7 @@ namespace Steepshot.Fragment
             _revertButton.Enabled = true;
         }
 
-        private void EnableCamera(int cameraToSwitch)
+        private async void EnableCamera(int cameraToSwitch)
         {
             try
             {
@@ -517,11 +519,13 @@ namespace Steepshot.Fragment
             catch (Exception ex)
             {
                 if (ex.GetType() == typeof(Java.Lang.RuntimeException) && ex.Message == "Fail to connect to camera service")
+                {
                     Activity.Finish();
+                }
                 else
                 {
-                    AppSettings.Reporter.SendCrash(ex);
-                    Activity.ShowAlert(LocalizationKeys.CameraSettingError, ToastLength.Short);
+                    await AppSettings.Logger.Error(ex);
+                    Activity.ShowAlert(new InternalError(LocalizationKeys.CameraSettingError, ex), ToastLength.Short);
                 }
             }
         }

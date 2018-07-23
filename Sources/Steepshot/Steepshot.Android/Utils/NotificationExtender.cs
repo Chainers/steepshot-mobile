@@ -5,6 +5,7 @@ using Android.Support.V4.App;
 using Android.OS;
 using Com.OneSignal.Android;
 using Square.Picasso;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.Utils
 {
@@ -37,7 +38,10 @@ namespace Steepshot.Utils
                 if (!string.IsNullOrEmpty(largeIconUrl))
                     largeIcon = Picasso.With(this).Load(largeIconUrl).Get();
             }
-            catch { }
+            catch (System.Exception ex)
+            {
+                AppSettings.Logger.Warning(ex);
+            }
             finally
             {
                 builder.SetSmallIcon(Resource.Drawable.ic_stat_onesignal_default)

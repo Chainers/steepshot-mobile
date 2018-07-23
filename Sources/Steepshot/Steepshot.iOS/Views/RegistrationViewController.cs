@@ -227,7 +227,7 @@ namespace Steepshot.iOS.Views
 
             var error = await _presenter.TryGetAccountInfo(_username.Text);
 
-            if (error is CanceledError)
+            if (error is OperationCanceledException)
             {
                 if (string.IsNullOrEmpty(_username.Text))
                     _loader.StopAnimating();

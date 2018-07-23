@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Steepshot.Core.Errors;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Models.Enums;
@@ -18,7 +17,7 @@ namespace Steepshot.Core.Presenters
         public UserProfileResponse UserProfileResponse { get; private set; }
 
 
-        public async Task<ErrorBase> TryLoadNextPosts()
+        public async Task<Exception> TryLoadNextPosts()
         {
             if (IsLastReaded)
                 return null;
@@ -26,7 +25,7 @@ namespace Steepshot.Core.Presenters
             return await RunAsSingleTask(LoadNextPosts);
         }
 
-        private async Task<ErrorBase> LoadNextPosts(CancellationToken ct)
+        private async Task<Exception> LoadNextPosts(CancellationToken ct)
         {
             var request = new UserPostsModel(UserName)
             {
@@ -37,7 +36,7 @@ namespace Steepshot.Core.Presenters
                 ShowLowRated = AppSettings.User.IsLowRated
             };
 
-            ErrorBase error;
+            Exception error;
             bool isNeedRepeat;
             do
             {
@@ -49,12 +48,12 @@ namespace Steepshot.Core.Presenters
         }
 
 
-        public async Task<ErrorBase> TryGetUserInfo(string user)
+        public async Task<Exception> TryGetUserInfo(string user)
         {
             return await TryRunTask(GetUserInfo, OnDisposeCts.Token, user);
         }
 
-        private async Task<ErrorBase> GetUserInfo(string user, CancellationToken ct)
+        private async Task<Exception> GetUserInfo(string user, CancellationToken ct)
         {
             var req = new UserProfileModel(user)
             {
@@ -74,7 +73,7 @@ namespace Steepshot.Core.Presenters
         }
        
 
-        public async Task<ErrorBase> TryFollow()
+        public async Task<Exception> TryFollow()
         {
             if (UserProfileResponse.FollowedChanging)
                 return null;
@@ -89,7 +88,7 @@ namespace Steepshot.Core.Presenters
             return error;
         }
 
-        private async Task<ErrorBase> Follow(UserProfileResponse userProfileResponse, CancellationToken ct)
+        private async Task<Exception> Follow(UserProfileResponse userProfileResponse, CancellationToken ct)
         {
             var hasFollowed = userProfileResponse.HasFollowed;
             var request = new FollowModel(AppSettings.User.UserInfo, hasFollowed ? FollowType.UnFollow : FollowType.Follow, UserName);
@@ -102,7 +101,7 @@ namespace Steepshot.Core.Presenters
         }
 
 
-        public async Task<ErrorBase> TryUpdateUserProfile(UpdateUserProfileModel model, UserProfileResponse currentProfile)
+        public async Task<Exception> TryUpdateUserProfile(UpdateUserProfileModel model, UserProfileResponse currentProfile)
         {
             var error = await TryRunTask(UpdateUserProfile, OnDisposeCts.Token, model);
             if (error != null)
@@ -123,7 +122,7 @@ namespace Steepshot.Core.Presenters
             return error;
         }
 
-        private async Task<ErrorBase> UpdateUserProfile(UpdateUserProfileModel model, CancellationToken ct)
+        private async Task<Exception> UpdateUserProfile(UpdateUserProfileModel model, CancellationToken ct)
         {
             var response = await Api.UpdateUserProfile(model, ct);
             return response.Error;

@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Android.Content;
+using Android.Content.Res;
 using Android.OS;
 using Android.Support.V7.Widget;
 using Android.Text;
@@ -14,7 +15,7 @@ using CheeseBind;
 using Steepshot.Activity;
 using Steepshot.Adapter;
 using Steepshot.Base;
-using Steepshot.Core.Errors;
+using Steepshot.Core;
 using Steepshot.Core.Facades;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models;
@@ -122,7 +123,9 @@ namespace Steepshot.Fragment
             _localTagsList.SetAdapter(LocalTagsAdapter);
             _localTagsList.AddItemDecoration(new ListItemDecoration((int)TypedValue.ApplyDimension(ComplexUnitType.Dip, 15, Resources.DisplayMetrics)));
 
+            var client = App.MainChain == KnownChains.Steem ? App.SteemClient : App.GolosClient;
             _tagPickerFacade = new TagPickerFacade(_localTagsAdapter.LocalTags);
+            _tagPickerFacade.SetClient(client);
             _tagPickerFacade.SourceChanged += TagPickerFacadeOnSourceChanged;
 
             _tagsList.SetLayoutManager(new LinearLayoutManager(Activity));
@@ -165,7 +168,7 @@ namespace Steepshot.Fragment
             _postButton.Text = string.Empty;
             EnablePostAndEdit(false);
 
-            var isConnected = BasePresenter.ConnectionService.IsConnectionAvailable();
+            var isConnected = AppSettings.ConnectionService.IsConnectionAvailable();
 
             if (!isConnected)
             {
@@ -185,7 +188,7 @@ namespace Steepshot.Fragment
         }
 
         protected abstract Task OnPostAsync();
-       
+
         protected void EnablePostAndEdit(bool enabled)
         {
             if (enabled)
@@ -217,33 +220,32 @@ namespace Steepshot.Fragment
             TryCreateOrEditPost();
         }
 
-        protected async void TryCreateOrEditPost()
+        protected async Task<bool> TryCreateOrEditPost()
         {
             if (_model.Media == null)
             {
                 EnabledPost();
-                return;
+                return false;
             }
 
             var resp = await Presenter.TryCreateOrEditPost(_model);
             if (!IsInitialized)
-                return;
+                return false;
 
             if (resp.IsSuccess)
             {
                 AppSettings.User.UserInfo.LastPostTime = DateTime.Now;
                 EnabledPost();
-                BasePresenter.ProfileUpdateType = ProfileUpdateType.Full;
-                Activity.ShowAlert(LocalizationKeys.PostDelay, ToastLength.Long);
+                AppSettings.ProfileUpdateType = ProfileUpdateType.Full;
                 if (Activity is SplashActivity || Activity is CameraActivity)
                     Activity.Finish();
                 else
                     ((BaseActivity)Activity).OnBackPressed();
+                return true;
             }
-            else
-            {
-                Activity.ShowInteractiveMessage(resp.Error, TryAgainAction, ForgetAction);
-            }
+
+            Activity.ShowInteractiveMessage(resp.Error, TryAgainAction, ForgetAction);
+            return false;
         }
 
         private void TagLabelOnClick(object sender, EventArgs e)
@@ -302,6 +304,11 @@ namespace Steepshot.Fragment
             _tag.Visibility = _tagsListContainer.Visibility = openTags ? ViewStates.Visible : ViewStates.Gone;
             _photosContainer.Visibility = _titleContainer.Visibility = _descriptionContainer.Visibility = _tagLabelContainer.Visibility = _tagsFlow.Visibility = _postBtnContainer.Visibility = openTags ? ViewStates.Gone : ViewStates.Visible;
             _localTagsList.Visibility = openTags && _localTagsAdapter.LocalTags.Count > 0 ? ViewStates.Visible : ViewStates.Gone;
+            if (!openTags)
+            {
+                _descriptionScrollContainer.Post(() =>
+                _descriptionScrollContainer.FullScroll(FocusSearchDirection.Down));
+            }
         }
 
         protected bool AddTag(string tag)
@@ -369,7 +376,7 @@ namespace Steepshot.Fragment
             _tagsList.ScrollToPosition(0);
             _tagPickerFacade.Clear();
 
-            ErrorBase error = null;
+            Exception error = null;
             if (text.Length == 0)
                 error = await _tagPickerFacade.TryGetTopTags();
             else if (text.Length > 1)
@@ -378,7 +385,7 @@ namespace Steepshot.Fragment
             if (IsInitialized)
                 return;
 
-            Activity.ShowAlert(error);
+            Activity.ShowAlert(error, ToastLength.Short);
         }
 
         protected void HideTagsList()

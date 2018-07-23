@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using CoreGraphics;
 using Foundation;
 using Steepshot.Core;
-using Steepshot.Core.Errors;
 using Steepshot.Core.Facades;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 using Constants = Steepshot.iOS.Helpers.Constants;
-using Steepshot.Core.Extensions;
 using Steepshot.iOS.ViewControllers;
 using UIKit;
 using System.Threading;
@@ -18,14 +17,13 @@ using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Models.Common;
 using Steepshot.iOS.Helpers;
 using System.Globalization;
-using System.Threading.Tasks;
 using Steepshot.Core.Localization;
 
 namespace Steepshot.iOS.Views
 {
     public partial class TransferViewController : BaseViewControllerWithPresenter<TransferPresenter>
     {
-        private readonly TransferFacade _transferFacade = new TransferFacade();
+        private TransferFacade _transferFacade;
         private Timer _timer;
         private List<CurrencyType> _coins;
         private CurrencyType _pickedCoin;
@@ -35,6 +33,9 @@ namespace Steepshot.iOS.Views
         {
             base.ViewDidLoad();
 
+            var client = AppDelegate.MainChain == KnownChains.Steem ? AppDelegate.SteemClient : AppDelegate.GolosClient;
+            _transferFacade = new TransferFacade();
+            _transferFacade.SetClient(client);
             _transferFacade.OnRecipientChanged += OnRecipientChanged;
             _transferFacade.OnUserBalanceChanged += OnUserBalanceChanged;
             _transferFacade.UserFriendPresenter.SourceChanged += PresenterOnSourceChanged;
@@ -78,7 +79,7 @@ namespace Steepshot.iOS.Views
 
             if (_recipientAvatar.Hidden != isRecipientSetted)
             {
-                if(!string.IsNullOrEmpty(_transferFacade?.Recipient?.Author))
+                if (!string.IsNullOrEmpty(_transferFacade?.Recipient?.Author))
                     _recepientTextField.Text = _transferFacade.Recipient.Author;
                 UIView.Animate(0.2, () =>
                 {
@@ -128,14 +129,14 @@ namespace Steepshot.iOS.Views
         private void OnUserBalanceChanged()
         {
             if (_transferFacade.UserBalance != null)
-                _balance.Text = _transferFacade.UserBalance.Value.ToFormattedCurrencyString(_transferFacade.UserBalance.Precision, null, ".");
+                _balance.Text = $"{_transferFacade.UserBalance.Value} {_pickedCoin.ToString()}";
         }
 
         private void CoinSelected(CurrencyType pickedCoin)
         {
             _pickedCoin = pickedCoin;
             _pickerLabel.Text = _pickedCoin.ToString().ToUpper();
-            _transferFacade.UserBalance = AppSettings.User.AccountInfo?.Balances?[_pickedCoin];
+            _transferFacade.UserBalance = AppSettings.User.AccountInfo?.Balances?.First(b => b.CurrencyType == pickedCoin);
         }
 
         private void TogglButtons(bool enabled)
@@ -167,10 +168,9 @@ namespace Steepshot.iOS.Views
                 return;
             }
 
-            var transferAmount = (long)(double.Parse(_amountTextField.Text.Replace(',', '.'), CultureInfo.InvariantCulture) *
-                                        Math.Pow(10, _transferFacade.UserBalance.Precision));
+            var transferAmount = double.Parse(_amountTextField.Text.Replace(',', '.'), CultureInfo.InvariantCulture);
 
-            if (transferAmount == 0 || transferAmount > _transferFacade.UserBalance.Value)
+            if (Math.Abs(transferAmount) < 0.00000001 || transferAmount > double.Parse(_transferFacade.UserBalance.Value))
             {
                 ShowAlert(LocalizationKeys.WrongTransferAmount);
                 return;
@@ -181,7 +181,7 @@ namespace Steepshot.iOS.Views
             _tranfserLoader.StartAnimating();
             RemoveFocus();
 
-            var transferResponse = await _presenter.TryTransfer(_transferFacade.Recipient.Author, double.Parse(_amountTextField.Text, CultureInfo.InvariantCulture), _pickedCoin, _transferFacade.UserBalance.ChainCurrency, _memoTextView.Text);
+            var transferResponse = await _presenter.TryTransfer(_transferFacade.Recipient.Author, _amountTextField.Text, _pickedCoin, _memoTextView.Text);
 
             _tranfserLoader.StopAnimating();
             TogglButtons(true);
@@ -209,7 +209,7 @@ namespace Steepshot.iOS.Views
             if (response.IsSuccess)
             {
                 AppSettings.User.AccountInfo = response.Result;
-                _transferFacade.UserBalance = AppSettings.User.AccountInfo?.Balances?[_pickedCoin];
+                _transferFacade.UserBalance = AppSettings.User.AccountInfo?.Balances?.First(b => b.CurrencyType == _pickedCoin);
             }
             _balance.TextColor = Constants.R151G155B158;
             _balanceLoader.StopAnimating();
@@ -234,7 +234,7 @@ namespace Steepshot.iOS.Views
             }
             var searchResult = await _transferFacade.TryLoadNextSearchUser(_recepientTextField.Text);
 
-            if (!(searchResult is CanceledError))
+            if (!(searchResult is OperationCanceledException))
             {
                 if (_recepientTextField.IsFirstResponder)
                     _noResultViewTags.Hidden = _transferFacade.UserFriendPresenter.Count > 0;

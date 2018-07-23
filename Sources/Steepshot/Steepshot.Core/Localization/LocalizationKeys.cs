@@ -118,7 +118,7 @@
         Retry,
         Delete,
         PutYourComment,
-        AppVersion2,
+        AppVersion,
         QueryMinLength,
         EnterPostTitle,
         EnterPostDescription,
@@ -183,5 +183,9 @@
         Connect,
         Logout,
         SwitchTo,
+        Recipient,
+        Amount,
+        Wallet,
+        SendTokens
     }
 }

@@ -22,7 +22,7 @@ namespace Steepshot.Core.Presenters
             IsEnableVote = true;
         }
 
-        public async Task<ErrorBase> TryDeletePost(Post post)
+        public async Task<Exception> TryDeletePost(Post post)
         {
             if (post == null)
                 return null;
@@ -32,7 +32,7 @@ namespace Steepshot.Core.Presenters
             return error;
         }
 
-        private async Task<ErrorBase> DeletePost(Post post, CancellationToken ct)
+        private async Task<Exception> DeletePost(Post post, CancellationToken ct)
         {
             var request = new DeleteModel(AppSettings.User.UserInfo, post);
             var response = await Api.DeletePostOrComment(request, ct);
@@ -47,7 +47,7 @@ namespace Steepshot.Core.Presenters
             return response.Error;
         }
 
-        public async Task<ErrorBase> TryDeleteComment(Post post, Post parentPost)
+        public async Task<Exception> TryDeleteComment(Post post, Post parentPost)
         {
             if (post == null || parentPost == null)
                 return null;
@@ -57,7 +57,7 @@ namespace Steepshot.Core.Presenters
             return error;
         }
 
-        private async Task<ErrorBase> DeleteComment(Post post, Post parentPost, CancellationToken ct)
+        private async Task<Exception> DeleteComment(Post post, Post parentPost, CancellationToken ct)
         {
             var request = new DeleteModel(AppSettings.User.UserInfo, post, parentPost);
             var response = await Api.DeletePostOrComment(request, ct);
@@ -71,7 +71,7 @@ namespace Steepshot.Core.Presenters
             return response.Error;
         }
 
-        public async Task<ErrorBase> TryEditComment(UserInfo userInfo, Post parentPost, Post post, string body, IAppInfo appInfo)
+        public async Task<Exception> TryEditComment(UserInfo userInfo, Post parentPost, Post post, string body, IAppInfo appInfo)
         {
             if (string.IsNullOrEmpty(body) || parentPost == null || post == null)
                 return null;
@@ -82,7 +82,7 @@ namespace Steepshot.Core.Presenters
             return error;
         }
 
-        private async Task<ErrorBase> EditComment(CreateOrEditCommentModel model, Post post, CancellationToken ct)
+        private async Task<Exception> EditComment(CreateOrEditCommentModel model, Post post, CancellationToken ct)
         {
             var response = await Api.CreateOrEditComment(model, ct);
             if (response.IsSuccess)
@@ -104,7 +104,7 @@ namespace Steepshot.Core.Presenters
             NotifySourceChanged(nameof(HidePost), true);
         }
 
-        protected bool ResponseProcessing(OperationResult<ListResponse<Post>> response, int itemsLimit, out ErrorBase error, string sender, bool isNeedClearItems = false, bool enableEmptyMedia = false)
+        protected bool ResponseProcessing(OperationResult<ListResponse<Post>> response, int itemsLimit, out Exception error, string sender, bool isNeedClearItems = false, bool enableEmptyMedia = false)
         {
             error = null;
             if (response == null)
@@ -181,7 +181,7 @@ namespace Steepshot.Core.Presenters
             return true;
         }
 
-        public async Task<ErrorBase> TryVote(Post post)
+        public async Task<Exception> TryVote(Post post)
         {
             if (post == null || post.VoteChanging || post.FlagChanging)
                 return null;
@@ -199,7 +199,7 @@ namespace Steepshot.Core.Presenters
             return error;
         }
 
-        private async Task<ErrorBase> Vote(Post post, CancellationToken ct)
+        private async Task<Exception> Vote(Post post, CancellationToken ct)
         {
             var wasFlaged = post.Flag;
             var request = new VoteModel(AppSettings.User.UserInfo, post, post.Vote ? VoteType.Down : VoteType.Up);
@@ -216,11 +216,15 @@ namespace Steepshot.Core.Presenters
                     CashPresenterManager.Add(response.Result);
                 }
             }
-            else if (response.Error is BlockchainError
-                && (response.Error.Message.Contains(Constants.VotedInASimilarWaySteem) || response.Error.Message.Contains(Constants.VotedInASimilarWayGolos))) //TODO:KOA: unstable solution
+            else if (response.Error is RequestError requestError)
             {
-                response.Error = null;
-                ChangeLike(post, wasFlaged);
+                //TODO:KOA: bad solution...
+                if (requestError.RawResponse.Contains(Constants.VotedInASimilarWaySteem) ||
+                    requestError.RawResponse.Contains(Constants.VotedInASimilarWayGolos))
+                {
+                    response.Error = null;
+                    ChangeLike(post, wasFlaged);
+                }
             }
 
             return response.Error;
@@ -235,7 +239,7 @@ namespace Steepshot.Core.Presenters
                 post.NetFlags--;
         }
 
-        public async Task<ErrorBase> TryFlag(Post post)
+        public async Task<Exception> TryFlag(Post post)
         {
             if (post == null || post.VoteChanging || post.FlagChanging)
                 return null;
@@ -254,7 +258,7 @@ namespace Steepshot.Core.Presenters
             return error;
         }
 
-        private async Task<ErrorBase> Flag(Post post, CancellationToken ct)
+        private async Task<Exception> Flag(Post post, CancellationToken ct)
         {
             var wasVote = post.Vote;
             var request = new VoteModel(AppSettings.User.UserInfo, post, post.Flag ? VoteType.Down : VoteType.Flag);
@@ -271,11 +275,15 @@ namespace Steepshot.Core.Presenters
                     CashPresenterManager.Add(response.Result);
                 }
             }
-            else if (response.Error is BlockchainError
-                && (response.Error.Message.Contains(Constants.VotedInASimilarWaySteem) || response.Error.Message.Contains(Constants.VotedInASimilarWayGolos))) //TODO:KOA: unstable solution
+            else if (response.Error is RequestError requestError)
             {
-                response.Error = null;
-                ChangeFlag(post, wasVote);
+                //TODO:KOA: bad solution...
+                if (requestError.RawResponse.Contains(Constants.VotedInASimilarWaySteem) ||
+                    requestError.RawResponse.Contains(Constants.VotedInASimilarWayGolos))
+                {
+                    response.Error = null;
+                    ChangeFlag(post, wasVote);
+                }
             }
             return response.Error;
         }

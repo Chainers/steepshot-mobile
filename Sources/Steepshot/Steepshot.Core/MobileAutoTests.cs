@@ -5,7 +5,6 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Steepshot.Core.HttpClient;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Models.Requests;
@@ -13,6 +12,7 @@ using Steepshot.Core.Services;
 using Steepshot.Core.Utils;
 using Ditch.Core;
 using Steepshot.Core.Authorization;
+using Steepshot.Core.Clients;
 
 namespace Steepshot.Core
 {

@@ -1,7 +1,7 @@
 ﻿using Steepshot.Core.Localization;
 using Steepshot.Core.Utils;
 using System.Collections.Generic;
-using Steepshot.Core.HttpClient;
+using Steepshot.Core.Clients;
 
 namespace Steepshot.Core.Services
 {

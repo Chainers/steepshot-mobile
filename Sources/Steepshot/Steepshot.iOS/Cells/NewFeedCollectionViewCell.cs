@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using CoreGraphics;
-using FFImageLoading;
 using FFImageLoading.Work;
 using Foundation;
 using Steepshot.Core.Models.Common;
@@ -226,13 +225,13 @@ namespace Steepshot.iOS.Cells
             _like.AddGestureRecognizer(liketap);
 
             _sliderView = new SliderView(UIScreen.MainScreen.Bounds.Width);
-            _sliderView.LikeTap += () => 
+            _sliderView.LikeTap += () =>
             {
                 LikeTap();
             };
             BaseViewController.SliderAction += (isSliderOpening) =>
             {
-                if(_sliderView.Superview != null && !isSliderOpening)
+                if (_sliderView.Superview != null && !isSliderOpening)
                     _sliderView.Close();
             };
 
@@ -304,7 +303,7 @@ namespace Steepshot.iOS.Cells
             if (!string.IsNullOrEmpty(_currentPost.Avatar))
                 _scheduledWorkAvatar = ImageLoader.Load(_currentPost.Avatar,
                                                         _avatarImage,
-                                                        placeHolder:"ic_noavatar.png");
+                                                        placeHolder: "ic_noavatar.png");
             else
                 _avatarImage.Image = UIImage.FromBundle("ic_noavatar");
 
@@ -364,9 +363,9 @@ namespace Steepshot.iOS.Cells
                                                        priority: LoadingPriority.Low);
                 likesMargin = _firstLikerImage.Frame.Right + likesMarginConst;
             }
-            else if(_firstLikerImage != null)
+            else if (_firstLikerImage != null)
                 _firstLikerImage.Hidden = true;
-            
+
             if (_currentPost.TopLikersAvatars.Count() >= 2 && !string.IsNullOrEmpty(_currentPost.TopLikersAvatars[1]))
             {
                 _secondLikerImage?.RemoveFromSuperview();
@@ -382,10 +381,10 @@ namespace Steepshot.iOS.Cells
                                                         _secondLikerImage,
                                                         placeHolder: "ic_noavatar.png",
                                                         priority: LoadingPriority.Low);
-                
+
                 likesMargin = _secondLikerImage.Frame.Right + likesMarginConst;
             }
-            else if(_secondLikerImage != null)
+            else if (_secondLikerImage != null)
                 _secondLikerImage.Hidden = true;
 
             if (_currentPost.TopLikersAvatars.Count() >= 3 && !string.IsNullOrEmpty(_currentPost.TopLikersAvatars[2]))
@@ -434,7 +433,7 @@ namespace Steepshot.iOS.Cells
             _like.Frame = new CGRect(_contentView.Frame.Width - likeButtonWidthConst, _photoScroll.Frame.Bottom, likeButtonWidthConst, underPhotoPanelHeight);
 
             _sliderView.Frame = new CGRect(2, _photoScroll.Frame.Bottom - 5, UIScreen.MainScreen.Bounds.Width - 4, 70);
-           
+
             _like.Transform = CGAffineTransform.MakeScale(1f, 1f);
             if (_currentPost.VoteChanging)
                 Animate();
@@ -452,7 +451,7 @@ namespace Steepshot.iOS.Cells
             _verticalSeparator.Frame = new CGRect(_contentView.Frame.Width - likeButtonWidthConst - 1, _photoScroll.Frame.Bottom + underPhotoPanelHeight / 2 - verticalSeparatorHeight / 2, 1, verticalSeparatorHeight);
 
 #if DEBUG
-            _rewards.Text = BasePresenter.ToFormatedCurrencyString(_currentPost.TotalPayoutReward);
+            _rewards.Text = StringHelper.ToFormatedCurrencyString(_currentPost.TotalPayoutReward, AppDelegate.MainChain);
             var rewardWidth = _rewards.SizeThatFits(new CGSize(0, underPhotoPanelHeight));
             _rewards.Frame = new CGRect(_verticalSeparator.Frame.Left - rewardWidth.Width, _photoScroll.Frame.Bottom, rewardWidth.Width, underPhotoPanelHeight);
 #endif
@@ -480,7 +479,7 @@ namespace Steepshot.iOS.Cells
         {
             if (!BasePostPresenter.IsEnableVote)
                 return;
-            
+
             CellAction?.Invoke(ActionType.Like, _currentPost);
         }
 

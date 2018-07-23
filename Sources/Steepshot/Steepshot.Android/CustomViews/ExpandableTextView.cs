@@ -2,7 +2,6 @@
 using Android.Content;
 using Android.Runtime;
 using Android.Text;
-using Android.Text.Style;
 using Android.Util;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Utils;

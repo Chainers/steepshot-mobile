@@ -8,7 +8,6 @@ using Android.Views;
 using Android.Widget;
 using Com.OneSignal;
 using CheeseBind;
-using Steepshot.Adapter;
 using Steepshot.Base;
 using Steepshot.Core;
 using Steepshot.Core.Extensions;
@@ -23,10 +22,6 @@ using Steepshot.Core.Authorization;
 using System.Collections.Generic;
 using Android.Graphics;
 using Android.Support.Design.Widget;
-using Steepshot.CustomViews;
-using Refractored.Controls;
-using Square.Picasso;
-using Steepshot.Core.Errors;
 
 namespace Steepshot.Activity
 {
@@ -100,7 +95,7 @@ namespace Steepshot.Activity
             _viewTitle.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.AppSettingsTitle);
             _nsfwSwitchText.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.ShowNsfw);
             _lowSwitchText.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.ShowLowRated);
-            _versionText.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.AppVersion2, appInfoService.GetAppVersion(), appInfoService.GetBuildVersion());
+            _versionText.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.AppVersion, appInfoService.GetAppVersion(), appInfoService.GetBuildVersion());
             _guideButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Guidelines);
             _termsButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.ToS);
             _powerSwitchText.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.VotingPowerSetting);
@@ -212,7 +207,7 @@ namespace Steepshot.Activity
         public override void OnBackPressed()
         {
             if (_nsfwChanged || _lowRatedChanged)
-                BasePresenter.ProfileUpdateType = ProfileUpdateType.Full;
+                AppSettings.ProfileUpdateType = ProfileUpdateType.Full;
             base.OnBackPressed();
         }
 
@@ -267,7 +262,7 @@ namespace Steepshot.Activity
             var model = new PushNotificationsModel(AppSettings.User.UserInfo, true);
             model.Subscriptions = PushSettings.FlagToStringList();
 
-            var resp = await BasePresenter.TrySubscribeForPushes(model);
+            var resp = await Presenter.TrySubscribeForPushes(model);
             if (resp.IsSuccess)
                 AppSettings.User.PushSettings = PushSettings;
             else
@@ -361,7 +356,7 @@ namespace Steepshot.Activity
 
         private async void OnAccountAdd()
         {
-            await BasePresenter.SwitchChain(BasePresenter.Chain == KnownChains.Steem ? KnownChains.Golos : KnownChains.Steem);
+            App.MainChain = App.MainChain == KnownChains.Steem ? KnownChains.Golos : KnownChains.Steem;
             var intent = new Intent(this, typeof(PreSignInActivity));
             StartActivity(intent);
         }
@@ -374,9 +369,11 @@ namespace Steepshot.Activity
 
         private void SwitchChain(UserInfo user)
         {
-            if (BasePresenter.Chain != user.Chain)
+            if (App.MainChain != user.Chain)
             {
-                BasePresenter.SwitchChain(user);
+                App.MainChain = user.Chain;
+                AppSettings.User.SwitchUser(user);
+
                 var i = new Intent(ApplicationContext, typeof(RootActivity));
                 i.AddFlags(ActivityFlags.NewTask | ActivityFlags.ClearTask);
                 StartActivity(i);
@@ -395,9 +392,12 @@ namespace Steepshot.Activity
             }
             else
             {
-                if (BasePresenter.Chain == chain)
+                if (App.MainChain == chain)
                 {
-                    BasePresenter.SwitchChain(accounts.First());
+                    var user = accounts.First();
+                    App.MainChain = user.Chain;
+                    AppSettings.User.SwitchUser(user);
+
                     var i = new Intent(ApplicationContext, typeof(RootActivity));
                     i.AddFlags(ActivityFlags.NewTask | ActivityFlags.ClearTask);
                     StartActivity(i);

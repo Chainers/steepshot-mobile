@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.Utils
 {
@@ -67,9 +68,9 @@ namespace Steepshot.Utils
                 _progressAction?.Invoke((int)(_totalReaded * 100 / Length));
                 return l;
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
-                var t = ex;
+                AppSettings.Logger.Warning(ex);
             }
             return 0;
         }

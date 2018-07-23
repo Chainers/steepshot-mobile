@@ -38,7 +38,7 @@ namespace Steepshot.Activity
             Cheeseknife.Bind(this);
 #if DEBUG
             var di = AppSettings.AssetHelper.GetDebugInfo();
-            _username.Text = BasePresenter.Chain == KnownChains.Golos
+            _username.Text = AppSettings.User.Chain == KnownChains.Golos
                 ? di.GolosTestLogin
                 : di.SteemTestLogin;
 #endif
@@ -63,12 +63,12 @@ namespace Steepshot.Activity
             Cheeseknife.Reset(this);
         }
 
-        public override async void OnBackPressed()
+        public override void OnBackPressed()
         {
             base.OnBackPressed();
             var currentUser = AppSettings.User.GetAllAccounts().FirstOrDefault();
             if (currentUser != null)
-                await BasePresenter.SwitchChain(currentUser.Chain);
+                App.MainChain = currentUser.Chain;
         }
 
         private void GoBack(object sender, EventArgs e)

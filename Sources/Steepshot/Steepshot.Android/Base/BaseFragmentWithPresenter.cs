@@ -1,4 +1,5 @@
-﻿using Steepshot.Core.Presenters;
+﻿using Steepshot.Core;
+using Steepshot.Core.Presenters;
 
 namespace Steepshot.Base
 {
@@ -17,6 +18,15 @@ namespace Steepshot.Base
         private void CreatePresenter()
         {
             Presenter = new T();
+            switch (App.MainChain)
+            {
+                case KnownChains.Golos:
+                    Presenter.SetClient(App.GolosClient);
+                    break;
+                case KnownChains.Steem:
+                    Presenter.SetClient(App.SteemClient);
+                    break;
+            }
         }
 
         public override void OnDetach()

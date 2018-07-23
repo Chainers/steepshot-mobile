@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
+using Steepshot.Base;
 using Steepshot.Core.Authorization;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Presenters;
@@ -67,7 +68,7 @@ namespace Steepshot.Adapter
         {
             _userInfo = userInfo;
             _cellText.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Account, userInfo.Chain);
-            _checkImage.SetImageResource(BasePresenter.Chain == userInfo.Chain ? Resource.Drawable.ic_checked : Resource.Drawable.ic_unchecked);
+            _checkImage.SetImageResource(App.MainChain == userInfo.Chain ? Resource.Drawable.ic_checked : Resource.Drawable.ic_unchecked);
         }
 
         private void OnCellLayoutOnClick(object sender, EventArgs e)

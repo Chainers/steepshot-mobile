@@ -10,7 +10,6 @@ using Newtonsoft.Json;
 using Steepshot.Base;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Responses;
-using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 using Steepshot.Utils;
 
@@ -56,7 +55,7 @@ namespace Steepshot.Activity
             var isvalid = KeyHelper.ValidatePrivateKey(pass, AccountInfoResponse.PublicPostingKeys);
             if (isvalid)
             {
-                AppSettings.User.AddAndSwitchUser(login, pass, AccountInfoResponse, BasePresenter.Chain);
+                AppSettings.User.AddAndSwitchUser(login, pass, AccountInfoResponse);
                 var intent = new Intent(this, typeof(RootActivity));
                 intent.AddFlags(ActivityFlags.NewTask | ActivityFlags.ClearTask);
                 StartActivity(intent);

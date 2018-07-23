@@ -97,7 +97,9 @@ namespace Steepshot.iOS.Views
 
         private void SwitchEnvironment(object sender, EventArgs e)
         {
-            BasePresenter.SwitchChain(((UISwitch)sender).On);
+            var isDev = ((UISwitch) sender).On;
+            AppDelegate.SteemClient.SetDev(isDev);
+            AppDelegate.GolosClient.SetDev(isDev);
         }
 
         private void ToggleDevSwitchVisibility()
