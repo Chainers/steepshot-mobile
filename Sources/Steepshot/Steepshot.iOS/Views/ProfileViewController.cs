@@ -25,7 +25,7 @@ namespace Steepshot.iOS.Views
     public partial class ProfileViewController : BasePostController<UserProfilePresenter>, IPageCloser //BaseViewControllerWithPresenter<UserProfilePresenter>
     {
         private UserProfileResponse _userData;
-        private ProfileCollectionViewSource _collectionViewSource;
+        private FeedCollectionViewSource _collectionViewSource;
         private UIRefreshControl _refreshControl;
         private bool _isPostsLoading;
         private CollectionViewFlowDelegate _gridDelegate;
@@ -39,7 +39,6 @@ namespace Steepshot.iOS.Views
         private bool UserIsWatched => AppSettings.User.WatchedUsers.Contains(Username);
 
         public string Username = AppSettings.User.Login;
-
 
         protected override void CreatePresenter()
         {
@@ -63,7 +62,7 @@ namespace Steepshot.iOS.Views
                 MinimumInteritemSpacing = 0,
             }, false);
 
-            _gridDelegate = new CollectionViewFlowDelegate(collectionView, _presenter);
+            _gridDelegate = new ProfileCollectionViewFlowDelegate(collectionView, _presenter);
             _gridDelegate.IsGrid = false;
             _gridDelegate.IsProfile = true;
             _gridDelegate.ScrolledToBottom += ScrolledToBottom;
@@ -478,7 +477,6 @@ namespace Steepshot.iOS.Views
             sliderCollection.Hidden = false;
             _sliderGridDelegate.GenerateVariables();
             sliderCollection.ReloadData();
-            var test = NSIndexPath.FromRowSection(_presenter.IndexOf(post), 0);
             sliderCollection.ScrollToItem(NSIndexPath.FromRowSection(_presenter.IndexOf(post), 0), UICollectionViewScrollPosition.CenteredHorizontally, false);
         }
 

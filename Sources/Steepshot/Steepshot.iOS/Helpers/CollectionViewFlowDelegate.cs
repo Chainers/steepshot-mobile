@@ -17,6 +17,7 @@ namespace Steepshot.iOS.Helpers
 {
     public class CollectionViewFlowDelegate : UICollectionViewDelegateFlowLayout
     {
+        protected virtual int VariablesCount => Variables.Count;
         private nfloat profileHeight;
         private int prevPos;
 
@@ -54,7 +55,7 @@ namespace Steepshot.iOS.Helpers
                 //TopCurrentPosition = _collection.IndexPathsForVisibleItems.Min();
                 if (pos > prevPos)
                 {
-                    if (pos == _presenter.Count - 1)
+                    if (pos == (IsProfile ? _presenter.Count : _presenter.Count - 1))
                     {
                         prevPos = pos;
                         ScrolledToBottom?.Invoke();
@@ -93,7 +94,7 @@ namespace Steepshot.iOS.Helpers
 
         public override CGSize GetSizeForItem(UICollectionView collectionView, UICollectionViewLayout layout, NSIndexPath indexPath)
         {
-            if (Variables.Count > indexPath.Item)
+            if (VariablesCount > indexPath.Item)
             {
                 if (IsProfile && indexPath.Row == 0)
                     return new CGSize(UIScreen.MainScreen.Bounds.Width, profileHeight);
@@ -106,6 +107,15 @@ namespace Steepshot.iOS.Helpers
             //loader height
             return new CGSize(UIScreen.MainScreen.Bounds.Width, 80);
         }
+    }
+
+    public class ProfileCollectionViewFlowDelegate : CollectionViewFlowDelegate
+    {
+        public ProfileCollectionViewFlowDelegate(UICollectionView collection, BasePostPresenter presenter = null) : base(collection, presenter)
+        {
+        }
+
+        protected override int VariablesCount => Variables.Count + 1;
     }
 
     public class SliderCollectionViewFlowDelegate : CollectionViewFlowDelegate

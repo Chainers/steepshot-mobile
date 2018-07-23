@@ -23,7 +23,7 @@ namespace Steepshot.iOS.Views
     {
         public string CurrentPostCategory;
 
-        private ProfileCollectionViewSource _collectionViewSource;
+        private FeedCollectionViewSource _collectionViewSource;
         private CollectionViewFlowDelegate _gridDelegate;
         private SliderCollectionViewFlowDelegate _sliderGridDelegate;
 
@@ -42,7 +42,7 @@ namespace Steepshot.iOS.Views
             _gridDelegate.ScrolledToBottom += ScrolledToBottom;
             _gridDelegate.CellClicked += CellAction;
 
-            _collectionViewSource = new ProfileCollectionViewSource(_presenter, _gridDelegate);
+            _collectionViewSource = new FeedCollectionViewSource(_presenter, _gridDelegate);
             _collectionViewSource.IsGrid = true;
             collectionView.Source = _collectionViewSource;
             collectionView.RegisterClassForCell(typeof(LoaderCollectionCell), nameof(LoaderCollectionCell));

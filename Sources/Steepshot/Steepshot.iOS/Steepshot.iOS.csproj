@@ -284,7 +284,7 @@
     <Compile Include="Cells\TagCollectionViewCell.designer.cs">
       <DependentUpon>TagCollectionViewCell.cs</DependentUpon>
     </Compile>
-    <Compile Include="ViewSources\ProfileCollectionViewSource.cs" />
+    <Compile Include="ViewSources\FeedCollectionViewSource.cs" />
     <Compile Include="Cells\FollowViewCell.cs" />
     <Compile Include="Cells\FollowViewCell.designer.cs">
       <DependentUpon>FollowViewCell.cs</DependentUpon>

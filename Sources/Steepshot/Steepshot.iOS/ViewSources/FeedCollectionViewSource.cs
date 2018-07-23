@@ -12,7 +12,20 @@ using UIKit;
 
 namespace Steepshot.iOS.ViewSources
 {
-    public class ProfileCollectionViewSource : UICollectionViewSource
+    public class ProfileCollectionViewSource : FeedCollectionViewSource
+    {
+        public ProfileCollectionViewSource(BasePostPresenter presenter, CollectionViewFlowDelegate flowDelegate) : base(presenter, flowDelegate)
+        {
+        }
+
+        public override nint GetItemsCount(UICollectionView collectionView, nint section)
+        {
+            var count = _presenter.Count + 1;
+            return count == 1 || _presenter.IsLastReaded ? count : count + 1;
+        }
+    }
+
+    public class FeedCollectionViewSource : UICollectionViewSource
     {
         public bool IsGrid = false;
         public event Action<ActionType, Post> CellAction;
@@ -20,10 +33,10 @@ namespace Steepshot.iOS.ViewSources
         public event Action<string> TagAction;
         public UserProfileResponse user;
 
-        private readonly BasePostPresenter _presenter;
+        protected readonly BasePostPresenter _presenter;
         private CollectionViewFlowDelegate _flowDelegate;
 
-        public ProfileCollectionViewSource(BasePostPresenter presenter, CollectionViewFlowDelegate flowDelegate)
+        public FeedCollectionViewSource(BasePostPresenter presenter, CollectionViewFlowDelegate flowDelegate)
         {
             _presenter = presenter;
             _presenter.SourceChanged += SourceChanged;
@@ -38,7 +51,7 @@ namespace Steepshot.iOS.ViewSources
 
         public override UICollectionViewCell GetCell(UICollectionView collectionView, NSIndexPath indexPath)
         {
-            if (_presenter.Count == indexPath.Row && !_presenter.IsLastReaded)
+            if (_presenter.Count == (_flowDelegate.IsProfile ? (int)indexPath.Item - 1 : (int)indexPath.Item) && !_presenter.IsLastReaded)
             {
                 var loader = (LoaderCollectionCell)collectionView.DequeueReusableCell(nameof(LoaderCollectionCell), indexPath);
                 loader.SetLoader();

@@ -19,7 +19,7 @@ namespace Steepshot.iOS.Views
 {
     public partial class FeedViewController : BasePostController<FeedPresenter>, IPageCloser
     {
-        private ProfileCollectionViewSource _collectionViewSource;
+        private FeedCollectionViewSource _collectionViewSource;
         private CollectionViewFlowDelegate _gridDelegate;
         private UINavigationController _navController;
         private UIRefreshControl _refreshControl;
@@ -59,7 +59,7 @@ namespace Steepshot.iOS.Views
             _gridDelegate = new CollectionViewFlowDelegate(feedCollection, _presenter);
             _gridDelegate.ScrolledToBottom += ScrolledToBottom;
             _gridDelegate.IsGrid = false;
-            _collectionViewSource = new ProfileCollectionViewSource(_presenter, _gridDelegate);
+            _collectionViewSource = new FeedCollectionViewSource(_presenter, _gridDelegate);
             _collectionViewSource.IsGrid = false;
             _collectionViewSource.CellAction += CellAction;
             _collectionViewSource.TagAction += TagAction;
