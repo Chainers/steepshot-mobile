@@ -90,10 +90,7 @@ namespace Steepshot.Core.Localization
 
                         foreach (var name in names)
                         {
-                            value = value
-                                .Replace("\\\"", "\"")
-                                .Replace("\\\n", "\n")
-                                .Replace("\\\n", "\n");
+                            value = value.Replace("\\\"", "\"");
                             if (model.Map.ContainsKey(name))
                                 model.Map[name] = value;
                             else

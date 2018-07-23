@@ -38,7 +38,7 @@ namespace Steepshot.Core.Tests.Localization
         [Test]
         public void LocalizationKeysTest()
         {
-            Assert.IsTrue(LocalizationManager.Model.Version == 15);
+            Assert.AreEqual(LocalizationManager.Model.Version, 15);
 
             var str = string.Empty;
             var keys = Enum.GetNames(typeof(LocalizationKeys));
@@ -46,7 +46,7 @@ namespace Steepshot.Core.Tests.Localization
             foreach (var key in keys)
             {
                 if (string.IsNullOrEmpty(LocalizationManager.GetText(key)))
-                    str += " {key}";
+                    str += $" {key}";
             }
 
             Assert.IsTrue(string.IsNullOrEmpty(str), str);
