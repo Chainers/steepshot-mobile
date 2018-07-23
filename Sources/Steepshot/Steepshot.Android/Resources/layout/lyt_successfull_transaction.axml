@@ -25,7 +25,7 @@
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:layout_marginBottom="10dp"
-        android:background="@drawable/grey_rounded_border10dip"
+        android:background="@drawable/grey_radius10dip"
         android:gravity="center_vertical">
         <TextView
             android:id="@+id/recipient"
@@ -50,7 +50,7 @@
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:layout_marginBottom="10dp"
-        android:background="@drawable/grey_rounded_border10dip"
+        android:background="@drawable/grey_radius10dip"
         android:gravity="center_vertical">
         <TextView
             android:id="@+id/amount"
@@ -71,31 +71,6 @@
             android:layout_alignParentRight="true"
             android:gravity="right" />
     </RelativeLayout>
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_marginBottom="10dp"
-        android:background="@drawable/grey_rounded_border10dip"
-        android:gravity="center_vertical">
-        <TextView
-            android:id="@+id/time"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
-            android:textSize="14sp"
-            android:textColor="@color/black"
-            android:layout_alignParentLeft="true"
-            android:gravity="left" />
-        <TextView
-            android:id="@+id/time_value"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginRight="20dp"
-            android:textSize="14sp"
-            android:textColor="@color/black"
-            android:layout_alignParentRight="true"
-            android:gravity="right" />
-    </RelativeLayout>
     <View
         android:layout_width="match_parent"
         android:layout_height="2px"
@@ -110,7 +85,7 @@
         android:layout_height="50dp"
         android:textAllCaps="false"
         android:gravity="center"
-        android:background="@drawable/white_rounded_border"
+        android:background="@drawable/white_btn_style_edge_grey"
         android:layout_marginTop="10dp"
         android:layout_marginBottom="10dp"
         android:elevation="0dp" />

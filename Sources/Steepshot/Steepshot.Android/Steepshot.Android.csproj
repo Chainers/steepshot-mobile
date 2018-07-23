@@ -207,7 +207,7 @@
     <AndroidResource Include="Resources\drawable-xhdpi\ic_edit.png" />
     <AndroidResource Include="Resources\drawable-xxhdpi\ic_edit.png" />
     <AndroidResource Include="Resources\layout\lyt_local_tags_item.axml" />
-    <AndroidResource Include="Resources\drawable\white_rounded_border.xml" />
+    <AndroidResource Include="Resources\drawable\white_btn_style_edge_grey.xml" />
     <AndroidResource Include="Resources\drawable-mdpi\ic_close_black.png" />
     <AndroidResource Include="Resources\drawable-xhdpi\ic_close_black.png" />
     <AndroidResource Include="Resources\drawable-xxhdpi\ic_close_black.png" />
@@ -218,7 +218,7 @@
     <AndroidResource Include="Resources\drawable-mdpi\ic_more.png" />
     <AndroidResource Include="Resources\drawable-xhdpi\ic_more.png" />
     <AndroidResource Include="Resources\drawable-xxhdpi\ic_more.png" />
-    <AndroidResource Include="Resources\drawable\blue_circle_border.xml" />
+    <AndroidResource Include="Resources\drawable\blue_btn_style.xml" />
     <AndroidResource Include="Resources\drawable-mdpi\ic_new_like_filled.png" />
     <AndroidResource Include="Resources\drawable-xhdpi\ic_new_like_filled.png" />
     <AndroidResource Include="Resources\drawable-xxhdpi\ic_new_like_filled.png" />
@@ -664,8 +664,7 @@
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\drawable\settings_separator.xml" />
-    <AndroidResource Include="Resources\drawable\first_post_button.xml" />
-    <AndroidResource Include="Resources\drawable\steem_login_border.xml" />
+    <AndroidResource Include="Resources\drawable\orange_btn_style.xml" />
     <AndroidResource Include="Resources\drawable\welcome_screen_background.xml" />
     <AndroidResource Include="Resources\drawable\popup_background.xml" />
   </ItemGroup>
@@ -965,6 +964,15 @@
     <AndroidResource Include="Resources\layout\lyt_trx_history.axml">
       <SubType>Designer</SubType>
     </AndroidResource>
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable\grey_radius10dip.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable\white_radius100dip_edge_grey.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable\white_btn_style_edge_black.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <Import Project="..\packages\Xamarin.Build.Download.0.4.2\build\Xamarin.Build.Download.targets" Condition="Exists('..\packages\Xamarin.Build.Download.0.4.2\build\Xamarin.Build.Download.targets')" />

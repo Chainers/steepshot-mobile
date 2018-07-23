@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using Android.Content;
 using Android.Graphics;
 using Android.Support.Design.Widget;
@@ -17,14 +18,17 @@ namespace Steepshot.CustomViews
     public class CoinPickDialog : BottomSheetDialog
     {
         public Action<CurrencyType> CoinSelected;
-        private readonly IList _coins;
+        private readonly IList _displayCoins;
+        private readonly List<CurrencyType> _coins;
         private WheelPicker _wheelPicker;
         private int _selectedPosition;
 
         private CoinPickDialog(Context context) : base(context) { }
 
-        public CoinPickDialog(Context context, IList data) : this(context)
+        public CoinPickDialog(Context context, List<CurrencyType> data) : this(context)
         {
+            _displayCoins = new List<string>();
+            data.ForEach(x => _displayCoins.Add(x.ToString().ToUpper()));
             _coins = data;
         }
 
@@ -52,7 +56,7 @@ namespace Steepshot.CustomViews
                 _wheelPicker.ItemTextColor = Color.Black;
                 _wheelPicker.ItemTextSize = (int)TypedValue.ApplyDimension(ComplexUnitType.Sp, 27, Context.Resources.DisplayMetrics);
                 _wheelPicker.ItemSpace = (int)TypedValue.ApplyDimension(ComplexUnitType.Dip, 20, Context.Resources.DisplayMetrics);
-                _wheelPicker.Data = _coins;
+                _wheelPicker.Data = _displayCoins;
                 _wheelPicker.SelectedItemPosition = _selectedPosition;
                 _wheelPicker.ItemSelected += WheelPickerOnItemSelected;
 
@@ -89,7 +93,7 @@ namespace Steepshot.CustomViews
 
         private void SelectBtnOnClick(object sender, EventArgs e)
         {
-            CoinSelected?.Invoke((CurrencyType)_coins[_selectedPosition]);
+            CoinSelected?.Invoke(_coins[_selectedPosition]);
             CancelBtnOnClick(null, null);
         }
     }

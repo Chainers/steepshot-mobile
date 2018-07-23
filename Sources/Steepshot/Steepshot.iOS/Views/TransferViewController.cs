@@ -29,7 +29,7 @@ namespace Steepshot.iOS.Views
         private UILabel _pickerLabel = new UILabel();
         private SearchTextField _recepientTextField;
         private SearchTextField _amountTextField;
-        private readonly TransferFacade _transferFacade = new TransferFacade();
+        private TransferFacade _transferFacade;
         private Timer _timer;
         private List<CurrencyType> _coins;
         private CurrencyType _pickedCoin;
@@ -48,6 +48,10 @@ namespace Steepshot.iOS.Views
         {
             base.ViewDidLoad();
 
+
+            var client = AppDelegate.MainChain == KnownChains.Steem ? AppDelegate.SteemClient : AppDelegate.GolosClient;
+            _transferFacade = new TransferFacade();
+            _transferFacade.SetClient(client);
             //_transferFacade.OnRecipientChanged += OnRecipientChanged;
             _transferFacade.OnUserBalanceChanged += OnUserBalanceChanged;
             _transferFacade.UserFriendPresenter.SourceChanged += PresenterOnSourceChanged;

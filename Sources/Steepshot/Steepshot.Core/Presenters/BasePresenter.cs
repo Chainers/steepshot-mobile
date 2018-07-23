@@ -12,14 +12,10 @@ namespace Steepshot.Core.Presenters
 {
     public abstract class BasePresenter
     {
-        //private static readonly object CtsSync = new object();
-        //private static CancellationTokenSource _reconecTokenSource;
-
-
         public SteepshotApiClient Api;
 
         protected CancellationTokenSource OnDisposeCts;
-        
+
 
         public void SetClient(SteepshotApiClient steepshotApiClient)
         {

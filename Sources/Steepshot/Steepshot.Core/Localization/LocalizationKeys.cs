@@ -185,7 +185,7 @@
         SwitchTo,
         Recipient,
         Amount,
-        Time,
-        Wallet
+        Wallet,
+        SendTokens
     }
 }

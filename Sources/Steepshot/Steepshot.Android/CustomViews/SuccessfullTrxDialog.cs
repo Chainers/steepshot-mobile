@@ -16,14 +16,14 @@ namespace Steepshot.CustomViews
     {
         private readonly string _recipient;
         private readonly string _amount;
-        private readonly DateTime _time;
 
-        public SuccessfullTrxDialog(Context context, string recipient, string amount, DateTime time) : this(context)
+
+        public SuccessfullTrxDialog(Context context, string recipient, string amount) : this(context)
         {
             _recipient = recipient;
             _amount = amount;
-            _time = time;
         }
+
 
         private SuccessfullTrxDialog(Context context) : base(context)
         {
@@ -54,14 +54,6 @@ namespace Steepshot.CustomViews
                 var amountValue = dialogView.FindViewById<TextView>(Resource.Id.amount_value);
                 amountValue.Typeface = Style.Semibold;
                 amountValue.Text = _amount;
-
-                var time = dialogView.FindViewById<TextView>(Resource.Id.time);
-                time.Typeface = Style.Semibold;
-                time.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Time);
-
-                var timeValue = dialogView.FindViewById<TextView>(Resource.Id.time_value);
-                timeValue.Typeface = Style.Semibold;
-                timeValue.Text = _time.ToString("hh:mm tt", CultureInfo.GetCultureInfo("en-US"));
 
                 var closeBtn = dialogView.FindViewById<Button>(Resource.Id.close);
                 closeBtn.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Close);

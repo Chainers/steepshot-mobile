@@ -36,15 +36,14 @@
         <Button
             android:id="@+id/follow_button"
             android:layout_width="105dp"
-            android:layout_height="40dp"
+            android:layout_height="30dp"
             android:background="@drawable/follow_button_corners"
             android:textSize="14sp"
             android:textColor="@android:color/white"
             android:text="Follow"
             android:layout_marginLeft="3dp"
             android:layout_marginRight="3dp"
-            android:layout_centerInParent="true"
-            android:textAllCaps="false" />
+            android:layout_centerInParent="true" />
     </RelativeLayout>
     <RelativeLayout
         android:id="@+id/text_container"

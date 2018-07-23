@@ -39,6 +39,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <None Include="Data\dicOld.xml">
+      <SubType>Designer</SubType>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <Compile Include="HttpClient\BaseDitchClientTests.cs" />
     <Compile Include="HttpClient\ApiGatewayTest.cs" />
     <Compile Include="AssetTest.cs" />
@@ -78,12 +82,10 @@
       <Link>IntegrationModuleConfig.txt</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <Content Include="Data\cat.jpg" />
     <None Include="..\Steepshot.Android\Assets\Localization.en-us.txt">
-      <Link>Localization.en-us.txt</Link>
+      <Link>Data\Localization.en-us.txt</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <Content Include="Data\cat.jpg" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Steepshot.Core\Steepshot.Core.csproj">
@@ -242,6 +244,9 @@
   </ItemGroup>
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Data\cat.jpg" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\NETStandard.Library.2.0.1\build\netstandard2.0\NETStandard.Library.targets" Condition="Exists('..\packages\NETStandard.Library.2.0.1\build\netstandard2.0\NETStandard.Library.targets')" />

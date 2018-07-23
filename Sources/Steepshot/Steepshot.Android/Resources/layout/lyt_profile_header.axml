@@ -18,12 +18,12 @@
             customAttrs:votingPowerWidth="3dp">
             <refractored.controls.CircleImageView
                 android:id="@+id/profile_image"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
                 android:src="@drawable/ic_holder" />
             <TextView
                 android:id="@+id/voting_power_message"
-                android:layout_width="100dp"
+                android:layout_width="80dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:gravity="center"
@@ -31,54 +31,72 @@
                 android:textSize="12sp"
                 android:visibility="invisible" />
         </Steepshot.CustomViews.VotingPowerFrame>
+        <LinearLayout
+            android:id="@+id/name_place"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="15dp"
+            android:layout_toRightOf="@id/voting_power">
+            <TextView
+                android:id="@+id/profile_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Your Name"
+                android:textSize="20sp"
+                android:textColor="@color/rgb151_155_158" />
+            <TextView
+                android:id="@+id/place"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="12sp"
+                android:textColor="@color/rgb151_155_158"
+                android:layout_marginTop="1dp" />
+        </LinearLayout>
         <RelativeLayout
-            android:id="@+id/follow_container"
-            android:layout_width="108dp"
-            android:layout_height="43dp"
-            android:layout_centerVertical="true"
-            android:layout_alignParentRight="true"
-            android:layout_marginRight="29dp">
-            <ProgressBar
-                android:id="@+id/loading_spinner"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:indeterminateTintMode="src_atop"
-                android:indeterminateTint="@android:color/white"
-                android:layout_centerInParent="true"
-                android:elevation="10dp"
-                android:visibility="gone" />
+            android:id="@+id/actions"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="7dp"
+            android:layout_below="@id/name_place"
+            android:layout_alignLeft="@id/name_place">
+            <RelativeLayout
+                android:id="@+id/follow_container"
+                android:layout_width="wrap_content"
+                android:layout_height="30dp"
+                android:layout_marginBottom="7dp">
+                <ProgressBar
+                    android:id="@+id/loading_spinner"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:indeterminateTintMode="src_atop"
+                    android:indeterminateTint="@android:color/white"
+                    android:layout_centerInParent="true"
+                    android:elevation="10dp"
+                    android:visibility="gone" />
+                <Button
+                    android:id="@+id/follow_button"
+                    android:layout_width="150dp"
+                    android:layout_height="match_parent"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
+                    android:background="@drawable/white_btn_style_edge_grey"
+                    android:textSize="14sp"
+                    android:textColor="@android:color/white"
+                    android:text="Follow" />
+            </RelativeLayout>
             <Button
-                android:id="@+id/follow_button"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@drawable/follow_button_corners"
+                android:id="@+id/transfer_button"
+                android:layout_width="150dp"
+                android:layout_height="30dp"
+                android:layout_below="@id/follow_container"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:background="@drawable/orange_btn_style"
                 android:textSize="14sp"
-                android:textColor="@android:color/white"
-                android:layout_margin="3dp"
-                android:text="Follow"
-                android:textAllCaps="false" />
+                android:textColor="@android:color/white" />
         </RelativeLayout>
     </RelativeLayout>
-    <TextView
-        android:id="@+id/profile_name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Your Name"
-        android:textSize="20sp"
-        android:textColor="@color/rgb151_155_158"
-        android:layout_below="@+id/top_profile_layout"
-        android:layout_alignLeft="@+id/top_profile_layout"
-        android:layout_marginTop="9dp" />
-    <TextView
-        android:id="@+id/place"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Location"
-        android:textSize="12sp"
-        android:textColor="@color/rgb151_155_158"
-        android:layout_below="@+id/profile_name"
-        android:layout_alignLeft="@+id/profile_name"
-        android:layout_marginTop="1dp" />
     <TextView
         android:id="@+id/description"
         android:layout_width="wrap_content"
@@ -86,9 +104,9 @@
         android:text="About you..."
         android:textSize="14sp"
         android:textColor="@color/rgb151_155_158"
-        android:layout_below="@+id/place"
-        android:layout_alignLeft="@+id/place"
-        android:layout_marginTop="11dp"
+        android:layout_below="@id/top_profile_layout"
+        android:layout_alignLeft="@id/top_profile_layout"
+        android:layout_marginTop="25dp"
         android:layout_marginRight="29dp" />
     <Steepshot.CustomViews.AutoLinkTextView
         android:id="@+id/site"
@@ -97,8 +115,8 @@
         android:text="your website"
         android:textSize="14sp"
         android:textColor="@color/rgb151_155_158"
-        android:layout_below="@+id/description"
-        android:layout_alignLeft="@+id/description"
+        android:layout_below="@id/description"
+        android:layout_alignLeft="@id/description"
         android:layout_marginTop="5dp"
         android:layout_marginRight="29dp"
         customAttrs:urlColor="@color/rgb231_72_0"
@@ -108,10 +126,10 @@
         android:id="@+id/photos_btn"
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
+        android:layout_marginTop="10dp"
         android:orientation="vertical"
-        android:layout_below="@+id/site"
-        android:layout_alignLeft="@+id/site"
-        android:layout_marginTop="19dp">
+        android:layout_below="@id/site"
+        android:layout_alignLeft="@id/site">
         <TextView
             android:id="@+id/photos_count"
             android:layout_width="wrap_content"
@@ -134,10 +152,10 @@
         android:id="@+id/following_btn"
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
+        android:layout_marginTop="10dp"
         android:orientation="vertical"
-        android:layout_below="@+id/site"
-        android:layout_toRightOf="@+id/photos_btn"
-        android:layout_marginTop="19dp"
+        android:layout_below="@id/site"
+        android:layout_toRightOf="@id/photos_btn"
         android:layout_marginLeft="50dp"
         android:clickable="true"
         android:background="?android:attr/selectableItemBackground">
@@ -163,10 +181,10 @@
         android:id="@+id/followers_btn"
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
+        android:layout_marginTop="10dp"
         android:orientation="vertical"
-        android:layout_below="@+id/site"
-        android:layout_toRightOf="@+id/following_btn"
-        android:layout_marginTop="19dp"
+        android:layout_below="@id/site"
+        android:layout_toRightOf="@id/following_btn"
         android:layout_marginLeft="50dp"
         android:clickable="true"
         android:background="?android:attr/selectableItemBackground">
@@ -192,9 +210,9 @@
         android:id="@+id/balance_container"
         android:layout_width="wrap_content"
         android:layout_height="49dp"
-        android:layout_marginTop="25dp"
+        android:layout_marginTop="10dp"
         android:layout_marginBottom="2dp"
-        android:layout_below="@+id/photos_btn"
+        android:layout_below="@id/photos_btn"
         android:clickable="true"
         android:background="?android:attr/selectableItemBackground">
         <View

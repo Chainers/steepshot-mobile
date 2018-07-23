@@ -41,7 +41,7 @@ namespace Steepshot.Activity
 
             if (string.IsNullOrEmpty(pass))
             {
-                this.ShowAlert(LocalizationKeys.EmptyPostingKey, ToastLength.Short);
+                this.ShowAlert(LocalizationKeys.EmptyActiveKey, ToastLength.Short);
                 return;
             }
 

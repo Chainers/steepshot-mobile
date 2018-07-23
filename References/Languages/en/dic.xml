@@ -1,4 +1,4 @@
-<!-- <?xml version="1.0" encoding="UTF-8"?> -->
+<?xml version="1.0" encoding="utf-8"?>
 <resources version="15">
     <string obsolete="true" name="[&quot;ResponseContentContainsHtml&quot;]">Response content contains HTML: </string>
     <string obsolete="true" name="[&quot;UnexpectedUrlFormat&quot;]">Unexpected url format: </string>

@@ -24,7 +24,7 @@ using Steepshot.Core.Localization;
 using Steepshot.Core.Models;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
-using Steepshot.Core.Presenters;
+using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Utils;
 using Steepshot.CustomViews;
 using Steepshot.Utils;
@@ -32,7 +32,7 @@ using ViewUtils = Steepshot.Utils.ViewUtils;
 
 namespace Steepshot.Fragment
 {
-    public class TransferFragment : BaseFragmentWithPresenter<TransferPresenter>
+    public class TransferFragment : BaseFragment
     {
         private enum FragmentState
         {
@@ -78,8 +78,7 @@ namespace Steepshot.Fragment
         private string _prevQuery = string.Empty;
 
         private RecipientsAdapter _recipientsAdapter;
-        private RecipientsAdapter RecipientsAdapter =>
-            _recipientsAdapter ?? (_recipientsAdapter = new RecipientsAdapter(Activity, _transferFacade.UserFriendPresenter));
+        private RecipientsAdapter RecipientsAdapter => _recipientsAdapter ?? (_recipientsAdapter = new RecipientsAdapter(Activity, _transferFacade.UserFriendPresenter));
 
         private FragmentState _state;
         private FragmentState State
@@ -117,9 +116,20 @@ namespace Steepshot.Fragment
 
         public TransferFragment()
         {
+            var client = App.MainChain == KnownChains.Steem ? App.SteemClient : App.GolosClient;
             _transferFacade = new TransferFacade();
+            _transferFacade.SetClient(client);
             _transferFacade.OnRecipientChanged += OnRecipientChanged;
             _transferFacade.OnUserBalanceChanged += OnUserBalanceChanged;
+        }
+
+        public TransferFragment(UserProfileResponse user) : this()
+        {
+            _transferFacade.Recipient = new UserFriend()
+            {
+                Author = user.Username,
+                Avatar = user.ProfileImage
+            };
         }
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -133,7 +143,7 @@ namespace Steepshot.Fragment
             return InflatedView;
         }
 
-        public override void OnViewCreated(View view, Bundle savedInstanceState)
+        public async override void OnViewCreated(View view, Bundle savedInstanceState)
         {
             if (IsInitialized)
                 return;
@@ -174,6 +184,7 @@ namespace Steepshot.Fragment
             _emptyQueryLabel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.EmptyQuery);
             _transferBtn.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Transfer);
 
+            _recipientSearch.SetFilters(new IInputFilter[] { new TextInputFilter(TextInputFilter.TagFilter) });
             _commentShape = new GradientDrawable();
             _commentShape.SetCornerRadius(BitmapUtils.DpToPixel(20, Resources));
             _commentShape.SetColor(Style.R244G244B246);
@@ -184,7 +195,7 @@ namespace Steepshot.Fragment
             _coinPickDialog = new CoinPickDialog(Activity, _coins);
             _coinPickDialog.Window.RequestFeature(WindowFeatures.NoTitle);
             _coinPickDialog.CoinSelected += CoinSelected;
-            CoinSelected(CurrencyType.Steem);
+            CoinSelected(_coins[0]);
 
             RecipientsAdapter.RecipientSelected += RecipientSelected;
 
@@ -211,7 +222,12 @@ namespace Steepshot.Fragment
             State = FragmentState.TransferPrepare;
             _transferFacade.UserFriendPresenter.SourceChanged += PresenterOnSourceChanged;
 
-            UpdateAccountInfo();
+            await UpdateAccountInfo();
+            if (_transferFacade.Recipient != null)
+            {
+                _recipientSearch.Text = _transferFacade.Recipient.Author;
+                OnRecipientChanged();
+            }
         }
 
         public override void OnDetach()
@@ -303,6 +319,9 @@ namespace Steepshot.Fragment
 
         private void OnRecipientChanged()
         {
+            if (!IsInitialized)
+                return;
+
             if (_transferFacade.Recipient != null)
             {
                 if (!string.IsNullOrEmpty(_transferFacade.Recipient.Avatar))
@@ -363,10 +382,13 @@ namespace Steepshot.Fragment
 
         private void RecipientSearchOnKeyPress(object sender, View.KeyEventArgs e)
         {
-            if (e.KeyCode != Keycode.Del)
+            if (e.Event != null && (e.KeyCode == Keycode.Enter))
+            {
                 _transferBtn.RequestFocus();
-            else
-                _recipientSearch.OnKeyDown(e.KeyCode, e.Event);
+                e.Handled = true;
+                return;
+            }
+            e.Handled = false;
         }
 
         private void RecipientSearchClearOnClick(object sender, EventArgs e)
@@ -393,7 +415,7 @@ namespace Steepshot.Fragment
             _coinPickDialog.Show(_coins.IndexOf(_pickedCoin));
         }
 
-        private async void UpdateAccountInfo()
+        private async Task UpdateAccountInfo()
         {
             _balance.Visibility = ViewStates.Gone;
             _balanceLoader.Visibility = ViewStates.Visible;
@@ -437,6 +459,8 @@ namespace Steepshot.Fragment
                 ? ViewStates.Gone
                 : ViewStates.Visible;
             _transferBtn.RequestFocus();
+            _transferCommentTitle.SetTextColor(Color.Black);
+            _transferCommentTitle.Click -= TransferCommentTitleOnClick;
         }
 
         private void TransferCommentEditOnTextChanged(object sender, TextChangedEventArgs e)
@@ -525,10 +549,10 @@ namespace Steepshot.Fragment
             if (_transferFacade.UserBalance == null)
                 return;
 
-            var transferResponse = await Presenter.TryTransfer(_transferFacade.Recipient.Author, _transferAmountEdit.Text, _pickedCoin, _transferCommentEdit.Text);
+            var transferResponse = await _transferFacade.TransferPresenter.TryTransfer(_transferFacade.Recipient.Author, _transferAmountEdit.Text, _pickedCoin, _transferCommentEdit.Text);
             if (transferResponse.IsSuccess)
             {
-                var succes = new SuccessfullTrxDialog(Activity, _transferFacade.Recipient.Author, $"{_transferAmountEdit.Text} {_pickedCoin}", DateTime.Now);
+                var succes = new SuccessfullTrxDialog(Activity, _transferFacade.Recipient.Author, $"{_transferAmountEdit.Text} {_pickedCoin.ToString().ToUpper()}");
                 succes.Show();
                 ClearEdits();
             }

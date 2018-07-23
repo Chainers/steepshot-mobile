@@ -535,6 +535,9 @@ namespace Steepshot.Fragment
         {
             switch (type)
             {
+                case ActionType.Transfer:
+                    ((BaseActivity)Activity).OpenNewContentFragment(Presenter.UserProfileResponse.Username.Equals(AppSettings.User.Login, StringComparison.OrdinalIgnoreCase) ? new TransferFragment() : new TransferFragment(Presenter.UserProfileResponse));
+                    break;
                 case ActionType.Balance:
                     ((BaseActivity)Activity).OpenNewContentFragment(new WalletFragment());
                     break;

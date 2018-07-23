@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using Steepshot.Core.Localization;
@@ -59,9 +60,9 @@ namespace Steepshot.Core.Tests.Localization
         }
 
         [Test]
-        public void TestT()
+        public void JsonCompereTest()
         {
-            var json = File.ReadAllText($"{AppDomain.CurrentDomain.BaseDirectory}\\Localization.en-us.txt");
+            var json = File.ReadAllText($"{AppDomain.CurrentDomain.BaseDirectory}\\Data\\Localization.en-us.txt");
             var lm = JsonConvert.DeserializeObject<LocalizationModel>(json);
 
             var ls = new List<string>();
@@ -76,6 +77,29 @@ namespace Steepshot.Core.Tests.Localization
                 }
             }
             Console.WriteLine(string.Join(Environment.NewLine, ls));
+            Assert.IsFalse(ls.Any());
+        }
+
+        [Test]
+        public void XmlCompereTest()
+        {
+            var json = File.ReadAllText($"{AppDomain.CurrentDomain.BaseDirectory}\\Data\\dicOld.xml");
+            var lm = new LocalizationModel();
+            LocalizationManager.Update(json, lm);
+
+            var ls = new List<string>();
+
+            foreach (var itm in lm.Map)
+            {
+                var t = LocalizationManager.GetText(itm.Key);
+
+                if (!t.Equals(itm.Value))
+                {
+                    ls.Add($"{itm.Key} |> {itm.Value}");
+                }
+            }
+            Console.WriteLine(string.Join(Environment.NewLine, ls));
+            Assert.IsFalse(ls.Any());
         }
 
     }

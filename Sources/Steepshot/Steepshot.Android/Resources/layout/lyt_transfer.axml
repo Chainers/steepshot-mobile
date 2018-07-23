@@ -88,13 +88,14 @@
                         android:gravity="center"
                         android:paddingLeft="15dp"
                         android:paddingRight="15dp"
-                        android:background="@drawable/white_rounded_border">
+                        android:background="@drawable/white_radius100dip_edge_grey">
                         <TextView
                             android:id="@+id/transfercoin_name"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
                             android:textSize="14sp"
+                            android:textAllCaps="true"
                             android:textColor="@color/rgb255_34_5" />
                         <ImageView
                             android:layout_width="8dp"
@@ -171,7 +172,7 @@
                         android:layout_height="50dp"
                         android:gravity="center"
                         android:focusableInTouchMode="true"
-                        android:background="@drawable/steem_login_border"
+                        android:background="@drawable/orange_btn_style"
                         android:elevation="0dp" />
                 </RelativeLayout>
             </LinearLayout>
