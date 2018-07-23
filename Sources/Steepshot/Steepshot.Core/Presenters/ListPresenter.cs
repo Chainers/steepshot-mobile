@@ -79,6 +79,7 @@ namespace Steepshot.Core.Presenters
             }
             catch (WebException ex)
             {
+                await AppSettings.Logger.Error(ex);
                 return new RequestError(ex);
             }
             catch (Exception ex)
@@ -90,6 +91,7 @@ namespace Steepshot.Core.Presenters
                 if (!available)
                     return new ValidationError(LocalizationKeys.InternetUnavailable);
 
+                await AppSettings.Logger.Error(ex);
                 return ex;
             }
             finally
@@ -131,6 +133,7 @@ namespace Steepshot.Core.Presenters
             }
             catch (WebException ex)
             {
+                await AppSettings.Logger.Error(ex);
                 return new RequestError(ex);
             }
             catch (Exception ex)
@@ -142,6 +145,7 @@ namespace Steepshot.Core.Presenters
                 if (!available)
                     return new ValidationError(LocalizationKeys.InternetUnavailable);
 
+                await AppSettings.Logger.Error(ex);
                 return ex;
             }
             finally

@@ -239,11 +239,9 @@ namespace Steepshot.Fragment
                     ((BaseActivity)Activity).OnBackPressed();
                 return true;
             }
-            else
-            {
-                Activity.ShowInteractiveMessage(resp.Error, TryAgainAction, ForgetAction);
-                return false;
-            }
+
+            Activity.ShowInteractiveMessage(resp.Error, TryAgainAction, ForgetAction);
+            return false;
         }
 
         private void TagLabelOnClick(object sender, EventArgs e)

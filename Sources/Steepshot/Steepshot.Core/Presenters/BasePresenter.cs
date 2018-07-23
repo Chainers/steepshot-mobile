@@ -51,6 +51,8 @@ namespace Steepshot.Core.Presenters
                 if (!available)
                     return new OperationResult<TResult>(new ValidationError(LocalizationKeys.InternetUnavailable));
 
+                await AppSettings.Logger.Error(ex);
+
                 return new OperationResult<TResult>(ex);
             }
         }
@@ -73,6 +75,8 @@ namespace Steepshot.Core.Presenters
                 var available = AppSettings.ConnectionService.IsConnectionAvailable();
                 if (!available)
                     return new OperationResult<TResult>(new ValidationError(LocalizationKeys.InternetUnavailable));
+                
+                await AppSettings.Logger.Error(ex);
 
                 return new OperationResult<TResult>(ex);
             }
@@ -96,6 +100,8 @@ namespace Steepshot.Core.Presenters
                 var available = AppSettings.ConnectionService.IsConnectionAvailable();
                 if (!available)
                     return new OperationResult<TResult>(new ValidationError(LocalizationKeys.InternetUnavailable));
+
+                await AppSettings.Logger.Error(ex);
 
                 return new OperationResult<TResult>(ex);
             }
@@ -121,6 +127,8 @@ namespace Steepshot.Core.Presenters
                 if (!available)
                     return new ValidationError(LocalizationKeys.InternetUnavailable);
 
+                await AppSettings.Logger.Error(ex);
+
                 return ex;
             }
         }
@@ -144,6 +152,8 @@ namespace Steepshot.Core.Presenters
                 if (!available)
                     return new ValidationError(LocalizationKeys.InternetUnavailable);
 
+                await AppSettings.Logger.Error(ex);
+
                 return ex;
             }
         }
@@ -166,6 +176,8 @@ namespace Steepshot.Core.Presenters
                 var available = AppSettings.ConnectionService.IsConnectionAvailable();
                 if (!available)
                     return new ValidationError(LocalizationKeys.InternetUnavailable);
+
+                await AppSettings.Logger.Error(ex);
 
                 return ex;
             }

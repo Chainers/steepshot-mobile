@@ -167,6 +167,13 @@ namespace Steepshot.Core.Localization
                     }
                 }
             }
+
+            if (string.IsNullOrEmpty(result))
+            {
+                var ex = new Exception($"Key not found: {key}");
+                AppSettings.Logger.Info(ex);
+            }
+
             return result;
         }
     }

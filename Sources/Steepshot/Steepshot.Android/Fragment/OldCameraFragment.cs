@@ -282,7 +282,7 @@ namespace Steepshot.Fragment
             SetCameraDisplayOrientation(_cameraId);
         }
 
-        public void SurfaceCreated(ISurfaceHolder holder)
+        public async void SurfaceCreated(ISurfaceHolder holder)
         {
             if (_camera == null)
                 return;
@@ -293,6 +293,7 @@ namespace Steepshot.Fragment
             }
             catch (Exception ex)
             {
+                await AppSettings.Logger.Error(ex);
                 Activity.ShowAlert(new InternalError(LocalizationKeys.CameraSettingError, ex), ToastLength.Short);
             }
         }
@@ -504,7 +505,7 @@ namespace Steepshot.Fragment
             _revertButton.Enabled = true;
         }
 
-        private void EnableCamera(int cameraToSwitch)
+        private async void EnableCamera(int cameraToSwitch)
         {
             try
             {
@@ -523,6 +524,7 @@ namespace Steepshot.Fragment
                 }
                 else
                 {
+                    await AppSettings.Logger.Error(ex);
                     Activity.ShowAlert(new InternalError(LocalizationKeys.CameraSettingError, ex), ToastLength.Short);
                 }
             }

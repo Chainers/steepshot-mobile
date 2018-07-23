@@ -249,6 +249,7 @@ namespace Steepshot.Fragment
             catch (Exception ex)
             {
                 _postButton.Enabled = false;
+                AppSettings.Logger.Error(ex);
                 Context.ShowAlert(ex);
             }
             finally
@@ -275,6 +276,7 @@ namespace Steepshot.Fragment
             }
             catch (Exception ex)
             {
+                await AppSettings.Logger.Error(ex);
                 return new OperationResult<MediaModel>(new Core.Errors.InternalError(LocalizationKeys.PhotoUploadError, ex));
             }
             finally

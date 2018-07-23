@@ -103,7 +103,6 @@ namespace Steepshot.Utils
             if (error is ValidationError validationError)
                 return lm.GetText(validationError);
 
-            AppSettings.Logger.Error(error);
             var msg = string.Empty;
 
             if (error is InternalError internalError)

@@ -1,28 +1,28 @@
-﻿using Newtonsoft.Json;
-using Steepshot.Core.Services;
+﻿using Steepshot.Core.Services;
 using System;
+using System.Threading.Tasks;
 
 
 namespace Steepshot.Core.Tests.Stubs
 {
     public class StubLogService : ILogService
     {
-        public void Fatal(Exception ex)
+        public async Task Fatal(Exception ex)
         {
             Console.WriteLine($"{ex.Message}{Environment.NewLine}{ex.StackTrace}");
         }
 
-        public void Error(Exception ex)
+        public async Task Error(Exception ex)
         {
             Console.WriteLine($"{ex.Message}{Environment.NewLine}{ex.StackTrace}");
         }
 
-        public void Warning(Exception ex)
+        public async Task Warning(Exception ex)
         {
             Console.WriteLine($"{ex.Message}{Environment.NewLine}{ex.StackTrace}");
         }
 
-        public void Info(Exception ex)
+        public async Task Info(Exception ex)
         {
             Console.WriteLine($"{ex.Message}{Environment.NewLine}{ex.StackTrace}");
         }

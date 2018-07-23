@@ -24,22 +24,22 @@ namespace Steepshot.Core.Sentry
         }
 
 
-        public async void Fatal(Exception ex)
+        public async Task Fatal(Exception ex)
         {
             await Send(ex, "fatal");
         }
 
-        public async void Error(Exception ex)
+        public async Task Error(Exception ex)
         {
             await Send(ex, "error");
         }
 
-        public async void Warning(Exception ex)
+        public async Task Warning(Exception ex)
         {
             await Send(ex, "warning");
         }
 
-        public async void Info(Exception ex)
+        public async Task Info(Exception ex)
         {
             await Send(ex, "info");
         }

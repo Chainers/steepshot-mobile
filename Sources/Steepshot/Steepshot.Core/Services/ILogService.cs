@@ -1,15 +1,16 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace Steepshot.Core.Services
 {
     public interface ILogService
     {
-        void Fatal(Exception ex);
+        Task Fatal(Exception ex);
 
-        void Error(Exception ex);
+        Task Error(Exception ex);
 
-        void Warning(Exception ex);
+        Task Warning(Exception ex);
 
-        void Info(Exception ex);
+        Task Info(Exception ex);
     }
 }
