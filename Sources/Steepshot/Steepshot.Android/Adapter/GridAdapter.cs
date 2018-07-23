@@ -135,7 +135,7 @@ namespace Steepshot.Adapter
 
             _gallery.Visibility = post.Media.Length > 1 ? ViewStates.Visible : ViewStates.Gone;
 
-            if (_post.ShowMask && (_post.IsNsfw || _post.IsLowRated))
+            if (_post.ShowMask && (_post.IsNsfw || _post.IsLowRated) && _post.Author != AppSettings.User.Login)
             {
                 _nsfwMaskMessage.Text = AppSettings.LocalizationManager.GetText(_post.IsLowRated ? LocalizationKeys.LowRated : LocalizationKeys.Nsfw);
                 _nsfwMask.Visibility = ViewStates.Visible;
