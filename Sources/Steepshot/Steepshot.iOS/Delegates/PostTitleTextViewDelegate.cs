@@ -8,11 +8,12 @@ namespace Steepshot.iOS.Helpers
     {
         public UILabel Placeholder;
         public Action EditingStartedAction;
+        public Action EditingEndedAction;
 
         public override void EditingStarted(UITextView textView)
         {
-            EditingStartedAction?.Invoke();
             Placeholder.Hidden = true;
+            EditingStartedAction?.Invoke();
         }
 
         public override void EditingEnded(UITextView textView)
@@ -21,6 +22,17 @@ namespace Steepshot.iOS.Helpers
                 Placeholder.Hidden = true;
             else
                 Placeholder.Hidden = false;
+            EditingEndedAction?.Invoke();
+        }
+
+        public override bool ShouldChangeText(UITextView textView, NSRange range, string text)
+        {
+            if (text == "\n")
+            {
+                textView.ResignFirstResponder();
+                return false;
+            }
+            return true;
         }
     }
 
@@ -35,12 +47,6 @@ namespace Steepshot.iOS.Helpers
 
         public override bool ShouldChangeText(UITextView textView, NSRange range, string text)
         {
-            /*
-            if (text == "\n")
-            {
-                textView.ResignFirstResponder();
-                return false;
-            }*/
             if ((textView.Text + text).Length > _textLimit)
                 return false;
             return true;

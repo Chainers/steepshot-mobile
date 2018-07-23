@@ -13,15 +13,42 @@ namespace Steepshot.iOS.Helpers
             DoneTapped?.Invoke();
             return true;
         }
+
+        public void ChangeBackground(UITextField textField)
+        {
+            if (textField.IsFirstResponder || textField.Text.Length > 0)
+            {
+                textField.Layer.BorderColor = Constants.R244G244B246.CGColor;
+            }
+            else
+            {
+                textField.Layer.BorderWidth = 0;
+                textField.BackgroundColor = Constants.R245G245B245;
+            }
+        }
     }
 
     public class UsernameDelegate : BaseTextFieldDelegate
     {
         public override bool ShouldChangeCharacters(UITextField textField, Foundation.NSRange range, string replacementString)
         {
-            if (replacementString.Contains(" "))
+            if (replacementString == string.Empty)
+                return true;
+            if ((textField.Text + replacementString).Length == 17)
                 return false;
-            return true;
+            if (Regex.IsMatch(replacementString, @"[_\w\.-]+"))
+                return true;
+            return false;
+        }
+    }
+
+    public class AmountFieldDelegate : BaseTextFieldDelegate
+    {
+        public override bool ShouldChangeCharacters(UITextField textField, Foundation.NSRange range, string replacementString)
+        {
+            if (Regex.IsMatch(textField.Text + replacementString, @"^\d+(,|\.)?\d{0,3}?$"))
+                return true;
+            return false;
         }
     }
 
@@ -37,8 +64,8 @@ namespace Steepshot.iOS.Helpers
 
             if (replacementString.Contains(" "))
                 return false;
-
-            if (Regex.IsMatch(replacementString, @"[_\w/.-]+"))
+            
+            if (Regex.IsMatch(replacementString, @"[_\w\.-]+"))
                 return true;
             return false;
         }
@@ -53,19 +80,6 @@ namespace Steepshot.iOS.Helpers
         public override void EditingEnded(UITextField textField)
         {
             ChangeBackground(textField);
-        }
-
-        public void ChangeBackground(UITextField textField)
-        {
-            if (textField.IsFirstResponder || textField.Text.Length > 0)
-            {
-                textField.Layer.BorderColor = Constants.R244G244B246.CGColor;
-            }
-            else
-            {
-                textField.Layer.BorderWidth = 0;
-                textField.BackgroundColor = Constants.R245G245B245;
-            }
         }
     }
 }

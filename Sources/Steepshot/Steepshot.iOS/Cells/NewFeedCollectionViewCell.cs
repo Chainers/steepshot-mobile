@@ -100,12 +100,12 @@ namespace Steepshot.iOS.Cells
             _contentView = contentView;
 
             _moreButton = new UIButton();
-            _moreButton.Frame = new CGRect(_contentView.Frame.Width - moreButtonWidth, 0, moreButtonWidth, likeButtonWidthConst);
+            _moreButton.Frame = new CGRect(_contentView.Frame.Width - moreButtonWidth, 0, moreButtonWidth, 60);
             _moreButton.SetImage(UIImage.FromBundle("ic_more"), UIControlState.Normal);
             //_moreButton.BackgroundColor = UIColor.Black;
             _contentView.AddSubview(_moreButton);
 
-            _avatarImage = new UIImageView(new CGRect(leftMargin, 20, 30, 30));
+            _avatarImage = new UIImageView(new CGRect(leftMargin, 15, 30, 30));
             _contentView.AddSubview(_avatarImage);
 
             var authorX = _avatarImage.Frame.Right + 10;
@@ -295,7 +295,7 @@ namespace Steepshot.iOS.Cells
             likesMargin = leftMargin;
 
             _avatarImage?.RemoveFromSuperview();
-            _avatarImage = new UIImageView(new CGRect(leftMargin, 20, 30, 30));
+            _avatarImage = new UIImageView(new CGRect(leftMargin, 15, 30, 30));
             _avatarImage.Layer.CornerRadius = _avatarImage.Frame.Size.Width / 2;
             _avatarImage.ClipsToBounds = true;
             _avatarImage.ContentMode = UIViewContentMode.ScaleAspectFill;
@@ -311,7 +311,7 @@ namespace Steepshot.iOS.Cells
             _author.Text = _currentPost.Author;
             _timestamp.Text = _currentPost.Created.ToPostTime();
 
-            _photoScroll.Frame = new CGRect(0, _avatarImage.Frame.Bottom + 20, UIScreen.MainScreen.Bounds.Width, variables.PhotoHeight);
+            _photoScroll.Frame = new CGRect(0, _avatarImage.Frame.Bottom + 15, UIScreen.MainScreen.Bounds.Width, variables.PhotoHeight);
             _photoScroll.ContentSize = new CGSize(UIScreen.MainScreen.Bounds.Width * _currentPost.Media.Length, variables.PhotoHeight);
 
             foreach (var subview in _photoScroll.Subviews)
@@ -336,7 +336,6 @@ namespace Steepshot.iOS.Cells
                 _scheduledWorkBody[i] = ImageLoader.Load(_currentPost.Media[i].Url,
                                                          _bodyImage[i],
                                                          2, LoadingPriority.Highest);
-                                             
             }
             if (_currentPost.Media.Length > 1)
             {

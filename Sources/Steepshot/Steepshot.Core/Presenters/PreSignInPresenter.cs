@@ -19,19 +19,4 @@ namespace Steepshot.Core.Presenters
             return Api.GetAccountInfo(login, ct);
         }
     }
-
-    public sealed class LolPresenter : ListPresenter<string>
-    {
-        public async Task<ErrorBase> TryGetAccountInfo(string login)
-        {
-            return await RunAsSingleTask(GetAccountInfo, login);
-        }
-
-        private async Task<ErrorBase> GetAccountInfo(string login, CancellationToken ct)
-        {
-            var req = new UserProfileModel(login);
-            var response = await Api.GetUserProfile(req, ct);
-            return response.Error;
-        }
-    }
 }

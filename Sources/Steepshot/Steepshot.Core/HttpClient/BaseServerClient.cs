@@ -343,6 +343,23 @@ namespace Steepshot.Core.HttpClient
             return await Gateway.NsfwCheck(stream, token);
         }
 
+        public async Task<OperationResult<CreateAccountResponse>> CreateAccount(CreateAccountModel model, CancellationToken token)
+        {
+            var endpoint = "https://createacc.steepshot.org/api/v1/account";
+            return await Gateway.Post<CreateAccountResponse, CreateAccountModel>(endpoint, model, token);
+        }
+
+        public async Task<OperationResult<CreateAccountResponse>> ResendEmail(CreateAccountModel model, CancellationToken token)
+        {
+            var endpoint = "https://createacc.steepshot.org/api/v1/resend-mail";
+            return await Gateway.Post<CreateAccountResponse, CreateAccountModel>(endpoint, model, token);
+        }
+
+        public async Task<OperationResult<string>> CheckRegistrationServiceStatus(CancellationToken token)
+        {
+            return await Gateway.Get<string>("https://createacc.steepshot.org/api/v1/active", token);
+        }
+
         private void AddOffsetLimitParameters(Dictionary<string, object> parameters, string offset, int limit)
         {
             if (!string.IsNullOrWhiteSpace(offset))

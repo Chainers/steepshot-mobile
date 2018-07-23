@@ -130,6 +130,20 @@ namespace Steepshot.iOS.Views
             GetPosts();
         }
 
+        protected async override void LoginTapped(object sender, EventArgs e)
+        {
+            signInLoader.StartAnimating();
+            loginButton.Enabled = false;
+
+            var response = await _presenter.CheckServiceStatus();
+
+            loginButton.Enabled = true;
+            signInLoader.StopAnimating();
+
+            var myViewController = new WelcomeViewController(response.IsSuccess);
+            NavigationController.PushViewController(myViewController, true);
+        }
+
         public override void ViewWillDisappear(bool animated)
         {
             NavigationController.SetNavigationBarHidden(false, false);

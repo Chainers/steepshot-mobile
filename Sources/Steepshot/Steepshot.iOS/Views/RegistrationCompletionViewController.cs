@@ -1,4 +1,6 @@
-﻿using PureLayout.Net;
+﻿using System;
+using PureLayout.Net;
+using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Presenters;
 using Steepshot.iOS.Helpers;
 using Steepshot.iOS.ViewControllers;
@@ -6,10 +8,18 @@ using UIKit;
 
 namespace Steepshot.iOS.Views
 {
-    public class RegistrationCompletionViewController : BaseViewControllerWithPresenter<LolPresenter>
+    public class RegistrationCompletionViewController : BaseViewControllerWithPresenter<CreateAccountPresenter>
     {
         private UIButton _resendEmail;
         private UIButton _closeButton;
+
+        private CreateAccountModel _account;
+        private UIActivityIndicatorView _loader;
+
+        public RegistrationCompletionViewController(CreateAccountModel account)
+        {
+            _account = account;
+        }
 
         public override void ViewDidLoad()
         {
@@ -36,14 +46,25 @@ namespace Steepshot.iOS.Views
 
             _resendEmail = new UIButton();
             _resendEmail.SetTitle("Resend email", UIControlState.Normal);
+            _resendEmail.SetTitleColor(UIColor.Clear, UIControlState.Disabled);
             Constants.CreateShadow(_resendEmail, Constants.R231G72B0, 0.5f, 25, 10, 12);
             _resendEmail.Font = Constants.Bold14;
+            _resendEmail.TouchDown += ResendEmail;
             View.Add(_resendEmail);
 
             _resendEmail.AutoPinEdge(ALEdge.Bottom, ALEdge.Top, _closeButton, -20);
             _resendEmail.AutoSetDimension(ALDimension.Height, 50);
             _resendEmail.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 15);
             _resendEmail.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 15);
+
+            _loader = new UIActivityIndicatorView();
+            _loader.Color = UIColor.White;
+            _loader.HidesWhenStopped = true;
+
+            View.AddSubview(_loader);
+
+            _loader.AutoAlignAxis(ALAxis.Horizontal, _resendEmail);
+            _loader.AutoAlignAxis(ALAxis.Vertical, _resendEmail);
 
             var outerView = new UIView();
             View.AddSubview(outerView);
@@ -70,7 +91,7 @@ namespace Steepshot.iOS.Views
             image.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 27);
 
             var label = new UILabel();
-            label.Text = "A letter with a password will be sent to the email you specified.";
+            label.Text = "A letter with a password will be send to the email you specified.";
             if (DeviceHelper.IsSmallDevice)
                 label.Font = Constants.Light23;
             else
@@ -104,6 +125,33 @@ namespace Steepshot.iOS.Views
         {
             base.ViewDidLayoutSubviews();
             Constants.CreateGradient(_resendEmail, 25);
+        }
+
+        private async void ResendEmail(object sender, EventArgs e)
+        {
+            ToggleControls(false);
+
+            var error = await _presenter.TryResendMail(_account);
+
+            if (error == null)
+            {
+                ShowAlert(error);
+            }
+            else
+                ShowAlert(error);
+            
+            ToggleControls(true);
+        }
+
+        private void ToggleControls(bool enable)
+        {
+            if (enable)
+                _loader.StopAnimating();
+            else
+                _loader.StartAnimating();
+
+            _closeButton.Enabled = enable;
+            _resendEmail.Enabled = enable;
         }
     }
 }

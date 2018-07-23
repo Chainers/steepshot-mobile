@@ -28,19 +28,13 @@ namespace Steepshot.iOS.CustomViews
             popup.BackgroundColor = UIColor.Black.ColorWithAlpha(0.0f);
             popup.UserInteractionEnabled = true;
 
-            popup.AddSubview(view);
-
-            if (controller is InteractivePopNavigationController interactiveController)
-                interactiveController.IsPushingViewController = true;
-
-            controller.View.AddSubview(popup);
+            popup.AddSubview(dialog);
 
             // view centering
-            view.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom, 34);
-            view.AutoAlignAxisToSuperviewAxis(ALAxis.Vertical);
+            dialog.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom, 34);
+            dialog.AutoAlignAxisToSuperviewAxis(ALAxis.Vertical);
 
-            targetY = view.Frame.Y;
-            SetAnimation(animationType);
+            targetY = dialog.Frame.Y;
         }
 
         public void Hide()
@@ -58,8 +52,13 @@ namespace Steepshot.iOS.CustomViews
 
         }
 
-        private void SetAnimation(AnimationType animationType )
+        public void Show(AnimationType animationType = AnimationType.Bottom)
         {
+            if (controller is InteractivePopNavigationController interactiveController)
+                interactiveController.IsPushingViewController = true;
+
+            controller.View.AddSubview(popup);
+
             switch (animationType)
             {
                 case AnimationType.Bottom:

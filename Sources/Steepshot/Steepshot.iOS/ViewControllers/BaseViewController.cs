@@ -109,7 +109,7 @@ namespace Steepshot.iOS.ViewControllers
             if (ScrollAmount > 0)
             {
                 MoveViewUp = true;
-                ScrollTheView(MoveViewUp);
+                this.ScrollTheView(MoveViewUp);
             }
             else
                 MoveViewUp = false;

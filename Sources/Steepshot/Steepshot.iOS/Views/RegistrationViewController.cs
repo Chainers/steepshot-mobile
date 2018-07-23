@@ -2,6 +2,7 @@
 using System.Threading;
 using PureLayout.Net;
 using Steepshot.Core.Errors;
+using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 using Steepshot.iOS.Helpers;
@@ -10,7 +11,7 @@ using UIKit;
 
 namespace Steepshot.iOS.Views
 {
-    public class RegistrationViewController : BaseViewControllerWithPresenter<LolPresenter>
+    public class RegistrationViewController : BaseViewControllerWithPresenter<CreateAccountPresenter>
     {
         private UITextField _username;
         private UITextField _email;
@@ -50,6 +51,7 @@ namespace Steepshot.iOS.Views
 
             _createAcc = new UIButton();
             _createAcc.SetTitle("Create account", UIControlState.Normal);
+            _createAcc.SetTitleColor(UIColor.Clear, UIControlState.Disabled);
             Constants.CreateShadow(_createAcc, Constants.R231G72B0, 0.5f, 25, 10, 12);
             _createAcc.Font = Constants.Bold14;
             _createAcc.TouchDown += CreateAccount;
@@ -135,7 +137,15 @@ namespace Steepshot.iOS.Views
             _username.ReturnKeyType = UIReturnKeyType.Next;
             _username.EditingChanged += (object sender, EventArgs e) => 
             {
-                _timer.Change(500, Timeout.Infinite);
+                if (string.IsNullOrEmpty(_username.Text))
+                {
+                    _presenter.TasksCancel();
+                    _timer.Change(Timeout.Infinite, Timeout.Infinite);
+                    _usernameUnderline.BackgroundColor = Constants.R240G240B240;
+                    _usernameLabel.Hidden = true;
+                }
+                else
+                    _timer.Change(500, Timeout.Infinite);
             };
             View.AddSubview(_username);
 
@@ -181,17 +191,25 @@ namespace Steepshot.iOS.Views
 
         private void CheckMail(object sender, EventArgs e)
         {
-            var isValid = _mailChecker.IsValidEmail(_email.Text);
-
-            if (isValid)
+            if (string.IsNullOrEmpty(_email.Text))
             {
                 _emailUnderline.BackgroundColor = Constants.R240G240B240;
                 _emailLabel.Hidden = true;
             }
             else
             {
-                _emailUnderline.BackgroundColor = Constants.R255G0B0;
-                _emailLabel.Hidden = false;
+                var isValid = _mailChecker.IsValidEmail(_email.Text);
+
+                if (isValid)
+                {
+                    _emailUnderline.BackgroundColor = Constants.R240G240B240;
+                    _emailLabel.Hidden = true;
+                }
+                else
+                {
+                    _emailUnderline.BackgroundColor = Constants.R255G0B0;
+                    _emailLabel.Hidden = false;
+                }
             }
         }
 
@@ -210,7 +228,11 @@ namespace Steepshot.iOS.Views
             var error = await _presenter.TryGetAccountInfo(_username.Text);
 
             if (error is CanceledError)
+            {
+                if (string.IsNullOrEmpty(_username.Text))
+                    _loader.StopAnimating();
                 return;
+            }
 
             if (error?.Message == "User not found")
             {
@@ -227,9 +249,8 @@ namespace Steepshot.iOS.Views
             _loader.StopAnimating();
         }
 
-        private void CreateAccount(object sender, EventArgs e)
+        private async void CreateAccount(object sender, EventArgs e)
         {
-            /*
             if (_loader.IsAnimating)
                 return;
 
@@ -245,11 +266,33 @@ namespace Steepshot.iOS.Views
             if (!_usernameLabel.Hidden || !_emailLabel.Hidden)
                 return;
             
-            _registrationLoader.StartAnimating();
-            _createAcc.SetTitleColor(UIColor.Clear, UIControlState.Normal); */
+            ToggleControls(false);
 
-            var myViewController = new RegistrationCompletionViewController();
-            NavigationController.PushViewController(myViewController, true);
+            var model = new CreateAccountModel(_username.Text, _email.Text);
+
+            var error = await _presenter.TryCreateAccount(model);
+
+            if (error == null)
+            {
+                var myViewController = new RegistrationCompletionViewController(model);
+                NavigationController.PushViewController(myViewController, true);
+            }
+            else
+                ShowAlert(error);
+
+            ToggleControls(true);
+        }
+
+        private void ToggleControls(bool enable)
+        {
+            if(enable)
+                _registrationLoader.StopAnimating();
+            else
+                _registrationLoader.StartAnimating();
+            
+            _createAcc.Enabled = enable;
+            _email.Enabled = enable;
+            _username.Enabled = enable;
         }
     }
 }
