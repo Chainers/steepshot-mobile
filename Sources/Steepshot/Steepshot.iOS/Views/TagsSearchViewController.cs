@@ -10,8 +10,9 @@ using Steepshot.iOS.ViewControllers;
 using Steepshot.iOS.ViewSources;
 using UIKit;
 using Steepshot.Core.Utils;
-using Steepshot.iOS.Helpers;
 using System.Threading.Tasks;
+using Steepshot.Core;
+using Constants = Steepshot.iOS.Helpers.Constants;
 
 namespace Steepshot.iOS.Views
 {
@@ -32,7 +33,10 @@ namespace Steepshot.iOS.Views
         {
             base.ViewDidLoad();
             CreateView();
+
+            var client = AppDelegate.MainChain == KnownChains.Steem ? AppDelegate.SteemClient : AppDelegate.GolosClient;
             _searchFacade = new SearchFacade();
+            _searchFacade.SetClient(client);
 
             _timer = new Timer(OnTimer);
 

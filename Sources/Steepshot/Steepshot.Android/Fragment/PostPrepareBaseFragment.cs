@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Android.Content;
+using Android.Content.Res;
 using Android.OS;
 using Android.Support.V7.Widget;
 using Android.Text;
@@ -14,6 +15,7 @@ using CheeseBind;
 using Steepshot.Activity;
 using Steepshot.Adapter;
 using Steepshot.Base;
+using Steepshot.Core;
 using Steepshot.Core.Facades;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models;
@@ -121,7 +123,9 @@ namespace Steepshot.Fragment
             _localTagsList.SetAdapter(LocalTagsAdapter);
             _localTagsList.AddItemDecoration(new ListItemDecoration((int)TypedValue.ApplyDimension(ComplexUnitType.Dip, 15, Resources.DisplayMetrics)));
 
+            var client = App.MainChain == KnownChains.Steem ? App.SteemClient : App.GolosClient;
             _tagPickerFacade = new TagPickerFacade(_localTagsAdapter.LocalTags);
+            _tagPickerFacade.SetClient(client);
             _tagPickerFacade.SourceChanged += TagPickerFacadeOnSourceChanged;
 
             _tagsList.SetLayoutManager(new LinearLayoutManager(Activity));

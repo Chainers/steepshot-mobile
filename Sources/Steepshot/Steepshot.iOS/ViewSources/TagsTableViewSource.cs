@@ -11,7 +11,7 @@ namespace Steepshot.iOS.ViewSources
     public class TagsTableViewSource : BaseUITableViewSource
     {
         private readonly string _cellIdentifier = nameof(TagTableViewCell);
-        private readonly TagPickerFacade _tagPickerFacade;
+        private readonly TagPickerFacade _tagPickerFacade; // need to call SetClient() after initializing
         public Action<ActionType, string> CellAction;
         private bool _hidePlus;
 

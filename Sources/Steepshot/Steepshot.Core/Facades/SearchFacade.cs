@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Steepshot.Core.Clients;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Presenters;
 
@@ -14,6 +15,12 @@ namespace Steepshot.Core.Facades
         {
             UserFriendPresenter = new UserFriendPresenter();
             TagsPresenter = new TagsPresenter();
+        }
+
+        public void SetClient(SteepshotApiClient client)
+        {
+            UserFriendPresenter.SetClient(client);
+            TagsPresenter.SetClient(client);
         }
 
         public async Task<Exception> TrySearchCategories(string query, SearchType searchType)
