@@ -47,6 +47,9 @@ namespace Steepshot.Core.Sentry
 
         private async Task Send(Exception ex, string level)
         {
+            if(ex is OperationCanceledException)
+                return;
+
             if (!AppSettings.ConnectionService.IsConnectionAvailable())
                 return; //TODO: need to store locale
 
