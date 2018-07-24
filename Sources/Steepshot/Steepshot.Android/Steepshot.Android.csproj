@@ -183,10 +183,11 @@
     <None Include="app.config" />
     <AndroidAsset Include="Assets\Config.txt.template" />
     <AndroidAsset Include="Assets\IntegrationModuleConfig.txt.template" />
+    <AndroidAsset Include="Assets\SFUIDisplay-Light.otf" />
+    <AndroidAsset Include="Assets\SFUIDisplay-Regular.otf" />
+    <AndroidAsset Include="Assets\SFUIDisplay-Semibold.otf" />
     <None Include="packages.config" />
     <None Include="Properties\AndroidManifest.xml" />
-    <None Include="Assets\AboutAssets.txt" />
-    <AndroidResource Include="Resources\AboutResources.txt" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="AndroidFlowLayout, Version=1.9.1.0, Culture=neutral, processorArchitecture=MSIL">
