@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using Steepshot.Core.Clients;
 using Steepshot.Core.Models;
 using Steepshot.Core.Presenters;
 
@@ -31,6 +32,11 @@ namespace Steepshot.Core.Facades
         {
             _localTags = localTags;
             _localTags.CollectionChanged += UpdateFilteredTags;
+        }
+
+        public void SetClient(SteepshotApiClient client)
+        {
+            _tagsPresenter.SetClient(client);
         }
 
         private void UpdateFilteredTags(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)

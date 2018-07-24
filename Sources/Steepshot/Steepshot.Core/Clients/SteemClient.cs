@@ -417,7 +417,7 @@ namespace Steepshot.Core.Clients
                 result.Error = new RequestError(resp);
                 return result;
             }
-
+            
             result.Result = resp.Result.History.Where(Filter).Select(Transform).OrderByDescending(x => x.DateTime).ToArray();
 
             return result;
@@ -443,7 +443,7 @@ namespace Steepshot.Core.Clients
                             Type = OperationType.Transfer,
                             From = typed.From,
                             To = typed.To,
-                            Amount = typed.Amount.ToOldFormatString(),
+                            Amount = typed.Amount.ToDoubleString(),
                             Memo = typed.Memo
                         };
                     }
@@ -468,7 +468,7 @@ namespace Steepshot.Core.Clients
                             Type = OperationType.PowerDown,
                             From = typed.Account,
                             To = typed.Account,
-                            Amount = typed.VestingShares.ToOldFormatString()
+                            Amount = typed.VestingShares.ToDoubleString()
                         };
                     }
                 case ClaimRewardBalanceOperation.OperationName:

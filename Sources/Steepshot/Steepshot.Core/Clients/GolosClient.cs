@@ -414,7 +414,7 @@ namespace Steepshot.Core.Clients
                 return new OperationResult<AccountHistoryResponse[]>(new ValidationError(LocalizationKeys.EnableConnectToBlockchain));
 
             var result = new OperationResult<AccountHistoryResponse[]>();
-
+            
             var resp = await _operationManager.GetAccountHistory(userName, ulong.MaxValue, 5000, CancellationToken.None);
             if (resp.IsError)
             {
@@ -423,7 +423,6 @@ namespace Steepshot.Core.Clients
             }
 
             result.Result = resp.Result.Where(Filter).Select(Transform).OrderByDescending(x => x.DateTime).ToArray();
-
             return result;
         }
 
