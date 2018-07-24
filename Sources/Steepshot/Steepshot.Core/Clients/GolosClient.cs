@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -372,6 +373,18 @@ namespace Steepshot.Core.Clients
             }
 
             var acc = resp.Result[0];
+
+            var propResp = await _operationManager.GetDynamicGlobalProperties(CancellationToken.None);
+            if (propResp.IsError)
+            {
+                result.Error = new RequestError(propResp);
+                return result;
+            }
+
+            var sp = (double.Parse(propResp.Result.TotalVestingFundSteem.ToDoubleString(), CultureInfo.InvariantCulture)
+                      * ((double.Parse(acc.VestingShares.ToDoubleString(), CultureInfo.InvariantCulture) + double.Parse(acc.ReceivedVestingShares.ToDoubleString(), CultureInfo.InvariantCulture))
+                         / double.Parse(propResp.Result.TotalVestingShares.ToDoubleString(), CultureInfo.InvariantCulture))).ToString("F3", CultureInfo.InvariantCulture);
+
             result.Result = new AccountInfoResponse
             {
                 Chains = KnownChains.Golos,
@@ -380,8 +393,8 @@ namespace Steepshot.Core.Clients
                 Metadata = JsonConvert.DeserializeObject<AccountMetadata>(acc.JsonMetadata),
                 Balances = new List<BalanceModel>
                 {
-                    new BalanceModel(acc.Balance.ToDoubleString(), 3, CurrencyType.Golos),
-                    new BalanceModel(acc.SbdBalance.ToDoubleString(), 3, CurrencyType.Gbg)
+                    new BalanceModel(userName, acc.Balance.ToDoubleString(), 3, sp, CurrencyType.Golos),
+                    new BalanceModel(userName, acc.SbdBalance.ToDoubleString(), 3, sp, CurrencyType.Gbg)
                 }
             };
 
@@ -402,14 +415,14 @@ namespace Steepshot.Core.Clients
 
             var result = new OperationResult<AccountHistoryResponse[]>();
 
-            var resp = await _operationManager.GetAccountHistory(userName, ulong.MaxValue, 10000, CancellationToken.None);
+            var resp = await _operationManager.GetAccountHistory(userName, ulong.MaxValue, 5000, CancellationToken.None);
             if (resp.IsError)
             {
                 result.Error = new RequestError(resp);
                 return result;
             }
 
-            result.Result = resp.Result.Where(Filter).Select(Transform).ToArray();
+            result.Result = resp.Result.Where(Filter).Select(Transform).OrderByDescending(x => x.DateTime).ToArray();
 
             return result;
         }
@@ -434,7 +447,7 @@ namespace Steepshot.Core.Clients
                             Type = OperationType.Transfer,
                             From = typed.From,
                             To = typed.To,
-                            Amount = typed.Amount.ToString(),
+                            Amount = typed.Amount.ToDoubleString(),
                             Memo = typed.Memo
                         };
                     }
@@ -447,7 +460,7 @@ namespace Steepshot.Core.Clients
                             Type = OperationType.PowerUp,
                             From = typed.From,
                             To = typed.To,
-                            Amount = typed.Amount.ToString()
+                            Amount = typed.Amount.ToDoubleString()
                         };
                     }
                 case WithdrawVestingOperation.OperationName:
@@ -459,7 +472,7 @@ namespace Steepshot.Core.Clients
                             Type = OperationType.PowerDown,
                             From = typed.Account,
                             To = typed.Account,
-                            Amount = typed.VestingShares.ToString()
+                            Amount = typed.VestingShares.ToDoubleString()
                         };
                     }
                 default:

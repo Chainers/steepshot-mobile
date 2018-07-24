@@ -4,16 +4,22 @@ namespace Steepshot.Core.Models.Common
 {
     public class BalanceModel
     {
-        public string Value;
+        public string UserName { get; }
 
-        public byte MaxDecimals;
+        public string Value { get; }
 
-        public CurrencyType CurrencyType;
+        public byte MaxDecimals { get; }
 
-        public BalanceModel(string value, byte maxDecimals, CurrencyType currencyType)
+        public CurrencyType CurrencyType { get; }
+
+        public string EffectiveSp { get; }
+
+        public BalanceModel(string username, string value, byte maxDecimals, string effectiveSp, CurrencyType currencyType)
         {
+            UserName = username;
             Value = value;
             MaxDecimals = maxDecimals;
+            EffectiveSp = effectiveSp;
             CurrencyType = currencyType;
         }
     }

@@ -1,24 +1,21 @@
-﻿using System;
+﻿using System.Globalization;
 using Android.Content;
 using Android.Graphics;
 using Android.Support.V7.Widget;
 using Android.Util;
 using Android.Views;
+using Android.Widget;
+using IO.SuperCharge.ShimmerLayoutLib;
 using Steepshot.Core.HttpClient;
+using Steepshot.Core.Utils;
+using Steepshot.CustomViews;
 using Steepshot.Utils;
 
 namespace Steepshot.Adapter
 {
-    public class TrxModel
-    {
-        public DateTime Date { get; set; }
-    }
-
     public class TrxHistoryAdapter : RecyclerView.Adapter
     {
         private AccountHistoryResponse[] _accountHistory;
-
-        public override int ItemCount => _accountHistory?.Length ?? 0;
 
         public void SetAccountHistory(AccountHistoryResponse[] accountHistory)
         {
@@ -26,28 +23,96 @@ namespace Steepshot.Adapter
             NotifyDataSetChanged();
         }
 
+        public override int ItemCount => _accountHistory?.Length ?? 10;
+
         public override void OnBindViewHolder(RecyclerView.ViewHolder holder, int position)
         {
+            if (holder is TrxHistoryHolder trxHolder)
+                trxHolder.UpdateData(_accountHistory[position], position == 0 || _accountHistory[position].DateTime.Date != _accountHistory[position - 1].DateTime.Date);
+        }
+
+        public override int GetItemViewType(int position)
+        {
+            return _accountHistory == null ? -1 : (int)_accountHistory[position].Type;
         }
 
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
         {
-            var itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.lyt_trx_history, null);
-            return new TrxHistoryHolder(itemView);
+            if (viewType >= 0)
+            {
+                var trxHistoryView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.lyt_trx_history, null);
+                switch ((OperationType)viewType)
+                {
+                    case OperationType.Transfer:
+                        break;
+                    case OperationType.PowerUp:
+                        break;
+                    case OperationType.PowerDown:
+                        break;
+                }
+
+                return new TrxHistoryHolder(trxHistoryView);
+            }
+
+            var trxHistoryShimmerView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.lyt_trx_history_shimmer, null);
+            return new TrxHistoryShimmerHolder(trxHistoryShimmerView);
+        }
+    }
+
+    public class TrxHistoryShimmerHolder : RecyclerView.ViewHolder
+    {
+        public TrxHistoryShimmerHolder(View itemView) : base(itemView)
+        {
+            var shimmerContainer = itemView.FindViewById<ShimmerLayout>(Resource.Id.shimmer_container);
+            var trxType = itemView.FindViewById<ShimmerLayout>(Resource.Id.shimmer_trx_type);
+            var recipient = itemView.FindViewById<ShimmerLayout>(Resource.Id.shimmer_recipient);
+            var amount = itemView.FindViewById<ShimmerLayout>(Resource.Id.shimmer_balance);
+
+            shimmerContainer.SetShimmerColor(Color.Argb(80, 255, 255, 255));
+            shimmerContainer.SetMaskWidth(0.8f);
+            shimmerContainer.StartShimmerAnimation();
+
+            trxType.SetShimmerColor(Color.White);
+            trxType.SetMaskWidth(0.8f);
+            trxType.StartShimmerAnimation();
+
+            recipient.SetShimmerColor(Color.White);
+            recipient.SetMaskWidth(0.8f);
+            recipient.StartShimmerAnimation();
+
+            amount.SetShimmerColor(Color.White);
+            amount.SetMaskWidth(0.8f);
+            amount.StartShimmerAnimation();
         }
     }
 
     public class TrxHistoryHolder : RecyclerView.ViewHolder
     {
-        public DateTime Date { get; private set; }
+        private readonly TextView _date;
+        private readonly TextView _trxType;
+        private readonly AutoLinkTextView _recipient;
+        private readonly TextView _amount;
 
         public TrxHistoryHolder(View itemView) : base(itemView)
         {
+            _date = itemView.FindViewById<TextView>(Resource.Id.date);
+            _trxType = itemView.FindViewById<TextView>(Resource.Id.trx_type);
+            _recipient = itemView.FindViewById<AutoLinkTextView>(Resource.Id.recipient);
+            _amount = itemView.FindViewById<TextView>(Resource.Id.trx_amount);
+
+            _date.Typeface = Style.Regular;
+            _trxType.Typeface = Style.Semibold;
+            _recipient.Typeface = Style.Regular;
+            _amount.Typeface = Style.Semibold;
         }
 
-        public void UpdateData()
+        public void UpdateData(AccountHistoryResponse transaction, bool headItem)
         {
-
+            _date.Visibility = headItem ? ViewStates.Visible : ViewStates.Gone;
+            _date.Text = transaction.DateTime.ToString("dd MMM yyyy", CultureInfo.GetCultureInfo("en-US"));
+            _trxType.Text = transaction.Type.ToString();
+            _recipient.AutoLinkText = $"{(transaction.From.Equals(AppSettings.User.Login) ? $"to @{transaction.To}" : $"from @{transaction.From}")}";
+            _amount.Text = $"{transaction.Amount}";
         }
     }
 
@@ -84,7 +149,12 @@ namespace Steepshot.Adapter
             for (int i = 0; i < parent.ChildCount; i++)
             {
                 var child = parent.GetChildAt(i);
-                var middle = (child.Top + child.Bottom) / 2f;
+                var dateLabel = child.FindViewById<TextView>(Resource.Id.date);
+                var dateLabelLytParams = (LinearLayout.LayoutParams)dateLabel?.LayoutParameters;
+                var dateLabelFix = (dateLabel?.Visibility == ViewStates.Visible
+                    ? dateLabel.Height + dateLabelLytParams.TopMargin + dateLabelLytParams.BottomMargin
+                    : 0);
+                var middle = (child.Top + dateLabelFix + child.Bottom) / 2f;
 
                 if (child.Top != 0)
                     c.DrawLine(left, child.Top - _itemSpacing, left, middle - _dashSpace, _paint);

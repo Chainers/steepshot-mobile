@@ -363,6 +363,18 @@ namespace Steepshot.Core.Clients
             }
 
             var acc = resp.Result.Accounts[0];
+
+            var propResp = await _operationManager.GetDynamicGlobalProperties(CancellationToken.None);
+            if (propResp.IsError)
+            {
+                result.Error = new RequestError(propResp);
+                return result;
+            }
+
+            var sp = (double.Parse(propResp.Result.TotalVestingFundSteem.ToDoubleString(), CultureInfo.InvariantCulture)
+                      * ((double.Parse(acc.VestingShares.ToDoubleString(), CultureInfo.InvariantCulture) + double.Parse(acc.ReceivedVestingShares.ToDoubleString(), CultureInfo.InvariantCulture))
+                       / double.Parse(propResp.Result.TotalVestingShares.ToDoubleString(), CultureInfo.InvariantCulture))).ToString("F3", CultureInfo.InvariantCulture);
+
             result.Result = new AccountInfoResponse
             {
                 Chains = KnownChains.Steem,
@@ -371,8 +383,8 @@ namespace Steepshot.Core.Clients
                 Metadata = JsonConvert.DeserializeObject<AccountMetadata>(acc.JsonMetadata),
                 Balances = new List<BalanceModel>
                 {
-                    new BalanceModel(acc.Balance.ToDoubleString(), 3, CurrencyType.Steem),
-                    new BalanceModel(acc.SbdBalance.ToDoubleString(), 3, CurrencyType.Sbd)
+                    new BalanceModel(userName, acc.Balance.ToDoubleString(), 3, sp, CurrencyType.Steem),
+                    new BalanceModel(userName, acc.SbdBalance.ToDoubleString(), 3, sp, CurrencyType.Sbd)
                 }
             };
 
@@ -397,7 +409,7 @@ namespace Steepshot.Core.Clients
             {
                 Account = userName,
                 Start = ulong.MaxValue,
-                Limit = 10000
+                Limit = 5000
             };
             var resp = await _operationManager.CondenserGetAccountHistory(args, CancellationToken.None);
             if (resp.IsError)
@@ -406,7 +418,7 @@ namespace Steepshot.Core.Clients
                 return result;
             }
 
-            result.Result = resp.Result.History.Where(Filter).Select(Transform).ToArray();
+            result.Result = resp.Result.History.Where(Filter).Select(Transform).OrderByDescending(x => x.DateTime).ToArray();
 
             return result;
         }
@@ -431,7 +443,7 @@ namespace Steepshot.Core.Clients
                             Type = OperationType.Transfer,
                             From = typed.From,
                             To = typed.To,
-                            Amount = typed.Amount.ToString(),
+                            Amount = typed.Amount.ToOldFormatString(),
                             Memo = typed.Memo
                         };
                     }
@@ -444,7 +456,7 @@ namespace Steepshot.Core.Clients
                             Type = OperationType.PowerUp,
                             From = typed.From,
                             To = typed.To,
-                            Amount = typed.Amount.ToString()
+                            Amount = typed.Amount.ToOldFormatString()
                         };
                     }
                 case WithdrawVestingOperation.OperationName:
@@ -456,7 +468,7 @@ namespace Steepshot.Core.Clients
                             Type = OperationType.PowerDown,
                             From = typed.Account,
                             To = typed.Account,
-                            Amount = typed.VestingShares.ToString()
+                            Amount = typed.VestingShares.ToOldFormatString()
                         };
                     }
                 case ClaimRewardBalanceOperation.OperationName:
