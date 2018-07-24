@@ -57,7 +57,7 @@ namespace Steepshot.iOS.Cells
         private NSMutableAttributedString at;
         private UIActivityIndicatorView followProgress;
 
-        private UserProfileResponse userData;
+        private UserProfileResponse _userData;
 
         public bool IsProfileActionSet => ProfileAction != null;
         public event Action<ActionType> ProfileAction;
@@ -293,55 +293,44 @@ namespace Steepshot.iOS.Cells
         {
             if (userData == null)
                 return 0;
-
+            
             descriptionY = topViewHeight + mainMargin + verticalSpacing;
 
-            this.userData = userData;
+            _userData = userData;
 
-            if (!string.IsNullOrEmpty(userData.ProfileImage.GetProxy(300, 300)))
-                ImageService.Instance.LoadUrl(userData.ProfileImage, TimeSpan.FromDays(30))
-                                     .FadeAnimation(false, false, 0)
-                                     .LoadingPlaceholder("ic_noavatar.png")
-                                     .ErrorPlaceholder("ic_noavatar.png").Error((f) =>
-            {
-                ImageService.Instance.LoadUrl(userData.ProfileImage, TimeSpan.FromDays(30))
-                                     .FadeAnimation(false, false, 0)
-                                     .LoadingPlaceholder("ic_noavatar.png")
-                                     .ErrorPlaceholder("ic_noavatar.png")
-                                     .DownSample(width: (int)300)
-                                     .Into(avatar);
-            }).Into(avatar);
+            if (!string.IsNullOrEmpty(_userData.ProfileImage))
+                ImageLoader.Load(_userData.ProfileImage, avatar, size: new CGSize(300, 300));
             else
                 avatar.Image = UIImage.FromBundle("ic_noavatar");
-
-            if (userData.Username == AppSettings.User.Login)
-                powerFrame.ChangePercents((int)userData.VotingPower);
+            
+            if (_userData.Username == AppSettings.User.Login)
+                powerFrame.ChangePercents((int)_userData.VotingPower);
             else
                 powerFrame.ChangePercents(0);
 
-            if (string.IsNullOrEmpty(userData.Name))
+            if (string.IsNullOrEmpty(_userData.Name))
                 userName.Hidden = true;
             else
             {
                 userName.Hidden = false;
-                userName.Text = userData.Name;
+                userName.Text = _userData.Name;
             }
 
-            if (string.IsNullOrEmpty(userData.Location))
+            if (string.IsNullOrEmpty(_userData.Location))
                 userLocation.Hidden = true;
             else
             {
                 userLocation.Hidden = false;
-                userLocation.Text = userData.Location;
+                userLocation.Text = _userData.Location;
             }
 
-            if (AppSettings.User.HasPostingPermission && userData.Username != AppSettings.User.Login)
+            if (AppSettings.User.HasPostingPermission && _userData.Username != AppSettings.User.Login)
             {
                 followButton.Frame = new CGRect(new CGPoint(mainMargin, descriptionY),
                                                 new CGSize(UIScreen.MainScreen.Bounds.Width - mainMargin * 2, 40));
                 descriptionY += verticalSpacing + 40;
 
-                DecorateFollowButton(userData.HasFollowed, userData.Username);
+                DecorateFollowButton(_userData.HasFollowed, _userData.Username);
             }
             else
             {
@@ -357,23 +346,23 @@ namespace Steepshot.iOS.Cells
                 ForegroundColor = Helpers.Constants.R15G24B30
             };
 
-            if (!string.IsNullOrEmpty(userData.About))
+            if (!string.IsNullOrEmpty(_userData.About))
             {
-                at.Append(new NSAttributedString(userData.About, noLinkAttribute));
+                at.Append(new NSAttributedString(_userData.About, noLinkAttribute));
             }
 
-            if (!string.IsNullOrEmpty(userData.Website))
+            if (!string.IsNullOrEmpty(_userData.Website))
             {
                 var linkAttribute = new UIStringAttributes
                 {
-                    Link = new NSUrl(userData.Website),
+                    Link = new NSUrl(_userData.Website),
                     Font = Helpers.Constants.Semibold14,
                     ForegroundColor = Helpers.Constants.R255G34B5
                 };
 
                 at.Append(new NSAttributedString(Environment.NewLine));
                 at.Append(new NSAttributedString(Environment.NewLine));
-                at.Append(new NSAttributedString(userData.Website, linkAttribute));
+                at.Append(new NSAttributedString(_userData.Website, linkAttribute));
             }
 
             attributedLabel.SetText(at);
@@ -416,17 +405,17 @@ namespace Steepshot.iOS.Cells
             };
 
             NSMutableAttributedString photosString = new NSMutableAttributedString();
-            photosString.Append(new NSAttributedString(userData.PostCount.CounterFormat(), buttonsAttributes));
+            photosString.Append(new NSAttributedString(_userData.PostCount.CounterFormat(), buttonsAttributes));
             photosString.Append(new NSAttributedString(Environment.NewLine));
             photosString.Append(new NSAttributedString("Photos", textAttributes));
 
             NSMutableAttributedString followingString = new NSMutableAttributedString();
-            followingString.Append(new NSAttributedString(userData.FollowingCount.CounterFormat(), buttonsAttributes));
+            followingString.Append(new NSAttributedString(_userData.FollowingCount.CounterFormat(), buttonsAttributes));
             followingString.Append(new NSAttributedString(Environment.NewLine));
             followingString.Append(new NSAttributedString("Following", textAttributes));
 
             NSMutableAttributedString followersString = new NSMutableAttributedString();
-            followersString.Append(new NSAttributedString(userData.FollowersCount.CounterFormat(), buttonsAttributes)); 
+            followersString.Append(new NSAttributedString(_userData.FollowersCount.CounterFormat(), buttonsAttributes)); 
             followersString.Append(new NSAttributedString(Environment.NewLine));
             followersString.Append(new NSAttributedString("Followers", textAttributes));
 
