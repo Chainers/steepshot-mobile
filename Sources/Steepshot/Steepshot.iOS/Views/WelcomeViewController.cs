@@ -14,6 +14,13 @@ namespace Steepshot.iOS.Views
 {
     public partial class WelcomeViewController : BaseViewController, ISFSafariViewControllerDelegate
     {
+        private bool _showRegistration;
+
+        public WelcomeViewController(bool showRegistration)
+        {
+            _showRegistration = showRegistration;
+        }
+
         public override void ViewDidLoad()
         {
             base.ViewDidLoad();
@@ -32,6 +39,8 @@ namespace Steepshot.iOS.Views
             steemLogin.TouchDown += GoToPreLogin;
             newAccount.TouchDown += CreateAccount;
             devSwitch.ValueChanged += SwitchEnvironment;
+
+            newAccount.Hidden = !_showRegistration;
 
             SetBackButton();
             SetAgreementDecoration();
@@ -88,7 +97,9 @@ namespace Steepshot.iOS.Views
 
         private void SwitchEnvironment(object sender, EventArgs e)
         {
-            BasePresenter.SwitchChain(((UISwitch)sender).On);
+            var isDev = ((UISwitch) sender).On;
+            AppDelegate.SteemClient.SetDev(isDev);
+            AppDelegate.GolosClient.SetDev(isDev);
         }
 
         private void ToggleDevSwitchVisibility()

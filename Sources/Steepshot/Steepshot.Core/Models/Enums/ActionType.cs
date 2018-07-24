@@ -25,6 +25,7 @@
         Following,
         Balance,
         LikePower,
-        ProfilePower
+        ProfilePower,
+        Transfer,
     }
 }

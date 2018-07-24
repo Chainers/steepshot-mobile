@@ -1,7 +1,6 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System;
 using System.Threading.Tasks;
-using Steepshot.Core.Errors;
+using Steepshot.Core.Clients;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Presenters;
 
@@ -18,22 +17,28 @@ namespace Steepshot.Core.Facades
             TagsPresenter = new TagsPresenter();
         }
 
-        public async Task<ErrorBase> TrySearchCategories(string query, SearchType searchType)
+        public void SetClient(SteepshotApiClient client)
+        {
+            UserFriendPresenter.SetClient(client);
+            TagsPresenter.SetClient(client);
+        }
+
+        public async Task<Exception> TrySearchCategories(string query, SearchType searchType)
         {
             if (!string.IsNullOrEmpty(query) && (query.Length == 1 || (query.Length == 2 && searchType == SearchType.People)) || string.IsNullOrEmpty(query) && searchType == SearchType.People)
             {
                 if (searchType == SearchType.Tags)
                 {
                     TagsPresenter.NotifySourceChanged(nameof(TrySearchCategories), true);
-                    TagsPresenter.TasksCancel(false);
+                    TagsPresenter.TasksCancel();
                 }
                 else
                 {
                     UserFriendPresenter.NotifySourceChanged(nameof(TrySearchCategories), true);
-                    UserFriendPresenter.TasksCancel(false);
+                    UserFriendPresenter.TasksCancel();
                 }
-                
-                return new ValidationError();
+
+                return new OperationCanceledException();
             }
 
             if (string.IsNullOrEmpty(query))
@@ -45,10 +50,10 @@ namespace Steepshot.Core.Facades
             return await UserFriendPresenter.TryLoadNextSearchUser(query);
         }
 
-        public void TasksCancel(bool andDispose = false)
+        public void TasksCancel()
         {
-            UserFriendPresenter.TasksCancel(andDispose);
-            TagsPresenter.TasksCancel(andDispose);
+            UserFriendPresenter.TasksCancel();
+            TagsPresenter.TasksCancel();
         }
     }
 }

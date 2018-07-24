@@ -32,10 +32,9 @@
         android:id="@+id/browse_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/steem_login_border"
+        android:background="@drawable/orange_btn_style"
         android:textColor="@color/white"
         android:textSize="14sp"
-        android:textAllCaps="false"
         android:layout_marginBottom="50dp"
         android:layout_marginTop="50dp" />
 </LinearLayout>

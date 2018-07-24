@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
-using Steepshot.Core.Errors;
+using Steepshot.Core.Clients;
 using Steepshot.Core.Models;
 using Steepshot.Core.Presenters;
 
@@ -34,6 +34,11 @@ namespace Steepshot.Core.Facades
             _localTags.CollectionChanged += UpdateFilteredTags;
         }
 
+        public void SetClient(SteepshotApiClient client)
+        {
+            _tagsPresenter.SetClient(client);
+        }
+
         private void UpdateFilteredTags(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
             _filteredTags = _tagsPresenter.Where(tag => !_localTags.Any(localTag => localTag.Equals(tag.Name))).Select(i => i.Name).ToList();
@@ -58,7 +63,7 @@ namespace Steepshot.Core.Facades
             NotifySourceChanged(nameof(Clear), isEmpty);
         }
 
-        public async Task<ErrorBase> TryGetTopTags()
+        public async Task<Exception> TryGetTopTags()
         {
             var isAdded = false;
 
@@ -85,7 +90,7 @@ namespace Steepshot.Core.Facades
             return null;
         }
 
-        public async Task<ErrorBase> TryLoadNext(string tagFieldText)
+        public async Task<Exception> TryLoadNext(string tagFieldText)
         {
             var isAdded = false;
 

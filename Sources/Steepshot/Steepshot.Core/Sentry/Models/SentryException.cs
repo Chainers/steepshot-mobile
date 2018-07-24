@@ -34,9 +34,7 @@ namespace Steepshot.Core.Sentry.Models
         /// </summary>
         [JsonProperty(PropertyName = "value")]
         public string Value { get; set; }
-
-        private readonly string _message;
-
+        
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SentryException"/> class.
@@ -46,8 +44,7 @@ namespace Steepshot.Core.Sentry.Models
         {
             if (exception == null)
                 return;
-
-            _message = exception.Message;
+            
             Module = exception.Source;
             Type = exception.GetType().FullName;
             Value = exception.Message;
@@ -70,12 +67,12 @@ namespace Steepshot.Core.Sentry.Models
             if (Type != null)
                 sb.Append(Type);
 
-            if (_message != null)
+            if (Value != null)
             {
                 if (sb.Length > 0)
                     sb.Append(": ");
 
-                sb.Append(_message);
+                sb.Append(Value);
                 sb.AppendLine();
             }
 

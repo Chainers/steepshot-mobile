@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Newtonsoft.Json;
+using Steepshot.Core.Authorization;
 using Steepshot.Core.Localization;
 
 namespace Steepshot.Core.Models.Requests
@@ -18,6 +19,12 @@ namespace Steepshot.Core.Models.Requests
         {
             Login = login;
             ActiveKey = activeKey;
+        }
+
+        public AuthorizedActiveModel(UserInfo userInfo)
+        {
+            Login = userInfo.Login;
+            ActiveKey = userInfo.ActiveKey;
         }
     }
 }

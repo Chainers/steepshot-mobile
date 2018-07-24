@@ -1,6 +1,7 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
-using Steepshot.Core.Errors;
+using Steepshot.Core.HttpClient;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
@@ -18,20 +19,15 @@ namespace Steepshot.Core.Presenters
         {
             return Api.GetAccountInfo(login, ct);
         }
-    }
 
-    public sealed class LolPresenter : ListPresenter<string>
-    {
-        public async Task<ErrorBase> TryGetAccountInfo(string login)
+        public async Task<OperationResult<AccountHistoryResponse[]>> TryGetAccountHistory(string login)
         {
-            return await RunAsSingleTask(GetAccountInfo, login);
+            return await TryRunTask<string, AccountHistoryResponse[]>(GetAccountHistory, OnDisposeCts.Token, login);
         }
 
-        private async Task<ErrorBase> GetAccountInfo(string login, CancellationToken ct)
+        private Task<OperationResult<AccountHistoryResponse[]>> GetAccountHistory(string login, CancellationToken ct)
         {
-            var req = new UserProfileModel(login);
-            var response = await Api.GetUserProfile(req, ct);
-            return response.Error;
+            return Api.GetAccountHistory(login, ct);
         }
     }
 }

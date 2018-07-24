@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
 using CoreGraphics;
-using FFImageLoading;
 using Foundation;
 using Steepshot.Core.Errors;
 using Steepshot.Core.Models;
@@ -127,6 +126,20 @@ namespace Steepshot.iOS.Views
             searchButton.AddGestureRecognizer(searchTap);
 
             GetPosts();
+        }
+
+        protected async override void LoginTapped(object sender, EventArgs e)
+        {
+            signInLoader.StartAnimating();
+            loginButton.Enabled = false;
+
+            var response = await _presenter.CheckServiceStatus();
+
+            loginButton.Enabled = true;
+            signInLoader.StopAnimating();
+
+            var myViewController = new WelcomeViewController(response.IsSuccess);
+            NavigationController.PushViewController(myViewController, true);
         }
 
         public override void ViewWillDisappear(bool animated)
@@ -308,7 +321,7 @@ namespace Steepshot.iOS.Views
 
         protected override async Task GetPosts(bool shouldStartAnimating = true, bool clearOld = false)
         {
-            ErrorBase error;
+            Exception error;
             do
             {
                 if (shouldStartAnimating)
@@ -336,7 +349,7 @@ namespace Steepshot.iOS.Views
                     error = await _presenter.TryGetSearchedPosts();
                 }
 
-                if (error is CanceledError)
+                if (error is OperationCanceledException)
                     return;
 
                 if (_refreshControl.Refreshing)

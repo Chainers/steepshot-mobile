@@ -16,6 +16,7 @@ using Steepshot.Utils;
 using Steepshot.Core.Models;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Activity;
+using Steepshot.Core;
 using Steepshot.Core.Facades;
 using Steepshot.Core.Utils;
 
@@ -58,7 +59,11 @@ namespace Steepshot.Fragment
             base.OnCreate(savedInstanceState);
 
             if (_searchFacade == null)
+            {
+                var client = App.MainChain == KnownChains.Steem ? App.SteemClient : App.GolosClient;
                 _searchFacade = new SearchFacade();
+                _searchFacade.SetClient(client);
+            }
         }
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)

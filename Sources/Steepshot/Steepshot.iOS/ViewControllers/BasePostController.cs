@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using CoreGraphics;
 using Foundation;
 using PureLayout.Net;
-using Steepshot.Core.Errors;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models;
 using Steepshot.Core.Models.Common;
@@ -34,7 +33,7 @@ namespace Steepshot.iOS.ViewControllers
                 return;
 
             var error = await _presenter.TryVote(post);
-            if (error is CanceledError)
+            if (error is OperationCanceledException)
                 return;
 
             ShowAlert(error);
@@ -42,9 +41,11 @@ namespace Steepshot.iOS.ViewControllers
                 ((MainTabBarController)TabBarController)?.UpdateProfile();
         }
 
-        protected void LoginTapped(object sender, EventArgs e)
+        protected virtual async void LoginTapped(object sender, EventArgs e)
         {
-            var myViewController = new WelcomeViewController();
+            var response = await _presenter.CheckServiceStatus();
+
+            var myViewController = new WelcomeViewController(response.IsSuccess);
             NavigationController.PushViewController(myViewController, true);
         }
 
@@ -117,104 +118,110 @@ namespace Steepshot.iOS.ViewControllers
 
         private void DeleteAlert(Post post)
         {
-            var titleText = AppSettings.LocalizationManager.GetText(LocalizationKeys.DeleteAlertTitle);
-            var messageText = AppSettings.LocalizationManager.GetText(LocalizationKeys.DeleteAlertMessage);
-            var leftButtonText = AppSettings.LocalizationManager.GetText(LocalizationKeys.Cancel);
-            var rightButtonText = AppSettings.LocalizationManager.GetText(LocalizationKeys.Delete);
+            if (_alert == null)
+            {
+                var titleText = AppSettings.LocalizationManager.GetText(LocalizationKeys.DeleteAlertTitle);
+                var messageText = AppSettings.LocalizationManager.GetText(LocalizationKeys.DeleteAlertMessage);
+                var leftButtonText = AppSettings.LocalizationManager.GetText(LocalizationKeys.Cancel);
+                var rightButtonText = AppSettings.LocalizationManager.GetText(LocalizationKeys.Delete);
 
-            var commonMargin = 20;
-            var dialogWidth = UIScreen.MainScreen.Bounds.Width - 10 * 2;
+                var commonMargin = 20;
+                var dialogWidth = UIScreen.MainScreen.Bounds.Width - 10 * 2;
 
-            dialog = new UIView();
-            dialog.ClipsToBounds = true;
-            dialog.Layer.CornerRadius = 15;
-            dialog.BackgroundColor = UIColor.White;
+                dialog = new UIView();
+                dialog.ClipsToBounds = true;
+                dialog.Layer.CornerRadius = 15;
+                dialog.BackgroundColor = UIColor.White;
 
-            dialog.AutoSetDimension(ALDimension.Width, dialogWidth);
+                dialog.AutoSetDimension(ALDimension.Width, dialogWidth);
 
-            // Title
+                // Title
 
-            var title = new UILabel();
-            title.Lines = 3;
-            title.LineBreakMode = UILineBreakMode.WordWrap;
-            title.UserInteractionEnabled = false;
-            title.Font = Constants.Regular20;
-            title.TextAlignment = UITextAlignment.Center;
-            title.Text = titleText;
-            title.BackgroundColor = UIColor.Clear;
-            dialog.AddSubview(title);
+                var title = new UILabel();
+                title.Lines = 3;
+                title.LineBreakMode = UILineBreakMode.WordWrap;
+                title.UserInteractionEnabled = false;
+                title.Font = Constants.Regular20;
+                title.TextAlignment = UITextAlignment.Center;
+                title.Text = titleText;
+                title.BackgroundColor = UIColor.Clear;
+                dialog.AddSubview(title);
 
-            title.AutoPinEdgeToSuperviewEdge(ALEdge.Top, 24);
-            title.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 10);
-            title.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 10);
+                title.AutoPinEdgeToSuperviewEdge(ALEdge.Top, 24);
+                title.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 10);
+                title.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 10);
 
-            var size = title.SizeThatFits(new CGSize(dialogWidth - commonMargin * 2, 0));
-            title.AutoSetDimension(ALDimension.Height, size.Height);
+                var size = title.SizeThatFits(new CGSize(dialogWidth - commonMargin * 2, 0));
+                title.AutoSetDimension(ALDimension.Height, size.Height);
 
-            // Alert message
+                // Alert message
 
-            var message = new UILabel();
-            message.Lines = 9;
-            message.LineBreakMode = UILineBreakMode.WordWrap;
-            message.UserInteractionEnabled = false;
-            message.Font = Constants.Regular14;
-            message.TextAlignment = UITextAlignment.Center;
-            message.Text = messageText;
-            message.BackgroundColor = UIColor.Clear;
-            dialog.AddSubview(message);
+                var message = new UILabel();
+                message.Lines = 9;
+                message.LineBreakMode = UILineBreakMode.WordWrap;
+                message.UserInteractionEnabled = false;
+                message.Font = Constants.Regular14;
+                message.TextAlignment = UITextAlignment.Center;
+                message.Text = messageText;
+                message.BackgroundColor = UIColor.Clear;
+                dialog.AddSubview(message);
 
-            message.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, title, 22);
-            message.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 10);
-            message.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 10);
+                message.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, title, 22);
+                message.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 10);
+                message.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 10);
 
-            size = message.SizeThatFits(new CGSize(dialogWidth - commonMargin * 2, 0));
-            message.AutoSetDimension(ALDimension.Height, size.Height);
+                size = message.SizeThatFits(new CGSize(dialogWidth - commonMargin * 2, 0));
+                message.AutoSetDimension(ALDimension.Height, size.Height);
 
-            // Separator
+                // Separator
 
-            var separator = new UIView();
-            separator.BackgroundColor = Constants.R245G245B245;
-            dialog.AddSubview(separator);
+                var separator = new UIView();
+                separator.BackgroundColor = Constants.R245G245B245;
+                dialog.AddSubview(separator);
 
-            separator.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, message, 26);
-            separator.AutoPinEdgeToSuperviewEdge(ALEdge.Left, commonMargin);
-            separator.AutoPinEdgeToSuperviewEdge(ALEdge.Right, commonMargin);
-            separator.AutoSetDimension(ALDimension.Height, 1);
+                separator.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, message, 26);
+                separator.AutoPinEdgeToSuperviewEdge(ALEdge.Left, commonMargin);
+                separator.AutoPinEdgeToSuperviewEdge(ALEdge.Right, commonMargin);
+                separator.AutoSetDimension(ALDimension.Height, 1);
 
-            var leftButton = CreateButton(leftButtonText, UIColor.Black);
-            leftButton.Font = Constants.Semibold14;
-            leftButton.Layer.BorderWidth = 1;
-            leftButton.Layer.BorderColor = Constants.R245G245B245.CGColor;
-            dialog.AddSubview(leftButton);
+                var leftButton = CreateButton(leftButtonText, UIColor.Black);
+                leftButton.Font = Constants.Semibold14;
+                leftButton.Layer.BorderWidth = 1;
+                leftButton.Layer.BorderColor = Constants.R245G245B245.CGColor;
+                dialog.AddSubview(leftButton);
 
-            leftButton.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, separator, 20);
-            leftButton.AutoPinEdgeToSuperviewEdge(ALEdge.Left, commonMargin);
-            leftButton.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom, commonMargin);
-            leftButton.AutoSetDimension(ALDimension.Width, dialogWidth / 2 - 27);
-            leftButton.AutoSetDimension(ALDimension.Height, 50);
+                leftButton.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, separator, 20);
+                leftButton.AutoPinEdgeToSuperviewEdge(ALEdge.Left, commonMargin);
+                leftButton.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom, commonMargin);
+                leftButton.AutoSetDimension(ALDimension.Width, dialogWidth / 2 - 27);
+                leftButton.AutoSetDimension(ALDimension.Height, 50);
 
-            rightButton = CreateButton(rightButtonText, UIColor.White);
-            rightButton.Font = Constants.Bold14;
-            dialog.AddSubview(rightButton);
+                rightButton = CreateButton(rightButtonText, UIColor.White);
+                rightButton.Font = Constants.Bold14;
+                dialog.AddSubview(rightButton);
 
-            rightButton.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, separator, 20);
-            rightButton.AutoPinEdge(ALEdge.Left, ALEdge.Right, leftButton, 15);
-            rightButton.AutoPinEdgeToSuperviewEdge(ALEdge.Right, commonMargin);
-            rightButton.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom, commonMargin);
-            rightButton.AutoSetDimension(ALDimension.Width, dialogWidth / 2 - 27);
-            rightButton.AutoSetDimension(ALDimension.Height, 50);
-            rightButton.LayoutIfNeeded();
+                rightButton.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, separator, 20);
+                rightButton.AutoPinEdge(ALEdge.Left, ALEdge.Right, leftButton, 15);
+                rightButton.AutoPinEdgeToSuperviewEdge(ALEdge.Right, commonMargin);
+                rightButton.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom, commonMargin);
+                rightButton.AutoSetDimension(ALDimension.Width, dialogWidth / 2 - 27);
+                rightButton.AutoSetDimension(ALDimension.Height, 50);
+                rightButton.LayoutIfNeeded();
 
-            NavigationController.View.EndEditing(true);
+                NavigationController.View.EndEditing(true);
 
-            var alert = new CustomAlertView(dialog, TabBarController);
+                _alert = new CustomAlertView(dialog, TabBarController);
 
-            leftButton.TouchDown += (sender, e) => { alert.Hide(); };
-            rightButton.TouchDown += (sender, e) => { DeletePost(post, alert.Hide); };
+                leftButton.TouchDown += (sender, e) => { _alert.Hide(); };
+                rightButton.TouchDown += (sender, e) => { DeletePost(post, _alert.Hide); };
 
-            Constants.CreateGradient(rightButton, 25);
-            Constants.CreateShadow(rightButton, Constants.R231G72B0, 0.5f, 25, 10, 12);
+                Constants.CreateGradient(rightButton, 25);
+                Constants.CreateShadow(rightButton, Constants.R231G72B0, 0.5f, 25, 10, 12);
+            }
+            _alert.Show();
         }
+
+        private CustomAlertView _alert; 
 
         private async void DeletePost(Post post, Action action)
         {

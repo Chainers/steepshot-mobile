@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Com.OneSignal;
 using CoreGraphics;
-using FFImageLoading;
-using Steepshot.Core.Errors;
 using Steepshot.Core.Extensions;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Models.Requests;
@@ -77,7 +74,7 @@ namespace Steepshot.iOS.ViewControllers
 
             TabBar.Subviews[3].AddSubview(_powerFrame);
             InitializePowerFrame();
-            if (AppSettings.AppInfo.GetModel() != "Simulator")
+            if (!AppSettings.AppInfo.GetModel().Contains("Simulator"))
                 InitPushes();
         }
 
@@ -96,7 +93,7 @@ namespace Steepshot.iOS.ViewControllers
                 {
                     Subscriptions = PushSettings.All.FlagToStringList()
                 };
-                var response = await BasePresenter.TrySubscribeForPushes(model);
+                var response = await _presenter.TrySubscribeForPushes(model);
                 if (response.IsSuccess)
                     AppSettings.User.PushesPlayerId = playerId;
             }
@@ -114,7 +111,7 @@ namespace Steepshot.iOS.ViewControllers
             do
             {
                 var error = await _presenter.TryGetUserInfo(AppSettings.User.Login);
-                if (error == null || error is CanceledError)
+                if (error == null || error is OperationCanceledException)
                 {
                     _powerFrame.ChangePercents((int)_presenter.UserProfileResponse.VotingPower);
                     if (!string.IsNullOrEmpty(_presenter.UserProfileResponse.ProfileImage))

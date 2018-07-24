@@ -1,17 +1,20 @@
 ﻿using Autofac;
 using Steepshot.Core.Authorization;
-using Steepshot.Core.HttpClient;
+using Steepshot.Core.Clients;
 using Steepshot.Core.Localization;
+using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Services;
 
 namespace Steepshot.Core.Utils
 {
     public static class AppSettings
     {
+        public static ProfileUpdateType ProfileUpdateType = ProfileUpdateType.None;
+
         public static IContainer Container { get; set; }
 
-        private static IReporterService _reporter;
-        public static IReporterService Reporter => _reporter ?? (_reporter = Container.Resolve<IReporterService>());
+        private static ILogService _log;
+        public static ILogService Logger => _log ?? (_log = Container.Resolve<ILogService>());
 
         private static ISaverService _saverService;
         public static ISaverService SaverService => _saverService ?? (_saverService = Container.Resolve<ISaverService>());

@@ -23,6 +23,7 @@ namespace Steepshot.Core.Sentry.Models
         {
             if (string.IsNullOrEmpty(dsn) || string.IsNullOrEmpty(dsn.Trim()))
                 throw new ArgumentNullException("dsn");
+
             try
             {
                 Uri = new Uri(dsn);

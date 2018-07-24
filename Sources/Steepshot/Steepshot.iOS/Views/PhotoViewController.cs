@@ -5,7 +5,7 @@ using CoreGraphics;
 using CoreMedia;
 using Foundation;
 using Photos;
-using Steepshot.Core.Utils;
+using Steepshot.Core.Errors;
 using Steepshot.iOS.Helpers;
 using Steepshot.iOS.ViewControllers;
 using UIKit;
@@ -209,8 +209,7 @@ namespace Steepshot.iOS.Views
             }
             catch (Exception ex)
             {
-                AppSettings.Reporter.SendCrash(ex);
-                ShowAlert(Core.Localization.LocalizationKeys.PhotoProcessingError);
+                ShowAlert(new InternalError(Core.Localization.LocalizationKeys.PhotoProcessingError, ex));
             }
         }
 

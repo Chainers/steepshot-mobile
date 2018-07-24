@@ -2,7 +2,6 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Foundation;
-using Steepshot.Core.Errors;
 using Steepshot.Core.Presenters;
 using Steepshot.iOS.Cells;
 using Steepshot.iOS.ViewControllers;
@@ -96,7 +95,7 @@ namespace Steepshot.iOS.Views
                 return;
 
             _presenter.Clear();
-            ErrorBase error;
+            Exception error;
             if (string.IsNullOrEmpty(query))
             {
                 error = await _presenter.TryGetTopTags();

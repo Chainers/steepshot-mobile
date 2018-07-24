@@ -1,5 +1,4 @@
-﻿using System.Runtime.Serialization;
-using Android.Support.V7.Widget;
+﻿using Android.Support.V7.Widget;
 
 namespace Steepshot.Utils
 {

@@ -12,7 +12,7 @@ using UIKit;
 
 namespace Steepshot.iOS.Views
 {
-    public class NotificationSettingsController : BaseViewController
+    public class NotificationSettingsController : BaseViewControllerWithPresenter<UserProfilePresenter>
     {
         private readonly UISwitch _notificationUpvotesSwitch = new UISwitch();
         private readonly UISwitch _notificationCommentsUpvotesSwitch = new UISwitch();
@@ -82,7 +82,7 @@ namespace Steepshot.iOS.Views
             {
                 Subscriptions = PushSettings.FlagToStringList()
             };
-            var resp = await BasePresenter.TrySubscribeForPushes(model);
+            var resp = await _presenter.TrySubscribeForPushes(model);
             if (resp.IsSuccess)
                 AppSettings.User.PushSettings = PushSettings;
             else

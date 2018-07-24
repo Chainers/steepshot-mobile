@@ -24,7 +24,6 @@ using Steepshot.Core.Models;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Interfaces;
-using Steepshot.Core.Errors;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Utils;
 
@@ -122,12 +121,12 @@ namespace Steepshot.Fragment
                         if (!_isActivated)
                         {
                             GetUserPosts();
-                            BasePresenter.ProfileUpdateType = ProfileUpdateType.None;
+                            AppSettings.ProfileUpdateType = ProfileUpdateType.None;
                         }
                         _isActivated = true;
                     }
                     else
-                        BasePresenter.ProfileUpdateType = ProfileUpdateType.Full;
+                        AppSettings.ProfileUpdateType = ProfileUpdateType.Full;
                 }
                 base.UserVisibleHint = value;
             }
@@ -377,7 +376,7 @@ namespace Steepshot.Fragment
             if (!IsInitialized)
                 return;
 
-            Context.ShowAlert(error);
+            Context.ShowAlert(error, ToastLength.Short);
             _listSpinner.Visibility = ViewStates.Gone;
         }
 
@@ -435,7 +434,7 @@ namespace Steepshot.Fragment
 
             isSubscription = true;
 
-            var result = await BasePresenter.TrySubscribeForPushes(model);
+            var result = await Presenter.TrySubscribeForPushes(model);
             if (result.IsSuccess)
             {
                 isSubscribed = !isSubscribed;
@@ -510,7 +509,7 @@ namespace Steepshot.Fragment
                 if (!IsInitialized)
                     return;
 
-                if (error == null || error is CanceledError)
+                if (error == null || error is System.OperationCanceledException)
                 {
                     _listLayout.Visibility = ViewStates.Visible;
                     _more.Enabled = true;
@@ -518,7 +517,7 @@ namespace Steepshot.Fragment
                     break;
                 }
 
-                Context.ShowAlert(error);
+                Context.ShowAlert(error, ToastLength.Short);
                 await Task.Delay(5000);
                 if (!IsInitialized)
                     return;
@@ -536,8 +535,11 @@ namespace Steepshot.Fragment
         {
             switch (type)
             {
+                case ActionType.Transfer:
+                    ((BaseActivity)Activity).OpenNewContentFragment(Presenter.UserProfileResponse.Username.Equals(AppSettings.User.Login, StringComparison.OrdinalIgnoreCase) ? new TransferFragment() : new TransferFragment(Presenter.UserProfileResponse));
+                    break;
                 case ActionType.Balance:
-                    ((BaseActivity)Activity).OpenNewContentFragment(new TransferFragment());
+                    ((BaseActivity)Activity).OpenNewContentFragment(new WalletFragment());
                     break;
                 case ActionType.Followers:
                     Activity.Intent.PutExtra(FollowersFragment.IsFollowersExtra, true);
@@ -692,10 +694,10 @@ namespace Steepshot.Fragment
 
         private void UpdateProfile()
         {
-            if (BasePresenter.ProfileUpdateType != ProfileUpdateType.None)
+            if (AppSettings.ProfileUpdateType != ProfileUpdateType.None)
             {
-                UpdatePage(BasePresenter.ProfileUpdateType);
-                BasePresenter.ProfileUpdateType = ProfileUpdateType.None;
+                UpdatePage(AppSettings.ProfileUpdateType);
+                AppSettings.ProfileUpdateType = ProfileUpdateType.None;
             }
         }
     }

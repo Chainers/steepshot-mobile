@@ -1,10 +1,8 @@
 ﻿using System;
 using CoreAnimation;
 using CoreGraphics;
-using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 using Steepshot.iOS.Helpers;
-using Steepshot.iOS.ViewControllers;
 using UIKit;
 
 namespace Steepshot.iOS.CustomViews

@@ -103,26 +103,23 @@
     <OutputPath>bin\x86\Release\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Autofac, Version=4.8.1.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
-      <HintPath>..\packages\Autofac.4.8.1\lib\netstandard1.1\Autofac.dll</HintPath>
-    </Reference>
     <Reference Include="Com.OneSignal, Version=3.2.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Com.OneSignal.3.2.0\lib\Xamarin.iOS10\Com.OneSignal.dll</HintPath>
     </Reference>
     <Reference Include="Com.OneSignal.Abstractions, Version=3.2.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Com.OneSignal.3.2.0\lib\Xamarin.iOS10\Com.OneSignal.Abstractions.dll</HintPath>
     </Reference>
-    <Reference Include="Cryptography.ECDSA, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Cryptography.ECDSA.Secp256K1.1.1.0\lib\netstandard2.0\Cryptography.ECDSA.dll</HintPath>
+    <Reference Include="Cryptography.ECDSA, Version=1.1.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Cryptography.ECDSA.Secp256K1.1.1.2\lib\netstandard2.0\Cryptography.ECDSA.dll</HintPath>
     </Reference>
-    <Reference Include="Ditch.Core, Version=3.2.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Ditch.Core.3.2.0-alpha\lib\netstandard2.0\Ditch.Core.dll</HintPath>
+    <Reference Include="Ditch.Core, Version=4.0.0.1, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Ditch.Core.4.0.0-alpha1\lib\netstandard2.0\Ditch.Core.dll</HintPath>
     </Reference>
-    <Reference Include="Ditch.Golos, Version=3.2.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Ditch.Golos.3.2.0-alpha\lib\netstandard2.0\Ditch.Golos.dll</HintPath>
+    <Reference Include="Ditch.Golos, Version=4.0.0.1, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Ditch.Golos.4.0.0-alpha1\lib\netstandard2.0\Ditch.Golos.dll</HintPath>
     </Reference>
-    <Reference Include="Ditch.Steem.Old, Version=0.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Ditch.Steem.Old.0.1.0-alpha\lib\netstandard2.0\Ditch.Steem.Old.dll</HintPath>
+    <Reference Include="Ditch.Steem, Version=4.0.0.3, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Ditch.Steem.4.0.0-alpha3\lib\netstandard2.0\Ditch.Steem.dll</HintPath>
     </Reference>
     <Reference Include="FFImageLoading, Version=2.4.3.840, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Xamarin.FFImageLoading.2.4.3.840\lib\Xamarin.iOS10\FFImageLoading.dll</HintPath>
@@ -184,11 +181,8 @@
     <Reference Include="ZXingNetMobile, Version=2.4.1.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\ZXing.Net.Mobile.2.4.1\lib\Xamarin.iOS10\ZXingNetMobile.dll</HintPath>
     </Reference>
-    <Reference Include="Ditch.Golos, Version=3.2.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Ditch.Golos.3.2.0-alpha\lib\netstandard2.0\Ditch.Golos.dll</HintPath>
-    </Reference>
-    <Reference Include="Ditch.Core, Version=3.2.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Ditch.Core.3.2.0-alpha\lib\netstandard2.0\Ditch.Core.dll</HintPath>
+    <Reference Include="Autofac, Version=4.8.1.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
+      <HintPath>..\packages\Autofac.4.8.1\lib\netstandard1.1\Autofac.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -266,7 +260,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Helpers\AssetsHelper.cs" />
+    <Compile Include="Helpers\AssetHelper.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="AppDelegate.cs" />
     <Compile Include="ViewControllers\MainTabBarController.cs" />
@@ -284,7 +278,6 @@
     <Compile Include="Cells\TagCollectionViewCell.designer.cs">
       <DependentUpon>TagCollectionViewCell.cs</DependentUpon>
     </Compile>
-    <Compile Include="ViewSources\FeedCollectionViewSource.cs" />
     <Compile Include="Cells\FollowViewCell.cs" />
     <Compile Include="Cells\FollowViewCell.designer.cs">
       <DependentUpon>FollowViewCell.cs</DependentUpon>
@@ -365,10 +358,7 @@
     <Compile Include="Views\WelcomeViewController.designer.cs">
       <DependentUpon>WelcomeViewController.cs</DependentUpon>
     </Compile>
-    <Compile Include="Helpers\CollectionViewFlowDelegate.cs" />
-    <Compile Include="Helpers\CommentsTextViewDelegate.cs" />
     <Compile Include="Cells\LoaderCell.cs" />
-    <Compile Include="Helpers\TabBarDelegate.cs" />
     <Compile Include="ViewSources\LocalTagsCollectionViewSource.cs" />
     <Compile Include="Cells\LocalTagCollectionViewCell.cs" />
     <Compile Include="Cells\LocalTagCollectionViewCell.designer.cs">
@@ -379,7 +369,6 @@
       <DependentUpon>TagTableViewCell.cs</DependentUpon>
     </Compile>
     <Compile Include="ViewSources\TagsTableViewSource.cs" />
-    <Compile Include="Helpers\TagFieldDelegate.cs" />
     <Compile Include="ViewSources\AccountsTableViewSource.cs" />
     <Compile Include="Cells\AccountTableViewCell.cs" />
     <Compile Include="Cells\AccountTableViewCell.designer.cs">
@@ -389,7 +378,6 @@
     <Compile Include="Cells\NewFeedCollectionViewCell.cs" />
     <Compile Include="Helpers\CellHeightCalculator.cs" />
     <Compile Include="Models\CellSizeHelper.cs" />
-    <Compile Include="Helpers\PostTitleTextViewDelegate.cs" />
     <Compile Include="Views\PhotoPreviewViewController.cs" />
     <Compile Include="Views\PhotoPreviewViewController.designer.cs">
       <DependentUpon>PhotoPreviewViewController.cs</DependentUpon>
@@ -430,6 +418,18 @@
     <Compile Include="Helpers\DeviceHelper.cs" />
     <Compile Include="Views\RegistrationViewController.cs" />
     <Compile Include="Views\RegistrationCompletionViewController.cs" />
+    <Compile Include="Delegates\TagFieldDelegate.cs" />
+    <Compile Include="Delegates\TabBarDelegate.cs" />
+    <Compile Include="Delegates\PostTitleTextViewDelegate.cs" />
+    <Compile Include="Delegates\CollectionViewFlowDelegate.cs" />
+    <Compile Include="Delegates\CommentsTextViewDelegate.cs" />
+    <Compile Include="Views\TransferViewControllerDesigner.cs" />
+    <Compile Include="Cells\CardCollectionViewCell.cs" />
+    <Compile Include="ViewSources\CardsCollectionViewSource.cs" />
+    <Compile Include="Cells\TransactionCollectionViewCell.cs" />
+    <Compile Include="ViewSources\TransferCollectionViewSource.cs" />
+    <Compile Include="Cells\TransactionHeaderCollectionViewCell.cs" />
+    <Compile Include="ViewSources\FeedCollectionViewSource.cs" />
     <Compile Include="Cells\ProfileHeaderViewCell.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -556,15 +556,35 @@
     <BundleResource Include="Resources\ic_comment_like_inactive%403x.png" />
     <BundleResource Include="Resources\ic_currency_picker%402x.png" />
     <BundleResource Include="Resources\ic_currency_picker%403x.png" />
+    <BundleResource Include="Resources\ic_stamp%402x.png" />
+    <BundleResource Include="Resources\ic_stamp%403x.png" />
+    <BundleResource Include="Resources\ic_present%402x.png" />
+    <BundleResource Include="Resources\ic_present%403x.png" />
+    <BundleResource Include="Resources\ic_blue_card%402x.png" />
+    <BundleResource Include="Resources\ic_blue_card%403x.png" />
+    <BundleResource Include="Resources\ic_light_red_card%403x.png" />
+    <BundleResource Include="Resources\ic_light_red_card%402x.png" />
+    <BundleResource Include="Resources\ic_grey_card%403x.png" />
+    <BundleResource Include="Resources\ic_grey_card%402x.png" />
+    <BundleResource Include="Resources\ic_purple_card%403x.png" />
+    <BundleResource Include="Resources\ic_purple_card%402x.png" />
+    <BundleResource Include="Resources\ic_pink_card%402x.png" />
+    <BundleResource Include="Resources\ic_pink_card%403x.png" />
+    <BundleResource Include="Resources\ic_orange_card%402x.png" />
+    <BundleResource Include="Resources\ic_orange_card%403x.png" />
+    <BundleResource Include="Resources\ic_green_card%402x.png" />
+    <BundleResource Include="Resources\ic_green_card%403x.png" />
+    <BundleResource Include="Resources\ic_red_card%403x.png" />
+    <BundleResource Include="Resources\ic_red_card%402x.png" />
   </ItemGroup>
   <ItemGroup>
-    <BundleResource Include="..\Steepshot.Android\Assets\Localization.en-us.txt">
-      <Link>Localization.en-us.txt</Link>
+    <BundleResource Include="..\..\..\References\Languages\en\dic.xml">
+      <Link>Resources\Languages\en\dic.xml</Link>
     </BundleResource>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Steepshot.Core\Steepshot.Core.csproj">
-      <Project>{8C01B785-CFC3-4308-8BE9-BB2F043631DA}</Project>
+      <Project>{8c01b785-cfc3-4308-8be9-bb2f043631da}</Project>
       <Name>Steepshot.Core</Name>
     </ProjectReference>
     <ProjectReference Include="..\Steepshot.iOS.ShareExtension\Steepshot.iOS.ShareExtension.csproj">
@@ -587,9 +607,7 @@
       <Link>IntegrationModuleConfig.txt</Link>
     </BundleResource>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Delegates\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
   <Import Project="..\packages\Xamarin.Insights.1.12.3\build\Xamarin.iOS10\Xamarin.Insights.targets" Condition="Exists('..\packages\Xamarin.Insights.1.12.3\build\Xamarin.iOS10\Xamarin.Insights.targets')" />
   <Import Project="..\packages\NETStandard.Library.2.0.1\build\netstandard2.0\NETStandard.Library.targets" Condition="Exists('..\packages\NETStandard.Library.2.0.1\build\netstandard2.0\NETStandard.Library.targets')" />

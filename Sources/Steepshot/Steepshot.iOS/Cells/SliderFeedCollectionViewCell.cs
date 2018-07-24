@@ -1,6 +1,5 @@
 ﻿using System;
 using CoreGraphics;
-using FFImageLoading;
 using FFImageLoading.Work;
 using Foundation;
 using Steepshot.Core.Models.Common;
@@ -99,7 +98,7 @@ namespace Steepshot.iOS.Cells
         public void MoveData(nfloat step)
         {
             leftMargin += step * distinction;
-       
+
             _avatarImage.Frame = new CGRect(leftMargin, 20, 30, 30);
             _attributedLabel.Frame = new CGRect(new CGPoint(leftMargin, _topSeparator.Frame.Bottom + 15),
                                                 _attributedLabel.Frame.Size);
@@ -317,9 +316,9 @@ namespace Steepshot.iOS.Cells
         {
             _currentPost = post;
 
-            if(direction == 0)
+            if (direction == 0)
                 leftMargin = 0;
-            else if(direction > 0)
+            else if (direction > 0)
                 leftMargin = 5;
             else
                 leftMargin = -5;
@@ -490,7 +489,7 @@ namespace Steepshot.iOS.Cells
             _verticalSeparator.Frame = new CGRect(_contentView.Frame.Width - likeButtonWidthConst - 1, _photoScroll.Frame.Bottom + underPhotoPanelHeight / 2 - verticalSeparatorHeight / 2, 1, verticalSeparatorHeight);
 
 #if DEBUG
-            _rewards.Text = BasePresenter.ToFormatedCurrencyString(_currentPost.TotalPayoutReward);
+            _rewards.Text = StringHelper.ToFormatedCurrencyString(_currentPost.TotalPayoutReward, AppDelegate.MainChain);
             var rewardWidth = _rewards.SizeThatFits(new CGSize(0, underPhotoPanelHeight));
             _rewards.Frame = new CGRect(_verticalSeparator.Frame.Left - rewardWidth.Width, _photoScroll.Frame.Bottom, rewardWidth.Width, underPhotoPanelHeight);
 #endif
@@ -521,7 +520,7 @@ namespace Steepshot.iOS.Cells
 
                 var tagText = tag.Replace(" ", string.Empty);
 
-                if(_tagRegex.IsMatch(tagText))
+                if (_tagRegex.IsMatch(tagText))
                     tagUrlWithoutWhitespaces = new NSUrl(tagText);
 
                 var linkAttribute = new UIStringAttributes

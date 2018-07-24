@@ -1,6 +1,6 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
-using Steepshot.Core.Errors;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Utils;
 
@@ -10,7 +10,7 @@ namespace Steepshot.Core.Presenters
     {
         private const int ItemsLimit = 20;
 
-        public async Task<ErrorBase> TryLoadNextTopPosts()
+        public async Task<Exception> TryLoadNextTopPosts()
         {
             if (IsLastReaded)
                 return null;
@@ -18,7 +18,7 @@ namespace Steepshot.Core.Presenters
             return await RunAsSingleTask(LoadNextTopPosts);
         }
 
-        private async Task<ErrorBase> LoadNextTopPosts(CancellationToken ct)
+        private async Task<Exception> LoadNextTopPosts(CancellationToken ct)
         {
             var request = new CensoredNamedRequestWithOffsetLimitModel
             {
@@ -29,7 +29,7 @@ namespace Steepshot.Core.Presenters
                 ShowLowRated = AppSettings.User.IsLowRated
             };
 
-            ErrorBase error;
+            Exception error;
             bool isNeedRepeat;
             do
             {
