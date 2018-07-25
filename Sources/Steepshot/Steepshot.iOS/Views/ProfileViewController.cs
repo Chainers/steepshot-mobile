@@ -20,7 +20,7 @@ using UIKit;
 
 namespace Steepshot.iOS.Views
 {
-    public partial class ProfileViewController : BasePostController<UserProfilePresenter>, IPageCloser
+    public partial class ProfileViewController : BasePostController <UserProfilePresenter>, IPageCloser
     {
         private UserProfileResponse _userData;
         private FeedCollectionViewSource _collectionViewSource;
@@ -326,6 +326,14 @@ namespace Steepshot.iOS.Views
                 if (error == null)
                 {
                     _userData = _presenter.UserProfileResponse;
+                    if (_userData.IsSubscribed)
+                    {
+                        if(!AppSettings.User.WatchedUsers.Contains(_userData.Username))
+                            AppSettings.User.WatchedUsers.Add(_userData.Username);
+                    }
+                    else
+                        AppSettings.User.WatchedUsers.Remove(_userData.Username);
+
                     _collectionViewSource.user = _userData;
                     _gridDelegate.UpdateProfile(_userData);
 
