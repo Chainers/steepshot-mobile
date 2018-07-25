@@ -184,7 +184,7 @@ namespace Steepshot.CustomViews
         {
             if (scaleType == ScaleType.FitStart || scaleType == ScaleType.FitEnd)
             {
-                throw new ValidationError(LocalizationKeys.ErrorCameraScale);
+                throw new ValidateException(LocalizationKeys.ErrorCameraScale);
             }
             if (scaleType == ScaleType.Matrix)
             {
@@ -224,7 +224,7 @@ namespace Steepshot.CustomViews
         {
             if (_mScaleType == ScaleType.FitXy)
             {
-                throw new ValidationError(LocalizationKeys.ErrorCameraZoom);
+                throw new ValidateException(LocalizationKeys.ErrorCameraZoom);
             }
             var topLeft = TransformCoordTouchToBitmap(0, 0, true);
             var bottomRight = TransformCoordTouchToBitmap(ViewWidth, ViewHeight, true);
@@ -630,7 +630,7 @@ namespace Steepshot.CustomViews
             }
             else
             {
-                throw new ValidationError(LocalizationKeys.ErrorCameraScale);
+                throw new ValidateException(LocalizationKeys.ErrorCameraScale);
             }
 
             //

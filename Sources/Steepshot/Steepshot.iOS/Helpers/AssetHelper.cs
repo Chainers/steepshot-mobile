@@ -21,11 +21,6 @@ namespace Steepshot.iOS.Helpers
             return TryReadAsset<ConfigInfo>("Config.txt");
         }
 
-        public LocalizationModel GetLocalization(string lang)
-        {
-            return TryReadAsset<LocalizationModel>($"Localization.{lang}.txt");
-        }
-
         public List<NodeConfig> SteemNodesConfig()
         {
             return TryReadAsset<List<NodeConfig>>("SteemNodesConfig.txt");
@@ -41,14 +36,30 @@ namespace Steepshot.iOS.Helpers
             return TryReadAsset<Dictionary<string, string>>("IntegrationModuleConfig.txt");
         }
 
-        public void SetLocalization(LocalizationModel model)
+
+        public LocalizationModel GetLocalization(string lang)
         {
-            TryWriteAsset($"Localization.{model.Lang}.txt", model);
+            try
+            {
+                var txt = File.ReadAllText($@"Languages/{lang}/dic.xml");
+
+                if (!string.IsNullOrWhiteSpace(txt))
+                {
+                    var model = new LocalizationModel();
+                    LocalizationManager.Update(txt, model);
+                    return model;
+                }
+            }
+            catch (System.Exception ex)
+            {
+                AppSettings.Logger.Warning(ex);
+            }
+            return new LocalizationModel();
         }
 
         public HashSet<string> TryReadCensoredWords()
         {
-            var file = "CensoredWords.txt";
+            var file = "Assets/CensoredWords.txt";
             var hs = new HashSet<string>();
             try
             {
@@ -73,6 +84,7 @@ namespace Steepshot.iOS.Helpers
         {
             try
             {
+                file = $"Assets/{file}";
                 if (File.Exists(file))
                 {
                     var json = File.ReadAllText(file);
@@ -87,20 +99,6 @@ namespace Steepshot.iOS.Helpers
                 AppSettings.Logger.Warning(ex);
             }
             return new T();
-        }
-
-        private void TryWriteAsset<T>(string file, T data)
-        {
-            try
-            {
-                var json = JsonConvert.SerializeObject(data);
-                if (File.Exists(file))
-                    File.WriteAllText(file, json);
-            }
-            catch (Exception ex)
-            {
-                AppSettings.Logger.Warning(ex);
-            }
         }
     }
 }

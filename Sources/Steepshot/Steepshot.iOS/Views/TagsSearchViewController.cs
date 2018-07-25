@@ -13,6 +13,7 @@ using Steepshot.Core.Utils;
 using System.Threading.Tasks;
 using Steepshot.Core;
 using Constants = Steepshot.iOS.Helpers.Constants;
+using Steepshot.Core.Errors;
 
 namespace Steepshot.iOS.Views
 {
@@ -210,7 +211,7 @@ namespace Steepshot.iOS.Views
 
             if (shouldAnimate)
             {
-                if (!_isWarningOpen && error != null)
+                if (!_isWarningOpen && error is ValidateException)
                 {
                     UIView.Animate(0.3f, 0f, UIViewAnimationOptions.CurveEaseOut, () =>
                     {

@@ -9,6 +9,7 @@ using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
+using Steepshot.Core.Interfaces;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 using Steepshot.iOS.Cells;
@@ -19,20 +20,12 @@ using UIKit;
 
 namespace Steepshot.iOS.Views
 {
-    public partial class ProfileViewController : BasePostController<UserProfilePresenter> //BaseViewControllerWithPresenter<UserProfilePresenter>
+    public partial class ProfileViewController : BasePostController <UserProfilePresenter>, IPageCloser
     {
-        protected override void CreatePresenter()
-        {
-            _presenter = new UserProfilePresenter() { UserName = Username };
-            _presenter.SourceChanged += SourceChanged;
-        }
-
         private UserProfileResponse _userData;
-        public string Username = AppSettings.User.Login;
-        private ProfileCollectionViewSource _collectionViewSource;
+        private FeedCollectionViewSource _collectionViewSource;
         private UIRefreshControl _refreshControl;
         private bool _isPostsLoading;
-        private ProfileHeaderViewController _profileHeader;
         private CollectionViewFlowDelegate _gridDelegate;
         private SliderCollectionViewFlowDelegate _sliderGridDelegate;
         private UINavigationController _navController;
@@ -43,11 +36,15 @@ namespace Steepshot.iOS.Views
         private bool isPowerOpen;
         private bool UserIsWatched => AppSettings.User.WatchedUsers.Contains(Username);
 
+        public string Username = AppSettings.User.Login;
+
         public override void ViewDidLoad()
         {
             base.ViewDidLoad();
+            _presenter.UserName = Username;
             _navController = TabBarController != null ? TabBarController.NavigationController : NavigationController;
 
+            collectionView.RegisterClassForCell(typeof(ProfileHeaderViewCell), nameof(ProfileHeaderViewCell));
             collectionView.RegisterClassForCell(typeof(LoaderCollectionCell), nameof(LoaderCollectionCell));
             collectionView.RegisterClassForCell(typeof(NewFeedCollectionViewCell), nameof(NewFeedCollectionViewCell));
             collectionView.RegisterClassForCell(typeof(PhotoCollectionViewCell), nameof(PhotoCollectionViewCell));
@@ -58,14 +55,16 @@ namespace Steepshot.iOS.Views
                 MinimumInteritemSpacing = 0,
             }, false);
 
-            _gridDelegate = new CollectionViewFlowDelegate(collectionView, _presenter);
+            _gridDelegate = new ProfileCollectionViewFlowDelegate(collectionView, _presenter);
             _gridDelegate.IsGrid = false;
+            _gridDelegate.IsProfile = true;
             _gridDelegate.ScrolledToBottom += ScrolledToBottom;
             _gridDelegate.CellClicked += CellAction;
 
             _collectionViewSource = new ProfileCollectionViewSource(_presenter, _gridDelegate);
             _collectionViewSource.CellAction += CellAction;
             _collectionViewSource.TagAction += TagAction;
+            _collectionViewSource.ProfileAction += ProfileAction;
             collectionView.Source = _collectionViewSource;
             collectionView.Delegate = _gridDelegate;
 
@@ -97,16 +96,10 @@ namespace Steepshot.iOS.Views
                     sliderCollection.ScrollEnabled = !isOpening;
             };
 
-            _profileHeader = new ProfileHeaderViewController(ProfileHeaderLoaded);
-            collectionView.ContentInset = new UIEdgeInsets(300, 0, 0, 0);
-            collectionView.AddSubview(_profileHeader.View);
-
             _refreshControl = new UIRefreshControl();
             _refreshControl.ValueChanged += RefreshControl_ValueChanged;
             collectionView.Add(_refreshControl);
 
-            if (TabBarController != null)
-                ((MainTabBarController)TabBarController).SameTabTapped += SameTabTapped;
             SetBackButton();
 
             if (Username == AppSettings.User.Login && AppSettings.User.HasPostingPermission)
@@ -168,7 +161,42 @@ namespace Steepshot.iOS.Views
 
         protected override void SameTabTapped()
         {
-            collectionView.SetContentOffset(new CGPoint(0, -_profileHeader.View.Frame.Height), true);
+            if (NavigationController?.ViewControllers.Length == 1)
+                collectionView.SetContentOffset(new CGPoint(0, 0), true);
+        }
+
+        private void ProfileAction(ActionType actionType)
+        {
+            switch (actionType)
+            {
+                case ActionType.Follow:
+                    Follow();
+                    break;
+                case ActionType.Followers:
+                    OpenFollowPage(FriendsType.Followers);
+                    break;
+                case ActionType.Following:
+                    OpenFollowPage(FriendsType.Following);
+                    break;
+                case ActionType.ProfilePower:
+                    ShowPowerPopup();
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        private void OpenFollowPage(FriendsType type)
+        {
+            var myViewController = new FollowViewController(type, _userData);
+            NavigationController.PushViewController(myViewController, true);
+        }
+
+        public override void ViewWillDisappear(bool animated)
+        {
+            if (TabBarController != null)
+                ((MainTabBarController)TabBarController).SameTabTapped -= SameTabTapped;
+            base.ViewWillDisappear(animated);
         }
 
         async void RefreshControl_ValueChanged(object sender, EventArgs e)
@@ -191,62 +219,35 @@ namespace Steepshot.iOS.Views
             }
         }
 
-        private void ProfileHeaderLoaded()
+        private void ShowPowerPopup()
         {
-            _profileHeader.FollowButton.TouchDown += (object sender, EventArgs e) =>
-            {
-                Follow();
-            };
+            if (isPowerOpen || Username != AppSettings.User.Login)
+                return;
 
-            _profileHeader.FollowingButton.TouchDown += (sender, e) =>
-            {
-                var myViewController = new FollowViewController(FriendsType.Following, _userData);
-                NavigationController.PushViewController(myViewController, true);
-            };
-
-            _profileHeader.FollowersButton.TouchDown += (sender, e) =>
-            {
-                var myViewController = new FollowViewController(FriendsType.Followers, _userData);
-                NavigationController.PushViewController(myViewController, true);
-            };
-
-            var balanceTap = new UITapGestureRecognizer(() =>
-            {
-                var vc = new WalletViewController();
-                vc.HidesBottomBarWhenPushed = true;
-                NavigationController.PushViewController(vc, true);
-            });
-
-            _profileHeader.Balance.UserInteractionEnabled = true;
-            _profileHeader.Balance.AddGestureRecognizer(balanceTap);
-
-            var avatarTap = new UITapGestureRecognizer(() =>
-            {
-                if (isPowerOpen || Username != AppSettings.User.Login)
-                    return;
-
-                UIView.Animate(0.3f, 0f, UIViewAnimationOptions.CurveEaseOut, () =>
+            UIView.Animate(0.3f, 0f, UIViewAnimationOptions.CurveEaseOut, () =>
+             {
+                 isPowerOpen = true;
+                 powerPopup.Frame = new CGRect(new CGPoint(powerPopup.Frame.X, 0), powerPopup.Frame.Size);
+             }, () =>
+             {
+                 UIView.Animate(0.2f, 2f, UIViewAnimationOptions.CurveEaseIn, () =>
                  {
-                     isPowerOpen = true;
-                     powerPopup.Frame = new CGRect(new CGPoint(powerPopup.Frame.X, 0), powerPopup.Frame.Size);
+                     powerPopup.Frame = new CGRect(new CGPoint(powerPopup.Frame.X, -NavigationController.NavigationBar.Frame.Bottom), powerPopup.Frame.Size);
                  }, () =>
                  {
-                     UIView.Animate(0.2f, 2f, UIViewAnimationOptions.CurveEaseIn, () =>
-                     {
-                         powerPopup.Frame = new CGRect(new CGPoint(powerPopup.Frame.X, -NavigationController.NavigationBar.Frame.Bottom), powerPopup.Frame.Size);
-                     }, () =>
-                     {
-                         isPowerOpen = false;
-                     });
+                     isPowerOpen = false;
                  });
-            });
-            _profileHeader.Avatar.AddGestureRecognizer(avatarTap);
+             });
         }
 
         public override void ViewWillAppear(bool animated)
         {
             if (!IsMovingToParentViewController)
                 collectionView.ReloadData();
+
+            if (TabBarController != null)
+                ((MainTabBarController)TabBarController).SameTabTapped += SameTabTapped;
+
             base.ViewWillAppear(animated);
         }
 
@@ -277,13 +278,7 @@ namespace Steepshot.iOS.Views
                         //NavigationController.PushViewController(new PostViewController(post, _gridDelegate.Variables[_presenter.IndexOf(post)], _presenter), false);
                         NavigationController.PushViewController(new ImagePreviewViewController(post.Body) { HidesBottomBarWhenPushed = true }, true);
                     else
-                    {
-                        collectionView.Hidden = true;
-                        sliderCollection.Hidden = false;
-                        _sliderGridDelegate.GenerateVariables();
-                        sliderCollection.ReloadData();
-                        sliderCollection.ScrollToItem(NSIndexPath.FromRowSection(_presenter.IndexOf(post), 0), UICollectionViewScrollPosition.CenteredHorizontally, false);
-                    }
+                        OpenPost(post);
                     break;
                 case ActionType.Voters:
                     NavigationController.PushViewController(new VotersViewController(post, VotersType.Likes), true);
@@ -304,11 +299,7 @@ namespace Steepshot.iOS.Views
                     Flagged(post);
                     break;
                 case ActionType.Close:
-                    collectionView.Hidden = false;
-                    sliderCollection.Hidden = true;
-                    _gridDelegate.GenerateVariables();
-                    collectionView.ReloadData();
-                    collectionView.ScrollToItem(NSIndexPath.FromRowSection(_presenter.IndexOf(post), 0), UICollectionViewScrollPosition.Top, false);
+                    ClosePost();
                     break;
                 default:
                     break;
@@ -335,97 +326,26 @@ namespace Steepshot.iOS.Views
                 if (error == null)
                 {
                     _userData = _presenter.UserProfileResponse;
-
-                    if (Username == AppSettings.User.Login)
-                        _profileHeader.PowerFrame.ChangePercents((int)_userData.VotingPower);
+                    if (_userData.IsSubscribed)
+                    {
+                        if(!AppSettings.User.WatchedUsers.Contains(_userData.Username))
+                            AppSettings.User.WatchedUsers.Add(_userData.Username);
+                    }
                     else
-                        _profileHeader.PowerFrame.ChangePercents(0);
+                        AppSettings.User.WatchedUsers.Remove(_userData.Username);
+
+                    _collectionViewSource.user = _userData;
+                    _gridDelegate.UpdateProfile(_userData);
 
                     if (powerText != null)
                         powerText.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PowerOfLike, _userData.VotingPower);
 
-                    if (string.IsNullOrEmpty(_userData.Name))
-                        _profileHeader.Username.Hidden = true;
-                    else
-                    {
-                        _profileHeader.Username.Hidden = false;
-                        _profileHeader.Username.Text = _userData.Name;
-                    }
-
-                    _profileHeader.Balance.Text = $"$ {_userData.EstimatedBalance}";
-                    _profileHeader.Location.Text = _userData.Location;
-
-                    if (string.IsNullOrEmpty(_userData.About))
-                        _profileHeader.DescriptionView.Hidden = true;
-                    else
-                    {
-                        _profileHeader.DescriptionView.Hidden = false;
-                        _profileHeader.DescriptionLabel.Text = _userData.About;
-                    }
-
-                    if (!string.IsNullOrEmpty(_userData.ProfileImage))
-                        ImageLoader.Load(_userData.ProfileImage, _profileHeader.Avatar, size: new CGSize(300, 300));
-                    else
-                        _profileHeader.Avatar.Image = UIImage.FromBundle("ic_noavatar");
-
-                    var buttonsAttributes = new UIStringAttributes
-                    {
-                        Font = Constants.Semibold20,
-                        ForegroundColor = Constants.R15G24B30,
-                    };
-
-                    var textAttributes = new UIStringAttributes
-                    {
-                        Font = Constants.Regular12,
-                        ForegroundColor = Constants.R151G155B158,
-                    };
-
-                    NSMutableAttributedString photosString = new NSMutableAttributedString();
-                    photosString.Append(new NSAttributedString(_userData.PostCount.ToString("N0"), buttonsAttributes));
-                    photosString.Append(new NSAttributedString(Environment.NewLine));
-                    photosString.Append(new NSAttributedString("Photos", textAttributes));
-
-                    _profileHeader.PhotosButton.TitleLabel.LineBreakMode = UILineBreakMode.WordWrap;
-                    _profileHeader.PhotosButton.TitleLabel.TextAlignment = UITextAlignment.Left;
-                    _profileHeader.PhotosButton.SetAttributedTitle(photosString, UIControlState.Normal);
-
-                    NSMutableAttributedString followingString = new NSMutableAttributedString();
-                    followingString.Append(new NSAttributedString(_userData.FollowingCount.ToString("N0"), buttonsAttributes));
-                    followingString.Append(new NSAttributedString(Environment.NewLine));
-                    followingString.Append(new NSAttributedString("Following", textAttributes));
-
-                    _profileHeader.FollowingButton.TitleLabel.LineBreakMode = UILineBreakMode.WordWrap;
-                    _profileHeader.FollowingButton.TitleLabel.TextAlignment = UITextAlignment.Left;
-                    _profileHeader.FollowingButton.SetAttributedTitle(followingString, UIControlState.Normal);
-
-                    NSMutableAttributedString followersString = new NSMutableAttributedString();
-                    followersString.Append(new NSAttributedString(_userData.FollowersCount.ToString("N0"), buttonsAttributes));
-                    followersString.Append(new NSAttributedString(Environment.NewLine));
-                    followersString.Append(new NSAttributedString("Followers", textAttributes));
-
-                    _profileHeader.FollowersButton.TitleLabel.LineBreakMode = UILineBreakMode.WordWrap;
-                    _profileHeader.FollowersButton.TitleLabel.TextAlignment = UITextAlignment.Left;
-                    _profileHeader.FollowersButton.SetAttributedTitle(followersString, UIControlState.Normal);
-
-                    if (string.IsNullOrEmpty(_userData.Website))
-                        _profileHeader.WebsiteHeight.Constant = 0;
-                    else
-                    {
-                        _profileHeader.Website.Text = _userData.Website;
-                        _profileHeader.WebsiteHeight.Constant = _profileHeader.Website.SizeThatFits(new CGSize(UIScreen.MainScreen.Bounds.Width, 300)).Height;
-                    }
-
-                    _profileHeader.DecorateFollowButton(_userData.HasFollowed, Username);
-
                     if (!_refreshControl.Refreshing)
                     {
-                        _profileHeader.View.Frame = new CGRect(0, 0, UIScreen.MainScreen.Bounds.Width, 0);
-                        var size = _profileHeader.View.SystemLayoutSizeFittingSize(new CGSize(UIScreen.MainScreen.Bounds.Width, 300));
+                        collectionView.ContentInset = new UIEdgeInsets(0, 0, 0, 0);
 
-                        _profileHeader.View.Frame = new CGRect(0, -size.Height, UIScreen.MainScreen.Bounds.Width, size.Height);
-                        collectionView.ContentInset = new UIEdgeInsets(size.Height, 0, 0, 0);
                         if (collectionView.Hidden)
-                            collectionView.ContentOffset = new CGPoint(0, -size.Height);
+                            collectionView.ContentOffset = new CGPoint(0, 0);
                         collectionView.Hidden = false;
                     }
                 }
@@ -473,7 +393,7 @@ namespace Steepshot.iOS.Views
         {
             var model = new PushNotificationsModel(AppSettings.User.UserInfo, !UserIsWatched)
             {
-                WatchedUser = Username,
+                WatchedUser = Username
             };
             var response = await _presenter.TrySubscribeForPushes(model);
             if (response.IsSuccess)
@@ -508,7 +428,6 @@ namespace Steepshot.iOS.Views
             }
 
             collectionView.ReloadData();
-            collectionView.ContentOffset = new CGPoint(0, -_profileHeader.View.Frame.Height);
         }
 
         protected override async Task GetPosts(bool shouldStartAnimating = true, bool clearOld = false)
@@ -544,13 +463,42 @@ namespace Steepshot.iOS.Views
 
         private async Task Follow()
         {
-            _profileHeader.DecorateFollowButton(null, Username);
+            _gridDelegate.profileCell.DecorateFollowButton(null, Username);
             var error = await _presenter.TryFollow();
 
             if (error == null)
-                _profileHeader.DecorateFollowButton(_userData.HasFollowed, Username);
+                _gridDelegate.profileCell.DecorateFollowButton(_userData.HasFollowed, Username);
             else
                 ShowAlert(error);
+        }
+
+        public void OpenPost(Post post)
+        {
+            collectionView.Hidden = true;
+            sliderCollection.Hidden = false;
+            _sliderGridDelegate.GenerateVariables();
+            sliderCollection.ReloadData();
+            sliderCollection.ScrollToItem(NSIndexPath.FromRowSection(_presenter.IndexOf(post), 0), UICollectionViewScrollPosition.CenteredHorizontally, false);
+        }
+
+        public bool ClosePost()
+        {
+            if (!sliderCollection.Hidden)
+            {
+                var visibleRect = new CGRect();
+                visibleRect.Location = sliderCollection.ContentOffset;
+                visibleRect.Size = sliderCollection.Bounds.Size;
+                var visiblePoint = new CGPoint(visibleRect.GetMidX(), visibleRect.GetMidY());
+                var index = sliderCollection.IndexPathForItemAtPoint(visiblePoint);
+
+                collectionView.ScrollToItem(NSIndexPath.FromRowSection(index.Row + 1, index.Section), UICollectionViewScrollPosition.Top, false);
+                collectionView.Hidden = false;
+                sliderCollection.Hidden = true;
+                _gridDelegate.GenerateVariables();
+                collectionView.ReloadData();
+                return true;
+            }
+            return false;
         }
     }
 }

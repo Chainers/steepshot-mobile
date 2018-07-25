@@ -265,9 +265,9 @@ namespace Steepshot.iOS.ViewControllers
             NavigationController.PushViewController(myViewController, true);
         }
 
-        protected override void CreatePresenter()
+        protected sealed override void CreatePresenter()
         {
-            _presenter = new T();
+            base.CreatePresenter();
             _presenter.SourceChanged += SourceChanged;
         }
     }

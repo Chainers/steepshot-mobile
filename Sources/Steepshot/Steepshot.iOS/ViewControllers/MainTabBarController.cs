@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Com.OneSignal;
 using CoreGraphics;
+using Steepshot.Core;
 using Steepshot.Core.Extensions;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Models.Requests;
@@ -10,6 +11,7 @@ using Steepshot.Core.Utils;
 using Steepshot.iOS.Helpers;
 using Steepshot.iOS.Views;
 using UIKit;
+using Constants = Steepshot.iOS.Helpers.Constants;
 
 namespace Steepshot.iOS.ViewControllers
 {
@@ -71,10 +73,19 @@ namespace Steepshot.iOS.ViewControllers
             _avatar.ContentMode = UIViewContentMode.ScaleAspectFill;
 
             _presenter = new UserProfilePresenter() { UserName = AppSettings.User.Login };
+            switch (AppDelegate.MainChain)
+            {
+                case KnownChains.Golos:
+                    _presenter.SetClient(AppDelegate.GolosClient);
+                    break;
+                case KnownChains.Steem:
+                    _presenter.SetClient(AppDelegate.SteemClient);
+                    break;
+            }
 
             TabBar.Subviews[3].AddSubview(_powerFrame);
             InitializePowerFrame();
-            if (AppSettings.AppInfo.GetModel() != "Simulator")
+            if (!AppSettings.AppInfo.GetModel().Contains("Simulator"))
                 InitPushes();
         }
 

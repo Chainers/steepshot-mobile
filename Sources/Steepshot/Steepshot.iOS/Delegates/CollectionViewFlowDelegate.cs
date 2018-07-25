@@ -7,6 +7,7 @@ using Photos;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Presenters;
+using Steepshot.Core.Models.Responses;
 using Steepshot.iOS.Cells;
 using Steepshot.iOS.Models;
 using Steepshot.iOS.ViewSources;
@@ -16,20 +17,26 @@ namespace Steepshot.iOS.Helpers
 {
     public class CollectionViewFlowDelegate : UICollectionViewDelegateFlowLayout
     {
-        public Action ScrolledToBottom;
-        public Action<ActionType, Post> CellClicked;
-        public bool IsGrid = true;
+        protected virtual int VariablesCount => Variables.Count;
+        private nfloat profileHeight;
+        private int prevPos;
+
         protected BasePostPresenter _presenter;
         protected UICollectionView _collection;
-        private int _prevPos;
-        public List<CellSizeHelper> Variables = new List<CellSizeHelper>();
 
-        public int Position => _prevPos;
+        public List<CellSizeHelper> Variables = new List<CellSizeHelper>();
+        public Action<ActionType, Post> CellClicked;
+        public Action ScrolledToBottom;
+        public bool IsGrid = true;
+        public bool IsProfile;
+
+        public ProfileHeaderCellBuilder profileCell;
         public NSIndexPath TopCurrentPosition;
+        public int Position => prevPos;
 
         public void ClearPosition()
         {
-            _prevPos = 0;
+            prevPos = 0;
             Variables.Clear();
         }
 
@@ -37,6 +44,7 @@ namespace Steepshot.iOS.Helpers
         {
             _collection = collection;
             _presenter = presenter;
+            profileCell = new ProfileHeaderCellBuilder();
         }
 
         public override void Scrolled(UIScrollView scrollView)
@@ -45,11 +53,11 @@ namespace Steepshot.iOS.Helpers
             {
                 var pos = _collection.IndexPathsForVisibleItems.Max(c => c.Row);
                 //TopCurrentPosition = _collection.IndexPathsForVisibleItems.Min();
-                if (pos > _prevPos)
+                if (pos > prevPos)
                 {
-                    if (pos == _presenter.Count - 1)
+                    if (pos == (IsProfile ? _presenter.Count : _presenter.Count - 1))
                     {
-                        _prevPos = pos;
+                        prevPos = pos;
                         ScrolledToBottom?.Invoke();
                     }
                 }
@@ -79,17 +87,35 @@ namespace Steepshot.iOS.Helpers
             }
         }
 
+        public void UpdateProfile(UserProfileResponse userData)
+        {
+            profileHeight = profileCell.UpdateProfile(userData);
+        }
+
         public override CGSize GetSizeForItem(UICollectionView collectionView, UICollectionViewLayout layout, NSIndexPath indexPath)
         {
-            if (Variables.Count > indexPath.Item)
+            if (VariablesCount > indexPath.Item)
             {
+                if (IsProfile && indexPath.Row == 0)
+                    return new CGSize(UIScreen.MainScreen.Bounds.Width, profileHeight);
+
                 if (IsGrid)
                     return Constants.CellSize;
-                return new CGSize(UIScreen.MainScreen.Bounds.Width, Variables[(int)indexPath.Item].CellHeight);
+
+                return new CGSize(UIScreen.MainScreen.Bounds.Width, Variables[IsProfile ? (int)indexPath.Item - 1 : (int)indexPath.Item].CellHeight);
             }
             //loader height
             return new CGSize(UIScreen.MainScreen.Bounds.Width, 80);
         }
+    }
+
+    public class ProfileCollectionViewFlowDelegate : CollectionViewFlowDelegate
+    {
+        public ProfileCollectionViewFlowDelegate(UICollectionView collection, BasePostPresenter presenter = null) : base(collection, presenter)
+        {
+        }
+
+        protected override int VariablesCount => Variables.Count + 1;
     }
 
     public class SliderCollectionViewFlowDelegate : CollectionViewFlowDelegate

@@ -4,7 +4,7 @@ using Newtonsoft.Json.Linq;
 
 namespace Steepshot.Core.Errors
 {
-    public sealed class RequestError : Exception
+    public sealed class RequestException : Exception
     {
         public Exception Exception { get; }
 
@@ -52,18 +52,18 @@ namespace Steepshot.Core.Errors
         }
 
 
-        public RequestError(Exception ex)
+        public RequestException(Exception ex)
         {
             Exception = ex;
         }
 
-        public RequestError(string rawRequest, string rawResponse)
+        public RequestException(string rawRequest, string rawResponse)
         {
             RawRequest = rawRequest;
             RawResponse = rawResponse;
         }
 
-        public RequestError(JsonRpcResponse response)
+        public RequestException(JsonRpcResponse response)
         {
             RawRequest = response.RawRequest;
             RawResponse = response.RawResponse;

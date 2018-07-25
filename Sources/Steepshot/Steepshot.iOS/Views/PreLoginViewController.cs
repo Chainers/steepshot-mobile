@@ -47,11 +47,6 @@ namespace Steepshot.iOS.Views
             NavigationItem.Title = "Your account name";
         }
 
-        private void GoBack(object sender, EventArgs e)
-        {
-            NavigationController.PopViewController(true);
-        }
-
         private bool LoginShouldReturn(UITextField textField)
         {
             loginText.ResignFirstResponder();

@@ -27,15 +27,12 @@ namespace Steepshot.iOS.Views
             _isComment = isComment;
         }
 
-        protected override void CreatePresenter()
-        {
-            _presenter = new UserFriendPresenter() { VotersType = _votersType };
-            _presenter.SourceChanged += SourceChanged;
-        }
-
         public override void ViewDidLoad()
         {
             base.ViewDidLoad();
+
+            _presenter.VotersType = _votersType;
+            _presenter.SourceChanged += SourceChanged;
 
             var tableSource = new FollowTableViewSource(_presenter, votersTable);
             votersTable.Source = tableSource;

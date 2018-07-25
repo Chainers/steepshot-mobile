@@ -9,6 +9,7 @@ using Steepshot.iOS.Cells;
 using Steepshot.iOS.Helpers;
 using Steepshot.iOS.ViewControllers;
 using Steepshot.iOS.ViewSources;
+using Steepshot.Core.Interfaces;
 using UIKit;
 using CoreGraphics;
 using Steepshot.Core.Errors;
@@ -16,9 +17,9 @@ using Steepshot.Core.Utils;
 
 namespace Steepshot.iOS.Views
 {
-    public partial class FeedViewController : BasePostController<FeedPresenter>
+    public partial class FeedViewController : BasePostController<FeedPresenter>, IPageCloser
     {
-        private ProfileCollectionViewSource _collectionViewSource;
+        private FeedCollectionViewSource _collectionViewSource;
         private CollectionViewFlowDelegate _gridDelegate;
         private UINavigationController _navController;
         private UIRefreshControl _refreshControl;
@@ -43,6 +44,9 @@ namespace Steepshot.iOS.Views
         {
             if (!IsMovingToParentViewController)
                 feedCollection.ReloadData();
+
+            ((MainTabBarController)TabBarController).SameTabTapped += SameTabTapped;
+
             base.ViewWillAppear(animated);
         }
 
@@ -55,7 +59,7 @@ namespace Steepshot.iOS.Views
             _gridDelegate = new CollectionViewFlowDelegate(feedCollection, _presenter);
             _gridDelegate.ScrolledToBottom += ScrolledToBottom;
             _gridDelegate.IsGrid = false;
-            _collectionViewSource = new ProfileCollectionViewSource(_presenter, _gridDelegate);
+            _collectionViewSource = new FeedCollectionViewSource(_presenter, _gridDelegate);
             _collectionViewSource.IsGrid = false;
             _collectionViewSource.CellAction += CellAction;
             _collectionViewSource.TagAction += TagAction;
@@ -115,9 +119,17 @@ namespace Steepshot.iOS.Views
             GetPosts();
         }
 
+        public override void ViewWillDisappear(bool animated)
+        {
+            ((MainTabBarController) TabBarController).SameTabTapped -= SameTabTapped;
+
+            base.ViewWillDisappear(animated);
+        }
+
         protected override void SameTabTapped()
         {
-            feedCollection.SetContentOffset(new CGPoint(0, 0), true);
+            if (NavigationController?.ViewControllers.Length == 1)
+                feedCollection.SetContentOffset(new CGPoint(0, 0), true);
         }
 
         private async void OnRefresh(object sender, EventArgs e)
@@ -144,13 +156,7 @@ namespace Steepshot.iOS.Views
                     if (feedCollection.Hidden)
                         NavigationController.PushViewController(new ImagePreviewViewController(post.Body) { HidesBottomBarWhenPushed = true }, true);
                     else
-                    {
-                        feedCollection.Hidden = true;
-                        sliderCollection.Hidden = false;
-                        _sliderGridDelegate.GenerateVariables();
-                        sliderCollection.ReloadData();
-                        sliderCollection.ScrollToItem(NSIndexPath.FromRowSection(_presenter.IndexOf(post), 0), UICollectionViewScrollPosition.CenteredHorizontally, false);
-                    }
+                        OpenPost(post);
                     break;
                 case ActionType.Voters:
                     NavigationController.PushViewController(new VotersViewController(post, VotersType.Likes), true);
@@ -171,15 +177,40 @@ namespace Steepshot.iOS.Views
                     Flagged(post);
                     break;
                 case ActionType.Close:
-                    feedCollection.Hidden = false;
-                    sliderCollection.Hidden = true;
-                    _gridDelegate.GenerateVariables();
-                    feedCollection.ReloadData();
-                    feedCollection.ScrollToItem(NSIndexPath.FromRowSection(_presenter.IndexOf(post), 0), UICollectionViewScrollPosition.Top, false);
+                    ClosePost();
                     break;
                 default:
                     break;
             }
+        }
+
+        public void OpenPost(Post post)
+        {
+            feedCollection.Hidden = true;
+            sliderCollection.Hidden = false;
+            _sliderGridDelegate.GenerateVariables();
+            sliderCollection.ReloadData();
+            sliderCollection.ScrollToItem(NSIndexPath.FromRowSection(_presenter.IndexOf(post), 0), UICollectionViewScrollPosition.CenteredHorizontally, false);
+        }
+
+        public bool ClosePost()
+        {
+            if (!sliderCollection.Hidden)
+            {
+                var visibleRect = new CGRect();
+                visibleRect.Location = sliderCollection.ContentOffset;
+                visibleRect.Size = sliderCollection.Bounds.Size;
+                var visiblePoint = new CGPoint(visibleRect.GetMidX(), visibleRect.GetMidY());
+                var index = sliderCollection.IndexPathForItemAtPoint(visiblePoint);
+
+                feedCollection.ScrollToItem(index, UICollectionViewScrollPosition.Top, false);
+                feedCollection.Hidden = false;
+                sliderCollection.Hidden = true;
+                _gridDelegate.GenerateVariables();
+                feedCollection.ReloadData();
+                return true;
+            }
+            return false;
         }
 
         protected override async Task GetPosts(bool shouldStartAnimating = true, bool clearOld = false)
@@ -205,7 +236,7 @@ namespace Steepshot.iOS.Views
                 }
                 else
                     activityIndicator.StopAnimating();
-            } while (error is RequestError);
+            } while (error is RequestException);
             ShowAlert(error);
         }
 

@@ -52,12 +52,6 @@ namespace Steepshot.Utils
             return new LocalizationModel();
         }
 
-
-        public LocalizationModel GetLocalization()
-        {
-            return TryReadJsonAsset<LocalizationModel>("InstagramModuleOptions.txt");
-        }
-
         public HashSet<string> TryReadCensoredWords()
         {
             var hs = new HashSet<string>();

@@ -386,7 +386,7 @@ namespace Steepshot.Core.Clients
             parameters.Add("show_low_rated", Convert.ToInt32(request.ShowLowRated));
         }
 
-        protected ValidationError Validate<T>(T request)
+        protected ValidateException Validate<T>(T request)
         {
             var results = new List<ValidationResult>();
             var context = new ValidationContext(request);
@@ -394,7 +394,7 @@ namespace Steepshot.Core.Clients
             if (results.Any())
             {
                 var msg = results.Select(m => m.ErrorMessage).First();
-                return new ValidationError(msg);
+                return new ValidateException(msg);
             }
             return null;
         }

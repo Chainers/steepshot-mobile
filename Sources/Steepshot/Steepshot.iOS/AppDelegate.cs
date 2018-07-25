@@ -45,7 +45,7 @@ namespace Steepshot.iOS
             AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
             TaskScheduler.UnobservedTaskException += OnUnobservedTaskException;
 
-            if (AppSettings.AppInfo.GetModel() != "Simulator")
+            if (!AppSettings.AppInfo.GetModel().Contains("Simulator"))
             {
                 OneSignal.Current.StartInit("77fa644f-3280-4e87-9f14-1f0c7ddf8ca5")
                          .InFocusDisplaying(OSInFocusDisplayOption.Notification)

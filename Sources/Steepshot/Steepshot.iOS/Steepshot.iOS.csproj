@@ -103,9 +103,6 @@
     <OutputPath>bin\x86\Release\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Autofac, Version=4.8.1.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
-      <HintPath>..\packages\Autofac.4.8.1\lib\netstandard1.1\Autofac.dll</HintPath>
-    </Reference>
     <Reference Include="Com.OneSignal, Version=3.2.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Com.OneSignal.3.2.0\lib\Xamarin.iOS10\Com.OneSignal.dll</HintPath>
     </Reference>
@@ -183,6 +180,9 @@
     </Reference>
     <Reference Include="ZXingNetMobile, Version=2.4.1.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\ZXing.Net.Mobile.2.4.1\lib\Xamarin.iOS10\ZXingNetMobile.dll</HintPath>
+    </Reference>
+    <Reference Include="Autofac, Version=4.8.1.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
+      <HintPath>..\packages\Autofac.4.8.1\lib\netstandard1.1\Autofac.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -278,7 +278,6 @@
     <Compile Include="Cells\TagCollectionViewCell.designer.cs">
       <DependentUpon>TagCollectionViewCell.cs</DependentUpon>
     </Compile>
-    <Compile Include="ViewSources\ProfileCollectionViewSource.cs" />
     <Compile Include="Cells\FollowViewCell.cs" />
     <Compile Include="Cells\FollowViewCell.designer.cs">
       <DependentUpon>FollowViewCell.cs</DependentUpon>
@@ -430,6 +429,8 @@
     <Compile Include="Cells\TransactionCollectionViewCell.cs" />
     <Compile Include="ViewSources\TransferCollectionViewSource.cs" />
     <Compile Include="Cells\TransactionHeaderCollectionViewCell.cs" />
+    <Compile Include="ViewSources\FeedCollectionViewSource.cs" />
+    <Compile Include="Cells\ProfileHeaderViewCell.cs" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\ic_photo_holder.png" />
@@ -575,10 +576,28 @@
     <BundleResource Include="Resources\ic_green_card%403x.png" />
     <BundleResource Include="Resources\ic_red_card%403x.png" />
     <BundleResource Include="Resources\ic_red_card%402x.png" />
+    <BundleResource Include="..\Steepshot.Android\Assets\GolosNodesConfig.txt">
+      <Link>Resources\Assets\GolosNodesConfig.txt</Link>
+    </BundleResource>
+    <BundleResource Include="..\Steepshot.Android\Assets\SteemNodesConfig.txt">
+      <Link>Resources\Assets\SteemNodesConfig.txt</Link>
+    </BundleResource>
+    <BundleResource Include="..\Steepshot.Android\Assets\CensoredWords.txt">
+      <Link>Resources\Assets\CensoredWords.txt</Link>
+    </BundleResource>
+    <BundleResource Include="..\Steepshot.Android\Assets\Config.txt">
+      <Link>Resources\Assets\Config.txt</Link>
+    </BundleResource>
+    <BundleResource Include="..\Steepshot.Android\Assets\DebugWif.txt">
+      <Link>Resources\Assets\DebugWif.txt</Link>
+    </BundleResource>
+    <BundleResource Include="..\Steepshot.Android\Assets\IntegrationModuleConfig.txt">
+      <Link>Resources\Assets\IntegrationModuleConfig.txt</Link>
+    </BundleResource>
   </ItemGroup>
   <ItemGroup>
-    <BundleResource Include="..\Steepshot.Android\Assets\Localization.en-us.txt">
-      <Link>Localization.en-us.txt</Link>
+    <BundleResource Include="..\..\..\References\Languages\en\dic.xml">
+      <Link>Resources\Languages\en\dic.xml</Link>
     </BundleResource>
   </ItemGroup>
   <ItemGroup>
@@ -592,21 +611,10 @@
       <Name>Steepshot.iOS.ShareExtension</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <BundleResource Include="..\Steepshot.Android\Assets\Config.txt">
-      <Link>Config.txt</Link>
-    </BundleResource>
-    <BundleResource Include="..\Steepshot.Android\Assets\CensoredWords.txt">
-      <Link>CensoredWords.txt</Link>
-    </BundleResource>
-    <BundleResource Include="..\Steepshot.Android\Assets\DebugWif.txt">
-      <Link>DebugWif.txt</Link>
-    </BundleResource>
-    <BundleResource Include="..\Steepshot.Android\Assets\IntegrationModuleConfig.txt">
-      <Link>IntegrationModuleConfig.txt</Link>
-    </BundleResource>
-  </ItemGroup>
   <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Resources\Assets\" />
+  </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
   <Import Project="..\packages\Xamarin.Insights.1.12.3\build\Xamarin.iOS10\Xamarin.Insights.targets" Condition="Exists('..\packages\Xamarin.Insights.1.12.3\build\Xamarin.iOS10\Xamarin.Insights.targets')" />
   <Import Project="..\packages\NETStandard.Library.2.0.1\build\netstandard2.0\NETStandard.Library.targets" Condition="Exists('..\packages\NETStandard.Library.2.0.1\build\netstandard2.0\NETStandard.Library.targets')" />
