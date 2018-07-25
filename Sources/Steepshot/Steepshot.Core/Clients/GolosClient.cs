@@ -25,19 +25,18 @@ namespace Steepshot.Core.Clients
     {
         private readonly OperationManager _operationManager;
 
-
         public override bool IsConnected => _operationManager.IsConnected;
 
         public override KnownChains Chain => KnownChains.Golos;
 
 
-        public GolosClient()
+        public GolosClient(ExtendedHttpClient extendedHttpClient) : base(extendedHttpClient)
         {
             var webSocketManager = new WebSocketManager();
             _operationManager = new OperationManager(webSocketManager);
         }
 
-        public override bool TryReconnectChain(CancellationToken token)
+        public override async Task<bool> TryReconnectChain(CancellationToken token)
         {
             if (EnableWrite)
                 return EnableWrite;
@@ -48,6 +47,8 @@ namespace Steepshot.Core.Clients
                 Monitor.Enter(SyncConnection, ref lockWasTaken);
                 if (!EnableWrite)
                 {
+                    await AppSettings.ConfigManager.Update(ExtendedHttpClient, KnownChains.Golos, token);
+
                     var cUrls = AppSettings.ConfigManager.GolosNodeConfigs
                         .Where(n => n.IsEnabled)
                         .OrderBy(n => n.Order)
@@ -68,7 +69,7 @@ namespace Steepshot.Core.Clients
             }
             catch (Exception ex)
             {
-                AppSettings.Logger.Warning(ex);
+                await AppSettings.Logger.Warning(ex);
             }
             finally
             {
@@ -82,7 +83,8 @@ namespace Steepshot.Core.Clients
 
         public override async Task<OperationResult<VoidResponse>> Vote(VoteModel model, CancellationToken ct)
         {
-            if (!TryReconnectChain(ct))
+            var isConnected = await TryReconnectChain(ct);
+            if (!isConnected)
                 return new OperationResult<VoidResponse>(new ValidationError(LocalizationKeys.EnableConnectToBlockchain));
 
             var keys = ToKeyArr(model.PostingKey);
@@ -109,7 +111,8 @@ namespace Steepshot.Core.Clients
 
         public override async Task<OperationResult<VoidResponse>> Follow(FollowModel model, CancellationToken ct)
         {
-            if (!TryReconnectChain(ct))
+            var isConnected = await TryReconnectChain(ct);
+            if (!isConnected)
                 return new OperationResult<VoidResponse>(new ValidationError(LocalizationKeys.EnableConnectToBlockchain));
 
             var keys = ToKeyArr(model.PostingKey);
@@ -133,7 +136,8 @@ namespace Steepshot.Core.Clients
 
         public override async Task<OperationResult<VoidResponse>> CreateOrEdit(CommentModel model, CancellationToken ct)
         {
-            if (!TryReconnectChain(ct))
+            var isConnected = await TryReconnectChain(ct);
+            if (!isConnected)
                 return new OperationResult<VoidResponse>(new ValidationError(LocalizationKeys.EnableConnectToBlockchain));
 
             var keys = ToKeyArr(model.PostingKey);
@@ -172,7 +176,8 @@ namespace Steepshot.Core.Clients
 
         public override async Task<OperationResult<VoidResponse>> Delete(DeleteModel model, CancellationToken ct)
         {
-            if (!TryReconnectChain(ct))
+            var isConnected = await TryReconnectChain(ct);
+            if (!isConnected)
                 return new OperationResult<VoidResponse>(new ValidationError(LocalizationKeys.EnableConnectToBlockchain));
 
             var keys = ToKeyArr(model.PostingKey);
@@ -192,7 +197,8 @@ namespace Steepshot.Core.Clients
 
         public override async Task<OperationResult<VoidResponse>> UpdateUserProfile(UpdateUserProfileModel model, CancellationToken ct)
         {
-            if (!TryReconnectChain(ct))
+            var isConnected = await TryReconnectChain(ct);
+            if (!isConnected)
                 return new OperationResult<VoidResponse>(new ValidationError(LocalizationKeys.EnableConnectToBlockchain));
 
             var keys = ToKeyArr(model.ActiveKey);
@@ -227,7 +233,8 @@ namespace Steepshot.Core.Clients
 
         public override async Task<OperationResult<VoidResponse>> Transfer(TransferModel model, CancellationToken ct)
         {
-            if (!TryReconnectChain(ct))
+            var isConnected = await TryReconnectChain(ct);
+            if (!isConnected)
                 return new OperationResult<VoidResponse>(new ValidationError(LocalizationKeys.EnableConnectToBlockchain));
 
             var keys = ToKeyArr(model.ActiveKey);
@@ -271,7 +278,8 @@ namespace Steepshot.Core.Clients
 
         public override async Task<OperationResult<string>> GetVerifyTransaction(AuthorizedPostingModel model, CancellationToken ct)
         {
-            if (!TryReconnectChain(ct))
+            var isConnected = await TryReconnectChain(ct);
+            if (!isConnected)
                 return new OperationResult<string>(new ValidationError(LocalizationKeys.EnableConnectToBlockchain));
 
             var keys = ToKeyArr(model.PostingKey);
@@ -303,7 +311,8 @@ namespace Steepshot.Core.Clients
                 }
             }
 
-            if (!TryReconnectChain(ct))
+            var isConnected = await TryReconnectChain(ct);
+            if (!isConnected)
             {
                 return new OperationResult<VoidResponse>(new ValidationError(LocalizationKeys.EnableConnectToBlockchain));
             }
@@ -352,7 +361,8 @@ namespace Steepshot.Core.Clients
 
         public override async Task<OperationResult<AccountInfoResponse>> GetAccountInfo(string userName, CancellationToken ct)
         {
-            if (!TryReconnectChain(ct))
+            var isConnected = await TryReconnectChain(ct);
+            if (!isConnected)
             {
                 return new OperationResult<AccountInfoResponse>(new ValidationError(LocalizationKeys.EnableConnectToBlockchain));
             }
@@ -397,7 +407,8 @@ namespace Steepshot.Core.Clients
 
         public override async Task<OperationResult<AccountHistoryResponse[]>> GetAccountHistory(string userName, CancellationToken ct)
         {
-            if (!TryReconnectChain(ct))
+            var isConnected = await TryReconnectChain(ct);
+            if (!isConnected)
                 return new OperationResult<AccountHistoryResponse[]>(new ValidationError(LocalizationKeys.EnableConnectToBlockchain));
 
             var result = new OperationResult<AccountHistoryResponse[]>();
