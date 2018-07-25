@@ -20,7 +20,7 @@ using UIKit;
 
 namespace Steepshot.iOS.Views
 {
-    public partial class ProfileViewController : BasePostController<UserProfilePresenter>, IPageCloser //BaseViewControllerWithPresenter<UserProfilePresenter>
+    public partial class ProfileViewController : BasePostController<UserProfilePresenter>, IPageCloser
     {
         private UserProfileResponse _userData;
         private FeedCollectionViewSource _collectionViewSource;
@@ -38,15 +38,10 @@ namespace Steepshot.iOS.Views
 
         public string Username = AppSettings.User.Login;
 
-        protected override void CreatePresenter()
-        {
-            _presenter = new UserProfilePresenter() { UserName = Username };
-            _presenter.SourceChanged += SourceChanged;
-        }
-
         public override void ViewDidLoad()
         {
             base.ViewDidLoad();
+            _presenter.UserName = Username;
             _navController = TabBarController != null ? TabBarController.NavigationController : NavigationController;
 
             collectionView.RegisterClassForCell(typeof(ProfileHeaderViewCell), nameof(ProfileHeaderViewCell));

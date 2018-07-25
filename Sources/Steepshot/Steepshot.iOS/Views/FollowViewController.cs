@@ -26,15 +26,12 @@ namespace Steepshot.iOS.Views
             _user = user;
         }
 
-        protected override void CreatePresenter()
-        {
-            _presenter = new UserFriendPresenter { FollowType = _friendsType };
-            _presenter.SourceChanged += SourceChanged;
-        }
-
         public override void ViewDidLoad()
         {
             base.ViewDidLoad();
+
+            _presenter.FollowType = _friendsType;
+            _presenter.SourceChanged += SourceChanged;
 
             var tableSource = new FollowTableViewSource(_presenter, followTableView);
             followTableView.Source = tableSource;
@@ -68,11 +65,6 @@ namespace Steepshot.iOS.Views
             NavigationItem.RightBarButtonItem = rightBarButton;
             NavigationController.NavigationBar.TintColor = Helpers.Constants.R15G24B30;
             NavigationItem.Title = _presenter.FollowType.GetDescription();
-        }
-
-        private void GoBack(object sender, EventArgs e)
-        {
-            NavigationController.PopViewController(true);
         }
 
         private void CellAction(ActionType type, UserFriend user)

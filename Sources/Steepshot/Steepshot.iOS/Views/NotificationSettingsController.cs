@@ -95,11 +95,6 @@ namespace Steepshot.iOS.Views
             base.ViewWillDisappear(animated);
         }
 
-        protected void GoBack(object sender, EventArgs e)
-        {
-            NavigationController.PopViewController(true);
-        }
-
         private void CreateView()
         {
             var scrollView = new UIScrollView();

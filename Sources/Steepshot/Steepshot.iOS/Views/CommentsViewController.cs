@@ -43,16 +43,12 @@ namespace Steepshot.iOS.Views
         private UIActivityIndicatorView _sendProgressBar;
         private UIActivityIndicatorView _editProgressBar;
 
-        protected override void CreatePresenter()
-        {
-            _presenter = new CommentsPresenter();
-            _presenter.SourceChanged += SourceChanged;
-        }
-
         public override void ViewDidLoad()
         {
             base.ViewDidLoad();
             View.BackgroundColor = UIColor.White;
+
+            _presenter.SourceChanged += SourceChanged;
 
             CreateView();
 
