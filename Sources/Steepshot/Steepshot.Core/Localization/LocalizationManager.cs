@@ -112,7 +112,7 @@ namespace Steepshot.Core.Localization
             return false;
         }
 
-        public string GetText(ValidationError validationError)
+        public string GetText(ValidateException validationError)
         {
             if (validationError.Key.HasValue)
             {

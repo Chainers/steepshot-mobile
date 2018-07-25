@@ -216,7 +216,7 @@ namespace Steepshot.Core.Presenters
                     CashPresenterManager.Add(response.Result);
                 }
             }
-            else if (response.Error is RequestError requestError)
+            else if (response.Error is RequestException requestError)
             {
                 //TODO:KOA: bad solution...
                 if (requestError.RawResponse.Contains(Constants.VotedInASimilarWaySteem) ||
@@ -275,7 +275,7 @@ namespace Steepshot.Core.Presenters
                     CashPresenterManager.Add(response.Result);
                 }
             }
-            else if (response.Error is RequestError requestError)
+            else if (response.Error is RequestException requestError)
             {
                 //TODO:KOA: bad solution...
                 if (requestError.RawResponse.Contains(Constants.VotedInASimilarWaySteem) ||

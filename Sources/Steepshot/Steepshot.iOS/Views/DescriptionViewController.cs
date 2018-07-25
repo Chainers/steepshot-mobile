@@ -595,7 +595,7 @@ namespace Steepshot.iOS.Views
             }
             catch (Exception ex)
             {
-                return new OperationResult<MediaModel>(new InternalError(LocalizationKeys.PhotoProcessingError, ex));
+                return new OperationResult<MediaModel>(new InternalException(LocalizationKeys.PhotoProcessingError, ex));
             }
             finally
             {
