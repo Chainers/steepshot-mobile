@@ -560,11 +560,6 @@ namespace Steepshot.iOS.Views
             NavigationItem.RightBarButtonItem = null;
         }
 
-        protected override void CreatePresenter()
-        {
-            _presenter = new PostDescriptionPresenter();
-        }
-
         private async Task<OperationResult<MediaModel>> UploadPhoto(UIImage photo, NSDictionary metadata)
         {
             Stream stream = null;

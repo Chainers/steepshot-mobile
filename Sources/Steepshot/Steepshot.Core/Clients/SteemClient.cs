@@ -34,6 +34,8 @@ namespace Steepshot.Core.Clients
         public SteemClient(ExtendedHttpClient extendedHttpClient) : base(extendedHttpClient)
         {
             var httpManager = new HttpManager(extendedHttpClient);
+            httpManager.WaitConnectTimeout = 10000;
+            httpManager.WaitResponceTimeout = 10000;
             _operationManager = new OperationManager(httpManager);
         }
 
