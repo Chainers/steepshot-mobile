@@ -181,12 +181,6 @@ namespace Steepshot.iOS.Views
             base.ViewWillAppear(animated);
         }
 
-        protected override void CreatePresenter()
-        {
-            _presenter = new PreSearchPresenter();
-            _presenter.SourceChanged += SourceChanged;
-        }
-
         protected override void SameTabTapped()
         {
             if (NavigationController?.ViewControllers.Length == 1)

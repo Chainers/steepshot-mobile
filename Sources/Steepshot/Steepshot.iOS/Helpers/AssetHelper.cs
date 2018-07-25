@@ -59,7 +59,7 @@ namespace Steepshot.iOS.Helpers
 
         public HashSet<string> TryReadCensoredWords()
         {
-            var file = "CensoredWords.txt";
+            var file = "Assets/CensoredWords.txt";
             var hs = new HashSet<string>();
             try
             {
@@ -84,6 +84,7 @@ namespace Steepshot.iOS.Helpers
         {
             try
             {
+                file = $"Assets/{file}";
                 if (File.Exists(file))
                 {
                     var json = File.ReadAllText(file);
@@ -98,20 +99,6 @@ namespace Steepshot.iOS.Helpers
                 AppSettings.Logger.Warning(ex);
             }
             return new T();
-        }
-
-        private void TryWriteAsset<T>(string file, T data)
-        {
-            try
-            {
-                var json = JsonConvert.SerializeObject(data);
-                if (File.Exists(file))
-                    File.WriteAllText(file, json);
-            }
-            catch (Exception ex)
-            {
-                AppSettings.Logger.Warning(ex);
-            }
         }
     }
 }
