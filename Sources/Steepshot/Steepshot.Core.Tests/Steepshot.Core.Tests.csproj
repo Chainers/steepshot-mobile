@@ -39,10 +39,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <None Include="Data\dicOld.xml">
-      <SubType>Designer</SubType>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <Compile Include="HttpClient\BaseDitchClientTests.cs" />
     <Compile Include="HttpClient\ApiGatewayTest.cs" />
     <Compile Include="AssetTest.cs" />

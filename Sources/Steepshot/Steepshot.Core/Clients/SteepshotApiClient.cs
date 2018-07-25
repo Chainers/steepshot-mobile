@@ -19,9 +19,9 @@ namespace Steepshot.Core.Clients
         private readonly BaseDitchClient _ditchClient;
         public KnownChains Chain { get; }
 
-        public SteepshotApiClient(ExtendedHttpClient httpClient, KnownChains chain)
+        public SteepshotApiClient(ExtendedHttpClient extendedHttpClient, KnownChains chain)
         {
-            HttpClient = httpClient;
+            HttpClient = extendedHttpClient;
             _beneficiariesCash = new Dictionary<KnownChains, Beneficiary[]>();
             Chain = chain;
 
@@ -36,8 +36,8 @@ namespace Steepshot.Core.Clients
             }
 
             _ditchClient = chain == KnownChains.Steem
-                ? (BaseDitchClient)new SteemClient(HttpClient)
-                : new GolosClient();
+                ? (BaseDitchClient)new SteemClient(extendedHttpClient)
+                : new GolosClient(extendedHttpClient);
 
             EnableRead = true;
         }
@@ -59,12 +59,6 @@ namespace Steepshot.Core.Clients
                     BaseUrl = Constants.GolosUrl;
                     break;
             }
-        }
-
-
-        public bool TryReconnectChain(CancellationToken token)
-        {
-            return _ditchClient.TryReconnectChain(token);
         }
 
         public async Task<OperationResult<AccountInfoResponse>> GetAccountInfo(string userName, CancellationToken ct)
