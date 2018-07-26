@@ -171,6 +171,7 @@
     <Compile Include="Utils\ViewUtils.cs" />
     <Compile Include="Activity\WelcomeActivity.cs" />
     <Compile Include="Activity\RegistrationActivity.cs" />
+    <Compile Include="Fragment\PlagiarismCheckFragment.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
@@ -266,6 +267,8 @@
     <AndroidResource Include="Resources\drawable-xhdpi\ic_steemit.png" />
     <AndroidResource Include="Resources\drawable-xxhdpi\ic_golos.png" />
     <AndroidResource Include="Resources\layout\lyt_account_popup.axml" />
+    <AndroidResource Include="Resources\layout\lyt_plagiarism.axml" />
+    <AndroidResource Include="Resources\drawable\blue_gradient_style.xml" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\drawable\splash.xml" />

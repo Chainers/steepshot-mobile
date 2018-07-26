@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:clickable="true"
+    android:background="@android:color/white">
+    <LinearLayout
+        android:id="@+id/toolbar"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:clickable="true">
+        <ImageButton
+            android:id="@+id/btn_back"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/ic_back_arrow"
+            android:scaleType="center"
+            android:layout_marginLeft="15dp"
+            android:layout_marginTop="15dp"
+            android:layout_marginBottom="15dp"
+            android:background="@android:color/transparent"
+            android:layout_centerVertical="true" />
+        <TextView
+            android:id="@+id/page_title"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="15dp"
+            android:gravity="center"
+            android:textSize="20sp"
+            android:textColor="@color/rgb15_24_30" />
+        <TextView
+            android:id="@+id/guidelines"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginRight="15dp"
+            android:gravity="center|right"
+            android:enabled="true"
+            android:clickable="true"
+            android:textSize="14sp"
+            android:textColor="@color/rgb255_34_5" />
+    </LinearLayout>
+    <View
+        android:id="@+id/separator"
+        android:layout_below="@id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/rgb244_244_246" />
+    <ScrollView
+        android:id="@+id/scroll_container"
+        android:scrollbars="none"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/separator"
+        android:layout_marginTop="10dp"
+        android:background="@color/white">
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <RelativeLayout
+                android:id="@+id/photos_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/photos"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="15dp"
+                    android:layout_marginBottom="30dp"
+                    android:background="@android:color/transparent" />
+                <RelativeLayout
+                    android:id="@+id/photo_preview_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp">
+                    <Steepshot.CustomViews.CropView
+                        android:id="@+id/photo_preview"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_centerHorizontal="true"
+                        android:layout_centerVertical="true" />
+                </RelativeLayout>
+            </RelativeLayout>
+            <LinearLayout
+                android:id="@+id/description_container"
+                android:layout_below="@id/photos_layout"
+                android:orientation="vertical"
+                android:layout_marginTop="30dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginLeft="30dp"
+                    android:layout_marginRight="30dp"
+                    android:background="@color/rgb244_244_246" />
+                <TextView
+                    android:id="@+id/plagiarism_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="24dp"
+                    android:includeFontPadding="false"
+                    android:text="This content already been added by you to Steepshot. Only 1 unique publication is allowed."
+                    android:layout_marginLeft="30dp"
+                    android:layout_marginRight="30dp"
+                    android:textSize="20sp"
+                    android:textColor="@color/rgb15_24_30" />
+                <TextView
+                    android:id="@+id/plagiarism_description"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="19dp"
+                    android:includeFontPadding="false"
+                    android:text="Are you sure you want to continue publishing? It will have the same link and comment that it is a duplicate of another photo."
+                    android:layout_marginLeft="30dp"
+                    android:layout_marginRight="30dp"
+                    android:textSize="14sp"
+                    android:textColor="@color/rgb15_24_30" />
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="26dp"
+                    android:layout_marginLeft="30dp"
+                    android:layout_marginRight="30dp"
+                    android:background="@color/rgb244_244_246" />
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="69dp"
+                    android:layout_marginLeft="30dp"
+                    android:layout_marginRight="30dp">
+                    <TextView
+                        android:id="@+id/IPFS_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="IPFS Link"
+                        android:textSize="14sp"
+                        android:layout_centerVertical="true"
+                        android:textColor="@color/rgb255_34_5" />
+                    <ImageView
+                        android:id="@+id/IPFS_arrow"
+                        android:layout_width="wrap_content"
+                        android:layout_height="10dp"
+                        android:src="@drawable/ic_forward"
+                        android:layout_centerVertical="true"
+                        android:layout_alignParentRight="true" />
+                </RelativeLayout>
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginLeft="30dp"
+                    android:layout_marginRight="30dp"
+                    android:background="@color/rgb244_244_246" />
+            </LinearLayout>
+            <RelativeLayout
+                android:id="@+id/btn_cancel_layout"
+                android:layout_below="@id/description_container"
+                android:layout_width="315dp"
+                android:layout_height="50dp"
+                android:layout_marginTop="39dp"
+                android:layout_centerHorizontal="true">
+                <ProgressBar
+                    android:id="@+id/cancel_loading_spinner"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:visibility="gone"
+                    android:indeterminateTintMode="src_atop"
+                    android:indeterminateTint="@color/white"
+                    android:layout_centerInParent="true"
+                    android:elevation="10dp" />
+                <Button
+                    android:id="@+id/btn_cancel"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:textColor="@color/white"
+                    android:background="@drawable/orange_btn_style"
+                    android:layout_centerInParent="true"
+                    android:textSize="14sp" />
+            </RelativeLayout>
+            <RelativeLayout
+                android:id="@+id/btn_continue_layout"
+                android:layout_below="@id/btn_cancel_layout"
+                android:layout_width="315dp"
+                android:layout_height="50dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="17dp"
+                android:layout_centerHorizontal="true">
+                <ProgressBar
+                    android:id="@+id/continue_loading_spinner"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:visibility="gone"
+                    android:indeterminateTintMode="src_atop"
+                    android:indeterminateTint="@color/white"
+                    android:layout_centerInParent="true"
+                    android:elevation="10dp" />
+                <Button
+                    android:id="@+id/btn_continue"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:textColor="@color/white"
+                    android:background="@drawable/blue_gradient_style"
+                    android:layout_centerInParent="true"
+                    android:textSize="14sp" />
+            </RelativeLayout>
+        </RelativeLayout>
+    </ScrollView>
+    <LinearLayout
+        android:id="@+id/tags_list_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginRight="15dp"
+        android:layout_marginLeft="15dp"
+        android:layout_marginTop="5dp"
+        android:layout_below="@id/scroll_container"
+        android:background="@color/white"
+        android:visibility="gone">
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/tags_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingLeft="15dp" />
+    </LinearLayout>
+</RelativeLayout>
