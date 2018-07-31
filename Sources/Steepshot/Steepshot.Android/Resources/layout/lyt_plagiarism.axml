@@ -163,8 +163,8 @@
                 android:layout_centerHorizontal="true">
                 <ProgressBar
                     android:id="@+id/cancel_loading_spinner"
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
                     android:visibility="gone"
                     android:indeterminateTintMode="src_atop"
                     android:indeterminateTint="@color/white"
@@ -189,8 +189,8 @@
                 android:layout_centerHorizontal="true">
                 <ProgressBar
                     android:id="@+id/continue_loading_spinner"
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
                     android:visibility="gone"
                     android:indeterminateTintMode="src_atop"
                     android:indeterminateTint="@color/white"

@@ -9,6 +9,7 @@ using CheeseBind;
 using Steepshot.Base;
 using Steepshot.Core;
 using Steepshot.Core.Localization;
+using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
@@ -19,6 +20,7 @@ namespace Steepshot.Activity
     public class PlagiarismCheckFragment : BaseFragmentWithPresenter<PostDescriptionPresenter>
     {
         private readonly List<GalleryMediaModel> media;
+        private readonly PreparePostModel postModel;
         private readonly Plagiarism model;
         private RecyclerView.Adapter adapter;
         private Android.Net.Uri guidelinesUri;
@@ -94,6 +96,9 @@ namespace Steepshot.Activity
             _guidelines.Click += OpenGuidelines;
             _IPFSButton.Click += IPFSLink;
 
+            _cancelPublishing.Click += CancelPublishing;
+            _continuePublishing.Click += ContinuePublishing;
+
             if (media.Count > 1)
             {
                 _photos.Visibility = ViewStates.Visible;
@@ -136,6 +141,16 @@ namespace Steepshot.Activity
         }
 
         private void IPFSLink(object sender, System.EventArgs e)
+        {
+            
+        }
+
+        private void CancelPublishing(object sender, System.EventArgs e)
+        {
+            ((BaseActivity)Activity).OnBackPressed();
+        }
+
+        private void ContinuePublishing(object sender, System.EventArgs e)
         {
             
         }

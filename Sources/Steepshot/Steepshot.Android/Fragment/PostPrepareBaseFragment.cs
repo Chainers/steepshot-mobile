@@ -44,6 +44,7 @@ namespace Steepshot.Fragment
         protected string _previousQuery;
         protected TagPickerFacade _tagPickerFacade;
         protected bool isSpammer;
+        protected bool isPlagiarism;
 
 #pragma warning disable 0649, 4014
         [BindView(Resource.Id.btn_back)] protected ImageButton _backButton;
@@ -245,17 +246,10 @@ namespace Steepshot.Fragment
                 return false;
             }
 
-            var plagiarismResult = await Presenter.TryCheckForPlagiarism(_model);
+            await CheckForPlagiarism();
 
-            if (plagiarismResult.Result.plagiarism.IsPlagiarism)
-            {
-                Activity.RunOnUiThread(() =>
-                {
-                    ((BaseActivity)Activity).OpenNewContentFragment(new PlagiarismCheckFragment(_media, GalleryAdapter, plagiarismResult.Result.plagiarism));
-                });
-
+            if (isPlagiarism)
                 return false;
-            }
 
             var resp = await Presenter.TryCreateOrEditPost(_model);
 
@@ -276,6 +270,27 @@ namespace Steepshot.Fragment
 
             Activity.ShowInteractiveMessage(resp.Error, TryAgainAction, ForgetAction);
             return false;
+        }
+
+        private async Task CheckForPlagiarism()
+        {
+            isPlagiarism = false;
+            var plagiarismCheck = await Presenter.TryCheckForPlagiarism(_model);
+
+            if (plagiarismCheck.IsSuccess)
+            {
+                if (plagiarismCheck.Result.plagiarism.IsPlagiarism)
+                {
+                    isPlagiarism = true;
+
+                    Activity.RunOnUiThread(() =>
+                    {
+                        ((BaseActivity)Activity).OpenNewContentFragment(new PlagiarismCheckFragment(_media, GalleryAdapter, plagiarismCheck.Result.plagiarism));
+                    });
+
+                    _postButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PublishButtonText);
+                }
+            }
         }
 
         private void TagLabelOnClick(object sender, EventArgs e)

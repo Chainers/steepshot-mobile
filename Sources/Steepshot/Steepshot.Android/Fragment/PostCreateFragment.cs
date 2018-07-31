@@ -11,6 +11,7 @@ using Android.Util;
 using Android.Views;
 using Android.Widget;
 using Java.IO;
+using Steepshot.Activity;
 using Steepshot.Adapter;
 using Steepshot.Base;
 using Steepshot.Core;
@@ -88,7 +89,6 @@ namespace Steepshot.Fragment
             CheckOnSpam();
         }
 
-
         protected void PreviewOnTouch(object sender, View.TouchEventArgs touchEventArgs)
         {
             if (_media[0].PreparedBitmap != null)
@@ -151,6 +151,8 @@ namespace Steepshot.Fragment
             _model.Tags = _localTagsAdapter.LocalTags.ToArray();
             if (await TryCreateOrEditPost())
                 Activity.ShowAlert(LocalizationKeys.PostDelay, ToastLength.Long);
+
+            EnablePostAndEdit(true);
         }
 
         private void RatioBtnOnClick(object sender, EventArgs eventArgs)
@@ -162,7 +164,6 @@ namespace Steepshot.Fragment
         {
             _preview.Rotate(_preview.DrawableImageParameters.Rotation + 90f);
         }
-
 
         private async Task CheckOnSpam()
         {
