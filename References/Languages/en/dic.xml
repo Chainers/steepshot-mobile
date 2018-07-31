@@ -272,4 +272,14 @@ About 6 inches away</string>
     <string name="[&quot;The post is hidden from you. Please change your settings to see this post&quot;]">The post is hidden from you. Please change your settings to see this post</string>
     <string name="[&quot;DuplicateTag&quot;]">You have already added this tag</string>
     <string name="[&quot;SendTokens&quot;]"> Send tokens</string>
+
+    <string name="[&quot;PlagiarismTitle&quot;]">Plagiarism check</string>
+    <string name="[&quot;GuidelinesForPlagiarism&quot;]">Guidelines</string>
+    <string name="[&quot;SelfPlagiarism&quot;]">This content already been added by you to Steepshot. Only 1 unique publication is allowed.</string>
+    <string name="[&quot;PhotoPlagiarism&quot;]">This content already exists in Steepshot. Plagiarism in not allowed</string>
+    <string name="[&quot;PlagiarismDescription&quot;]">Are you sure you want to continue publishing? It will have the same link and comment that it is a duplicate of another photo.</string>
+    <string name="[&quot;IPFSLink&quot;]">IPFS Link</string>
+    <string name="[&quot;CancelPublishing&quot;]">No, cancel publishing</string>
+    <string name="[&quot;ContinuePublishing&quot;]">Yes, continue publishing</string>
+    <string name="[&quot;ClaimYourRights&quot;]">Claim your rights to this post</string>
 </resources>

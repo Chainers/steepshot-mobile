@@ -73,20 +73,21 @@
                 <RelativeLayout
                     android:id="@+id/photo_preview_container"
                     android:layout_width="match_parent"
-                    android:layout_height="0dp">
-                    <Steepshot.CustomViews.CropView
+                    android:layout_height="match_parent">
+                    <ImageView
                         android:id="@+id/photo_preview"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:layout_centerHorizontal="true"
-                        android:layout_centerVertical="true" />
+                        android:layout_centerVertical="true"
+                        android:background="@drawable/round_image_borders" />
                 </RelativeLayout>
             </RelativeLayout>
             <LinearLayout
                 android:id="@+id/description_container"
                 android:layout_below="@id/photos_layout"
                 android:orientation="vertical"
-                android:layout_marginTop="30dp"
+                android:layout_marginTop="15dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
                 <View
@@ -125,6 +126,7 @@
                     android:layout_marginRight="30dp"
                     android:background="@color/rgb244_244_246" />
                 <RelativeLayout
+                    android:id="@+id/IPFS_lyt"
                     android:layout_width="wrap_content"
                     android:layout_height="69dp"
                     android:layout_marginLeft="30dp"

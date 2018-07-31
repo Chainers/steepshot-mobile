@@ -269,6 +269,7 @@
     <AndroidResource Include="Resources\layout\lyt_account_popup.axml" />
     <AndroidResource Include="Resources\layout\lyt_plagiarism.axml" />
     <AndroidResource Include="Resources\drawable\blue_gradient_style.xml" />
+    <AndroidResource Include="Resources\drawable\round_image_borders.xml" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\drawable\splash.xml" />

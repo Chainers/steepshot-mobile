@@ -26,18 +26,12 @@ namespace Steepshot.Fragment
 {
     public class PostCreateFragment : PostPrepareBaseFragment
     {
-        private readonly List<GalleryMediaModel> _media;
-        private GalleryHorizontalAdapter GalleryAdapter => _galleryAdapter ?? (_galleryAdapter = new GalleryHorizontalAdapter(_media));
-
-
-        public PostCreateFragment(List<GalleryMediaModel> media)
+        public PostCreateFragment(List<GalleryMediaModel> media) : base(media)
         {
-            _media = media;
         }
 
-        public PostCreateFragment(GalleryMediaModel media)
+        public PostCreateFragment(GalleryMediaModel media) : base(media)
         {
-            _media = new List<GalleryMediaModel> { media };
         }
 
 

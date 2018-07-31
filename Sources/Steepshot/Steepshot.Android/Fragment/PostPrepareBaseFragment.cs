@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -32,6 +33,8 @@ namespace Steepshot.Fragment
     {
         #region Fields
 
+        protected GalleryHorizontalAdapter GalleryAdapter => _galleryAdapter ?? (_galleryAdapter = new GalleryHorizontalAdapter(_media));
+        protected readonly List<GalleryMediaModel> _media;
         protected TimeSpan PostingLimit;
         protected Timer _timer;
         protected GalleryHorizontalAdapter _galleryAdapter;
@@ -80,6 +83,20 @@ namespace Steepshot.Fragment
         protected SelectedTagsAdapter LocalTagsAdapter => _localTagsAdapter ?? (_localTagsAdapter = new SelectedTagsAdapter());
 
         #endregion
+
+        public PostPrepareBaseFragment()
+        {
+        }
+
+        public PostPrepareBaseFragment(List<GalleryMediaModel> media)
+        { 
+            _media = media;
+        }
+
+        public PostPrepareBaseFragment(GalleryMediaModel media)
+        {
+            _media = new List<GalleryMediaModel> { media };
+        }
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
@@ -228,7 +245,20 @@ namespace Steepshot.Fragment
                 return false;
             }
 
+            var plagiarismResult = await Presenter.TryCheckForPlagiarism(_model);
+
+            if (plagiarismResult.Result.plagiarism.IsPlagiarism)
+            {
+                Activity.RunOnUiThread(() =>
+                {
+                    ((BaseActivity)Activity).OpenNewContentFragment(new PlagiarismCheckFragment(_media, GalleryAdapter, plagiarismResult.Result.plagiarism));
+                });
+
+                return false;
+            }
+
             var resp = await Presenter.TryCreateOrEditPost(_model);
+
             if (!IsInitialized)
                 return false;
 
@@ -291,7 +321,7 @@ namespace Steepshot.Fragment
             if (string.IsNullOrWhiteSpace(tag))
                 return;
 
-            var index = _tagsAdapter.IndexOfTag(tag); ;
+            var index = _tagsAdapter.IndexOfTag(tag);
             if (AddTag(tag) && index != -1)
                 _tagsAdapter.NotifyItemRemoved(index);
 
