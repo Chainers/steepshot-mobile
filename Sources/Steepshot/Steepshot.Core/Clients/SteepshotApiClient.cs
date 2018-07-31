@@ -265,5 +265,23 @@ namespace Steepshot.Core.Clients
 
             return await _ditchClient.Transfer(model, ct);
         }
+
+        public async Task<OperationResult<VoidResponse>> PowerUpOrDown(PowerUpDownModel model, CancellationToken ct)
+        {
+            var results = Validate(model);
+            if (results != null)
+                return new OperationResult<VoidResponse>(results);
+
+            return await _ditchClient.PowerUpOrDown(model, ct);
+        }
+
+        public async Task<OperationResult<VoidResponse>> ClaimRewards(ClaimRewardsModel model, CancellationToken ct)
+        {
+            var results = Validate(model);
+            if (results != null)
+                return new OperationResult<VoidResponse>(results);
+
+            return await _ditchClient.ClaimRewards(model, ct);
+        }
     }
 }

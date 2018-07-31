@@ -47,6 +47,10 @@ namespace Steepshot.Core.Clients
 
         public abstract Task<OperationResult<VoidResponse>> Transfer(TransferModel model, CancellationToken ct);
 
+        public abstract Task<OperationResult<VoidResponse>> PowerUpOrDown(PowerUpDownModel model, CancellationToken ct);        
+
+        public abstract Task<OperationResult<VoidResponse>> ClaimRewards(ClaimRewardsModel model, CancellationToken ct);
+
         public abstract Task<OperationResult<AccountInfoResponse>> GetAccountInfo(string userName, CancellationToken ct);
 
         public abstract Task<OperationResult<AccountHistoryResponse[]>> GetAccountHistory(string userName, CancellationToken ct);

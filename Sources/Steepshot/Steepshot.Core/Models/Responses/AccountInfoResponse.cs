@@ -16,6 +16,9 @@ namespace Steepshot.Core.Models.Responses
 
         [JsonIgnore]
         public List<BalanceModel> Balances { get; set; }
+
+        [JsonIgnore]
+        public double SteemPerVestsRatio { get; set; }
     }
 
     public class Profile

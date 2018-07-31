@@ -1,41 +1,74 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Ditch.Core.JsonRpc;
 using Steepshot.Core.Authorization;
+using Steepshot.Core.Errors;
 using Steepshot.Core.HttpClient;
 using Steepshot.Core.Models.Common;
+using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Presenters
 {
-    public class WalletPresenter : PreSignInPresenter
+    public class WalletPresenter : PreSignInPresenter, IEnumerator<UserInfo>
     {
-        public IEnumerator<UserInfo> ConnectedUsers { get; }
-        public List<BalanceModel> Balances { get; }
+        public Dictionary<string, UserInfo> ConnectedUsers { get; }
         public bool HasNext { get; private set; }
+        public List<BalanceModel> Balances { get; }
+        public CurrencyRate[] CurrencyRates { get; private set; }
+        private readonly string[] _logins;
+        private int _current = -1;
 
         public WalletPresenter()
         {
-            ConnectedUsers = AppSettings.DataProvider.Select().GetEnumerator();
+            ConnectedUsers = AppSettings.DataProvider.Select().ToDictionary(x => x.Login, x => x);
+            _logins = ConnectedUsers.Keys.ToArray();
             Balances = new List<BalanceModel>();
-            HasNext = ConnectedUsers.MoveNext();
+            HasNext = MoveNext();
         }
 
         public async Task<Exception> TryLoadNextAccountInfo()
         {
-            if (!HasNext || ConnectedUsers.Current == null)
-                return null;
+            if (!HasNext || Current == null)
+                return new ValidationError("");
 
-            var response = await TryRunTask<string, AccountInfoResponse>(GetAccountInfo, OnDisposeCts.Token, ConnectedUsers.Current.Login);
-            var historyResp = await TryRunTask<string, AccountHistoryResponse[]>(GetAccountHistory, OnDisposeCts.Token, ConnectedUsers.Current.Login);
+            var error = await TryUpdateAccountInfo(Current.Login);
+            if (error == null)
+            {
+                HasNext = MoveNext();
+            }
+
+            return error;
+        }
+
+        public async Task<Exception> TryUpdateAccountInfo(string login)
+        {
+            if (!ConnectedUsers.ContainsKey(login))
+                return new ValidationError("");
+
+            var response = await TryRunTask<string, AccountInfoResponse>(GetAccountInfo, OnDisposeCts.Token, login);
+            var historyResp = await TryRunTask<string, AccountHistoryResponse[]>(GetAccountHistory, OnDisposeCts.Token, login);
             if (response.IsSuccess)
             {
-                ConnectedUsers.Current.AccountInfo = response.Result;
+                ConnectedUsers[login].AccountInfo = response.Result;
+                var responseBalances = response.Result.Balances;
+                responseBalances.ForEach(x => x.UserInfo = ConnectedUsers[login]);
                 lock (Balances)
                 {
-                    Balances.AddRange(response.Result.Balances);
+                    responseBalances.ForEach(x =>
+                        {
+                            var balanceInd = Balances.FindIndex(y => y.UserInfo.Login.Equals(x.UserInfo.Login, StringComparison.OrdinalIgnoreCase) && y.CurrencyType == x.CurrencyType);
+                            if (balanceInd >= 0)
+                                Balances[balanceInd] = x;
+                            else
+                                Balances.Add(x);
+                        });
                 }
             }
             else
@@ -45,8 +78,7 @@ namespace Steepshot.Core.Presenters
 
             if (historyResp.IsSuccess)
             {
-                ConnectedUsers.Current.AccountHistory = historyResp.Result;
-                HasNext = ConnectedUsers.MoveNext();
+                ConnectedUsers[login].AccountHistory = historyResp.Result;
                 return null;
             }
 
@@ -56,6 +88,62 @@ namespace Steepshot.Core.Presenters
         private Task<OperationResult<AccountHistoryResponse[]>> GetAccountHistory(string login, CancellationToken ct)
         {
             return Api.GetAccountHistory(login, ct);
+        }
+
+        public async Task<Exception> TryClaimRewards(BalanceModel balance)
+        {
+            var claimRewardsModel = new ClaimRewardsModel(balance.UserInfo, balance.RewardSteem.ToString(CultureInfo.InvariantCulture), balance.RewardSp.ToString(CultureInfo.InvariantCulture), balance.RewardSbd.ToString(CultureInfo.InvariantCulture));
+            var response = await TryRunTask<ClaimRewardsModel, VoidResponse>(ClaimRewards, CancellationToken.None, claimRewardsModel);
+            return response.Error;
+        }
+
+        private Task<OperationResult<VoidResponse>> ClaimRewards(ClaimRewardsModel claimRewardsModel, CancellationToken ct)
+        {
+            return Api.ClaimRewards(claimRewardsModel, ct);
+        }
+
+        public async Task<Exception> TryGetCurrencyRates()
+        {
+            var response = await TryRunTask<CurrencyRate[]>(GetCurrencyRates, OnDisposeCts.Token);
+            if (response.IsSuccess)
+            {
+                CurrencyRates = response.Result;
+            }
+            return response.Error;
+        }
+
+        private Task<OperationResult<CurrencyRate[]>> GetCurrencyRates(CancellationToken ct)
+        {
+            return Api.GetCurrencyRates(ct);
+        }
+
+        public CurrencyRate GetCurrencyRate(CurrencyType currency)
+        {
+            return CurrencyRates?.First(x =>
+                x.Symbol.Equals(currency.ToString(), StringComparison.OrdinalIgnoreCase)) ?? new CurrencyRate
+                {
+                    Symbol = currency.ToString(),
+                    UsdRate = 1
+                };
+        }
+
+        public bool MoveNext()
+        {
+            _current += 1;
+            return _current < _logins.Length;
+        }
+
+        public void Reset()
+        {
+            _current = -1;
+        }
+
+        public UserInfo Current => ConnectedUsers[_logins[_current]];
+
+        object IEnumerator.Current => Current;
+
+        public void Dispose()
+        {
         }
     }
 }

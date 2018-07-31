@@ -8,7 +8,6 @@
         android:id="@+id/arrow_back"
         android:layout_width="50dp"
         android:layout_height="50dp"
-        android:layout_marginLeft="-15dp"
         android:layout_alignParentLeft="true"
         android:layout_centerVertical="true"
         android:scaleType="centerInside"
@@ -22,27 +21,4 @@
         android:layout_toRightOf="@id/arrow_back"
         android:textSize="20sp"
         android:textColor="@color/black" />
-    <TextView
-        android:id="@+id/balance"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:gravity="center"
-        android:layout_alignParentRight="true"
-        android:textSize="20sp"
-        android:textColor="@color/rgb151_155_158"
-        android:textAllCaps="true" />
-    <ProgressBar
-        android:id="@+id/balance_spinner"
-        android:layout_width="20dp"
-        android:layout_height="20dp"
-        android:indeterminateTintMode="src_atop"
-        android:indeterminateTint="@color/black"
-        android:layout_alignParentRight="true"
-        android:layout_centerVertical="true"
-        android:visibility="gone" />
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="2px"
-        android:layout_alignParentBottom="true"
-        android:background="@color/rgb244_244_246" />
 </RelativeLayout>

@@ -7,6 +7,7 @@ using Android.Views;
 using Android.Widget;
 using IO.SuperCharge.ShimmerLayoutLib;
 using Steepshot.Core.HttpClient;
+using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Utils;
 using Steepshot.CustomViews;
 using Steepshot.Utils;
@@ -29,60 +30,62 @@ namespace Steepshot.Adapter
         {
             if (holder is TrxHistoryHolder trxHolder)
                 trxHolder.UpdateData(_accountHistory[position], position == 0 || _accountHistory[position].DateTime.Date != _accountHistory[position - 1].DateTime.Date);
+            else if (holder is TrxHistoryShimmerHolder trxShimmerHolder)
+                trxShimmerHolder.Animate();
         }
 
         public override int GetItemViewType(int position)
         {
-            return _accountHistory == null ? -1 : (int)_accountHistory[position].Type;
+            return _accountHistory == null ? -1 : 0;
         }
 
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
         {
             if (viewType >= 0)
             {
-                var trxHistoryView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.lyt_trx_history, null);
-                switch ((OperationType)viewType)
-                {
-                    case OperationType.Transfer:
-                        break;
-                    case OperationType.PowerUp:
-                        break;
-                    case OperationType.PowerDown:
-                        break;
-                }
-
+                var trxHistoryView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.lyt_trx_history, parent, false);
                 return new TrxHistoryHolder(trxHistoryView);
             }
 
-            var trxHistoryShimmerView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.lyt_trx_history_shimmer, null);
+            var trxHistoryShimmerView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.lyt_trx_history_shimmer, parent, false);
             return new TrxHistoryShimmerHolder(trxHistoryShimmerView);
         }
     }
 
     public class TrxHistoryShimmerHolder : RecyclerView.ViewHolder
     {
+        private readonly ShimmerLayout _shimmerContainer;
+        private readonly ShimmerLayout _trxType;
+        private readonly ShimmerLayout _recipient;
+        private readonly ShimmerLayout _amount;
+
         public TrxHistoryShimmerHolder(View itemView) : base(itemView)
         {
-            var shimmerContainer = itemView.FindViewById<ShimmerLayout>(Resource.Id.shimmer_container);
-            var trxType = itemView.FindViewById<ShimmerLayout>(Resource.Id.shimmer_trx_type);
-            var recipient = itemView.FindViewById<ShimmerLayout>(Resource.Id.shimmer_recipient);
-            var amount = itemView.FindViewById<ShimmerLayout>(Resource.Id.shimmer_balance);
+            _shimmerContainer = itemView.FindViewById<ShimmerLayout>(Resource.Id.shimmer_container);
+            _trxType = itemView.FindViewById<ShimmerLayout>(Resource.Id.shimmer_trx_type);
+            _recipient = itemView.FindViewById<ShimmerLayout>(Resource.Id.shimmer_recipient);
+            _amount = itemView.FindViewById<ShimmerLayout>(Resource.Id.shimmer_balance);
 
-            shimmerContainer.SetShimmerColor(Color.Argb(80, 255, 255, 255));
-            shimmerContainer.SetMaskWidth(0.8f);
-            shimmerContainer.StartShimmerAnimation();
+            _shimmerContainer.SetShimmerColor(Color.Argb(80, 255, 255, 255));
+            _shimmerContainer.SetMaskWidth(0.8f);
 
-            trxType.SetShimmerColor(Color.White);
-            trxType.SetMaskWidth(0.8f);
-            trxType.StartShimmerAnimation();
+            _trxType.SetShimmerColor(Color.White);
+            _trxType.SetMaskWidth(0.8f);
 
-            recipient.SetShimmerColor(Color.White);
-            recipient.SetMaskWidth(0.8f);
-            recipient.StartShimmerAnimation();
+            _recipient.SetShimmerColor(Color.White);
+            _recipient.SetMaskWidth(0.8f);
 
-            amount.SetShimmerColor(Color.White);
-            amount.SetMaskWidth(0.8f);
-            amount.StartShimmerAnimation();
+            _amount.SetShimmerColor(Color.White);
+            _amount.SetMaskWidth(0.8f);
+
+        }
+
+        public void Animate()
+        {
+            _shimmerContainer.StartShimmerAnimation();
+            _trxType.StartShimmerAnimation();
+            _recipient.StartShimmerAnimation();
+            _amount.StartShimmerAnimation();
         }
     }
 
@@ -92,6 +95,13 @@ namespace Steepshot.Adapter
         private readonly TextView _trxType;
         private readonly AutoLinkTextView _recipient;
         private readonly TextView _amount;
+        private readonly LinearLayout _claimRewards;
+        private readonly TextView _tokenOne;
+        private readonly TextView _tokenTwo;
+        private readonly TextView _tokenThree;
+        private readonly TextView _tokenOneValue;
+        private readonly TextView _tokenTwoValue;
+        private readonly TextView _tokenThreeValue;
 
         public TrxHistoryHolder(View itemView) : base(itemView)
         {
@@ -99,11 +109,24 @@ namespace Steepshot.Adapter
             _trxType = itemView.FindViewById<TextView>(Resource.Id.trx_type);
             _recipient = itemView.FindViewById<AutoLinkTextView>(Resource.Id.recipient);
             _amount = itemView.FindViewById<TextView>(Resource.Id.trx_amount);
+            _tokenOne = itemView.FindViewById<TextView>(Resource.Id.token_one);
+            _tokenTwo = itemView.FindViewById<TextView>(Resource.Id.token_two);
+            _tokenThree = itemView.FindViewById<TextView>(Resource.Id.token_three);
+            _tokenOneValue = itemView.FindViewById<TextView>(Resource.Id.token_one_value);
+            _tokenTwoValue = itemView.FindViewById<TextView>(Resource.Id.token_two_value);
+            _tokenThreeValue = itemView.FindViewById<TextView>(Resource.Id.token_three_value);
+            _claimRewards = itemView.FindViewById<LinearLayout>(Resource.Id.claims);
 
             _date.Typeface = Style.Regular;
             _trxType.Typeface = Style.Semibold;
             _recipient.Typeface = Style.Regular;
             _amount.Typeface = Style.Semibold;
+            _tokenOne.Typeface = Style.Semibold;
+            _tokenTwo.Typeface = Style.Semibold;
+            _tokenThree.Typeface = Style.Semibold;
+            _tokenOneValue.Typeface = Style.Semibold;
+            _tokenTwoValue.Typeface = Style.Semibold;
+            _tokenThreeValue.Typeface = Style.Semibold;
         }
 
         public void UpdateData(AccountHistoryResponse transaction, bool headItem)
@@ -112,7 +135,23 @@ namespace Steepshot.Adapter
             _date.Text = transaction.DateTime.ToString("dd MMM yyyy", CultureInfo.GetCultureInfo("en-US"));
             _trxType.Text = transaction.Type.ToString();
             _recipient.AutoLinkText = $"{(transaction.From.Equals(AppSettings.User.Login) ? $"to @{transaction.To}" : $"from @{transaction.From}")}";
-            _amount.Text = $"{transaction.Amount}";
+            if (transaction.Type == OperationType.ClaimReward)
+            {
+                _tokenOne.Text = CurrencyType.Steem.ToString().ToUpper();
+                _tokenOneValue.Text = transaction.RewardSteem;
+                _tokenTwo.Text = $"{CurrencyType.Steem.ToString()} Power".ToUpper();
+                _tokenTwoValue.Text = transaction.RewardSp;
+                _tokenThree.Text = CurrencyType.Sbd.ToString().ToUpper();
+                _tokenThreeValue.Text = transaction.RewardSbd;
+                _amount.Visibility = ViewStates.Gone;
+                _claimRewards.Visibility = ViewStates.Visible;
+            }
+            else
+            {
+                _amount.Text = $"{transaction.Amount}";
+                _amount.Visibility = ViewStates.Visible;
+                _claimRewards.Visibility = ViewStates.Gone;
+            }
         }
     }
 
@@ -151,9 +190,9 @@ namespace Steepshot.Adapter
                 var child = parent.GetChildAt(i);
                 var dateLabel = child.FindViewById<TextView>(Resource.Id.date);
                 var dateLabelLytParams = (LinearLayout.LayoutParams)dateLabel?.LayoutParameters;
-                var dateLabelFix = (dateLabel?.Visibility == ViewStates.Visible
+                var dateLabelFix = dateLabel?.Visibility == ViewStates.Visible
                     ? dateLabel.Height + dateLabelLytParams.TopMargin + dateLabelLytParams.BottomMargin
-                    : 0);
+                    : 0;
                 var middle = (child.Top + dateLabelFix + child.Bottom) / 2f;
 
                 if (child.Top != 0)

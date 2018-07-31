@@ -9,9 +9,13 @@ using Android.Util;
 using Android.Views;
 using Android.Widget;
 using IO.SuperCharge.ShimmerLayoutLib;
+using Steepshot.Core.Extensions;
+using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
+using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Presenters;
+using Steepshot.Core.Utils;
 using Steepshot.Utils;
 using Object = Java.Lang.Object;
 
@@ -94,7 +98,7 @@ namespace Steepshot.Adapter
                 container.AddView(itemView);
             }
             if (_presenter.Balances?.Count > 0)
-                _tokenCards[position].UpdateData(_presenter.Balances[position]);
+                _tokenCards[position].UpdateData(_presenter.Balances[position], _presenter.GetCurrencyRate(_presenter.Balances[position].CurrencyType), position);
 
             return _tokenCards[position].ItemView;
         }
@@ -111,8 +115,23 @@ namespace Steepshot.Adapter
 
         public override void NotifyDataSetChanged()
         {
-            _itemsCount = _presenter.Balances.Count + (_presenter.HasNext ? 1 : 0);
+            _itemsCount = _presenter.Balances.Count;
+            if (_presenter.HasNext)
+                _itemsCount += 1;
+            _pager.ViewTreeObserver.GlobalLayout += CardsLayedOut;
             base.NotifyDataSetChanged();
+        }
+
+        public void NotifyItemChanged(int position)
+        {
+            position %= CachedPagesCount;
+            _tokenCards[position]?.UpdateData(_presenter.Balances[position], _presenter.GetCurrencyRate(_presenter.Balances[position].CurrencyType), position);
+        }
+
+        private void CardsLayedOut(object sender, EventArgs e)
+        {
+            PageScrolled(null, null);
+            _pager.ViewTreeObserver.GlobalLayout -= CardsLayedOut;
         }
 
         public override bool IsViewFromObject(View view, Object @object)
@@ -137,7 +156,7 @@ namespace Steepshot.Adapter
 
             var leftOffset = _pager.PaddingLeft + _pager.PageMargin;
             scrollingCards.Sort((x, y) => (Math.Abs(x.ItemView.Left - _pager.ScrollX - leftOffset) / (double)_pager.Width).CompareTo(Math.Abs(y.ItemView.Left - _pager.ScrollX - leftOffset) / (double)_pager.Width));
-            var visibilityPercentage = Math.Abs(scrollingCards[0].ItemView.Right - scrollingCards[0].ItemView.Left - _pager.ScrollX + _pager.PageMargin) / (float)scrollingCards[0].ItemView.Width;
+            var visibilityPercentage = Math.Abs(scrollingCards[0].ItemView.Right - scrollingCards[0].ItemView.Left - Math.Abs(_pager.ScrollX)) / (float)scrollingCards[0].ItemView.Width;
             if (visibilityPercentage >= 0 && visibilityPercentage <= 1)
                 OnPageTransforming?.Invoke(scrollingCards[0], scrollingCards[1], visibilityPercentage);
         }
@@ -145,6 +164,7 @@ namespace Steepshot.Adapter
 
     public class TokenCardHolder : RecyclerView.ViewHolder
     {
+        public BalanceModel Balance { get; private set; }
         private readonly ImageView _holderImage;
         private readonly TextView _username;
         private readonly TextView _balanceTitle;
@@ -174,54 +194,42 @@ namespace Steepshot.Adapter
             _tokenBalance.Typeface = Style.Semibold;
             _tokenBalanceTitle2.Typeface = Style.Semibold;
             _tokenBalance2.Typeface = Style.Semibold;
+
+            _balanceTitle.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.AccountBalance);
         }
 
-        public void UpdateData(BalanceModel balance)
+        public void UpdateData(BalanceModel balance, CurrencyRate currencyRate, int position)
         {
+            Balance = balance;
+            var usdBalance = 0d;
+            var firstCardId = Resource.Drawable.wallet_card_bg1;
+            var dr = RoundedBitmapDrawableFactory.Create(ItemView.Resources, BitmapFactory.DecodeResource(ItemView.Resources, firstCardId + position));
+            dr.CornerRadius = _cornerRadius;
+            _holderImage.SetImageDrawable(dr);
             switch (balance.CurrencyType)
             {
                 case CurrencyType.Steem:
+                case CurrencyType.Golos:
                     {
-                        var dr = RoundedBitmapDrawableFactory.Create(ItemView.Resources, BitmapFactory.DecodeResource(ItemView.Resources, Resource.Drawable.wallet_card_bg1));
-                        dr.CornerRadius = _cornerRadius;
-                        _holderImage.SetImageDrawable(dr);
-                        _tokenBalanceTitle2.Text = $"{balance.CurrencyType.ToString()} Power";
+                        _tokenBalanceTitle2.Text = $"{balance.CurrencyType.ToString()} Power".ToUpper();
+                        usdBalance = (balance.Value + balance.EffectiveSp) * (currencyRate?.UsdRate ?? 1);
                         break;
                     }
                 case CurrencyType.Sbd:
-                    {
-                        var dr = RoundedBitmapDrawableFactory.Create(ItemView.Resources, BitmapFactory.DecodeResource(ItemView.Resources, Resource.Drawable.wallet_card_bg2));
-                        dr.CornerRadius = _cornerRadius;
-                        _holderImage.SetImageDrawable(dr);
-                        _tokenBalanceTitle2.Visibility = ViewStates.Gone;
-                        _tokenBalance2.Visibility = ViewStates.Gone;
-                        break;
-                    }
-                case CurrencyType.Golos:
-                    {
-                        var dr = RoundedBitmapDrawableFactory.Create(ItemView.Resources, BitmapFactory.DecodeResource(ItemView.Resources, Resource.Drawable.wallet_card_bg3));
-                        dr.CornerRadius = _cornerRadius;
-                        _holderImage.SetImageDrawable(dr);
-                        _tokenBalanceTitle2.Text = $"{balance.CurrencyType.ToString()} Power";
-                        break;
-                    }
                 case CurrencyType.Gbg:
                     {
-                        var dr = RoundedBitmapDrawableFactory.Create(ItemView.Resources, BitmapFactory.DecodeResource(ItemView.Resources, Resource.Drawable.wallet_card_bg4));
-                        dr.CornerRadius = _cornerRadius;
-                        _holderImage.SetImageDrawable(dr);
                         _tokenBalanceTitle2.Visibility = ViewStates.Gone;
                         _tokenBalance2.Visibility = ViewStates.Gone;
+                        usdBalance = balance.Value * (currencyRate?.UsdRate ?? 1);
                         break;
                     }
             }
 
-            _username.Text = balance.UserName;
-            _balanceTitle.Text = "Account balance";
-            _balance.Text = "$ 999.999";
-            _tokenBalanceTitle.Text = balance.CurrencyType.ToString();
-            _tokenBalance.Text = balance.Value;
-            _tokenBalance2.Text = balance.EffectiveSp;
+            _username.Text = balance.UserInfo.Login.ToUpper();
+            _balance.Text = $"$ {usdBalance.ToBalanceVaueString()}".ToUpper();
+            _tokenBalanceTitle.Text = balance.CurrencyType.ToString().ToUpper();
+            _tokenBalance.Text = balance.Value.ToBalanceVaueString();
+            _tokenBalance2.Text = balance.EffectiveSp.ToBalanceVaueString();
         }
     }
 }

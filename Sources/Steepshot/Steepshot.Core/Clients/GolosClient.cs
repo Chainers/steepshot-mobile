@@ -266,6 +266,56 @@ namespace Steepshot.Core.Clients
             return result;
         }
 
+        public override async Task<OperationResult<VoidResponse>> PowerUpOrDown(PowerUpDownModel model, CancellationToken ct)
+        {
+            if (!TryReconnectChain(ct))
+                return new OperationResult<VoidResponse>(new ValidationError(LocalizationKeys.EnableConnectToBlockchain));
+
+            var keys = ToKeyArr(model.ActiveKey);
+            if (keys == null)
+                return new OperationResult<VoidResponse>(new ValidationError(LocalizationKeys.WrongPrivateActimeKey));
+
+            var result = new OperationResult<VoidResponse>();
+
+            BaseOperation op;
+
+            switch (model.CurrencyType)
+            {
+                case CurrencyType.Golos:
+                    {
+                        Asset asset;
+                        if (model.PowerAction == PowerAction.PowerUp)
+                        {
+                            asset = new Asset($"{model.Value} GOLOS");
+                            op = new TransferToVestingOperation(model.From, model.To, asset);
+                        }
+                        else
+                        {
+                            asset = new Asset($"{model.Value} GESTS");
+                            op = new WithdrawVestingOperation(model.From, asset);
+                        }
+                        break;
+                    }
+                default:
+                    {
+                        result.Error = new ValidationError(LocalizationKeys.UnsupportedCurrency, model.CurrencyType.ToString());
+                        return result;
+                    }
+            }
+
+            var resp = await _operationManager.BroadcastOperationsSynchronous(keys, ct, op);
+            if (resp.IsError)
+                result.Error = new RequestError(resp);
+            else
+                result.Result = new VoidResponse();
+            return result;
+        }
+
+        public override Task<OperationResult<VoidResponse>> ClaimRewards(ClaimRewardsModel model, CancellationToken ct)
+        {
+            throw new NotImplementedException();
+        }
+
         #endregion Post requests
 
         #region Get
@@ -381,9 +431,12 @@ namespace Steepshot.Core.Clients
                 return result;
             }
 
-            var sp = (double.Parse(propResp.Result.TotalVestingFundSteem.ToDoubleString(), CultureInfo.InvariantCulture)
-                      * ((double.Parse(acc.VestingShares.ToDoubleString(), CultureInfo.InvariantCulture) + double.Parse(acc.ReceivedVestingShares.ToDoubleString(), CultureInfo.InvariantCulture))
-                         / double.Parse(propResp.Result.TotalVestingShares.ToDoubleString(), CultureInfo.InvariantCulture))).ToString("F3", CultureInfo.InvariantCulture);
+            var steemPerVestRatio = double.Parse(propResp.Result.TotalVestingFundSteem.ToDoubleString(), CultureInfo.InvariantCulture) /
+                                    double.Parse(propResp.Result.TotalVestingShares.ToDoubleString(), CultureInfo.InvariantCulture);
+
+            var effectiveSp = (double.Parse(acc.VestingShares.ToDoubleString(), CultureInfo.InvariantCulture) +
+                               double.Parse(acc.ReceivedVestingShares.ToDoubleString(), CultureInfo.InvariantCulture) -
+                               double.Parse(acc.DelegatedVestingShares.ToDoubleString(), CultureInfo.InvariantCulture)) * steemPerVestRatio;
 
             result.Result = new AccountInfoResponse
             {
@@ -393,11 +446,16 @@ namespace Steepshot.Core.Clients
                 Metadata = JsonConvert.DeserializeObject<AccountMetadata>(acc.JsonMetadata),
                 Balances = new List<BalanceModel>
                 {
-                    new BalanceModel(userName, acc.Balance.ToDoubleString(), 3, sp, CurrencyType.Golos),
-                    new BalanceModel(userName, acc.SbdBalance.ToDoubleString(), 3, sp, CurrencyType.Gbg)
+                    new BalanceModel(double.Parse(acc.Balance.ToDoubleString(),CultureInfo.InvariantCulture), 3, CurrencyType.Golos)
+                    {
+                        EffectiveSp = effectiveSp
+                    },
+                    new BalanceModel(double.Parse(acc.SbdBalance.ToDoubleString(),CultureInfo.InvariantCulture), 3,  CurrencyType.Gbg)
+                    {
+                        EffectiveSp =  effectiveSp
+                    }
                 }
             };
-
 
             return result;
         }
@@ -414,8 +472,8 @@ namespace Steepshot.Core.Clients
                 return new OperationResult<AccountHistoryResponse[]>(new ValidationError(LocalizationKeys.EnableConnectToBlockchain));
 
             var result = new OperationResult<AccountHistoryResponse[]>();
-            
-            var resp = await _operationManager.GetAccountHistory(userName, ulong.MaxValue, 5000, CancellationToken.None);
+
+            var resp = await _operationManager.GetAccountHistory(userName, ulong.MaxValue, 1000, CancellationToken.None);
             if (resp.IsError)
             {
                 result.Error = new RequestError(resp);
@@ -446,7 +504,7 @@ namespace Steepshot.Core.Clients
                             Type = OperationType.Transfer,
                             From = typed.From,
                             To = typed.To,
-                            Amount = typed.Amount.ToDoubleString(),
+                            Amount = $"{typed.Amount.ToDoubleString()} {typed.Amount.Currency}",
                             Memo = typed.Memo
                         };
                     }
@@ -459,7 +517,7 @@ namespace Steepshot.Core.Clients
                             Type = OperationType.PowerUp,
                             From = typed.From,
                             To = typed.To,
-                            Amount = typed.Amount.ToDoubleString()
+                            Amount = $"{typed.Amount.ToDoubleString()} {typed.Amount.Currency}"
                         };
                     }
                 case WithdrawVestingOperation.OperationName:
@@ -471,7 +529,7 @@ namespace Steepshot.Core.Clients
                             Type = OperationType.PowerDown,
                             From = typed.Account,
                             To = typed.Account,
-                            Amount = typed.VestingShares.ToDoubleString()
+                            Amount = $"{typed.VestingShares.ToDoubleString()} {typed.VestingShares.Currency}"
                         };
                     }
                 default:

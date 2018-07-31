@@ -11,6 +11,7 @@ using Ditch.Steem.Models;
 using Ditch.Steem.Operations;
 using Newtonsoft.Json;
 using Steepshot.Core.Errors;
+using Steepshot.Core.Extensions;
 using Steepshot.Core.HttpClient;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Common;
@@ -246,6 +247,85 @@ namespace Steepshot.Core.Clients
             return await Broadcast(keys, new BaseOperation[] { op }, ct);
         }
 
+        public override async Task<OperationResult<VoidResponse>> PowerUpOrDown(PowerUpDownModel model, CancellationToken ct)
+        {
+            if (!TryReconnectChain(ct))
+                return new OperationResult<VoidResponse>(new ValidationError(LocalizationKeys.EnableConnectToBlockchain));
+
+            var keys = ToKeyArr(model.ActiveKey);
+            if (keys == null)
+                return new OperationResult<VoidResponse>(new ValidationError(LocalizationKeys.WrongPrivateActimeKey));
+
+            var result = new OperationResult<VoidResponse>();
+
+            var asset = new Asset
+            {
+                NumberFormat = NumberFormatInfo.InvariantInfo
+            };
+
+            BaseOperation op;
+
+            switch (model.CurrencyType)
+            {
+                case CurrencyType.Steem:
+                    {
+                        if (model.PowerAction == PowerAction.PowerUp)
+                        {
+                            asset.FromOldFormat($"{model.Value} {Config.Steem}");
+                            op = new TransferToVestingOperation(model.From, model.To, asset);
+                        }
+                        else
+                        {
+                            asset.FromOldFormat($"{model.Value} {Config.Vests}");
+                            op = new WithdrawVestingOperation(model.Login, asset);
+                        }
+                        break;
+                    }
+                default:
+                    {
+                        result.Error = new ValidationError(LocalizationKeys.UnsupportedCurrency, model.CurrencyType.ToString());
+                        return result;
+                    }
+            }
+
+            return await Broadcast(keys, new[] { op }, ct);
+        }
+
+        public override async Task<OperationResult<VoidResponse>> ClaimRewards(ClaimRewardsModel model, CancellationToken ct)
+        {
+            if (!TryReconnectChain(ct))
+                return new OperationResult<VoidResponse>(new ValidationError(LocalizationKeys.EnableConnectToBlockchain));
+
+            var keys = ToKeyArr(model.ActiveKey);
+            if (keys == null)
+                return new OperationResult<VoidResponse>(new ValidationError(LocalizationKeys.WrongPrivateActimeKey));
+
+            var assetSteem = new Asset
+            {
+                NumberFormat = NumberFormatInfo.InvariantInfo
+            };
+
+            assetSteem.FromOldFormat($"{model.RewardSteem} {Config.Steem}");
+
+            var assetSp = new Asset
+            {
+                NumberFormat = NumberFormatInfo.InvariantInfo
+            };
+
+            assetSp.FromOldFormat($"{model.RewardSp} {Config.Vests}");
+
+            var assetSbd = new Asset
+            {
+                NumberFormat = NumberFormatInfo.InvariantInfo
+            };
+
+            assetSbd.FromOldFormat($"{model.RewardSbd} {Config.Sbd}");
+
+            var op = new ClaimRewardBalanceOperation(model.Login, assetSteem, assetSbd, assetSp);
+
+            return await Broadcast(keys, new BaseOperation[] { op }, ct);
+        }
+
         #endregion Post requests
 
         #region Get
@@ -371,9 +451,12 @@ namespace Steepshot.Core.Clients
                 return result;
             }
 
-            var sp = (double.Parse(propResp.Result.TotalVestingFundSteem.ToDoubleString(), CultureInfo.InvariantCulture)
-                      * ((double.Parse(acc.VestingShares.ToDoubleString(), CultureInfo.InvariantCulture) + double.Parse(acc.ReceivedVestingShares.ToDoubleString(), CultureInfo.InvariantCulture))
-                       / double.Parse(propResp.Result.TotalVestingShares.ToDoubleString(), CultureInfo.InvariantCulture))).ToString("F3", CultureInfo.InvariantCulture);
+            var steemPerVestRatio = double.Parse(propResp.Result.TotalVestingFundSteem.ToDoubleString(), CultureInfo.InvariantCulture) /
+                                    double.Parse(propResp.Result.TotalVestingShares.ToDoubleString(), CultureInfo.InvariantCulture);
+
+            var effectiveSp = (double.Parse(acc.VestingShares.ToDoubleString(), CultureInfo.InvariantCulture) +
+                               double.Parse(acc.ReceivedVestingShares.ToDoubleString(), CultureInfo.InvariantCulture) -
+                               double.Parse(acc.DelegatedVestingShares.ToDoubleString(), CultureInfo.InvariantCulture)) * steemPerVestRatio;
 
             result.Result = new AccountInfoResponse
             {
@@ -381,10 +464,23 @@ namespace Steepshot.Core.Clients
                 PublicPostingKeys = acc.Posting.KeyAuths.Select(i => i.Key.Data).ToArray(),
                 PublicActiveKeys = acc.Active.KeyAuths.Select(i => i.Key.Data).ToArray(),
                 Metadata = JsonConvert.DeserializeObject<AccountMetadata>(acc.JsonMetadata),
+                SteemPerVestsRatio = steemPerVestRatio,
                 Balances = new List<BalanceModel>
                 {
-                    new BalanceModel(userName, acc.Balance.ToDoubleString(), 3, sp, CurrencyType.Steem),
-                    new BalanceModel(userName, acc.SbdBalance.ToDoubleString(), 3, sp, CurrencyType.Sbd)
+                    new BalanceModel(double.Parse(acc.Balance.ToDoubleString(), CultureInfo.InvariantCulture), 3, CurrencyType.Steem)
+                    {
+                        EffectiveSp = effectiveSp,
+                        RewardSteem = double.Parse(acc.RewardSteemBalance.ToDoubleString(), CultureInfo.InvariantCulture),
+                        RewardSp = double.Parse(acc.RewardVestingBalance.ToDoubleString(), CultureInfo.InvariantCulture),
+                        RewardSbd = double.Parse(acc.RewardSbdBalance.ToDoubleString(), CultureInfo.InvariantCulture),
+                    },
+                    new BalanceModel(double.Parse(acc.SbdBalance.ToDoubleString(), CultureInfo.InvariantCulture), 3, CurrencyType.Sbd)
+                    {
+                        EffectiveSp = effectiveSp,
+                        RewardSteem = double.Parse(acc.RewardSteemBalance.ToDoubleString(), CultureInfo.InvariantCulture),
+                        RewardSp = double.Parse(acc.RewardVestingBalance.ToDoubleString(), CultureInfo.InvariantCulture),
+                        RewardSbd = double.Parse(acc.RewardSbdBalance.ToDoubleString(), CultureInfo.InvariantCulture),
+                    }
                 }
             };
 
@@ -409,7 +505,7 @@ namespace Steepshot.Core.Clients
             {
                 Account = userName,
                 Start = ulong.MaxValue,
-                Limit = 5000
+                Limit = 1000
             };
             var resp = await _operationManager.CondenserGetAccountHistory(args, CancellationToken.None);
             if (resp.IsError)
@@ -417,7 +513,7 @@ namespace Steepshot.Core.Clients
                 result.Error = new RequestError(resp);
                 return result;
             }
-            
+
             result.Result = resp.Result.History.Where(Filter).Select(Transform).OrderByDescending(x => x.DateTime).ToArray();
 
             return result;
@@ -443,7 +539,7 @@ namespace Steepshot.Core.Clients
                             Type = OperationType.Transfer,
                             From = typed.From,
                             To = typed.To,
-                            Amount = typed.Amount.ToDoubleString(),
+                            Amount = typed.Amount.ToOldFormatString(),
                             Memo = typed.Memo
                         };
                     }
@@ -468,7 +564,7 @@ namespace Steepshot.Core.Clients
                             Type = OperationType.PowerDown,
                             From = typed.Account,
                             To = typed.Account,
-                            Amount = typed.VestingShares.ToDoubleString()
+                            Amount = typed.VestingShares.ToOldFormatString()
                         };
                     }
                 case ClaimRewardBalanceOperation.OperationName:
@@ -477,10 +573,12 @@ namespace Steepshot.Core.Clients
                         return new AccountHistoryResponse
                         {
                             DateTime = arg.Value.Timestamp,
-                            Type = OperationType.PowerDown,
+                            Type = OperationType.ClaimReward,
                             From = typed.Account,
                             To = typed.Account,
-                            Amount = $"{typed.RewardSteem} {typed.RewardSbd} {typed.RewardVests}"
+                            RewardSteem = typed.RewardSteem.ToDoubleString(),
+                            RewardSp = (double.Parse(typed.RewardVests.ToDoubleString(), CultureInfo.InvariantCulture) * AppSettings.User.AccountInfo.SteemPerVestsRatio).ToBalanceVaueString(),
+                            RewardSbd = typed.RewardSbd.ToDoubleString()
                         };
                     }
                 default:

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text.RegularExpressions;
 using Ditch.Core;
 using Steepshot.Core.Localization;
@@ -83,6 +84,11 @@ namespace Steepshot.Core.Extensions
         public static string GetProxy(this string link, int width, int height)
         {
             return $"{string.Format(Constants.ProxyForAvatars, width, height)}{link}";
+        }
+
+        public static string ToBalanceVaueString(this double value)
+        {
+            return value.ToString("F3", CultureInfo.InvariantCulture);
         }
     }
 }

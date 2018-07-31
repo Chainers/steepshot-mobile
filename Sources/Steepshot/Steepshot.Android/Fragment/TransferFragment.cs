@@ -18,6 +18,7 @@ using Steepshot.Activity;
 using Steepshot.Adapter;
 using Steepshot.Base;
 using Steepshot.Core;
+using Steepshot.Core.Authorization;
 using Steepshot.Core.Extensions;
 using Steepshot.Core.Facades;
 using Steepshot.Core.Localization;
@@ -54,7 +55,7 @@ namespace Steepshot.Fragment
         [BindView(Resource.Id.transfer_amount)] private TextView _transferAmountTitle;
         [BindView(Resource.Id.transfer_amount_edit)] private EditText _transferAmountEdit;
         [BindView(Resource.Id.transfer_comment)] private TextView _transferCommentTitle;
-        [BindView(Resource.Id.amount_clear)] private ImageView _transferAmountClear;
+        [BindView(Resource.Id.max)] private Button _maxBtn;
         [BindView(Resource.Id.transfer_comment_edit)] private EditText _transferCommentEdit;
         [BindView(Resource.Id.transfer_coin)] private LinearLayout _transferCoinType;
         [BindView(Resource.Id.transfercoin_name)] private TextView _transferCoinName;
@@ -68,7 +69,7 @@ namespace Steepshot.Fragment
         [BindView(Resource.Id.empty_query_label)] private TextView _emptyQueryLabel;
 #pragma warning restore 0649
 
-        private const int TransferFragmentRequestCode = 229;
+        private readonly UserInfo _userInfo;
         private readonly TransferFacade _transferFacade;
         private ViewGroup _activityRoot;
         private GradientDrawable _commentShape;
@@ -114,18 +115,42 @@ namespace Steepshot.Fragment
         }
         private bool IsKeyboardOpening => LytHeightDiff > ViewUtils.KeyboardVisibilityThreshold;
 
-        public TransferFragment()
+        public TransferFragment() : this(AppSettings.User.UserInfo)
         {
-            var client = App.MainChain == KnownChains.Steem ? App.SteemClient : App.GolosClient;
+        }
+
+        public TransferFragment(UserInfo userInfo)
+        {
+            _userInfo = userInfo;
+
+            _coins = new List<CurrencyType>();
+            switch (_userInfo.Chain)
+            {
+                case KnownChains.Steem:
+                    _coins.AddRange(new[] { CurrencyType.Steem, CurrencyType.Sbd });
+                    break;
+                case KnownChains.Golos:
+                    _coins.AddRange(new[] { CurrencyType.Golos, CurrencyType.Gbg });
+                    break;
+            }
+
+            _pickedCoin = _coins[0];
+
+            var client = _userInfo.Chain == KnownChains.Steem ? App.SteemClient : App.GolosClient;
             _transferFacade = new TransferFacade();
             _transferFacade.SetClient(client);
             _transferFacade.OnRecipientChanged += OnRecipientChanged;
             _transferFacade.OnUserBalanceChanged += OnUserBalanceChanged;
         }
 
+        public TransferFragment(UserInfo userInfo, CurrencyType selectedCurrency) : this(userInfo)
+        {
+            _pickedCoin = selectedCurrency;
+        }
+
         public TransferFragment(UserProfileResponse user) : this()
         {
-            _transferFacade.Recipient = new UserFriend()
+            _transferFacade.Recipient = new UserFriend
             {
                 Author = user.Username,
                 Avatar = user.ProfileImage
@@ -152,23 +177,13 @@ namespace Steepshot.Fragment
             ToggleTabBar(true);
             _activityRoot = Activity.FindViewById<ViewGroup>(Android.Resource.Id.Content);
 
-            _coins = new List<CurrencyType>();
-            switch (AppSettings.User.Chain)
-            {
-                case KnownChains.Steem:
-                    _coins.AddRange(new[] { CurrencyType.Steem, CurrencyType.Sbd });
-                    break;
-                case KnownChains.Golos:
-                    _coins.AddRange(new[] { CurrencyType.Golos, CurrencyType.Gbg });
-                    break;
-            }
-
             _fragmentTitle.Typeface = Style.Semibold;
             _balance.Typeface = Style.Semibold;
             _recipientTitle.Typeface = Style.Semibold;
             _recipientSearch.Typeface = Style.Light;
             _transferAmountTitle.Typeface = Style.Semibold;
             _transferAmountEdit.Typeface = Style.Light;
+            _maxBtn.Typeface = Style.Semibold;
             _transferCommentTitle.Typeface = Style.Semibold;
             _transferCommentEdit.Typeface = Style.Light;
             _transferCoinName.Typeface = Style.Semibold;
@@ -179,6 +194,7 @@ namespace Steepshot.Fragment
             _recipientSearch.Hint = AppSettings.LocalizationManager.GetText(LocalizationKeys.RecipientNameHint);
             _transferAmountTitle.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.TransferAmount);
             _transferAmountEdit.Hint = AppSettings.LocalizationManager.GetText(LocalizationKeys.TransferAmountHint);
+            _maxBtn.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Max);
             _transferCommentTitle.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.TransferComment);
             _transferCommentEdit.Hint = AppSettings.LocalizationManager.GetText(LocalizationKeys.TranferCommentHint);
             _emptyQueryLabel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.EmptyQuery);
@@ -186,7 +202,7 @@ namespace Steepshot.Fragment
 
             _recipientSearch.SetFilters(new IInputFilter[] { new TextInputFilter(TextInputFilter.TagFilter) });
             _commentShape = new GradientDrawable();
-            _commentShape.SetCornerRadius(BitmapUtils.DpToPixel(20, Resources));
+            _commentShape.SetCornerRadius(BitmapUtils.DpToPixel(25, Resources));
             _commentShape.SetColor(Style.R244G244B246);
             _commentShape.SetStroke((int)BitmapUtils.DpToPixel(1, Resources), Style.R244G244B246);
             _transferCommentEdit.Background = _commentShape;
@@ -195,7 +211,7 @@ namespace Steepshot.Fragment
             _coinPickDialog = new CoinPickDialog(Activity, _coins);
             _coinPickDialog.Window.RequestFeature(WindowFeatures.NoTitle);
             _coinPickDialog.CoinSelected += CoinSelected;
-            CoinSelected(_coins[0]);
+            CoinSelected(_pickedCoin);
 
             RecipientsAdapter.RecipientSelected += RecipientSelected;
 
@@ -209,8 +225,7 @@ namespace Steepshot.Fragment
             _recipientSearch.FocusChange += RecipientSearchOnFocusChange;
             _recipientSearch.KeyPress += RecipientSearchOnKeyPress;
             _recipientSearchClear.Click += RecipientSearchClearOnClick;
-            _transferAmountEdit.TextChanged += TransferAmountEditOnTextChanged;
-            _transferAmountClear.Click += TransferAmountClearOnClick;
+            _maxBtn.Click += MaxBtnOnClick;
             _transferCoinType.Click += TransferCoinTypeOnClick;
             _transferCommentTitle.Click += TransferCommentTitleOnClick;
             _transferCommentEdit.FocusChange += TransferCommentEditOnFocusChange;
@@ -399,31 +414,25 @@ namespace Steepshot.Fragment
             _transferFacade.UserFriendPresenter.Clear();
         }
 
-        private void TransferAmountEditOnTextChanged(object sender, TextChangedEventArgs e)
-        {
-            _transferAmountClear.Visibility =
-                string.IsNullOrEmpty(_transferAmountEdit.Text) ? ViewStates.Gone : ViewStates.Visible;
-        }
-
-        private void TransferAmountClearOnClick(object sender, EventArgs e)
-        {
-            _transferAmountEdit.Text = string.Empty;
-        }
-
         private void TransferCoinTypeOnClick(object sender, EventArgs e)
         {
             _coinPickDialog.Show(_coins.IndexOf(_pickedCoin));
+        }
+
+        private void MaxBtnOnClick(object sender, EventArgs e)
+        {
+            _transferAmountEdit.Text = _transferFacade.UserBalance.Value.ToBalanceVaueString();
         }
 
         private async Task UpdateAccountInfo()
         {
             _balance.Visibility = ViewStates.Gone;
             _balanceLoader.Visibility = ViewStates.Visible;
-            var response = await _transferFacade.TryGetAccountInfo(AppSettings.User.Login);
+            var response = await _transferFacade.TryGetAccountInfo(_userInfo.Login);
             if (response.IsSuccess)
             {
-                AppSettings.User.AccountInfo = response.Result;
-                _transferFacade.UserBalance = AppSettings.User.AccountInfo?.Balances?.Find(x => x.CurrencyType == _pickedCoin);
+                _userInfo.AccountInfo = response.Result;
+                _transferFacade.UserBalance = _userInfo.AccountInfo?.Balances?.Find(x => x.CurrencyType == _pickedCoin);
             }
             _balance.Visibility = ViewStates.Visible;
             _balanceLoader.Visibility = ViewStates.Gone;
@@ -433,7 +442,7 @@ namespace Steepshot.Fragment
         {
             _pickedCoin = pickedCoin;
             _transferCoinName.Text = _pickedCoin.ToString();
-            _transferFacade.UserBalance = AppSettings.User.AccountInfo?.Balances?.Find(x => x.CurrencyType == _pickedCoin);
+            _transferFacade.UserBalance = _userInfo.AccountInfo?.Balances?.Find(x => x.CurrencyType == _pickedCoin);
             switch (pickedCoin)
             {
                 case CurrencyType.Steem:
@@ -445,6 +454,7 @@ namespace Steepshot.Fragment
                     _transferAmountEdit.SetFilters(new IInputFilter[] { new TransferAmountFilter(20, 6) });
                     break;
             }
+            _transferAmountEdit.SetPadding(_transferAmountEdit.PaddingLeft, _transferAmountEdit.PaddingTop, ((View)_transferCoinName.Parent).Width, _transferAmountEdit.PaddingBottom);
         }
 
         private void RecipientSelected(UserFriend recipient)
@@ -467,7 +477,7 @@ namespace Steepshot.Fragment
         {
             if (_transferCommentEdit.LineCount <= 2)
             {
-                _commentShape.SetCornerRadius(BitmapUtils.DpToPixel(20, Resources) / _transferCommentEdit.LineCount);
+                _commentShape.SetCornerRadius(BitmapUtils.DpToPixel(25, Resources) / _transferCommentEdit.LineCount);
                 _transferCommentEdit.Background = _commentShape;
             }
         }
@@ -509,22 +519,22 @@ namespace Steepshot.Fragment
 
             if (_transferFacade.UserBalance == null)
             {
-                await _transferFacade.TryGetAccountInfo(AppSettings.User.Login);
+                await _transferFacade.TryGetAccountInfo(_userInfo.Login);
                 return await Validate();
             }
 
             var transferAmount = double.Parse(_transferAmountEdit.Text, CultureInfo.InvariantCulture);
 
-            if (Math.Abs(transferAmount) < 0.0000001 || transferAmount > double.Parse(_transferFacade.UserBalance.Value, CultureInfo.InvariantCulture))
+            if (Math.Abs(transferAmount) < 0.0000001 || transferAmount > _transferFacade.UserBalance.Value)
             {
                 Toast.MakeText(Activity, AppSettings.LocalizationManager.GetText(LocalizationKeys.WrongTransferAmount), ToastLength.Short).Show();
                 return false;
             }
 
-            if (string.IsNullOrEmpty(AppSettings.User.ActiveKey))
+            if (string.IsNullOrEmpty(_userInfo.ActiveKey))
             {
                 var intent = new Intent(Activity, typeof(ActiveSignInActivity));
-                StartActivityForResult(intent, TransferFragmentRequestCode);
+                StartActivityForResult(intent, ActiveSignInActivity.ActiveKeyRequestCode);
                 return false;
             }
 
@@ -565,7 +575,7 @@ namespace Steepshot.Fragment
 
         public override void OnActivityResult(int requestCode, int resultCode, Intent data)
         {
-            if (requestCode == TransferFragmentRequestCode && resultCode == (int)Result.Ok)
+            if (requestCode == ActiveSignInActivity.ActiveKeyRequestCode && resultCode == (int)Result.Ok)
             {
                 State = FragmentState.Transfer;
                 Transfer();

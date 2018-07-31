@@ -79,13 +79,16 @@
     <Compile Include="Base\BaseSignInActivity.cs" />
     <Compile Include="CustomViews\AccurateMovementMethod.cs" />
     <Compile Include="CustomViews\AutoLinkTextView.cs" />
+    <Compile Include="CustomViews\ClaimRewardsDialog.cs" />
     <Compile Include="CustomViews\CoinPickDialog.cs" />
     <Compile Include="CustomViews\ExpandableTextView.cs" />
     <Compile Include="CustomViews\MediaPager.cs" />
     <Compile Include="CustomViews\SuccessfullTrxDialog.cs" />
     <Compile Include="CustomViews\TouchableSpan.cs" />
+    <Compile Include="CustomViews\WalletExtraDialog.cs" />
     <Compile Include="Fragment\PostCreateFragment.cs" />
     <Compile Include="Fragment\PostPrepareBaseFragment.cs" />
+    <Compile Include="Fragment\PowerUpDownFragment.cs" />
     <Compile Include="Fragment\TransferFragment.cs" />
     <Compile Include="Fragment\WalletFragment.cs" />
     <Compile Include="Integration\InstagramModule.cs" />
@@ -765,6 +768,29 @@
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\values\Styles.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\layout\lyt_wallet_extra.axml">
+      <SubType>Designer</SubType>
+    </AndroidResource>
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable\grey_rounded_border20dip.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\layout\lyt_power_up_down.axml">
+      <SubType>Designer</SubType>
+    </AndroidResource>
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\layout\lyt_power_up_down_top.axml">
+      <SubType>Designer</SubType>
+    </AndroidResource>
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\layout\lyt_claim_rewards.axml">
+      <SubType>Designer</SubType>
+    </AndroidResource>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <Import Project="..\packages\Xamarin.Build.Download.0.4.2\build\Xamarin.Build.Download.targets" Condition="Exists('..\packages\Xamarin.Build.Download.0.4.2\build\Xamarin.Build.Download.targets')" />

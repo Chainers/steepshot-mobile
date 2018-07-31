@@ -6,7 +6,8 @@ namespace Steepshot.Core.HttpClient
     {
         Transfer,
         PowerUp,
-        PowerDown
+        PowerDown,
+        ClaimReward
     }
 
     public class AccountHistoryResponse
@@ -16,6 +17,9 @@ namespace Steepshot.Core.HttpClient
         public string From { get; set; }
         public string To { get; set; }
         public string Amount { get; set; }
+        public string RewardSteem { get; set; }
+        public string RewardSp { get; set; }
+        public string RewardSbd { get; set; }
         public string Memo { get; set; }
     }
 }

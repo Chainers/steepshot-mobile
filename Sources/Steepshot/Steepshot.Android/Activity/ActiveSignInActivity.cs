@@ -17,6 +17,8 @@ namespace Steepshot.Activity
     [Activity(ScreenOrientation = ScreenOrientation.Portrait)]
     public sealed class ActiveSignInActivity : BaseSignInActivity
     {
+        public const int ActiveKeyRequestCode = 231;
+
         [BindView(Resource.Id.privacy_politic)] private TextView _privacyPolitic;
 
         protected override void OnCreate(Bundle savedInstanceState)
