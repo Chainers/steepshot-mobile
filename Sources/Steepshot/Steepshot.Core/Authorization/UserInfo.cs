@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 using Steepshot.Core.HttpClient;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Models.Responses;
@@ -10,6 +11,7 @@ namespace Steepshot.Core.Authorization
     {
         public AccountInfoResponse AccountInfo { get; set; }
 
+        [JsonIgnore]
         public AccountHistoryResponse[] AccountHistory { get; set; }
 
         public int Id { get; set; }

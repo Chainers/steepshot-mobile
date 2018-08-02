@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Threading.Tasks;
 using Android.App;
 using Android.Content;
@@ -397,7 +396,7 @@ namespace Steepshot.Fragment
 
         private void RecipientSearchOnKeyPress(object sender, View.KeyEventArgs e)
         {
-            if (e.Event != null && (e.KeyCode == Keycode.Enter))
+            if (e.Event != null && e.KeyCode == Keycode.Enter)
             {
                 _transferBtn.RequestFocus();
                 e.Handled = true;
@@ -422,6 +421,7 @@ namespace Steepshot.Fragment
         private void MaxBtnOnClick(object sender, EventArgs e)
         {
             _transferAmountEdit.Text = _transferFacade.UserBalance.Value.ToBalanceVaueString();
+            _transferAmountEdit.SetSelection(_transferAmountEdit.Text.Length);
         }
 
         private async Task UpdateAccountInfo()
@@ -523,9 +523,9 @@ namespace Steepshot.Fragment
                 return await Validate();
             }
 
-            var transferAmount = double.Parse(_transferAmountEdit.Text, CultureInfo.InvariantCulture);
+            var validNumber = double.TryParse(_transferAmountEdit.Text, out var transferAmount);
 
-            if (Math.Abs(transferAmount) < 0.0000001 || transferAmount > _transferFacade.UserBalance.Value)
+            if (!validNumber || Math.Abs(transferAmount) < 0.0000001 || transferAmount > _transferFacade.UserBalance.Value)
             {
                 Toast.MakeText(Activity, AppSettings.LocalizationManager.GetText(LocalizationKeys.WrongTransferAmount), ToastLength.Short).Show();
                 return false;
@@ -534,6 +534,8 @@ namespace Steepshot.Fragment
             if (string.IsNullOrEmpty(_userInfo.ActiveKey))
             {
                 var intent = new Intent(Activity, typeof(ActiveSignInActivity));
+                intent.PutExtra(ActiveSignInActivity.ActiveSignInUserName, _userInfo.Login);
+                intent.PutExtra(ActiveSignInActivity.ActiveSignInChain, (int)_userInfo.Chain);
                 StartActivityForResult(intent, ActiveSignInActivity.ActiveKeyRequestCode);
                 return false;
             }
@@ -559,7 +561,7 @@ namespace Steepshot.Fragment
             if (_transferFacade.UserBalance == null)
                 return;
 
-            var transferResponse = await _transferFacade.TransferPresenter.TryTransfer(_transferFacade.Recipient.Author, _transferAmountEdit.Text, _pickedCoin, _transferCommentEdit.Text);
+            var transferResponse = await _transferFacade.TransferPresenter.TryTransfer(_userInfo, _transferFacade.Recipient.Author, _transferAmountEdit.Text, _pickedCoin, _transferCommentEdit.Text);
             if (transferResponse.IsSuccess)
             {
                 var succes = new SuccessfullTrxDialog(Activity, _transferFacade.Recipient.Author, $"{_transferAmountEdit.Text} {_pickedCoin.ToString().ToUpper()}");

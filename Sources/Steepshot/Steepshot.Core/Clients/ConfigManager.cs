@@ -14,6 +14,9 @@ namespace Steepshot.Core.Clients
         private const string GolosNodeConfigKey = "GolosNodeConfigKey";
         private readonly ISaverService _saverService;
 
+        public double SteemPerVestsRatio { get; set; }
+        public double GolosPerGestsRatio { get; set; }
+
         public List<NodeConfig> SteemNodeConfigs { get; private set; }
         public List<NodeConfig> GolosNodeConfigs { get; private set; }
 
@@ -28,6 +31,30 @@ namespace Steepshot.Core.Clients
             GolosNodeConfigs = _saverService.Get<List<NodeConfig>>(GolosNodeConfigKey);
             if (GolosNodeConfigs == null || !GolosNodeConfigs.Any())
                 GolosNodeConfigs = assetHelper.GolosNodesConfig();
+        }
+
+        public async void UpdateGlobalFundRatio(SteepshotApiClient steepshotApiClient)
+        {
+            var properties = await steepshotApiClient.GetDynamicGlobalProperties(CancellationToken.None);
+            switch (steepshotApiClient.Chain)
+            {
+                case KnownChains.Golos:
+                    {
+                        if (properties.IsSuccess)
+                        {
+                            GolosPerGestsRatio = properties.Result.TotalVestingFund / properties.Result.TotalVestingShares;
+                        }
+                        break;
+                    }
+                case KnownChains.Steem:
+                    {
+                        if (properties.IsSuccess)
+                        {
+                            SteemPerVestsRatio = properties.Result.TotalVestingFund / properties.Result.TotalVestingShares;
+                        }
+                        break;
+                    }
+            }
         }
 
         public async Task Update(SteepshotApiClient steepshotApiClient, CancellationToken token)

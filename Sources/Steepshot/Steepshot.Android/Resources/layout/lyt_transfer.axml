@@ -48,6 +48,7 @@
                         android:layout_height="50dp"
                         android:textSize="14sp"
                         android:maxLines="1"
+                        android:maxLength="16"
                         android:inputType="text|textCapSentences|textNoSuggestions"
                         android:paddingLeft="20dp"
                         android:paddingRight="35dp"

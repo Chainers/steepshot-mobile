@@ -444,19 +444,9 @@ namespace Steepshot.Core.Clients
 
             var acc = resp.Result.Accounts[0];
 
-            var propResp = await _operationManager.GetDynamicGlobalProperties(CancellationToken.None);
-            if (propResp.IsError)
-            {
-                result.Error = new RequestError(propResp);
-                return result;
-            }
-
-            var steemPerVestRatio = double.Parse(propResp.Result.TotalVestingFundSteem.ToDoubleString(), CultureInfo.InvariantCulture) /
-                                    double.Parse(propResp.Result.TotalVestingShares.ToDoubleString(), CultureInfo.InvariantCulture);
-
             var effectiveSp = (double.Parse(acc.VestingShares.ToDoubleString(), CultureInfo.InvariantCulture) +
                                double.Parse(acc.ReceivedVestingShares.ToDoubleString(), CultureInfo.InvariantCulture) -
-                               double.Parse(acc.DelegatedVestingShares.ToDoubleString(), CultureInfo.InvariantCulture)) * steemPerVestRatio;
+                               double.Parse(acc.DelegatedVestingShares.ToDoubleString(), CultureInfo.InvariantCulture)) * AppSettings.ConfigManager.SteemPerVestsRatio;
 
             result.Result = new AccountInfoResponse
             {
@@ -464,7 +454,6 @@ namespace Steepshot.Core.Clients
                 PublicPostingKeys = acc.Posting.KeyAuths.Select(i => i.Key.Data).ToArray(),
                 PublicActiveKeys = acc.Active.KeyAuths.Select(i => i.Key.Data).ToArray(),
                 Metadata = JsonConvert.DeserializeObject<AccountMetadata>(acc.JsonMetadata),
-                SteemPerVestsRatio = steemPerVestRatio,
                 Balances = new List<BalanceModel>
                 {
                     new BalanceModel(double.Parse(acc.Balance.ToDoubleString(), CultureInfo.InvariantCulture), 3, CurrencyType.Steem)
@@ -485,6 +474,31 @@ namespace Steepshot.Core.Clients
             };
 
             return result;
+        }
+
+        public override async Task<OperationResult<ChainGlobalProperties>> GetDynamicGlobalProperties(CancellationToken ct)
+        {
+            if (!TryReconnectChain(ct))
+            {
+                return new OperationResult<ChainGlobalProperties>(new ValidationError(LocalizationKeys.EnableConnectToBlockchain));
+            }
+
+            var result = new OperationResult<ChainGlobalProperties>();
+
+            var response = await _operationManager.GetDynamicGlobalProperties(ct);
+            if (response.IsError)
+            {
+                result.Error = new RequestError(response);
+                return result;
+            }
+
+            result.Result = new ChainGlobalProperties
+            {
+                TotalVestingShares = double.Parse(response.Result.TotalVestingShares.ToDoubleString(), CultureInfo.InvariantCulture),
+                TotalVestingFund = double.Parse(response.Result.TotalVestingFundSteem.ToDoubleString(), CultureInfo.InvariantCulture)
+            };
+
+            return new OperationResult<ChainGlobalProperties>(result.Result);
         }
 
         private readonly string[] _accountHistoryFilter = {
@@ -564,7 +578,7 @@ namespace Steepshot.Core.Clients
                             Type = OperationType.PowerDown,
                             From = typed.Account,
                             To = typed.Account,
-                            Amount = typed.VestingShares.ToOldFormatString()
+                            Amount = $"{(double.Parse(typed.VestingShares.ToDoubleString(), CultureInfo.InvariantCulture) * AppSettings.ConfigManager.SteemPerVestsRatio).ToBalanceVaueString()} {CurrencyType.Steem.ToString().ToUpper()}"
                         };
                     }
                 case ClaimRewardBalanceOperation.OperationName:
@@ -577,7 +591,7 @@ namespace Steepshot.Core.Clients
                             From = typed.Account,
                             To = typed.Account,
                             RewardSteem = typed.RewardSteem.ToDoubleString(),
-                            RewardSp = (double.Parse(typed.RewardVests.ToDoubleString(), CultureInfo.InvariantCulture) * AppSettings.User.AccountInfo.SteemPerVestsRatio).ToBalanceVaueString(),
+                            RewardSp = (double.Parse(typed.RewardVests.ToDoubleString(), CultureInfo.InvariantCulture) * AppSettings.ConfigManager.SteemPerVestsRatio).ToBalanceVaueString(),
                             RewardSbd = typed.RewardSbd.ToDoubleString()
                         };
                     }

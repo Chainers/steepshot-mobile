@@ -80,16 +80,20 @@ namespace Steepshot.Fragment
             _tokenName.Typeface = Style.Semibold;
             _amountEdit.Typeface = Style.Semibold;
 
+            var minAmount = 0.001;
+
             _fragmentTitle.Text = AppSettings.LocalizationManager.GetText(_powerAction == PowerAction.PowerUp ? LocalizationKeys.PowerUp : LocalizationKeys.PowerDown);
             _tokenOneTitle.Text = _balance.CurrencyType.ToString().ToUpper();
             _tokenName.Text = _balance.CurrencyType.ToString().ToUpper();
             _tokenTwoTitle.Text = $"{_balance.CurrencyType} power".ToUpper();
             _amountTitle.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Amount);
+            _amountEdit.Hint = "0";
+            _amountEdit.Text = minAmount.ToString(CultureInfo.InvariantCulture);
             _maxBtn.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Max);
             _powerBtn.Text = AppSettings.LocalizationManager.GetText(_powerAction == PowerAction.PowerUp ? LocalizationKeys.PowerUp : LocalizationKeys.PowerDown);
 
             _amountEdit.SetFilters(new IInputFilter[] { new TransferAmountFilter(Int32.MaxValue, 3) });
-            UpdateTokenValues(_balance.Value.ToBalanceVaueString(), "???", _balance.EffectiveSp.ToBalanceVaueString(), "???");
+            AmountEditOnTextChanged(null, null);
 
             _tokenName.ViewTreeObserver.GlobalLayout += TokenLayedOut;
             _amountEdit.TextChanged += AmountEditOnTextChanged;
@@ -127,20 +131,28 @@ namespace Steepshot.Fragment
 
         private void AmountEditOnTextChanged(object sender, TextChangedEventArgs e)
         {
-            if (string.IsNullOrEmpty(e.Text.ToString()))
+            if (string.IsNullOrEmpty(_amountEdit.Text))
             {
                 UpdateTokenValues(_balance.Value.ToBalanceVaueString(), "???", _balance.EffectiveSp.ToBalanceVaueString(), "???");
                 _powerAmount = -1;
                 return;
             }
 
-            var amountEdit = double.Parse(e.Text.ToString(), CultureInfo.InvariantCulture);
+            var amountEdit = double.Parse(_amountEdit.Text, CultureInfo.InvariantCulture);
             var amountAvailable = _balance.Value;
             var spAvailiable = _balance.EffectiveSp;
 
             if (amountEdit <= (_powerAction == PowerAction.PowerUp ? amountAvailable : spAvailiable))
             {
-                UpdateTokenValues(_balance.Value.ToBalanceVaueString(), (amountAvailable + (_powerAction == PowerAction.PowerUp ? -amountEdit : amountEdit)).ToBalanceVaueString(), _balance.EffectiveSp.ToBalanceVaueString(), (spAvailiable + (_powerAction == PowerAction.PowerUp ? amountEdit : -amountEdit)).ToBalanceVaueString());
+                switch (_powerAction)
+                {
+                    case PowerAction.PowerUp:
+                        UpdateTokenValues(_balance.Value.ToBalanceVaueString(), (amountAvailable - amountEdit).ToBalanceVaueString(), _balance.EffectiveSp.ToBalanceVaueString(), (spAvailiable + amountEdit).ToBalanceVaueString());
+                        break;
+                    case PowerAction.PowerDown:
+                        UpdateTokenValues(_balance.Value.ToBalanceVaueString(), (amountAvailable + amountEdit).ToBalanceVaueString(), _balance.EffectiveSp.ToBalanceVaueString(), (spAvailiable - amountEdit).ToBalanceVaueString());
+                        break;
+                }
                 _powerAmount = amountEdit;
             }
             else
@@ -153,19 +165,22 @@ namespace Steepshot.Fragment
         private void MaxBtnOnClick(object sender, EventArgs e)
         {
             _amountEdit.Text = _balance.Value.ToBalanceVaueString();
+            _amountEdit.SetSelection(_amountEdit.Text.Length);
         }
 
         private void PowerBtnOnClick(object sender, EventArgs e)
         {
-            if (_powerAmount < 0)
+            if (_powerAmount < 0 || _powerAction == PowerAction.PowerUp && _powerAmount == 0)
             {
-                Toast.MakeText(Activity, AppSettings.LocalizationManager.GetText(LocalizationKeys.WrongTransferAmount), ToastLength.Short);
+                Activity.ShowAlert(LocalizationKeys.WrongTransferAmount, ToastLength.Short);
                 return;
             }
 
             if (string.IsNullOrEmpty(_balance.UserInfo.ActiveKey))
             {
                 var intent = new Intent(Activity, typeof(ActiveSignInActivity));
+                intent.PutExtra(ActiveSignInActivity.ActiveSignInUserName, _balance.UserInfo.Login);
+                intent.PutExtra(ActiveSignInActivity.ActiveSignInChain, (int)_balance.UserInfo.Chain);
                 StartActivityForResult(intent, ActiveSignInActivity.ActiveKeyRequestCode);
                 return;
             }
@@ -195,6 +210,9 @@ namespace Steepshot.Fragment
 
             var response = await Presenter.TryPowerUpOrDown(model, _powerAction);
 
+            if (!IsInitialized || IsDetached)
+                return;
+
             _powerBtnLoader.Visibility = ViewStates.Gone;
             _powerBtn.Text = AppSettings.LocalizationManager.GetText(_powerAction == PowerAction.PowerUp ? LocalizationKeys.PowerUp : LocalizationKeys.PowerDown);
 
@@ -202,7 +220,7 @@ namespace Steepshot.Fragment
             {
                 TargetFragment.OnActivityResult(WalletFragment.WalletFragmentPowerUpOrDownRequestCode, (int)Result.Ok, null);
                 Activity.ShowAlert(LocalizationKeys.TransferSuccess, ToastLength.Short);
-                ((BaseActivity)Activity).OnBackPressed();
+                BackBtnOnClick(null, null);
             }
             else
             {
@@ -212,6 +230,7 @@ namespace Steepshot.Fragment
 
         private void BackBtnOnClick(object sender, EventArgs e)
         {
+            ((BaseActivity)Activity).HideKeyboard();
             ((BaseActivity)Activity).OnBackPressed();
         }
     }

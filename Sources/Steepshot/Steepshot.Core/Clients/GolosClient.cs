@@ -7,10 +7,11 @@ using System.Threading.Tasks;
 using Ditch.Core;
 using Ditch.Core.JsonRpc;
 using Ditch.Golos;
-using Ditch.Golos.Models;
 using Ditch.Golos.Operations;
+using Ditch.Steem.Models;
 using Newtonsoft.Json;
 using Steepshot.Core.Errors;
+using Steepshot.Core.Extensions;
 using Steepshot.Core.HttpClient;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Common;
@@ -18,6 +19,10 @@ using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Utils;
+using AppliedOperation = Ditch.Golos.Models.AppliedOperation;
+using Asset = Ditch.Golos.Models.Asset;
+using Authority = Ditch.Golos.Models.Authority;
+using DynamicGlobalPropertyObject = Ditch.Golos.Models.DynamicGlobalPropertyObject;
 using OperationType = Steepshot.Core.HttpClient.OperationType;
 
 namespace Steepshot.Core.Clients
@@ -424,19 +429,9 @@ namespace Steepshot.Core.Clients
 
             var acc = resp.Result[0];
 
-            var propResp = await _operationManager.GetDynamicGlobalProperties(CancellationToken.None);
-            if (propResp.IsError)
-            {
-                result.Error = new RequestError(propResp);
-                return result;
-            }
-
-            var steemPerVestRatio = double.Parse(propResp.Result.TotalVestingFundSteem.ToDoubleString(), CultureInfo.InvariantCulture) /
-                                    double.Parse(propResp.Result.TotalVestingShares.ToDoubleString(), CultureInfo.InvariantCulture);
-
             var effectiveSp = (double.Parse(acc.VestingShares.ToDoubleString(), CultureInfo.InvariantCulture) +
                                double.Parse(acc.ReceivedVestingShares.ToDoubleString(), CultureInfo.InvariantCulture) -
-                               double.Parse(acc.DelegatedVestingShares.ToDoubleString(), CultureInfo.InvariantCulture)) * steemPerVestRatio;
+                               double.Parse(acc.DelegatedVestingShares.ToDoubleString(), CultureInfo.InvariantCulture)) * AppSettings.ConfigManager.GolosPerGestsRatio;
 
             result.Result = new AccountInfoResponse
             {
@@ -458,6 +453,31 @@ namespace Steepshot.Core.Clients
             };
 
             return result;
+        }
+
+        public override async Task<OperationResult<ChainGlobalProperties>> GetDynamicGlobalProperties(CancellationToken ct)
+        {
+            if (!TryReconnectChain(ct))
+            {
+                return new OperationResult<ChainGlobalProperties>(new ValidationError(LocalizationKeys.EnableConnectToBlockchain));
+            }
+
+            var result = new OperationResult<ChainGlobalProperties>();
+
+            var response = await _operationManager.GetDynamicGlobalProperties(ct);
+            if (response.IsError)
+            {
+                result.Error = new RequestError(response);
+                return result;
+            }
+
+            result.Result = new ChainGlobalProperties
+            {
+                TotalVestingShares = double.Parse(response.Result.TotalVestingShares.ToDoubleString(), CultureInfo.InvariantCulture),
+                TotalVestingFund = double.Parse(response.Result.TotalVestingFundSteem.ToDoubleString(), CultureInfo.InvariantCulture)
+            };
+
+            return new OperationResult<ChainGlobalProperties>(result.Result);
         }
 
         private readonly string[] _accountHistoryFilter = {
@@ -529,7 +549,7 @@ namespace Steepshot.Core.Clients
                             Type = OperationType.PowerDown,
                             From = typed.Account,
                             To = typed.Account,
-                            Amount = $"{typed.VestingShares.ToDoubleString()} {typed.VestingShares.Currency}"
+                            Amount = $"{(double.Parse(typed.VestingShares.ToDoubleString(), CultureInfo.InvariantCulture) * AppSettings.ConfigManager.SteemPerVestsRatio).ToBalanceVaueString()} {CurrencyType.Golos.ToString().ToUpper()}"
                         };
                     }
                 default:

@@ -18,16 +18,16 @@ namespace Steepshot.Core.Presenters
 {
     public class WalletPresenter : PreSignInPresenter, IEnumerator<UserInfo>
     {
-        public Dictionary<string, UserInfo> ConnectedUsers { get; }
+        public Dictionary<int, UserInfo> ConnectedUsers { get; }
         public bool HasNext { get; private set; }
         public List<BalanceModel> Balances { get; }
         public CurrencyRate[] CurrencyRates { get; private set; }
-        private readonly string[] _logins;
+        private readonly int[] _logins;
         private int _current = -1;
 
         public WalletPresenter()
         {
-            ConnectedUsers = AppSettings.DataProvider.Select().ToDictionary(x => x.Login, x => x);
+            ConnectedUsers = AppSettings.DataProvider.Select().ToDictionary(x => x.Id, x => x);
             _logins = ConnectedUsers.Keys.ToArray();
             Balances = new List<BalanceModel>();
             HasNext = MoveNext();
@@ -38,7 +38,7 @@ namespace Steepshot.Core.Presenters
             if (!HasNext || Current == null)
                 return new ValidationError("");
 
-            var error = await TryUpdateAccountInfo(Current.Login);
+            var error = await TryUpdateAccountInfo(Current);
             if (error == null)
             {
                 HasNext = MoveNext();
@@ -47,18 +47,17 @@ namespace Steepshot.Core.Presenters
             return error;
         }
 
-        public async Task<Exception> TryUpdateAccountInfo(string login)
+        public async Task<Exception> TryUpdateAccountInfo(UserInfo userInfo)
         {
-            if (!ConnectedUsers.ContainsKey(login))
+            if (!ConnectedUsers.ContainsKey(userInfo.Id))
                 return new ValidationError("");
 
-            var response = await TryRunTask<string, AccountInfoResponse>(GetAccountInfo, OnDisposeCts.Token, login);
-            var historyResp = await TryRunTask<string, AccountHistoryResponse[]>(GetAccountHistory, OnDisposeCts.Token, login);
+            var response = await TryRunTask<string, AccountInfoResponse>(GetAccountInfo, OnDisposeCts.Token, userInfo.Login);
             if (response.IsSuccess)
             {
-                ConnectedUsers[login].AccountInfo = response.Result;
+                ConnectedUsers[userInfo.Id].AccountInfo = response.Result;
                 var responseBalances = response.Result.Balances;
-                responseBalances.ForEach(x => x.UserInfo = ConnectedUsers[login]);
+                responseBalances.ForEach(x => x.UserInfo = ConnectedUsers[userInfo.Id]);
                 lock (Balances)
                 {
                     responseBalances.ForEach(x =>
@@ -76,9 +75,10 @@ namespace Steepshot.Core.Presenters
                 return response.Error;
             }
 
+            var historyResp = await TryRunTask<string, AccountHistoryResponse[]>(GetAccountHistory, OnDisposeCts.Token, userInfo.Login);
             if (historyResp.IsSuccess)
             {
-                ConnectedUsers[login].AccountHistory = historyResp.Result;
+                ConnectedUsers[userInfo.Id].AccountHistory = historyResp.Result;
                 return null;
             }
 

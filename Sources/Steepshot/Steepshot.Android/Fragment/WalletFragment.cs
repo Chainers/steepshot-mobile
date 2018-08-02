@@ -14,6 +14,7 @@ using CheeseBind;
 using Steepshot.Activity;
 using Steepshot.Adapter;
 using Steepshot.Base;
+using Steepshot.Core.Authorization;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
@@ -45,7 +46,7 @@ namespace Steepshot.Fragment
 
         private int _pageOffset, _transferBtnFullWidth, _transferBtnCollapsedWidth;
         private float _cardRatio;
-        private string _prevUser;
+        private UserInfo _prevUser;
         private GradientDrawable _transferBtnBg;
         private TrxHistoryAdapter _trxHistoryAdapter;
         private TrxHistoryAdapter TrxHistoryAdapter => _trxHistoryAdapter ?? (_trxHistoryAdapter = new TrxHistoryAdapter());
@@ -77,6 +78,7 @@ namespace Steepshot.Fragment
 
             base.OnViewCreated(view, savedInstanceState);
             ToggleTabBar(true);
+            _pageOffset = (int)TypedValue.ApplyDimension(ComplexUnitType.Dip, 20, Resources.DisplayMetrics);
 
             _fragmentTitle.Typeface = Style.Semibold;
             _trxHistoryTitle.Typeface = Style.Semibold;
@@ -87,11 +89,10 @@ namespace Steepshot.Fragment
 
             _cardRatio = TypedValue.ApplyDimension(ComplexUnitType.Dip, 335, Resources.DisplayMetrics) / TypedValue.ApplyDimension(ComplexUnitType.Dip, 190, Resources.DisplayMetrics);
             _walletPager.LayoutParameters.Width = Resources.DisplayMetrics.WidthPixels;
-            _walletPager.LayoutParameters.Height = (int)((_walletPager.LayoutParameters.Width - _pageOffset * 3) / _cardRatio);
+            _walletPager.LayoutParameters.Height = (int)((_walletPager.LayoutParameters.Width - _pageOffset * 1.5) / _cardRatio);
             _walletPager.RequestLayout();
 
             _walletPager.SetClipToPadding(false);
-            _pageOffset = (int)TypedValue.ApplyDimension(ComplexUnitType.Dip, 20, Resources.DisplayMetrics);
             _walletPager.SetPadding(_pageOffset, 0, _pageOffset, 0);
             _walletPager.PageMargin = _pageOffset / 2;
             _walletPagerIndicator.SetupWithViewPager(_walletPager, true);
@@ -132,7 +133,7 @@ namespace Steepshot.Fragment
         private void HistoryLabelOnGlobalLayout(object sender, EventArgs e)
         {
             _coordinator.LayoutParameters.Height = _trxHistoryTitle.Bottom + Resources.DisplayMetrics.HeightPixels;
-            _coordinator.SetTopViewParam(Resources.DisplayMetrics.WidthPixels, -(int)TypedValue.ApplyDimension(ComplexUnitType.Dip, 30, Resources.DisplayMetrics));
+            _coordinator.SetTopViewParam(Resources.DisplayMetrics.WidthPixels, -(int)TypedValue.ApplyDimension(ComplexUnitType.Dip, 15, Resources.DisplayMetrics));
             _trxHistoryTitle.ViewTreeObserver.GlobalLayout -= HistoryLabelOnGlobalLayout;
         }
 
@@ -170,12 +171,12 @@ namespace Steepshot.Fragment
             _transferBtn.Background = _transferBtnBg;
 
             if (_walletPager.CurrentItem < Presenter.Balances.Count &&
-                !Presenter.Balances[_walletPager.CurrentItem].UserInfo.Login.Equals(_prevUser))
+                Presenter.Balances[_walletPager.CurrentItem].UserInfo != _prevUser)
             {
-                _prevUser = Presenter.Balances[_walletPager.CurrentItem].UserInfo.Login;
-                if (Presenter.ConnectedUsers.ContainsKey(_prevUser))
+                _prevUser = Presenter.Balances[_walletPager.CurrentItem].UserInfo;
+                if (Presenter.ConnectedUsers.ContainsKey(_prevUser.Id))
                 {
-                    _trxHistoryAdapter.SetAccountHistory(Presenter.ConnectedUsers[_prevUser].AccountHistory);
+                    _trxHistoryAdapter.SetAccountHistory(_prevUser.AccountHistory);
                 }
             }
         }
@@ -238,12 +239,11 @@ namespace Steepshot.Fragment
 
         private async void TryUpdateBalance(BalanceModel balance)
         {
-            var userName = balance.UserInfo.Login;
-            var error = await Presenter.TryUpdateAccountInfo(userName);
+            var error = await Presenter.TryUpdateAccountInfo(balance.UserInfo);
             if (error == null)
             {
                 WalletPagerAdapter.NotifyItemChanged(_walletPager.CurrentItem);
-                TrxHistoryAdapter.SetAccountHistory(Presenter.ConnectedUsers[userName].AccountHistory);
+                TrxHistoryAdapter.SetAccountHistory(balance.UserInfo.AccountHistory);
                 var hasClaimRewards = Presenter.Balances[_walletPager.CurrentItem].RewardSteem > 0 ||
                                       Presenter.Balances[_walletPager.CurrentItem].RewardSp > 0 ||
                                       Presenter.Balances[_walletPager.CurrentItem].RewardSbd > 0;
@@ -256,6 +256,8 @@ namespace Steepshot.Fragment
             if (string.IsNullOrEmpty(Presenter.Balances[_walletPager.CurrentItem].UserInfo.ActiveKey))
             {
                 var intent = new Intent(Activity, typeof(ActiveSignInActivity));
+                intent.PutExtra(ActiveSignInActivity.ActiveSignInUserName, Presenter.Balances[_walletPager.CurrentItem].UserInfo.Login);
+                intent.PutExtra(ActiveSignInActivity.ActiveSignInChain, (int)Presenter.Balances[_walletPager.CurrentItem].UserInfo.Chain);
                 StartActivityForResult(intent, ActiveSignInActivity.ActiveKeyRequestCode);
                 return;
             }

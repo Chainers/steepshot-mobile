@@ -72,6 +72,11 @@ namespace Steepshot.Core.Clients
             return await _ditchClient.GetAccountInfo(userName, ct);
         }
 
+        public async Task<OperationResult<ChainGlobalProperties>> GetDynamicGlobalProperties(CancellationToken ct)
+        {
+            return await _ditchClient.GetDynamicGlobalProperties(ct);
+        }
+
         public async Task<OperationResult<AccountHistoryResponse[]>> GetAccountHistory(string userName, CancellationToken ct)
         {
             return await _ditchClient.GetAccountHistory(userName, ct);

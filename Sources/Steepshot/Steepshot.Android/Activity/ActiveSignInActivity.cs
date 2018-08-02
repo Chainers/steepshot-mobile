@@ -8,6 +8,8 @@ using Android.Views;
 using Android.Widget;
 using CheeseBind;
 using Steepshot.Base;
+using Steepshot.Core;
+using Steepshot.Core.Authorization;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Utils;
 using Steepshot.Utils;
@@ -18,13 +20,17 @@ namespace Steepshot.Activity
     public sealed class ActiveSignInActivity : BaseSignInActivity
     {
         public const int ActiveKeyRequestCode = 231;
+        public const string ActiveSignInUserName = "username";
+        public const string ActiveSignInChain = "chain";
+        private UserInfo _userinfo;
 
         [BindView(Resource.Id.privacy_politic)] private TextView _privacyPolitic;
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
-            Username = AppSettings.User.Login;
-            AccountInfoResponse = AppSettings.User.AccountInfo;
+            Username = Intent.GetStringExtra(ActiveSignInUserName);
+            _userinfo = AppSettings.DataProvider.Select((KnownChains)Intent.GetIntExtra(ActiveSignInChain, 0)).Find(x => x.Login.Equals(Username, StringComparison.OrdinalIgnoreCase));
+            AccountInfoResponse = _userinfo.AccountInfo;
             ProfileImageUrl = AccountInfoResponse.Metadata?.Profile?.ProfileImage;
             base.OnCreate(savedInstanceState);
 
@@ -54,7 +60,8 @@ namespace Steepshot.Activity
             var isvalid = KeyHelper.ValidatePrivateKey(pass, AccountInfoResponse.PublicActiveKeys);
             if (isvalid)
             {
-                AppSettings.User.AddActiveKey(pass);
+                _userinfo.ActiveKey = pass;
+                AppSettings.DataProvider.Update(_userinfo);
                 SetResult(Result.Ok);
                 Finish();
             }
