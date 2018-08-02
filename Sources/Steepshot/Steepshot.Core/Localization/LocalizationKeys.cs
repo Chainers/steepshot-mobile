@@ -196,5 +196,7 @@
         CancelPublishing,
         ContinuePublishing,
         ClaimYourRights,
+        SimilarPhoto,
+        Photo
     }
 }

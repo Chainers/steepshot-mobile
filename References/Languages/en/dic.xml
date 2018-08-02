@@ -275,11 +275,13 @@ About 6 inches away</string>
 
     <string name="[&quot;PlagiarismTitle&quot;]">Plagiarism check</string>
     <string name="[&quot;GuidelinesForPlagiarism&quot;]">Guidelines</string>
-    <string name="[&quot;SelfPlagiarism&quot;]">This content already been added by you to Steepshot. Only 1 unique publication is allowed.</string>
-    <string name="[&quot;PhotoPlagiarism&quot;]">This content already exists in Steepshot. Plagiarism in not allowed</string>
-    <string name="[&quot;PlagiarismDescription&quot;]">Are you sure you want to continue publishing? It will have the same link and comment that it is a duplicate of another photo.</string>
+    <string name="[&quot;SelfPlagiarism&quot;]">We have found a {0} in Steepshot, uploaded by you. We do not recommend you to re-upload photos as it may result in low payouts and reputation loss.</string>
+    <string name="[&quot;PhotoPlagiarism&quot;]">We have found a {0} in Steepshot, uploaded by {1}. We do not recommend you to upload other users' photos as it may result in low payouts and reputation loss.</string>
+    <string name="[&quot;PlagiarismDescription&quot;]">If you're sure that you are the author of the photo, please flag and/or leave a comment under the {0} to let other people know they should flag this post.</string>
     <string name="[&quot;IPFSLink&quot;]">IPFS Link</string>
     <string name="[&quot;CancelPublishing&quot;]">No, cancel publishing</string>
     <string name="[&quot;ContinuePublishing&quot;]">Yes, continue publishing</string>
     <string name="[&quot;ClaimYourRights&quot;]">Claim your rights to this post</string>
+    <string name="[&quot;SimilarPhoto&quot;]">Similar photo</string>
+    <string name="[&quot;Photo&quot;]">Photo</string>
 </resources>

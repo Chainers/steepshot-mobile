@@ -11,8 +11,6 @@ using Android.Util;
 using Android.Views;
 using Android.Widget;
 using Java.IO;
-using Steepshot.Activity;
-using Steepshot.Adapter;
 using Steepshot.Base;
 using Steepshot.Core;
 using Steepshot.Core.Localization;
@@ -86,7 +84,7 @@ namespace Steepshot.Fragment
             }
 
             SearchTextChanged();
-            CheckOnSpam();
+            CheckOnSpam(false);
         }
 
         protected void PreviewOnTouch(object sender, View.TouchEventArgs touchEventArgs)
@@ -106,7 +104,7 @@ namespace Steepshot.Fragment
 
         protected override async Task OnPostAsync()
         {
-            await CheckOnSpam();
+            await CheckOnSpam(true);
             if (isSpammer)
                 return;
 
@@ -165,8 +163,9 @@ namespace Steepshot.Fragment
             _preview.Rotate(_preview.DrawableImageParameters.Rotation + 90f);
         }
 
-        private async Task CheckOnSpam()
+        private async Task CheckOnSpam(bool disableEditing)
         {
+            EnablePostAndEdit(false, disableEditing);
             isSpammer = false;
 
             var spamCheck = await Presenter.TryCheckForSpam(AppSettings.User.Login);
@@ -182,6 +181,10 @@ namespace Steepshot.Fragment
                         StartPostTimer((int)spamCheck.Result.WaitingTime);
                         Activity.ShowAlert(LocalizationKeys.Posts5minLimit, ToastLength.Long);
                     }
+                    else
+                    {
+                        EnabledPost();
+                    }
                 }
                 else
                 {
@@ -193,7 +196,7 @@ namespace Steepshot.Fragment
                 }
             }
 
-            _postButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PublishButtonText);
+            EnablePostAndEdit(true);
         }
 
         private async void StartPostTimer(int startSeconds)
@@ -213,8 +216,7 @@ namespace Steepshot.Fragment
             }
 
             isSpammer = false;
-            _postButton.Enabled = true;
-            _postButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PublishButtonText);
+            EnabledPost();
         }
 
         private string SaveFileTemp(Bitmap btmp, string pathToExif)

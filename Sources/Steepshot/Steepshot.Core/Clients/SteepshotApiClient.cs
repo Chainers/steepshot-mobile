@@ -156,7 +156,7 @@ namespace Steepshot.Core.Clients
             return result;
         }
 
-        public async Task<OperationResult<PreparePostResponse>> CheckPost(PreparePostModel model, CancellationToken ct)
+        public async Task<OperationResult<PreparePostResponse>> CheckPostForPlagiarism(PreparePostModel model, CancellationToken ct)
         {
             var result = await PreparePost(model, ct);
 

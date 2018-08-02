@@ -27,7 +27,7 @@ namespace Steepshot.Core.Presenters
 
         private async Task<OperationResult<PreparePostResponse>> CheckForPlagiarism(PreparePostModel model, CancellationToken ct)
         {
-            return await Api.CheckPost(model, ct);
+            return await Api.CheckPostForPlagiarism(model, ct);
         } 
 
         public async Task<OperationResult<VoidResponse>> TryCreateOrEditPost(PreparePostModel model)
