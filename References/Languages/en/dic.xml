@@ -192,7 +192,7 @@ About 6 inches away</string>
     <string name="[&quot;RecipientNameHint&quot;]">Search</string>
     <string name="[&quot;TransferAmount&quot;]">Amount</string>
     <string name="[&quot;TransferAmountHint&quot;]">0</string>
-    <string name="[&quot;TransferComment&quot;]">+ Add comment</string>
+    <string name="[&quot;TransferComment&quot;]">+ message</string>
     <string name="[&quot;TranferCommentHint&quot;]">Enter comment</string>
     <string name="[&quot;WrongRecipientName&quot;]">Check recipient name</string>
     <string name="[&quot;WrongTransferAmount&quot;]">Check transfer amount</string>
@@ -272,6 +272,12 @@ About 6 inches away</string>
     <string name="[&quot;The post is hidden from you. Please change your settings to see this post&quot;]">The post is hidden from you. Please change your settings to see this post</string>
     <string name="[&quot;DuplicateTag&quot;]">You have already added this tag</string>
     <string name="[&quot;SendTokens&quot;]"> Send tokens</string>
+    <string name="[&quot;TransactionHistory&quot;]">Transaction history</string>
+    <string name="[&quot;SelectAction&quot;]">Select action</string>
+    <string name="[&quot;PowerUp&quot;]">Power up</string>
+    <string name="[&quot;PowerDown&quot;]">Power down</string>
+    <string name="[&quot;Max&quot;]">Max</string>
+    <string name="[&quot;ClaimRewards&quot;]">Claim rewards</string>
 
     <string name="[&quot;PlagiarismTitle&quot;]">Plagiarism check</string>
     <string name="[&quot;GuidelinesForPlagiarism&quot;]">Guidelines</string>

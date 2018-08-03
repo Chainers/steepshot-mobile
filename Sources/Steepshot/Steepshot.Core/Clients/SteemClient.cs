@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,14 +10,13 @@ using Ditch.Steem.Models;
 using Ditch.Steem.Operations;
 using Newtonsoft.Json;
 using Steepshot.Core.Errors;
-using Steepshot.Core.HttpClient;
+using Steepshot.Core.Extensions;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Utils;
-using OperationType = Steepshot.Core.HttpClient.OperationType;
 
 namespace Steepshot.Core.Clients
 {
@@ -26,6 +24,7 @@ namespace Steepshot.Core.Clients
     {
         private readonly OperationManager _operationManager;
 
+        private double? _vestsExchangeRatio;
 
         public override bool IsConnected => _operationManager.IsConnected;
 
@@ -226,10 +225,7 @@ namespace Steepshot.Core.Clients
 
             var result = new OperationResult<VoidResponse>();
 
-            var asset = new Asset
-            {
-                NumberFormat = NumberFormatInfo.InvariantInfo
-            };
+            var asset = new Asset();
             switch (model.CurrencyType)
             {
                 case CurrencyType.Steem:
@@ -250,6 +246,61 @@ namespace Steepshot.Core.Clients
             }
 
             var op = new TransferOperation(model.Login, model.Recipient, asset, model.Memo);
+
+            return await Broadcast(keys, new BaseOperation[] { op }, ct);
+        }
+
+        public override async Task<OperationResult<VoidResponse>> PowerUpOrDown(PowerUpDownModel model, CancellationToken ct)
+        {
+            var isConnected = await TryReconnectChain(ct);
+            if (!isConnected)
+                return new OperationResult<VoidResponse>(new ValidationError(LocalizationKeys.EnableConnectToBlockchain));
+
+            var keys = ToKeyArr(model.ActiveKey);
+            if (keys == null)
+                return new OperationResult<VoidResponse>(new ValidationError(LocalizationKeys.WrongPrivateActimeKey));
+            
+            var asset = new Asset();
+
+            BaseOperation op;
+            if (model.PowerAction == PowerAction.PowerUp)
+            {
+                asset.FromOldFormat($"{model.Value} {Config.Steem}");
+                op = new TransferToVestingOperation(model.From, model.To, asset);
+            }
+            else
+            {
+                var vestsExchangeRatio = await GetVestsExchangeRatio(ct);
+                if (!vestsExchangeRatio.IsSuccess)
+                    return new OperationResult<VoidResponse>(vestsExchangeRatio.Error);
+
+                asset.FromOldFormat($"{(model.Value / vestsExchangeRatio.Result):F6} {Config.Vests}");
+                op = new WithdrawVestingOperation(model.Login, asset);
+            }
+
+            return await Broadcast(keys, new[] { op }, ct);
+        }
+
+        public override async Task<OperationResult<VoidResponse>> ClaimRewards(ClaimRewardsModel model, CancellationToken ct)
+        {
+            var isConnected = await TryReconnectChain(ct);
+            if (!isConnected)
+                return new OperationResult<VoidResponse>(new ValidationError(LocalizationKeys.EnableConnectToBlockchain));
+
+            var keys = ToKeyArr(model.ActiveKey);
+            if (keys == null)
+                return new OperationResult<VoidResponse>(new ValidationError(LocalizationKeys.WrongPrivateActimeKey));
+
+            var assetSteem = new Asset();
+            assetSteem.FromOldFormat($"{model.RewardSteem} {Config.Steem}");
+
+            var assetSp = new Asset();
+            assetSp.FromOldFormat($"{model.RewardSp} {Config.Vests}");
+
+            var assetSbd = new Asset();
+            assetSbd.FromOldFormat($"{model.RewardSbd} {Config.Sbd}");
+
+            var op = new ClaimRewardBalanceOperation(model.Login, assetSteem, assetSbd, assetSp);
 
             return await Broadcast(keys, new BaseOperation[] { op }, ct);
         }
@@ -374,6 +425,13 @@ namespace Steepshot.Core.Clients
             }
 
             var acc = resp.Result.Accounts[0];
+
+            var vestsExchangeRatio = await GetVestsExchangeRatio(ct);
+            if (!vestsExchangeRatio.IsSuccess)
+                return new OperationResult<AccountInfoResponse>(vestsExchangeRatio.Error);
+
+            var effectiveSp = (acc.VestingShares.ToDouble() + acc.ReceivedVestingShares.ToDouble() - acc.DelegatedVestingShares.ToDouble()) * vestsExchangeRatio.Result;
+
             result.Result = new AccountInfoResponse
             {
                 Chains = KnownChains.Steem,
@@ -382,8 +440,20 @@ namespace Steepshot.Core.Clients
                 Metadata = JsonConvert.DeserializeObject<AccountMetadata>(acc.JsonMetadata),
                 Balances = new List<BalanceModel>
                 {
-                    new BalanceModel(acc.Balance.ToDoubleString(), 3, CurrencyType.Steem),
-                    new BalanceModel(acc.SbdBalance.ToDoubleString(), 3, CurrencyType.Sbd)
+                    new BalanceModel(acc.Balance.ToDouble(), 3, CurrencyType.Steem)
+                    {
+                        EffectiveSp = effectiveSp,
+                        RewardSteem = acc.RewardSteemBalance.ToDouble(),
+                        RewardSp = acc.RewardVestingBalance.ToDouble(),
+                        RewardSbd = acc.RewardSbdBalance.ToDouble(),
+                    },
+                    new BalanceModel(acc.SbdBalance.ToDouble(), 3, CurrencyType.Sbd)
+                    {
+                        EffectiveSp = effectiveSp,
+                        RewardSteem = acc.RewardSteemBalance.ToDouble(),
+                        RewardSp = acc.RewardVestingBalance.ToDouble(),
+                        RewardSbd = acc.RewardSbdBalance.ToDouble(),
+                    }
                 }
             };
 
@@ -409,7 +479,7 @@ namespace Steepshot.Core.Clients
             {
                 Account = userName,
                 Start = ulong.MaxValue,
-                Limit = 10000
+                Limit = 1000
             };
             var resp = await _operationManager.CondenserGetAccountHistory(args, CancellationToken.None);
             if (resp.IsError)
@@ -418,10 +488,30 @@ namespace Steepshot.Core.Clients
                 return result;
             }
 
-            result.Result = resp.Result.History.Where(Filter).Select(Transform).ToArray();
+            var vestsExchangeRatio = await GetVestsExchangeRatio(ct);
+            if (!vestsExchangeRatio.IsSuccess)
+                return new OperationResult<AccountHistoryResponse[]>(vestsExchangeRatio.Error);
 
+            result.Result = resp.Result.History.Where(Filter).Select(pair => Transform(pair, vestsExchangeRatio.Result)).OrderByDescending(x => x.DateTime).ToArray();
             return result;
         }
+
+        private async Task<OperationResult<double>> GetVestsExchangeRatio(CancellationToken token)
+        {
+            if (_vestsExchangeRatio.HasValue)
+                return new OperationResult<double>(_vestsExchangeRatio.Value);
+
+            var properties = await _operationManager.GetDynamicGlobalProperties(token);
+            if (properties.IsError)
+                return new OperationResult<double>(properties.Exception);
+
+            var totalVestingShares = properties.Result.TotalVestingShares.ToDouble();
+            var totalVestingFund = properties.Result.TotalVestingFundSteem.ToDouble();
+            _vestsExchangeRatio = totalVestingFund / totalVestingShares;
+            return new OperationResult<double>(_vestsExchangeRatio.Value);
+        }
+
+
 
         private bool Filter(KeyValuePair<uint, AppliedOperation> arg)
         {
@@ -429,7 +519,7 @@ namespace Steepshot.Core.Clients
             return _accountHistoryFilter.Contains(baseOperation.TypeName);
         }
 
-        private AccountHistoryResponse Transform(KeyValuePair<uint, AppliedOperation> arg)
+        private AccountHistoryResponse Transform(KeyValuePair<uint, AppliedOperation> arg, double vestsExchangeRatio)
         {
             BaseOperation baseOperation = arg.Value.Op;
             switch (baseOperation.TypeName)
@@ -440,10 +530,10 @@ namespace Steepshot.Core.Clients
                         return new AccountHistoryResponse
                         {
                             DateTime = arg.Value.Timestamp,
-                            Type = OperationType.Transfer,
+                            Type = AccountHistoryResponse.OperationType.Transfer,
                             From = typed.From,
                             To = typed.To,
-                            Amount = typed.Amount.ToString(),
+                            Amount = typed.Amount.ToOldFormatString(),
                             Memo = typed.Memo
                         };
                     }
@@ -453,10 +543,10 @@ namespace Steepshot.Core.Clients
                         return new AccountHistoryResponse
                         {
                             DateTime = arg.Value.Timestamp,
-                            Type = OperationType.PowerUp,
+                            Type = AccountHistoryResponse.OperationType.PowerUp,
                             From = typed.From,
                             To = typed.To,
-                            Amount = typed.Amount.ToString()
+                            Amount = typed.Amount.ToOldFormatString()
                         };
                     }
                 case WithdrawVestingOperation.OperationName:
@@ -465,10 +555,10 @@ namespace Steepshot.Core.Clients
                         return new AccountHistoryResponse
                         {
                             DateTime = arg.Value.Timestamp,
-                            Type = OperationType.PowerDown,
+                            Type = AccountHistoryResponse.OperationType.PowerDown,
                             From = typed.Account,
                             To = typed.Account,
-                            Amount = typed.VestingShares.ToString()
+                            Amount = $"{(typed.VestingShares.ToDouble() * vestsExchangeRatio).ToBalanceVaueString()} {CurrencyType.Steem.ToString().ToUpper()}"
                         };
                     }
                 case ClaimRewardBalanceOperation.OperationName:
@@ -477,17 +567,18 @@ namespace Steepshot.Core.Clients
                         return new AccountHistoryResponse
                         {
                             DateTime = arg.Value.Timestamp,
-                            Type = OperationType.PowerDown,
+                            Type = AccountHistoryResponse.OperationType.ClaimReward,
                             From = typed.Account,
                             To = typed.Account,
-                            Amount = $"{typed.RewardSteem} {typed.RewardSbd} {typed.RewardVests}"
+                            RewardSteem = typed.RewardSteem.ToDoubleString(),
+                            RewardSp = (typed.RewardVests.ToDouble() * vestsExchangeRatio).ToBalanceVaueString(),
+                            RewardSbd = typed.RewardSbd.ToDoubleString()
                         };
                     }
                 default:
                     throw new NotImplementedException();
             }
         }
-
 
         #endregion
     }

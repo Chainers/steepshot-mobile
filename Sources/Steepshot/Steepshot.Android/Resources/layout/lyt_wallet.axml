@@ -1,80 +1,87 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<Steepshot.CustomViews.CoordinatorLinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
+    android:id="@+id/coordinator"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/rgb250_250_250">
-    <include
-        layout="@layout/lyt_wallet_top" />
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:visibility="visible">
-        <LinearLayout
-            android:id="@+id/actions"
-            android:orientation="vertical"
-            android:layout_width="match_parent"
-            android:layout_height="205dp"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
-            android:layout_marginTop="105dp"
-            android:paddingLeft="20dp"
-            android:paddingRight="20dp"
-            android:background="@drawable/white_rounded_border16dip">
-            <android.support.design.widget.TabLayout
-                android:id="@+id/page_indicator"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="85dp"
-                app:tabBackground="@drawable/wallet_dot_selector"
-                app:tabMaxWidth="15dp"
-                app:tabGravity="center"
-                app:tabIndicatorHeight="0dp" />
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="50dp">
-                <ImageButton
-                    android:id="@+id/more"
-                    android:layout_width="50dp"
-                    android:layout_height="match_parent"
-                    android:layout_marginLeft="10dp"
-                    android:layout_alignParentRight="true"
-                    android:background="@drawable/grey_rounded_border12dip"
-                    android:src="@drawable/ic_more" />
-                <Button
-                    android:id="@+id/transfer_btn"
-                    android:textColor="@color/white"
-                    android:textSize="14sp"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_toLeftOf="@id/more"
-                    android:gravity="center"
-                    android:background="@drawable/orange_rounded_border12dip"
-                    android:elevation="0dp" />
-            </RelativeLayout>
-        </LinearLayout>
-        <android.support.v4.view.ViewPager
-            android:id="@+id/wallet_pager"
-            android:background="@android:color/transparent"
-            android:layout_width="match_parent"
-            android:layout_height="190dp" />
-        <TextView
-            android:id="@+id/trx_history_title"
-            android:layout_below="@id/actions"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="25dp"
-            android:layout_marginLeft="10dp"
-            android:textSize="20sp"
-            android:textColor="@color/black" />
-    </RelativeLayout>
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/trx_history"
+    android:orientation="vertical">
+    <LinearLayout
+        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:paddingLeft="50dp"
-        android:background="@android:color/transparent" />
-</LinearLayout>
+        android:background="@color/rgb250_250_250">
+        <include
+            layout="@layout/lyt_wallet_top" />
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:visibility="visible">
+            <LinearLayout
+                android:id="@+id/actions"
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginBottom="25dp"
+                android:paddingBottom="20dp"
+                android:paddingLeft="20dp"
+                android:paddingRight="20dp"
+                android:background="@drawable/white_rounded_border16dip">
+                <android.support.design.widget.TabLayout
+                    android:id="@+id/page_indicator"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="85dp"
+                    app:tabBackground="@drawable/wallet_dot_selector"
+                    app:tabMaxWidth="15dp"
+                    app:tabGravity="center"
+                    app:tabIndicatorHeight="0dp" />
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp">
+                    <ImageButton
+                        android:id="@+id/more"
+                        android:layout_width="50dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginLeft="10dp"
+                        android:layout_alignParentRight="true"
+                        android:background="@drawable/grey_rounded_border25dip"
+                        android:src="@drawable/ic_more" />
+                    <Button
+                        android:id="@+id/transfer_btn"
+                        android:textColor="@color/white"
+                        android:textSize="14sp"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:background="@drawable/orange_btn_style"
+                        android:elevation="0dp" />
+                </RelativeLayout>
+            </LinearLayout>
+            <android.support.v4.view.ViewPager
+                android:id="@+id/wallet_pager"
+                android:background="@android:color/transparent"
+                android:layout_width="match_parent"
+                android:layout_height="190dp" />
+            <TextView
+                android:id="@+id/trx_history_title"
+                android:layout_below="@id/actions"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="15dp"
+                android:layout_marginBottom="10dp"
+                android:textSize="20sp"
+                android:textColor="@color/black" />
+        </RelativeLayout>
+        <Steepshot.CustomViews.CoordinatorRecyclerView
+            android:id="@+id/trx_history"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:paddingLeft="50dp"
+            android:background="@android:color/transparent" />
+    </LinearLayout>
+</Steepshot.CustomViews.CoordinatorLinearLayout>

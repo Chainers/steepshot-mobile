@@ -8,7 +8,7 @@ using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Presenters
 {
-    public sealed class UserProfilePresenter : BasePostPresenter, IDisposable
+    public sealed class UserProfilePresenter : BasePostPresenter
     {
         private const int ItemsLimit = 18;
 
@@ -71,7 +71,7 @@ namespace Steepshot.Core.Presenters
             }
             return response.Error;
         }
-       
+
 
         public async Task<Exception> TryFollow()
         {
@@ -137,7 +137,7 @@ namespace Steepshot.Core.Presenters
         #region IDisposable Support
         private bool _disposedValue = false; // To detect redundant calls
 
-        private void Dispose(bool disposing)
+        protected override void Dispose(bool disposing)
         {
             if (!_disposedValue)
             {
@@ -151,21 +151,6 @@ namespace Steepshot.Core.Presenters
 
                 _disposedValue = true;
             }
-        }
-
-        // override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
-        // ~BasePostPresenter() {
-        //   // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
-        //   Dispose(false);
-        // }
-
-        // This code added to correctly implement the disposable pattern.
-        public void Dispose()
-        {
-            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
-            Dispose(true);
-            // uncomment the following line if the finalizer is overridden above.
-            // GC.SuppressFinalize(this);
         }
         #endregion
     }

@@ -74,340 +74,401 @@ namespace Steepshot.Core.Tests.Stubs
 
         public async Task<OperationResult<VoidResponse>> LoginWithPostingKey(AuthorizedPostingModel model, CancellationToken ct)
         {
-            return new OperationResult<VoidResponse>
-            {
-                Result = new VoidResponse()
-            };
+            return await Task.Run(() => new OperationResult<VoidResponse>(), ct);
         }
 
-        public async Task<OperationResult<ListResponse<Post>>> GetUserPosts(UserPostsModel model, CancellationToken ct)
+        public new async Task<OperationResult<ListResponse<Post>>> GetUserPosts(UserPostsModel model, CancellationToken ct)
         {
-            var resp = Converter.Deserialize<ListResponse<Post>>(GetUserPostsJson);
+            return await Task.Run(() =>
+            {
+                var resp = Converter.Deserialize<ListResponse<Post>>(GetUserPostsJson);
 
-            if (!model.ShowLowRated)
-            {
-                resp.Results = resp.Results.Where(i => i.AuthorReputation > 0 && i.NetVotes > 0).ToList();
-            }
-            if (!model.ShowNsfw)
-            {
-                resp.Results = resp.Results.Where(i => !i.Tags.Contains("nsfw")).ToList();
-            }
-
-            var skip = 0;
-            if (!string.IsNullOrEmpty(model.Offset))
-            {
-                foreach (var itm in resp.Results)
+                if (!model.ShowLowRated)
                 {
-                    if (model.Offset.Equals(itm.Url))
-                        break;
-                    skip++;
+                    resp.Results = resp.Results.Where(i => i.AuthorReputation > 0 && i.NetVotes > 0).ToList();
                 }
-            }
-            resp.Results = resp.Results.Skip(skip).Take(model.Limit).ToList();
 
-            if (string.IsNullOrEmpty(model.Login))
-                for (var i = 0; i < resp.Results.Count; i++)
-                    resp.Results[i].Vote = false;
-
-            return new OperationResult<ListResponse<Post>> { Result = resp };
-        }
-
-        public async Task<OperationResult<ListResponse<Post>>> GetUserRecentPosts(CensoredNamedRequestWithOffsetLimitModel request, CancellationToken ct)
-        {
-            var resp = string.IsNullOrEmpty(request.Offset)
-                ? Converter.Deserialize<ListResponse<Post>>(GetUserRecentPostsJson1)
-                : Converter.Deserialize<ListResponse<Post>>(GetUserRecentPostsJson2);
-
-            if (!request.ShowLowRated)
-            {
-                resp.Results = resp.Results.Where(i => i.AuthorReputation > 0 && i.NetVotes > 0).ToList();
-            }
-            if (!request.ShowNsfw)
-            {
-                resp.Results = resp.Results.Where(i => !i.Tags.Contains("nsfw")).ToList();
-            }
-            if (string.IsNullOrEmpty(request.Login))
-                for (var i = 0; i < resp.Results.Count; i++)
-                    resp.Results[i].Vote = false;
-            return new OperationResult<ListResponse<Post>> { Result = resp };
-        }
-
-        public async Task<OperationResult<ListResponse<Post>>> GetPosts(PostsModel model, CancellationToken ct)
-        {
-            ListResponse<Post> resp = null;
-            switch (model.Type)
-            {
-                case PostType.Top:
-                    {
-                        resp = Converter.Deserialize<ListResponse<Post>>(GetPostsTopJson);
-                        break;
-                    }
-                case PostType.Hot:
-                    {
-                        resp = Converter.Deserialize<ListResponse<Post>>(GetPostsHotJson);
-                        break;
-                    }
-                case PostType.New:
-                    {
-                        resp = Converter.Deserialize<ListResponse<Post>>(GetPostsNewJson);
-                        break;
-                    }
-            }
-
-            if (!model.ShowLowRated)
-            {
-                resp.Results = resp.Results.Where(i => i.AuthorReputation > 0 && i.NetVotes > 0).ToList();
-            }
-            if (!model.ShowNsfw)
-            {
-                resp.Results = resp.Results.Where(i => !i.Tags.Contains("nsfw")).ToList();
-            }
-
-            var skip = 0;
-            if (!string.IsNullOrEmpty(model.Offset))
-            {
-                foreach (var itm in resp.Results)
+                if (!model.ShowNsfw)
                 {
-                    if (model.Offset.Equals(itm.Url))
-                        break;
-                    skip++;
+                    resp.Results = resp.Results.Where(i => !i.Tags.Contains("nsfw")).ToList();
                 }
-            }
-            resp.Results = resp.Results.Skip(skip).Take(model.Limit).ToList();
 
-            if (string.IsNullOrEmpty(model.Login))
-                for (var i = 0; i < resp.Results.Count; i++)
-                    resp.Results[i].Vote = false;
-
-            return new OperationResult<ListResponse<Post>> { Result = resp };
-        }
-
-        public async Task<OperationResult<ListResponse<Post>>> GetPostsByCategory(PostsByCategoryModel model, CancellationToken ct)
-        {
-            ListResponse<Post> resp = null;
-            switch (model.Type)
-            {
-                case PostType.Top:
-                    {
-                        resp = Converter.Deserialize<ListResponse<Post>>(GetPostsTopJson);
-                        break;
-                    }
-                case PostType.Hot:
-                    {
-                        resp = Converter.Deserialize<ListResponse<Post>>(GetPostsHotJson);
-                        break;
-                    }
-                case PostType.New:
-                    {
-                        resp = Converter.Deserialize<ListResponse<Post>>(GetPostsNewJson);
-                        break;
-                    }
-            }
-
-            if (!model.ShowLowRated)
-            {
-                resp.Results = resp.Results.Where(i => i.AuthorReputation > 0 && i.NetVotes > 0).ToList();
-            }
-            if (!model.ShowNsfw)
-            {
-                resp.Results = resp.Results.Where(i => !i.Tags.Contains("nsfw")).ToList();
-            }
-
-            if (!string.IsNullOrEmpty(model.Category))
-            {
-                resp.Results = resp.Results.Where(i => i.Tags.Contains(model.Category)).ToList();
-            }
-
-            var skip = 0;
-            if (!string.IsNullOrEmpty(model.Offset))
-            {
-                foreach (var itm in resp.Results)
+                var skip = 0;
+                if (!string.IsNullOrEmpty(model.Offset))
                 {
-                    if (model.Offset.Equals(itm.Url))
-                        break;
-                    skip++;
+                    foreach (var itm in resp.Results)
+                    {
+                        if (model.Offset.Equals(itm.Url))
+                            break;
+                        skip++;
+                    }
                 }
-            }
-            resp.Results = resp.Results.Skip(skip).Take(model.Limit).ToList();
 
-            if (string.IsNullOrEmpty(model.Login))
-                for (var i = 0; i < resp.Results.Count; i++)
-                    resp.Results[i].Vote = false;
+                resp.Results = resp.Results.Skip(skip).Take(model.Limit).ToList();
 
-            return new OperationResult<ListResponse<Post>> { Result = resp };
+                if (string.IsNullOrEmpty(model.Login))
+                    for (var i = 0; i < resp.Results.Count; i++)
+                        resp.Results[i].Vote = false;
+
+                return new OperationResult<ListResponse<Post>> { Result = resp };
+            }, ct);
         }
 
-        public async Task<OperationResult<ListResponse<UserFriend>>> GetPostVoters(VotersModel model, CancellationToken ct)
+        public new async Task<OperationResult<ListResponse<Post>>> GetUserRecentPosts(CensoredNamedRequestWithOffsetLimitModel request, CancellationToken ct)
         {
-            var resp = Converter.Deserialize<ListResponse<UserFriend>>(VotersResult1Json);
-            var skip = 0;
-            if (!string.IsNullOrEmpty(model.Offset))
+            return await Task.Run(() =>
             {
-                foreach (var itm in resp.Results)
+                var resp = string.IsNullOrEmpty(request.Offset)
+                    ? Converter.Deserialize<ListResponse<Post>>(GetUserRecentPostsJson1)
+                    : Converter.Deserialize<ListResponse<Post>>(GetUserRecentPostsJson2);
+
+                if (!request.ShowLowRated)
                 {
-                    if (model.Offset.Equals(itm.Author))
-                        break;
-                    skip++;
+                    resp.Results = resp.Results.Where(i => i.AuthorReputation > 0 && i.NetVotes > 0).ToList();
                 }
-            }
-            resp.Results = resp.Results.Skip(skip).Take(model.Limit).ToList();
 
-            return new OperationResult<ListResponse<UserFriend>> { Result = resp };
+                if (!request.ShowNsfw)
+                {
+                    resp.Results = resp.Results.Where(i => !i.Tags.Contains("nsfw")).ToList();
+                }
+
+                if (string.IsNullOrEmpty(request.Login))
+                    for (var i = 0; i < resp.Results.Count; i++)
+                        resp.Results[i].Vote = false;
+                return new OperationResult<ListResponse<Post>> { Result = resp };
+            }, ct);
         }
 
-        public async Task<OperationResult<VoteResponse>> Vote(VoteModel model, CancellationToken ct)
+        public new async Task<OperationResult<ListResponse<Post>>> GetPosts(PostsModel model, CancellationToken ct)
         {
-            return new OperationResult<VoteResponse> { Result = new VoteResponse() { NetVotes = model.Type == VoteType.Up ? 100500 : 777, NewTotalPayoutReward = 10000 } };
+            return await Task.Run(() =>
+            {
+                ListResponse<Post> resp = null;
+                switch (model.Type)
+                {
+                    case PostType.Top:
+                        {
+                            resp = Converter.Deserialize<ListResponse<Post>>(GetPostsTopJson);
+                            break;
+                        }
+                    case PostType.Hot:
+                        {
+                            resp = Converter.Deserialize<ListResponse<Post>>(GetPostsHotJson);
+                            break;
+                        }
+                    case PostType.New:
+                        {
+                            resp = Converter.Deserialize<ListResponse<Post>>(GetPostsNewJson);
+                            break;
+                        }
+                }
+
+                if (!model.ShowLowRated)
+                {
+                    resp.Results = resp.Results.Where(i => i.AuthorReputation > 0 && i.NetVotes > 0).ToList();
+                }
+                if (!model.ShowNsfw)
+                {
+                    resp.Results = resp.Results.Where(i => !i.Tags.Contains("nsfw")).ToList();
+                }
+
+                var skip = 0;
+                if (!string.IsNullOrEmpty(model.Offset))
+                {
+                    foreach (var itm in resp.Results)
+                    {
+                        if (model.Offset.Equals(itm.Url))
+                            break;
+                        skip++;
+                    }
+                }
+                resp.Results = resp.Results.Skip(skip).Take(model.Limit).ToList();
+
+                if (string.IsNullOrEmpty(model.Login))
+                    for (var i = 0; i < resp.Results.Count; i++)
+                        resp.Results[i].Vote = false;
+
+                return new OperationResult<ListResponse<Post>> { Result = resp };
+            }, ct);
         }
 
-        public async Task<OperationResult<VoidResponse>> Follow(FollowModel model, CancellationToken ct)
+        public new async Task<OperationResult<ListResponse<Post>>> GetPostsByCategory(PostsByCategoryModel model, CancellationToken ct)
         {
-            return new OperationResult<VoidResponse> { Result = new VoidResponse() };
+            return await Task.Run(() =>
+            {
+                ListResponse<Post> resp = null;
+                switch (model.Type)
+                {
+                    case PostType.Top:
+                        {
+                            resp = Converter.Deserialize<ListResponse<Post>>(GetPostsTopJson);
+                            break;
+                        }
+                    case PostType.Hot:
+                        {
+                            resp = Converter.Deserialize<ListResponse<Post>>(GetPostsHotJson);
+                            break;
+                        }
+                    case PostType.New:
+                        {
+                            resp = Converter.Deserialize<ListResponse<Post>>(GetPostsNewJson);
+                            break;
+                        }
+                }
+
+                if (!model.ShowLowRated)
+                {
+                    resp.Results = resp.Results.Where(i => i.AuthorReputation > 0 && i.NetVotes > 0).ToList();
+                }
+                if (!model.ShowNsfw)
+                {
+                    resp.Results = resp.Results.Where(i => !i.Tags.Contains("nsfw")).ToList();
+                }
+
+                if (!string.IsNullOrEmpty(model.Category))
+                {
+                    resp.Results = resp.Results.Where(i => i.Tags.Contains(model.Category)).ToList();
+                }
+
+                var skip = 0;
+                if (!string.IsNullOrEmpty(model.Offset))
+                {
+                    foreach (var itm in resp.Results)
+                    {
+                        if (model.Offset.Equals(itm.Url))
+                            break;
+                        skip++;
+                    }
+                }
+                resp.Results = resp.Results.Skip(skip).Take(model.Limit).ToList();
+
+                if (string.IsNullOrEmpty(model.Login))
+                    for (var i = 0; i < resp.Results.Count; i++)
+                        resp.Results[i].Vote = false;
+
+                return new OperationResult<ListResponse<Post>> { Result = resp };
+            }, ct);
         }
 
-        public async Task<OperationResult<ListResponse<Post>>> GetComments(NamedInfoModel model, CancellationToken ct)
+        public new async Task<OperationResult<ListResponse<UserFriend>>> GetPostVoters(VotersModel model, CancellationToken ct)
         {
-            var rez = Converter.Deserialize<ListResponse<Post>>(GetCommentsJson);
-            if (string.IsNullOrEmpty(model.Login))
-                foreach (var itm in rez.Results)
-                    itm.Vote = false;
+            return await Task.Run(() =>
+            {
+                var resp = Converter.Deserialize<ListResponse<UserFriend>>(VotersResult1Json);
+                var skip = 0;
+                if (!string.IsNullOrEmpty(model.Offset))
+                {
+                    foreach (var itm in resp.Results)
+                    {
+                        if (model.Offset.Equals(itm.Author))
+                            break;
+                        skip++;
+                    }
+                }
+                resp.Results = resp.Results.Skip(skip).Take(model.Limit).ToList();
 
-            return new OperationResult<ListResponse<Post>> { Result = rez };
+                return new OperationResult<ListResponse<UserFriend>> { Result = resp };
+            }, ct);
+        }
+
+        public new async Task<OperationResult<VoteResponse>> Vote(VoteModel model, CancellationToken ct)
+        {
+            return await Task.Run(() =>
+            {
+                return new OperationResult<VoteResponse> { Result = new VoteResponse() { NetVotes = model.Type == VoteType.Up ? 100500 : 777, NewTotalPayoutReward = 10000 } };
+            }, ct);
+        }
+
+        public new async Task<OperationResult<VoidResponse>> Follow(FollowModel model, CancellationToken ct)
+        {
+            return await Task.Run(() =>
+            {
+                return new OperationResult<VoidResponse> { Result = new VoidResponse() };
+            }, ct);
+        }
+
+        public new async Task<OperationResult<ListResponse<Post>>> GetComments(NamedInfoModel model, CancellationToken ct)
+        {
+            return await Task.Run(() =>
+            {
+                var rez = Converter.Deserialize<ListResponse<Post>>(GetCommentsJson);
+                if (string.IsNullOrEmpty(model.Login))
+                    foreach (var itm in rez.Results)
+                        itm.Vote = false;
+
+                return new OperationResult<ListResponse<Post>> { Result = rez };
+            }, ct);
         }
 
         public async Task<OperationResult<VoidResponse>> CreateComment(CreateOrEditCommentModel model, CancellationToken ct)
         {
-            return new OperationResult<VoidResponse> { Result = new VoidResponse() };
+            return await Task.Run(() =>
+            {
+                return new OperationResult<VoidResponse> { Result = new VoidResponse() };
+            }, ct);
         }
 
         public async Task<OperationResult<VoidResponse>> EditComment(CommentModel model, CancellationToken ct)
         {
-            return new OperationResult<VoidResponse> { Result = new VoidResponse() };
+            return await Task.Run(() =>
+            {
+                return new OperationResult<VoidResponse> { Result = new VoidResponse() };
+            }, ct);
         }
 
         public async Task<OperationResult<PreparePostResponse>> CreatePost(UploadMediaModel model, MediaModel mediaModel, CancellationToken ct)
         {
-            return new OperationResult<PreparePostResponse> { Result = new PreparePostResponse() };
+            return await Task.Run(() =>
+            {
+                return new OperationResult<PreparePostResponse> { Result = new PreparePostResponse() };
+            }, ct);
         }
 
         public async Task<OperationResult<MediaModel>> UploadWithPrepare(UploadMediaModel model, CancellationToken ct)
         {
-            return new OperationResult<MediaModel> { Result = new MediaModel() };
+            return await Task.Run(() =>
+            {
+                return new OperationResult<MediaModel> { Result = new MediaModel() };
+            }, ct);
         }
 
-        public async Task<OperationResult<ListResponse<SearchResult>>> GetCategories(OffsetLimitModel request, CancellationToken ct)
+        public new async Task<OperationResult<ListResponse<SearchResult>>> GetCategories(OffsetLimitModel request, CancellationToken ct)
         {
-            var tags = new List<string>();
-            foreach (var item in Converter.Deserialize<ListResponse<Post>>(GetPostsTopJson).Results.Select(i => i.Tags))
-                tags = tags.Union(item).Distinct().ToList();
-            foreach (var item in Converter.Deserialize<ListResponse<Post>>(GetPostsHotJson).Results.Select(i => i.Tags))
-                tags = tags.Union(item).Distinct().ToList();
-            foreach (var item in Converter.Deserialize<ListResponse<Post>>(GetPostsNewJson).Results.Select(i => i.Tags))
-                tags = tags.Union(item).Distinct().ToList();
-
-            var rez = new ListResponse<SearchResult>
+            return await Task.Run(() =>
             {
-                Results = new List<SearchResult>(tags.Select(i => new SearchResult { Name = i })),
-            };
+                var tags = new List<string>();
+                foreach (var item in Converter.Deserialize<ListResponse<Post>>(GetPostsTopJson).Results.Select(i => i.Tags))
+                    tags = tags.Union(item).Distinct().ToList();
+                foreach (var item in Converter.Deserialize<ListResponse<Post>>(GetPostsHotJson).Results.Select(i => i.Tags))
+                    tags = tags.Union(item).Distinct().ToList();
+                foreach (var item in Converter.Deserialize<ListResponse<Post>>(GetPostsNewJson).Results.Select(i => i.Tags))
+                    tags = tags.Union(item).Distinct().ToList();
 
-            var skip = 0;
-            if (!string.IsNullOrEmpty(request.Offset))
-            {
-                foreach (var itm in rez.Results)
+                var rez = new ListResponse<SearchResult>
                 {
-                    if (request.Offset.Equals(itm.Name))
-                        break;
-                    skip++;
-                }
-            }
-            rez.Results = rez.Results.Skip(skip).Take(request.Limit).ToList();
+                    Results = new List<SearchResult>(tags.Select(i => new SearchResult { Name = i })),
+                };
 
-            return new OperationResult<ListResponse<SearchResult>> { Result = rez };
-        }
-
-        public async Task<OperationResult<ListResponse<SearchResult>>> SearchCategories(SearchWithQueryModel model, CancellationToken ct)
-        {
-            var tags = new List<string>();
-            foreach (var item in Converter.Deserialize<ListResponse<Post>>(GetPostsTopJson).Results.Select(i => i.Tags))
-                tags = tags.Union(item).Distinct().ToList();
-            foreach (var item in Converter.Deserialize<ListResponse<Post>>(GetPostsHotJson).Results.Select(i => i.Tags))
-                tags = tags.Union(item).Distinct().ToList();
-            foreach (var item in Converter.Deserialize<ListResponse<Post>>(GetPostsNewJson).Results.Select(i => i.Tags))
-                tags = tags.Union(item).Distinct().ToList();
-
-            var rez = new ListResponse<SearchResult>
-            {
-                Results = new List<SearchResult>(tags.Select(i => new SearchResult { Name = i }))
-            };
-
-            if (!string.IsNullOrEmpty(model.Query))
-            {
-                rez.Results = rez.Results.Where(i => i.Name.Contains(model.Query)).ToList();
-            }
-
-            var skip = 0;
-            if (!string.IsNullOrEmpty(model.Offset))
-            {
-                foreach (var itm in rez.Results)
+                var skip = 0;
+                if (!string.IsNullOrEmpty(request.Offset))
                 {
-                    if (model.Offset.Equals(itm.Name))
-                        break;
-                    skip++;
+                    foreach (var itm in rez.Results)
+                    {
+                        if (request.Offset.Equals(itm.Name))
+                            break;
+                        skip++;
+                    }
                 }
-            }
-            rez.Results = rez.Results.Skip(skip).Take(model.Limit).ToList();
+                rez.Results = rez.Results.Skip(skip).Take(request.Limit).ToList();
 
-            return new OperationResult<ListResponse<SearchResult>> { Result = rez };
+                return new OperationResult<ListResponse<SearchResult>> { Result = rez };
+            }, ct);
         }
 
-        public async Task<OperationResult<UserProfileResponse>> GetUserProfile(UserProfileModel model, CancellationToken ct)
+        public new async Task<OperationResult<ListResponse<SearchResult>>> SearchCategories(SearchWithQueryModel model, CancellationToken ct)
         {
-            var rez = Converter.Deserialize<UserProfileResponse>(GetUserProfileJson);
-            return new OperationResult<UserProfileResponse> { Result = rez };
+            return await Task.Run(() =>
+            {
+                var tags = new List<string>();
+                foreach (var item in Converter.Deserialize<ListResponse<Post>>(GetPostsTopJson).Results.Select(i => i.Tags))
+                    tags = tags.Union(item).Distinct().ToList();
+                foreach (var item in Converter.Deserialize<ListResponse<Post>>(GetPostsHotJson).Results.Select(i => i.Tags))
+                    tags = tags.Union(item).Distinct().ToList();
+                foreach (var item in Converter.Deserialize<ListResponse<Post>>(GetPostsNewJson).Results.Select(i => i.Tags))
+                    tags = tags.Union(item).Distinct().ToList();
+
+                var rez = new ListResponse<SearchResult>
+                {
+                    Results = new List<SearchResult>(tags.Select(i => new SearchResult { Name = i }))
+                };
+
+                if (!string.IsNullOrEmpty(model.Query))
+                {
+                    rez.Results = rez.Results.Where(i => i.Name.Contains(model.Query)).ToList();
+                }
+
+                var skip = 0;
+                if (!string.IsNullOrEmpty(model.Offset))
+                {
+                    foreach (var itm in rez.Results)
+                    {
+                        if (model.Offset.Equals(itm.Name))
+                            break;
+                        skip++;
+                    }
+                }
+                rez.Results = rez.Results.Skip(skip).Take(model.Limit).ToList();
+
+                return new OperationResult<ListResponse<SearchResult>> { Result = rez };
+            }, ct);
         }
 
-        public async Task<OperationResult<ListResponse<UserFriend>>> GetUserFriends(UserFriendsModel model, CancellationToken ct)
+        public new async Task<OperationResult<UserProfileResponse>> GetUserProfile(UserProfileModel model, CancellationToken ct)
         {
-            var rez = model.Type == FriendsType.Followers
-                ? Converter.Deserialize<ListResponse<UserFriend>>(GetUserFriendsFollowersJson)
-                : Converter.Deserialize<ListResponse<UserFriend>>(GetUserFriendsFollowingJson);
-            return new OperationResult<ListResponse<UserFriend>> { Result = rez };
+            return await Task.Run(() =>
+            {
+                var rez = Converter.Deserialize<UserProfileResponse>(GetUserProfileJson);
+                return new OperationResult<UserProfileResponse> { Result = rez };
+            }, ct);
+        }
+
+        public new async Task<OperationResult<ListResponse<UserFriend>>> GetUserFriends(UserFriendsModel model, CancellationToken ct)
+        {
+            return await Task.Run(() =>
+                {
+                    var rez = model.Type == FriendsType.Followers
+                    ? Converter.Deserialize<ListResponse<UserFriend>>(GetUserFriendsFollowersJson)
+                    : Converter.Deserialize<ListResponse<UserFriend>>(GetUserFriendsFollowingJson);
+                    return new OperationResult<ListResponse<UserFriend>> { Result = rez };
+                }, ct);
         }
 
         [Obsolete]
-        public async Task<OperationResult<Post>> GetPostInfo(NamedInfoModel model, CancellationToken ct)
+        public new async Task<OperationResult<Post>> GetPostInfo(NamedInfoModel model, CancellationToken ct)
         {
-            return new OperationResult<Post>();
-        }
-
-        public async Task<OperationResult<ListResponse<UserFriend>>> SearchUser(SearchWithQueryModel model, CancellationToken ct)
-        {
-            var tags = new List<string>();
-            tags = tags.Union(Converter.Deserialize<ListResponse<Post>>(GetPostsTopJson).Results.Select(i => i.Author)).Distinct().ToList();
-            tags = tags.Union(Converter.Deserialize<ListResponse<Post>>(GetPostsHotJson).Results.Select(i => i.Author)).Distinct().ToList();
-            tags = tags.Union(Converter.Deserialize<ListResponse<Post>>(GetPostsNewJson).Results.Select(i => i.Author)).Distinct().ToList();
-
-            var rez = new ListResponse<UserFriend>
+            return await Task.Run(() =>
             {
-                Results = new List<UserFriend>(tags.Select(i => new UserFriend { Author = i })),
-            };
+                return new OperationResult<Post>();
+            }, ct);
+        }
 
-            if (!string.IsNullOrEmpty(model.Query))
+        public new async Task<OperationResult<ListResponse<UserFriend>>> SearchUser(SearchWithQueryModel model, CancellationToken ct)
+        {
+            return await Task.Run(() =>
             {
-                rez.Results = rez.Results.Where(i => i.Author.Contains(model.Query)).ToList();
-            }
+                var tags = new List<string>();
+                tags = tags.Union(Converter.Deserialize<ListResponse<Post>>(GetPostsTopJson).Results.Select(i => i.Author)).Distinct().ToList();
+                tags = tags.Union(Converter.Deserialize<ListResponse<Post>>(GetPostsHotJson).Results.Select(i => i.Author)).Distinct().ToList();
+                tags = tags.Union(Converter.Deserialize<ListResponse<Post>>(GetPostsNewJson).Results.Select(i => i.Author)).Distinct().ToList();
 
-            return new OperationResult<ListResponse<UserFriend>> { Result = rez };
+                var rez = new ListResponse<UserFriend>
+                {
+                    Results = new List<UserFriend>(tags.Select(i => new UserFriend { Author = i })),
+                };
+
+                if (!string.IsNullOrEmpty(model.Query))
+                {
+                    rez.Results = rez.Results.Where(i => i.Author.Contains(model.Query)).ToList();
+                }
+
+                return new OperationResult<ListResponse<UserFriend>> { Result = rez };
+            }, ct);
         }
 
-        public async Task<OperationResult<UserExistsResponse>> UserExistsCheck(UserExistsModel model, CancellationToken ct)
+        public new async Task<OperationResult<UserExistsResponse>> UserExistsCheck(UserExistsModel model, CancellationToken ct)
         {
-            return new OperationResult<UserExistsResponse> { Result = new UserExistsResponse { Exists = true, Username = model.Username } };
+            return await Task.Run(() =>
+            {
+                return new OperationResult<UserExistsResponse> { Result = new UserExistsResponse { Exists = true, Username = model.Username } };
+            }, ct);
         }
 
-        public async Task<OperationResult<VoidResponse>> DeletePostOrComment(DeleteModel model, CancellationToken ct)
+        public new async Task<OperationResult<VoidResponse>> DeletePostOrComment(DeleteModel model, CancellationToken ct)
         {
-            return new OperationResult<VoidResponse>() { Result = new VoidResponse() };
+            return await Task.Run(() =>
+            {
+                return new OperationResult<VoidResponse>() { Result = new VoidResponse() };
+            }, ct);
         }
     }
 }

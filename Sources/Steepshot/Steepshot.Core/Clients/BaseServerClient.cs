@@ -298,7 +298,7 @@ namespace Steepshot.Core.Clients
             }
             catch (Exception ex)
             {
-                AppSettings.Logger.Warning(ex);
+                await AppSettings.Logger.Warning(ex);
             }
             return null;
         }
@@ -319,6 +319,16 @@ namespace Steepshot.Core.Clients
 
             var endpoint = $"{BaseUrl}/{GatewayVersion.V1P1}/user/{username}/spam";
             var result = await HttpClient.Get<SpamResponse>(endpoint, token);
+            return result;
+        }
+
+        public async Task<OperationResult<CurrencyRate[]>> GetCurrencyRates(CancellationToken token)
+        {
+            if (!EnableRead)
+                return null;
+
+            var endpoint = $"{BaseUrl}/{GatewayVersion.V1P1}/currency/rates";
+            var result = await HttpClient.Get<CurrencyRate[]>(endpoint, token);
             return result;
         }
 
