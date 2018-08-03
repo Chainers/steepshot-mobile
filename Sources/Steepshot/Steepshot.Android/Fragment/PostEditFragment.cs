@@ -74,7 +74,7 @@ namespace Steepshot.Fragment
             _model.Title = _title.Text;
             _model.Description = _description.Text;
             _model.Tags = _localTagsAdapter.LocalTags.ToArray();
-            TryCreateOrEditPost();
+            TryCreateOrEditPost(false);
         }
 
         protected void PreviewOnTouch(object sender, View.TouchEventArgs touchEventArgs)

@@ -51,7 +51,7 @@
     <string name="[&quot;EmptyUrlField&quot;]">Url cannot be empty</string>
     <string name="[&quot;EmptyUsernameField&quot;]">Username cannot be empty</string>
     <string name="[&quot;EmptyLogin&quot;]">Login cannot be empty</string>
-    <string name="[&quot;EmptyPostingKey&quot;]">Posting key cannot be empty</string>
+    <string name="[&quot;EmptyPostingKey&quot;]">Private posting key cannot be empty</string>
     <string name="[&quot;EmptyActiveKey&quot;]">Active key cannot be empty</string>
     <string name="[&quot;PhotoProcessingError&quot;]">An error occurred while processing the photo. Unfortunately the next step can not be performed.</string>
     <string name="[&quot;PhotoUploadError&quot;]">Could not upload file to server</string>
@@ -116,7 +116,7 @@ About 6 inches away</string>
     <string name="[&quot;SignInButtonText&quot;]">Sign in with {0}</string>
     <string name="[&quot;CreateButtonText&quot;]">Create new account</string>
     <string name="[&quot;EnterAccountText&quot;]">Enter to your account</string>
-    <string name="[&quot;PasswordViewTitleText&quot;]">Account posting key</string>
+    <string name="[&quot;PasswordViewTitleText&quot;]">Account private posting key</string>
     <string name="[&quot;ActivePasswordViewTitleText&quot;]">Account active key</string>
     <string name="[&quot;PublishButtonText&quot;]">Publish Photo</string>
     <string name="[&quot;AppSettingsTitle&quot;]">App settings</string>
@@ -278,4 +278,16 @@ About 6 inches away</string>
     <string name="[&quot;PowerDown&quot;]">Power down</string>
     <string name="[&quot;Max&quot;]">Max</string>
     <string name="[&quot;ClaimRewards&quot;]">Claim rewards</string>
+
+    <string name="[&quot;PlagiarismTitle&quot;]">Plagiarism check</string>
+    <string name="[&quot;GuidelinesForPlagiarism&quot;]">Guidelines</string>
+    <string name="[&quot;SelfPlagiarism&quot;]">We have found a {0} in Steepshot, uploaded by you. We do not recommend you to re-upload photos as it may result in low payouts and reputation loss.</string>
+    <string name="[&quot;PhotoPlagiarism&quot;]">We have found a {0} in Steepshot, uploaded by {1}. We do not recommend you to upload other users' photos as it may result in low payouts and reputation loss.</string>
+    <string name="[&quot;PlagiarismDescription&quot;]">If you're sure that you are the author of the photo, please flag and/or leave a comment under the {0} to let other people know they should flag this post.</string>
+    <string name="[&quot;IPFSLink&quot;]">IPFS Link</string>
+    <string name="[&quot;CancelPublishing&quot;]">No, cancel publishing</string>
+    <string name="[&quot;ContinuePublishing&quot;]">Yes, continue publishing</string>
+    <string name="[&quot;ClaimYourRights&quot;]">Claim your rights to this post</string>
+    <string name="[&quot;SimilarPhoto&quot;]">Similar photo</string>
+    <string name="[&quot;Photo&quot;]">Photo</string>
 </resources>
