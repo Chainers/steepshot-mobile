@@ -439,11 +439,11 @@ namespace Steepshot.Core.Clients
                 Metadata = JsonConvert.DeserializeObject<AccountMetadata>(acc.JsonMetadata),
                 Balances = new List<BalanceModel>
                 {
-                    new BalanceModel(double.Parse(acc.Balance.ToDoubleString(),CultureInfo.InvariantCulture), 3, CurrencyType.Golos)
+                    new BalanceModel(acc.Balance.ToDouble(), 3, CurrencyType.Golos)
                     {
                         EffectiveSp = effectiveSp
                     },
-                    new BalanceModel(double.Parse(acc.SbdBalance.ToDoubleString(),CultureInfo.InvariantCulture), 3,  CurrencyType.Gbg)
+                    new BalanceModel(acc.SbdBalance.ToDouble(), 3,  CurrencyType.Gbg)
                     {
                         EffectiveSp =  effectiveSp
                     }
@@ -543,7 +543,7 @@ namespace Steepshot.Core.Clients
                             Type = AccountHistoryResponse.OperationType.PowerDown,
                             From = typed.Account,
                             To = typed.Account,
-                            Amount = $"{(double.Parse(typed.VestingShares.ToDoubleString(), CultureInfo.InvariantCulture) * vestsExchangeRatio).ToBalanceVaueString()} {CurrencyType.Golos.ToString().ToUpper()}"
+                            Amount = $"{(typed.VestingShares.ToDouble() * vestsExchangeRatio).ToBalanceVaueString()} {CurrencyType.Golos.ToString().ToUpper()}"
                         };
                     }
                 default:

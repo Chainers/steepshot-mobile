@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Threading.Tasks;
 using Android.App;
 using Android.Content;
@@ -328,7 +329,7 @@ namespace Steepshot.Fragment
         private void OnUserBalanceChanged()
         {
             if (_transferFacade.UserBalance != null)
-                _balance.Text = $"{_transferFacade.UserBalance.Value} {_pickedCoin.ToString()}";
+                _balance.Text = $"{_transferFacade.UserBalance.Value.ToString(CultureInfo.InvariantCulture)} {_pickedCoin.ToString()}";
         }
 
         private void OnRecipientChanged()
