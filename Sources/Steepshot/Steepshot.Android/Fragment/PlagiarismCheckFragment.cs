@@ -137,7 +137,7 @@ namespace Steepshot.Activity
 
             if (model.PlagiarismUsername == AppSettings.User.Login)
             {
-                plagiarismText = string.Format(AppSettings.LocalizationManager.GetText(LocalizationKeys.SelfPlagiarism), similarText);
+                plagiarismText = AppSettings.LocalizationManager.GetText(LocalizationKeys.SelfPlagiarism, similarText);
 
                 clickableSpan = new CustomClickableSpan();
                 clickableSpan.Click += OpenSimilar;
@@ -149,7 +149,7 @@ namespace Steepshot.Activity
             else
             {
                 var author = $"@{model.PlagiarismUsername}";
-                plagiarismText = string.Format(AppSettings.LocalizationManager.GetText(LocalizationKeys.PhotoPlagiarism), similarText, author);
+                plagiarismText = AppSettings.LocalizationManager.GetText(LocalizationKeys.PhotoPlagiarism, similarText, author);
 
                 spannableTitle = new SpannableString(plagiarismText);
                 var similarIndex = plagiarismText.IndexOf(similarText, StringComparison.Ordinal);
@@ -167,7 +167,7 @@ namespace Steepshot.Activity
                 spannableTitle.SetSpan(clickableAuthor, authorIndex, authorIndex + author.Length, SpanTypes.ExclusiveExclusive);
                 _plagiarismTitle.SetText(spannableTitle, TextView.BufferType.Spannable);
 
-                var descriptionText = string.Format(AppSettings.LocalizationManager.GetText(LocalizationKeys.PlagiarismDescription), photoText);
+                var descriptionText = AppSettings.LocalizationManager.GetText(LocalizationKeys.PlagiarismDescription, photoText);
 
                 var clickablePhoto = new CustomClickableSpan();
                 clickablePhoto.Click += OpenSimilar;
