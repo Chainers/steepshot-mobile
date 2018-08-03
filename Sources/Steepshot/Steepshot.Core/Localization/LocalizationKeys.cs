@@ -186,6 +186,12 @@
         Recipient,
         Amount,
         Wallet,
-        SendTokens
+        SendTokens,
+        TransactionHistory,
+        SelectAction,
+        PowerUp,
+        PowerDown,
+        Max,
+        ClaimRewards
     }
 }

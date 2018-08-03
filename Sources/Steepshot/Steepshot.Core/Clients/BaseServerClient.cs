@@ -322,6 +322,16 @@ namespace Steepshot.Core.Clients
             return result;
         }
 
+        public async Task<OperationResult<CurrencyRate[]>> GetCurrencyRates(CancellationToken token)
+        {
+            if (!EnableRead)
+                return null;
+
+            var endpoint = $"{BaseUrl}/{GatewayVersion.V1P1}/currency/rates";
+            var result = await HttpClient.Get<CurrencyRate[]>(endpoint, token);
+            return result;
+        }
+
         #endregion Get requests
 
         public async Task<OperationResult<PreparePostResponse>> PreparePost(PreparePostModel model, CancellationToken ct)
