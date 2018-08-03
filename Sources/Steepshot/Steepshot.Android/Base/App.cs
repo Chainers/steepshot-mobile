@@ -38,8 +38,6 @@ namespace Steepshot.Base
             InitPicassoCache();
 
             AppSettings.LocalizationManager.Update(HttpClient);
-            AppSettings.ConfigManager.UpdateGlobalFundRatio(SteemClient);
-            AppSettings.ConfigManager.UpdateGlobalFundRatio(GolosClient);
         }
 
         private void InitPicassoCache()

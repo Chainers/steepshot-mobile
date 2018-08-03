@@ -18,6 +18,8 @@ namespace Steepshot.Core.Clients
         private readonly Dictionary<KnownChains, Beneficiary[]> _beneficiariesCash;
         private readonly BaseDitchClient _ditchClient;
         public KnownChains Chain { get; }
+        public double VestsExchangeRatio { get; set; } = 1;
+
 
         public SteepshotApiClient(ExtendedHttpClient extendedHttpClient, KnownChains chain)
         {
@@ -64,11 +66,6 @@ namespace Steepshot.Core.Clients
         public async Task<OperationResult<AccountInfoResponse>> GetAccountInfo(string userName, CancellationToken ct)
         {
             return await _ditchClient.GetAccountInfo(userName, ct);
-        }
-
-        public async Task<OperationResult<ChainGlobalProperties>> GetDynamicGlobalProperties(CancellationToken ct)
-        {
-            return await _ditchClient.GetDynamicGlobalProperties(ct);
         }
 
         public async Task<OperationResult<AccountHistoryResponse[]>> GetAccountHistory(string userName, CancellationToken ct)

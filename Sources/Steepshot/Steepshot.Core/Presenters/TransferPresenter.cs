@@ -1,12 +1,10 @@
-﻿using System.Globalization;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using Ditch.Core.JsonRpc;
 using Steepshot.Core.Authorization;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Models.Requests;
-using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Presenters
 {
@@ -29,10 +27,7 @@ namespace Steepshot.Core.Presenters
 
         public async Task<OperationResult<VoidResponse>> TryPowerUpOrDown(BalanceModel balance, PowerAction powerAction)
         {
-            var value = powerAction == PowerAction.PowerUp
-                ? balance.Value.ToString(CultureInfo.InvariantCulture)
-                : (balance.Value / AppSettings.ConfigManager.SteemPerVestsRatio).ToString("F6", CultureInfo.InvariantCulture);
-            var model = new PowerUpDownModel(balance.UserInfo, balance.UserInfo.Login, balance.UserInfo.Login, value, balance.CurrencyType, powerAction);
+            var model = new PowerUpDownModel(balance, powerAction);
             return await TryRunTask<PowerUpDownModel, VoidResponse>(PowerDownOrDown, OnDisposeCts.Token, model);
         }
 

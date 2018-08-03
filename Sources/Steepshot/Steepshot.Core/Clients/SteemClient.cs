@@ -27,6 +27,7 @@ namespace Steepshot.Core.Clients
     {
         private readonly OperationManager _operationManager;
 
+        private double? _vestsExchangeRatio;
 
         public override bool IsConnected => _operationManager.IsConnected;
 
@@ -279,7 +280,11 @@ namespace Steepshot.Core.Clients
                         }
                         else
                         {
-                            asset.FromOldFormat($"{model.Value} {Config.Vests}");
+                            var vestsExchangeRatio = await GetVestsExchangeRatio(ct);
+                            if (vestsExchangeRatio.IsSuccess)
+                                return new OperationResult<VoidResponse>(vestsExchangeRatio.Error);
+
+                            asset.FromOldFormat($"{(model.Value / vestsExchangeRatio.Result):F6} {Config.Vests}");
                             op = new WithdrawVestingOperation(model.Login, asset);
                         }
                         break;
@@ -439,9 +444,13 @@ namespace Steepshot.Core.Clients
 
             var acc = resp.Result.Accounts[0];
 
+            var vestsExchangeRatio = await GetVestsExchangeRatio(ct);
+            if (vestsExchangeRatio.IsSuccess)
+                return new OperationResult<AccountInfoResponse>(vestsExchangeRatio.Error);
+
             var effectiveSp = (double.Parse(acc.VestingShares.ToDoubleString(), CultureInfo.InvariantCulture) +
                                double.Parse(acc.ReceivedVestingShares.ToDoubleString(), CultureInfo.InvariantCulture) -
-                               double.Parse(acc.DelegatedVestingShares.ToDoubleString(), CultureInfo.InvariantCulture)) * AppSettings.ConfigManager.SteemPerVestsRatio;
+                               double.Parse(acc.DelegatedVestingShares.ToDoubleString(), CultureInfo.InvariantCulture)) * vestsExchangeRatio.Result;
 
             result.Result = new AccountInfoResponse
             {
@@ -469,30 +478,6 @@ namespace Steepshot.Core.Clients
             };
 
             return result;
-        }
-
-        public override async Task<OperationResult<ChainGlobalProperties>> GetDynamicGlobalProperties(CancellationToken ct)
-        {
-            var isConnected = await TryReconnectChain(ct);
-            if (!isConnected)
-                return new OperationResult<ChainGlobalProperties>(new ValidationError(LocalizationKeys.EnableConnectToBlockchain));
-            
-            var result = new OperationResult<ChainGlobalProperties>();
-
-            var response = await _operationManager.GetDynamicGlobalProperties(ct);
-            if (response.IsError)
-            {
-                result.Error = new RequestError(response);
-                return result;
-            }
-
-            result.Result = new ChainGlobalProperties
-            {
-                TotalVestingShares = double.Parse(response.Result.TotalVestingShares.ToDoubleString(), CultureInfo.InvariantCulture),
-                TotalVestingFund = double.Parse(response.Result.TotalVestingFundSteem.ToDoubleString(), CultureInfo.InvariantCulture)
-            };
-
-            return new OperationResult<ChainGlobalProperties>(result.Result);
         }
 
         private readonly string[] _accountHistoryFilter = {
@@ -523,10 +508,30 @@ namespace Steepshot.Core.Clients
                 return result;
             }
 
-            result.Result = resp.Result.History.Where(Filter).Select(Transform).OrderByDescending(x => x.DateTime).ToArray();
+            var vestsExchangeRatio = await GetVestsExchangeRatio(ct);
+            if (vestsExchangeRatio.IsSuccess)
+                return new OperationResult<AccountHistoryResponse[]>(vestsExchangeRatio.Error);
 
+            result.Result = resp.Result.History.Where(Filter).Select(pair => Transform(pair, vestsExchangeRatio.Result)).OrderByDescending(x => x.DateTime).ToArray();
             return result;
         }
+
+        private async Task<OperationResult<double>> GetVestsExchangeRatio(CancellationToken token)
+        {
+            if (_vestsExchangeRatio.HasValue)
+                return new OperationResult<double>(_vestsExchangeRatio.Value);
+
+            var properties = await _operationManager.GetDynamicGlobalProperties(token);
+            if (properties.IsError)
+                return new OperationResult<double>(properties.Exception);
+
+            var totalVestingShares = properties.Result.TotalVestingShares.ToDouble();
+            var totalVestingFund = properties.Result.TotalVestingFundSteem.ToDouble();
+            _vestsExchangeRatio = totalVestingFund / totalVestingShares;
+            return new OperationResult<double>(_vestsExchangeRatio.Value);
+        }
+
+
 
         private bool Filter(KeyValuePair<uint, AppliedOperation> arg)
         {
@@ -534,7 +539,7 @@ namespace Steepshot.Core.Clients
             return _accountHistoryFilter.Contains(baseOperation.TypeName);
         }
 
-        private AccountHistoryResponse Transform(KeyValuePair<uint, AppliedOperation> arg)
+        private AccountHistoryResponse Transform(KeyValuePair<uint, AppliedOperation> arg, double vestsExchangeRatio)
         {
             BaseOperation baseOperation = arg.Value.Op;
             switch (baseOperation.TypeName)
@@ -573,7 +578,7 @@ namespace Steepshot.Core.Clients
                             Type = OperationType.PowerDown,
                             From = typed.Account,
                             To = typed.Account,
-                            Amount = $"{(double.Parse(typed.VestingShares.ToDoubleString(), CultureInfo.InvariantCulture) * AppSettings.ConfigManager.SteemPerVestsRatio).ToBalanceVaueString()} {CurrencyType.Steem.ToString().ToUpper()}"
+                            Amount = $"{(double.Parse(typed.VestingShares.ToDoubleString(), CultureInfo.InvariantCulture) * vestsExchangeRatio).ToBalanceVaueString()} {CurrencyType.Steem.ToString().ToUpper()}"
                         };
                     }
                 case ClaimRewardBalanceOperation.OperationName:
@@ -586,7 +591,7 @@ namespace Steepshot.Core.Clients
                             From = typed.Account,
                             To = typed.Account,
                             RewardSteem = typed.RewardSteem.ToDoubleString(),
-                            RewardSp = (double.Parse(typed.RewardVests.ToDoubleString(), CultureInfo.InvariantCulture) * AppSettings.ConfigManager.SteemPerVestsRatio).ToBalanceVaueString(),
+                            RewardSp = (double.Parse(typed.RewardVests.ToDoubleString(), CultureInfo.InvariantCulture) * vestsExchangeRatio).ToBalanceVaueString(),
                             RewardSbd = typed.RewardSbd.ToDoubleString()
                         };
                     }
@@ -594,7 +599,6 @@ namespace Steepshot.Core.Clients
                     throw new NotImplementedException();
             }
         }
-
 
         #endregion
     }
