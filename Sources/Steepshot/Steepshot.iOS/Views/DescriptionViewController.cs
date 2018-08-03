@@ -25,7 +25,7 @@ using Steepshot.iOS.CustomViews;
 
 namespace Steepshot.iOS.Views
 {
-    public partial class DescriptionViewController : BaseViewControllerWithPresenter<PostDescriptionPresenter>
+    public class DescriptionViewController : BaseViewControllerWithPresenter<PostDescriptionPresenter>
     {
         private const int _photoSize = 900; //kb
         private TimeSpan PostingLimit;
@@ -689,6 +689,15 @@ namespace Steepshot.iOS.Views
 
         private async void PostPhoto(object sender, EventArgs e)
         {
+            // TODO: for tests
+            var test = true;
+            if (test)
+            {
+                var plagiarismViewController = new PlagiarismViewController();
+                NavigationController.PushViewController(plagiarismViewController, true);
+                return;
+            }
+
             if (string.IsNullOrEmpty(titleTextField.Text))
             {
                 ShowAlert(LocalizationKeys.EmptyTitleField);
