@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
-using Steepshot.Core.HttpClient;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Models.Responses;
 

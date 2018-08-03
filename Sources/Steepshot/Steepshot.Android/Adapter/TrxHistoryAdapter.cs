@@ -6,8 +6,8 @@ using Android.Util;
 using Android.Views;
 using Android.Widget;
 using IO.SuperCharge.ShimmerLayoutLib;
-using Steepshot.Core.HttpClient;
 using Steepshot.Core.Models.Requests;
+using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Utils;
 using Steepshot.CustomViews;
 using Steepshot.Utils;
@@ -135,7 +135,7 @@ namespace Steepshot.Adapter
             _date.Text = transaction.DateTime.ToString("dd MMM yyyy", CultureInfo.GetCultureInfo("en-US"));
             _trxType.Text = transaction.Type.ToString();
             _recipient.AutoLinkText = $"{(transaction.From.Equals(AppSettings.User.Login) ? $"to @{transaction.To}" : $"from @{transaction.From}")}";
-            if (transaction.Type == OperationType.ClaimReward)
+            if (transaction.Type == AccountHistoryResponse.OperationType.ClaimReward)
             {
                 _tokenOne.Text = CurrencyType.Steem.ToString().ToUpper();
                 _tokenOneValue.Text = transaction.RewardSteem;

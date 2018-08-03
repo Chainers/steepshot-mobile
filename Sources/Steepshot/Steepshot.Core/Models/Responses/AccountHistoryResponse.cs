@@ -1,15 +1,7 @@
 ﻿using System;
 
-namespace Steepshot.Core.HttpClient
+namespace Steepshot.Core.Models.Responses
 {
-    public enum OperationType
-    {
-        Transfer,
-        PowerUp,
-        PowerDown,
-        ClaimReward
-    }
-
     public class AccountHistoryResponse
     {
         public DateTime DateTime { get; set; }
@@ -21,5 +13,13 @@ namespace Steepshot.Core.HttpClient
         public string RewardSp { get; set; }
         public string RewardSbd { get; set; }
         public string Memo { get; set; }
+
+        public enum OperationType
+        {
+            Transfer,
+            PowerUp,
+            PowerDown,
+            ClaimReward
+        }
     }
 }

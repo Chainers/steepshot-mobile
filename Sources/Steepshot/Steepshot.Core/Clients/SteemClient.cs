@@ -12,14 +12,12 @@ using Ditch.Steem.Operations;
 using Newtonsoft.Json;
 using Steepshot.Core.Errors;
 using Steepshot.Core.Extensions;
-using Steepshot.Core.HttpClient;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Utils;
-using OperationType = Steepshot.Core.HttpClient.OperationType;
 
 namespace Steepshot.Core.Clients
 {
@@ -550,7 +548,7 @@ namespace Steepshot.Core.Clients
                         return new AccountHistoryResponse
                         {
                             DateTime = arg.Value.Timestamp,
-                            Type = OperationType.Transfer,
+                            Type = AccountHistoryResponse.OperationType.Transfer,
                             From = typed.From,
                             To = typed.To,
                             Amount = typed.Amount.ToOldFormatString(),
@@ -563,7 +561,7 @@ namespace Steepshot.Core.Clients
                         return new AccountHistoryResponse
                         {
                             DateTime = arg.Value.Timestamp,
-                            Type = OperationType.PowerUp,
+                            Type = AccountHistoryResponse.OperationType.PowerUp,
                             From = typed.From,
                             To = typed.To,
                             Amount = typed.Amount.ToOldFormatString()
@@ -575,7 +573,7 @@ namespace Steepshot.Core.Clients
                         return new AccountHistoryResponse
                         {
                             DateTime = arg.Value.Timestamp,
-                            Type = OperationType.PowerDown,
+                            Type = AccountHistoryResponse.OperationType.PowerDown,
                             From = typed.Account,
                             To = typed.Account,
                             Amount = $"{(double.Parse(typed.VestingShares.ToDoubleString(), CultureInfo.InvariantCulture) * vestsExchangeRatio).ToBalanceVaueString()} {CurrencyType.Steem.ToString().ToUpper()}"
@@ -587,7 +585,7 @@ namespace Steepshot.Core.Clients
                         return new AccountHistoryResponse
                         {
                             DateTime = arg.Value.Timestamp,
-                            Type = OperationType.ClaimReward,
+                            Type = AccountHistoryResponse.OperationType.ClaimReward,
                             From = typed.Account,
                             To = typed.Account,
                             RewardSteem = typed.RewardSteem.ToDoubleString(),
