@@ -287,32 +287,20 @@ namespace Steepshot.Core.Clients
 
             BaseOperation op;
 
-            switch (model.CurrencyType)
+            Asset asset;
+            if (model.PowerAction == PowerAction.PowerUp)
             {
-                case CurrencyType.Golos:
-                    {
-                        Asset asset;
-                        if (model.PowerAction == PowerAction.PowerUp)
-                        {
-                            asset = new Asset($"{model.Value} GOLOS");
-                            op = new TransferToVestingOperation(model.From, model.To, asset);
-                        }
-                        else
-                        {
-                            var vestsExchangeRatio = await GetVestsExchangeRatio(ct);
-                            if (vestsExchangeRatio.IsSuccess)
-                                return new OperationResult<VoidResponse>(vestsExchangeRatio.Error);
+                asset = new Asset($"{model.Value} GOLOS");
+                op = new TransferToVestingOperation(model.From, model.To, asset);
+            }
+            else
+            {
+                var vestsExchangeRatio = await GetVestsExchangeRatio(ct);
+                if (vestsExchangeRatio.IsSuccess)
+                    return new OperationResult<VoidResponse>(vestsExchangeRatio.Error);
 
-                            asset = new Asset($"{(model.Value / vestsExchangeRatio.Result):F6} GESTS");
-                            op = new WithdrawVestingOperation(model.From, asset);
-                        }
-                        break;
-                    }
-                default:
-                    {
-                        result.Error = new ValidationError(LocalizationKeys.UnsupportedCurrency, model.CurrencyType.ToString());
-                        return result;
-                    }
+                asset = new Asset($"{(model.Value / vestsExchangeRatio.Result):F6} GESTS");
+                op = new WithdrawVestingOperation(model.From, asset);
             }
 
             var resp = await _operationManager.BroadcastOperationsSynchronous(keys, ct, op);
@@ -441,9 +429,7 @@ namespace Steepshot.Core.Clients
             if (vestsExchangeRatio.IsSuccess)
                 return new OperationResult<AccountInfoResponse>(vestsExchangeRatio.Error);
 
-            var effectiveSp = (double.Parse(acc.VestingShares.ToDoubleString(), CultureInfo.InvariantCulture) +
-                               double.Parse(acc.ReceivedVestingShares.ToDoubleString(), CultureInfo.InvariantCulture) -
-                               double.Parse(acc.DelegatedVestingShares.ToDoubleString(), CultureInfo.InvariantCulture)) * vestsExchangeRatio.Result;
+            var effectiveSp = (acc.VestingShares.ToDouble() + acc.ReceivedVestingShares.ToDouble() - acc.DelegatedVestingShares.ToDouble()) * vestsExchangeRatio.Result;
 
             result.Result = new AccountInfoResponse
             {

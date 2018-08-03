@@ -35,7 +35,7 @@ namespace Steepshot.Core.Presenters
         public async Task<Exception> TryLoadNextAccountInfo()
         {
             if (!HasNext || Current == null)
-                return new ValidationError("");
+                return new ValidationError(string.Empty);
 
             var error = await TryUpdateAccountInfo(Current);
             if (error == null)
@@ -49,7 +49,7 @@ namespace Steepshot.Core.Presenters
         public async Task<Exception> TryUpdateAccountInfo(UserInfo userInfo)
         {
             if (!ConnectedUsers.ContainsKey(userInfo.Id))
-                return new ValidationError("");
+                return new ValidationError(string.Empty);
 
             var response = await TryRunTask<string, AccountInfoResponse>(GetAccountInfo, OnDisposeCts.Token, userInfo.Login);
             if (response.IsSuccess)

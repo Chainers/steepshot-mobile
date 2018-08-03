@@ -17,8 +17,6 @@ namespace Steepshot.Core.Clients
         private readonly Dictionary<KnownChains, Beneficiary[]> _beneficiariesCash;
         private readonly BaseDitchClient _ditchClient;
         public KnownChains Chain { get; }
-        public double VestsExchangeRatio { get; set; } = 1;
-
 
         public SteepshotApiClient(ExtendedHttpClient extendedHttpClient, KnownChains chain)
         {
