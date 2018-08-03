@@ -51,7 +51,7 @@
     <string name="[&quot;EmptyUrlField&quot;]">Url cannot be empty</string>
     <string name="[&quot;EmptyUsernameField&quot;]">Username cannot be empty</string>
     <string name="[&quot;EmptyLogin&quot;]">Login cannot be empty</string>
-    <string name="[&quot;EmptyPostingKey&quot;]">Posting key cannot be empty</string>
+    <string name="[&quot;EmptyPostingKey&quot;]">Private posting key cannot be empty</string>
     <string name="[&quot;EmptyActiveKey&quot;]">Active key cannot be empty</string>
     <string name="[&quot;PhotoProcessingError&quot;]">An error occurred while processing the photo. Unfortunately the next step can not be performed.</string>
     <string name="[&quot;PhotoUploadError&quot;]">Could not upload file to server</string>
@@ -116,7 +116,7 @@ About 6 inches away</string>
     <string name="[&quot;SignInButtonText&quot;]">Sign in with {0}</string>
     <string name="[&quot;CreateButtonText&quot;]">Create new account</string>
     <string name="[&quot;EnterAccountText&quot;]">Enter to your account</string>
-    <string name="[&quot;PasswordViewTitleText&quot;]">Account posting key</string>
+    <string name="[&quot;PasswordViewTitleText&quot;]">Account private posting key</string>
     <string name="[&quot;ActivePasswordViewTitleText&quot;]">Account active key</string>
     <string name="[&quot;PublishButtonText&quot;]">Publish Photo</string>
     <string name="[&quot;AppSettingsTitle&quot;]">App settings</string>
