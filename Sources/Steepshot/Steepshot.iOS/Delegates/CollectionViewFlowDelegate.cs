@@ -69,7 +69,10 @@ namespace Steepshot.iOS.Helpers
             if (!IsGrid)
                 return;
 
-            CellClicked?.Invoke(ActionType.Preview, _presenter[(int)indexPath.Item]);
+            if (IsProfile && indexPath.Row == 0)
+                return;
+
+            CellClicked?.Invoke(ActionType.Preview, IsProfile ? _presenter[(int)indexPath.Item - 1] : _presenter[(int)indexPath.Item]);
         }
 
         public void GenerateVariables()
