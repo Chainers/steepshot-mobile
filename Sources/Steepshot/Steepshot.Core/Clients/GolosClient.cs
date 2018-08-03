@@ -296,7 +296,7 @@ namespace Steepshot.Core.Clients
             else
             {
                 var vestsExchangeRatio = await GetVestsExchangeRatio(ct);
-                if (vestsExchangeRatio.IsSuccess)
+                if (!vestsExchangeRatio.IsSuccess)
                     return new OperationResult<VoidResponse>(vestsExchangeRatio.Error);
 
                 asset = new Asset($"{(model.Value / vestsExchangeRatio.Result):F6} GESTS");
@@ -426,7 +426,7 @@ namespace Steepshot.Core.Clients
             var acc = resp.Result[0];
 
             var vestsExchangeRatio = await GetVestsExchangeRatio(ct);
-            if (vestsExchangeRatio.IsSuccess)
+            if (!vestsExchangeRatio.IsSuccess)
                 return new OperationResult<AccountInfoResponse>(vestsExchangeRatio.Error);
 
             var effectiveSp = (acc.VestingShares.ToDouble() + acc.ReceivedVestingShares.ToDouble() - acc.DelegatedVestingShares.ToDouble()) * vestsExchangeRatio.Result;
@@ -491,7 +491,7 @@ namespace Steepshot.Core.Clients
             }
 
             var vestsExchangeRatio = await GetVestsExchangeRatio(ct);
-            if (vestsExchangeRatio.IsSuccess)
+            if (!vestsExchangeRatio.IsSuccess)
                 return new OperationResult<AccountHistoryResponse[]>(vestsExchangeRatio.Error);
 
             result.Result = resp.Result.Where(Filter).Select(pair => Transform(pair, vestsExchangeRatio.Result)).OrderByDescending(x => x.DateTime).ToArray();
