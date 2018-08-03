@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Ditch.Core.JsonRpc;
@@ -17,6 +16,7 @@ namespace Steepshot.Core.Clients
     internal abstract class BaseDitchClient
     {
         protected readonly object SyncConnection;
+        protected readonly ExtendedHttpClient ExtendedHttpClient;
 
         public volatile bool EnableWrite;
 
@@ -26,9 +26,10 @@ namespace Steepshot.Core.Clients
         public abstract bool IsConnected { get; }
 
 
-        protected BaseDitchClient()
+        protected BaseDitchClient(ExtendedHttpClient extendedHttpClient)
         {
             SyncConnection = new object();
+            ExtendedHttpClient = extendedHttpClient;
         }
 
 
@@ -58,7 +59,7 @@ namespace Steepshot.Core.Clients
 
         public abstract Task<OperationResult<AccountHistoryResponse[]>> GetAccountHistory(string userName, CancellationToken ct);
 
-        public abstract bool TryReconnectChain(CancellationToken token);
+        public abstract Task<bool> TryReconnectChain(CancellationToken token);
 
         protected List<byte[]> ToKeyArr(string postingKey)
         {

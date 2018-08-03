@@ -57,13 +57,13 @@ namespace Steepshot.Core.Clients
             }
         }
 
-        public async Task Update(SteepshotApiClient steepshotApiClient, CancellationToken token)
+        public async Task Update(ExtendedHttpClient httpClient, KnownChains chains, CancellationToken token)
         {
-            switch (steepshotApiClient.Chain)
+            switch (chains)
             {
                 case KnownChains.Golos:
                     {
-                        var conf = await steepshotApiClient.HttpClient.Get<List<NodeConfig>>(GolosUpdateUrl, token);
+                        var conf = await httpClient.Get<List<NodeConfig>>(GolosUpdateUrl, token);
                         if (conf.IsSuccess)
                         {
                             GolosNodeConfigs = conf.Result;
@@ -73,7 +73,7 @@ namespace Steepshot.Core.Clients
                     }
                 case KnownChains.Steem:
                     {
-                        var conf = await steepshotApiClient.HttpClient.Get<List<NodeConfig>>(SteemUpdateUrl, token);
+                        var conf = await httpClient.Get<List<NodeConfig>>(SteemUpdateUrl, token);
                         if (conf.IsSuccess)
                         {
                             SteemNodeConfigs = conf.Result;
