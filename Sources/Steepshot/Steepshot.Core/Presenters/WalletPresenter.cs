@@ -61,7 +61,7 @@ namespace Steepshot.Core.Presenters
                 {
                     responseBalances.ForEach(x =>
                         {
-                            var balanceInd = Balances.FindIndex(y => y.UserInfo.Login.Equals(x.UserInfo.Login, StringComparison.OrdinalIgnoreCase) && y.CurrencyType == x.CurrencyType);
+                            var balanceInd = Balances.FindIndex(y => y.UserInfo.Id == x.UserInfo.Id && y.CurrencyType == x.CurrencyType);
                             if (balanceInd >= 0)
                                 Balances[balanceInd] = x;
                             else
