@@ -310,7 +310,7 @@ namespace Steepshot.Core.Presenters
         #region IDisposable Support
         private bool _disposedValue = false; // To detect redundant calls
 
-        private void Dispose(bool disposing)
+        protected virtual void Dispose(bool disposing)
         {
             if (!_disposedValue)
             {

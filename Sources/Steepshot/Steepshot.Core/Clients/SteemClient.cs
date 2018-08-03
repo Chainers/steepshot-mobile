@@ -226,10 +226,7 @@ namespace Steepshot.Core.Clients
 
             var result = new OperationResult<VoidResponse>();
 
-            var asset = new Asset
-            {
-                NumberFormat = NumberFormatInfo.InvariantInfo
-            };
+            var asset = new Asset();
             switch (model.CurrencyType)
             {
                 case CurrencyType.Steem:

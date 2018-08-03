@@ -298,7 +298,7 @@ namespace Steepshot.Core.Clients
             }
             catch (Exception ex)
             {
-                AppSettings.Logger.Warning(ex);
+                await AppSettings.Logger.Warning(ex);
             }
             return null;
         }
