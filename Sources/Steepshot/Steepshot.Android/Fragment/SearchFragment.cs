@@ -187,7 +187,7 @@ namespace Steepshot.Fragment
                 ? ViewStates.Gone
                 : ViewStates.Visible;
 
-            _timer.Change(500, Timeout.Infinite);
+            _timer.Change(1300, Timeout.Infinite);
         }
 
         private void OnClick(UserFriend userFriend)
