@@ -168,7 +168,7 @@ namespace Steepshot.Fragment
             return InflatedView;
         }
 
-        public async override void OnViewCreated(View view, Bundle savedInstanceState)
+        public override async void OnViewCreated(View view, Bundle savedInstanceState)
         {
             if (IsInitialized)
                 return;
@@ -241,6 +241,7 @@ namespace Steepshot.Fragment
             if (_transferFacade.Recipient != null)
             {
                 _recipientSearch.Text = _transferFacade.Recipient.Author;
+                _recipientSearchClear.SetImageResource(string.IsNullOrEmpty(_recipientSearch.Text) ? Resource.Drawable.ic_search_small : Resource.Drawable.ic_close_tag_active);
                 OnRecipientChanged();
             }
         }
@@ -412,6 +413,7 @@ namespace Steepshot.Fragment
             _recipientSearch.Text = string.Empty;
             _transferFacade.Recipient = null;
             _transferFacade.UserFriendPresenter.Clear();
+            _emptyQueryLabel.Visibility = ViewStates.Gone;
         }
 
         private void TransferCoinTypeOnClick(object sender, EventArgs e)
