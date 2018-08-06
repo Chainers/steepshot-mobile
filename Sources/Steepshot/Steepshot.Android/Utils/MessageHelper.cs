@@ -4,7 +4,7 @@ using Android.App;
 using Android.Content;
 using Android.Views;
 using Android.Widget;
-using Steepshot.Core.Errors;
+using Steepshot.Core.Exceptions;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Utils;
 
@@ -100,8 +100,8 @@ namespace Steepshot.Utils
         {
             var lm = AppSettings.LocalizationManager;
 
-            if (error is ValidateException ValidateException)
-                return lm.GetText(ValidateException);
+            if (error is ValidationException validationError)
+                return lm.GetText(validationError);
 
             var msg = string.Empty;
 
@@ -109,10 +109,10 @@ namespace Steepshot.Utils
             {
                 msg = lm.GetText(internalError.Key);
             }
-            else if (error is RequestException RequestException)
+            else if (error is RequestException requestError)
             {
-                if (!string.IsNullOrEmpty(RequestException.RawResponse))
-                    msg = lm.GetText(RequestException.RawResponse);
+                if (!string.IsNullOrEmpty(requestError.RawResponse))
+                    msg = lm.GetText(requestError.RawResponse);
             }
             else
             {
@@ -127,9 +127,9 @@ namespace Steepshot.Utils
             if (error == null || error is TaskCanceledException || error is OperationCanceledException)
                 return true;
 
-            if (error is RequestException RequestException)
+            if (error is RequestException requestError)
             {
-                if (RequestException.Exception is TaskCanceledException || RequestException.Exception is OperationCanceledException)
+                if (requestError.Exception is TaskCanceledException || requestError.Exception is OperationCanceledException)
                     return true;
             }
 

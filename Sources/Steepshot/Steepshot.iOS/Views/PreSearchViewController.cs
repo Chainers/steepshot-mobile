@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using CoreGraphics;
 using Foundation;
-using Steepshot.Core.Errors;
+using Steepshot.Core.Exceptions;
 using Steepshot.Core.Models;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;

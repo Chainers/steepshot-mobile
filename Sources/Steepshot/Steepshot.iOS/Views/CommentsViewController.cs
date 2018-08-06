@@ -376,7 +376,7 @@ namespace Steepshot.iOS.Views
                 Post.Children++;
             }
             else
-                ShowAlert(response.Error);
+                ShowAlert(response.Exception);
         }
 
         public async Task DeleteComment(Post post)

@@ -3,12 +3,11 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using CoreGraphics;
 using Foundation;
-using Steepshot.Core.Errors;
 using UIKit;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Utils;
-using Steepshot.Core.Interfaces;
 using PureLayout.Net;
+using Steepshot.Core.Exceptions;
 using Steepshot.iOS.Helpers;
 using Steepshot.iOS.Views;
 
@@ -281,8 +280,8 @@ namespace Steepshot.iOS.ViewControllers
         {
             var lm = AppSettings.LocalizationManager;
           
-            if (error is ValidateException ValidateException)
-                return lm.GetText(ValidateException);
+            if (error is ValidationException requestException)
+                return lm.GetText(requestException);
 
 
             AppSettings.Logger.Error(error);
@@ -292,10 +291,10 @@ namespace Steepshot.iOS.ViewControllers
             {
                 msg = lm.GetText(internalError.Key);
             }
-            else if (error is RequestException RequestException)
+            else if (error is RequestException requestException)
             {
-                if (!string.IsNullOrEmpty(RequestException.RawResponse))
-                    msg = lm.GetText(RequestException.RawResponse);
+                if (!string.IsNullOrEmpty(requestException.RawResponse))
+                    msg = lm.GetText(requestException.RawResponse);
             }
             else
             {
@@ -310,9 +309,9 @@ namespace Steepshot.iOS.ViewControllers
             if (error == null || error is TaskCanceledException || error is OperationCanceledException)
                 return true;
 
-            if (error is RequestException RequestException)
+            if (error is RequestException requestException)
             {
-                if (RequestException.Exception is TaskCanceledException || RequestException.Exception is OperationCanceledException)
+                if (requestException.Exception is TaskCanceledException || requestException.Exception is OperationCanceledException)
                     return true;
             }
 

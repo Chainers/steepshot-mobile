@@ -6,7 +6,6 @@ using Android.Widget;
 using Steepshot.Base;
 using Steepshot.Core.Authorization;
 using Steepshot.Core.Localization;
-using Steepshot.Core.Presenters;
 using Steepshot.Utils;
 using Steepshot.Core.Utils;
 

@@ -12,7 +12,6 @@ using UIKit;
 using Steepshot.Core.Utils;
 using System.Threading.Tasks;
 using Steepshot.Core;
-using Steepshot.Core.Errors;
 
 namespace Steepshot.iOS.Views
 {
@@ -128,8 +127,8 @@ namespace Steepshot.iOS.Views
         {
             if (user != null)
             {
-                var errors = await _searchFacade.UserFriendPresenter.TryFollow(user);
-                ShowAlert(errors);
+                var exception = await _searchFacade.UserFriendPresenter.TryFollow(user);
+                ShowAlert(exception);
             }
         }
 

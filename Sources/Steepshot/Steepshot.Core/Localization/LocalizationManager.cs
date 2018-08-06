@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Threading;
 using Steepshot.Core.Clients;
-using Steepshot.Core.Errors;
+using Steepshot.Core.Exceptions;
 using Steepshot.Core.Services;
 using Steepshot.Core.Utils;
 
@@ -112,13 +112,13 @@ namespace Steepshot.Core.Localization
             return false;
         }
 
-        public string GetText(ValidateException ValidateException)
+        public string GetText(ValidationException validationException)
         {
-            if (ValidateException.Key.HasValue)
+            if (validationException.Key.HasValue)
             {
-                return GetText(ValidateException.Key.ToString(), ValidateException.Parameters);
+                return GetText(validationException.Key.ToString(), validationException.Parameters);
             }
-            return GetText(ValidateException.Message);
+            return GetText(validationException.Message);
         }
 
 

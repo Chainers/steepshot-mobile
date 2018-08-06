@@ -7,7 +7,6 @@ using Android.Widget;
 using Steepshot.Base;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Utils;
-using Steepshot.Fragment;
 using Steepshot.Utils;
 
 namespace Steepshot.CustomViews

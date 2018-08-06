@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading;
 using PureLayout.Net;
-using Steepshot.Core.Errors;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;

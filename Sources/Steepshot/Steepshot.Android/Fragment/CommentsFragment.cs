@@ -220,7 +220,7 @@ namespace Steepshot.Fragment
                 }
                 else
                 {
-                    Context.ShowAlert(resp.Error, ToastLength.Short);
+                    Context.ShowAlert(resp.Exception, ToastLength.Short);
                 }
             }
 

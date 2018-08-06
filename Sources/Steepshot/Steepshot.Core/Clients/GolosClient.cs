@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,7 +9,7 @@ using Ditch.Golos;
 using Ditch.Golos.Models;
 using Ditch.Golos.Operations;
 using Newtonsoft.Json;
-using Steepshot.Core.Errors;
+using Steepshot.Core.Exceptions;
 using Steepshot.Core.Extensions;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Common;
@@ -86,11 +85,11 @@ namespace Steepshot.Core.Clients
         {
             var isConnected = await TryReconnectChain(ct);
             if (!isConnected)
-                return new OperationResult<VoidResponse>(new ValidateException(LocalizationKeys.EnableConnectToBlockchain));
+                return new OperationResult<VoidResponse>(new ValidationException(LocalizationKeys.EnableConnectToBlockchain));
 
             var keys = ToKeyArr(model.PostingKey);
             if (keys == null)
-                return new OperationResult<VoidResponse>(new ValidateException(LocalizationKeys.WrongPrivatePostingKey));
+                return new OperationResult<VoidResponse>(new ValidationException(LocalizationKeys.WrongPrivatePostingKey));
 
             short weigth = 0;
             if (model.Type == VoteType.Up)
@@ -103,7 +102,7 @@ namespace Steepshot.Core.Clients
 
             var result = new OperationResult<VoidResponse>();
             if (resp.IsError)
-                result.Error = new RequestException(resp);
+                result.Exception = new RequestException(resp);
             else
                 result.Result = new VoidResponse();
 
@@ -114,11 +113,11 @@ namespace Steepshot.Core.Clients
         {
             var isConnected = await TryReconnectChain(ct);
             if (!isConnected)
-                return new OperationResult<VoidResponse>(new ValidateException(LocalizationKeys.EnableConnectToBlockchain));
+                return new OperationResult<VoidResponse>(new ValidationException(LocalizationKeys.EnableConnectToBlockchain));
 
             var keys = ToKeyArr(model.PostingKey);
             if (keys == null)
-                return new OperationResult<VoidResponse>(new ValidateException(LocalizationKeys.WrongPrivatePostingKey));
+                return new OperationResult<VoidResponse>(new ValidationException(LocalizationKeys.WrongPrivatePostingKey));
 
             var op = model.Type == Models.Enums.FollowType.Follow
                 ? new FollowOperation(model.Login, model.Username, Ditch.Golos.Models.FollowType.Blog, model.Login)
@@ -128,7 +127,7 @@ namespace Steepshot.Core.Clients
             var result = new OperationResult<VoidResponse>();
 
             if (resp.IsError)
-                result.Error = new RequestException(resp);
+                result.Exception = new RequestException(resp);
             else
                 result.Result = new VoidResponse();
 
@@ -139,11 +138,11 @@ namespace Steepshot.Core.Clients
         {
             var isConnected = await TryReconnectChain(ct);
             if (!isConnected)
-                return new OperationResult<VoidResponse>(new ValidateException(LocalizationKeys.EnableConnectToBlockchain));
+                return new OperationResult<VoidResponse>(new ValidationException(LocalizationKeys.EnableConnectToBlockchain));
 
             var keys = ToKeyArr(model.PostingKey);
             if (keys == null)
-                return new OperationResult<VoidResponse>(new ValidateException(LocalizationKeys.WrongPrivatePostingKey));
+                return new OperationResult<VoidResponse>(new ValidationException(LocalizationKeys.WrongPrivatePostingKey));
 
             var op = new CommentOperation(model.ParentAuthor, model.ParentPermlink, model.Author, model.Permlink, model.Title, model.Body, model.JsonMetadata);
 
@@ -168,7 +167,7 @@ namespace Steepshot.Core.Clients
 
             var result = new OperationResult<VoidResponse>();
             if (resp.IsError)
-                result.Error = new RequestException(resp);
+                result.Exception = new RequestException(resp);
             else
                 result.Result = new VoidResponse();
 
@@ -179,18 +178,18 @@ namespace Steepshot.Core.Clients
         {
             var isConnected = await TryReconnectChain(ct);
             if (!isConnected)
-                return new OperationResult<VoidResponse>(new ValidateException(LocalizationKeys.EnableConnectToBlockchain));
+                return new OperationResult<VoidResponse>(new ValidationException(LocalizationKeys.EnableConnectToBlockchain));
 
             var keys = ToKeyArr(model.PostingKey);
             if (keys == null)
-                return new OperationResult<VoidResponse>(new ValidateException(LocalizationKeys.WrongPrivatePostingKey));
+                return new OperationResult<VoidResponse>(new ValidationException(LocalizationKeys.WrongPrivatePostingKey));
 
             var op = new DeleteCommentOperation(model.Author, model.Permlink);
             var resp = await _operationManager.BroadcastOperationsSynchronous(keys, ct, op);
 
             var result = new OperationResult<VoidResponse>();
             if (resp.IsError)
-                result.Error = new RequestException(resp);
+                result.Exception = new RequestException(resp);
             else
                 result.Result = new VoidResponse();
             return result;
@@ -200,24 +199,24 @@ namespace Steepshot.Core.Clients
         {
             var isConnected = await TryReconnectChain(ct);
             if (!isConnected)
-                return new OperationResult<VoidResponse>(new ValidateException(LocalizationKeys.EnableConnectToBlockchain));
+                return new OperationResult<VoidResponse>(new ValidationException(LocalizationKeys.EnableConnectToBlockchain));
 
             var keys = ToKeyArr(model.ActiveKey);
             if (keys == null)
-                return new OperationResult<VoidResponse>(new ValidateException(LocalizationKeys.WrongPrivateActimeKey));
+                return new OperationResult<VoidResponse>(new ValidationException(LocalizationKeys.WrongPrivateActimeKey));
 
             var resp = await _operationManager.LookupAccountNames(new[] { model.Login }, CancellationToken.None);
             var result = new OperationResult<VoidResponse>();
             if (resp.IsError)
             {
-                result.Error = new RequestException(resp);
+                result.Exception = new RequestException(resp);
                 return result;
             }
 
             var profile = resp.Result.Length == 1 ? resp.Result[0] : null;
             if (profile == null)
             {
-                result.Error = new ValidateException(LocalizationKeys.UnexpectedProfileData);
+                result.Exception = new ValidationException(LocalizationKeys.UnexpectedProfileData);
                 return result;
             }
 
@@ -226,7 +225,7 @@ namespace Steepshot.Core.Clients
             var op = new AccountUpdateOperation(model.Login, profile.MemoKey, editedMeta);
             var resp2 = await _operationManager.BroadcastOperationsSynchronous(keys, ct, op);
             if (resp2.IsError)
-                result.Error = new RequestException(resp2);
+                result.Exception = new RequestException(resp2);
             else
                 result.Result = new VoidResponse();
             return result;
@@ -236,11 +235,11 @@ namespace Steepshot.Core.Clients
         {
             var isConnected = await TryReconnectChain(ct);
             if (!isConnected)
-                return new OperationResult<VoidResponse>(new ValidateException(LocalizationKeys.EnableConnectToBlockchain));
+                return new OperationResult<VoidResponse>(new ValidationException(LocalizationKeys.EnableConnectToBlockchain));
 
             var keys = ToKeyArr(model.ActiveKey);
             if (keys == null)
-                return new OperationResult<VoidResponse>(new ValidateException(LocalizationKeys.WrongPrivateActimeKey));
+                return new OperationResult<VoidResponse>(new ValidationException(LocalizationKeys.WrongPrivateActimeKey));
 
             var result = new OperationResult<VoidResponse>();
 
@@ -259,7 +258,7 @@ namespace Steepshot.Core.Clients
                     }
                 default:
                     {
-                        result.Error = new ValidateException(LocalizationKeys.UnsupportedCurrency, model.CurrencyType.ToString());
+                        result.Exception = new ValidationException(LocalizationKeys.UnsupportedCurrency, model.CurrencyType.ToString());
                         return result;
                     }
             }
@@ -267,7 +266,7 @@ namespace Steepshot.Core.Clients
             var op = new TransferOperation(model.Login, model.Recipient, asset, model.Memo);
             var resp = await _operationManager.BroadcastOperationsSynchronous(keys, ct, op);
             if (resp.IsError)
-                result.Error = new RequestException(resp);
+                result.Exception = new RequestException(resp);
             else
                 result.Result = new VoidResponse();
             return result;
@@ -277,11 +276,11 @@ namespace Steepshot.Core.Clients
         {
             var isConnected = await TryReconnectChain(ct);
             if (!isConnected)
-                return new OperationResult<VoidResponse>(new ValidateException(LocalizationKeys.EnableConnectToBlockchain));
+                return new OperationResult<VoidResponse>(new ValidationException(LocalizationKeys.EnableConnectToBlockchain));
 
             var keys = ToKeyArr(model.ActiveKey);
             if (keys == null)
-                return new OperationResult<VoidResponse>(new ValidateException(LocalizationKeys.WrongPrivateActimeKey));
+                return new OperationResult<VoidResponse>(new ValidationException(LocalizationKeys.WrongPrivateActimeKey));
 
             var result = new OperationResult<VoidResponse>();
 
@@ -297,7 +296,7 @@ namespace Steepshot.Core.Clients
             {
                 var vestsExchangeRatio = await GetVestsExchangeRatio(ct);
                 if (!vestsExchangeRatio.IsSuccess)
-                    return new OperationResult<VoidResponse>(vestsExchangeRatio.Error);
+                    return new OperationResult<VoidResponse>(vestsExchangeRatio.Exception);
 
                 asset = new Asset($"{(model.Value / vestsExchangeRatio.Result):F6} GESTS");
                 op = new WithdrawVestingOperation(model.From, asset);
@@ -305,7 +304,7 @@ namespace Steepshot.Core.Clients
 
             var resp = await _operationManager.BroadcastOperationsSynchronous(keys, ct, op);
             if (resp.IsError)
-                result.Error = new RequestException(resp);
+                result.Exception = new RequestException(resp);
             else
                 result.Result = new VoidResponse();
             return result;
@@ -324,11 +323,11 @@ namespace Steepshot.Core.Clients
         {
             var isConnected = await TryReconnectChain(ct);
             if (!isConnected)
-                return new OperationResult<string>(new ValidateException(LocalizationKeys.EnableConnectToBlockchain));
+                return new OperationResult<string>(new ValidationException(LocalizationKeys.EnableConnectToBlockchain));
 
             var keys = ToKeyArr(model.PostingKey);
             if (keys == null)
-                return new OperationResult<string>(new ValidateException(LocalizationKeys.WrongPrivatePostingKey));
+                return new OperationResult<string>(new ValidationException(LocalizationKeys.WrongPrivatePostingKey));
 
             var op = new FollowOperation(model.Login, "steepshot", Ditch.Golos.Models.FollowType.Blog, model.Login);
             var properties = new DynamicGlobalPropertyObject
@@ -349,16 +348,16 @@ namespace Steepshot.Core.Clients
                 switch (model.KeyRoleType)
                 {
                     case KeyRoleType.Active:
-                        return new OperationResult<VoidResponse>(new ValidateException(LocalizationKeys.WrongPrivateActimeKey));
+                        return new OperationResult<VoidResponse>(new ValidationException(LocalizationKeys.WrongPrivateActimeKey));
                     case KeyRoleType.Posting:
-                        return new OperationResult<VoidResponse>(new ValidateException(LocalizationKeys.WrongPrivatePostingKey));
+                        return new OperationResult<VoidResponse>(new ValidationException(LocalizationKeys.WrongPrivatePostingKey));
                 }
             }
 
             var isConnected = await TryReconnectChain(ct);
             if (!isConnected)
             {
-                return new OperationResult<VoidResponse>(new ValidateException(LocalizationKeys.EnableConnectToBlockchain));
+                return new OperationResult<VoidResponse>(new ValidationException(LocalizationKeys.EnableConnectToBlockchain));
             }
 
             var result = new OperationResult<VoidResponse>();
@@ -366,13 +365,13 @@ namespace Steepshot.Core.Clients
             var resp = await _operationManager.LookupAccountNames(new[] { model.Login }, CancellationToken.None);
             if (resp.IsError)
             {
-                result.Error = new RequestException(resp);
+                result.Exception = new RequestException(resp);
                 return result;
             }
 
             if (resp.Result.Length != 1 || resp.Result[0] == null)
             {
-                return new OperationResult<VoidResponse>(new ValidateException(LocalizationKeys.UnexpectedProfileData));
+                return new OperationResult<VoidResponse>(new ValidationException(LocalizationKeys.UnexpectedProfileData));
             }
 
             Authority authority;
@@ -397,9 +396,9 @@ namespace Steepshot.Core.Clients
             switch (model.KeyRoleType)
             {
                 case KeyRoleType.Active:
-                    return new OperationResult<VoidResponse>(new ValidateException(LocalizationKeys.WrongPrivateActimeKey));
+                    return new OperationResult<VoidResponse>(new ValidationException(LocalizationKeys.WrongPrivateActimeKey));
                 default:
-                    return new OperationResult<VoidResponse>(new ValidateException(LocalizationKeys.WrongPrivatePostingKey));
+                    return new OperationResult<VoidResponse>(new ValidationException(LocalizationKeys.WrongPrivatePostingKey));
             }
         }
 
@@ -407,29 +406,25 @@ namespace Steepshot.Core.Clients
         {
             var isConnected = await TryReconnectChain(ct);
             if (!isConnected)
-            {
-                return new OperationResult<AccountInfoResponse>(new ValidateException(LocalizationKeys.EnableConnectToBlockchain));
-            }
+                return new OperationResult<AccountInfoResponse>(new ValidationException(LocalizationKeys.EnableConnectToBlockchain));
 
             var result = new OperationResult<AccountInfoResponse>();
 
             var resp = await _operationManager.LookupAccountNames(new[] { userName }, CancellationToken.None);
             if (resp.IsError)
             {
-                result.Error = new RequestException(resp);
+                result.Exception = new RequestException(resp);
                 return result;
             }
 
             if (resp.Result.Length != 1 || resp.Result[0] == null)
-            {
-                return new OperationResult<AccountInfoResponse>(new ValidateException(LocalizationKeys.UnexpectedProfileData));
-            }
+                return new OperationResult<AccountInfoResponse>(new ValidationException(LocalizationKeys.UnexpectedProfileData));
 
             var acc = resp.Result[0];
 
             var vestsExchangeRatio = await GetVestsExchangeRatio(ct);
             if (!vestsExchangeRatio.IsSuccess)
-                return new OperationResult<AccountInfoResponse>(vestsExchangeRatio.Error);
+                return new OperationResult<AccountInfoResponse>(vestsExchangeRatio.Exception);
 
             var effectiveSp = (acc.VestingShares.ToDouble() + acc.ReceivedVestingShares.ToDouble() - acc.DelegatedVestingShares.ToDouble()) * vestsExchangeRatio.Result;
 
@@ -481,20 +476,20 @@ namespace Steepshot.Core.Clients
         {
             var isConnected = await TryReconnectChain(ct);
             if (!isConnected)
-                return new OperationResult<AccountHistoryResponse[]>(new ValidateException(LocalizationKeys.EnableConnectToBlockchain));
+                return new OperationResult<AccountHistoryResponse[]>(new ValidationException(LocalizationKeys.EnableConnectToBlockchain));
 
             var result = new OperationResult<AccountHistoryResponse[]>();
 
             var resp = await _operationManager.GetAccountHistory(userName, ulong.MaxValue, 1000, CancellationToken.None);
             if (resp.IsError)
             {
-                result.Error = new RequestException(resp);
+                result.Exception = new RequestException(resp);
                 return result;
             }
 
             var vestsExchangeRatio = await GetVestsExchangeRatio(ct);
             if (!vestsExchangeRatio.IsSuccess)
-                return new OperationResult<AccountHistoryResponse[]>(vestsExchangeRatio.Error);
+                return new OperationResult<AccountHistoryResponse[]>(vestsExchangeRatio.Exception);
 
             result.Result = resp.Result.Where(Filter).Select(pair => Transform(pair, vestsExchangeRatio.Result)).OrderByDescending(x => x.DateTime).ToArray();
             return result;

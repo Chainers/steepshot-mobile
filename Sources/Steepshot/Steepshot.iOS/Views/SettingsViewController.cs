@@ -4,7 +4,6 @@ using Foundation;
 using MessageUI;
 using PureLayout.Net;
 using Steepshot.Core.Models.Enums;
-using Steepshot.Core.Presenters;
 using Steepshot.Core.Services;
 using Steepshot.Core.Utils;
 using Steepshot.iOS.Cells;

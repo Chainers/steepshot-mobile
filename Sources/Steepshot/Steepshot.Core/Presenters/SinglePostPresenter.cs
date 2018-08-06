@@ -46,7 +46,7 @@ namespace Steepshot.Core.Presenters
 
                 NotifySourceChanged(sender, isAdded);
             }
-            return response.Error;
+            return response.Exception;
         }
     }
 }

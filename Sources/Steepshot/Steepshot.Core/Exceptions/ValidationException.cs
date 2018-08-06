@@ -1,9 +1,9 @@
 using System;
 using Steepshot.Core.Localization;
 
-namespace Steepshot.Core.Errors
+namespace Steepshot.Core.Exceptions
 {
-    public sealed class ValidateException : Exception
+    public sealed class ValidationException : Exception
     {
         public object[] Parameters { get; set; }
         public LocalizationKeys? Key { get; set; }
@@ -11,18 +11,18 @@ namespace Steepshot.Core.Errors
         public override string Message => ToString();
 
 
-        public ValidateException(string message)
+        public ValidationException(string message)
             : base(message)
         {
         }
 
-        public ValidateException(LocalizationKeys key, params object[] parameters)
+        public ValidationException(LocalizationKeys key, params object[] parameters)
         {
             Key = key;
             Parameters = parameters;
         }
 
-        public ValidateException(LocalizationKeys key)
+        public ValidationException(LocalizationKeys key)
         {
             Key = key;
         }

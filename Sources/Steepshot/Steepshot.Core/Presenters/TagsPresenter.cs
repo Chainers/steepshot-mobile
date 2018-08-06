@@ -51,7 +51,7 @@ namespace Steepshot.Core.Presenters
                     IsLastReaded = true;
                 NotifySourceChanged(nameof(TryLoadNext), true);
             }
-            return response.Error;
+            return response.Exception;
         }
 
         public async Task<Exception> TryGetTopTags()
@@ -86,7 +86,7 @@ namespace Steepshot.Core.Presenters
                     IsLastReaded = true;
                 NotifySourceChanged(nameof(TryGetTopTags), true);
             }
-            return response.Error;
+            return response.Exception;
         }
     }
 }

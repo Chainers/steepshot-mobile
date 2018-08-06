@@ -69,7 +69,7 @@ namespace Steepshot.Core.Presenters
                 CashPresenterManager.Add(UserProfileResponse);
                 NotifySourceChanged(nameof(TryGetUserInfo), true);
             }
-            return response.Error;
+            return response.Exception;
         }
 
 
@@ -97,7 +97,7 @@ namespace Steepshot.Core.Presenters
             if (response.IsSuccess)
                 userProfileResponse.HasFollowed = !hasFollowed;
 
-            return response.Error;
+            return response.Exception;
         }
 
 
@@ -125,7 +125,7 @@ namespace Steepshot.Core.Presenters
         private async Task<Exception> UpdateUserProfile(UpdateUserProfileModel model, CancellationToken ct)
         {
             var response = await Api.UpdateUserProfile(model, ct);
-            return response.Error;
+            return response.Exception;
         }
 
         public override void Clear(bool isNotify = true)

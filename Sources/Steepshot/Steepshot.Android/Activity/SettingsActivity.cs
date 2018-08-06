@@ -266,7 +266,7 @@ namespace Steepshot.Activity
             if (resp.IsSuccess)
                 AppSettings.User.PushSettings = PushSettings;
             else
-                this.ShowAlert(resp.Error);
+                this.ShowAlert(resp.Exception);
         }
 
         private void OnAdapterPickAccount(UserInfo userInfo)
