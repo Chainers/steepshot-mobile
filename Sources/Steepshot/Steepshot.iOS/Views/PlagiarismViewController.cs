@@ -54,21 +54,20 @@ namespace Steepshot.iOS.Views
 
         private void SetNavigationBar()
         {
-            //var leftBarButton = new UIBarButtonItem(UIImage.FromBundle("ic_back_arrow"), UIBarButtonItemStyle.Plain, GoBack);
-            //NavigationItem.LeftBarButtonItem = leftBarButton;
             var leftBarButton = new UIButton();
             leftBarButton.SetImage(UIImage.FromBundle("ic_back_arrow"), UIControlState.Normal);
             leftBarButton.SetTitle("Plagiarism check", UIControlState.Normal);
+            leftBarButton.ImageEdgeInsets = new UIEdgeInsets(0, 0, 0, 20);
+            leftBarButton.TitleEdgeInsets = new UIEdgeInsets(0, 20, 0, -20);
             leftBarButton.SetTitleColor(UIColor.Black, UIControlState.Normal);
             leftBarButton.SizeToFit();
+
             NavigationItem.LeftBarButtonItem = new UIBarButtonItem(leftBarButton);
 
             var guidelines = new UIBarButtonItem("Guidelines", UIBarButtonItemStyle.Plain, GoBack);
             NavigationItem.RightBarButtonItem = guidelines;
 
             NavigationController.NavigationBar.TintColor = Constants.R15G24B30;
-
-            //NavigationItem.Title = AppSettings.LocalizationManager.GetText("P");
             NavigationController.NavigationBar.Translucent = false;
         }
     }
