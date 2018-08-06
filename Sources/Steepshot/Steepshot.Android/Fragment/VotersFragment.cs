@@ -116,11 +116,11 @@ namespace Steepshot.Fragment
 
         private async void LoadNext()
         {
-            var error = await Presenter.TryLoadNextPostVoters(_url);
+            var exception = await Presenter.TryLoadNextPostVoters(_url);
             if (!IsInitialized)
                 return;
 
-            Context.ShowAlert(error, ToastLength.Short);
+            Context.ShowAlert(exception, ToastLength.Short);
             _bar.Visibility = ViewStates.Gone;
 
             _emptyQueryLabel.Visibility = Presenter.Count > 0 ? ViewStates.Invisible : ViewStates.Visible;
@@ -144,11 +144,11 @@ namespace Steepshot.Fragment
 
             if (AppSettings.User.HasPostingPermission)
             {
-                var error = await Presenter.TryFollow(userFriend);
+                var exception = await Presenter.TryFollow(userFriend);
                 if (!IsInitialized)
                     return;
 
-                Context.ShowAlert(error, ToastLength.Short);
+                Context.ShowAlert(exception, ToastLength.Short);
             }
             else
             {

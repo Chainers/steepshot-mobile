@@ -159,10 +159,10 @@ namespace Steepshot.Core.Presenters
         {
             item.FollowedChanging = true;
             NotifySourceChanged(nameof(TryFollow), true);
-            var error = await TryRunTask(Follow, OnDisposeCts.Token, item);
+            var exception = await TryRunTask(Follow, OnDisposeCts.Token, item);
             item.FollowedChanging = false;
             NotifySourceChanged(nameof(TryFollow), true);
-            return error;
+            return exception;
         }
 
         private async Task<Exception> Follow(UserFriend item, CancellationToken ct)

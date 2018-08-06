@@ -472,14 +472,14 @@ namespace Steepshot.Fragment
                     {
                         if (AppSettings.User.HasPostingPermission)
                         {
-                            var error = await Presenter.TryVote(post);
+                            var exception = await Presenter.TryVote(post);
                             if (!IsInitialized)
                                 return;
 
-                            if (error == null && Activity is RootActivity root)
+                            if (exception == null && Activity is RootActivity root)
                                 root.TryUpdateProfile();
 
-                            Context.ShowAlert(error);
+                            Context.ShowAlert(exception);
                         }
                         else
                         {
@@ -527,14 +527,14 @@ namespace Steepshot.Fragment
                         if (!AppSettings.User.HasPostingPermission)
                             return;
 
-                        var error = await Presenter.TryFlag(post);
+                        var exception = await Presenter.TryFlag(post);
                         if (!IsInitialized)
                             return;
 
-                        if (error == null && Activity is RootActivity root)
+                        if (exception == null && Activity is RootActivity root)
                             root.TryUpdateProfile();
 
-                        Context.ShowAlert(error);
+                        Context.ShowAlert(exception);
                         break;
                     }
                 case ActionType.Hide:
@@ -550,11 +550,11 @@ namespace Steepshot.Fragment
                     }
                 case ActionType.Delete:
                     {
-                        var error = await Presenter.TryDeletePost(post);
+                        var exception = await Presenter.TryDeletePost(post);
                         if (!IsInitialized)
                             return;
 
-                        Context.ShowAlert(error);
+                        Context.ShowAlert(exception);
                         break;
                     }
                 case ActionType.Share:
@@ -587,21 +587,21 @@ namespace Steepshot.Fragment
                 Presenter.Clear();
             }
 
-            Exception error;
+            Exception exception;
             if (string.IsNullOrEmpty(tag))
-                error = await Presenter.TryLoadNextTopPosts();
+                exception = await Presenter.TryLoadNextTopPosts();
             else
-                error = await Presenter.TryGetSearchedPosts();
+                exception = await Presenter.TryGetSearchedPosts();
 
             if (!IsInitialized)
                 return;
 
-            if (error is OperationCanceledException)
+            if (exception is OperationCanceledException)
                 return;
 
-            Context.ShowAlert(error, ToastLength.Short);
+            Context.ShowAlert(exception, ToastLength.Short);
 
-            if (error == null)
+            if (exception == null)
             {
                 _refresher.Refreshing = false;
                 _spinner.Visibility = ViewStates.Gone;

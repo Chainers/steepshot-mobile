@@ -105,8 +105,8 @@ namespace Steepshot.CustomViews
 
             _claimBtn.Text = string.Empty;
             _claimSpinner.Visibility = ViewStates.Visible;
-            var error = await Claim.Invoke(_balance);
-            if (error == null)
+            var exception = await Claim.Invoke(_balance);
+            if (exception == null)
             {
                 Context.ShowAlert(LocalizationKeys.TransferSuccess);
                 Dismiss();
@@ -115,7 +115,7 @@ namespace Steepshot.CustomViews
             {
                 _claimBtn.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.ClaimRewards);
                 _claimSpinner.Visibility = ViewStates.Gone;
-                Context.ShowAlert(error);
+                Context.ShowAlert(exception);
             }
         }
 

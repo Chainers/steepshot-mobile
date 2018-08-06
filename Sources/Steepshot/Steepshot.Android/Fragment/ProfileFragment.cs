@@ -372,11 +372,11 @@ namespace Steepshot.Fragment
             if (isRefresh)
                 Presenter.Clear();
 
-            var error = await Presenter.TryLoadNextPosts();
+            var exception = await Presenter.TryLoadNextPosts();
             if (!IsInitialized)
                 return;
 
-            Context.ShowAlert(error, ToastLength.Short);
+            Context.ShowAlert(exception, ToastLength.Short);
             _listSpinner.Visibility = ViewStates.Gone;
         }
 
@@ -505,11 +505,11 @@ namespace Steepshot.Fragment
         {
             do
             {
-                var error = await Presenter.TryGetUserInfo(_profileId);
+                var exception = await Presenter.TryGetUserInfo(_profileId);
                 if (!IsInitialized)
                     return;
 
-                if (error == null || error is System.OperationCanceledException)
+                if (exception == null || exception is System.OperationCanceledException)
                 {
                     _listLayout.Visibility = ViewStates.Visible;
                     _more.Enabled = true;
@@ -517,7 +517,7 @@ namespace Steepshot.Fragment
                     break;
                 }
 
-                Context.ShowAlert(error, ToastLength.Short);
+                Context.ShowAlert(exception, ToastLength.Short);
                 await Task.Delay(5000);
                 if (!IsInitialized)
                     return;
@@ -556,11 +556,11 @@ namespace Steepshot.Fragment
                 case ActionType.Follow:
                     if (AppSettings.User.HasPostingPermission)
                     {
-                        var error = await Presenter.TryFollow();
+                        var exception = await Presenter.TryFollow();
                         if (!IsInitialized)
                             return;
 
-                        Context.ShowAlert(error, ToastLength.Long);
+                        Context.ShowAlert(exception, ToastLength.Long);
                     }
                     else
                     {
@@ -588,11 +588,11 @@ namespace Steepshot.Fragment
                     {
                         if (AppSettings.User.HasPostingPermission)
                         {
-                            var error = await Presenter.TryVote(post);
+                            var exception = await Presenter.TryVote(post);
                             if (!IsInitialized)
                                 return;
 
-                            Context.ShowAlert(error);
+                            Context.ShowAlert(exception);
                         }
                         else
                             OpenLogin();
@@ -638,11 +638,11 @@ namespace Steepshot.Fragment
                         if (!AppSettings.User.HasPostingPermission)
                             return;
 
-                        var error = await Presenter.TryFlag(post);
+                        var exception = await Presenter.TryFlag(post);
                         if (!IsInitialized)
                             return;
 
-                        Context.ShowAlert(error);
+                        Context.ShowAlert(exception);
                         break;
                     }
                 case ActionType.Hide:
@@ -658,10 +658,10 @@ namespace Steepshot.Fragment
                     }
                 case ActionType.Delete:
                     {
-                        var error = await Presenter.TryDeletePost(post);
+                        var exception = await Presenter.TryDeletePost(post);
                         if (!IsInitialized)
                             return;
-                        Context.ShowAlert(error);
+                        Context.ShowAlert(exception);
                         break;
                     }
                 case ActionType.Share:

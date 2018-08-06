@@ -62,12 +62,12 @@ namespace Steepshot.iOS.Views
 
             Activeview = searchText;
 
-            var error = await _presenter.TryGetTopTags();
+            var exception = await _presenter.TryGetTopTags();
 
-            if (error == null)
+            if (exception == null)
                 tagsTable.ReloadData();
 
-            ShowAlert(error);
+            ShowAlert(exception);
         }
 
         private void TableTagSelected(int row)
@@ -95,19 +95,19 @@ namespace Steepshot.iOS.Views
                 return;
 
             _presenter.Clear();
-            Exception error;
+            Exception exception;
             if (string.IsNullOrEmpty(query))
             {
-                error = await _presenter.TryGetTopTags();
+                exception = await _presenter.TryGetTopTags();
             }
             else
             {
-                error = await _presenter.TryLoadNext(query);
+                exception = await _presenter.TryLoadNext(query);
             }
 
-            if (error == null)
+            if (exception == null)
                 tagsTable.ReloadData();
-            ShowAlert(error);
+            ShowAlert(exception);
         }
 
         private void AddTags(object sender, EventArgs e)

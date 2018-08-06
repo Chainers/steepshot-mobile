@@ -185,8 +185,8 @@ namespace Steepshot.Fragment
         {
             var currAcc = Presenter.Current;
             Presenter.SetClient(currAcc?.Chain == Core.KnownChains.Steem ? App.SteemClient : App.GolosClient);
-            var error = await Presenter.TryLoadNextAccountInfo();
-            if (error == null && IsInitialized && !IsDetached)
+            var exception = await Presenter.TryLoadNextAccountInfo();
+            if (exception == null && IsInitialized && !IsDetached)
                 Activity.RunOnUiThread(() =>
                 {
                     WalletPagerAdapter?.NotifyDataSetChanged();
@@ -239,8 +239,8 @@ namespace Steepshot.Fragment
 
         private async void TryUpdateBalance(BalanceModel balance)
         {
-            var error = await Presenter.TryUpdateAccountInfo(balance.UserInfo);
-            if (error == null)
+            var exception = await Presenter.TryUpdateAccountInfo(balance.UserInfo);
+            if (exception == null)
             {
                 WalletPagerAdapter.NotifyItemChanged(_walletPager.CurrentItem);
                 TrxHistoryAdapter.SetAccountHistory(balance.UserInfo.AccountHistory);
@@ -274,14 +274,14 @@ namespace Steepshot.Fragment
 
         private async Task<Exception> Claim(BalanceModel balance)
         {
-            var error = await Presenter.TryClaimRewards(balance);
-            if (error == null)
+            var exception = await Presenter.TryClaimRewards(balance);
+            if (exception == null)
             {
                 TryUpdateBalance(balance);
                 return null;
             }
 
-            return error;
+            return exception;
         }
 
         private void OnPageTransforming(TokenCardHolder fromCard, TokenCardHolder toCard, float progress)

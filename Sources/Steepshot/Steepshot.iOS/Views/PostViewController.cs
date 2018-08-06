@@ -49,12 +49,12 @@ namespace Steepshot.iOS.Views
         {
             if (!string.IsNullOrEmpty(_url))
             {
-                var error = await _presenter.TryLoadPostInfo(_url);
+                var exception = await _presenter.TryLoadPostInfo(_url);
                 loader.StopAnimating();
-                ShowAlert(error,(UIAlertAction obj) =>
-                {
-                    NavigationController.PopViewController(true);
-                });
+                ShowAlert(exception, (UIAlertAction obj) =>
+                 {
+                     NavigationController.PopViewController(true);
+                 });
             }
         }
 

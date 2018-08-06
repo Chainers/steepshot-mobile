@@ -33,15 +33,15 @@ namespace Steepshot.Core.Presenters
                 ShowLowRated = AppSettings.User.IsLowRated
             };
 
-            Exception error;
+            Exception exception;
             bool isNeedRepeat;
             do
             {
                 var response = await Api.GetPosts(request, ct);
-                isNeedRepeat = ResponseProcessing(response, ItemsLimit, out error, nameof(TryLoadNextTopPosts));
+                isNeedRepeat = ResponseProcessing(response, ItemsLimit, out exception, nameof(TryLoadNextTopPosts));
             } while (isNeedRepeat);
 
-            return error;
+            return exception;
         }
 
         public async Task<Exception> TryGetSearchedPosts()
@@ -63,15 +63,15 @@ namespace Steepshot.Core.Presenters
                 ShowLowRated = AppSettings.User.IsLowRated
             };
 
-            Exception error;
+            Exception exception;
             bool isNeedRepeat;
             do
             {
                 var response = await Api.GetPostsByCategory(request, ct);
-                isNeedRepeat = ResponseProcessing(response, ItemsLimit, out error, nameof(TryGetSearchedPosts));
+                isNeedRepeat = ResponseProcessing(response, ItemsLimit, out exception, nameof(TryGetSearchedPosts));
             } while (isNeedRepeat);
 
-            return error;
+            return exception;
         }
     }
 }

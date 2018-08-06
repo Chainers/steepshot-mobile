@@ -189,18 +189,18 @@ namespace Steepshot.Fragment
 
         private async void LoadPosts()
         {
-            var error = await Presenter.TryLoadNextTopPosts();
+            var exception = await Presenter.TryLoadNextTopPosts();
             if (!IsInitialized)
                 return;
 
-            Context.ShowAlert(error, ToastLength.Short);
+            Context.ShowAlert(exception, ToastLength.Short);
 
             _bar.Visibility = ViewStates.Gone;
             _refresher.Refreshing = false;
 
             _feedContainer.Visibility = ViewStates.Invisible;
 
-            if (error == null && Presenter.Count == 0)
+            if (exception == null && Presenter.Count == 0)
             {
                 _feedContainer.Visibility = ViewStates.Visible;
             }
@@ -241,14 +241,14 @@ namespace Steepshot.Fragment
                         if (!AppSettings.User.HasPostingPermission)
                             return;
 
-                        var error = await Presenter.TryVote(post);
+                        var exception = await Presenter.TryVote(post);
                         if (!IsInitialized)
                             return;
 
-                        if (error == null && Activity is RootActivity root)
+                        if (exception == null && Activity is RootActivity root)
                             root.TryUpdateProfile();
 
-                        Context.ShowAlert(error);
+                        Context.ShowAlert(exception);
                         break;
                     }
                 case ActionType.VotersLikes:
@@ -285,14 +285,14 @@ namespace Steepshot.Fragment
                         if (!AppSettings.User.HasPostingPermission)
                             return;
 
-                        var error = await Presenter.TryFlag(post);
+                        var exception = await Presenter.TryFlag(post);
                         if (!IsInitialized)
                             return;
 
-                        if (error == null && Activity is RootActivity root)
+                        if (exception == null && Activity is RootActivity root)
                             root.TryUpdateProfile();
 
-                        Context.ShowAlert(error);
+                        Context.ShowAlert(exception);
                         break;
                     }
                 case ActionType.Hide:
@@ -302,11 +302,11 @@ namespace Steepshot.Fragment
                     }
                 case ActionType.Delete:
                     {
-                        var error = await Presenter.TryDeletePost(post);
+                        var exception = await Presenter.TryDeletePost(post);
                         if (!IsInitialized)
                             return;
 
-                        Context.ShowAlert(error);
+                        Context.ShowAlert(exception);
                         break;
                     }
                 case ActionType.Share:

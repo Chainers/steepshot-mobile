@@ -24,17 +24,17 @@ namespace Steepshot.Core.Presenters
                 Login = AppSettings.User.Login
             };
 
-            Exception error;
+            Exception exception;
             var isNeedClearItems = true;
             bool isNeedRepeat;
             do
             {
                 var response = await Api.GetComments(request, ct);
-                isNeedRepeat = ResponseProcessing(response, ItemsLimit, out error, nameof(TryLoadNextComments), isNeedClearItems, true);
+                isNeedRepeat = ResponseProcessing(response, ItemsLimit, out exception, nameof(TryLoadNextComments), isNeedClearItems, true);
                 isNeedClearItems = false;
             } while (isNeedRepeat);
 
-            return error;
+            return exception;
         }
 
         public async Task<OperationResult<VoidResponse>> TryCreateComment(Post parentPost, string body)
