@@ -391,6 +391,7 @@ namespace Steepshot.iOS.Cells
             Frame = new CGRect(0, 0, UIScreen.MainScreen.Bounds.Width, balanceContainer.Frame.Bottom);
             return balanceContainer.Frame.Bottom;
 #else
+            Frame = new CGRect(0, 0, UIScreen.MainScreen.Bounds.Width, statsContainer.Frame.Bottom + verticalSpacing);
             return statsContainer.Frame.Bottom + verticalSpacing;
 #endif
         }
