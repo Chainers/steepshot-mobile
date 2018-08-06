@@ -215,11 +215,11 @@ namespace Steepshot.Fragment
             if (userFriend == null)
                 return;
 
-            var error = await _searchFacade.UserFriendPresenter.TryFollow(userFriend);
+            var exception = await _searchFacade.UserFriendPresenter.TryFollow(userFriend);
             if (!IsInitialized)
                 return;
 
-            Context.ShowAlert(error);
+            Context.ShowAlert(exception);
         }
 
         private void OnTimer(object state)
@@ -268,11 +268,11 @@ namespace Steepshot.Fragment
                     _tagSpinner.Visibility = ViewStates.Visible;
             }
 
-            var error = await _searchFacade.TrySearchCategories(_searchView.Text, _searchType);
+            var exception = await _searchFacade.TrySearchCategories(_searchView.Text, _searchType);
             if (!IsInitialized)
                 return;
             CheckQueryIsEmpty();
-            Context.ShowAlert(error, ToastLength.Short);
+            Context.ShowAlert(exception, ToastLength.Short);
         }
 
         private void CheckQueryIsEmpty()

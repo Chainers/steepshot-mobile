@@ -27,9 +27,9 @@ namespace Steepshot.Core.Presenters
             if (post == null)
                 return null;
 
-            var error = await TryRunTask(DeletePost, OnDisposeCts.Token, post);
+            var exception = await TryRunTask(DeletePost, OnDisposeCts.Token, post);
             NotifySourceChanged(nameof(TryDeletePost), true);
-            return error;
+            return exception;
         }
 
         private async Task<Exception> DeletePost(Post post, CancellationToken ct)
@@ -52,9 +52,9 @@ namespace Steepshot.Core.Presenters
             if (post == null || parentPost == null)
                 return null;
 
-            var error = await TryRunTask(DeleteComment, OnDisposeCts.Token, post, parentPost);
+            var exception = await TryRunTask(DeleteComment, OnDisposeCts.Token, post, parentPost);
             NotifySourceChanged(nameof(TryDeletePost), true);
-            return error;
+            return exception;
         }
 
         private async Task<Exception> DeleteComment(Post post, Post parentPost, CancellationToken ct)
@@ -77,9 +77,9 @@ namespace Steepshot.Core.Presenters
                 return null;
 
             var model = new CreateOrEditCommentModel(userInfo, parentPost, post, body, appInfo);
-            var error = await TryRunTask(EditComment, OnDisposeCts.Token, model, post);
+            var exception = await TryRunTask(EditComment, OnDisposeCts.Token, model, post);
             NotifySourceChanged(nameof(TryEditComment), true);
-            return error;
+            return exception;
         }
 
         private async Task<Exception> EditComment(CreateOrEditCommentModel model, Post post, CancellationToken ct)
@@ -104,9 +104,9 @@ namespace Steepshot.Core.Presenters
             NotifySourceChanged(nameof(HidePost), true);
         }
 
-        protected bool ResponseProcessing(OperationResult<ListResponse<Post>> response, int itemsLimit, out Exception error, string sender, bool isNeedClearItems = false, bool enableEmptyMedia = false)
+        protected bool ResponseProcessing(OperationResult<ListResponse<Post>> response, int itemsLimit, out Exception exception, string sender, bool isNeedClearItems = false, bool enableEmptyMedia = false)
         {
-            error = null;
+            exception = null;
             if (response == null)
                 return false;
 
@@ -151,7 +151,7 @@ namespace Steepshot.Core.Presenters
                 if (results.Count < Math.Min(ServerMaxCount, itemsLimit))
                     IsLastReaded = true;
             }
-            error = response.Exception;
+            exception = response.Exception;
             return false;
         }
 
@@ -190,13 +190,13 @@ namespace Steepshot.Core.Presenters
             IsEnableVote = false;
             NotifySourceChanged(nameof(TryVote), true);
 
-            var error = await TryRunTask(Vote, OnDisposeCts.Token, post);
+            var exception = await TryRunTask(Vote, OnDisposeCts.Token, post);
 
             post.VoteChanging = false;
             IsEnableVote = true;
             NotifySourceChanged(nameof(TryVote), true);
 
-            return error;
+            return exception;
         }
 
         private async Task<Exception> Vote(Post post, CancellationToken ct)
@@ -249,13 +249,13 @@ namespace Steepshot.Core.Presenters
             IsEnableVote = false;
             NotifySourceChanged(nameof(TryFlag), true);
 
-            var error = await TryRunTask(Flag, OnDisposeCts.Token, post);
+            var exception = await TryRunTask(Flag, OnDisposeCts.Token, post);
 
             post.FlagChanging = false;
             IsEnableVote = true;
             NotifySourceChanged(nameof(TryFlag), true);
 
-            return error;
+            return exception;
         }
 
         private async Task<Exception> Flag(Post post, CancellationToken ct)

@@ -29,15 +29,15 @@ namespace Steepshot.Core.Presenters
                 ShowLowRated = AppSettings.User.IsLowRated
             };
 
-            Exception error;
+            Exception exception;
             bool isNeedRepeat;
             do
             {
                 var response = await Api.GetUserRecentPosts(request, ct);
-                isNeedRepeat = ResponseProcessing(response, ItemsLimit, out error, nameof(TryLoadNextTopPosts));
+                isNeedRepeat = ResponseProcessing(response, ItemsLimit, out exception, nameof(TryLoadNextTopPosts));
             } while (isNeedRepeat);
 
-            return error;
+            return exception;
         }
     }
 }

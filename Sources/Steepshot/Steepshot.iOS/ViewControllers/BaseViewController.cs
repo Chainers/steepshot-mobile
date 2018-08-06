@@ -252,24 +252,24 @@ namespace Steepshot.iOS.ViewControllers
             });
         }
 
-        protected void ShowAlert(Exception error, Action<UIAlertAction> okAction = null)
+        protected void ShowAlert(Exception exception, Action<UIAlertAction> okAction = null)
         {
-            if (IsSkeepError(error))
+            if (IsSkeepError(exception))
                 return;
 
-            var message = GetMsg(error);
+            var message = GetMsg(exception);
 
             var alert = UIAlertController.Create(null, message, UIAlertControllerStyle.Alert);
             alert.AddAction(UIAlertAction.Create(AppSettings.LocalizationManager.GetText(LocalizationKeys.Ok), UIAlertActionStyle.Cancel, okAction));
             PresentViewController(alert, true, null);
         }
 
-        protected void ShowDialog(Exception error, LocalizationKeys leftButtonText, LocalizationKeys rightButtonText, Action<UIAlertAction> leftButtonAction = null, Action<UIAlertAction> rightButtonAction = null)
+        protected void ShowDialog(Exception exception, LocalizationKeys leftButtonText, LocalizationKeys rightButtonText, Action<UIAlertAction> leftButtonAction = null, Action<UIAlertAction> rightButtonAction = null)
         {
-            if (IsSkeepError(error))
+            if (IsSkeepError(exception))
                 return;
 
-            var message = GetMsg(error);
+            var message = GetMsg(exception);
 
             var alert = UIAlertController.Create(null, message, UIAlertControllerStyle.Alert);
             alert.AddAction(UIAlertAction.Create(AppSettings.LocalizationManager.GetText(leftButtonText), UIAlertActionStyle.Cancel, leftButtonAction));
@@ -277,40 +277,40 @@ namespace Steepshot.iOS.ViewControllers
             PresentViewController(alert, true, null);
         }
 
-        private static string GetMsg(Exception error)
+        private static string GetMsg(Exception exception)
         {
             var lm = AppSettings.LocalizationManager;
           
-            if (error is ValidationException validationException)
+            if (exception is ValidationException validationException)
                 return lm.GetText(validationException);
 
 
-            AppSettings.Logger.Error(error);
+            AppSettings.Logger.Error(exception);
             var msg = string.Empty;
 
-            if (error is InternalException internalError)
+            if (exception is InternalException internalException)
             {
-                msg = lm.GetText(internalError.Key);
+                msg = lm.GetText(internalException.Key);
             }
-            else if (error is RequestException requestException)
+            else if (exception is RequestException requestException)
             {
                 if (!string.IsNullOrEmpty(requestException.RawResponse))
                     msg = lm.GetText(requestException.RawResponse);
             }
             else
             {
-                msg = lm.GetText(error.Message);
+                msg = lm.GetText(exception.Message);
             }
 
             return string.IsNullOrEmpty(msg) ? lm.GetText(LocalizationKeys.UnexpectedError) : msg;
         }
 
-        private static bool IsSkeepError(Exception error)
+        private static bool IsSkeepError(Exception exception)
         {
-            if (error == null || error is TaskCanceledException || error is OperationCanceledException)
+            if (exception == null || exception is TaskCanceledException || exception is OperationCanceledException)
                 return true;
 
-            if (error is RequestException requestException)
+            if (exception is RequestException requestException)
             {
                 if (requestException.Exception is TaskCanceledException || requestException.Exception is OperationCanceledException)
                     return true;
