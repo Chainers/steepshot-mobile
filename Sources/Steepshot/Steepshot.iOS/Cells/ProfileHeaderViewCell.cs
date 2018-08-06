@@ -205,6 +205,7 @@ namespace Steepshot.iOS.Cells
             #region balance
 
             balanceContainer = new UIView();
+            balanceContainer.UserInteractionEnabled = true;
 
             var topSeparator = new UIView();
             var bottomSeparator = new UIView();
@@ -237,11 +238,16 @@ namespace Steepshot.iOS.Cells
             balanceContainer.AddSubview(balanceArrow);
             balanceContainer.AddSubview(balance);
 
-            //contentView.AddSubview(balanceContainer);
-
+            UITapGestureRecognizer balanceTap = new UITapGestureRecognizer(() =>
+            {
+                ProfileAction?.Invoke(ActionType.Balance);
+            });
+            balanceContainer.AddGestureRecognizer(balanceTap);
+#if DEBUG
+            AddSubview(balanceContainer);
+#endif
             #endregion
 
-            // without balance container
             AddSubview(bottomSeparator);
 
             #region constraints
@@ -267,8 +273,7 @@ namespace Steepshot.iOS.Cells
 
             followProgress.AutoAlignAxis(ALAxis.Horizontal, followButton);
             followProgress.AutoAlignAxis(ALAxis.Vertical, followButton);
-
-            /*
+#if DEBUG
             balanceImage.AutoSetDimensionsToSize(new CGSize(10, 10));
             balanceImage.AutoPinEdgeToSuperviewEdge(ALEdge.Left, mainMargin);
             balanceImage.AutoAlignAxisToSuperviewAxis(ALAxis.Horizontal);
@@ -279,8 +284,7 @@ namespace Steepshot.iOS.Cells
             balanceArrow.AutoAlignAxisToSuperviewAxis(ALAxis.Horizontal);
             balance.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 55);
             balance.AutoAlignAxisToSuperviewAxis(ALAxis.Horizontal);
-            */
-
+#endif
             firstSpacing.AutoSetDimension(ALDimension.Width, 48);
             secondSpacing.AutoSetDimension(ALDimension.Width, 48);
 
@@ -293,7 +297,7 @@ namespace Steepshot.iOS.Cells
         {
             if (userData == null)
                 return 0;
-            
+
             descriptionY = topViewHeight + mainMargin + verticalSpacing;
 
             _userData = userData;
@@ -302,7 +306,7 @@ namespace Steepshot.iOS.Cells
                 ImageLoader.Load(_userData.ProfileImage, avatar, size: new CGSize(300, 300));
             else
                 avatar.Image = UIImage.FromBundle("ic_noavatar");
-            
+
             if (_userData.Username == AppSettings.User.Login)
                 powerFrame.ChangePercents((int)_userData.VotingPower);
             else
@@ -380,14 +384,16 @@ namespace Steepshot.iOS.Cells
                                          new CGSize(UIScreen.MainScreen.Bounds.Width - mainMargin * 2, 45));
 
             SetupStats();
+#if DEBUG
+            balanceContainer.Frame = new CGRect(new CGPoint(0, statsContainer.Frame.Bottom + verticalSpacing),
+                                                new CGSize(UIScreen.MainScreen.Bounds.Width, 70));
+            balance.Text = $"$ {userData.EstimatedBalance}";
 
-            //balanceContainer.Frame = new CGRect(new CGPoint(0, statsContainer.Frame.Bottom + verticalSpacing),
-            //                                    new CGSize(UIScreen.MainScreen.Bounds.Width, 70));
-            //balance.Text = $"$ {userData.EstimatedBalance}";
-
-            this.Frame = new CGRect(0, 0, UIScreen.MainScreen.Bounds.Width, statsContainer.Frame.Bottom + verticalSpacing);
-
+            Frame = new CGRect(0, 0, UIScreen.MainScreen.Bounds.Width, balanceContainer.Frame.Bottom);
+            return balanceContainer.Frame.Bottom;
+#else
             return statsContainer.Frame.Bottom + verticalSpacing;
+#endif
         }
 
         private void SetupStats()

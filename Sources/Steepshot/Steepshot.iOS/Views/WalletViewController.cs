@@ -22,7 +22,7 @@ namespace Steepshot.iOS.Views
         {
             base.ViewDidLoad();
             View.BackgroundColor = Constants.R250G250B250;
-
+            View.ClipsToBounds = true;
 
             /*
             var _sendButton = new UIButton();
