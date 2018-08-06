@@ -294,12 +294,13 @@ namespace Steepshot.iOS.Cells
 
         public nfloat UpdateProfile(UserProfileResponse userData)
         {
-            if (userData == null)
+            if (userData == null && _userData == null)
                 return 0;
 
             descriptionY = topViewHeight + mainMargin + verticalSpacing;
 
-            _userData = userData;
+            if(userData != null)
+                _userData = userData;
 
             if (!string.IsNullOrEmpty(_userData.ProfileImage))
                 ImageLoader.Load(_userData.ProfileImage, avatar, size: new CGSize(300, 300));
@@ -333,7 +334,7 @@ namespace Steepshot.iOS.Cells
                                                 new CGSize(UIScreen.MainScreen.Bounds.Width - mainMargin * 2, 40));
                 descriptionY += verticalSpacing + 40;
 
-                DecorateFollowButton(_userData.HasFollowed, _userData.Username);
+                DecorateFollowButton();
             }
             else
             {
@@ -386,7 +387,7 @@ namespace Steepshot.iOS.Cells
 #if DEBUG
             balanceContainer.Frame = new CGRect(new CGPoint(0, statsContainer.Frame.Bottom + verticalSpacing),
                                                 new CGSize(UIScreen.MainScreen.Bounds.Width, 70));
-            balance.Text = $"$ {userData.EstimatedBalance}";
+            balance.Text = $"$ {_userData.EstimatedBalance}";
 
             Frame = new CGRect(0, 0, UIScreen.MainScreen.Bounds.Width, balanceContainer.Frame.Bottom);
             return balanceContainer.Frame.Bottom;
@@ -462,7 +463,7 @@ namespace Steepshot.iOS.Cells
             avatar.AddGestureRecognizer(avatarTap);
         }
 
-        public void DecorateFollowButton(bool? hasFollowed, string currentUsername)
+        public void DecorateFollowButton()
         {
             followButton.Hidden = false;
             followButton.Layer.CornerRadius = 20;
@@ -470,7 +471,7 @@ namespace Steepshot.iOS.Cells
 
             BringSubviewToFront(followProgress);
 
-            if (hasFollowed == null)
+            if (_userData.FollowedChanging)
             {
                 followButton.Selected = false;
                 followButton.Enabled = false;
@@ -481,11 +482,11 @@ namespace Steepshot.iOS.Cells
             else
             {
                 followButton.Enabled = true;
-                followButton.Selected = hasFollowed.Value;
+                followButton.Selected = _userData.HasFollowed;
                 followProgress.StopAnimating();
                 followProgress.Hidden = true;
 
-                if (hasFollowed.Value)
+                if (_userData.HasFollowed)
                 {
                     Helpers.Constants.RemoveGradient(followButton);
                     followButton.Layer.BorderWidth = 1;

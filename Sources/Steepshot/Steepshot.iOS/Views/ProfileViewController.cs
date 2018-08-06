@@ -466,11 +466,11 @@ namespace Steepshot.iOS.Views
 
         private async Task Follow()
         {
-            _gridDelegate.profileCell.DecorateFollowButton(null, Username);
+            _gridDelegate.profileCell.DecorateFollowButton();
             var exception = await _presenter.TryFollow();
 
             if (exception == null)
-                _gridDelegate.profileCell.DecorateFollowButton(_userData.HasFollowed, Username);
+                _gridDelegate.profileCell.DecorateFollowButton();
             else
                 ShowAlert(exception);
         }
