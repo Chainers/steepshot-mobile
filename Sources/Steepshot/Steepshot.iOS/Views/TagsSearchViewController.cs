@@ -12,7 +12,6 @@ using UIKit;
 using Steepshot.Core.Utils;
 using System.Threading.Tasks;
 using Steepshot.Core;
-using Constants = Steepshot.iOS.Helpers.Constants;
 using Steepshot.Core.Errors;
 
 namespace Steepshot.iOS.Views
@@ -116,7 +115,7 @@ namespace Steepshot.iOS.Views
         {
             NavigationItem.Title = "Search";
             var leftBarButton = new UIBarButtonItem(UIImage.FromBundle("ic_back_arrow"), UIBarButtonItemStyle.Plain, GoBack);
-            leftBarButton.TintColor = Constants.R15G24B30;
+            leftBarButton.TintColor = Helpers.Constants.R15G24B30;
             NavigationItem.LeftBarButtonItem = leftBarButton;
         }
 

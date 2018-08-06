@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<io.supercharge.shimmerlayout.ShimmerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/shimmer_container"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingTop="32dp"
+        android:paddingLeft="23dp"
+        android:background="@drawable/grey_rounded_border16dip">
+        <io.supercharge.shimmerlayout.ShimmerLayout
+            android:id="@+id/shimmer_balance_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <View
+                android:layout_width="100dp"
+                android:layout_height="10dp"
+                android:background="@drawable/white_shimmer_bg" />
+        </io.supercharge.shimmerlayout.ShimmerLayout>
+        <io.supercharge.shimmerlayout.ShimmerLayout
+            android:id="@+id/shimmer_balance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp">
+            <View
+                android:layout_width="170dp"
+                android:layout_height="40dp"
+                android:background="@drawable/white_shimmer_bg" />
+        </io.supercharge.shimmerlayout.ShimmerLayout>
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="25dp">
+            <io.supercharge.shimmerlayout.ShimmerLayout
+                android:id="@+id/shimmer_token_balance_title1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+                <View
+                    android:layout_width="50dp"
+                    android:layout_height="10dp"
+                    android:background="@drawable/white_shimmer_bg" />
+            </io.supercharge.shimmerlayout.ShimmerLayout>
+            <io.supercharge.shimmerlayout.ShimmerLayout
+                android:id="@+id/shimmer_token_balance1"
+                android:layout_below="@+id/shimmer_token_balance_title1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp">
+                <View
+                    android:layout_width="100dp"
+                    android:layout_height="20dp"
+                    android:background="@drawable/white_shimmer_bg" />
+            </io.supercharge.shimmerlayout.ShimmerLayout>
+            <io.supercharge.shimmerlayout.ShimmerLayout
+                android:id="@+id/shimmer_token_balance_title2"
+                android:layout_toRightOf="@id/shimmer_token_balance1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="40dp">
+                <View
+                    android:layout_width="50dp"
+                    android:layout_height="10dp"
+                    android:background="@drawable/white_shimmer_bg" />
+            </io.supercharge.shimmerlayout.ShimmerLayout>
+            <io.supercharge.shimmerlayout.ShimmerLayout
+                android:id="@+id/shimmer_token_balance2"
+                android:layout_below="@+id/shimmer_token_balance_title2"
+                android:layout_alignLeft="@id/shimmer_token_balance_title2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp">
+                <View
+                    android:layout_width="100dp"
+                    android:layout_height="20dp"
+                    android:background="@drawable/white_shimmer_bg" />
+            </io.supercharge.shimmerlayout.ShimmerLayout>
+        </RelativeLayout>
+    </LinearLayout>
+</io.supercharge.shimmerlayout.ShimmerLayout>

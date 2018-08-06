@@ -7,10 +7,10 @@ namespace Steepshot.CustomViews
 {
     public class CoordinatorLinearLayout : LinearLayout, ICoordinatorListener
     {
-        private const int WHOLE_STATE = 0;
-        private const int COLLAPSE_STATE = 1;
+        private const int WholeState = 0;
+        private const int CollapseState = 1;
         private static int DEFAULT_DURATION = 500;
-        private int _state = WHOLE_STATE;
+        private int _state = WholeState;
         private int _topBarHeight;
         private int _topViewHeight;
         private int _minScrollToTop;
@@ -56,10 +56,11 @@ namespace Steepshot.CustomViews
                 case MotionEventActions.Down:
                     int y = (int)e.GetY();
                     _lastPositionY = y;
-                    if (_state == COLLAPSE_STATE && y < _topBarHeight)
+                    if (_state == CollapseState && y < _topBarHeight)
                         return true;
                     break;
             }
+
             return base.OnInterceptTouchEvent(e);
         }
 
@@ -73,7 +74,7 @@ namespace Steepshot.CustomViews
                     break;
                 case MotionEventActions.Move:
                     int deltaY = (int)(_lastPositionY - y);
-                    if (_state == COLLAPSE_STATE && deltaY < 0)
+                    if (_state == CollapseState && deltaY < 0)
                     {
                         _beingDragged = true;
                         ScrollY = _maxScrollDistance + deltaY;
@@ -94,13 +95,16 @@ namespace Steepshot.CustomViews
         public bool IsBeingDragged => _beingDragged;
         public bool OnCoordinateScroll(int x, int y, int deltaX, int deltaY, bool isScrollToTop)
         {
-            if (y < _topViewHeight && _state == WHOLE_STATE && ScrollY < _maxScrollDistance)
+            if (!Enabled)
+                return true;
+
+            if (y < _topViewHeight && _state == WholeState && ScrollY < _maxScrollDistance)
             {
                 _beingDragged = true;
                 ScrollY = _topViewHeight - y;
                 return true;
             }
-            if (isScrollToTop && _state == COLLAPSE_STATE && deltaY < 0)
+            if (isScrollToTop && _state == CollapseState && deltaY < 0)
             {
                 _beingDragged = true;
                 ScrollY = _maxScrollDistance + deltaY;
@@ -112,7 +116,7 @@ namespace Steepshot.CustomViews
 
         public void OnSwitch()
         {
-            if (_state == WHOLE_STATE)
+            if (_state == WholeState)
             {
                 if (ScrollY >= _minScrollToTop)
                 {
@@ -123,7 +127,7 @@ namespace Steepshot.CustomViews
                     SwitchToWhole();
                 }
             }
-            else if (_state == COLLAPSE_STATE)
+            else if (_state == CollapseState)
             {
                 if (ScrollY <= _minScrollToWhole)
                 {
@@ -144,8 +148,8 @@ namespace Steepshot.CustomViews
             }
             _scroller.StartScroll(0, ScrollY, 0, -ScrollY, DEFAULT_DURATION);
             PostInvalidate();
-            var switched = _state != WHOLE_STATE;
-            _state = WHOLE_STATE;
+            var switched = _state != WholeState;
+            _state = WholeState;
             _beingDragged = false;
             return switched;
         }
@@ -158,7 +162,7 @@ namespace Steepshot.CustomViews
             }
             _scroller.StartScroll(0, ScrollY, 0, _maxScrollDistance - ScrollY, DEFAULT_DURATION);
             PostInvalidate();
-            _state = COLLAPSE_STATE;
+            _state = CollapseState;
             _beingDragged = false;
         }
 

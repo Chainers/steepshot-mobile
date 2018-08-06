@@ -17,6 +17,7 @@ using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Models.Common;
 using Steepshot.iOS.Helpers;
 using System.Globalization;
+using Steepshot.Core.Authorization;
 using Steepshot.Core.Localization;
 
 namespace Steepshot.iOS.Views
@@ -170,7 +171,7 @@ namespace Steepshot.iOS.Views
 
             var transferAmount = double.Parse(_amountTextField.Text.Replace(',', '.'), CultureInfo.InvariantCulture);
 
-            if (Math.Abs(transferAmount) < 0.00000001 || transferAmount > double.Parse(_transferFacade.UserBalance.Value))
+            if (Math.Abs(transferAmount) < 0.00000001 || transferAmount > _transferFacade.UserBalance.Value)
             {
                 ShowAlert(LocalizationKeys.WrongTransferAmount);
                 return;
@@ -181,7 +182,7 @@ namespace Steepshot.iOS.Views
             _tranfserLoader.StartAnimating();
             RemoveFocus();
 
-            var transferResponse = await _presenter.TryTransfer(_transferFacade.Recipient.Author, _amountTextField.Text, _pickedCoin, _memoTextView.Text);
+            var transferResponse = await _presenter.TryTransfer(AppSettings.User.UserInfo, _transferFacade.Recipient.Author, _amountTextField.Text, _pickedCoin, _memoTextView.Text);
 
             _tranfserLoader.StopAnimating();
             TogglButtons(true);

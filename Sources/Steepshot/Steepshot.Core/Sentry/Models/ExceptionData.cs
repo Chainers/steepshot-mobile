@@ -25,7 +25,7 @@ namespace Steepshot.Core.Sentry.Models
                     var key = k as string ?? k.ToString();
                     Add(key, value);
                 }
-                catch (Exception e)
+                catch
                 {
                     //todo nothing
                 }

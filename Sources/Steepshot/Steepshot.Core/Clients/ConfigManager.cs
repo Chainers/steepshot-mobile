@@ -29,7 +29,7 @@ namespace Steepshot.Core.Clients
             if (GolosNodeConfigs == null || !GolosNodeConfigs.Any())
                 GolosNodeConfigs = assetHelper.GolosNodesConfig();
         }
-
+        
         public async Task Update(ExtendedHttpClient httpClient, KnownChains chains, CancellationToken token)
         {
             switch (chains)

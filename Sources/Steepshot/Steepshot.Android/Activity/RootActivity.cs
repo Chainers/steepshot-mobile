@@ -276,13 +276,14 @@ namespace Steepshot.Activity
             var padding = (int)BitmapUtils.DpToPixel(7, Resources);
             votingPowerFrame.Layout(0, 0, size, size);
             var avatar = new CircleImageView(this);
+            avatar.SetScaleType(ImageView.ScaleType.CenterCrop);
             avatar.Layout(padding, padding, size - padding, size - padding);
             avatar.SetImageResource(Resource.Drawable.ic_holder);
             votingPowerFrame.AddView(avatar);
 
             var profileTab = _tabLayout.GetTabAt(_tabLayout.TabCount - 1);
             if (!string.IsNullOrEmpty(Presenter.UserProfileResponse?.ProfileImage))
-                Picasso.With(this).Load(Presenter.UserProfileResponse.ProfileImage).NoFade().Resize(size, size)
+                Picasso.With(this).Load(Presenter.UserProfileResponse.ProfileImage).NoFade().Resize(size, size).CenterCrop()
                     .Placeholder(Resource.Drawable.ic_holder).Into(avatar,
                         () => { profileTab.SetIcon(BitmapUtils.GetViewDrawable(votingPowerFrame)); }, null);
             else

@@ -11,7 +11,6 @@ using System;
 using Steepshot.Core;
 using Steepshot.Core.Authorization;
 using Steepshot.Core.Clients;
-using Steepshot.Core.Errors;
 using Steepshot.Core.Sentry;
 
 namespace Steepshot.Base
