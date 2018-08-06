@@ -4,7 +4,7 @@ using Android.App;
 using Android.Content;
 using Android.Views;
 using Android.Widget;
-using Steepshot.Core.Errors;
+using Steepshot.Core.Exceptions;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Utils;
 
@@ -100,7 +100,7 @@ namespace Steepshot.Utils
         {
             var lm = AppSettings.LocalizationManager;
 
-            if (error is ValidateException validationError)
+            if (error is ValidationException validationError)
                 return lm.GetText(validationError);
 
             var msg = string.Empty;

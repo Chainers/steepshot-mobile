@@ -40,7 +40,7 @@ namespace Steepshot.CustomViews
                     break;
                 case MotionEventActions.Move:
                     int deltaY = (int)(_downPositionY - y);
-                    if (IsScrollTop(e) ? _coordinatorListener.OnCoordinateScroll(x, y, 0, deltaY + Math.Abs(_dragDistanceY), true) : _coordinatorListener.OnCoordinateScroll(x, y, 0, deltaY, IsScrollTop(e)))
+                    if (_coordinatorListener.OnCoordinateScroll(x, y, 0, deltaY + Math.Abs(_dragDistanceY), IsScrollTop(e)))
                         return true;
                     break;
                 case MotionEventActions.Cancel:
@@ -59,10 +59,10 @@ namespace Steepshot.CustomViews
         private bool IsScrollTop(MotionEvent e)
         {
             var layoutManager = GetLayoutManager();
-            if (layoutManager is GridLayoutManager gridLayoutManager)
+            if (layoutManager is LinearLayoutManager linearLayoutManager)
             {
-                if (gridLayoutManager.FindFirstCompletelyVisibleItemPosition() == 0 &&
-                        gridLayoutManager.FindViewByPosition(0).Top == gridLayoutManager.GetTopDecorationHeight(gridLayoutManager.FindViewByPosition(0)))
+                if (linearLayoutManager.FindFirstCompletelyVisibleItemPosition() == 0 &&
+                    linearLayoutManager.FindViewByPosition(0).Top == linearLayoutManager.GetTopDecorationHeight(linearLayoutManager.FindViewByPosition(0)))
                 {
                     if (!_scrollTop)
                     {

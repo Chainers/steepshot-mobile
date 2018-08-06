@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Steepshot.Core.Clients;
-using Steepshot.Core.Errors;
+using Steepshot.Core.Exceptions;
 using Steepshot.Core.Utils;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Localization;
@@ -38,7 +38,7 @@ namespace Steepshot.Core.Presenters
             {
                 var available = AppSettings.ConnectionService.IsConnectionAvailable();
                 if (!available)
-                    return new OperationResult<TResult>(new ValidateException(LocalizationKeys.InternetUnavailable));
+                    return new OperationResult<TResult>(new ValidationException(LocalizationKeys.InternetUnavailable));
 
                 return await func(ct);
             }
@@ -49,7 +49,7 @@ namespace Steepshot.Core.Presenters
 
                 var available = AppSettings.ConnectionService.IsConnectionAvailable();
                 if (!available)
-                    return new OperationResult<TResult>(new ValidateException(LocalizationKeys.InternetUnavailable));
+                    return new OperationResult<TResult>(new ValidationException(LocalizationKeys.InternetUnavailable));
 
                 await AppSettings.Logger.Error(ex);
 
@@ -63,7 +63,7 @@ namespace Steepshot.Core.Presenters
             {
                 var available = AppSettings.ConnectionService.IsConnectionAvailable();
                 if (!available)
-                    return new OperationResult<TResult>(new ValidateException(LocalizationKeys.InternetUnavailable));
+                    return new OperationResult<TResult>(new ValidationException(LocalizationKeys.InternetUnavailable));
 
                 return await func(param1, ct);
             }
@@ -74,7 +74,7 @@ namespace Steepshot.Core.Presenters
 
                 var available = AppSettings.ConnectionService.IsConnectionAvailable();
                 if (!available)
-                    return new OperationResult<TResult>(new ValidateException(LocalizationKeys.InternetUnavailable));
+                    return new OperationResult<TResult>(new ValidationException(LocalizationKeys.InternetUnavailable));
                 
                 await AppSettings.Logger.Error(ex);
 
@@ -88,7 +88,7 @@ namespace Steepshot.Core.Presenters
             {
                 var available = AppSettings.ConnectionService.IsConnectionAvailable();
                 if (!available)
-                    return new OperationResult<TResult>(new ValidateException(LocalizationKeys.InternetUnavailable));
+                    return new OperationResult<TResult>(new ValidationException(LocalizationKeys.InternetUnavailable));
 
                 return await func(param1, param2, ct);
             }
@@ -99,7 +99,7 @@ namespace Steepshot.Core.Presenters
 
                 var available = AppSettings.ConnectionService.IsConnectionAvailable();
                 if (!available)
-                    return new OperationResult<TResult>(new ValidateException(LocalizationKeys.InternetUnavailable));
+                    return new OperationResult<TResult>(new ValidationException(LocalizationKeys.InternetUnavailable));
 
                 await AppSettings.Logger.Error(ex);
 
@@ -114,7 +114,7 @@ namespace Steepshot.Core.Presenters
             {
                 var available = AppSettings.ConnectionService.IsConnectionAvailable();
                 if (!available)
-                    return new ValidateException(LocalizationKeys.InternetUnavailable);
+                    return new ValidationException(LocalizationKeys.InternetUnavailable);
 
                 return await func(ct);
             }
@@ -125,7 +125,7 @@ namespace Steepshot.Core.Presenters
 
                 var available = AppSettings.ConnectionService.IsConnectionAvailable();
                 if (!available)
-                    return new ValidateException(LocalizationKeys.InternetUnavailable);
+                    return new ValidationException(LocalizationKeys.InternetUnavailable);
 
                 await AppSettings.Logger.Error(ex);
 
@@ -139,7 +139,7 @@ namespace Steepshot.Core.Presenters
             {
                 var available = AppSettings.ConnectionService.IsConnectionAvailable();
                 if (!available)
-                    return new ValidateException(LocalizationKeys.InternetUnavailable);
+                    return new ValidationException(LocalizationKeys.InternetUnavailable);
 
                 return await func(param1, ct);
             }
@@ -150,7 +150,7 @@ namespace Steepshot.Core.Presenters
 
                 var available = AppSettings.ConnectionService.IsConnectionAvailable();
                 if (!available)
-                    return new ValidateException(LocalizationKeys.InternetUnavailable);
+                    return new ValidationException(LocalizationKeys.InternetUnavailable);
 
                 await AppSettings.Logger.Error(ex);
 
@@ -164,7 +164,7 @@ namespace Steepshot.Core.Presenters
             {
                 var available = AppSettings.ConnectionService.IsConnectionAvailable();
                 if (!available)
-                    return new ValidateException(LocalizationKeys.InternetUnavailable);
+                    return new ValidationException(LocalizationKeys.InternetUnavailable);
 
                 return await func(param1, param2, ct);
             }
@@ -175,7 +175,7 @@ namespace Steepshot.Core.Presenters
 
                 var available = AppSettings.ConnectionService.IsConnectionAvailable();
                 if (!available)
-                    return new ValidateException(LocalizationKeys.InternetUnavailable);
+                    return new ValidationException(LocalizationKeys.InternetUnavailable);
 
                 await AppSettings.Logger.Error(ex);
 

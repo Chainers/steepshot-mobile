@@ -5,7 +5,6 @@ using Steepshot.Core.Extensions;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Utils;
-using Steepshot.Core.Models.Common;
 
 namespace Steepshot.Core.Presenters
 {

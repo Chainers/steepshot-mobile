@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Steepshot.Core.Clients;
-using Steepshot.Core.Errors;
+using Steepshot.Core.Exceptions;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Presenters;
@@ -42,7 +42,7 @@ namespace Steepshot.Core.Facades
                         UserFriendPresenter.TasksCancel();
                     }
 
-                    return new ValidateException(LocalizationKeys.TagSearchWarning);
+                    return new ValidationException(LocalizationKeys.TagSearchWarning);
                 }
 
                 if (string.IsNullOrEmpty(query))
@@ -53,7 +53,7 @@ namespace Steepshot.Core.Facades
 
                 return await UserFriendPresenter.TryLoadNextSearchUser(query);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return null;
             }

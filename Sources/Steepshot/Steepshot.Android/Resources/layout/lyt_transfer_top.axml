@@ -8,6 +8,7 @@
         android:id="@+id/arrow_back"
         android:layout_width="50dp"
         android:layout_height="50dp"
+        android:layout_marginLeft="-15dp"
         android:layout_alignParentLeft="true"
         android:layout_centerVertical="true"
         android:scaleType="centerInside"

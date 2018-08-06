@@ -9,22 +9,22 @@ namespace Steepshot.Core.Tests.Stubs
     {
         public async Task Fatal(Exception ex)
         {
-            Console.WriteLine($"{ex.Message}{Environment.NewLine}{ex.StackTrace}");
+            await Task.Run(() => Console.WriteLine($"{ex.Message}{Environment.NewLine}{ex.StackTrace}"));
         }
 
         public async Task Error(Exception ex)
         {
-            Console.WriteLine($"{ex.Message}{Environment.NewLine}{ex.StackTrace}");
+            await Task.Run(() => Console.WriteLine($"{ex.Message}{Environment.NewLine}{ex.StackTrace}"));
         }
 
         public async Task Warning(Exception ex)
         {
-            Console.WriteLine($"{ex.Message}{Environment.NewLine}{ex.StackTrace}");
+            await Task.Run(() => Console.WriteLine($"{ex.Message}{Environment.NewLine}{ex.StackTrace}"));
         }
 
         public async Task Info(Exception ex)
         {
-            Console.WriteLine($"{ex.Message}{Environment.NewLine}{ex.StackTrace}");
+            await Task.Run(() => Console.WriteLine($"{ex.Message}{Environment.NewLine}{ex.StackTrace}"));
         }
     }
 }

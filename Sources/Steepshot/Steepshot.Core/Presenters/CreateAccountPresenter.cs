@@ -16,7 +16,7 @@ namespace Steepshot.Core.Presenters
         {
             var req = new UserProfileModel(login);
             var response = await Api.GetUserProfile(req, ct);
-            return response.Error;
+            return response.Exception;
         }
 
         public async Task<Exception> TryCreateAccount(CreateAccountModel account)
@@ -27,7 +27,7 @@ namespace Steepshot.Core.Presenters
         private async Task<Exception> CreateAccount(CreateAccountModel account, CancellationToken ct)
         {
             var response = await Api.CreateAccount(account, ct);
-            return response.Error;
+            return response.Exception;
         }
 
         public async Task<Exception> TryResendMail(CreateAccountModel account)
@@ -38,7 +38,7 @@ namespace Steepshot.Core.Presenters
         private async Task<Exception> ResendMail(CreateAccountModel account, CancellationToken ct)
         {
             var response = await Api.ResendEmail(account, ct);
-            return response.Error;
+            return response.Exception;
         }
     }
 }

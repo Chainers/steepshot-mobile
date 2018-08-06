@@ -1,5 +1,4 @@
 ﻿using System;
-using CoreAnimation;
 using CoreGraphics;
 using PureLayout.Net;
 using Steepshot.iOS.Helpers;

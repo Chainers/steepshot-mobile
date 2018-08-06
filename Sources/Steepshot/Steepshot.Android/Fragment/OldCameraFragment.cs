@@ -18,7 +18,7 @@ using Android.Widget;
 using CheeseBind;
 using Refractored.Controls;
 using Steepshot.Base;
-using Steepshot.Core.Errors;
+using Steepshot.Core.Exceptions;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Utils;
 using Steepshot.Utils;

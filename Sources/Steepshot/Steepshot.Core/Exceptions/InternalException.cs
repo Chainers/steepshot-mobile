@@ -1,7 +1,7 @@
 ﻿using System;
 using Steepshot.Core.Localization;
 
-namespace Steepshot.Core.Errors
+namespace Steepshot.Core.Exceptions
 {
     public sealed class InternalException : Exception
     {

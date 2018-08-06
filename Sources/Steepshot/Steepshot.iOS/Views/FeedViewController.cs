@@ -12,7 +12,7 @@ using Steepshot.iOS.ViewSources;
 using Steepshot.Core.Interfaces;
 using UIKit;
 using CoreGraphics;
-using Steepshot.Core.Errors;
+using Steepshot.Core.Exceptions;
 using Steepshot.Core.Utils;
 
 namespace Steepshot.iOS.Views

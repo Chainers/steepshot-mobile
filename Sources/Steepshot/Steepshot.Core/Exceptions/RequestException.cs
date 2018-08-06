@@ -2,7 +2,7 @@
 using Ditch.Core.JsonRpc;
 using Newtonsoft.Json.Linq;
 
-namespace Steepshot.Core.Errors
+namespace Steepshot.Core.Exceptions
 {
     public sealed class RequestException : Exception
     {

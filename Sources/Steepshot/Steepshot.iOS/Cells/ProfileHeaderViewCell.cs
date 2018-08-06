@@ -1,6 +1,5 @@
 ﻿using System;
 using CoreGraphics;
-using FFImageLoading;
 using Foundation;
 using PureLayout.Net;
 using Steepshot.Core.Localization;

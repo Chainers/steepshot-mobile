@@ -7,13 +7,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using Ditch.Core;
 using Ditch.Core.JsonRpc;
-using Steepshot.Core.Errors;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Utils;
-
 namespace Steepshot.Core.Clients
 {
     public abstract class BaseServerClient
@@ -277,7 +275,7 @@ namespace Steepshot.Core.Clients
             return result;
         }
 
-        protected async Task<OperationResult<VoidResponse>> Trace(string endpoint, string login, Exception resultErrors, string target, CancellationToken token)
+        protected async Task<OperationResult<VoidResponse>> Trace(string endpoint, string login, Exception resultException, string target, CancellationToken token)
         {
             if (!EnableRead)
                 return null;
@@ -286,7 +284,7 @@ namespace Steepshot.Core.Clients
             {
                 var parameters = new Dictionary<string, object>();
                 AddLoginParameter(parameters, login);
-                parameters.Add("error", resultErrors == null ? string.Empty : resultErrors.Message);
+                parameters.Add("error", resultException == null ? string.Empty : resultException.Message);
                 if (!string.IsNullOrEmpty(target))
                     parameters.Add("target", target);
 
@@ -319,6 +317,16 @@ namespace Steepshot.Core.Clients
 
             var endpoint = $"{BaseUrl}/{GatewayVersion.V1P1}/user/{username}/spam";
             var result = await HttpClient.Get<SpamResponse>(endpoint, token);
+            return result;
+        }
+
+        public async Task<OperationResult<CurrencyRate[]>> GetCurrencyRates(CancellationToken token)
+        {
+            if (!EnableRead)
+                return null;
+
+            var endpoint = $"{BaseUrl}/{GatewayVersion.V1P1}/currency/rates";
+            var result = await HttpClient.Get<CurrencyRate[]>(endpoint, token);
             return result;
         }
 
@@ -386,7 +394,7 @@ namespace Steepshot.Core.Clients
             parameters.Add("show_low_rated", Convert.ToInt32(request.ShowLowRated));
         }
 
-        protected ValidateException Validate<T>(T request)
+        protected ValidationException Validate<T>(T request)
         {
             var results = new List<ValidationResult>();
             var context = new ValidationContext(request);
@@ -394,7 +402,7 @@ namespace Steepshot.Core.Clients
             if (results.Any())
             {
                 var msg = results.Select(m => m.ErrorMessage).First();
-                return new ValidateException(msg);
+                return new ValidationException(msg);
             }
             return null;
         }

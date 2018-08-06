@@ -62,7 +62,7 @@ namespace Steepshot.Core.Tests
             var response = await Api[apiName].GetUserPosts(request, CancellationToken.None);
 
             // Assert
-            Assert.That(response.Error.Message.Contains("Cannot get posts for this username"));
+            Assert.That(response.Exception.Message.Contains("Cannot get posts for this username"));
         }
 
         [Test]
@@ -204,7 +204,6 @@ namespace Steepshot.Core.Tests
         public async Task Posts_Top_Limit_Default(KnownChains apiName)
         {
             // Arrange
-            const int defaultLimit = 20;
             var request = new PostsModel(PostType.Top);
 
             // Act
@@ -312,7 +311,7 @@ namespace Steepshot.Core.Tests
 
             var response = await Api[apiName].GetPostsByCategory(request, CancellationToken.None);
 
-            Assert.IsTrue(response.Error.Message.StartsWith("<h1>Not Found</h1>"));
+            Assert.IsTrue(response.Exception.Message.StartsWith("<h1>Not Found</h1>"));
         }
 
         [Test]
@@ -337,7 +336,7 @@ namespace Steepshot.Core.Tests
 
             var response = await Api[apiName].GetPostsByCategory(request, CancellationToken.None);
 
-            Assert.That(response.Error.Message.StartsWith(nameof(LocalizationKeys.EmptyCategory)));
+            Assert.That(response.Exception.Message.StartsWith(nameof(LocalizationKeys.EmptyCategory)));
         }
 
         [Test]
@@ -506,7 +505,7 @@ namespace Steepshot.Core.Tests
 
             var response = await Api[apiName].GetComments(request, CancellationToken.None);
 
-            Assert.That(response.Error.Message.Contains("Wrong identifier."));
+            Assert.That(response.Exception.Message.Contains("Wrong identifier."));
         }
 
         [Test]
@@ -518,7 +517,7 @@ namespace Steepshot.Core.Tests
 
             var response = await Api[apiName].GetComments(request, CancellationToken.None);
 
-            Assert.That(response.Error.Message.Contains("Wrong identifier."));
+            Assert.That(response.Exception.Message.Contains("Wrong identifier."));
         }
 
         [Test]
@@ -627,7 +626,7 @@ namespace Steepshot.Core.Tests
             var response = await Api[apiName].SearchCategories(request, CancellationToken.None);
 
             // Assert
-            Assert.IsTrue(response.Error.Message.StartsWith(nameof(LocalizationKeys.QueryMinLength)));
+            Assert.IsTrue(response.Exception.Message.StartsWith(nameof(LocalizationKeys.QueryMinLength)));
         }
 
         [Test]
@@ -639,7 +638,7 @@ namespace Steepshot.Core.Tests
 
             var response = await Api[apiName].SearchCategories(request, CancellationToken.None);
 
-            Assert.IsTrue(response.Error.Message.StartsWith(nameof(LocalizationKeys.EmptyCategory)));
+            Assert.IsTrue(response.Exception.Message.StartsWith(nameof(LocalizationKeys.EmptyCategory)));
         }
 
         [Test]
@@ -677,7 +676,7 @@ namespace Steepshot.Core.Tests
             var response = await Api[apiName].SearchCategories(request, CancellationToken.None);
 
             // Assert
-            Assert.That(response.Error.Message.Contains("Category used for offset was not found"));
+            Assert.That(response.Exception.Message.Contains("Category used for offset was not found"));
         }
 
         [Test]
@@ -741,7 +740,7 @@ namespace Steepshot.Core.Tests
             var response = await Api[apiName].GetUserProfile(request, CancellationToken.None);
 
             // Assert
-            Assert.That(response.Error.Message.Equals("User not found"));
+            Assert.That(response.Exception.Message.Equals("User not found"));
         }
 
         [Test]
@@ -837,7 +836,7 @@ namespace Steepshot.Core.Tests
             var response = await Api[apiName].GetUserFriends(request, CancellationToken.None);
 
             // Assert
-            Assert.IsTrue(response.Error.Message.Equals("Account does not exist"));
+            Assert.IsTrue(response.Exception.Message.Equals("Account does not exist"));
         }
 
         [Test]
@@ -966,7 +965,7 @@ namespace Steepshot.Core.Tests
 
             var response = await Api[apiName].GetPostInfo(request, CancellationToken.None);
 
-            Assert.That(response.Error.Message.Contains("Wrong identifier."));
+            Assert.That(response.Exception.Message.Contains("Wrong identifier."));
         }
 
         [Test]
@@ -1015,7 +1014,7 @@ namespace Steepshot.Core.Tests
             var response = await Api[apiName].SearchUser(request, CancellationToken.None);
 
             // Assert
-            Assert.IsTrue(response.Error.Message.Equals("Query should have at least 3 characters"));
+            Assert.IsTrue(response.Exception.Message.Equals("Query should have at least 3 characters"));
         }
 
         [Test]
@@ -1030,7 +1029,7 @@ namespace Steepshot.Core.Tests
             var response = await Api[apiName].SearchUser(request, CancellationToken.None);
 
             // Assert
-            Assert.IsTrue(response.Error.Message.Equals(nameof(LocalizationKeys.EmptyCategory)));
+            Assert.IsTrue(response.Exception.Message.Equals(nameof(LocalizationKeys.EmptyCategory)));
         }
 
         [Test]
@@ -1064,7 +1063,7 @@ namespace Steepshot.Core.Tests
             var request = new SearchWithQueryModel("aar") { Offset = "qweqweqwe" };
             var response = await Api[apiName].SearchUser(request, CancellationToken.None);
 
-            Assert.IsTrue(response.Error.Message.Equals("Username used for offset was not found"));
+            Assert.IsTrue(response.Exception.Message.Equals("Username used for offset was not found"));
         }
 
         [Test]

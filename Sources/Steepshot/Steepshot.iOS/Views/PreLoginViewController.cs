@@ -75,7 +75,7 @@ namespace Steepshot.iOS.Views
                 NavigationController.PushViewController(myViewController, true);
             }
             else
-                ShowAlert(response.Error);
+                ShowAlert(response.Exception);
 
             loginButton.Enabled = true;
             activityIndicator.StopAnimating();

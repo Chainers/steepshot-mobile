@@ -1,7 +1,6 @@
 ﻿using System;
 using Foundation;
 using PureLayout.Net;
-using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 using Steepshot.iOS.ViewControllers;
 using UIKit;

@@ -11,7 +11,7 @@ using Steepshot.Core.Models.Responses;
 using System.IO;
 using System.Linq;
 using System.Net.Http.Headers;
-using Steepshot.Core.Errors;
+using Steepshot.Core.Exceptions;
 using Steepshot.Core.Localization;
 
 namespace Steepshot.Core.Clients
@@ -25,7 +25,7 @@ namespace Steepshot.Core.Clients
         public ExtendedHttpClient()
         {
             JsonNetConverter = new JsonNetConverter();
-            MaxResponseContentBufferSize = 256000;
+            MaxResponseContentBufferSize = 2560000;
         }
 
         public async Task<OperationResult<T>> Get<T>(string endpoint, Dictionary<string, object> parameters, CancellationToken token)
@@ -88,7 +88,7 @@ namespace Steepshot.Core.Clients
             var result = await CreateResult<MediaModel>(response, token);
 
             if (result.IsSuccess && result.Result == null)
-                result.Error = new ValidateException(LocalizationKeys.ServeUnexpectedError);
+                result.Exception = new ValidationException(LocalizationKeys.ServeUnexpectedError);
 
             return result;
         }
@@ -114,7 +114,7 @@ namespace Steepshot.Core.Clients
             if (!response.IsSuccessStatusCode)
             {
                 var rawResponse = await response.Content.ReadAsStringAsync();
-                result.Error = new RequestException(response.RequestMessage.ToString(), rawResponse);
+                result.Exception = new RequestException(response.RequestMessage.ToString(), rawResponse);
                 return result;
             }
 
@@ -140,7 +140,7 @@ namespace Steepshot.Core.Clients
                         }
                     default:
                         {
-                            result.Error = new ValidateException(LocalizationKeys.UnsupportedMime);
+                            result.Exception = new ValidationException(LocalizationKeys.UnsupportedMime);
                             break;
                         }
                 }

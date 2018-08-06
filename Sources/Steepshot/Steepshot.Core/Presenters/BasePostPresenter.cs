@@ -3,11 +3,11 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Steepshot.Core.Authorization;
+using Steepshot.Core.Exceptions;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Models.Enums;
-using Steepshot.Core.Errors;
 using Steepshot.Core.Services;
 using Steepshot.Core.Utils;
 
@@ -44,7 +44,7 @@ namespace Steepshot.Core.Presenters
                     CashPresenterManager.RemoveRef(post);
                 }
             }
-            return response.Error;
+            return response.Exception;
         }
 
         public async Task<Exception> TryDeleteComment(Post post, Post parentPost)
@@ -68,7 +68,7 @@ namespace Steepshot.Core.Presenters
                     Items.Remove(post);
                 }
             }
-            return response.Error;
+            return response.Exception;
         }
 
         public async Task<Exception> TryEditComment(UserInfo userInfo, Post parentPost, Post post, string body, IAppInfo appInfo)
@@ -87,7 +87,7 @@ namespace Steepshot.Core.Presenters
             var response = await Api.CreateOrEditComment(model, ct);
             if (response.IsSuccess)
                 post.Body = model.Body;
-            return response.Error;
+            return response.Exception;
         }
 
 
@@ -151,7 +151,7 @@ namespace Steepshot.Core.Presenters
                 if (results.Count < Math.Min(ServerMaxCount, itemsLimit))
                     IsLastReaded = true;
             }
-            error = response.Error;
+            error = response.Exception;
             return false;
         }
 
@@ -216,18 +216,18 @@ namespace Steepshot.Core.Presenters
                     CashPresenterManager.Add(response.Result);
                 }
             }
-            else if (response.Error is RequestException requestError)
+            else if (response.Exception is RequestException requestException)
             {
                 //TODO:KOA: bad solution...
-                if (requestError.RawResponse.Contains(Constants.VotedInASimilarWaySteem) ||
-                    requestError.RawResponse.Contains(Constants.VotedInASimilarWayGolos))
+                if (requestException.RawResponse.Contains(Constants.VotedInASimilarWaySteem) ||
+                    requestException.RawResponse.Contains(Constants.VotedInASimilarWayGolos))
                 {
-                    response.Error = null;
+                    response.Exception = null;
                     ChangeLike(post, wasFlaged);
                 }
             }
 
-            return response.Error;
+            return response.Exception;
         }
 
         private void ChangeLike(Post post, bool wasFlaged)
@@ -275,17 +275,17 @@ namespace Steepshot.Core.Presenters
                     CashPresenterManager.Add(response.Result);
                 }
             }
-            else if (response.Error is RequestException requestError)
+            else if (response.Exception is RequestException requestException)
             {
                 //TODO:KOA: bad solution...
-                if (requestError.RawResponse.Contains(Constants.VotedInASimilarWaySteem) ||
-                    requestError.RawResponse.Contains(Constants.VotedInASimilarWayGolos))
+                if (requestException.RawResponse.Contains(Constants.VotedInASimilarWaySteem) ||
+                    requestException.RawResponse.Contains(Constants.VotedInASimilarWayGolos))
                 {
-                    response.Error = null;
+                    response.Exception = null;
                     ChangeFlag(post, wasVote);
                 }
             }
-            return response.Error;
+            return response.Exception;
         }
 
         private void ChangeFlag(Post post, bool wasVote)
@@ -315,7 +315,7 @@ namespace Steepshot.Core.Presenters
         #region IDisposable Support
         private bool _disposedValue = false; // To detect redundant calls
 
-        private void Dispose(bool disposing)
+        protected virtual void Dispose(bool disposing)
         {
             if (!_disposedValue)
             {

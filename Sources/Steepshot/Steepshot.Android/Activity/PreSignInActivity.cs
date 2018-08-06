@@ -102,7 +102,7 @@ namespace Steepshot.Activity
             }
             else
             {
-                this.ShowAlert(response.Error);
+                this.ShowAlert(response.Exception);
             }
 
             _spinner.Visibility = ViewStates.Invisible;

@@ -7,7 +7,7 @@ using Ditch.Core.JsonRpc;
 using Newtonsoft.Json;
 using Steepshot.Core.Authorization;
 using Steepshot.Core.Clients;
-using Steepshot.Core.Errors;
+using Steepshot.Core.Exceptions;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
@@ -39,7 +39,7 @@ namespace Steepshot.Core.Integration
                 var media = model.Media[i];
                 var uploadResult = await UploadPhoto(media.Url, token);
                 if (!uploadResult.IsSuccess)
-                    return new OperationResult<VoidResponse>(uploadResult.Error);
+                    return new OperationResult<VoidResponse>(uploadResult.Exception);
 
                 model.Media[i] = uploadResult.Result;
             }

@@ -17,10 +17,10 @@ using System.Collections.Generic;
 using Steepshot.Core.Models.Enums;
 using System.IO;
 using System.Linq;
-using Steepshot.Core.Errors;
 using Steepshot.Core.Localization;
 using ImageIO;
 using PureLayout.Net;
+using Steepshot.Core.Exceptions;
 using Steepshot.iOS.CustomViews;
 
 namespace Steepshot.iOS.Views
@@ -754,7 +754,7 @@ namespace Steepshot.iOS.Views
                                 InvokeOnMainThread(() =>
                                 {
                                     //Remake this
-                                    ShowDialog(photoUploadResponse[0].Error, LocalizationKeys.Cancel,
+                                    ShowDialog(photoUploadResponse[0].Exception, LocalizationKeys.Cancel,
                                         LocalizationKeys.Retry, (arg) =>
                                         {
                                             shouldReturn = true;
@@ -802,7 +802,7 @@ namespace Steepshot.iOS.Views
                         {
                             InvokeOnMainThread(() =>
                             {
-                                ShowDialog(response.Error, LocalizationKeys.Cancel, LocalizationKeys.Retry,
+                                ShowDialog(response.Exception, LocalizationKeys.Cancel, LocalizationKeys.Retry,
                                     (arg) => { mre.Set(); }, (arg) =>
                                     {
                                         pushToBlockchainRetry = true;
