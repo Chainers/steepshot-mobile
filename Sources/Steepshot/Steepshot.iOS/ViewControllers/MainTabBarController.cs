@@ -121,8 +121,8 @@ namespace Steepshot.iOS.ViewControllers
         {
             do
             {
-                var error = await _presenter.TryGetUserInfo(AppSettings.User.Login);
-                if (error == null || error is OperationCanceledException)
+                var exception = await _presenter.TryGetUserInfo(AppSettings.User.Login);
+                if (exception == null || exception is OperationCanceledException)
                 {
                     _powerFrame.ChangePercents((int)_presenter.UserProfileResponse.VotingPower);
                     if (!string.IsNullOrEmpty(_presenter.UserProfileResponse.ProfileImage))

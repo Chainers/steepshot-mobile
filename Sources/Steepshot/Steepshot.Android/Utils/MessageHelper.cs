@@ -12,12 +12,12 @@ namespace Steepshot.Utils
 {
     public static class MessageHelper
     {
-        public static void ShowAlert(this Context context, Exception error)
+        public static void ShowAlert(this Context context, Exception exception)
         {
-            if (IsSkeepError(error))
+            if (IsSkeepException(exception))
                 return;
 
-            var message = GetMsg(error);
+            var message = GetMsg(exception);
             if (string.IsNullOrWhiteSpace(message))
                 return;
 
@@ -40,12 +40,12 @@ namespace Steepshot.Utils
             Toast.MakeText(context, message, length).Show();
         }
 
-        public static void ShowAlert(this Context context, Exception error, ToastLength length)
+        public static void ShowAlert(this Context context, Exception exception, ToastLength length)
         {
-            if (IsSkeepError(error))
+            if (IsSkeepException(exception))
                 return;
 
-            var message = GetMsg(error);
+            var message = GetMsg(exception);
 
             if (string.IsNullOrWhiteSpace(message))
                 return;
@@ -53,12 +53,12 @@ namespace Steepshot.Utils
             Toast.MakeText(context, message, length).Show();
         }
 
-        public static void ShowInteractiveMessage(this Context context, Exception error, EventHandler<DialogClickEventArgs> tryAgainAction, EventHandler<DialogClickEventArgs> forgetAction)
+        public static void ShowInteractiveMessage(this Context context, Exception exception, EventHandler<DialogClickEventArgs> tryAgainAction, EventHandler<DialogClickEventArgs> forgetAction)
         {
-            if (IsSkeepError(error))
+            if (IsSkeepException(exception))
                 return;
 
-            var message = GetMsg(error);
+            var message = GetMsg(exception);
             if (string.IsNullOrWhiteSpace(message))
                 return;
 
@@ -96,40 +96,40 @@ namespace Steepshot.Utils
             dialog.Show();
         }
 
-        private static string GetMsg(Exception error)
+        private static string GetMsg(Exception exception)
         {
             var lm = AppSettings.LocalizationManager;
 
-            if (error is ValidationException validationError)
-                return lm.GetText(validationError);
+            if (exception is ValidationException validationException)
+                return lm.GetText(validationException);
 
             var msg = string.Empty;
 
-            if (error is InternalException internalError)
+            if (exception is InternalException internalException)
             {
-                msg = lm.GetText(internalError.Key);
+                msg = lm.GetText(internalException.Key);
             }
-            else if (error is RequestException requestError)
+            else if (exception is RequestException requestException)
             {
-                if (!string.IsNullOrEmpty(requestError.RawResponse))
-                    msg = lm.GetText(requestError.RawResponse);
+                if (!string.IsNullOrEmpty(requestException.RawResponse))
+                    msg = lm.GetText(requestException.RawResponse);
             }
             else
             {
-                msg = lm.GetText(error.Message);
+                msg = lm.GetText(exception.Message);
             }
 
             return string.IsNullOrEmpty(msg) ? lm.GetText(LocalizationKeys.UnexpectedError) : msg;
         }
 
-        private static bool IsSkeepError(Exception error)
+        private static bool IsSkeepException(Exception exception)
         {
-            if (error == null || error is TaskCanceledException || error is OperationCanceledException)
+            if (exception == null || exception is TaskCanceledException || exception is OperationCanceledException)
                 return true;
 
-            if (error is RequestException requestError)
+            if (exception is RequestException requestException)
             {
-                if (requestError.Exception is TaskCanceledException || requestError.Exception is OperationCanceledException)
+                if (requestException.Exception is TaskCanceledException || requestException.Exception is OperationCanceledException)
                     return true;
             }
 

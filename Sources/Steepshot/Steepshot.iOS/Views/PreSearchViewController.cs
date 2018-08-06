@@ -315,7 +315,7 @@ namespace Steepshot.iOS.Views
 
         protected override async Task GetPosts(bool shouldStartAnimating = true, bool clearOld = false)
         {
-            Exception error;
+            Exception exception;
             do
             {
                 if (shouldStartAnimating)
@@ -336,14 +336,14 @@ namespace Steepshot.iOS.Views
                 }
 
                 if (CurrentPostCategory == null)
-                    error = await _presenter.TryLoadNextTopPosts();
+                    exception = await _presenter.TryLoadNextTopPosts();
                 else
                 {
                     _presenter.Tag = CurrentPostCategory;
-                    error = await _presenter.TryGetSearchedPosts();
+                    exception = await _presenter.TryGetSearchedPosts();
                 }
 
-                if (error is OperationCanceledException)
+                if (exception is OperationCanceledException)
                     return;
 
                 if (_refreshControl.Refreshing)
@@ -352,8 +352,8 @@ namespace Steepshot.iOS.Views
                 }
                 else
                     activityIndicator.StopAnimating();
-            } while (error is RequestException);
-            ShowAlert(error);
+            } while (exception is RequestException);
+            ShowAlert(exception);
         }
 
         private async Task RefreshTable()

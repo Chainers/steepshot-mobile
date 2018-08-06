@@ -23,9 +23,9 @@ namespace Steepshot.Core.Presenters
             };
 
             var response = await Api.GetPostInfo(request, ct);
-            var error = ResponseProcessing(response, nameof(TryLoadPostInfo));
+            var exception = ResponseProcessing(response, nameof(TryLoadPostInfo));
 
-            return error;
+            return exception;
         }
 
         protected Exception ResponseProcessing(OperationResult<Post> response, string sender)

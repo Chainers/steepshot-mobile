@@ -446,16 +446,16 @@ namespace Steepshot.Fragment
             _tagsList.ScrollToPosition(0);
             _tagPickerFacade.Clear();
 
-            Exception error = null;
+            Exception exception = null;
             if (text.Length == 0)
-                error = await _tagPickerFacade.TryGetTopTags();
+                exception = await _tagPickerFacade.TryGetTopTags();
             else if (text.Length > 1)
-                error = await _tagPickerFacade.TryLoadNext(text);
+                exception = await _tagPickerFacade.TryLoadNext(text);
 
             if (IsInitialized)
                 return;
 
-            Activity.ShowAlert(error, ToastLength.Short);
+            Activity.ShowAlert(exception, ToastLength.Short);
         }
 
         protected void HideTagsList()

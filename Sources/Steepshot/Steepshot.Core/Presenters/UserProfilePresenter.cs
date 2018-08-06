@@ -36,15 +36,15 @@ namespace Steepshot.Core.Presenters
                 ShowLowRated = AppSettings.User.IsLowRated
             };
 
-            Exception error;
+            Exception exception;
             bool isNeedRepeat;
             do
             {
                 var response = await Api.GetUserPosts(request, ct);
-                isNeedRepeat = ResponseProcessing(response, ItemsLimit, out error, nameof(TryLoadNextPosts));
+                isNeedRepeat = ResponseProcessing(response, ItemsLimit, out exception, nameof(TryLoadNextPosts));
             } while (isNeedRepeat);
 
-            return error;
+            return exception;
         }
 
 
@@ -81,11 +81,11 @@ namespace Steepshot.Core.Presenters
             UserProfileResponse.FollowedChanging = true;
             NotifySourceChanged(nameof(TryFollow), true);
 
-            var error = await TryRunTask(Follow, OnDisposeCts.Token, UserProfileResponse);
+            var exception = await TryRunTask(Follow, OnDisposeCts.Token, UserProfileResponse);
             UserProfileResponse.FollowedChanging = false;
             CashPresenterManager.Update(UserProfileResponse);
             NotifySourceChanged(nameof(TryFollow), true);
-            return error;
+            return exception;
         }
 
         private async Task<Exception> Follow(UserProfileResponse userProfileResponse, CancellationToken ct)
@@ -103,8 +103,8 @@ namespace Steepshot.Core.Presenters
 
         public async Task<Exception> TryUpdateUserProfile(UpdateUserProfileModel model, UserProfileResponse currentProfile)
         {
-            var error = await TryRunTask(UpdateUserProfile, OnDisposeCts.Token, model);
-            if (error != null)
+            var exception = await TryRunTask(UpdateUserProfile, OnDisposeCts.Token, model);
+            if (exception != null)
             {
                 NotifySourceChanged(nameof(TryUpdateUserProfile), false);
             }
@@ -119,7 +119,7 @@ namespace Steepshot.Core.Presenters
                 NotifySourceChanged(nameof(TryUpdateUserProfile), false);
             }
 
-            return error;
+            return exception;
         }
 
         private async Task<Exception> UpdateUserProfile(UpdateUserProfileModel model, CancellationToken ct)

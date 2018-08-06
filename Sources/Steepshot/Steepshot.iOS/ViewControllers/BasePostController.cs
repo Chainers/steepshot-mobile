@@ -32,12 +32,12 @@ namespace Steepshot.iOS.ViewControllers
             if (post == null)
                 return;
 
-            var error = await _presenter.TryVote(post);
-            if (error is OperationCanceledException)
+            var exception = await _presenter.TryVote(post);
+            if (exception is OperationCanceledException)
                 return;
 
-            ShowAlert(error);
-            if (error == null)
+            ShowAlert(exception);
+            if (exception == null)
                 ((MainTabBarController)TabBarController)?.UpdateProfile();
         }
 
@@ -94,9 +94,9 @@ namespace Steepshot.iOS.ViewControllers
             if (post == null)
                 return;
 
-            var error = await _presenter.TryFlag(post);
-            ShowAlert(error);
-            if (error == null)
+            var exception = await _presenter.TryFlag(post);
+            ShowAlert(exception);
+            if (exception == null)
                 ((MainTabBarController)TabBarController)?.UpdateProfile();
         }
 
@@ -227,10 +227,10 @@ namespace Steepshot.iOS.ViewControllers
         {
             action.Invoke();
 
-            var error = await _presenter.TryDeletePost(post);
+            var exception = await _presenter.TryDeletePost(post);
 
-            if (error != null)
-                ShowAlert(error);
+            if (exception != null)
+                ShowAlert(exception);
         }
 
         private void EditPost(Post post)

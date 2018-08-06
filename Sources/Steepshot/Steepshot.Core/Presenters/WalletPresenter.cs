@@ -37,13 +37,13 @@ namespace Steepshot.Core.Presenters
             if (!HasNext || Current == null)
                 return new ValidationException(string.Empty);
 
-            var error = await TryUpdateAccountInfo(Current);
-            if (error == null)
+            var exception = await TryUpdateAccountInfo(Current);
+            if (exception == null)
             {
                 HasNext = MoveNext();
             }
 
-            return error;
+            return exception;
         }
 
         public async Task<Exception> TryUpdateAccountInfo(UserInfo userInfo)
