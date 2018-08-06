@@ -30,7 +30,7 @@ namespace Steepshot.iOS.Views
         private const int _photoSize = 900; //kb
         private TimeSpan PostingLimit;
         private UIDeviceOrientation _rotation;
-        private List<Tuple<NSDictionary, UIImage>> ImageAssets;
+        protected List<Tuple<NSDictionary, UIImage>> ImageAssets;
         protected nfloat _separatorMargin = 30;
         private nfloat photoViewSide;
         protected int photoMargin;
@@ -38,18 +38,18 @@ namespace Steepshot.iOS.Views
         private string ImageExtension;
         private bool _isSpammer;
 
-        private UIScrollView mainScroll;
-        private CropView _cropView;
-        private UIImageView titleEditImage;
-        private UIImageView descriptionEditImage;
-        private UILabel tagField;
-        private UIImageView hashtagImage;
-        private UIButton postPhotoButton;
-        private UIActivityIndicatorView loadingView;
-        private NSLayoutConstraint tagsCollectionHeight;
-        private UIImageView _rotateButton;
-        private UIImageView _resizeButton;
-        private bool _isinitialized;
+        protected UIScrollView mainScroll;
+        protected CropView _cropView;
+        protected UIImageView titleEditImage;
+        protected UIImageView descriptionEditImage;
+        protected UILabel tagField;
+        protected UIImageView hashtagImage;
+        protected UIButton postPhotoButton;
+        protected UIActivityIndicatorView loadingView;
+        protected NSLayoutConstraint tagsCollectionHeight;
+        protected UIImageView _rotateButton;
+        protected UIImageView _resizeButton;
+        protected bool _isinitialized;
         protected CGSize _cellSize;
         protected const int cellSide = 160;
         protected const int sectionInset = 15;
@@ -67,6 +67,7 @@ namespace Steepshot.iOS.Views
         protected UICollectionView photoCollection;
         protected UIImageView photoView;
         protected bool editMode;
+        protected bool plagiarismMode;
 
         public bool _isFromCamera => ImageAssets?.Count == 1 && ImageAssets[0]?.Item1 == null;
 
@@ -111,44 +112,56 @@ namespace Steepshot.iOS.Views
 
         protected override void KeyBoardUpNotification(NSNotification notification)
         {
-            var kbSize = UIKeyboard.FrameEndFromNotification(notification);
-            var contentInsets = new UIEdgeInsets(0, 0, kbSize.Height, 0);
-            mainScroll.ContentInset = contentInsets;
-            mainScroll.ScrollIndicatorInsets = contentInsets;
-            mainScroll.ScrollRectToVisible(Activeview.Frame, true);
+            if (!plagiarismMode)
+            {
+                var kbSize = UIKeyboard.FrameEndFromNotification(notification);
+                var contentInsets = new UIEdgeInsets(0, 0, kbSize.Height, 0);
+                mainScroll.ContentInset = contentInsets;
+                mainScroll.ScrollIndicatorInsets = contentInsets;
+                mainScroll.ScrollRectToVisible(Activeview.Frame, true);
+            }
         }
 
         protected override void KeyBoardDownNotification(NSNotification notification)
         {
-            var contentInsets = new UIEdgeInsets(0, 0, 0, 0);
-            mainScroll.ContentInset = contentInsets;
-            mainScroll.ScrollIndicatorInsets = contentInsets;
-            View.LayoutSubviews();
+            if (!plagiarismMode)
+            {
+                var contentInsets = new UIEdgeInsets(0, 0, 0, 0);
+                mainScroll.ContentInset = contentInsets;
+                mainScroll.ScrollIndicatorInsets = contentInsets;
+                View.LayoutSubviews();
+            }
         }
 
         private void SetupMainScroll()
         {
-            mainScroll = new UIScrollView();
-            mainScroll.BackgroundColor = UIColor.White;
-
-            mainScroll.ShowsVerticalScrollIndicator = true;
-            mainScroll.ScrollEnabled = true;
-            mainScroll.Bounces = true;
-
-            mainScroll.DelaysContentTouches = true;
-            mainScroll.CanCancelContentTouches = true;
-            mainScroll.ContentMode = UIViewContentMode.ScaleToFill;
-            mainScroll.UserInteractionEnabled = true;
-
-            mainScroll.Opaque = true;
-            mainScroll.ClipsToBounds = true;
-
+            mainScroll = CreateScrollView();
             View.AddSubview(mainScroll);
 
             mainScroll.AutoPinEdgeToSuperviewEdge(ALEdge.Top);
             mainScroll.AutoPinEdgeToSuperviewEdge(ALEdge.Right);
             mainScroll.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom);
             mainScroll.AutoPinEdgeToSuperviewEdge(ALEdge.Left);
+        }
+
+        protected UIScrollView CreateScrollView()
+        { 
+            var scroll = new UIScrollView();
+            scroll.BackgroundColor = UIColor.White;
+
+            scroll.ShowsVerticalScrollIndicator = true;
+            scroll.ScrollEnabled = true;
+            scroll.Bounces = true;
+
+            scroll.DelaysContentTouches = true;
+            scroll.CanCancelContentTouches = true;
+            scroll.ContentMode = UIViewContentMode.ScaleToFill;
+            scroll.UserInteractionEnabled = true;
+
+            scroll.Opaque = true;
+            scroll.ClipsToBounds = true;
+
+            return scroll;
         }
 
         private void CreateView()
@@ -192,7 +205,7 @@ namespace Steepshot.iOS.Views
             hashtagCollectionSeparator.BackgroundColor = Constants.R245G245B245;
 
             postPhotoButton = new UIButton();
-            postPhotoButton.SetTitle(AppSettings.LocalizationManager.GetText(LocalizationKeys.PublishButtonText), UIControlState.Normal);
+            postPhotoButton.SetTitle(AppSettings.LocalizationManager.GetText(LocalizationKeys.PublishButtonText).ToUpper(), UIControlState.Normal);
             postPhotoButton.SetTitle("", UIControlState.Disabled);
             postPhotoButton.Layer.CornerRadius = 25;
             postPhotoButton.TitleLabel.Font = Constants.Semibold14;
@@ -410,19 +423,25 @@ namespace Steepshot.iOS.Views
         {
             base.ViewWillAppear(animated);
 
-            collectionviewSource.CellAction += CollectionCellAction;
-
-            if (!IsMovingToParentViewController)
+            if (!plagiarismMode)
             {
-                tagsCollectionView.ReloadData();
-                ResizeView();
+                collectionviewSource.CellAction += CollectionCellAction;
+
+                if (!IsMovingToParentViewController)
+                {
+                    tagsCollectionView.ReloadData();
+                    ResizeView();
+                }
             }
         }
 
         public override void ViewWillDisappear(bool animated)
         {
-            collectionviewSource.CellAction -= CollectionCellAction;
-            base.ViewWillDisappear(animated);
+            if (!plagiarismMode)
+            {
+                collectionviewSource.CellAction -= CollectionCellAction;
+                base.ViewWillDisappear(animated);
+            }
         }
 
         public override void ViewDidAppear(bool animated)
@@ -514,7 +533,7 @@ namespace Steepshot.iOS.Views
 
         public override void ViewDidLayoutSubviews()
         {
-            if (!_isinitialized)
+            if (!_isinitialized && !plagiarismMode)
             {
                 postPhotoButton.LayoutIfNeeded();
                 Constants.CreateGradient(postPhotoButton, 25);
@@ -684,7 +703,7 @@ namespace Steepshot.iOS.Views
 
             _isSpammer = false;
             postPhotoButton.UserInteractionEnabled = true;
-            postPhotoButton.SetTitle(AppSettings.LocalizationManager.GetText(LocalizationKeys.PublishButtonText), UIControlState.Normal);
+            postPhotoButton.SetTitle(AppSettings.LocalizationManager.GetText(LocalizationKeys.PublishButtonText).ToUpper(), UIControlState.Normal);
         }
 
         private async void PostPhoto(object sender, EventArgs e)
@@ -693,7 +712,7 @@ namespace Steepshot.iOS.Views
             var test = true;
             if (test)
             {
-                var plagiarismViewController = new PlagiarismViewController();
+                var plagiarismViewController = new PlagiarismViewController(ImageAssets);
                 NavigationController.PushViewController(plagiarismViewController, true);
                 return;
             }

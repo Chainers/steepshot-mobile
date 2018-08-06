@@ -40,11 +40,12 @@ namespace Steepshot.iOS.Helpers
         public static readonly UIColor R255G0B0 = UIColor.FromRGB(255, 0, 0);
         public static readonly UIColor R74G144B226 = UIColor.FromRGB(74, 144, 226);
         public static readonly UIColor R255G255B255 = UIColor.FromRGB(255, 255, 255);
+        public static readonly UIColor R26G151B246 = UIColor.FromRGB(26, 151, 246);
 
         public static readonly CGPoint StartGradientPoint = new CGPoint(0, 0.5f);
         public static readonly CGPoint EndGradientPoint = new CGPoint(1, 0.5f);
         public static readonly CGColor[] OrangeGradient = new CGColor[] { UIColor.FromRGB(255, 121, 4).CGColor, UIColor.FromRGB(255, 22, 5).CGColor };
-        public static readonly CGColor[] BlueGradient = new CGColor[] { UIColor.FromRGB(18, 148, 246).CGColor, UIColor.FromRGB(41, 198, 251).CGColor };
+        public static readonly CGColor[] BlueGradient = new CGColor[] { UIColor.FromRGB(18, 148, 246).CGColor, UIColor.FromRGB(97, 179, 241).CGColor };
 
         public static readonly nfloat CellSideSize = (nfloat)Math.Floor((UIScreen.MainScreen.Bounds.Width - 2f) / 3f);
         public static readonly CGSize CellSize = new CGSize(CellSideSize, CellSideSize);
@@ -68,7 +69,6 @@ namespace Steepshot.iOS.Helpers
                     break;
             }
 
-            gradient.Colors = OrangeGradient;
             gradient.CornerRadius = cornerRadius;
             view.Layer.InsertSublayer(gradient, 0);
         }
