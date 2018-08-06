@@ -164,7 +164,8 @@ namespace Steepshot.iOS.Views
             var shouldHideLoader = await Search(clear, shouldAnimate, isLoaderNeeded);
             if (shouldHideLoader)
             {
-                _noResultViewPeople.Hidden = _searchFacade.UserFriendPresenter.Count > 0;
+                if(searchTextField.Text.Length > 2)
+                    _noResultViewPeople.Hidden = _searchFacade.UserFriendPresenter.Count > 0;
                 _peopleLoader.StopAnimating();
             }
         }
