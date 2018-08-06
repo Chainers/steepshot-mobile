@@ -4,15 +4,15 @@ using Steepshot.Core.Authorization;
 namespace Steepshot.Core.Models.Requests
 {
     [JsonObject(MemberSerialization.OptIn)]
-    public class ClaimRewardsModel : AuthorizedActiveModel
+    public class ClaimRewardsModel : AuthorizedPostingModel
     {
-        public string RewardSteem { get; set; }
+        public double RewardSteem { get; set; }
 
-        public string RewardSp { get; set; }
+        public double RewardSp { get; set; }
 
-        public string RewardSbd { get; set; }
+        public double RewardSbd { get; set; }
 
-        public ClaimRewardsModel(UserInfo userInfo, string rewardSteem, string rewardSp, string rewardSbd)
+        public ClaimRewardsModel(UserInfo userInfo, double rewardSteem, double rewardSp, double rewardSbd)
             : base(userInfo)
         {
             RewardSteem = rewardSteem;

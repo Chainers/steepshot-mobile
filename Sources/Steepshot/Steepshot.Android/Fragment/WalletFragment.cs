@@ -253,15 +253,6 @@ namespace Steepshot.Fragment
 
         private void ClaimBtnOnClick(object sender, EventArgs e)
         {
-            if (string.IsNullOrEmpty(Presenter.Balances[_walletPager.CurrentItem].UserInfo.ActiveKey))
-            {
-                var intent = new Intent(Activity, typeof(ActiveSignInActivity));
-                intent.PutExtra(ActiveSignInActivity.ActiveSignInUserName, Presenter.Balances[_walletPager.CurrentItem].UserInfo.Login);
-                intent.PutExtra(ActiveSignInActivity.ActiveSignInChain, (int)Presenter.Balances[_walletPager.CurrentItem].UserInfo.Chain);
-                StartActivityForResult(intent, ActiveSignInActivity.ActiveKeyRequestCode);
-                return;
-            }
-
             DoClaimReward();
         }
 
@@ -312,7 +303,7 @@ namespace Steepshot.Fragment
             }
             else
             {
-                _claimBtn.Visibility = ViewStates.Gone;
+                _claimBtn.Visibility = fromHasClaimRewards ? ViewStates.Visible : ViewStates.Gone;
             }
         }
     }
