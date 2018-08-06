@@ -12,6 +12,7 @@ using UIKit;
 using Steepshot.Core.Utils;
 using System.Threading.Tasks;
 using Steepshot.Core;
+using Steepshot.Core.Exceptions;
 
 namespace Steepshot.iOS.Views
 {
@@ -203,13 +204,13 @@ namespace Steepshot.iOS.Views
                 }
             }
 
-            var error = await _searchFacade.TrySearchCategories(searchTextField.Text, _searchType);
-            if (error is OperationCanceledException)
+            var exception = await _searchFacade.TrySearchCategories(searchTextField.Text, _searchType);
+            if (exception is OperationCanceledException)
                 return false;
 
             if (shouldAnimate)
             {
-                if (!_isWarningOpen && error is ValidateException)
+                if (!_isWarningOpen && exception is ValidationException)
                 {
                     UIView.Animate(0.3f, 0f, UIViewAnimationOptions.CurveEaseOut, () =>
                     {

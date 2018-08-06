@@ -8,6 +8,7 @@ using Steepshot.Core.Localization;
 using Steepshot.Core.Utils;
 using PureLayout.Net;
 using Steepshot.Core.Exceptions;
+using Steepshot.Core.Interfaces;
 using Steepshot.iOS.Helpers;
 using Steepshot.iOS.Views;
 
@@ -280,8 +281,8 @@ namespace Steepshot.iOS.ViewControllers
         {
             var lm = AppSettings.LocalizationManager;
           
-            if (error is ValidationException requestException)
-                return lm.GetText(requestException);
+            if (error is ValidationException validationException)
+                return lm.GetText(validationException);
 
 
             AppSettings.Logger.Error(error);
