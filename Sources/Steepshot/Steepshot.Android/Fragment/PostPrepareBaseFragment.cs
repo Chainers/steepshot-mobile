@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Android.App;
 using Android.Content;
 using Android.Content.Res;
 using Android.OS;
@@ -32,6 +34,8 @@ namespace Steepshot.Fragment
     {
         #region Fields
 
+        protected GalleryHorizontalAdapter GalleryAdapter => _galleryAdapter ?? (_galleryAdapter = new GalleryHorizontalAdapter(_media));
+        protected readonly List<GalleryMediaModel> _media;
         protected TimeSpan PostingLimit;
         protected Timer _timer;
         protected GalleryHorizontalAdapter _galleryAdapter;
@@ -41,6 +45,7 @@ namespace Steepshot.Fragment
         protected string _previousQuery;
         protected TagPickerFacade _tagPickerFacade;
         protected bool isSpammer;
+        protected bool isPlagiarism;
 
 #pragma warning disable 0649, 4014
         [BindView(Resource.Id.btn_back)] protected ImageButton _backButton;
@@ -80,6 +85,20 @@ namespace Steepshot.Fragment
         protected SelectedTagsAdapter LocalTagsAdapter => _localTagsAdapter ?? (_localTagsAdapter = new SelectedTagsAdapter());
 
         #endregion
+
+        public PostPrepareBaseFragment()
+        {
+        }
+
+        public PostPrepareBaseFragment(List<GalleryMediaModel> media)
+        {
+            _media = media;
+        }
+
+        public PostPrepareBaseFragment(GalleryMediaModel media)
+        {
+            _media = new List<GalleryMediaModel> { media };
+        }
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
@@ -189,19 +208,28 @@ namespace Steepshot.Fragment
 
         protected abstract Task OnPostAsync();
 
-        protected void EnablePostAndEdit(bool enabled)
+        protected void EnablePostAndEdit(bool enabled, bool enableFields = true)
         {
             if (enabled)
+            {
                 _loadingSpinner.Visibility = ViewStates.Gone;
+            }
             else
+            {
+                _postButton.Text = string.Empty;
                 _loadingSpinner.Visibility = ViewStates.Visible;
-
+            }
+            
             _postButton.Enabled = enabled;
-            _title.Enabled = enabled;
-            _description.Enabled = enabled;
-            _tag.Enabled = enabled;
-            _localTagsAdapter.Enabled = enabled;
-            _tagLabel.Enabled = enabled;
+
+            if (enableFields)
+            {
+                _title.Enabled = enabled;
+                _description.Enabled = enabled;
+                _tag.Enabled = enabled;
+                _localTagsAdapter.Enabled = enabled;
+                _tagLabel.Enabled = enabled;
+            }
         }
 
         protected void EnabledPost()
@@ -220,7 +248,7 @@ namespace Steepshot.Fragment
             TryCreateOrEditPost();
         }
 
-        protected async Task<bool> TryCreateOrEditPost()
+        protected async Task<bool> TryCreateOrEditPost(bool checkForPlagiarism = true)
         {
             if (_model.Media == null)
             {
@@ -228,7 +256,16 @@ namespace Steepshot.Fragment
                 return false;
             }
 
+            if (checkForPlagiarism)
+            {
+                await CheckForPlagiarism();
+
+                if (isPlagiarism)
+                    return false;
+            }
+
             var resp = await Presenter.TryCreateOrEditPost(_model);
+
             if (!IsInitialized)
                 return false;
 
@@ -246,6 +283,40 @@ namespace Steepshot.Fragment
 
             Activity.ShowInteractiveMessage(resp.Error, TryAgainAction, ForgetAction);
             return false;
+        }
+
+        private async Task CheckForPlagiarism()
+        {
+            isPlagiarism = false;
+            var plagiarismCheck = await Presenter.TryCheckForPlagiarism(_model);
+
+            if (plagiarismCheck.IsSuccess)
+            {
+                if (plagiarismCheck.Result.plagiarism.IsPlagiarism)
+                {
+                    isPlagiarism = true;
+
+                    var fragment = new PlagiarismCheckFragment(_media, GalleryAdapter, plagiarismCheck.Result.plagiarism);
+                    fragment.SetTargetFragment(this, 0);
+                    ((BaseActivity)Activity).OpenNewContentFragment(fragment);
+
+                    _postButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PublishButtonText);
+                }
+            }
+        }
+
+        public override void OnActivityResult(int requestCode, int resultCode, Intent data)
+        {
+            if (resultCode == (int)Result.Ok)
+            {
+                EnablePostAndEdit(false);
+                TryCreateOrEditPost(false);
+            }
+            else if (resultCode == (int)Result.Canceled)
+            { 
+                EnabledPost();
+                EnablePostAndEdit(true);
+            }
         }
 
         private void TagLabelOnClick(object sender, EventArgs e)
@@ -291,7 +362,7 @@ namespace Steepshot.Fragment
             if (string.IsNullOrWhiteSpace(tag))
                 return;
 
-            var index = _tagsAdapter.IndexOfTag(tag); ;
+            var index = _tagsAdapter.IndexOfTag(tag);
             if (AddTag(tag) && index != -1)
                 _tagsAdapter.NotifyItemRemoved(index);
 

@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using Ditch.Core.JsonRpc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Steepshot.Core.HttpClient;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
@@ -18,7 +17,7 @@ namespace Steepshot.Core.Clients
         protected readonly ExtendedHttpClient ExtendedHttpClient;
 
         public volatile bool EnableWrite;
-
+        
         public abstract KnownChains Chain { get; }
 
         public abstract bool IsConnected { get; }
@@ -47,11 +46,16 @@ namespace Steepshot.Core.Clients
 
         public abstract Task<OperationResult<VoidResponse>> Transfer(TransferModel model, CancellationToken ct);
 
-        public abstract Task<OperationResult<AccountInfoResponse>> GetAccountInfo(string userName, CancellationToken ct);
+        public abstract Task<OperationResult<VoidResponse>> PowerUpOrDown(PowerUpDownModel model, CancellationToken ct);
 
+        public abstract Task<OperationResult<VoidResponse>> ClaimRewards(ClaimRewardsModel model, CancellationToken ct);
+
+        public abstract Task<OperationResult<AccountInfoResponse>> GetAccountInfo(string userName, CancellationToken ct);
+        
         public abstract Task<OperationResult<AccountHistoryResponse[]>> GetAccountHistory(string userName, CancellationToken ct);
 
         public abstract Task<bool> TryReconnectChain(CancellationToken token);
+
 
         protected List<byte[]> ToKeyArr(string postingKey)
         {

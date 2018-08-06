@@ -281,8 +281,8 @@ namespace Steepshot.iOS.ViewControllers
         {
             var lm = AppSettings.LocalizationManager;
           
-            if (error is ValidateException validationError)
-                return lm.GetText(validationError);
+            if (error is ValidateException ValidateException)
+                return lm.GetText(ValidateException);
 
 
             AppSettings.Logger.Error(error);
@@ -292,10 +292,10 @@ namespace Steepshot.iOS.ViewControllers
             {
                 msg = lm.GetText(internalError.Key);
             }
-            else if (error is RequestException requestError)
+            else if (error is RequestException RequestException)
             {
-                if (!string.IsNullOrEmpty(requestError.RawResponse))
-                    msg = lm.GetText(requestError.RawResponse);
+                if (!string.IsNullOrEmpty(RequestException.RawResponse))
+                    msg = lm.GetText(RequestException.RawResponse);
             }
             else
             {
@@ -310,9 +310,9 @@ namespace Steepshot.iOS.ViewControllers
             if (error == null || error is TaskCanceledException || error is OperationCanceledException)
                 return true;
 
-            if (error is RequestException requestError)
+            if (error is RequestException RequestException)
             {
-                if (requestError.Exception is TaskCanceledException || requestError.Exception is OperationCanceledException)
+                if (RequestException.Exception is TaskCanceledException || RequestException.Exception is OperationCanceledException)
                     return true;
             }
 

@@ -204,7 +204,6 @@ namespace Steepshot.Core.Tests
         public async Task Posts_Top_Limit_Default(KnownChains apiName)
         {
             // Arrange
-            const int defaultLimit = 20;
             var request = new PostsModel(PostType.Top);
 
             // Act

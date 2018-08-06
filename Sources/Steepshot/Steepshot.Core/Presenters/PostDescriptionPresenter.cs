@@ -20,6 +20,16 @@ namespace Steepshot.Core.Presenters
             return await Api.UploadMedia(model, ct);
         }
 
+        public async Task<OperationResult<PreparePostResponse>> TryCheckForPlagiarism(PreparePostModel model)
+        {
+            return await TryRunTask<PreparePostModel, PreparePostResponse>(CheckForPlagiarism, OnDisposeCts.Token, model);
+        }
+
+        private async Task<OperationResult<PreparePostResponse>> CheckForPlagiarism(PreparePostModel model, CancellationToken ct)
+        {
+            return await Api.CheckPostForPlagiarism(model, ct);
+        } 
+
         public async Task<OperationResult<VoidResponse>> TryCreateOrEditPost(PreparePostModel model)
         {
             return await TryRunTask<PreparePostModel, VoidResponse>(CreateOrEditPost, OnDisposeCts.Token, model);

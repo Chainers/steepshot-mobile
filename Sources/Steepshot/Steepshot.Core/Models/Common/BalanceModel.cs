@@ -1,16 +1,27 @@
-﻿using Steepshot.Core.Models.Requests;
+﻿using Steepshot.Core.Authorization;
+using Steepshot.Core.Models.Requests;
 
 namespace Steepshot.Core.Models.Common
 {
     public class BalanceModel
     {
-        public string Value;
+        public UserInfo UserInfo { get; set; }
 
-        public byte MaxDecimals;
+        public double Value { get; }
 
-        public CurrencyType CurrencyType;
+        public byte MaxDecimals { get; }
 
-        public BalanceModel(string value, byte maxDecimals, CurrencyType currencyType)
+        public CurrencyType CurrencyType { get; }
+
+        public double EffectiveSp { get; set; }
+
+        public double RewardSteem { get; set; }
+
+        public double RewardSp { get; set; }
+
+        public double RewardSbd { get; set; }
+
+        public BalanceModel(double value, byte maxDecimals, CurrencyType currencyType)
         {
             Value = value;
             MaxDecimals = maxDecimals;

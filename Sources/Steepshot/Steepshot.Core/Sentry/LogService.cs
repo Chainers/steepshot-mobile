@@ -47,7 +47,7 @@ namespace Steepshot.Core.Sentry
 
         private async Task Send(Exception ex, string level)
         {
-            if(ex is OperationCanceledException)
+            if (ex is TaskCanceledException || ex is OperationCanceledException)
                 return;
 
             if (!AppSettings.ConnectionService.IsConnectionAvailable())

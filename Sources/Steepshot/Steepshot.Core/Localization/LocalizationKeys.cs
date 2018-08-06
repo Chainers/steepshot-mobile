@@ -186,6 +186,23 @@
         Recipient,
         Amount,
         Wallet,
-        SendTokens
+        SendTokens,
+        TransactionHistory,
+        SelectAction,
+        PowerUp,
+        PowerDown,
+        Max,
+        ClaimRewards,
+        PlagiarismTitle,
+        GuidelinesForPlagiarism,
+        SelfPlagiarism,
+        PhotoPlagiarism,
+        PlagiarismDescription,
+        IPFSLink,
+        CancelPublishing,
+        ContinuePublishing,
+        ClaimYourRights,
+        SimilarPhoto,
+        Photo
     }
 }

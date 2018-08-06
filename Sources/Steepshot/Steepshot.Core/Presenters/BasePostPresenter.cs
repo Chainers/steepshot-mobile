@@ -216,11 +216,11 @@ namespace Steepshot.Core.Presenters
                     CashPresenterManager.Add(response.Result);
                 }
             }
-            else if (response.Error is RequestException requestError)
+            else if (response.Error is RequestException RequestException)
             {
                 //TODO:KOA: bad solution...
-                if (requestError.RawResponse.Contains(Constants.VotedInASimilarWaySteem) ||
-                    requestError.RawResponse.Contains(Constants.VotedInASimilarWayGolos))
+                if (RequestException.RawResponse.Contains(Constants.VotedInASimilarWaySteem) ||
+                    RequestException.RawResponse.Contains(Constants.VotedInASimilarWayGolos))
                 {
                     response.Error = null;
                     ChangeLike(post, wasFlaged);
@@ -275,11 +275,11 @@ namespace Steepshot.Core.Presenters
                     CashPresenterManager.Add(response.Result);
                 }
             }
-            else if (response.Error is RequestException requestError)
+            else if (response.Error is RequestException RequestException)
             {
                 //TODO:KOA: bad solution...
-                if (requestError.RawResponse.Contains(Constants.VotedInASimilarWaySteem) ||
-                    requestError.RawResponse.Contains(Constants.VotedInASimilarWayGolos))
+                if (RequestException.RawResponse.Contains(Constants.VotedInASimilarWaySteem) ||
+                    RequestException.RawResponse.Contains(Constants.VotedInASimilarWayGolos))
                 {
                     response.Error = null;
                     ChangeFlag(post, wasVote);
@@ -315,7 +315,7 @@ namespace Steepshot.Core.Presenters
         #region IDisposable Support
         private bool _disposedValue = false; // To detect redundant calls
 
-        private void Dispose(bool disposing)
+        protected virtual void Dispose(bool disposing)
         {
             if (!_disposedValue)
             {

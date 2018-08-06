@@ -25,7 +25,7 @@ namespace Steepshot.Core.Clients
         public ExtendedHttpClient()
         {
             JsonNetConverter = new JsonNetConverter();
-            MaxResponseContentBufferSize = 256000;
+            MaxResponseContentBufferSize = 2560000;
         }
 
         public async Task<OperationResult<T>> Get<T>(string endpoint, Dictionary<string, object> parameters, CancellationToken token)
