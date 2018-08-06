@@ -294,7 +294,7 @@ namespace Steepshot.Fragment
             catch (Exception ex)
             {
                 await AppSettings.Logger.Error(ex);
-                Activity.ShowAlert(new InternalError(LocalizationKeys.CameraSettingError, ex), ToastLength.Short);
+                Activity.ShowAlert(new InternalException(LocalizationKeys.CameraSettingError, ex), ToastLength.Short);
             }
         }
 
@@ -525,7 +525,7 @@ namespace Steepshot.Fragment
                 else
                 {
                     await AppSettings.Logger.Error(ex);
-                    Activity.ShowAlert(new InternalError(LocalizationKeys.CameraSettingError, ex), ToastLength.Short);
+                    Activity.ShowAlert(new InternalException(LocalizationKeys.CameraSettingError, ex), ToastLength.Short);
                 }
             }
         }

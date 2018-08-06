@@ -318,7 +318,7 @@ namespace Steepshot.iOS.Views
                 }
                 else
                     activityIndicator.StopAnimating();
-            } while (error is RequestError);
+            } while (error is RequestException);
             ShowAlert(error);
         }
 

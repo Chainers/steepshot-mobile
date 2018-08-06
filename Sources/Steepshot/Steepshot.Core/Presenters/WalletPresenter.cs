@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Ditch.Core.JsonRpc;
 using Steepshot.Core.Authorization;
 using Steepshot.Core.Errors;
+using Steepshot.Core.Exceptions;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
@@ -35,7 +36,7 @@ namespace Steepshot.Core.Presenters
         public async Task<Exception> TryLoadNextAccountInfo()
         {
             if (!HasNext || Current == null)
-                return new ValidationError(string.Empty);
+                return new ValidationException(string.Empty);
 
             var error = await TryUpdateAccountInfo(Current);
             if (error == null)
@@ -49,7 +50,7 @@ namespace Steepshot.Core.Presenters
         public async Task<Exception> TryUpdateAccountInfo(UserInfo userInfo)
         {
             if (!ConnectedUsers.ContainsKey(userInfo.Id))
-                return new ValidationError(string.Empty);
+                return new ValidationException(string.Empty);
 
             var response = await TryRunTask<string, AccountInfoResponse>(GetAccountInfo, OnDisposeCts.Token, userInfo.Login);
             if (response.IsSuccess)

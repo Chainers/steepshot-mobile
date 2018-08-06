@@ -5,6 +5,7 @@ using Android.Content;
 using Android.Views;
 using Android.Widget;
 using Steepshot.Core.Errors;
+using Steepshot.Core.Exceptions;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Utils;
 
@@ -100,16 +101,16 @@ namespace Steepshot.Utils
         {
             var lm = AppSettings.LocalizationManager;
 
-            if (error is ValidationError validationError)
+            if (error is ValidationException validationError)
                 return lm.GetText(validationError);
 
             var msg = string.Empty;
 
-            if (error is InternalError internalError)
+            if (error is InternalException internalError)
             {
                 msg = lm.GetText(internalError.Key);
             }
-            else if (error is RequestError requestError)
+            else if (error is RequestException requestError)
             {
                 if (!string.IsNullOrEmpty(requestError.RawResponse))
                     msg = lm.GetText(requestError.RawResponse);
@@ -127,7 +128,7 @@ namespace Steepshot.Utils
             if (error == null || error is TaskCanceledException || error is OperationCanceledException)
                 return true;
 
-            if (error is RequestError requestError)
+            if (error is RequestException requestError)
             {
                 if (requestError.Exception is TaskCanceledException || requestError.Exception is OperationCanceledException)
                     return true;

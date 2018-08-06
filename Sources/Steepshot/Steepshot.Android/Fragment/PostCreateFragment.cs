@@ -274,7 +274,7 @@ namespace Steepshot.Fragment
             catch (Exception ex)
             {
                 await AppSettings.Logger.Error(ex);
-                return new OperationResult<MediaModel>(new Core.Errors.InternalError(LocalizationKeys.PhotoUploadError, ex));
+                return new OperationResult<MediaModel>(new Core.Errors.InternalException(LocalizationKeys.PhotoUploadError, ex));
             }
             finally
             {

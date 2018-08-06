@@ -13,6 +13,7 @@ using Java.Lang;
 using Math = System.Math;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Errors;
+using Steepshot.Core.Exceptions;
 using Steepshot.Core.Utils;
 
 namespace Steepshot.CustomViews
@@ -184,7 +185,7 @@ namespace Steepshot.CustomViews
         {
             if (scaleType == ScaleType.FitStart || scaleType == ScaleType.FitEnd)
             {
-                throw new ValidationError(LocalizationKeys.ErrorCameraScale);
+                throw new ValidationException(LocalizationKeys.ErrorCameraScale);
             }
             if (scaleType == ScaleType.Matrix)
             {
@@ -224,7 +225,7 @@ namespace Steepshot.CustomViews
         {
             if (_mScaleType == ScaleType.FitXy)
             {
-                throw new ValidationError(LocalizationKeys.ErrorCameraZoom);
+                throw new ValidationException(LocalizationKeys.ErrorCameraZoom);
             }
             var topLeft = TransformCoordTouchToBitmap(0, 0, true);
             var bottomRight = TransformCoordTouchToBitmap(ViewWidth, ViewHeight, true);
@@ -630,7 +631,7 @@ namespace Steepshot.CustomViews
             }
             else
             {
-                throw new ValidationError(LocalizationKeys.ErrorCameraScale);
+                throw new ValidationException(LocalizationKeys.ErrorCameraScale);
             }
 
             //

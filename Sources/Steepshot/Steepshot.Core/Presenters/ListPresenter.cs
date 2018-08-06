@@ -8,6 +8,7 @@ using Steepshot.Core.Localization;
 using System.Net;
 using System.Collections;
 using System.Data;
+using Steepshot.Core.Exceptions;
 using Steepshot.Core.Interfaces;
 using Steepshot.Core.Utils;
 
@@ -57,7 +58,7 @@ namespace Steepshot.Core.Presenters
         {
             var available = AppSettings.ConnectionService.IsConnectionAvailable();
             if (!available)
-                return new ValidationError(LocalizationKeys.InternetUnavailable);
+                return new ValidationException(LocalizationKeys.InternetUnavailable);
 
             CancellationToken ts;
             lock (_sync)
@@ -80,7 +81,7 @@ namespace Steepshot.Core.Presenters
             catch (WebException ex)
             {
                 await AppSettings.Logger.Error(ex);
-                return new RequestError(ex);
+                return new RequestException(ex);
             }
             catch (Exception ex)
             {
@@ -89,7 +90,7 @@ namespace Steepshot.Core.Presenters
 
                 available = AppSettings.ConnectionService.IsConnectionAvailable();
                 if (!available)
-                    return new ValidationError(LocalizationKeys.InternetUnavailable);
+                    return new ValidationException(LocalizationKeys.InternetUnavailable);
 
                 await AppSettings.Logger.Error(ex);
                 return ex;
@@ -111,7 +112,7 @@ namespace Steepshot.Core.Presenters
         {
             var available = AppSettings.ConnectionService.IsConnectionAvailable();
             if (!available)
-                return new ValidationError(LocalizationKeys.InternetUnavailable);
+                return new ValidationException(LocalizationKeys.InternetUnavailable);
 
             CancellationToken ts;
             lock (_sync)
@@ -134,7 +135,7 @@ namespace Steepshot.Core.Presenters
             catch (WebException ex)
             {
                 await AppSettings.Logger.Error(ex);
-                return new RequestError(ex);
+                return new RequestException(ex);
             }
             catch (Exception ex)
             {
@@ -143,7 +144,7 @@ namespace Steepshot.Core.Presenters
 
                 available = AppSettings.ConnectionService.IsConnectionAvailable();
                 if (!available)
-                    return new ValidationError(LocalizationKeys.InternetUnavailable);
+                    return new ValidationException(LocalizationKeys.InternetUnavailable);
 
                 await AppSettings.Logger.Error(ex);
                 return ex;

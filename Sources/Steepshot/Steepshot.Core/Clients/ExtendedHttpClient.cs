@@ -12,6 +12,7 @@ using System.IO;
 using System.Linq;
 using System.Net.Http.Headers;
 using Steepshot.Core.Errors;
+using Steepshot.Core.Exceptions;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Utils;
 
@@ -89,7 +90,7 @@ namespace Steepshot.Core.Clients
             var result = await CreateResult<MediaModel>(response, token);
 
             if (result.IsSuccess && result.Result == null)
-                result.Error = new ValidationError(LocalizationKeys.ServeUnexpectedError);
+                result.Error = new ValidationException(LocalizationKeys.ServeUnexpectedError);
 
             return result;
         }
@@ -115,7 +116,7 @@ namespace Steepshot.Core.Clients
             if (!response.IsSuccessStatusCode)
             {
                 var rawResponse = await response.Content.ReadAsStringAsync();
-                result.Error = new RequestError(response.RequestMessage.ToString(), rawResponse);
+                result.Error = new RequestException(response.RequestMessage.ToString(), rawResponse);
                 return result;
             }
 
@@ -137,7 +138,7 @@ namespace Steepshot.Core.Clients
                         }
                     default:
                         {
-                            result.Error = new ValidationError(LocalizationKeys.UnsupportedMime);
+                            result.Error = new ValidationException(LocalizationKeys.UnsupportedMime);
                             break;
                         }
                 }

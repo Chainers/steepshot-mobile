@@ -8,6 +8,7 @@ using UIKit;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Utils;
 using PureLayout.Net;
+using Steepshot.Core.Exceptions;
 using Steepshot.iOS.Helpers;
 using Steepshot.iOS.Views;
 
@@ -262,18 +263,18 @@ namespace Steepshot.iOS.ViewControllers
         {
             var lm = AppSettings.LocalizationManager;
           
-            if (error is ValidationError validationError)
+            if (error is ValidationException validationError)
                 return lm.GetText(validationError);
 
 
             AppSettings.Logger.Error(error);
             var msg = string.Empty;
 
-            if (error is InternalError internalError)
+            if (error is InternalException internalError)
             {
                 msg = lm.GetText(internalError.Key);
             }
-            else if (error is RequestError requestError)
+            else if (error is RequestException requestError)
             {
                 if (!string.IsNullOrEmpty(requestError.RawResponse))
                     msg = lm.GetText(requestError.RawResponse);
@@ -291,7 +292,7 @@ namespace Steepshot.iOS.ViewControllers
             if (error == null || error is TaskCanceledException || error is OperationCanceledException)
                 return true;
 
-            if (error is RequestError requestError)
+            if (error is RequestException requestError)
             {
                 if (requestError.Exception is TaskCanceledException || requestError.Exception is OperationCanceledException)
                     return true;

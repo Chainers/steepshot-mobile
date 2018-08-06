@@ -209,7 +209,7 @@ namespace Steepshot.iOS.Views
             }
             catch (Exception ex)
             {
-                ShowAlert(new InternalError(Core.Localization.LocalizationKeys.PhotoProcessingError, ex));
+                ShowAlert(new InternalException(Core.Localization.LocalizationKeys.PhotoProcessingError, ex));
             }
         }
 
