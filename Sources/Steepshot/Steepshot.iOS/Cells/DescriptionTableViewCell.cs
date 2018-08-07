@@ -12,6 +12,7 @@ namespace Steepshot.iOS.Cells
         protected DescriptionTableViewCell(IntPtr handle) : base(handle) { }
         public static readonly NSString Key = new NSString(nameof(DescriptionTableViewCell));
         public static readonly UINib Nib;
+        private TTTAttributedLabel attributedLabel;
 
         static DescriptionTableViewCell()
         {
@@ -20,7 +21,7 @@ namespace Steepshot.iOS.Cells
 
         public void UpdateCell(Post post, Action<string> TagAction)
         {
-            var attributedLabel = new TTTAttributedLabel();
+            attributedLabel = new TTTAttributedLabel();
             attributedLabel.EnabledTextCheckingTypes = NSTextCheckingType.Link;
             var prop = new NSDictionary();
             attributedLabel.LinkAttributes = prop;
