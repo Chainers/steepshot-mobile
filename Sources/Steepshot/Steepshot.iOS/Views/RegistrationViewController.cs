@@ -233,7 +233,7 @@ namespace Steepshot.iOS.Views
                 return;
             }
 
-            if (exception?.Message == "User not found")
+            if (exception != null)
             {
                 _usernameUnderline.BackgroundColor = Constants.R240G240B240;
                 _usernameLabel.Hidden = true;
