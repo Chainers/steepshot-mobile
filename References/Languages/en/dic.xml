@@ -307,4 +307,5 @@ About 6 inches away</string>
     <string name="[&quot;Email may not be null&quot;]">Email may not be null</string>
     <string name="[&quot;Username is required&quot;]">Username is required</string>
     <string name="[&quot;Username may not be null&quot;]">Username may not be null</string>
+    <string name="[&quot;Unable to create account&quot;]">Unable to create account</string>
 </resources>
