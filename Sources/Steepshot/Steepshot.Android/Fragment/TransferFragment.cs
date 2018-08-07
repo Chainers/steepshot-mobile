@@ -571,7 +571,7 @@ namespace Steepshot.Fragment
             }
             else
             {
-                Toast.MakeText(Activity, transferResponse.Error.Message, ToastLength.Short).Show();
+                Toast.MakeText(Activity, transferResponse.Exception.Message, ToastLength.Short).Show();
             }
             State = FragmentState.TransferPrepare;
         }

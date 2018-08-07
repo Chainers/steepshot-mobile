@@ -181,6 +181,9 @@ namespace Steepshot.iOS.Views
                 case ActionType.ProfilePower:
                     ShowPowerPopup();
                     break;
+                case ActionType.Balance:
+                    NavigationController.PushViewController(new WalletViewController(), true);
+                    break;
                 default:
                     break;
             }
@@ -320,10 +323,10 @@ namespace Steepshot.iOS.Views
             errorMessage.Hidden = true;
             try
             {
-                var error = await _presenter.TryGetUserInfo(Username);
+                var exception = await _presenter.TryGetUserInfo(Username);
                 _refreshControl.EndRefreshing();
 
-                if (error == null)
+                if (exception == null)
                 {
                     _userData = _presenter.UserProfileResponse;
                     if (_userData.IsSubscribed)
@@ -443,15 +446,15 @@ namespace Steepshot.iOS.Views
                 _sliderGridDelegate.ClearPosition();
             }
 
-            var error = await _presenter.TryLoadNextPosts();
+            var exception = await _presenter.TryLoadNextPosts();
 
-            if (error == null)
+            if (exception == null)
             {
                 _isPostsLoading = false;
             }
             else
             {
-                ShowAlert(error);
+                ShowAlert(exception);
             }
 
             if (_userDataLoaded)
@@ -463,13 +466,13 @@ namespace Steepshot.iOS.Views
 
         private async Task Follow()
         {
-            _gridDelegate.profileCell.DecorateFollowButton(null, Username);
-            var error = await _presenter.TryFollow();
+            _gridDelegate.profileCell.DecorateFollowButton();
+            var exception = await _presenter.TryFollow();
 
-            if (error == null)
-                _gridDelegate.profileCell.DecorateFollowButton(_userData.HasFollowed, Username);
+            if (exception == null)
+                _gridDelegate.profileCell.DecorateFollowButton();
             else
-                ShowAlert(error);
+                ShowAlert(exception);
         }
 
         public void OpenPost(Post post)

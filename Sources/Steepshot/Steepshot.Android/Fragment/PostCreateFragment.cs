@@ -13,6 +13,7 @@ using Android.Widget;
 using Java.IO;
 using Steepshot.Base;
 using Steepshot.Core;
+using Steepshot.Core.Exceptions;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
@@ -135,7 +136,7 @@ namespace Steepshot.Fragment
 
                     if (!operationResult.IsSuccess)
                     {
-                        Activity.ShowAlert(operationResult.Error);
+                        Activity.ShowAlert(operationResult.Exception);
                         EnabledPost();
                         return;
                     }
@@ -274,7 +275,7 @@ namespace Steepshot.Fragment
             catch (Exception ex)
             {
                 await AppSettings.Logger.Error(ex);
-                return new OperationResult<MediaModel>(new Core.Errors.InternalException(LocalizationKeys.PhotoUploadError, ex));
+                return new OperationResult<MediaModel>(new InternalException(LocalizationKeys.PhotoUploadError, ex));
             }
             finally
             {

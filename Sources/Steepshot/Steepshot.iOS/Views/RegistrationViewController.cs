@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading;
 using PureLayout.Net;
-using Steepshot.Core.Errors;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
@@ -225,16 +224,16 @@ namespace Steepshot.iOS.Views
 
             _loader.StartAnimating();
 
-            var error = await _presenter.TryGetAccountInfo(_username.Text);
+            var exception = await _presenter.TryGetAccountInfo(_username.Text);
 
-            if (error is OperationCanceledException)
+            if (exception is OperationCanceledException)
             {
                 if (string.IsNullOrEmpty(_username.Text))
                     _loader.StopAnimating();
                 return;
             }
 
-            if (error?.Message == "User not found")
+            if (exception != null)
             {
                 _usernameUnderline.BackgroundColor = Constants.R240G240B240;
                 _usernameLabel.Hidden = true;
@@ -270,15 +269,15 @@ namespace Steepshot.iOS.Views
 
             var model = new CreateAccountModel(_username.Text, _email.Text);
 
-            var error = await _presenter.TryCreateAccount(model);
+            var exception = await _presenter.TryCreateAccount(model);
 
-            if (error == null)
+            if (exception == null)
             {
                 var myViewController = new RegistrationCompletionViewController(model);
                 NavigationController.PushViewController(myViewController, true);
             }
             else
-                ShowAlert(error);
+                ShowAlert(exception);
 
             ToggleControls(true);
         }

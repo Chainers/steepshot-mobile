@@ -90,9 +90,9 @@ namespace Steepshot.Core.Clients
 
             var startDelay = DateTime.Now;
 
-            await Trace($"post/@{model.Author}/{model.Permlink}/{model.Type.GetDescription()}", model.Login, result.Error, $"@{model.Author}/{model.Permlink}", ct);
+            await Trace($"post/@{model.Author}/{model.Permlink}/{model.Type.GetDescription()}", model.Login, result.Exception, $"@{model.Author}/{model.Permlink}", ct);
             if (!result.IsSuccess)
-                return new OperationResult<Post>(result.Error);
+                return new OperationResult<Post>(result.Exception);
 
             OperationResult<Post> postInfo;
             if (model.IsComment) //TODO: << delete when comment update support will added on backend
@@ -124,7 +124,7 @@ namespace Steepshot.Core.Clients
                 return new OperationResult<VoidResponse>(results);
 
             var result = await _ditchClient.Follow(model, ct);
-            await Trace($"user/{model.Username}/{model.Type.ToString().ToLowerInvariant()}", model.Login, result.Error, model.Username, ct);
+            await Trace($"user/{model.Username}/{model.Type.ToString().ToLowerInvariant()}", model.Login, result.Exception, model.Username, ct);
             return result;
         }
 
@@ -151,7 +151,7 @@ namespace Steepshot.Core.Clients
 
             var result = await _ditchClient.CreateOrEdit(model, ct);
             //log parent post to perform update
-            await Trace($"post/@{model.ParentAuthor}/{model.ParentPermlink}/comment", model.Login, result.Error, $"@{model.ParentAuthor}/{model.ParentPermlink}", ct);
+            await Trace($"post/@{model.ParentAuthor}/{model.ParentPermlink}/comment", model.Login, result.Exception, $"@{model.ParentAuthor}/{model.ParentPermlink}", ct);
             return result;
         }
 
@@ -160,7 +160,7 @@ namespace Steepshot.Core.Clients
             var result = await PreparePost(model, ct);
 
             if (!result.IsSuccess)
-                return new OperationResult<PreparePostResponse>(result.Error);
+                return new OperationResult<PreparePostResponse>(result.Exception);
 
             return result;
         }
@@ -170,7 +170,7 @@ namespace Steepshot.Core.Clients
             var operationResult = await PreparePost(model, ct);
 
             if (!operationResult.IsSuccess)
-                return new OperationResult<VoidResponse>(operationResult.Error);
+                return new OperationResult<VoidResponse>(operationResult.Exception);
 
             var preparedData = operationResult.Result;
             var meta = JsonConvert.SerializeObject(preparedData.JsonMetadata);
@@ -181,11 +181,11 @@ namespace Steepshot.Core.Clients
             var result = await _ditchClient.CreateOrEdit(commentModel, ct);
             if (model.IsEditMode)
             {
-                await Trace($"post/{model.PostPermlink}/edit", model.Login, result.Error, model.PostPermlink, ct);
+                await Trace($"post/{model.PostPermlink}/edit", model.Login, result.Exception, model.PostPermlink, ct);
             }
             else
             {
-                await Trace("post", model.Login, result.Error, model.PostPermlink, ct);
+                await Trace("post", model.Login, result.Exception, model.PostPermlink, ct);
             }
             return result;
         }
@@ -202,7 +202,7 @@ namespace Steepshot.Core.Clients
             var trxResp = await _ditchClient.GetVerifyTransaction(model, ct);
 
             if (!trxResp.IsSuccess)
-                return new OperationResult<MediaModel>(trxResp.Error);
+                return new OperationResult<MediaModel>(trxResp.Exception);
 
             model.VerifyTransaction = trxResp.Result;
 
@@ -222,14 +222,14 @@ namespace Steepshot.Core.Clients
                 if (operationResult.IsSuccess)
                 {
                     if (model.IsPost)
-                        await Trace($"post/@{model.Author}/{model.Permlink}/delete", model.Login, operationResult.Error, $"@{model.Author}/{model.Permlink}", ct);
+                        await Trace($"post/@{model.Author}/{model.Permlink}/delete", model.Login, operationResult.Exception, $"@{model.Author}/{model.Permlink}", ct);
                     return operationResult;
                 }
             }
 
             var result = await _ditchClient.CreateOrEdit(model, ct);
             if (model.IsPost)
-                await Trace($"post/@{model.Author}/{model.Permlink}/edit", model.Login, result.Error, $"@{model.Author}/{model.Permlink}", ct);
+                await Trace($"post/@{model.Author}/{model.Permlink}/edit", model.Login, result.Exception, $"@{model.Author}/{model.Permlink}", ct);
             return result;
         }
 
@@ -247,7 +247,7 @@ namespace Steepshot.Core.Clients
             var trxResp = await _ditchClient.GetVerifyTransaction(model, ct);
 
             if (!trxResp.IsSuccess)
-                return new OperationResult<object>(trxResp.Error);
+                return new OperationResult<object>(trxResp.Exception);
 
             model.VerifyTransaction = JsonConvert.DeserializeObject<JObject>(trxResp.Result);
 

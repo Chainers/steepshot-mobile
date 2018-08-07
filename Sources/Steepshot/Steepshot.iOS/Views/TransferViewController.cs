@@ -17,7 +17,6 @@ using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Models.Common;
 using Steepshot.iOS.Helpers;
 using System.Globalization;
-using Steepshot.Core.Authorization;
 using Steepshot.Core.Localization;
 
 namespace Steepshot.iOS.Views
@@ -199,7 +198,7 @@ namespace Steepshot.iOS.Views
                 _memoTextView.Text = string.Empty;
             }
             else
-                ShowAlert(transferResponse.Error);
+                ShowAlert(transferResponse.Exception);
         }
 
         private async void UpdateAccountInfo()

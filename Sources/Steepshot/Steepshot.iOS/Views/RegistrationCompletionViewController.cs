@@ -105,18 +105,18 @@ namespace Steepshot.iOS.Views
             label.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom);
             label.AutoPinEdgeToSuperviewEdge(ALEdge.Left);
             label.AutoPinEdgeToSuperviewEdge(ALEdge.Right);
-            if(DeviceHelper.IsSmallDevice)
+            if (DeviceHelper.IsSmallDevice)
                 label.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, image, 25);
             else
                 label.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, image, 50);
-            
+
             NavigationController.SetNavigationBarHidden(true, true);
         }
 
         void CloseView(object sender, System.EventArgs e)
         {
             var controllers = NavigationController.ViewControllers;
-            NavigationController.ViewControllers = new UIViewController[] { controllers[0], controllers[1] , controllers[3]};
+            NavigationController.ViewControllers = new UIViewController[] { controllers[0], controllers[1], controllers[3] };
             NavigationController.SetNavigationBarHidden(false, true);
             NavigationController.PopViewController(true);
         }
@@ -131,15 +131,15 @@ namespace Steepshot.iOS.Views
         {
             ToggleControls(false);
 
-            var error = await _presenter.TryResendMail(_account);
+            var exception = await _presenter.TryResendMail(_account);
 
-            if (error == null)
+            if (exception == null)
             {
-                ShowAlert(error);
+                ShowAlert(exception);
             }
             else
-                ShowAlert(error);
-            
+                ShowAlert(exception);
+
             ToggleControls(true);
         }
 

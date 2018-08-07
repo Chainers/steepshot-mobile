@@ -67,7 +67,7 @@ namespace Steepshot.Core.Presenters
                     IsLastReaded = true;
                 NotifySourceChanged(nameof(TryLoadNextPostVoters), true);
             }
-            return response.Error;
+            return response.Exception;
         }
 
 
@@ -111,7 +111,7 @@ namespace Steepshot.Core.Presenters
                 NotifySourceChanged(nameof(TryLoadNextUserFriends), true);
             }
 
-            return response.Error;
+            return response.Exception;
         }
 
 
@@ -152,17 +152,17 @@ namespace Steepshot.Core.Presenters
                     IsLastReaded = true;
                 NotifySourceChanged(nameof(TryLoadNextSearchUser), true);
             }
-            return response.Error;
+            return response.Exception;
         }
 
         public async Task<Exception> TryFollow(UserFriend item)
         {
             item.FollowedChanging = true;
             NotifySourceChanged(nameof(TryFollow), true);
-            var error = await TryRunTask(Follow, OnDisposeCts.Token, item);
+            var exception = await TryRunTask(Follow, OnDisposeCts.Token, item);
             item.FollowedChanging = false;
             NotifySourceChanged(nameof(TryFollow), true);
-            return error;
+            return exception;
         }
 
         private async Task<Exception> Follow(UserFriend item, CancellationToken ct)
@@ -176,7 +176,7 @@ namespace Steepshot.Core.Presenters
 
             CashPresenterManager.Update(item);
 
-            return response.Error;
+            return response.Exception;
         }
 
         public override void Clear(bool isNotify = true)

@@ -4,17 +4,17 @@ namespace Steepshot.Core.Models.Common
 {
     public class OperationResult
     {
-        public bool IsSuccess => Error == null;
+        public bool IsSuccess => Exception == null;
 
-        public Exception Error { get; set; }
+        public Exception Exception { get; set; }
 
         public OperationResult()
         {
         }
 
-        public OperationResult(Exception error)
+        public OperationResult(Exception exception)
         {
-            Error = error;
+            Exception = exception;
         }
     }
 
@@ -24,7 +24,7 @@ namespace Steepshot.Core.Models.Common
 
         public OperationResult() { }
 
-        public OperationResult(Exception error) : base(error) { }
+        public OperationResult(Exception exception) : base(exception) { }
 
         public OperationResult(T result)
         {

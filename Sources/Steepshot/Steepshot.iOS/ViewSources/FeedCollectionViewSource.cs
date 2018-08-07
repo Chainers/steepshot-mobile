@@ -69,6 +69,8 @@ namespace Steepshot.iOS.ViewSources
                     if (!_flowDelegate.profileCell.IsProfileActionSet)
                         _flowDelegate.profileCell.ProfileAction += ProfileAction;
 
+                    _flowDelegate.UpdateProfile(null);
+
                     return profile;
                 }
                 else

@@ -1,5 +1,4 @@
-﻿using System;
-using Foundation;
+﻿using Foundation;
 using Steepshot.Core.Models;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
@@ -93,8 +92,8 @@ namespace Steepshot.iOS.Views
 
         public async void GetItems()
         {
-            var errors = await _presenter.TryLoadNextUserFriends(_user.Username);
-            ShowAlert(errors);
+            var exception = await _presenter.TryLoadNextUserFriends(_user.Username);
+            ShowAlert(exception);
             progressBar.StopAnimating();
         }
 
@@ -102,8 +101,8 @@ namespace Steepshot.iOS.Views
         {
             if (user != null)
             {
-                var errors = await _presenter.TryFollow(user);
-                ShowAlert(errors);
+                var exception = await _presenter.TryFollow(user);
+                ShowAlert(exception);
             }
         }
 

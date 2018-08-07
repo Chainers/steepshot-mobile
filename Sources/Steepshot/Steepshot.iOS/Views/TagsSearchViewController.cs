@@ -12,7 +12,7 @@ using UIKit;
 using Steepshot.Core.Utils;
 using System.Threading.Tasks;
 using Steepshot.Core;
-using Steepshot.Core.Errors;
+using Steepshot.Core.Exceptions;
 
 namespace Steepshot.iOS.Views
 {
@@ -128,8 +128,8 @@ namespace Steepshot.iOS.Views
         {
             if (user != null)
             {
-                var errors = await _searchFacade.UserFriendPresenter.TryFollow(user);
-                ShowAlert(errors);
+                var exception = await _searchFacade.UserFriendPresenter.TryFollow(user);
+                ShowAlert(exception);
             }
         }
 
@@ -164,7 +164,8 @@ namespace Steepshot.iOS.Views
             var shouldHideLoader = await Search(clear, shouldAnimate, isLoaderNeeded);
             if (shouldHideLoader)
             {
-                _noResultViewPeople.Hidden = _searchFacade.UserFriendPresenter.Count > 0;
+                if(searchTextField.Text.Length > 2)
+                    _noResultViewPeople.Hidden = _searchFacade.UserFriendPresenter.Count > 0;
                 _peopleLoader.StopAnimating();
             }
         }
@@ -204,13 +205,13 @@ namespace Steepshot.iOS.Views
                 }
             }
 
-            var error = await _searchFacade.TrySearchCategories(searchTextField.Text, _searchType);
-            if (error is OperationCanceledException)
+            var exception = await _searchFacade.TrySearchCategories(searchTextField.Text, _searchType);
+            if (exception is OperationCanceledException)
                 return false;
 
             if (shouldAnimate)
             {
-                if (!_isWarningOpen && error is ValidateException)
+                if (!_isWarningOpen && exception is ValidationException)
                 {
                     UIView.Animate(0.3f, 0f, UIViewAnimationOptions.CurveEaseOut, () =>
                     {

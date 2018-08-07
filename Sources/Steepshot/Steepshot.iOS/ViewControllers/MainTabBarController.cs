@@ -110,19 +110,17 @@ namespace Steepshot.iOS.ViewControllers
             }
         }
 
-        public async void UpdateProfile()
+        public void UpdateProfile()
         {
-            var userData = await ((ProfileViewController)((InteractivePopNavigationController)ViewControllers[3]).RootViewController).GetUserInfo();
-            if (userData == null)
-                InitializePowerFrame();
+            InitializePowerFrame();
         }
 
         private async void InitializePowerFrame()
         {
             do
             {
-                var error = await _presenter.TryGetUserInfo(AppSettings.User.Login);
-                if (error == null || error is OperationCanceledException)
+                var exception = await _presenter.TryGetUserInfo(AppSettings.User.Login);
+                if (exception == null || exception is OperationCanceledException)
                 {
                     _powerFrame.ChangePercents((int)_presenter.UserProfileResponse.VotingPower);
                     if (!string.IsNullOrEmpty(_presenter.UserProfileResponse.ProfileImage))

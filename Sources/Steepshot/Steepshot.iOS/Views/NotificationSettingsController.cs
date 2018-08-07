@@ -86,7 +86,7 @@ namespace Steepshot.iOS.Views
             if (resp.IsSuccess)
                 AppSettings.User.PushSettings = PushSettings;
             else
-                this.ShowAlert(resp.Error);
+                this.ShowAlert(resp.Exception);
         }
 
         public override async void ViewWillDisappear(bool animated)

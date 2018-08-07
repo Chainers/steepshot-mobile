@@ -208,6 +208,7 @@ namespace Steepshot.iOS.Views
             usersTable.RegisterNibForCellReuse(UINib.FromName(nameof(FollowViewCell), NSBundle.MainBundle), nameof(FollowViewCell));
             usersTable.RegisterClassForCellReuse(typeof(LoaderCell), nameof(LoaderCell));
             usersTable.RowHeight = 70f;
+            usersTable.ShowsVerticalScrollIndicator = false;
 
             var _tagsSource = new TagsTableViewSource(_searchFacade.TagsPresenter, tagsTable, true);
             _tagsSource.CellAction += CellAction;
@@ -218,6 +219,7 @@ namespace Steepshot.iOS.Views
             tagsTable.RegisterClassForCellReuse(typeof(TagTableViewCell), nameof(TagTableViewCell));
             tagsTable.RegisterNibForCellReuse(UINib.FromName(nameof(TagTableViewCell), NSBundle.MainBundle), nameof(TagTableViewCell));
             tagsTable.RowHeight = 65f;
+            tagsTable.ShowsVerticalScrollIndicator = false;
         }
     }
 }

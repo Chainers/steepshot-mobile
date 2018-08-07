@@ -12,7 +12,6 @@ using Steepshot.Core.Localization;
 using Steepshot.iOS.Helpers;
 using System.Collections.Generic;
 using Steepshot.Core.Models.Requests;
-using System.Globalization;
 
 namespace Steepshot.iOS.Views
 {

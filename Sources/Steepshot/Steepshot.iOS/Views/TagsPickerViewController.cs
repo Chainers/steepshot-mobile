@@ -71,9 +71,9 @@ namespace Steepshot.iOS.Views
             _tableSource.ScrolledToBottom += async () =>
             {
                 _tagField.Loader.StartAnimating();
-                var error = await _presenter.TryLoadNext(_tagField.Text, false);
+                var exception = await _presenter.TryLoadNext(_tagField.Text, false);
                 _tagField.Loader.StopAnimating();
-                ShowAlert(error);
+                ShowAlert(exception);
             };
 
             tagsTableView.Source = _tableSource;
@@ -171,15 +171,15 @@ namespace Steepshot.iOS.Views
             _tagField.Loader.StartAnimating();
             _previousQuery = _tagField.Text;
 
-            Exception error = null;
+            Exception exception = null;
             if (_tagField.Text.Length == 0)
-                error = await _presenter.TryGetTopTags();
+                exception = await _presenter.TryGetTopTags();
             else if (_tagField.Text.Length > 1)
-                error = await _presenter.TryLoadNext(_tagField.Text, showUnknownTag : true);
+                exception = await _presenter.TryLoadNext(_tagField.Text, showUnknownTag : true);
 
-            if(!(error is OperationCanceledException))
+            if(!(exception is OperationCanceledException))
                 _tagField.Loader.StopAnimating();
-            ShowAlert(error);
+            ShowAlert(exception);
         }
 
         private void EditingDidChange(object sender, EventArgs e)

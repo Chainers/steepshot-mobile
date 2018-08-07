@@ -224,7 +224,7 @@ namespace Steepshot.Fragment
             }
             else
             {
-                Activity.ShowAlert(response.Error, ToastLength.Short);
+                Activity.ShowAlert(response.Exception, ToastLength.Short);
             }
         }
 

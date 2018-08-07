@@ -3,11 +3,11 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Steepshot.Core.Authorization;
+using Steepshot.Core.Exceptions;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Models.Enums;
-using Steepshot.Core.Errors;
 using Steepshot.Core.Services;
 using Steepshot.Core.Utils;
 
@@ -27,9 +27,9 @@ namespace Steepshot.Core.Presenters
             if (post == null)
                 return null;
 
-            var error = await TryRunTask(DeletePost, OnDisposeCts.Token, post);
+            var exception = await TryRunTask(DeletePost, OnDisposeCts.Token, post);
             NotifySourceChanged(nameof(TryDeletePost), true);
-            return error;
+            return exception;
         }
 
         private async Task<Exception> DeletePost(Post post, CancellationToken ct)
@@ -44,7 +44,7 @@ namespace Steepshot.Core.Presenters
                     CashPresenterManager.RemoveRef(post);
                 }
             }
-            return response.Error;
+            return response.Exception;
         }
 
         public async Task<Exception> TryDeleteComment(Post post, Post parentPost)
@@ -52,9 +52,9 @@ namespace Steepshot.Core.Presenters
             if (post == null || parentPost == null)
                 return null;
 
-            var error = await TryRunTask(DeleteComment, OnDisposeCts.Token, post, parentPost);
+            var exception = await TryRunTask(DeleteComment, OnDisposeCts.Token, post, parentPost);
             NotifySourceChanged(nameof(TryDeletePost), true);
-            return error;
+            return exception;
         }
 
         private async Task<Exception> DeleteComment(Post post, Post parentPost, CancellationToken ct)
@@ -68,7 +68,7 @@ namespace Steepshot.Core.Presenters
                     Items.Remove(post);
                 }
             }
-            return response.Error;
+            return response.Exception;
         }
 
         public async Task<Exception> TryEditComment(UserInfo userInfo, Post parentPost, Post post, string body, IAppInfo appInfo)
@@ -77,9 +77,9 @@ namespace Steepshot.Core.Presenters
                 return null;
 
             var model = new CreateOrEditCommentModel(userInfo, parentPost, post, body, appInfo);
-            var error = await TryRunTask(EditComment, OnDisposeCts.Token, model, post);
+            var exception = await TryRunTask(EditComment, OnDisposeCts.Token, model, post);
             NotifySourceChanged(nameof(TryEditComment), true);
-            return error;
+            return exception;
         }
 
         private async Task<Exception> EditComment(CreateOrEditCommentModel model, Post post, CancellationToken ct)
@@ -87,7 +87,7 @@ namespace Steepshot.Core.Presenters
             var response = await Api.CreateOrEditComment(model, ct);
             if (response.IsSuccess)
                 post.Body = model.Body;
-            return response.Error;
+            return response.Exception;
         }
 
 
@@ -104,9 +104,9 @@ namespace Steepshot.Core.Presenters
             NotifySourceChanged(nameof(HidePost), true);
         }
 
-        protected bool ResponseProcessing(OperationResult<ListResponse<Post>> response, int itemsLimit, out Exception error, string sender, bool isNeedClearItems = false, bool enableEmptyMedia = false)
+        protected bool ResponseProcessing(OperationResult<ListResponse<Post>> response, int itemsLimit, out Exception exception, string sender, bool isNeedClearItems = false, bool enableEmptyMedia = false)
         {
-            error = null;
+            exception = null;
             if (response == null)
                 return false;
 
@@ -151,7 +151,7 @@ namespace Steepshot.Core.Presenters
                 if (results.Count < Math.Min(ServerMaxCount, itemsLimit))
                     IsLastReaded = true;
             }
-            error = response.Error;
+            exception = response.Exception;
             return false;
         }
 
@@ -190,13 +190,13 @@ namespace Steepshot.Core.Presenters
             IsEnableVote = false;
             NotifySourceChanged(nameof(TryVote), true);
 
-            var error = await TryRunTask(Vote, OnDisposeCts.Token, post);
+            var exception = await TryRunTask(Vote, OnDisposeCts.Token, post);
 
             post.VoteChanging = false;
             IsEnableVote = true;
             NotifySourceChanged(nameof(TryVote), true);
 
-            return error;
+            return exception;
         }
 
         private async Task<Exception> Vote(Post post, CancellationToken ct)
@@ -216,18 +216,18 @@ namespace Steepshot.Core.Presenters
                     CashPresenterManager.Add(response.Result);
                 }
             }
-            else if (response.Error is RequestException RequestException)
+            else if (response.Exception is RequestException requestException)
             {
                 //TODO:KOA: bad solution...
-                if (RequestException.RawResponse.Contains(Constants.VotedInASimilarWaySteem) ||
-                    RequestException.RawResponse.Contains(Constants.VotedInASimilarWayGolos))
+                if (requestException.RawResponse.Contains(Constants.VotedInASimilarWaySteem) ||
+                    requestException.RawResponse.Contains(Constants.VotedInASimilarWayGolos))
                 {
-                    response.Error = null;
+                    response.Exception = null;
                     ChangeLike(post, wasFlaged);
                 }
             }
 
-            return response.Error;
+            return response.Exception;
         }
 
         private void ChangeLike(Post post, bool wasFlaged)
@@ -249,13 +249,13 @@ namespace Steepshot.Core.Presenters
             IsEnableVote = false;
             NotifySourceChanged(nameof(TryFlag), true);
 
-            var error = await TryRunTask(Flag, OnDisposeCts.Token, post);
+            var exception = await TryRunTask(Flag, OnDisposeCts.Token, post);
 
             post.FlagChanging = false;
             IsEnableVote = true;
             NotifySourceChanged(nameof(TryFlag), true);
 
-            return error;
+            return exception;
         }
 
         private async Task<Exception> Flag(Post post, CancellationToken ct)
@@ -275,17 +275,17 @@ namespace Steepshot.Core.Presenters
                     CashPresenterManager.Add(response.Result);
                 }
             }
-            else if (response.Error is RequestException RequestException)
+            else if (response.Exception is RequestException requestException)
             {
                 //TODO:KOA: bad solution...
-                if (RequestException.RawResponse.Contains(Constants.VotedInASimilarWaySteem) ||
-                    RequestException.RawResponse.Contains(Constants.VotedInASimilarWayGolos))
+                if (requestException.RawResponse.Contains(Constants.VotedInASimilarWaySteem) ||
+                    requestException.RawResponse.Contains(Constants.VotedInASimilarWayGolos))
                 {
-                    response.Error = null;
+                    response.Exception = null;
                     ChangeFlag(post, wasVote);
                 }
             }
-            return response.Error;
+            return response.Exception;
         }
 
         private void ChangeFlag(Post post, bool wasVote)

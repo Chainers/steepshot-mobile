@@ -22,7 +22,7 @@ namespace Steepshot.iOS.Views
         {
             base.ViewDidLoad();
             View.BackgroundColor = Constants.R250G250B250;
-
+            View.ClipsToBounds = true;
 
             /*
             var _sendButton = new UIButton();
@@ -148,6 +148,11 @@ namespace Steepshot.iOS.Views
             transfer.Layer.CornerRadius = 12;
             transfer.ClipsToBounds = true;
             View.AddSubview(transfer);
+
+            transfer.TouchDown += (object sender, EventArgs e) =>
+            {
+                NavigationController.PushViewController(new TransferViewController(), true);
+            };
 
             transfer.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, _pageControl, 20);
             transfer.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 20);

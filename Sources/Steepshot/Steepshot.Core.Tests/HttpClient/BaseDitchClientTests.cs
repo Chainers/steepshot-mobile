@@ -26,7 +26,7 @@ namespace Steepshot.Core.Tests.HttpClient
 
             var response = await Api[apiName].ValidatePrivateKey(request, CancellationToken.None);
 
-            Assert.IsTrue(response.Error.Message.StartsWith(nameof(LocalizationKeys.WrongPrivatePostingKey)));
+            Assert.IsTrue(response.Exception.Message.StartsWith(nameof(LocalizationKeys.WrongPrivatePostingKey)));
         }
 
         [Test]
@@ -40,7 +40,7 @@ namespace Steepshot.Core.Tests.HttpClient
 
             var response = await Api[apiName].ValidatePrivateKey(request, CancellationToken.None);
 
-            Assert.IsTrue(response.Error.Message.StartsWith(nameof(LocalizationKeys.WrongPrivatePostingKey)));
+            Assert.IsTrue(response.Exception.Message.StartsWith(nameof(LocalizationKeys.WrongPrivatePostingKey)));
         }
 
         [Test]
@@ -54,7 +54,7 @@ namespace Steepshot.Core.Tests.HttpClient
 
             var response = await Api[apiName].ValidatePrivateKey(request, CancellationToken.None);
 
-            Assert.IsTrue(response.Error.Message.StartsWith("13 N5boost16exception_detail10clone_implINS0_19error_info_injectorISt12out_of_rangeEEEE: unknown key"));
+            Assert.IsTrue(response.Exception.Message.StartsWith("13 N5boost16exception_detail10clone_implINS0_19error_info_injectorISt12out_of_rangeEEEE: unknown key"));
         }
 
         [Test]
@@ -81,13 +81,13 @@ namespace Steepshot.Core.Tests.HttpClient
             var response2 = await Api[apiName].Vote(request, CancellationToken.None);
             AssertResult(response2);
 
-            Assert.That(response2.Error.Message.Contains("You have already voted in a similar way.")
-                        || response2.Error.Message.Contains("You`ve already liked this post a few times. Please try another one.")
-                        || response2.Error.Message.Contains("Can only vote once every 3 seconds.")
-                        || response2.Error.Message.Contains("Cannot vote again on a comment after payout.")
-                        || response2.Error.Message.Contains("Duplicate transaction check failed")
-                        || response2.Error.Message.Contains("Vote weight cannot be 0.")
-                        || response2.Error.Message.Contains("('Voter has used the maximum number of vote changes on this comment.',)"), response2.Error.Message);
+            Assert.That(response2.Exception.Message.Contains("You have already voted in a similar way.")
+                        || response2.Exception.Message.Contains("You`ve already liked this post a few times. Please try another one.")
+                        || response2.Exception.Message.Contains("Can only vote once every 3 seconds.")
+                        || response2.Exception.Message.Contains("Cannot vote again on a comment after payout.")
+                        || response2.Exception.Message.Contains("Duplicate transaction check failed")
+                        || response2.Exception.Message.Contains("Vote weight cannot be 0.")
+                        || response2.Exception.Message.Contains("('Voter has used the maximum number of vote changes on this comment.',)"), response2.Exception.Message);
         }
 
         [Test]
@@ -114,12 +114,12 @@ namespace Steepshot.Core.Tests.HttpClient
 
             // Assert
             AssertResult(response2);
-            Assert.That(response2.Error.Message.Contains("You have already voted in a similar way.")
-                        || response2.Error.Message.Contains("You`ve already liked this post a few times. Please try another one.")
-                        || response2.Error.Message.Contains("Can only vote once every 3 seconds.")
-                        || response2.Error.Message.Contains("Duplicate transaction check failed")
-                        || response2.Error.Message.Contains("Vote weight cannot be 0.")
-                        || response2.Error.Message.Contains("('Voter has used the maximum number of vote changes on this comment.',)"), response2.Error.Message);
+            Assert.That(response2.Exception.Message.Contains("You have already voted in a similar way.")
+                        || response2.Exception.Message.Contains("You`ve already liked this post a few times. Please try another one.")
+                        || response2.Exception.Message.Contains("Can only vote once every 3 seconds.")
+                        || response2.Exception.Message.Contains("Duplicate transaction check failed")
+                        || response2.Exception.Message.Contains("Vote weight cannot be 0.")
+                        || response2.Exception.Message.Contains("('Voter has used the maximum number of vote changes on this comment.',)"), response2.Exception.Message);
         }
 
         [Test]
@@ -145,11 +145,11 @@ namespace Steepshot.Core.Tests.HttpClient
 
             // Assert
             AssertResult(response2);
-            Assert.That(response2.Error.Message.Contains("You have already voted in a similar way.")
-                        || response2.Error.Message.Contains("Can only vote once every 3 seconds.")
-                        || response2.Error.Message.Contains("Duplicate transaction check failed")
-                        || response2.Error.Message.Contains("Vote weight cannot be 0.")
-                        || response2.Error.Message.Contains("('Voter has used the maximum number of vote changes on this comment.',)"), response2.Error.Message);
+            Assert.That(response2.Exception.Message.Contains("You have already voted in a similar way.")
+                        || response2.Exception.Message.Contains("Can only vote once every 3 seconds.")
+                        || response2.Exception.Message.Contains("Duplicate transaction check failed")
+                        || response2.Exception.Message.Contains("Vote weight cannot be 0.")
+                        || response2.Exception.Message.Contains("('Voter has used the maximum number of vote changes on this comment.',)"), response2.Exception.Message);
         }
 
         [Test]
@@ -176,11 +176,11 @@ namespace Steepshot.Core.Tests.HttpClient
             // Assert
             AssertResult(response2);
             AssertResult(response2);
-            Assert.That(response2.Error.Message.Contains("You have already voted in a similar way.")
-                        || response2.Error.Message.Contains("Can only vote once every 3 seconds.")
-                        || response2.Error.Message.Contains("Duplicate transaction check failed")
-                        || response2.Error.Message.Contains("Vote weight cannot be 0.")
-                        || response2.Error.Message.Contains("('Voter has used the maximum number of vote changes on this comment.',)"), response2.Error.Message);
+            Assert.That(response2.Exception.Message.Contains("You have already voted in a similar way.")
+                        || response2.Exception.Message.Contains("Can only vote once every 3 seconds.")
+                        || response2.Exception.Message.Contains("Duplicate transaction check failed")
+                        || response2.Exception.Message.Contains("Vote weight cannot be 0.")
+                        || response2.Exception.Message.Contains("('Voter has used the maximum number of vote changes on this comment.',)"), response2.Exception.Message);
         }
 
         [Test]
@@ -206,7 +206,7 @@ namespace Steepshot.Core.Tests.HttpClient
             // Assert
             AssertResult(response1);
             AssertResult(response2);
-            Assert.That(response2.Error.Message.Contains("You may only comment once every 20 seconds.") || response2.Error.Message.Contains("Duplicate transaction check failed"), response2.Error.Message);
+            Assert.That(response2.Exception.Message.Contains("You may only comment once every 20 seconds.") || response2.Exception.Message.Contains("Duplicate transaction check failed"), response2.Exception.Message);
         }
 
         [Test]
@@ -242,7 +242,7 @@ namespace Steepshot.Core.Tests.HttpClient
         {
             var request = new UploadMediaModel(Users[apiName], new MemoryStream(), ".jpg");
             var response = await Api[apiName].UploadMedia(request, CancellationToken.None);
-            Assert.IsTrue(response.Error.Message.StartsWith("The submitted file is empty."));
+            Assert.IsTrue(response.Exception.Message.StartsWith("The submitted file is empty."));
         }
     }
 }

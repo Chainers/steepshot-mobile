@@ -5,7 +5,7 @@ using CoreGraphics;
 using CoreMedia;
 using Foundation;
 using Photos;
-using Steepshot.Core.Errors;
+using Steepshot.Core.Exceptions;
 using Steepshot.iOS.Helpers;
 using Steepshot.iOS.ViewControllers;
 using UIKit;

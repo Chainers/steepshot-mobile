@@ -5,7 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Android.App;
 using Android.Content;
-using Android.Content.Res;
 using Android.OS;
 using Android.Support.V7.Widget;
 using Android.Text;
@@ -281,7 +280,7 @@ namespace Steepshot.Fragment
                 return true;
             }
 
-            Activity.ShowInteractiveMessage(resp.Error, TryAgainAction, ForgetAction);
+            Activity.ShowInteractiveMessage(resp.Exception, TryAgainAction, ForgetAction);
             return false;
         }
 
@@ -447,16 +446,16 @@ namespace Steepshot.Fragment
             _tagsList.ScrollToPosition(0);
             _tagPickerFacade.Clear();
 
-            Exception error = null;
+            Exception exception = null;
             if (text.Length == 0)
-                error = await _tagPickerFacade.TryGetTopTags();
+                exception = await _tagPickerFacade.TryGetTopTags();
             else if (text.Length > 1)
-                error = await _tagPickerFacade.TryLoadNext(text);
+                exception = await _tagPickerFacade.TryLoadNext(text);
 
             if (IsInitialized)
                 return;
 
-            Activity.ShowAlert(error, ToastLength.Short);
+            Activity.ShowAlert(exception, ToastLength.Short);
         }
 
         protected void HideTagsList()

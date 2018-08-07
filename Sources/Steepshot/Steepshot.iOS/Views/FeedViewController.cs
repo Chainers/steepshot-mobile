@@ -12,7 +12,7 @@ using Steepshot.iOS.ViewSources;
 using Steepshot.Core.Interfaces;
 using UIKit;
 using CoreGraphics;
-using Steepshot.Core.Errors;
+using Steepshot.Core.Exceptions;
 using Steepshot.Core.Utils;
 
 namespace Steepshot.iOS.Views
@@ -215,7 +215,7 @@ namespace Steepshot.iOS.Views
 
         protected override async Task GetPosts(bool shouldStartAnimating = true, bool clearOld = false)
         {
-            Exception error;
+            Exception exception;
             do
             {
                 if (shouldStartAnimating)
@@ -227,7 +227,7 @@ namespace Steepshot.iOS.Views
                     _presenter.Clear();
                     _gridDelegate.ClearPosition();
                 }
-                error = await _presenter.TryLoadNextTopPosts();
+                exception = await _presenter.TryLoadNextTopPosts();
 
                 if (_refreshControl.Refreshing)
                 {
@@ -236,8 +236,8 @@ namespace Steepshot.iOS.Views
                 }
                 else
                     activityIndicator.StopAnimating();
-            } while (error is RequestException);
-            ShowAlert(error);
+            } while (exception is RequestException);
+            ShowAlert(exception);
         }
 
         private void SetNavBar()

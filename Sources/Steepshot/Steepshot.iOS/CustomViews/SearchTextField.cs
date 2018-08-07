@@ -10,7 +10,6 @@ namespace Steepshot.iOS.CustomViews
     public class SearchTextField : UITextField
     {
         public Action ClearButtonTapped;
-        private NSLayoutConstraint _loaderLeftMargin;
 
         public UIButton ClearButton
         {
@@ -49,7 +48,7 @@ namespace Steepshot.iOS.CustomViews
             ClearButton.AutoAlignAxis(ALAxis.Horizontal, Loader);
             Loader.AutoSetDimensionsToSize(new CGSize(16, 16));
             Loader.AutoPinEdgeToSuperviewEdge(ALEdge.Top);
-            _loaderLeftMargin = Loader.AutoPinEdgeToSuperviewEdge(ALEdge.Left);
+            Loader.AutoPinEdgeToSuperviewEdge(ALEdge.Right, -10);
 
             RightView = rightView;
             rightView.AutoSetDimensionsToSize(new CGSize(37, 37));
@@ -73,13 +72,11 @@ namespace Steepshot.iOS.CustomViews
 
             Delegate = deleg ?? new TagFieldDelegate() { DoneTapped = returnButtonTapped };
             EditingChanged += DoEditingChanged;
-            LayoutLoader();
         }
 
         private void DoEditingChanged(object sender, EventArgs e)
         {
             ClearButton.Hidden = Text.Length == 0;
-            LayoutLoader();
         }
 
         public void Clear()
@@ -87,15 +84,6 @@ namespace Steepshot.iOS.CustomViews
             Text = string.Empty;
             ClearButton.Hidden = true;
             ((BaseTextFieldDelegate)Delegate).ChangeBackground(this);
-            LayoutLoader();
-        }
-
-        private void LayoutLoader()
-        {
-            if (ClearButton.Hidden)
-                _loaderLeftMargin.Constant = 21;
-            else
-                _loaderLeftMargin.Constant = 0;
         }
 
         public override CGRect TextRect(CGRect forBounds)

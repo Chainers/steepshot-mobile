@@ -1,5 +1,4 @@
-﻿using System.Security.Principal;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 
 namespace Steepshot.Core.Sentry.Models
 {

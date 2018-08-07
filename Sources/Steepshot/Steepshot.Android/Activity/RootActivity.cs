@@ -248,11 +248,11 @@ namespace Steepshot.Activity
         {
             do
             {
-                var error = await Presenter.TryGetUserInfo(AppSettings.User.Login);
+                var exception = await Presenter.TryGetUserInfo(AppSettings.User.Login);
                 if (IsDestroyed)
                     return;
 
-                if (error == null || error is OperationCanceledException)
+                if (exception == null || exception is OperationCanceledException)
                 {
                     SetProfileChart(_tabLayout.LayoutParameters.Height);
                     break;
