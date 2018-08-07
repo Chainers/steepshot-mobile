@@ -30,8 +30,8 @@ namespace Steepshot.iOS.Views
         public override void ViewDidLoad()
         {
             SetupMainScroll();
-            CreateView();
             SetNavigationBar();
+            CreateView();
         }
 
         public override void ViewDidLayoutSubviews()
@@ -97,12 +97,37 @@ namespace Steepshot.iOS.Views
             var photoTitleSeparator = new UIView();
             photoTitleSeparator.BackgroundColor = Constants.R245G245B245;
 
-            var plagiarismDescription = new UILabel();
-            plagiarismDescription.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PhotoPlagiarism);
-            plagiarismDescription.Font = Constants.Semibold20;
-            plagiarismDescription.TextColor = Constants.R15G24B30;
-            plagiarismDescription.UserInteractionEnabled = false;
-            plagiarismDescription.Lines = 0;
+            var noLinkTitleAttribute = new UIStringAttributes
+            { 
+                Font = Constants.Semibold20,
+                ForegroundColor = Constants.R15G24B30,
+            };
+
+            var similarAttribute = new UIStringAttributes
+            {
+                Link = new NSUrl(PlagiarismLinkType.Similar.ToString()),
+                Font = Constants.Semibold20,
+                ForegroundColor = Constants.R255G34B5,
+            };
+
+            var authorAttribute = new UIStringAttributes
+            {
+                Link = new NSUrl(PlagiarismLinkType.Author.ToString()),
+                Font = Constants.Semibold20,
+                ForegroundColor = Constants.R255G34B5,
+            };
+
+            var plagiarismAttributedLabel = new Xamarin.TTTAttributedLabel.TTTAttributedLabel();
+            plagiarismAttributedLabel.EnabledTextCheckingTypes = NSTextCheckingType.Link;
+            plagiarismAttributedLabel.Lines = 0;
+
+            var prop = new NSDictionary();
+            plagiarismAttributedLabel.LinkAttributes = prop;
+            plagiarismAttributedLabel.ActiveLinkAttributes = prop;
+
+            plagiarismAttributedLabel.UserInteractionEnabled = true;
+            plagiarismAttributedLabel.Enabled = true;
+            plagiarismAttributedLabel.Delegate = new TTTAttributedLabelActionDelegate(TextLinkAction);
 
             cancelButton = new UIButton();
             cancelButton.SetTitle(AppSettings.LocalizationManager.GetText(LocalizationKeys.CancelPublishing).ToUpper(), UIControlState.Normal);
@@ -117,9 +142,17 @@ namespace Steepshot.iOS.Views
             continueButton.TitleLabel.TextColor = Constants.R255G255B255;
 
             mainScroll.AddSubview(photoTitleSeparator);
-            mainScroll.AddSubview(plagiarismDescription);
+            mainScroll.AddSubview(plagiarismAttributedLabel);
             mainScroll.AddSubview(cancelButton);
             mainScroll.AddSubview(continueButton);
+
+            var at = new NSMutableAttributedString();
+            at.Append(new NSAttributedString("We have found a ", noLinkTitleAttribute));
+            at.Append(new NSAttributedString("similar photo", similarAttribute));
+            at.Append(new NSAttributedString(" in Steepshot, uploaded by ", noLinkTitleAttribute));
+            at.Append(new NSAttributedString("@username", authorAttribute));
+            at.Append(new NSAttributedString(". We do not recommend you to upload other users' photos as it may result in low payouts and reputation loss.", noLinkTitleAttribute));
+            plagiarismAttributedLabel.SetText(at);
 
             if (photoView != null)
                 photoTitleSeparator.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, photoView, 24f);
@@ -131,13 +164,13 @@ namespace Steepshot.iOS.Views
             photoTitleSeparator.AutoSetDimension(ALDimension.Height, 1f);
             photoTitleSeparator.AutoSetDimension(ALDimension.Width, UIScreen.MainScreen.Bounds.Width - _separatorMargin * 2);
 
-            plagiarismDescription.AutoPinEdgeToSuperviewEdge(ALEdge.Left, _separatorMargin);
-            plagiarismDescription.AutoPinEdgeToSuperviewEdge(ALEdge.Right, _separatorMargin);
-            plagiarismDescription.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, photoTitleSeparator, 24);
+            plagiarismAttributedLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Left, _separatorMargin);
+            plagiarismAttributedLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Right, _separatorMargin);
+            plagiarismAttributedLabel.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, photoTitleSeparator, 24);
 
             cancelButton.AutoPinEdgeToSuperviewEdge(ALEdge.Left, _separatorMargin);
             cancelButton.AutoPinEdgeToSuperviewEdge(ALEdge.Right, _separatorMargin);
-            cancelButton.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, plagiarismDescription, 30);
+            cancelButton.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, plagiarismAttributedLabel, 30);
             cancelButton.AutoSetDimension(ALDimension.Height, 50);
 
             continueButton.AutoPinEdgeToSuperviewEdge(ALEdge.Left, _separatorMargin);
@@ -162,5 +195,40 @@ namespace Steepshot.iOS.Views
             NavigationController.SetNavigationBarHidden(false, false);
             NavigationController.PopViewController(false);
         }
+        
+        private void TextLinkAction(PlagiarismLinkType type)
+        {
+            switch (type)
+            { 
+                case PlagiarismLinkType.Similar:
+                    
+                    break;
+                case PlagiarismLinkType.Author:
+                    
+                    break;
+            }
+        }
+    }
+
+    public class TTTAttributedLabelActionDelegate : Xamarin.TTTAttributedLabel.TTTAttributedLabelDelegate
+    {
+        private Action<PlagiarismLinkType> _linkAction;
+
+        public TTTAttributedLabelActionDelegate(Action<PlagiarismLinkType> linkAction)
+        {
+            _linkAction = linkAction;
+        }
+
+        public override void DidSelectLinkWithURL(Xamarin.TTTAttributedLabel.TTTAttributedLabel label, NSUrl url)
+        {
+            var type = (PlagiarismLinkType)Enum.Parse(typeof(PlagiarismLinkType), url.ToString(), true);
+            _linkAction?.Invoke(type);
+        }
+    }
+
+    public enum PlagiarismLinkType
+    { 
+        Similar,
+        Author
     }
 }
