@@ -1,23 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using FFImageLoading;
 using Foundation;
 using PureLayout.Net;
 using SafariServices;
 using Steepshot.Core.Localization;
-using Steepshot.Core.Models.Common;
-using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 using Steepshot.iOS.Helpers;
-using Steepshot.iOS.ViewControllers;
-using Steepshot.iOS.ViewSources;
 using UIKit;
 
 namespace Steepshot.iOS.Views
 {
     public class PlagiarismViewController : DescriptionViewController, ISFSafariViewControllerDelegate
     {
+        private Xamarin.TTTAttributedLabel.TTTAttributedLabel plagiarismAttributedLabel;
         private UIButton cancelButton;
         private UIButton continueButton;
 
@@ -117,7 +112,7 @@ namespace Steepshot.iOS.Views
                 ForegroundColor = Constants.R255G34B5,
             };
 
-            var plagiarismAttributedLabel = new Xamarin.TTTAttributedLabel.TTTAttributedLabel();
+            plagiarismAttributedLabel = new Xamarin.TTTAttributedLabel.TTTAttributedLabel();
             plagiarismAttributedLabel.EnabledTextCheckingTypes = NSTextCheckingType.Link;
             plagiarismAttributedLabel.Lines = 0;
 
