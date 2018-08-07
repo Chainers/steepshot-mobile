@@ -290,4 +290,21 @@ About 6 inches away</string>
     <string name="[&quot;ClaimYourRights&quot;]">Claim your rights to this post</string>
     <string name="[&quot;SimilarPhoto&quot;]">Similar photo</string>
     <string name="[&quot;Photo&quot;]">Photo</string>
+
+    <string name="[&quot;Each username segment should start with a letter&quot;]">Each username segment should start with a letter</string>
+    <string name="[&quot;Account with this email already exists&quot;]">Account with this email already exists</string>
+    <string name="[&quot;You cannot create more than &quot;]">You cannot create more than 3 accounts per day</string>
+    <string name="[&quot;Account with this username already exists&quot;]">Account with this username already exists</string>
+    <string name="[&quot;Username should be longer&quot;]">Username should be longer</string>
+    <string name="[&quot;Username should be shorter&quot;]">Username should be shorter</string>
+    <string name="[&quot;Username should contain only letters, digits, periods or dashes&quot;]">Username should contain only letters, digits, periods or dashes</string>
+    <string name="[&quot;Each username segment should have only one dash in a row&quot;]">Each username segment should have only one dash in a row</string>
+    <string name="[&quot;Each username segment should end with a letter or digit&quot;]">Each username segment should end with a letter or digit</string>
+    <string name="[&quot;Each account segment should be longer&quot;]">Each account segment should be longer</string>
+    <string name="[&quot;Enter a valid email address&quot;]">Enter a valid email address</string>
+    <string name="[&quot;Email may not be blank&quot;]">Email may not be blank</string>
+    <string name="[&quot;Email is required&quot;]">Email is required</string>
+    <string name="[&quot;Email may not be null&quot;]">Email may not be null</string>
+    <string name="[&quot;Username is required&quot;]">Username is required</string>
+    <string name="[&quot;Username may not be null&quot;]">Username may not be null</string>
 </resources>
