@@ -149,6 +149,11 @@ namespace Steepshot.iOS.Views
             transfer.ClipsToBounds = true;
             View.AddSubview(transfer);
 
+            transfer.TouchDown += (object sender, EventArgs e) =>
+            {
+                NavigationController.PushViewController(new TransferViewController(), true);
+            };
+
             transfer.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, _pageControl, 20);
             transfer.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 20);
             transfer.AutoSetDimension(ALDimension.Height, 50);

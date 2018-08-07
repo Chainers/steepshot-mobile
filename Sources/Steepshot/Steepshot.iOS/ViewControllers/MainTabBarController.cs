@@ -110,11 +110,9 @@ namespace Steepshot.iOS.ViewControllers
             }
         }
 
-        public async void UpdateProfile()
+        public void UpdateProfile()
         {
-            var userData = await ((ProfileViewController)((InteractivePopNavigationController)ViewControllers[3]).RootViewController).GetUserInfo();
-            if (userData == null)
-                InitializePowerFrame();
+            InitializePowerFrame();
         }
 
         private async void InitializePowerFrame()
