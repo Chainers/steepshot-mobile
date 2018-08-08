@@ -203,6 +203,8 @@
         ContinuePublishing,
         ClaimYourRights,
         SimilarPhoto,
-        Photo
+        Photo,
+        AmountLimit,
+        AmountLimitFull
     }
 }
