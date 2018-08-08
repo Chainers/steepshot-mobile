@@ -128,8 +128,10 @@ namespace Steepshot.Core.Presenters
 
         public bool MoveNext()
         {
-            _current += 1;
-            return _current < _logins.Length;
+            var hasNext = _current + 1 < _logins.Length;
+            if(hasNext)
+                _current += 1;
+            return hasNext;
         }
 
         public void Reset()

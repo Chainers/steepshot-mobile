@@ -431,6 +431,8 @@
     <Compile Include="Cells\TransactionHeaderCollectionViewCell.cs" />
     <Compile Include="ViewSources\FeedCollectionViewSource.cs" />
     <Compile Include="Cells\ProfileHeaderViewCell.cs" />
+    <Compile Include="Cells\ClaimTransactionCollectionViewCell.cs" />
+    <Compile Include="Delegates\TransactionHistoryCollectionViewFlowDelegate.cs" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\ic_photo_holder.png" />
