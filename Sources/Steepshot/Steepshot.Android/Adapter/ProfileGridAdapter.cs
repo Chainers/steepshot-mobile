@@ -158,6 +158,7 @@ namespace Steepshot.Adapter
             _votingPowerText.Typeface = Style.Regular;
             _transferButton.Typeface = Style.Semibold;
 
+            _site.Flags = (int)AutoLinkType.Url;
             _profileAction = profileAction;
 
             _followingBtn.Click += OnFollowingBtnOnClick;

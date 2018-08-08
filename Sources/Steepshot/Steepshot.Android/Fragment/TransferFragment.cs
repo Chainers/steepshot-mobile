@@ -230,6 +230,7 @@ namespace Steepshot.Fragment
             _transferCommentTitle.Click += TransferCommentTitleOnClick;
             _transferCommentEdit.FocusChange += TransferCommentEditOnFocusChange;
             _transferBtn.Click += TransferBtnOnClick;
+            _transferBtn.Touch += TransferBtnOnTouch;
             _transferBtn.FocusChange += TransferBtnOnFocusChange;
             _backBtn.Click += BackBtnOnClick;
             _activityRoot.ViewTreeObserver.GlobalLayout += OnKeyboardOpening;
@@ -526,7 +527,7 @@ namespace Steepshot.Fragment
                 return await Validate();
             }
 
-            var validNumber = double.TryParse(_transferAmountEdit.Text, out var transferAmount);
+            var validNumber = double.TryParse(_transferAmountEdit.Text, NumberStyles.Any, CultureInfo.InvariantCulture, out var transferAmount);
 
             if (!validNumber || Math.Abs(transferAmount) < 0.0000001 || transferAmount > _transferFacade.UserBalance.Value)
             {
@@ -557,6 +558,14 @@ namespace Steepshot.Fragment
             }
 
             Transfer();
+        }
+
+        private void TransferBtnOnTouch(object sender, View.TouchEventArgs e)
+        {
+            if (!_transferBtn.HasFocus)
+                _transferBtn.OnTouchEvent(e.Event);
+
+            e.Handled = false;
         }
 
         private async void Transfer()
