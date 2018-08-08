@@ -33,23 +33,25 @@ namespace Steepshot.Fragment
 #pragma warning disable 0649, 4014
         [BindView(Resource.Id.arrow_back)] private ImageButton _backBtn;
         [BindView(Resource.Id.claim_rewards)] private ImageView _claimBtn;
-        [BindView(Resource.Id.coordinator)] private CoordinatorLinearLayout _coordinator;
         [BindView(Resource.Id.title)] private TextView _fragmentTitle;
-        [BindView(Resource.Id.wallet_pager)] private ViewPager _walletPager;
-        [BindView(Resource.Id.actions)] private LinearLayout _actions;
-        [BindView(Resource.Id.page_indicator)] private TabLayout _walletPagerIndicator;
-        [BindView(Resource.Id.transfer_btn)] private Button _transferBtn;
-        [BindView(Resource.Id.more)] private ImageButton _moreBtn;
-        [BindView(Resource.Id.trx_history_title)] private TextView _trxHistoryTitle;
-        [BindView(Resource.Id.trx_history)] private CoordinatorRecyclerView _trxHistory;
+        [BindView(Resource.Id.trx_history)] private RecyclerView _trxHistory;
 #pragma warning restore 0649
 
         private int _pageOffset, _transferBtnFullWidth, _transferBtnCollapsedWidth;
         private float _cardRatio;
+
         private UserInfo _prevUser;
         private GradientDrawable _transferBtnBg;
-        private TrxHistoryAdapter _trxHistoryAdapter;
-        private TrxHistoryAdapter TrxHistoryAdapter => _trxHistoryAdapter ?? (_trxHistoryAdapter = new TrxHistoryAdapter());
+        private RelativeLayout _walletCardsLayout;
+        private ViewPager _walletPager;
+        private LinearLayout _actions;
+        private TabLayout _walletPagerIndicator;
+        private Button _transferBtn;
+        private ImageButton _moreBtn;
+        private TextView _trxHistoryTitle;
+
+        private WalletAdapter _walletAdapter;
+        private WalletAdapter WalletAdapter => _walletAdapter ?? (_walletAdapter = new WalletAdapter(_walletCardsLayout));
 
         private WalletPagerAdapter _walletPagerAdapter;
         private WalletPagerAdapter WalletPagerAdapter => _walletPagerAdapter ?? (_walletPagerAdapter = new WalletPagerAdapter(_walletPager, Presenter));
@@ -80,12 +82,17 @@ namespace Steepshot.Fragment
             ToggleTabBar(true);
             _pageOffset = (int)TypedValue.ApplyDimension(ComplexUnitType.Dip, 20, Resources.DisplayMetrics);
 
-            _fragmentTitle.Typeface = Style.Semibold;
-            _trxHistoryTitle.Typeface = Style.Semibold;
+            _trxHistory.SetLayoutManager(new LinearLayoutManager(Activity));
+            _walletCardsLayout = (RelativeLayout)LayoutInflater.From(Activity).Inflate(Resource.Layout.lyt_wallet_cards, _trxHistory, false);
+            _trxHistory.SetAdapter(WalletAdapter);
+            _trxHistory.AddItemDecoration(new Adapter.DividerItemDecoration(Activity));
 
-            _fragmentTitle.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Wallet);
-            _trxHistoryTitle.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.TransactionHistory);
-            _transferBtn.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Transfer);
+            _walletPager = _walletCardsLayout.FindViewById<ViewPager>(Resource.Id.wallet_pager);
+            _actions = _walletCardsLayout.FindViewById<LinearLayout>(Resource.Id.actions);
+            _walletPagerIndicator = _walletCardsLayout.FindViewById<TabLayout>(Resource.Id.page_indicator);
+            _transferBtn = _walletCardsLayout.FindViewById<Button>(Resource.Id.transfer_btn);
+            _moreBtn = _walletCardsLayout.FindViewById<ImageButton>(Resource.Id.more);
+            _trxHistoryTitle = _walletCardsLayout.FindViewById<TextView>(Resource.Id.trx_history_title);
 
             _cardRatio = TypedValue.ApplyDimension(ComplexUnitType.Dip, 335, Resources.DisplayMetrics) / TypedValue.ApplyDimension(ComplexUnitType.Dip, 190, Resources.DisplayMetrics);
             _walletPager.LayoutParameters.Width = Resources.DisplayMetrics.WidthPixels;
@@ -104,37 +111,31 @@ namespace Steepshot.Fragment
             var pagerLytParams = (LinearLayout.LayoutParams)_walletPagerIndicator.LayoutParameters;
             pagerLytParams.TopMargin = actionsLytParams.TopMargin;
 
-            _trxHistory.SetAdapter(TrxHistoryAdapter);
-            _trxHistory.SetLayoutManager(new LinearLayoutManager(Activity));
-            _trxHistory.AddItemDecoration(new Adapter.DividerItemDecoration(Activity));
-            _trxHistory.SetCoordinatorListener(_coordinator);
-
             _transferBtnBg = new GradientDrawable(GradientDrawable.Orientation.LeftRight, new int[] { Style.R255G121B4, Style.R255G22B5 });
             _transferBtnBg.SetCornerRadius(TypedValue.ApplyDimension(ComplexUnitType.Dip, 25, Resources.DisplayMetrics));
+
+            _fragmentTitle.Typeface = Style.Semibold;
+            _trxHistoryTitle.Typeface = Style.Semibold;
+
+            _fragmentTitle.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Wallet);
+            _trxHistoryTitle.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.TransactionHistory);
+            _transferBtn.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Transfer);
 
             _walletPager.PageScrolled += WalletPagerOnPageScrolled;
             WalletPagerAdapter.OnPageTransforming += OnPageTransforming;
             _transferBtn.Click += TransferBtnOnClick;
-            _transferBtn.ViewTreeObserver.GlobalLayout += TransferBtnOnGlobalLayout;
-            _trxHistoryTitle.ViewTreeObserver.GlobalLayout += HistoryLabelOnGlobalLayout;
+            _trxHistory.ViewTreeObserver.GlobalLayout += RecyclerLayedOut;
             _moreBtn.Click += MoreBtnOnClick;
             _claimBtn.Click += ClaimBtnOnClick;
             _backBtn.Click += BackOnClick;
         }
 
-        private void TransferBtnOnGlobalLayout(object sender, EventArgs e)
+        private void RecyclerLayedOut(object sender, EventArgs e)
         {
             _transferBtnFullWidth = _transferBtn.Width;
             var moreBtnLytParams = (RelativeLayout.LayoutParams)_moreBtn.LayoutParameters;
             _transferBtnCollapsedWidth = _transferBtnFullWidth - moreBtnLytParams.Width - moreBtnLytParams.LeftMargin;
-            _transferBtn.ViewTreeObserver.GlobalLayout -= TransferBtnOnGlobalLayout;
-        }
-
-        private void HistoryLabelOnGlobalLayout(object sender, EventArgs e)
-        {
-            _coordinator.LayoutParameters.Height = _trxHistoryTitle.Bottom + Resources.DisplayMetrics.HeightPixels;
-            _coordinator.SetTopViewParam(Resources.DisplayMetrics.WidthPixels, -(int)TypedValue.ApplyDimension(ComplexUnitType.Dip, 15, Resources.DisplayMetrics));
-            _trxHistoryTitle.ViewTreeObserver.GlobalLayout -= HistoryLabelOnGlobalLayout;
+            _transferBtn.ViewTreeObserver.GlobalLayout -= RecyclerLayedOut;
         }
 
         public override void OnDetach()
@@ -153,16 +154,14 @@ namespace Steepshot.Fragment
         {
             if (e.Position == Presenter.Balances.Count)
             {
-                _coordinator.Enabled = false;
                 _transferBtn.Enabled = false;
                 _claimBtn.Enabled = false;
                 _transferBtnBg.SetColors(new int[] { Style.R230G230B230, Style.R230G230B230 });
-                TrxHistoryAdapter.SetAccountHistory(null);
+                WalletAdapter.SetAccountHistory(null);
                 LoadNextAccount();
             }
             else
             {
-                _coordinator.Enabled = true;
                 _transferBtn.Enabled = true;
                 _claimBtn.Enabled = true;
                 _transferBtnBg.SetColors(new int[] { Style.R255G121B4, Style.R255G22B5 });
@@ -176,7 +175,8 @@ namespace Steepshot.Fragment
                 _prevUser = Presenter.Balances[_walletPager.CurrentItem].UserInfo;
                 if (Presenter.ConnectedUsers.ContainsKey(_prevUser.Id))
                 {
-                    _trxHistoryAdapter.SetAccountHistory(_prevUser.AccountHistory);
+                    _trxHistory.Post(() =>
+                        _walletAdapter.SetAccountHistory(_prevUser.AccountHistory));
                 }
             }
         }
@@ -243,7 +243,7 @@ namespace Steepshot.Fragment
             if (exception == null)
             {
                 WalletPagerAdapter.NotifyItemChanged(_walletPager.CurrentItem);
-                TrxHistoryAdapter.SetAccountHistory(balance.UserInfo.AccountHistory);
+                WalletAdapter.SetAccountHistory(balance.UserInfo.AccountHistory);
                 var hasClaimRewards = Presenter.Balances[_walletPager.CurrentItem].RewardSteem > 0 ||
                                       Presenter.Balances[_walletPager.CurrentItem].RewardSp > 0 ||
                                       Presenter.Balances[_walletPager.CurrentItem].RewardSbd > 0;
