@@ -33,10 +33,15 @@ namespace Steepshot.iOS.Views
 
         private async void LoadData()
         {
-            var kek = await _presenter.TryLoadNextAccountInfo();
+            var exception = await _presenter.TryLoadNextAccountInfo();
+            if (exception == null)
+            {
+                _historySource.GroupHistory();
+                _historyCollection.ReloadData();
 
-            _historySource.GroupHistory();
-            _historyCollection.ReloadData();
+                _cardsCollection.ReloadData();
+                _pageControl.Pages = _presenter.Balances.Count;
+            }
         }
 
         private TransferCollectionViewSource _historySource;
@@ -55,10 +60,7 @@ namespace Steepshot.iOS.Views
 
             _historyCollection = new UICollectionView(CGRect.Null, new UICollectionViewFlowLayout()
             {
-                //ScrollDirection = UICollectionViewScrollDirection.Horizontal,
-                ItemSize = new CGSize(UIScreen.MainScreen.Bounds.Width, 86),
                 MinimumLineSpacing = 0,
-                //SectionInset = new UIEdgeInsets(40, 0, 0, 0),
                 HeaderReferenceSize = new CGSize(UIScreen.MainScreen.Bounds.Width, 53),
                 FooterReferenceSize = new CGSize(0, 0),
             });
@@ -120,7 +122,7 @@ namespace Steepshot.iOS.Views
                 _pageControl.CurrentPage = (int)Math.Floor((_cardsCollection.ContentOffset.X - pageWidth / 2) / pageWidth) + 1;
             };
 
-            var _cardsCollectionViewSource = new CardsCollectionViewSource();
+            var _cardsCollectionViewSource = new CardsCollectionViewSource(_presenter);
 
             _cardsCollection.DecelerationRate = UIScrollView.DecelerationRateFast;
             _cardsCollection.ShowsHorizontalScrollIndicator = false;
@@ -137,7 +139,6 @@ namespace Steepshot.iOS.Views
             _pageControl.PageIndicatorTintColor = UIColor.FromRGB(0, 0, 0).ColorWithAlpha(0.1f);
             _pageControl.CurrentPageIndicatorTintColor = UIColor.FromRGB(0, 0, 0).ColorWithAlpha(0.4f);
             _pageControl.UserInteractionEnabled = false;
-            _pageControl.Pages = 8;
             View.AddSubview(_pageControl);
 
             _pageControl.AutoPinEdgeToSuperviewEdge(ALEdge.Top, cardBottom);

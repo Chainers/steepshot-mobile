@@ -1,9 +1,7 @@
 ﻿using System;
 using CoreGraphics;
-using Foundation;
 using PureLayout.Net;
 using Steepshot.Core.Models.Responses;
-using Steepshot.Core.Utils;
 using Steepshot.iOS.Helpers;
 using UIKit;
 
