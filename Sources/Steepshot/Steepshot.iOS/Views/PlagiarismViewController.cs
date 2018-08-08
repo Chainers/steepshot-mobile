@@ -149,25 +149,42 @@ namespace Steepshot.iOS.Views
             _cancelButton.TouchDown += (sender, e) =>
             {
                 plagiarismResult.Continue = false;
-                plagiarismResult.Test = "Test from cancel";
-                _presenter?.TasksCancel();
                 NavigationController.PopViewController(true);
             };
 
             _continueButton.TouchDown += (sender, e) =>
             {
                 plagiarismResult.Continue = true;
-                plagiarismResult.Test = "Test from continue";
-                _presenter?.TasksCancel();
                 NavigationController.PopViewController(true);
             };
 
             var at = new NSMutableAttributedString();
-            at.Append(new NSAttributedString("We have found a ", noLinkTitleAttribute));
-            at.Append(new NSAttributedString("permlink", similarAttribute));//_model.PlagiarismPermlink, similarAttribute));
-            at.Append(new NSAttributedString(" in Steepshot, uploaded by ", noLinkTitleAttribute));
-            at.Append(new NSAttributedString("@author", authorAttribute));//_model.PlagiarismUsername, authorAttribute));
-            at.Append(new NSAttributedString(". We do not recommend you to upload other users' photos as it may result in low payouts and reputation loss.", noLinkTitleAttribute));
+
+            if (_model.PlagiarismUsername == AppSettings.User.Login)
+            {
+                at.Append(new NSAttributedString("We have found a ", noLinkTitleAttribute));
+                at.Append(new NSAttributedString(AppSettings.LocalizationManager.GetText(LocalizationKeys.SimilarPhoto).ToLower(), similarAttribute));
+                at.Append(new NSAttributedString(" in Steepshot, uploaded by you. We do not recommend you to re-upload photos as it may result in low payouts and reputation loss.", noLinkTitleAttribute));
+            }
+            else
+            {
+                at.Append(new NSAttributedString("We have found a ", noLinkTitleAttribute));
+                at.Append(new NSAttributedString(AppSettings.LocalizationManager.GetText(LocalizationKeys.SimilarPhoto).ToLower(), similarAttribute));
+                at.Append(new NSAttributedString(" in Steepshot, uploaded by ", noLinkTitleAttribute));
+                at.Append(new NSAttributedString($"@{_model.PlagiarismUsername}", authorAttribute));
+                at.Append(new NSAttributedString(". We do not recommend you to upload other users' photos as it may result in low payouts and reputation loss.", noLinkTitleAttribute));
+                at.Append(new NSAttributedString(Environment.NewLine));
+                at.Append(new NSAttributedString(Environment.NewLine));
+                at.Append(new NSAttributedString(Environment.NewLine));
+
+                noLinkTitleAttribute.Font = Constants.Semibold14;
+                similarAttribute.Font = Constants.Semibold14;
+
+                at.Append(new NSAttributedString("If you're sure that you are the author of the photo, please flag and/or leave a comment under the ", noLinkTitleAttribute));
+                at.Append(new NSAttributedString(AppSettings.LocalizationManager.GetText(LocalizationKeys.Photo).ToLower(), similarAttribute));
+                at.Append(new NSAttributedString(" to let other people know they should flag this post.", noLinkTitleAttribute));
+            }
+
             _plagiarismAttributedLabel.SetText(at);
 
             if (photoView != null)
@@ -186,7 +203,7 @@ namespace Steepshot.iOS.Views
 
             _cancelButton.AutoPinEdgeToSuperviewEdge(ALEdge.Left, _separatorMargin);
             _cancelButton.AutoPinEdgeToSuperviewEdge(ALEdge.Right, _separatorMargin);
-            _cancelButton.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, _plagiarismAttributedLabel, 30);
+            _cancelButton.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, _plagiarismAttributedLabel, 34);
             _cancelButton.AutoSetDimension(ALDimension.Height, 50);
 
             _continueButton.AutoPinEdgeToSuperviewEdge(ALEdge.Left, _separatorMargin);
@@ -217,8 +234,8 @@ namespace Steepshot.iOS.Views
             switch (type)
             { 
                 case PlagiarismLinkType.Similar:
-                    //var link = $"@{_model.PlagiarismUsername}/{_model.PlagiarismPermlink}";
-                    //NavigationController.PushViewController(new PostViewController(link), true);
+                    var link = $"@{_model.PlagiarismUsername}/{_model.PlagiarismPermlink}";
+                    NavigationController.PushViewController(new PostViewController(link), true);
                     break;
                 case PlagiarismLinkType.Author:
                     NavigationController.PushViewController(new ProfileViewController { Username = _model.PlagiarismUsername }, true);
@@ -241,6 +258,12 @@ namespace Steepshot.iOS.Views
             var type = (PlagiarismLinkType)Enum.Parse(typeof(PlagiarismLinkType), url.ToString(), true);
             _linkAction?.Invoke(type);
         }
+    }
+
+    public class PlagiarismResult
+    {
+        public bool Continue { get; set; }
+        public string Test { get; set; }
     }
 
     public enum PlagiarismLinkType

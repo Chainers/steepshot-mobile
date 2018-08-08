@@ -450,7 +450,7 @@ namespace Steepshot.iOS.Views
             base.ViewDidAppear(animated);
             if (plagiarismResult != null)
             {
-
+                OnPostAsync(false);
             }
 
             if (_isFromCamera && IsMovingToParentViewController)
@@ -714,16 +714,6 @@ namespace Steepshot.iOS.Views
 
         private async void PostPhoto(object sender, EventArgs e)
         {
-            // TODO: for tests
-            //var test = true;
-            //if (test)
-            //{
-            //    plagiarismResult = new PlagiarismResult();
-            //    var plagiarismViewController = new PlagiarismViewController(ImageAssets, null, plagiarismResult);
-            //    NavigationController.PushViewController(plagiarismViewController, true);
-            //    return;
-            //}
-
             if (string.IsNullOrEmpty(titleTextField.Text))
             {
                 ShowAlert(LocalizationKeys.EmptyTitleField);
@@ -732,12 +722,12 @@ namespace Steepshot.iOS.Views
 
             RemoveFocusFromTextFields();
 
-            OnPostAsync();
+            OnPostAsync(true);
         }
 
-        private async void OnPostAsync()
+        private async void OnPostAsync(bool checkForPlagiarism)
         {
-            if (!editMode)
+            if (!editMode && !checkForPlagiarism)
             {
                 await CheckOnSpam();
 
@@ -747,7 +737,7 @@ namespace Steepshot.iOS.Views
 
             EnablePostAndEdit(false);
 
-            if (_isFromCamera)
+            if (_isFromCamera && !checkForPlagiarism)
             {
                 var croppedPhoto = _cropView.CropImage(new SavedPhoto(null, ImageAssets[0].Item2, _cropView.ContentOffset) { OriginalImageSize = _cropView.originalImageSize, Scale = _cropView.ZoomScale });
                 ImageAssets.RemoveAt(0);
@@ -758,6 +748,7 @@ namespace Steepshot.iOS.Views
             {
                 try
                 {
+                    var shouldReturn = false;
                     string title = null;
                     string description = null;
                     IList<string> tags = null;
@@ -771,76 +762,88 @@ namespace Steepshot.iOS.Views
 
                     var mre = new ManualResetEvent(false);
 
-                    if (!editMode)
+                    if (checkForPlagiarism)
                     {
-                        var shouldReturn = false;
-                        var photoUploadRetry = false;
-                        OperationResult<MediaModel>[] photoUploadResponse = new OperationResult<MediaModel>[ImageAssets.Count];
-                        do
+                        if (!editMode)
                         {
-                            photoUploadRetry = false;
-                            for (int i = 0; i < ImageAssets.Count; i++)
+                            var photoUploadRetry = false;
+                            OperationResult<MediaModel>[] photoUploadResponse = new OperationResult<MediaModel>[ImageAssets.Count];
+                            do
                             {
-                                photoUploadResponse[i] = UploadPhoto(ImageAssets[i].Item2, ImageAssets[i].Item1).Result;
-                            }
-
-                            if (photoUploadResponse.Any(r => r.IsSuccess == false))
-                            {
-                                InvokeOnMainThread(() =>
+                                photoUploadRetry = false;
+                                for (int i = 0; i < ImageAssets.Count; i++)
                                 {
+                                    photoUploadResponse[i] = UploadPhoto(ImageAssets[i].Item2, ImageAssets[i].Item1).Result;
+                                }
+
+                                if (photoUploadResponse.Any(r => r.IsSuccess == false))
+                                {
+                                    InvokeOnMainThread(() =>
+                                    {
                                     //Remake this
                                     ShowDialog(photoUploadResponse[0].Exception, LocalizationKeys.Cancel,
-                                        LocalizationKeys.Retry, (arg) =>
-                                        {
-                                            shouldReturn = true;
-                                            mre.Set();
-                                        }, (arg) =>
-                                        {
-                                            photoUploadRetry = true;
-                                            mre.Set();
-                                        });
-                                });
+                                            LocalizationKeys.Retry, (arg) =>
+                                            {
+                                                shouldReturn = true;
+                                                mre.Set();
+                                            }, (arg) =>
+                                            {
+                                                photoUploadRetry = true;
+                                                mre.Set();
+                                            });
+                                    });
 
-                                mre.Reset();
-                                mre.WaitOne();
-                            }
-                        } while (photoUploadRetry);
+                                    mre.Reset();
+                                    mre.WaitOne();
+                                }
+                            } while (photoUploadRetry);
 
-                        if (shouldReturn)
-                            return;
+                            if (shouldReturn)
+                                return;
 
-                        model = new PreparePostModel(AppSettings.User.UserInfo, AppSettings.AppInfo.GetModel())
+                            model = new PreparePostModel(AppSettings.User.UserInfo, AppSettings.AppInfo.GetModel())
+                            {
+                                Title = title,
+                                Description = description,
+                                Device = "iOS",
+
+                                Tags = tags.ToArray(),
+                                Media = photoUploadResponse.Select(r => r.Result).ToArray(),
+                            };
+                        }
+                        else
                         {
-                            Title = title,
-                            Description = description,
-                            Device = "iOS",
-
-                            Tags = tags.ToArray(),
-                            Media = photoUploadResponse.Select(r => r.Result).ToArray(),
-                        };
-                    }
-                    else
-                    {
-                        model.Title = title;
-                        model.Description = description;
-                        model.Device = "iOS";
-                        model.Tags = tags.ToArray();
-                        model.Media = post.Media;
+                            model.Title = title;
+                            model.Description = description;
+                            model.Device = "iOS";
+                            model.Tags = tags.ToArray();
+                            model.Media = post.Media;
+                        }
                     }
 
                     var pushToBlockchainRetry = false;
                     do
                     {
-                        //var plagiarismCheck = _presenter.TryCheckForPlagiarism(model).Result;
-                        //if (plagiarismCheck.IsSuccess)
-                        //{
-                        //    if (plagiarismCheck.Result.plagiarism.IsPlagiarism)
-                        //    { 
-                        //        //var plagiarismViewController = new PlagiarismViewController(ImageAssets, plagiarismCheck.Result.plagiarism);
-                        //        //NavigationController.PushViewController(plagiarismViewController, true);
-                        //        //return;
-                        //    }
-                        //}
+                        if (checkForPlagiarism)
+                        {
+                            var plagiarismCheck = _presenter.TryCheckForPlagiarism(model).Result;
+                            if (plagiarismCheck.IsSuccess)
+                            {
+                                if (plagiarismCheck.Result.plagiarism.IsPlagiarism)
+                                {
+                                    InvokeOnMainThread(() =>
+                                    {
+                                        plagiarismResult = new PlagiarismResult();
+                                        var plagiarismViewController = new PlagiarismViewController(ImageAssets, plagiarismCheck.Result.plagiarism, plagiarismResult);
+                                        NavigationController.PushViewController(plagiarismViewController, true);
+                                        shouldReturn = true;
+                                    });
+                                }
+                            }
+
+                            if (shouldReturn)
+                                return;
+                        }
 
                         pushToBlockchainRetry = false;
                         var response = _presenter.TryCreateOrEditPost(model).Result;
@@ -992,11 +995,5 @@ namespace Steepshot.iOS.Views
             }
             return attributes;
         }
-    }
-
-    public class PlagiarismResult
-    {
-        public bool Continue { get; set; }
-        public string Test { get; set; }
     }
 }
