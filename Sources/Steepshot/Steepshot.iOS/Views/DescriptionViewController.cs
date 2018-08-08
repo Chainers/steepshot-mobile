@@ -30,6 +30,7 @@ namespace Steepshot.iOS.Views
         private const int _photoSize = 900; //kb
         private TimeSpan PostingLimit;
         private UIDeviceOrientation _rotation;
+        private PlagiarismResult plagiarismResult;
         protected List<Tuple<NSDictionary, UIImage>> ImageAssets;
         protected nfloat _separatorMargin = 30;
         private nfloat photoViewSide;
@@ -145,7 +146,7 @@ namespace Steepshot.iOS.Views
         }
 
         protected UIScrollView CreateScrollView()
-        { 
+        {
             var scroll = new UIScrollView();
             scroll.BackgroundColor = UIColor.White;
 
@@ -447,6 +448,11 @@ namespace Steepshot.iOS.Views
         public override void ViewDidAppear(bool animated)
         {
             base.ViewDidAppear(animated);
+            if (plagiarismResult != null)
+            {
+
+            }
+
             if (_isFromCamera && IsMovingToParentViewController)
             {
                 RotatePhotoIfNeeded();
@@ -709,13 +715,14 @@ namespace Steepshot.iOS.Views
         private async void PostPhoto(object sender, EventArgs e)
         {
             // TODO: for tests
-            var test = true;
-            if (test)
-            {
-                var plagiarismViewController = new PlagiarismViewController(ImageAssets);
-                NavigationController.PushViewController(plagiarismViewController, true);
-                return;
-            }
+            //var test = true;
+            //if (test)
+            //{
+            //    plagiarismResult = new PlagiarismResult();
+            //    var plagiarismViewController = new PlagiarismViewController(ImageAssets, null, plagiarismResult);
+            //    NavigationController.PushViewController(plagiarismViewController, true);
+            //    return;
+            //}
 
             if (string.IsNullOrEmpty(titleTextField.Text))
             {
@@ -824,6 +831,17 @@ namespace Steepshot.iOS.Views
                     var pushToBlockchainRetry = false;
                     do
                     {
+                        //var plagiarismCheck = _presenter.TryCheckForPlagiarism(model).Result;
+                        //if (plagiarismCheck.IsSuccess)
+                        //{
+                        //    if (plagiarismCheck.Result.plagiarism.IsPlagiarism)
+                        //    { 
+                        //        //var plagiarismViewController = new PlagiarismViewController(ImageAssets, plagiarismCheck.Result.plagiarism);
+                        //        //NavigationController.PushViewController(plagiarismViewController, true);
+                        //        //return;
+                        //    }
+                        //}
+
                         pushToBlockchainRetry = false;
                         var response = _presenter.TryCreateOrEditPost(model).Result;
                         if (!(response != null && response.IsSuccess))
@@ -974,5 +992,11 @@ namespace Steepshot.iOS.Views
             }
             return attributes;
         }
+    }
+
+    public class PlagiarismResult
+    {
+        public bool Continue { get; set; }
+        public string Test { get; set; }
     }
 }

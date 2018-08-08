@@ -4,6 +4,7 @@ using Foundation;
 using PureLayout.Net;
 using SafariServices;
 using Steepshot.Core.Localization;
+using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Utils;
 using Steepshot.iOS.Helpers;
 using UIKit;
@@ -12,14 +13,18 @@ namespace Steepshot.iOS.Views
 {
     public class PlagiarismViewController : DescriptionViewController, ISFSafariViewControllerDelegate
     {
-        private Xamarin.TTTAttributedLabel.TTTAttributedLabel plagiarismAttributedLabel;
-        private UIButton cancelButton;
-        private UIButton continueButton;
+        private readonly Plagiarism _model;
+        private Xamarin.TTTAttributedLabel.TTTAttributedLabel _plagiarismAttributedLabel;
+        private UIButton _cancelButton;
+        private UIButton _continueButton;
+        private PlagiarismResult plagiarismResult;
 
-        public PlagiarismViewController(List<Tuple<NSDictionary, UIImage>> assets)
+        public PlagiarismViewController(List<Tuple<NSDictionary, UIImage>> assets, Plagiarism model, PlagiarismResult plagiarismResult = null)
         {
             ImageAssets = assets;
+            _model = model;
             plagiarismMode = true;
+            this.plagiarismResult = plagiarismResult;
         }
 
         public override void ViewDidLoad()
@@ -33,13 +38,13 @@ namespace Steepshot.iOS.Views
         {
             if (!_isinitialized)
             {
-                cancelButton.LayoutIfNeeded();
-                Constants.CreateGradient(cancelButton, 25);
-                Constants.CreateShadow(cancelButton, Constants.R231G72B0, 0.5f, 25, 10, 12);
+                _cancelButton.LayoutIfNeeded();
+                Constants.CreateGradient(_cancelButton, 25);
+                Constants.CreateShadow(_cancelButton, Constants.R231G72B0, 0.5f, 25, 10, 12);
 
-                continueButton.LayoutIfNeeded();
-                Constants.CreateGradient(continueButton, 25, GradientType.Blue);
-                Constants.CreateShadow(continueButton, Constants.R26G151B246, 0.5f, 25, 10, 12);
+                _continueButton.LayoutIfNeeded();
+                Constants.CreateGradient(_continueButton, 25, GradientType.Blue);
+                Constants.CreateShadow(_continueButton, Constants.R26G151B246, 0.5f, 25, 10, 12);
 
                 _isinitialized = true;
             }
@@ -112,42 +117,58 @@ namespace Steepshot.iOS.Views
                 ForegroundColor = Constants.R255G34B5,
             };
 
-            plagiarismAttributedLabel = new Xamarin.TTTAttributedLabel.TTTAttributedLabel();
-            plagiarismAttributedLabel.EnabledTextCheckingTypes = NSTextCheckingType.Link;
-            plagiarismAttributedLabel.Lines = 0;
+            _plagiarismAttributedLabel = new Xamarin.TTTAttributedLabel.TTTAttributedLabel();
+            _plagiarismAttributedLabel.EnabledTextCheckingTypes = NSTextCheckingType.Link;
+            _plagiarismAttributedLabel.Lines = 0;
 
             var prop = new NSDictionary();
-            plagiarismAttributedLabel.LinkAttributes = prop;
-            plagiarismAttributedLabel.ActiveLinkAttributes = prop;
+            _plagiarismAttributedLabel.LinkAttributes = prop;
+            _plagiarismAttributedLabel.ActiveLinkAttributes = prop;
 
-            plagiarismAttributedLabel.UserInteractionEnabled = true;
-            plagiarismAttributedLabel.Enabled = true;
-            plagiarismAttributedLabel.Delegate = new TTTAttributedLabelActionDelegate(TextLinkAction);
+            _plagiarismAttributedLabel.UserInteractionEnabled = true;
+            _plagiarismAttributedLabel.Enabled = true;
+            _plagiarismAttributedLabel.Delegate = new TTTAttributedLabelActionDelegate(TextLinkAction);
 
-            cancelButton = new UIButton();
-            cancelButton.SetTitle(AppSettings.LocalizationManager.GetText(LocalizationKeys.CancelPublishing).ToUpper(), UIControlState.Normal);
-            cancelButton.Layer.CornerRadius = 25;
-            cancelButton.TitleLabel.Font = Constants.Bold14;
-            cancelButton.TitleLabel.TextColor = Constants.R255G255B255;
+            _cancelButton = new UIButton();
+            _cancelButton.SetTitle(AppSettings.LocalizationManager.GetText(LocalizationKeys.CancelPublishing).ToUpper(), UIControlState.Normal);
+            _cancelButton.Layer.CornerRadius = 25;
+            _cancelButton.TitleLabel.Font = Constants.Bold14;
+            _cancelButton.TitleLabel.TextColor = Constants.R255G255B255;
 
-            continueButton = new UIButton();
-            continueButton.SetTitle(AppSettings.LocalizationManager.GetText(LocalizationKeys.ContinuePublishing).ToUpper(), UIControlState.Normal);
-            continueButton.Layer.CornerRadius = 25;
-            continueButton.TitleLabel.Font = Constants.Bold14;
-            continueButton.TitleLabel.TextColor = Constants.R255G255B255;
+            _continueButton = new UIButton();
+            _continueButton.SetTitle(AppSettings.LocalizationManager.GetText(LocalizationKeys.ContinuePublishing).ToUpper(), UIControlState.Normal);
+            _continueButton.Layer.CornerRadius = 25;
+            _continueButton.TitleLabel.Font = Constants.Bold14;
+            _continueButton.TitleLabel.TextColor = Constants.R255G255B255;
 
             mainScroll.AddSubview(photoTitleSeparator);
-            mainScroll.AddSubview(plagiarismAttributedLabel);
-            mainScroll.AddSubview(cancelButton);
-            mainScroll.AddSubview(continueButton);
+            mainScroll.AddSubview(_plagiarismAttributedLabel);
+            mainScroll.AddSubview(_cancelButton);
+            mainScroll.AddSubview(_continueButton);
+
+            _cancelButton.TouchDown += (sender, e) =>
+            {
+                plagiarismResult.Continue = false;
+                plagiarismResult.Test = "Test from cancel";
+                _presenter?.TasksCancel();
+                NavigationController.PopViewController(true);
+            };
+
+            _continueButton.TouchDown += (sender, e) =>
+            {
+                plagiarismResult.Continue = true;
+                plagiarismResult.Test = "Test from continue";
+                _presenter?.TasksCancel();
+                NavigationController.PopViewController(true);
+            };
 
             var at = new NSMutableAttributedString();
             at.Append(new NSAttributedString("We have found a ", noLinkTitleAttribute));
-            at.Append(new NSAttributedString("similar photo", similarAttribute));
+            at.Append(new NSAttributedString("permlink", similarAttribute));//_model.PlagiarismPermlink, similarAttribute));
             at.Append(new NSAttributedString(" in Steepshot, uploaded by ", noLinkTitleAttribute));
-            at.Append(new NSAttributedString("@username", authorAttribute));
+            at.Append(new NSAttributedString("@author", authorAttribute));//_model.PlagiarismUsername, authorAttribute));
             at.Append(new NSAttributedString(". We do not recommend you to upload other users' photos as it may result in low payouts and reputation loss.", noLinkTitleAttribute));
-            plagiarismAttributedLabel.SetText(at);
+            _plagiarismAttributedLabel.SetText(at);
 
             if (photoView != null)
                 photoTitleSeparator.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, photoView, 24f);
@@ -159,20 +180,20 @@ namespace Steepshot.iOS.Views
             photoTitleSeparator.AutoSetDimension(ALDimension.Height, 1f);
             photoTitleSeparator.AutoSetDimension(ALDimension.Width, UIScreen.MainScreen.Bounds.Width - _separatorMargin * 2);
 
-            plagiarismAttributedLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Left, _separatorMargin);
-            plagiarismAttributedLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Right, _separatorMargin);
-            plagiarismAttributedLabel.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, photoTitleSeparator, 24);
+            _plagiarismAttributedLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Left, _separatorMargin);
+            _plagiarismAttributedLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Right, _separatorMargin);
+            _plagiarismAttributedLabel.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, photoTitleSeparator, 24);
 
-            cancelButton.AutoPinEdgeToSuperviewEdge(ALEdge.Left, _separatorMargin);
-            cancelButton.AutoPinEdgeToSuperviewEdge(ALEdge.Right, _separatorMargin);
-            cancelButton.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, plagiarismAttributedLabel, 30);
-            cancelButton.AutoSetDimension(ALDimension.Height, 50);
+            _cancelButton.AutoPinEdgeToSuperviewEdge(ALEdge.Left, _separatorMargin);
+            _cancelButton.AutoPinEdgeToSuperviewEdge(ALEdge.Right, _separatorMargin);
+            _cancelButton.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, _plagiarismAttributedLabel, 30);
+            _cancelButton.AutoSetDimension(ALDimension.Height, 50);
 
-            continueButton.AutoPinEdgeToSuperviewEdge(ALEdge.Left, _separatorMargin);
-            continueButton.AutoPinEdgeToSuperviewEdge(ALEdge.Right, _separatorMargin);
-            continueButton.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom, 34);
-            continueButton.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, cancelButton, 10);
-            continueButton.AutoSetDimension(ALDimension.Height, 50);
+            _continueButton.AutoPinEdgeToSuperviewEdge(ALEdge.Left, _separatorMargin);
+            _continueButton.AutoPinEdgeToSuperviewEdge(ALEdge.Right, _separatorMargin);
+            _continueButton.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom, 34);
+            _continueButton.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, _cancelButton, 10);
+            _continueButton.AutoSetDimension(ALDimension.Height, 50);
         }
 
         private void OpenGuidelines(object sender, EventArgs e)
@@ -196,10 +217,11 @@ namespace Steepshot.iOS.Views
             switch (type)
             { 
                 case PlagiarismLinkType.Similar:
-                    
+                    //var link = $"@{_model.PlagiarismUsername}/{_model.PlagiarismPermlink}";
+                    //NavigationController.PushViewController(new PostViewController(link), true);
                     break;
                 case PlagiarismLinkType.Author:
-                    
+                    NavigationController.PushViewController(new ProfileViewController { Username = _model.PlagiarismUsername }, true);
                     break;
             }
         }
