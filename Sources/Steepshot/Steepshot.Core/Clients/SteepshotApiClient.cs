@@ -221,15 +221,24 @@ namespace Steepshot.Core.Clients
                 var operationResult = await _ditchClient.Delete(model, ct);
                 if (operationResult.IsSuccess)
                 {
+                    //log parent post to perform update
                     if (model.IsPost)
                         await Trace($"post/@{model.Author}/{model.Permlink}/delete", model.Login, operationResult.Exception, $"@{model.Author}/{model.Permlink}", ct);
+                    else
+                        await Trace($"post/@{model.ParentAuthor}/{model.ParentPermlink}/comment", model.Login, operationResult.Exception, $"@{model.ParentAuthor}/{model.ParentPermlink}", ct);
+
                     return operationResult;
                 }
             }
 
             var result = await _ditchClient.CreateOrEdit(model, ct);
+
+            //log parent post to perform update
             if (model.IsPost)
                 await Trace($"post/@{model.Author}/{model.Permlink}/edit", model.Login, result.Exception, $"@{model.Author}/{model.Permlink}", ct);
+            else
+                await Trace($"post/@{model.ParentAuthor}/{model.ParentPermlink}/comment", model.Login, result.Exception, $"@{model.ParentAuthor}/{model.ParentPermlink}", ct);
+
             return result;
         }
 
