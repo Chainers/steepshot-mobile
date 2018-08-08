@@ -70,5 +70,12 @@ namespace Steepshot.Core.Exceptions
             Exception = response.Exception;
             ResponseError = response.ResponseError;
         }
+        
+        public RequestException(Exception ex, string rawRequest, string rawResponse)
+        {
+            Exception = ex;
+            RawRequest = rawRequest;
+            RawResponse = rawResponse;
+        }
     }
 }

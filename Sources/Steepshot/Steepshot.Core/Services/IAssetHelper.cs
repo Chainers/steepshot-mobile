@@ -19,6 +19,8 @@ namespace Steepshot.Core.Services
 
         List<NodeConfig> GolosNodesConfig();
 
+        List<NodeConfig> EosNodesConfig();
+
         Dictionary<string, string> IntegrationModuleConfig();
     }
 }

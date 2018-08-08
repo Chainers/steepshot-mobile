@@ -627,6 +627,9 @@
     <Reference Include="Ditch.Core, Version=4.0.0.2, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Ditch.Core.4.0.0\lib\netstandard2.0\Ditch.Core.dll</HintPath>
     </Reference>
+    <Reference Include="Ditch.EOS, Version=4.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Ditch.EOS.4.0.0\lib\netstandard2.0\Ditch.EOS.dll</HintPath>
+    </Reference>
     <Reference Include="Ditch.Golos, Version=4.0.0.2, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Ditch.Golos.4.0.0\lib\netstandard2.0\Ditch.Golos.dll</HintPath>
     </Reference>
@@ -794,6 +797,9 @@
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\drawable\round_image_borders.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidAsset Include="Assets\EosNodesConfig.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <Import Project="..\packages\Xamarin.Build.Download.0.4.2\build\Xamarin.Build.Download.targets" Condition="Exists('..\packages\Xamarin.Build.Download.0.4.2\build\Xamarin.Build.Download.targets')" />

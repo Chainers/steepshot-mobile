@@ -20,13 +20,11 @@ using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Clients
 {
-    internal class GolosClient : BaseDitchClient
+    internal class GolosClient : BaseSteemClient
     {
         private readonly OperationManager _operationManager;
         private double? _vestsExchangeRatio;
-
-        public override bool IsConnected => _operationManager.IsConnected;
-
+        
         public override KnownChains Chain => KnownChains.Golos;
 
 

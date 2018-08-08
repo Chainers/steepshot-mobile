@@ -10,10 +10,13 @@ namespace Steepshot.Core.Clients
     {
         public const string SteemUpdateUrl = "https://raw.githubusercontent.com/Chainers/steepshot-mobile/master/Sources/Steepshot/Steepshot.Android/Assets/SteemNodesConfig.txt";
         public const string GolosUpdateUrl = "https://raw.githubusercontent.com/Chainers/steepshot-mobile/master/Sources/Steepshot/Steepshot.Android/Assets/GolosNodesConfig.txt";
+        public const string EosUpdateUrl = "https://raw.githubusercontent.com/Chainers/steepshot-mobile/master/Sources/Steepshot/Steepshot.Android/Assets/EosNodesConfig.txt";
         private const string SteemNodeConfigKey = "SteemNodeConfigKey";
         private const string GolosNodeConfigKey = "GolosNodeConfigKey";
+        private const string EosNodeConfigKey = "EosNodeConfigKey";
         private readonly ISaverService _saverService;
 
+        public List<NodeConfig> EosNodeConfigs { get; private set; }
         public List<NodeConfig> SteemNodeConfigs { get; private set; }
         public List<NodeConfig> GolosNodeConfigs { get; private set; }
 
@@ -28,6 +31,10 @@ namespace Steepshot.Core.Clients
             GolosNodeConfigs = _saverService.Get<List<NodeConfig>>(GolosNodeConfigKey);
             if (GolosNodeConfigs == null || !GolosNodeConfigs.Any())
                 GolosNodeConfigs = assetHelper.GolosNodesConfig();
+
+            EosNodeConfigs = _saverService.Get<List<NodeConfig>>(EosNodeConfigKey);
+            if (EosNodeConfigs == null || !EosNodeConfigs.Any())
+                EosNodeConfigs = assetHelper.EosNodesConfig();
         }
         
         public async Task Update(ExtendedHttpClient httpClient, KnownChains chains, CancellationToken token)
@@ -51,6 +58,16 @@ namespace Steepshot.Core.Clients
                         {
                             SteemNodeConfigs = conf.Result;
                             _saverService.Save(SteemNodeConfigKey, SteemNodeConfigs);
+                        }
+                        break;
+                    }
+                case KnownChains.Eos:
+                    {
+                        var conf = await httpClient.Get<List<NodeConfig>>(EosUpdateUrl, token);
+                        if (conf.IsSuccess)
+                        {
+                            EosNodeConfigs = conf.Result;
+                            _saverService.Save(EosNodeConfigKey, EosNodeConfigs);
                         }
                         break;
                     }

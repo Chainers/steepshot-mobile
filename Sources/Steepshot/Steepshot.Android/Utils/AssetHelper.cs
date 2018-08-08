@@ -86,6 +86,11 @@ namespace Steepshot.Utils
             return TryReadJsonAsset<List<NodeConfig>>("GolosNodesConfig.txt");
         }
 
+        public List<NodeConfig> EosNodesConfig()
+        {
+            return TryReadJsonAsset<List<NodeConfig>>("EosNodesConfig.txt");
+        }
+
         public Dictionary<string, string> IntegrationModuleConfig()
         {
             return TryReadJsonAsset<Dictionary<string, string>>("IntegrationModuleConfig.txt");

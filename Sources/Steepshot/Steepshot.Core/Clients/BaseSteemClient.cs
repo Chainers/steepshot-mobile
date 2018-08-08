@@ -11,7 +11,7 @@ using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Clients
 {
-    internal abstract class BaseDitchClient
+    internal abstract class BaseSteemClient
     {
         protected readonly object SyncConnection;
         protected readonly ExtendedHttpClient ExtendedHttpClient;
@@ -19,11 +19,9 @@ namespace Steepshot.Core.Clients
         public volatile bool EnableWrite;
         
         public abstract KnownChains Chain { get; }
+        
 
-        public abstract bool IsConnected { get; }
-
-
-        protected BaseDitchClient(ExtendedHttpClient extendedHttpClient)
+        protected BaseSteemClient(ExtendedHttpClient extendedHttpClient)
         {
             SyncConnection = new object();
             ExtendedHttpClient = extendedHttpClient;

@@ -15,7 +15,7 @@ namespace Steepshot.Core.Clients
     public class SteepshotApiClient : BaseServerClient
     {
         private readonly Dictionary<KnownChains, Beneficiary[]> _beneficiariesCash;
-        private readonly BaseDitchClient _ditchClient;
+        private readonly BaseSteemClient _steemClient;
         public KnownChains Chain { get; }
 
         public SteepshotApiClient(ExtendedHttpClient extendedHttpClient, KnownChains chain)
@@ -34,8 +34,8 @@ namespace Steepshot.Core.Clients
                     break;
             }
 
-            _ditchClient = chain == KnownChains.Steem
-                ? (BaseDitchClient)new SteemClient(extendedHttpClient)
+            _steemClient = chain == KnownChains.Steem
+                ? (BaseSteemClient)new SteemClient(extendedHttpClient)
                 : new GolosClient(extendedHttpClient);
 
             EnableRead = true;
@@ -62,12 +62,12 @@ namespace Steepshot.Core.Clients
 
         public async Task<OperationResult<AccountInfoResponse>> GetAccountInfo(string userName, CancellationToken ct)
         {
-            return await _ditchClient.GetAccountInfo(userName, ct);
+            return await _steemClient.GetAccountInfo(userName, ct);
         }
 
         public async Task<OperationResult<AccountHistoryResponse[]>> GetAccountHistory(string userName, CancellationToken ct)
         {
-            return await _ditchClient.GetAccountHistory(userName, ct);
+            return await _steemClient.GetAccountHistory(userName, ct);
         }
 
         public async Task<OperationResult<VoidResponse>> ValidatePrivateKey(ValidatePrivateKeyModel model, CancellationToken ct)
@@ -76,7 +76,7 @@ namespace Steepshot.Core.Clients
             if (results != null)
                 return new OperationResult<VoidResponse>(results);
 
-            var result = await _ditchClient.ValidatePrivateKey(model, ct);
+            var result = await _steemClient.ValidatePrivateKey(model, ct);
             return result;
         }
 
@@ -86,7 +86,7 @@ namespace Steepshot.Core.Clients
             if (results != null)
                 return new OperationResult<Post>(results);
 
-            var result = await _ditchClient.Vote(model, ct);
+            var result = await _steemClient.Vote(model, ct);
 
             var startDelay = DateTime.Now;
 
@@ -123,7 +123,7 @@ namespace Steepshot.Core.Clients
             if (results != null)
                 return new OperationResult<VoidResponse>(results);
 
-            var result = await _ditchClient.Follow(model, ct);
+            var result = await _steemClient.Follow(model, ct);
             await Trace($"user/{model.Username}/{model.Type.ToString().ToLowerInvariant()}", model.Login, result.Exception, model.Username, ct);
             return result;
         }
@@ -136,7 +136,7 @@ namespace Steepshot.Core.Clients
 
             if (!model.IsEditMode)
             {
-                var bKey = _ditchClient.Chain;
+                var bKey = _steemClient.Chain;
                 if (_beneficiariesCash.ContainsKey(bKey))
                 {
                     model.Beneficiaries = _beneficiariesCash[bKey];
@@ -149,7 +149,7 @@ namespace Steepshot.Core.Clients
                 }
             }
 
-            var result = await _ditchClient.CreateOrEdit(model, ct);
+            var result = await _steemClient.CreateOrEdit(model, ct);
             //log parent post to perform update
             await Trace($"post/@{model.ParentAuthor}/{model.ParentPermlink}/comment", model.Login, result.Exception, $"@{model.ParentAuthor}/{model.ParentPermlink}", ct);
             return result;
@@ -178,7 +178,7 @@ namespace Steepshot.Core.Clients
             if (!model.IsEditMode)
                 commentModel.Beneficiaries = preparedData.Beneficiaries;
 
-            var result = await _ditchClient.CreateOrEdit(commentModel, ct);
+            var result = await _steemClient.CreateOrEdit(commentModel, ct);
             if (model.IsEditMode)
             {
                 await Trace($"post/{model.PostPermlink}/edit", model.Login, result.Exception, model.PostPermlink, ct);
@@ -199,7 +199,7 @@ namespace Steepshot.Core.Clients
             if (results != null)
                 return new OperationResult<MediaModel>(results);
 
-            var trxResp = await _ditchClient.GetVerifyTransaction(model, ct);
+            var trxResp = await _steemClient.GetVerifyTransaction(model, ct);
 
             if (!trxResp.IsSuccess)
                 return new OperationResult<MediaModel>(trxResp.Exception);
@@ -218,7 +218,7 @@ namespace Steepshot.Core.Clients
 
             if (model.IsEnableToDelete)
             {
-                var operationResult = await _ditchClient.Delete(model, ct);
+                var operationResult = await _steemClient.Delete(model, ct);
                 if (operationResult.IsSuccess)
                 {
                     if (model.IsPost)
@@ -227,7 +227,7 @@ namespace Steepshot.Core.Clients
                 }
             }
 
-            var result = await _ditchClient.CreateOrEdit(model, ct);
+            var result = await _steemClient.CreateOrEdit(model, ct);
             if (model.IsPost)
                 await Trace($"post/@{model.Author}/{model.Permlink}/edit", model.Login, result.Exception, $"@{model.Author}/{model.Permlink}", ct);
             return result;
@@ -239,12 +239,12 @@ namespace Steepshot.Core.Clients
             if (results != null)
                 return new OperationResult<VoidResponse>(results);
 
-            return await _ditchClient.UpdateUserProfile(model, ct);
+            return await _steemClient.UpdateUserProfile(model, ct);
         }
 
         public async Task<OperationResult<object>> SubscribeForPushes(PushNotificationsModel model, CancellationToken ct)
         {
-            var trxResp = await _ditchClient.GetVerifyTransaction(model, ct);
+            var trxResp = await _steemClient.GetVerifyTransaction(model, ct);
 
             if (!trxResp.IsSuccess)
                 return new OperationResult<object>(trxResp.Exception);
@@ -266,7 +266,7 @@ namespace Steepshot.Core.Clients
             if (results != null)
                 return new OperationResult<VoidResponse>(results);
 
-            return await _ditchClient.Transfer(model, ct);
+            return await _steemClient.Transfer(model, ct);
         }
 
         public async Task<OperationResult<VoidResponse>> PowerUpOrDown(PowerUpDownModel model, CancellationToken ct)
@@ -275,7 +275,7 @@ namespace Steepshot.Core.Clients
             if (results != null)
                 return new OperationResult<VoidResponse>(results);
 
-            return await _ditchClient.PowerUpOrDown(model, ct);
+            return await _steemClient.PowerUpOrDown(model, ct);
         }
 
         public async Task<OperationResult<VoidResponse>> ClaimRewards(ClaimRewardsModel model, CancellationToken ct)
@@ -284,7 +284,7 @@ namespace Steepshot.Core.Clients
             if (results != null)
                 return new OperationResult<VoidResponse>(results);
 
-            return await _ditchClient.ClaimRewards(model, ct);
+            return await _steemClient.ClaimRewards(model, ct);
         }
     }
 }

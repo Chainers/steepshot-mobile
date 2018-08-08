@@ -21,6 +21,8 @@ namespace Steepshot.Core.Models.Common
 
         public double RewardSbd { get; set; }
 
+        public BalanceModel() { }
+
         public BalanceModel(double value, byte maxDecimals, CurrencyType currencyType)
         {
             Value = value;

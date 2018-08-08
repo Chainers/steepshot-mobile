@@ -21,14 +21,12 @@ using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Clients
 {
-    internal class SteemClient : BaseDitchClient
+    internal class SteemClient : BaseSteemClient
     {
         private readonly OperationManager _operationManager;
 
         private double? _vestsExchangeRatio;
-
-        public override bool IsConnected => _operationManager.IsConnected;
-
+        
         public override KnownChains Chain => KnownChains.Steem;
 
         public SteemClient(ExtendedHttpClient extendedHttpClient) : base(extendedHttpClient)

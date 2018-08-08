@@ -115,6 +115,9 @@
     <Reference Include="Ditch.Core, Version=4.0.0.2, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Ditch.Core.4.0.0\lib\netstandard2.0\Ditch.Core.dll</HintPath>
     </Reference>
+    <Reference Include="Ditch.EOS, Version=4.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Ditch.EOS.4.0.0\lib\netstandard2.0\Ditch.EOS.dll</HintPath>
+    </Reference>
     <Reference Include="Ditch.Golos, Version=4.0.0.2, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Ditch.Golos.4.0.0\lib\netstandard2.0\Ditch.Golos.dll</HintPath>
     </Reference>
@@ -611,9 +614,10 @@
       <Name>Steepshot.iOS.ShareExtension</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
-    <Folder Include="Resources\Assets\" />
+    <BundleResource Include="..\Steepshot.Android\Assets\EosNodesConfig.txt">
+      <Link>Resources\Assets\EosNodesConfig.txt</Link>
+    </BundleResource>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
   <Import Project="..\packages\Xamarin.Insights.1.12.3\build\Xamarin.iOS10\Xamarin.Insights.targets" Condition="Exists('..\packages\Xamarin.Insights.1.12.3\build\Xamarin.iOS10\Xamarin.Insights.targets')" />

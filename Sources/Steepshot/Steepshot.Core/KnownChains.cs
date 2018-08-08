@@ -5,5 +5,6 @@
         None,
         Steem,
         Golos,
+        Eos,
     }
 }

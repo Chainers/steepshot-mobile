@@ -1,0 +1,7 @@
+[
+	{
+		"url": "http://dev.cryptolions.io:38888",
+		"is_enabled": "true",
+		"order":10
+	}
+]

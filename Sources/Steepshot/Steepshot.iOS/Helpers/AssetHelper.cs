@@ -31,6 +31,11 @@ namespace Steepshot.iOS.Helpers
             return TryReadAsset<List<NodeConfig>>("GolosNodesConfig.txt");
         }
 
+        public List<NodeConfig> EosNodesConfig()
+        {
+            return TryReadAsset<List<NodeConfig>>("EosNodesConfig.txt");
+        }
+
         public Dictionary<string, string> IntegrationModuleConfig()
         {
             return TryReadAsset<Dictionary<string, string>>("IntegrationModuleConfig.txt");
