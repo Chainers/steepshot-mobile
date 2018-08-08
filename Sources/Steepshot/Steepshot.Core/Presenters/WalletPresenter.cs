@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -91,7 +90,7 @@ namespace Steepshot.Core.Presenters
 
         public async Task<Exception> TryClaimRewards(BalanceModel balance)
         {
-            var claimRewardsModel = new ClaimRewardsModel(balance.UserInfo, balance.RewardSteem.ToString(CultureInfo.InvariantCulture), balance.RewardSp.ToString(CultureInfo.InvariantCulture), balance.RewardSbd.ToString(CultureInfo.InvariantCulture));
+            var claimRewardsModel = new ClaimRewardsModel(balance.UserInfo, balance.RewardSteem, balance.RewardSp, balance.RewardSbd);
             var response = await TryRunTask<ClaimRewardsModel, VoidResponse>(ClaimRewards, CancellationToken.None, claimRewardsModel);
             return response.Exception;
         }

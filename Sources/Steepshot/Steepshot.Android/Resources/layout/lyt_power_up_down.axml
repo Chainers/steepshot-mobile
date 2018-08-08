@@ -6,135 +6,145 @@
     android:background="@color/rgb250_250_250">
     <include
         layout="@layout/lyt_power_up_down_top" />
-    <LinearLayout
-        android:orientation="vertical"
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:paddingLeft="20dp"
-        android:paddingRight="20dp"
-        android:background="@color/white">
-        <RelativeLayout
+        android:layout_height="match_parent"
+        android:scrollbars="none">
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="70dp">
-            <TextView
-                android:id="@+id/token1"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:gravity="center"
-                android:textSize="14sp"
-                android:textColor="@color/black" />
-            <TextView
-                android:id="@+id/token1_value"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:gravity="center"
-                android:layout_alignParentRight="true"
-                android:textSize="24sp" />
-        </RelativeLayout>
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/rgb245_245_245" />
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="70dp">
-            <TextView
-                android:id="@+id/token2"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:gravity="center"
-                android:textSize="14sp"
-                android:textColor="@color/black" />
-            <TextView
-                android:id="@+id/token2_value"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:gravity="center"
-                android:layout_alignParentRight="true"
-                android:textSize="24sp" />
-        </RelativeLayout>
-    </LinearLayout>
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:padding="20dp"
-        android:background="@color/white">
-        <TextView
-            android:id="@+id/amount_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="14sp"
-            android:textColor="@color/black" />
-        <Button
-            android:id="@+id/max"
-            android:layout_below="@id/amount_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:layout_marginLeft="10dp"
-            android:paddingLeft="20dp"
-            android:paddingRight="20dp"
-            android:layout_alignParentRight="true"
-            android:background="@drawable/white_btn_style_edge_grey" />
-        <RelativeLayout
-            android:layout_below="@id/amount_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:layout_toLeftOf="@id/max">
-            <EditText
-                android:id="@+id/transfer_amount_edit"
-                android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:digits="0123456789."
-                android:inputType="numberDecimal"
-                android:textSize="14sp"
-                android:maxLines="1"
-                android:paddingLeft="20dp"
-                android:background="@drawable/edit_text_borders" />
+            android:layout_height="match_parent"
+            android:orientation="vertical">
             <LinearLayout
-                android:id="@+id/transfer_coin"
-                android:layout_width="wrap_content"
-                android:layout_height="50dp"
-                android:orientation="horizontal"
-                android:layout_alignParentRight="true"
-                android:gravity="center"
-                android:paddingLeft="15dp"
-                android:paddingRight="15dp">
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:paddingLeft="20dp"
+                android:paddingRight="20dp"
+                android:background="@color/white">
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="70dp">
+                    <TextView
+                        android:id="@+id/token1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:textSize="14sp"
+                        android:textColor="@color/black" />
+                    <TextView
+                        android:id="@+id/token1_value"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:layout_alignParentRight="true"
+                        android:textSize="24sp" />
+                </RelativeLayout>
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/rgb245_245_245" />
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="70dp">
+                    <TextView
+                        android:id="@+id/token2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:textSize="14sp"
+                        android:textColor="@color/black" />
+                    <TextView
+                        android:id="@+id/token2_value"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:layout_alignParentRight="true"
+                        android:textSize="24sp" />
+                </RelativeLayout>
+            </LinearLayout>
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:padding="20dp"
+                android:background="@color/white">
                 <TextView
-                    android:id="@+id/transfercoin_name"
+                    android:id="@+id/amount_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
                     android:textSize="14sp"
-                    android:textAllCaps="true"
-                    android:textColor="@color/rgb151_155_158" />
-            </LinearLayout>
-        </RelativeLayout>
-    </RelativeLayout>
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
-        android:layout_marginLeft="15dp"
-        android:layout_marginRight="15dp">
-        <ProgressBar
-            android:id="@+id/power_spinner"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:indeterminateTintMode="src_atop"
-            android:indeterminateTint="@color/white"
-            android:layout_centerHorizontal="true"
-            android:visibility="gone"
-            android:elevation="10dp" />
-        <Button
-            android:id="@+id/powerBtn"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:textSize="14sp"
-            android:textColor="@color/white"
-            android:background="@drawable/orange_btn_style" />
-    </RelativeLayout>
+                    android:textColor="@color/black" />
+                <Button
+                    android:id="@+id/max"
+                    android:layout_below="@id/amount_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginLeft="10dp"
+                    android:paddingLeft="20dp"
+                    android:paddingRight="20dp"
+                    android:layout_alignParentRight="true"
+                    android:background="@drawable/white_btn_style_edge_grey" />
+                <RelativeLayout
+                    android:layout_below="@id/amount_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:layout_toLeftOf="@id/max">
+                    <EditText
+                        android:id="@+id/transfer_amount_edit"
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:digits="0123456789."
+                        android:inputType="numberDecimal"
+                        android:textSize="14sp"
+                        android:maxLines="1"
+                        android:paddingLeft="20dp"
+                        android:background="@drawable/edit_text_borders" />
+                    <LinearLayout
+                        android:id="@+id/transfer_coin"
+                        android:layout_width="wrap_content"
+                        android:layout_height="50dp"
+                        android:orientation="horizontal"
+                        android:layout_alignParentRight="true"
+                        android:gravity="center"
+                        android:paddingLeft="15dp"
+                        android:paddingRight="15dp">
+                        <TextView
+                            android:id="@+id/transfercoin_name"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:textSize="14sp"
+                            android:textAllCaps="true"
+                            android:textColor="@color/rgb151_155_158" />
+                    </LinearLayout>
+                </RelativeLayout>
+            </RelativeLayout>
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="30dp"
+                android:layout_marginLeft="15dp"
+                android:layout_marginRight="15dp">
+                <ProgressBar
+                    android:id="@+id/power_spinner"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:indeterminateTintMode="src_atop"
+                    android:indeterminateTint="@color/white"
+                    android:layout_centerHorizontal="true"
+                    android:visibility="gone"
+                    android:elevation="10dp" />
+                <Button
+                    android:id="@+id/powerBtn"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:textSize="14sp"
+                    android:textColor="@color/white"
+                    android:background="@drawable/orange_btn_style" />
+            </RelativeLayout>
+        </LinearLayout>
+    </ScrollView>
 </LinearLayout>
