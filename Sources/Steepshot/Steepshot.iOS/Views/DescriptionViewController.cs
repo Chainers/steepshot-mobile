@@ -424,6 +424,11 @@ namespace Steepshot.iOS.Views
         {
             base.ViewWillAppear(animated);
 
+            if (plagiarismResult != null && plagiarismResult.Continue && !IsMovingToParentViewController)
+            {
+                OnPostAsync(true);
+            }
+
             if (!plagiarismMode)
             {
                 collectionviewSource.CellAction += CollectionCellAction;
@@ -448,10 +453,6 @@ namespace Steepshot.iOS.Views
         public override void ViewDidAppear(bool animated)
         {
             base.ViewDidAppear(animated);
-            if (plagiarismResult != null)
-            {
-                OnPostAsync(false);
-            }
 
             if (_isFromCamera && IsMovingToParentViewController)
             {
@@ -722,12 +723,12 @@ namespace Steepshot.iOS.Views
 
             RemoveFocusFromTextFields();
 
-            OnPostAsync(true);
+            OnPostAsync(false);
         }
 
-        private async void OnPostAsync(bool checkForPlagiarism)
+        private async void OnPostAsync(bool skipPreparationSteps)
         {
-            if (!editMode && !checkForPlagiarism)
+            if (!editMode && !skipPreparationSteps)
             {
                 await CheckOnSpam();
 
@@ -737,7 +738,7 @@ namespace Steepshot.iOS.Views
 
             EnablePostAndEdit(false);
 
-            if (_isFromCamera && !checkForPlagiarism)
+            if (_isFromCamera && !skipPreparationSteps)
             {
                 var croppedPhoto = _cropView.CropImage(new SavedPhoto(null, ImageAssets[0].Item2, _cropView.ContentOffset) { OriginalImageSize = _cropView.originalImageSize, Scale = _cropView.ZoomScale });
                 ImageAssets.RemoveAt(0);
@@ -762,7 +763,7 @@ namespace Steepshot.iOS.Views
 
                     var mre = new ManualResetEvent(false);
 
-                    if (checkForPlagiarism)
+                    if (!skipPreparationSteps)
                     {
                         if (!editMode)
                         {
@@ -780,17 +781,17 @@ namespace Steepshot.iOS.Views
                                 {
                                     InvokeOnMainThread(() =>
                                     {
-                                    //Remake this
-                                    ShowDialog(photoUploadResponse[0].Exception, LocalizationKeys.Cancel,
-                                            LocalizationKeys.Retry, (arg) =>
-                                            {
-                                                shouldReturn = true;
-                                                mre.Set();
-                                            }, (arg) =>
-                                            {
-                                                photoUploadRetry = true;
-                                                mre.Set();
-                                            });
+                                        //Remake this
+                                        ShowDialog(photoUploadResponse[0].Exception, LocalizationKeys.Cancel,
+                                                LocalizationKeys.Retry, (arg) =>
+                                                {
+                                                    shouldReturn = true;
+                                                    mre.Set();
+                                                }, (arg) =>
+                                                {
+                                                    photoUploadRetry = true;
+                                                    mre.Set();
+                                                });
                                     });
 
                                     mre.Reset();
@@ -824,7 +825,7 @@ namespace Steepshot.iOS.Views
                     var pushToBlockchainRetry = false;
                     do
                     {
-                        if (checkForPlagiarism)
+                        if (!skipPreparationSteps)
                         {
                             var plagiarismCheck = _presenter.TryCheckForPlagiarism(model).Result;
                             if (plagiarismCheck.IsSuccess)
