@@ -576,9 +576,10 @@ namespace Steepshot.Fragment
             var transferResponse = await _transferFacade.TransferPresenter.TryTransfer(_userInfo, _transferFacade.Recipient.Author, _transferAmountEdit.Text, _pickedCoin, _transferCommentEdit.Text);
             if (transferResponse.IsSuccess)
             {
-                var succes = new SuccessfullTrxDialog(Activity, _transferFacade.Recipient.Author, $"{_transferAmountEdit.Text} {_pickedCoin.ToString().ToUpper()}");
-                succes.Show();
+                var success = new SuccessfullTrxDialog(Activity, _transferFacade.Recipient.Author, $"{_transferAmountEdit.Text} {_pickedCoin.ToString().ToUpper()}");
+                success.Show();
                 ClearEdits();
+                ((BaseActivity)Activity).OnBackPressed();
             }
             else
             {
