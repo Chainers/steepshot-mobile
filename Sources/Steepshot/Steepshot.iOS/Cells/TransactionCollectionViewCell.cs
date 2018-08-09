@@ -19,6 +19,8 @@ namespace Steepshot.iOS.Cells
 
         protected TransactionCollectionViewCell(IntPtr handle) : base(handle)
         {
+            var sideMargin = DeviceHelper.IsSmallDevice ? 15 : 30;
+
             var background = new UIView();
             background.BackgroundColor = Constants.R255G255B255;
             background.Layer.CornerRadius = 16;
@@ -40,7 +42,7 @@ namespace Steepshot.iOS.Cells
             var leftContainer = new UIView();
             background.AddSubview(leftContainer);
 
-            leftContainer.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 30);
+            leftContainer.AutoPinEdgeToSuperviewEdge(ALEdge.Left, sideMargin);
             leftContainer.AutoAlignAxisToSuperviewAxis(ALAxis.Horizontal);
 
             _action.Font = Constants.Semibold14;
@@ -63,8 +65,7 @@ namespace Steepshot.iOS.Cells
 
             _amount.AutoPinEdge(ALEdge.Left, ALEdge.Right, leftContainer);
             _amount.AutoAlignAxis(ALAxis.Horizontal, leftContainer);
-            _amount.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 30);
-            _amount.AutoSetDimension(ALDimension.Width, 100);
+            _amount.AutoPinEdgeToSuperviewEdge(ALEdge.Right, sideMargin);
 
             var circle = new UIView();
             circle.BackgroundColor = UIColor.FromRGB(230, 230, 230);
@@ -118,7 +119,9 @@ namespace Steepshot.iOS.Cells
                 ForegroundColor = Constants.R255G34B5,
             };
 
-            at.Append(new NSAttributedString( $"@{transaction.To}", linkAttribute));
+            var login = transaction.From.Equals(AppSettings.User.Login) ? transaction.To : transaction.From;
+
+            at.Append(new NSAttributedString($"@{login}", linkAttribute));
 
             _to.AttributedText = at;
         }

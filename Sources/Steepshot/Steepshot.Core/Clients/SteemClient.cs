@@ -559,7 +559,7 @@ namespace Steepshot.Core.Clients
                             Type = AccountHistoryResponse.OperationType.PowerDown,
                             From = typed.Account,
                             To = typed.Account,
-                            Amount = $"{(typed.VestingShares.ToDouble() * vestsExchangeRatio).ToBalanceVaueString()} {CurrencyType.Steem.ToString().ToUpper()}"
+                            Amount = $"{(typed.VestingShares.ToDouble() * vestsExchangeRatio).ToBalanceValueString()} {CurrencyType.Steem.ToString().ToUpper()}"
                         };
                     }
                 case ClaimRewardBalanceOperation.OperationName:
@@ -572,7 +572,7 @@ namespace Steepshot.Core.Clients
                             From = typed.Account,
                             To = typed.Account,
                             RewardSteem = typed.RewardSteem.ToDoubleString(),
-                            RewardSp = (typed.RewardVests.ToDouble() * vestsExchangeRatio).ToBalanceVaueString(),
+                            RewardSp = (typed.RewardVests.ToDouble() * vestsExchangeRatio).ToBalanceValueString(),
                             RewardSbd = typed.RewardSbd.ToDoubleString()
                         };
                     }

@@ -40,6 +40,10 @@ namespace Steepshot.iOS.Views
         private UIActivityIndicatorView _tranfserLoader;
         private UILabel memoLabel;
 
+        private CustomAlertView _successAlert;
+        private UILabel recipientValue;
+        private UILabel amountValue;
+
         private void SetupTable()
         {
             _usersTable = new UITableView();
@@ -280,7 +284,7 @@ namespace Steepshot.iOS.Views
 
                     NavigationController.View.EndEditing(true);
 
-                    _alert = new CustomAlertView(popup, TabBarController);
+                    _alert = new CustomAlertView(popup, this);
 
                     selectButton.TouchDown += (sender, e) =>
                     {
@@ -449,10 +453,6 @@ namespace Steepshot.iOS.Views
             });
             View.AddGestureRecognizer(tap);
         }
-
-        private CustomAlertView _successAlert;
-        private UILabel recipientValue;
-        private UILabel amountValue;
 
         private void ShowSuccessPopUp()
         {

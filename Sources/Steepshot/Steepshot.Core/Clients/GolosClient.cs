@@ -540,7 +540,7 @@ namespace Steepshot.Core.Clients
                             Type = AccountHistoryResponse.OperationType.PowerDown,
                             From = typed.Account,
                             To = typed.Account,
-                            Amount = $"{(typed.VestingShares.ToDouble() * vestsExchangeRatio).ToBalanceVaueString()} {CurrencyType.Golos.ToString().ToUpper()}"
+                            Amount = $"{(typed.VestingShares.ToDouble() * vestsExchangeRatio).ToBalanceValueString()} {CurrencyType.Golos.ToString().ToUpper()}"
                         };
                     }
                 default:

@@ -424,7 +424,7 @@ namespace Steepshot.Fragment
 
         private void MaxBtnOnClick(object sender, EventArgs e)
         {
-            _transferAmountEdit.Text = _transferFacade.UserBalance.Value.ToBalanceVaueString();
+            _transferAmountEdit.Text = _transferFacade.UserBalance.Value.ToBalanceValueString();
             _transferAmountEdit.SetSelection(_transferAmountEdit.Text.Length);
         }
 

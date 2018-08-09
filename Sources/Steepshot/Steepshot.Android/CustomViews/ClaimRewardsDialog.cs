@@ -53,15 +53,15 @@ namespace Steepshot.CustomViews
 
                 var tokenOneValue = dialogView.FindViewById<TextView>(Resource.Id.token_one_value);
                 tokenOneValue.Typeface = Style.Semibold;
-                tokenOneValue.Text = _balance.RewardSteem.ToBalanceVaueString();
+                tokenOneValue.Text = _balance.RewardSteem.ToBalanceValueString();
 
                 var tokenTwoValue = dialogView.FindViewById<TextView>(Resource.Id.token_two_value);
                 tokenTwoValue.Typeface = Style.Semibold;
-                tokenTwoValue.Text = _balance.RewardSp.ToBalanceVaueString();
+                tokenTwoValue.Text = _balance.RewardSp.ToBalanceValueString();
 
                 var tokenThreeValue = dialogView.FindViewById<TextView>(Resource.Id.token_three_value);
                 tokenThreeValue.Typeface = Style.Semibold;
-                tokenThreeValue.Text = _balance.RewardSbd.ToBalanceVaueString();
+                tokenThreeValue.Text = _balance.RewardSbd.ToBalanceValueString();
 
                 switch (_balance.UserInfo.Chain)
                 {

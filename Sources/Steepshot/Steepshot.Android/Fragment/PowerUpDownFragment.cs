@@ -133,7 +133,7 @@ namespace Steepshot.Fragment
         {
             if (string.IsNullOrEmpty(_amountEdit.Text))
             {
-                UpdateTokenValues(_balance.Value.ToBalanceVaueString(), "???", _balance.EffectiveSp.ToBalanceVaueString(), "???");
+                UpdateTokenValues(_balance.Value.ToBalanceValueString(), "???", _balance.EffectiveSp.ToBalanceValueString(), "???");
                 _powerAmount = -1;
                 return;
             }
@@ -147,24 +147,24 @@ namespace Steepshot.Fragment
                 switch (_powerAction)
                 {
                     case PowerAction.PowerUp:
-                        UpdateTokenValues(_balance.Value.ToBalanceVaueString(), (amountAvailable - amountEdit).ToBalanceVaueString(), _balance.EffectiveSp.ToBalanceVaueString(), (spAvailiable + amountEdit).ToBalanceVaueString());
+                        UpdateTokenValues(_balance.Value.ToBalanceValueString(), (amountAvailable - amountEdit).ToBalanceValueString(), _balance.EffectiveSp.ToBalanceValueString(), (spAvailiable + amountEdit).ToBalanceValueString());
                         break;
                     case PowerAction.PowerDown:
-                        UpdateTokenValues(_balance.Value.ToBalanceVaueString(), (amountAvailable + amountEdit).ToBalanceVaueString(), _balance.EffectiveSp.ToBalanceVaueString(), (spAvailiable - amountEdit).ToBalanceVaueString());
+                        UpdateTokenValues(_balance.Value.ToBalanceValueString(), (amountAvailable + amountEdit).ToBalanceValueString(), _balance.EffectiveSp.ToBalanceValueString(), (spAvailiable - amountEdit).ToBalanceValueString());
                         break;
                 }
                 _powerAmount = amountEdit;
             }
             else
             {
-                UpdateTokenValues(_balance.Value.ToBalanceVaueString(), "???", _balance.EffectiveSp.ToBalanceVaueString(), "???");
+                UpdateTokenValues(_balance.Value.ToBalanceValueString(), "???", _balance.EffectiveSp.ToBalanceValueString(), "???");
                 _powerAmount = -1;
             }
         }
 
         private void MaxBtnOnClick(object sender, EventArgs e)
         {
-            _amountEdit.Text = _balance.Value.ToBalanceVaueString();
+            _amountEdit.Text = _balance.Value.ToBalanceValueString();
             _amountEdit.SetSelection(_amountEdit.Text.Length);
         }
 

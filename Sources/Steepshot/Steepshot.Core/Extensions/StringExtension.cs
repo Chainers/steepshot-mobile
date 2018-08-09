@@ -86,7 +86,7 @@ namespace Steepshot.Core.Extensions
             return $"{string.Format(Constants.ProxyForAvatars, width, height)}{link}";
         }
 
-        public static string ToBalanceVaueString(this double value)
+        public static string ToBalanceValueString(this double value)
         {
             return value.ToString("F3", CultureInfo.InvariantCulture);
         }
