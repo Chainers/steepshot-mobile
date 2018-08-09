@@ -1,8 +1,12 @@
 ﻿using System;
 using CoreGraphics;
 using PureLayout.Net;
+using Steepshot.Core.Models.Common;
+using Steepshot.Core.Models.Responses;
 using Steepshot.iOS.Helpers;
+using Steepshot.Core.Extensions;
 using UIKit;
+using Steepshot.Core.Models.Requests;
 
 namespace Steepshot.iOS.Cells
 {
@@ -10,6 +14,15 @@ namespace Steepshot.iOS.Cells
     {
         private UIImageView _image = new UIImageView();
         private UIView _shadowHelper = new UIView();
+
+        private UILabel _login = new UILabel();
+        private UILabel _equivalentBalance = new UILabel();
+
+        private UILabel _firstTokenLabel = new UILabel();
+        private UILabel _firstTokenValue = new UILabel();
+
+        private UILabel _secondTokenLabel = new UILabel();
+        private UILabel _secondTokenValue = new UILabel();
 
         protected CardCollectionViewCell(IntPtr handle) : base(handle)
         {
@@ -39,15 +52,13 @@ namespace Steepshot.iOS.Cells
             loginBackground.AutoPinEdgeToSuperviewEdge(ALEdge.Right, -20);
             loginBackground.AutoPinEdgeToSuperviewEdge(ALEdge.Top, 21);
 
-            var login = new UILabel();
-            login.Text = "@steepshot";
-            login.Font = Constants.Semibold14;
-            login.TextColor = Constants.R255G255B255;
-            loginBackground.AddSubview(login);
+            _login.Font = Constants.Semibold14;
+            _login.TextColor = Constants.R255G255B255;
+            loginBackground.AddSubview(_login);
 
-            login.AutoAlignAxisToSuperviewAxis(ALAxis.Horizontal);
-            login.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 20);
-            login.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 21);
+            _login.AutoAlignAxisToSuperviewAxis(ALAxis.Horizontal);
+            _login.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 20);
+            _login.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 21);
 
             var balanceLabel = new UILabel();
             balanceLabel.Text = "Account balance";
@@ -58,15 +69,13 @@ namespace Steepshot.iOS.Cells
             balanceLabel.AutoAlignAxis(ALAxis.Horizontal, loginBackground);
             balanceLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 30);
 
-            var equivalentBalance = new UILabel();
-            equivalentBalance.Text = "$ 1 999.999";
-            equivalentBalance.Font = Constants.Bold34;
-            equivalentBalance.TextColor = Constants.R255G255B255;
-            _image.AddSubview(equivalentBalance);
+            _equivalentBalance.Font = Constants.Bold34;
+            _equivalentBalance.TextColor = Constants.R255G255B255;
+            _image.AddSubview(_equivalentBalance);
 
-            equivalentBalance.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 30);
-            equivalentBalance.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, loginBackground);
-            equivalentBalance.AutoPinEdgeToSuperviewEdge(ALEdge.Right);
+            _equivalentBalance.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 30);
+            _equivalentBalance.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, loginBackground);
+            _equivalentBalance.AutoPinEdgeToSuperviewEdge(ALEdge.Right);
 
             var bottomContainer = new UIView();
             _image.AddSubview(bottomContainer);
@@ -74,7 +83,7 @@ namespace Steepshot.iOS.Cells
             bottomContainer.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 30);
             bottomContainer.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 30);
             bottomContainer.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom);
-            bottomContainer.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, equivalentBalance);
+            bottomContainer.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, _equivalentBalance);
 
             var steemContainer = new UIView();
             bottomContainer.AddSubview(steemContainer);
@@ -83,26 +92,24 @@ namespace Steepshot.iOS.Cells
             steemContainer.AutoAlignAxisToSuperviewAxis(ALAxis.Horizontal);
             steemContainer.AutoMatchDimensionWithMultiplier(ALDimension.Width, ALDimension.Width, bottomContainer, 0.5f);
 
-            var steemLabel = new UILabel();
-            steemLabel.Text = "Steem";
-            steemLabel.Font = Constants.Semibold14;
-            steemLabel.TextColor = Constants.R255G255B255.ColorWithAlpha(0.5f);
-            steemContainer.AddSubview(steemLabel);
+            _firstTokenLabel.Text = "Steem";
+            _firstTokenLabel.Font = Constants.Semibold14;
+            _firstTokenLabel.TextColor = Constants.R255G255B255.ColorWithAlpha(0.5f);
+            steemContainer.AddSubview(_firstTokenLabel);
 
-            steemLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Left);
-            steemLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Right);
-            steemLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Top);
+            _firstTokenLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Left);
+            _firstTokenLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Right);
+            _firstTokenLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Top);
 
-            var steemValue = new UILabel();
-            steemValue.Text = "999.999";
-            steemValue.Font = Constants.Semibold20;
-            steemValue.TextColor = Constants.R255G255B255;
-            steemContainer.AddSubview(steemValue);
+            _firstTokenValue.Text = "999.999";
+            _firstTokenValue.Font = Constants.Semibold20;
+            _firstTokenValue.TextColor = Constants.R255G255B255;
+            steemContainer.AddSubview(_firstTokenValue);
 
-            steemValue.AutoPinEdgeToSuperviewEdge(ALEdge.Left);
-            steemValue.AutoPinEdgeToSuperviewEdge(ALEdge.Right);
-            steemValue.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom);
-            steemValue.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, steemLabel);
+            _firstTokenValue.AutoPinEdgeToSuperviewEdge(ALEdge.Left);
+            _firstTokenValue.AutoPinEdgeToSuperviewEdge(ALEdge.Right);
+            _firstTokenValue.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom);
+            _firstTokenValue.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, _firstTokenLabel);
 
             var steemPowerContainer = new UIView();
             bottomContainer.AddSubview(steemPowerContainer);
@@ -111,30 +118,55 @@ namespace Steepshot.iOS.Cells
             steemPowerContainer.AutoAlignAxisToSuperviewAxis(ALAxis.Horizontal);
             steemPowerContainer.AutoMatchDimensionWithMultiplier(ALDimension.Width, ALDimension.Width, bottomContainer, 0.5f);
 
-            var steemPowerLabel = new UILabel();
-            steemPowerLabel.Text = "Steem Power";
-            steemPowerLabel.Font = Constants.Semibold14;
-            steemPowerLabel.TextColor = Constants.R255G255B255.ColorWithAlpha(0.5f);
-            steemPowerContainer.AddSubview(steemPowerLabel);
+            _secondTokenLabel.Text = "Steem Power";
+            _secondTokenLabel.Font = Constants.Semibold14;
+            _secondTokenLabel.TextColor = Constants.R255G255B255.ColorWithAlpha(0.5f);
+            steemPowerContainer.AddSubview(_secondTokenLabel);
 
-            steemPowerLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Left);
-            steemPowerLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Right);
-            steemPowerLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Top);
+            _secondTokenLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Left);
+            _secondTokenLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Right);
+            _secondTokenLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Top);
 
-            var steemPowerValue = new UILabel();
-            steemPowerValue.Text = "999.999";
-            steemPowerValue.Font = Constants.Semibold20;
-            steemPowerValue.TextColor = Constants.R255G255B255;
-            steemPowerContainer.AddSubview(steemPowerValue);
+            _secondTokenValue.Text = "999.999";
+            _secondTokenValue.Font = Constants.Semibold20;
+            _secondTokenValue.TextColor = Constants.R255G255B255;
+            steemPowerContainer.AddSubview(_secondTokenValue);
 
-            steemPowerValue.AutoPinEdgeToSuperviewEdge(ALEdge.Left);
-            steemPowerValue.AutoPinEdgeToSuperviewEdge(ALEdge.Right);
-            steemPowerValue.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom);
-            steemPowerValue.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, steemPowerLabel);
+            _secondTokenValue.AutoPinEdgeToSuperviewEdge(ALEdge.Left);
+            _secondTokenValue.AutoPinEdgeToSuperviewEdge(ALEdge.Right);
+            _secondTokenValue.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom);
+            _secondTokenValue.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, _secondTokenLabel);
         }
 
-        public void UpdateCard(int i)
+        public void UpdateCard(BalanceModel balance, CurrencyRate currencyRate, int i)
         {
+            _login.Text = $"@{balance.UserInfo.Login}";
+            double usdBalance = 0;
+
+            switch (balance.CurrencyType)
+            {
+                case CurrencyType.Steem:
+                case CurrencyType.Golos:
+                    {
+                        _secondTokenLabel.Text = $"{balance.CurrencyType.ToString()} Power".ToUpper();
+                        usdBalance = (balance.Value + balance.EffectiveSp) * (currencyRate?.UsdRate ?? 1);
+                        break;
+                    }
+                case CurrencyType.Sbd:
+                case CurrencyType.Gbg:
+                    {
+                        _secondTokenLabel.Hidden = true;
+                        _secondTokenValue.Hidden = true;
+                        usdBalance = balance.Value * (currencyRate?.UsdRate ?? 1);
+                        break;
+                    }
+            }
+
+            _equivalentBalance.Text = $"$ {usdBalance.ToBalanceVaueString()}".ToUpper();
+            _firstTokenLabel.Text = balance.CurrencyType.ToString().ToUpper();
+            _firstTokenValue.Text = balance.Value.ToBalanceVaueString();
+            _secondTokenValue.Text = balance.EffectiveSp.ToBalanceVaueString();
+
             switch (i)
             {
                 case 0:

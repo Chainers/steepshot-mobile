@@ -182,7 +182,7 @@ namespace Steepshot.iOS.Views
                     ShowPowerPopup();
                     break;
                 case ActionType.Balance:
-                    NavigationController.PushViewController(new WalletViewController(), true);
+                    TabBarController.NavigationController.PushViewController(new WalletViewController(), true);
                     break;
                 default:
                     break;

@@ -3,6 +3,7 @@ using CoreGraphics;
 using PureLayout.Net;
 using Steepshot.Core.Presenters;
 using Steepshot.iOS.Cells;
+using Steepshot.iOS.Delegates;
 using Steepshot.iOS.Helpers;
 using Steepshot.iOS.ViewControllers;
 using Steepshot.iOS.ViewSources;
@@ -24,23 +25,26 @@ namespace Steepshot.iOS.Views
             View.BackgroundColor = Constants.R250G250B250;
             View.ClipsToBounds = true;
 
-            /*
-            var _sendButton = new UIButton();
-            _sendButton.SetTitleColor(UIColor.Black, UIControlState.Normal);
-            _sendButton.SetTitle("Send money", UIControlState.Normal);
-            _sendButton.TouchDown += (object sender, EventArgs e) =>
-             {
-                 NavigationController.PushViewController(new TransferViewController(), true);
-             };
-
-            View.Add(_sendButton);
-
-            _sendButton.AutoCenterInSuperview();
-*/
+            LoadData();
             SetBackButton();
             SetupCardsCollection();
             SetupHistoryCollection();
         }
+
+        private async void LoadData()
+        {
+            var exception = await _presenter.TryLoadNextAccountInfo();
+            if (exception == null)
+            {
+                _historySource.GroupHistory();
+                _historyCollection.ReloadData();
+
+                _cardsCollection.ReloadData();
+                _pageControl.Pages = _presenter.Balances.Count;
+            }
+        }
+
+        private TransferCollectionViewSource _historySource;
 
         private void SetupHistoryCollection()
         {
@@ -56,19 +60,20 @@ namespace Steepshot.iOS.Views
 
             _historyCollection = new UICollectionView(CGRect.Null, new UICollectionViewFlowLayout()
             {
-                //ScrollDirection = UICollectionViewScrollDirection.Horizontal,
-                ItemSize = new CGSize(UIScreen.MainScreen.Bounds.Width, 86),
                 MinimumLineSpacing = 0,
-                //SectionInset = new UIEdgeInsets(40, 0, 0, 0),
                 HeaderReferenceSize = new CGSize(UIScreen.MainScreen.Bounds.Width, 53),
                 FooterReferenceSize = new CGSize(0, 0),
             });
+
             _historyCollection.BackgroundColor = UIColor.Clear;
             _historyCollection.RegisterClassForCell(typeof(TransactionCollectionViewCell), nameof(TransactionCollectionViewCell));
+            _historyCollection.RegisterClassForCell(typeof(ClaimTransactionCollectionViewCell), nameof(ClaimTransactionCollectionViewCell));
             _historyCollection.RegisterClassForSupplementaryView(typeof(TransactionHeaderCollectionViewCell), UICollectionElementKindSection.Header, nameof(TransactionHeaderCollectionViewCell));
             View.Add(_historyCollection);
 
-            _historyCollection.Source = new TransferCollectionViewSource();
+            _historySource = new TransferCollectionViewSource(_presenter);
+            _historyCollection.Source = _historySource;
+            _historyCollection.Delegate = new TransactionHistoryCollectionViewFlowDelegate(_historySource);
 
             _historyCollection.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, historyLabel, 10);
             _historyCollection.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom);
@@ -117,7 +122,7 @@ namespace Steepshot.iOS.Views
                 _pageControl.CurrentPage = (int)Math.Floor((_cardsCollection.ContentOffset.X - pageWidth / 2) / pageWidth) + 1;
             };
 
-            var _cardsCollectionViewSource = new CardsCollectionViewSource();
+            var _cardsCollectionViewSource = new CardsCollectionViewSource(_presenter);
 
             _cardsCollection.DecelerationRate = UIScrollView.DecelerationRateFast;
             _cardsCollection.ShowsHorizontalScrollIndicator = false;
@@ -134,7 +139,6 @@ namespace Steepshot.iOS.Views
             _pageControl.PageIndicatorTintColor = UIColor.FromRGB(0, 0, 0).ColorWithAlpha(0.1f);
             _pageControl.CurrentPageIndicatorTintColor = UIColor.FromRGB(0, 0, 0).ColorWithAlpha(0.4f);
             _pageControl.UserInteractionEnabled = false;
-            _pageControl.Pages = 8;
             View.AddSubview(_pageControl);
 
             _pageControl.AutoPinEdgeToSuperviewEdge(ALEdge.Top, cardBottom);
@@ -180,28 +184,9 @@ namespace Steepshot.iOS.Views
             NavigationItem.Title = "Wallet"; //AppSettings.LocalizationManager.GetText(LocalizationKeys.wa);
 
             var rightBarButton = new UIBarButtonItem(UIImage.FromBundle("ic_present"), UIBarButtonItemStyle.Plain, GoBack);
+            rightBarButton.TintColor = Constants.R231G72B0;
             NavigationItem.RightBarButtonItem = rightBarButton;
-        }
-    }
-
-    public class Transfer
-    {
-        public DateTime Time
-        {
-            get;
-            set;
-        }
-
-        public string To
-        {
-            get;
-            set;
-        }
-
-        public string Amount
-        {
-            get;
-            set;
+            NavigationController.NavigationBar.Translucent = false;
         }
     }
 }

@@ -170,11 +170,8 @@ namespace Steepshot.Fragment
 
         private void PowerBtnOnClick(object sender, EventArgs e)
         {
-            if (_powerAmount < 0 || _powerAction == PowerAction.PowerUp && _powerAmount == 0)
-            {
-                Activity.ShowAlert(LocalizationKeys.WrongTransferAmount, ToastLength.Short);
+            if (_powerAmount <= 0)
                 return;
-            }
 
             if (string.IsNullOrEmpty(_balance.UserInfo.ActiveKey))
             {

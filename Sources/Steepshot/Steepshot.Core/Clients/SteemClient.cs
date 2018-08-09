@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -259,7 +260,7 @@ namespace Steepshot.Core.Clients
             var keys = ToKeyArr(model.ActiveKey);
             if (keys == null)
                 return new OperationResult<VoidResponse>(new ValidationException(LocalizationKeys.WrongPrivateActimeKey));
-            
+
             var asset = new Asset();
 
             BaseOperation op;
@@ -287,15 +288,15 @@ namespace Steepshot.Core.Clients
             if (!isConnected)
                 return new OperationResult<VoidResponse>(new ValidationException(LocalizationKeys.EnableConnectToBlockchain));
 
-            var keys = ToKeyArr(model.ActiveKey);
+            var keys = ToKeyArr(model.PostingKey);
             if (keys == null)
-                return new OperationResult<VoidResponse>(new ValidationException(LocalizationKeys.WrongPrivateActimeKey));
+                return new OperationResult<VoidResponse>(new ValidationException(LocalizationKeys.WrongPrivatePostingKey));
 
             var assetSteem = new Asset();
             assetSteem.FromOldFormat($"{model.RewardSteem} {Config.Steem}");
 
             var assetSp = new Asset();
-            assetSp.FromOldFormat($"{model.RewardSp} {Config.Vests}");
+            assetSp.FromOldFormat($"{(model.RewardSp / _vestsExchangeRatio.Value).ToString(CultureInfo.InvariantCulture) } {Config.Vests}");
 
             var assetSbd = new Asset();
             assetSbd.FromOldFormat($"{model.RewardSbd} {Config.Sbd}");
@@ -444,15 +445,15 @@ namespace Steepshot.Core.Clients
                     {
                         EffectiveSp = effectiveSp,
                         RewardSteem = acc.RewardSteemBalance.ToDouble(),
-                        RewardSp = acc.RewardVestingBalance.ToDouble(),
-                        RewardSbd = acc.RewardSbdBalance.ToDouble(),
+                        RewardSp = acc.RewardVestingBalance.ToDouble() * vestsExchangeRatio.Result,
+                        RewardSbd = acc.RewardSbdBalance.ToDouble()
                     },
                     new BalanceModel(acc.SbdBalance.ToDouble(), 3, CurrencyType.Sbd)
                     {
                         EffectiveSp = effectiveSp,
                         RewardSteem = acc.RewardSteemBalance.ToDouble(),
-                        RewardSp = acc.RewardVestingBalance.ToDouble(),
-                        RewardSbd = acc.RewardSbdBalance.ToDouble(),
+                        RewardSp = acc.RewardVestingBalance.ToDouble() * vestsExchangeRatio.Result,
+                        RewardSbd = acc.RewardSbdBalance.ToDouble()
                     }
                 }
             };

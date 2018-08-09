@@ -14,41 +14,70 @@ using Steepshot.Utils;
 
 namespace Steepshot.Adapter
 {
-    public class TrxHistoryAdapter : RecyclerView.Adapter
+    public class WalletAdapter : RecyclerView.Adapter
     {
+        private enum WalletAdapterHolders
+        {
+            WalletCards,
+            TrxHistory,
+            TrxHistoryShimmer
+        }
+
         private AccountHistoryResponse[] _accountHistory;
+        private readonly View _headerView;
+
+        public WalletAdapter(View headerView)
+        {
+            _headerView = headerView;
+        }
 
         public void SetAccountHistory(AccountHistoryResponse[] accountHistory)
         {
+            if (_accountHistory == accountHistory)
+                return;
+
             _accountHistory = accountHistory;
             NotifyDataSetChanged();
         }
 
-        public override int ItemCount => _accountHistory?.Length ?? 10;
+        public override int ItemCount => _accountHistory?.Length + 1 ?? 5;
 
         public override void OnBindViewHolder(RecyclerView.ViewHolder holder, int position)
         {
-            if (holder is TrxHistoryHolder trxHolder)
-                trxHolder.UpdateData(_accountHistory[position], position == 0 || _accountHistory[position].DateTime.Date != _accountHistory[position - 1].DateTime.Date);
-            else if (holder is TrxHistoryShimmerHolder trxShimmerHolder)
-                trxShimmerHolder.Animate();
+            switch (holder)
+            {
+                case TrxHistoryHolder trxHolder:
+                    trxHolder.UpdateData(_accountHistory[position - 1], position == 1 || _accountHistory[position - 1].DateTime.Date != _accountHistory[position - 2].DateTime.Date);
+                    return;
+                case TrxHistoryShimmerHolder trxShimmerHolder:
+                    trxShimmerHolder.Animate();
+                    return;
+            }
         }
 
         public override int GetItemViewType(int position)
         {
-            return _accountHistory == null ? -1 : 0;
+            if (_accountHistory == null && position != 0)
+                return (int)WalletAdapterHolders.TrxHistoryShimmer;
+
+            return position == 0 ? (int)WalletAdapterHolders.WalletCards : (int)WalletAdapterHolders.TrxHistory;
         }
 
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
         {
-            if (viewType >= 0)
+            switch ((WalletAdapterHolders)viewType)
             {
-                var trxHistoryView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.lyt_trx_history, parent, false);
-                return new TrxHistoryHolder(trxHistoryView);
+                case WalletAdapterHolders.TrxHistory:
+                    var trxHistoryView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.lyt_trx_history, parent, false);
+                    return new TrxHistoryHolder(trxHistoryView);
+                case WalletAdapterHolders.TrxHistoryShimmer:
+                    var trxHistoryShimmerView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.lyt_trx_history_shimmer, parent, false);
+                    return new TrxHistoryShimmerHolder(trxHistoryShimmerView);
+                case WalletAdapterHolders.WalletCards:
+                    return new WalletCardsHolder(_headerView);
+                default:
+                    return null;
             }
-
-            var trxHistoryShimmerView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.lyt_trx_history_shimmer, parent, false);
-            return new TrxHistoryShimmerHolder(trxHistoryShimmerView);
         }
     }
 
@@ -155,12 +184,20 @@ namespace Steepshot.Adapter
         }
     }
 
+    public class WalletCardsHolder : RecyclerView.ViewHolder
+    {
+        public WalletCardsHolder(View itemView) : base(itemView)
+        {
+        }
+    }
+
     public class DividerItemDecoration : RecyclerView.ItemDecoration
     {
         private readonly Paint _paint;
         private readonly int _itemSpacing;
         private readonly int _dashSpace;
         private readonly int _dotRadius;
+        private readonly int _historyPadding;
 
         public DividerItemDecoration(Context context)
         {
@@ -174,6 +211,7 @@ namespace Steepshot.Adapter
             _dashSpace = (int)TypedValue.ApplyDimension(ComplexUnitType.Dip, 16, context.Resources.DisplayMetrics);
             _dotRadius = (int)TypedValue.ApplyDimension(ComplexUnitType.Dip, 3f, context.Resources.DisplayMetrics);
             _itemSpacing = (int)TypedValue.ApplyDimension(ComplexUnitType.Dip, 10, context.Resources.DisplayMetrics);
+            _historyPadding = (int)(TypedValue.ApplyDimension(ComplexUnitType.Dip, 60, context.Resources.DisplayMetrics) / 2);
         }
 
         public override void GetItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state)
@@ -183,11 +221,13 @@ namespace Steepshot.Adapter
 
         public override void OnDrawOver(Canvas c, RecyclerView parent, RecyclerView.State state)
         {
-            var left = (int)(parent.PaddingLeft / 2.5);
-
             for (int i = 0; i < parent.ChildCount; i++)
             {
                 var child = parent.GetChildAt(i);
+                var holder = parent.GetChildViewHolder(child);
+                if (holder is WalletCardsHolder)
+                    continue;
+
                 var dateLabel = child.FindViewById<TextView>(Resource.Id.date);
                 var dateLabelLytParams = (LinearLayout.LayoutParams)dateLabel?.LayoutParameters;
                 var dateLabelFix = dateLabel?.Visibility == ViewStates.Visible
@@ -195,11 +235,11 @@ namespace Steepshot.Adapter
                     : 0;
                 var middle = (child.Top + dateLabelFix + child.Bottom) / 2f;
 
-                if (child.Top != 0)
-                    c.DrawLine(left, child.Top - _itemSpacing, left, middle - _dashSpace, _paint);
-                c.DrawCircle(left, middle, _dotRadius, _paint);
-                if (child.Bottom != parent.Height - _itemSpacing)
-                    c.DrawLine(left, middle + _dashSpace, left, child.Bottom + _itemSpacing, _paint);
+                if (holder.AdapterPosition != 1)
+                    c.DrawLine(_historyPadding, child.Top - _itemSpacing, _historyPadding, middle - _dashSpace, _paint);
+                c.DrawCircle(_historyPadding, middle, _dotRadius, _paint);
+                if (holder.AdapterPosition != parent.GetAdapter().ItemCount - 1)
+                    c.DrawLine(_historyPadding, middle + _dashSpace, _historyPadding, child.Bottom + _itemSpacing, _paint);
             }
         }
     }
