@@ -82,12 +82,24 @@ namespace Steepshot.Activity
 
         private void OneSignalNotificationOpened(OSNotificationOpenedResult result)
         {
-            RunOnUiThread(() =>
+            var additionalData = result?.notification?.payload?.additionalData;
+            if (additionalData?.Any() ?? false)
             {
-                var intent = new Intent(this, typeof(RootActivity));
-                intent.PutExtra(RootActivity.NotificationData, JsonConvert.SerializeObject(result.notification.payload.additionalData.ToDictionary(x => x.Key, x => x.Value.ToString())));
-                StartActivity(intent);
-            });
+                try
+                {
+                    var data = JsonConvert.SerializeObject(additionalData.ToDictionary(x => x.Key, x => x.Value.ToString()));
+                    RunOnUiThread(() =>
+                    {
+                        var intent = new Intent(this, typeof(RootActivity));
+                        intent.PutExtra(RootActivity.NotificationData, data);
+                        StartActivity(intent);
+                    });
+                }
+                catch (Exception e)
+                {
+                    Logger.Error(e);
+                }
+            }
         }
 
         private async void OnTaskSchedulerOnUnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs e)
