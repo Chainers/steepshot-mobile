@@ -21,7 +21,7 @@ namespace Steepshot.Base
         public const string AppLinkingExtra = "appLinkingExtra";
         public static int CommonPermissionsRequestCode = 888;
         protected HostFragment CurrentHostFragment;
-        public static Func<MotionEvent, bool> TouchEvent;
+        public static event Func<MotionEvent, bool> TouchEvent;
 
         public override bool DispatchTouchEvent(MotionEvent ev)
         {

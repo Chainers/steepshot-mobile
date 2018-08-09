@@ -254,17 +254,28 @@ namespace Steepshot.Adapter
         {
             if (_likeScaleContainer == null || !_isScalebarOpened)
                 return false;
+
             var containerRect = new Rect();
             _likeScaleContainer.GetGlobalVisibleRect(containerRect);
             var isScaleHit = containerRect.Contains((int)Math.Round(ev.RawX), (int)Math.Round(ev.RawY));
             if (isScaleHit || ev.Action == MotionEventActions.Move)
             {
                 if (_likeScaleContainer.ToLocalTouchEvent(ev) && _likeScaleContainer.DispatchTouchEvent(ev))
-                    return true;
+                {
+                    _likeScaleContainer.ToGlobalTouchEvent(ev);
+                    return false;
+                }
+
+                return true;
             }
-            if (ev.Action == MotionEventActions.Down)
+
+            if (ev.Action == MotionEventActions.Down || ev.Action == MotionEventActions.Move)
+            {
                 HideScaleBar();
-            return false;
+                return false;
+            }
+
+            return true;
         }
 
         private void NsfwMaskActionButtonOnClick(object sender, EventArgs eventArgs)

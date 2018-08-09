@@ -200,6 +200,14 @@
                         android:layout_height="wrap_content"
                         android:layout_centerVertical="true"
                         android:layout_alignParentRight="true" />
+                    <TextView
+                        android:id="@+id/power_hint"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/power_switch_text"
+                        android:layout_marginTop="5dp"
+                        android:textSize="12sp"
+                        android:textColor="@color/rgb151_155_158" />
                 </RelativeLayout>
             </LinearLayout>
             <include

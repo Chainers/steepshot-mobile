@@ -48,6 +48,7 @@ namespace Steepshot.Activity
         [BindView(Resource.Id.btn_back)] private ImageButton _backButton;
         [BindView(Resource.Id.power_switch)] private SwitchCompat _powerSwitch;
         [BindView(Resource.Id.power_switch_text)] private TextView _powerSwitchText;
+        [BindView(Resource.Id.power_hint)] private TextView _powerHint;
         [BindView(Resource.Id.header_text)] private TextView _notificationSettings;
         [BindView(Resource.Id.post_upvotes)] private TextView _notificationUpvotes;
         [BindView(Resource.Id.post_upvotes_switch)] private SwitchCompat _notificationUpvotesSwitch;
@@ -99,6 +100,7 @@ namespace Steepshot.Activity
             _guideButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Guidelines);
             _termsButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.ToS);
             _powerSwitchText.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.VotingPowerSetting);
+            _powerHint.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PowerHint);
             _notificationSettings.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.NotificationSettings);
             _notificationUpvotes.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.NotificationPostUpvotes);
             _notificationCommentsUpvotes.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.NotificationCommentsUpvotes);
@@ -125,6 +127,7 @@ namespace Steepshot.Activity
             _lowSwitchText.Typeface = Style.Semibold;
             _termsButton.Typeface = Style.Semibold;
             _powerSwitchText.Typeface = Style.Semibold;
+            _powerHint.Typeface = Style.Light;
             _notificationSettings.Typeface = Style.Semibold;
             _notificationUpvotes.Typeface = Style.Semibold;
             _notificationCommentsUpvotes.Typeface = Style.Semibold;
