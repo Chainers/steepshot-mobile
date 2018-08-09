@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Android.App;
@@ -26,6 +27,8 @@ using Steepshot.Core.Utils;
 using System.Linq;
 using Android;
 using Android.Runtime;
+using WebSocketSharp;
+using OperationCanceledException = Android.OS.OperationCanceledException;
 
 namespace Steepshot.Activity
 {
@@ -64,13 +67,16 @@ namespace Steepshot.Activity
 
         private async void OneSignalCallback(string playerId, string pushToken)
         {
+            OneSignal.Current.DeleteTags(new List<string> { "username", "player_id" });
             OneSignal.Current.SendTag("username", AppSettings.User.Login);
             OneSignal.Current.SendTag("player_id", playerId);
 
             if (AppSettings.User.IsFirstRun || string.IsNullOrEmpty(AppSettings.User.PushesPlayerId) || !AppSettings.User.PushesPlayerId.Equals(playerId))
             {
-                var model = new PushNotificationsModel(AppSettings.User.UserInfo, playerId, true);
-                model.Subscriptions = PushSettings.All.FlagToStringList();
+                var model = new PushNotificationsModel(AppSettings.User.UserInfo, playerId, true)
+                {
+                    Subscriptions = PushSettings.All.FlagToStringList()
+                };
 
                 var response = await Presenter.TrySubscribeForPushes(model);
                 if (response.IsSuccess)
@@ -85,25 +91,32 @@ namespace Steepshot.Activity
         {
             var jsonData = intent.GetStringExtra(NotificationData);
             intent.RemoveExtra(NotificationData);
-            if (jsonData != null)
+            if (!jsonData.IsNullOrEmpty())
             {
-                var data = JsonConvert.DeserializeObject<Dictionary<string, string>>(jsonData);
-                if (data != null)
+                try
                 {
-                    var type = data["type"];
-                    var link = data["data"];
-                    switch (type)
+                    var data = JsonConvert.DeserializeObject<Dictionary<string, string>>(jsonData);
+                    if (data != null)
                     {
-                        case string upvote when upvote.Equals(PushSettings.Upvote.GetEnumDescription()):
-                        case string commentUpvote when commentUpvote.Equals(PushSettings.UpvoteComment.GetEnumDescription()):
-                        case string comment when comment.Equals(PushSettings.Comment.GetEnumDescription()):
-                        case string userPost when userPost.Equals(PushSettings.User.GetEnumDescription()):
-                            OpenNewContentFragment(new SinglePostFragment(link));
-                            break;
-                        case string follow when follow.Equals(PushSettings.Follow.GetEnumDescription()):
-                            OpenNewContentFragment(new ProfileFragment(link));
-                            break;
+                        var type = data["type"];
+                        var link = data["data"];
+                        switch (type)
+                        {
+                            case string upvote when upvote.Equals(PushSettings.Upvote.GetEnumDescription()):
+                            case string commentUpvote when commentUpvote.Equals(PushSettings.UpvoteComment.GetEnumDescription()):
+                            case string comment when comment.Equals(PushSettings.Comment.GetEnumDescription()):
+                            case string userPost when userPost.Equals(PushSettings.User.GetEnumDescription()):
+                                OpenNewContentFragment(new SinglePostFragment(link));
+                                break;
+                            case string follow when follow.Equals(PushSettings.Follow.GetEnumDescription()):
+                                OpenNewContentFragment(new ProfileFragment(link));
+                                break;
+                        }
                     }
+                }
+                catch (Exception e)
+                {
+                    AppSettings.Logger.Error(e);
                 }
             }
         }

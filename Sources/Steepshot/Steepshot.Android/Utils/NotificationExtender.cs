@@ -23,9 +23,11 @@ namespace Steepshot.Utils
             _result = p0;
             var overrideSettings = new OverrideSettings { Extender = this };
 
-            DisplayNotification(overrideSettings);
+            var isUserAuthenticated = AppSettings.User.HasPostingPermission;
+            if (isUserAuthenticated)
+                DisplayNotification(overrideSettings);
 
-            return false;
+            return isUserAuthenticated;
         }
 
         public NotificationCompat.Builder Extend(NotificationCompat.Builder builder)
@@ -48,7 +50,7 @@ namespace Steepshot.Utils
                     .SetContentTitle(_result.Payload.Title)
                     .SetContentText(_result.Payload.Body)
                     .SetGroup(Build.VERSION.SdkInt >= BuildVersionCodes.N ? "steepshot" : null)
-                    .SetLargeIcon(largeIcon ?? BitmapFactory.DecodeResource(Resources, Resource.Drawable.ic_logo_main));
+                    .SetLargeIcon(largeIcon ?? BitmapFactory.DecodeResource(Resources, Resource.Drawable.ic_holder));
             }
             return builder;
         }

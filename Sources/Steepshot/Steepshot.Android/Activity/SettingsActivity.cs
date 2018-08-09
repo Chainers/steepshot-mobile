@@ -284,6 +284,7 @@ namespace Steepshot.Activity
 
             OneSignal.Current.DeleteTag("username");
             OneSignal.Current.DeleteTag("player_id");
+            OneSignal.Current.ClearAndroidOneSignalNotifications();
             var chainToDelete = userInfo.Chain;
             AppSettings.User.Delete(userInfo);
             RemoveChain(chainToDelete);
