@@ -162,10 +162,10 @@ namespace Steepshot.iOS.Cells
                     }
             }
 
-            _equivalentBalance.Text = $"$ {usdBalance.ToBalanceVaueString()}".ToUpper();
+            _equivalentBalance.Text = $"$ {usdBalance.ToBalanceValueString()}".ToUpper();
             _firstTokenLabel.Text = balance.CurrencyType.ToString().ToUpper();
-            _firstTokenValue.Text = balance.Value.ToBalanceVaueString();
-            _secondTokenValue.Text = balance.EffectiveSp.ToBalanceVaueString();
+            _firstTokenValue.Text = balance.Value.ToBalanceValueString();
+            _secondTokenValue.Text = balance.EffectiveSp.ToBalanceValueString();
 
             switch (i)
             {

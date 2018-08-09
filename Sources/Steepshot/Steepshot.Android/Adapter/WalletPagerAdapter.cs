@@ -226,10 +226,10 @@ namespace Steepshot.Adapter
             }
 
             _username.Text = balance.UserInfo.Login.ToUpper();
-            _balance.Text = $"$ {usdBalance.ToBalanceVaueString()}".ToUpper();
+            _balance.Text = $"$ {usdBalance.ToBalanceValueString()}".ToUpper();
             _tokenBalanceTitle.Text = balance.CurrencyType.ToString().ToUpper();
-            _tokenBalance.Text = balance.Value.ToBalanceVaueString();
-            _tokenBalance2.Text = balance.EffectiveSp.ToBalanceVaueString();
+            _tokenBalance.Text = balance.Value.ToBalanceValueString();
+            _tokenBalance2.Text = balance.EffectiveSp.ToBalanceValueString();
         }
     }
 }

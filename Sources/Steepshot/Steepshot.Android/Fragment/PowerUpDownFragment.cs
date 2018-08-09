@@ -31,6 +31,7 @@ namespace Steepshot.Fragment
         [BindView(Resource.Id.token2_value)] private TextView _tokenTwoValue;
         [BindView(Resource.Id.amount_title)] private TextView _amountTitle;
         [BindView(Resource.Id.transfer_amount_edit)] private EditText _amountEdit;
+        [BindView(Resource.Id.amount_limit)] private TextView _amountLimitMessage;
         [BindView(Resource.Id.transfercoin_name)] private TextView _tokenName;
         [BindView(Resource.Id.max)] private Button _maxBtn;
         [BindView(Resource.Id.powerBtn)] private Button _powerBtn;
@@ -79,6 +80,7 @@ namespace Steepshot.Fragment
             _powerBtn.Typeface = Style.Semibold;
             _tokenName.Typeface = Style.Semibold;
             _amountEdit.Typeface = Style.Semibold;
+            _amountLimitMessage.Typeface = Style.Semibold;
 
             var minAmount = 0.001;
 
@@ -91,6 +93,7 @@ namespace Steepshot.Fragment
             _amountEdit.Text = minAmount.ToString(CultureInfo.InvariantCulture);
             _maxBtn.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Max);
             _powerBtn.Text = AppSettings.LocalizationManager.GetText(_powerAction == PowerAction.PowerUp ? LocalizationKeys.PowerUp : LocalizationKeys.PowerDown);
+            _amountLimitMessage.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.AmountLimitFull);
 
             _amountEdit.SetFilters(new IInputFilter[] { new TransferAmountFilter(Int32.MaxValue, 3) });
             AmountEditOnTextChanged(null, null);
@@ -131,9 +134,15 @@ namespace Steepshot.Fragment
 
         private void AmountEditOnTextChanged(object sender, TextChangedEventArgs e)
         {
+            _amountLimitMessage.Visibility = ViewStates.Gone;
+
             if (string.IsNullOrEmpty(_amountEdit.Text))
             {
-                UpdateTokenValues(_balance.Value.ToBalanceVaueString(), "???", _balance.EffectiveSp.ToBalanceVaueString(), "???");
+<<<<<<< HEAD
+                UpdateTokenValues(_balance.Value.ToBalanceValueString(), "???", _balance.EffectiveSp.ToBalanceValueString(), "???");
+=======
+                UpdateTokenValues(_balance.Value.ToBalanceVaueString(), _balance.Value.ToBalanceVaueString(), _balance.EffectiveSp.ToBalanceVaueString(), _balance.EffectiveSp.ToBalanceVaueString());
+>>>>>>> develop-android
                 _powerAmount = -1;
                 return;
             }
@@ -147,24 +156,29 @@ namespace Steepshot.Fragment
                 switch (_powerAction)
                 {
                     case PowerAction.PowerUp:
-                        UpdateTokenValues(_balance.Value.ToBalanceVaueString(), (amountAvailable - amountEdit).ToBalanceVaueString(), _balance.EffectiveSp.ToBalanceVaueString(), (spAvailiable + amountEdit).ToBalanceVaueString());
+                        UpdateTokenValues(_balance.Value.ToBalanceValueString(), (amountAvailable - amountEdit).ToBalanceValueString(), _balance.EffectiveSp.ToBalanceValueString(), (spAvailiable + amountEdit).ToBalanceValueString());
                         break;
                     case PowerAction.PowerDown:
-                        UpdateTokenValues(_balance.Value.ToBalanceVaueString(), (amountAvailable + amountEdit).ToBalanceVaueString(), _balance.EffectiveSp.ToBalanceVaueString(), (spAvailiable - amountEdit).ToBalanceVaueString());
+                        UpdateTokenValues(_balance.Value.ToBalanceValueString(), (amountAvailable + amountEdit).ToBalanceValueString(), _balance.EffectiveSp.ToBalanceValueString(), (spAvailiable - amountEdit).ToBalanceValueString());
                         break;
                 }
                 _powerAmount = amountEdit;
             }
             else
             {
-                UpdateTokenValues(_balance.Value.ToBalanceVaueString(), "???", _balance.EffectiveSp.ToBalanceVaueString(), "???");
+<<<<<<< HEAD
+                UpdateTokenValues(_balance.Value.ToBalanceValueString(), "???", _balance.EffectiveSp.ToBalanceValueString(), "???");
+=======
+                UpdateTokenValues(_balance.Value.ToBalanceVaueString(), AppSettings.LocalizationManager.GetText(LocalizationKeys.AmountLimit), _balance.EffectiveSp.ToBalanceVaueString(), AppSettings.LocalizationManager.GetText(LocalizationKeys.AmountLimit));
+>>>>>>> develop-android
                 _powerAmount = -1;
+                _amountLimitMessage.Visibility = ViewStates.Visible;
             }
         }
 
         private void MaxBtnOnClick(object sender, EventArgs e)
         {
-            _amountEdit.Text = _balance.Value.ToBalanceVaueString();
+            _amountEdit.Text = _balance.Value.ToBalanceValueString();
             _amountEdit.SetSelection(_amountEdit.Text.Length);
         }
 

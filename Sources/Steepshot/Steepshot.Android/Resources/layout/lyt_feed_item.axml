@@ -135,7 +135,7 @@
             android:layout_height="10dp"
             android:layout_marginLeft="2dp"
             android:layout_centerVertical="true"
-            android:src="@drawable/ic_flag_active"
+            android:src="@drawable/ic_flag"
             android:layout_toRightOf="@id/flags" />
         <ImageButton
             android:id="@+id/btn_like"
