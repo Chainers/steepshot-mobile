@@ -205,6 +205,7 @@
         SimilarPhoto,
         Photo,
         AmountLimit,
-        AmountLimitFull
+        AmountLimitFull,
+        Balance
     }
 }
