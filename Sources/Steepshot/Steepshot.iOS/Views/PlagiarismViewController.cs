@@ -263,7 +263,6 @@ namespace Steepshot.iOS.Views
     public class PlagiarismResult
     {
         public bool Continue { get; set; }
-        public string Test { get; set; }
     }
 
     public enum PlagiarismLinkType
