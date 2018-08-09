@@ -138,11 +138,7 @@ namespace Steepshot.Fragment
 
             if (string.IsNullOrEmpty(_amountEdit.Text))
             {
-<<<<<<< HEAD
-                UpdateTokenValues(_balance.Value.ToBalanceValueString(), "???", _balance.EffectiveSp.ToBalanceValueString(), "???");
-=======
-                UpdateTokenValues(_balance.Value.ToBalanceVaueString(), _balance.Value.ToBalanceVaueString(), _balance.EffectiveSp.ToBalanceVaueString(), _balance.EffectiveSp.ToBalanceVaueString());
->>>>>>> develop-android
+                UpdateTokenValues(_balance.Value.ToBalanceValueString(), _balance.Value.ToBalanceValueString(), _balance.EffectiveSp.ToBalanceValueString(), _balance.EffectiveSp.ToBalanceValueString());
                 _powerAmount = -1;
                 return;
             }
@@ -166,11 +162,7 @@ namespace Steepshot.Fragment
             }
             else
             {
-<<<<<<< HEAD
-                UpdateTokenValues(_balance.Value.ToBalanceValueString(), "???", _balance.EffectiveSp.ToBalanceValueString(), "???");
-=======
-                UpdateTokenValues(_balance.Value.ToBalanceVaueString(), AppSettings.LocalizationManager.GetText(LocalizationKeys.AmountLimit), _balance.EffectiveSp.ToBalanceVaueString(), AppSettings.LocalizationManager.GetText(LocalizationKeys.AmountLimit));
->>>>>>> develop-android
+                UpdateTokenValues(_balance.Value.ToBalanceValueString(), AppSettings.LocalizationManager.GetText(LocalizationKeys.AmountLimit), _balance.EffectiveSp.ToBalanceValueString(), AppSettings.LocalizationManager.GetText(LocalizationKeys.AmountLimit));
                 _powerAmount = -1;
                 _amountLimitMessage.Visibility = ViewStates.Visible;
             }
