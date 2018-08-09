@@ -825,7 +825,7 @@ namespace Steepshot.iOS.Views
                     var pushToBlockchainRetry = false;
                     do
                     {
-                        if (!skipPreparationSteps)
+                        if (!skipPreparationSteps && !editMode)
                         {
                             var plagiarismCheck = _presenter.TryCheckForPlagiarism(model).Result;
                             if (plagiarismCheck.IsSuccess)
