@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -36,9 +37,14 @@
                         android:id="@+id/token1_value"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
-                        android:gravity="center"
+                        android:layout_toRightOf="@id/token1"
+                        android:layout_marginLeft="20dp"
+                        android:gravity="right|center_vertical"
                         android:layout_alignParentRight="true"
-                        android:textSize="24sp" />
+                        android:maxLines="1"
+                        app:autoSizeTextType="uniform"
+                        app:autoSizeStepGranularity="2sp"
+                        app:autoSizeMaxTextSize="24sp" />
                 </RelativeLayout>
                 <View
                     android:layout_width="match_parent"
@@ -58,9 +64,14 @@
                         android:id="@+id/token2_value"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
-                        android:gravity="center"
+                        android:layout_toRightOf="@id/token2"
+                        android:layout_marginLeft="20dp"
+                        android:gravity="right|center_vertical"
                         android:layout_alignParentRight="true"
-                        android:textSize="24sp" />
+                        android:maxLines="1"
+                        app:autoSizeTextType="uniform"
+                        app:autoSizeStepGranularity="2sp"
+                        app:autoSizeMaxTextSize="24sp" />
                 </RelativeLayout>
             </LinearLayout>
             <RelativeLayout
@@ -121,6 +132,14 @@
                             android:textColor="@color/rgb151_155_158" />
                     </LinearLayout>
                 </RelativeLayout>
+                <TextView
+                    android:id="@+id/amount_limit"
+                    android:layout_below="@id/max"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:textSize="12sp"
+                    android:textColor="@color/rgb255_34_5" />
             </RelativeLayout>
             <RelativeLayout
                 android:layout_width="match_parent"

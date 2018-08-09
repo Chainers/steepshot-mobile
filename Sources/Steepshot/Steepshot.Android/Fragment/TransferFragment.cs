@@ -47,6 +47,7 @@ namespace Steepshot.Fragment
         [BindView(Resource.Id.transfer_details)] private ScrollView _transferDetailsScroll;
         [BindView(Resource.Id.arrow_back)] private ImageButton _backBtn;
         [BindView(Resource.Id.title)] private TextView _fragmentTitle;
+        [BindView(Resource.Id.username)] private TextView _username;
         [BindView(Resource.Id.balance)] private TextView _balance;
         [BindView(Resource.Id.recipient_avatar)] private CircleImageView _recipientAvatar;
         [BindView(Resource.Id.recipient_name)] private TextView _recipientTitle;
@@ -178,7 +179,7 @@ namespace Steepshot.Fragment
             _activityRoot = Activity.FindViewById<ViewGroup>(Android.Resource.Id.Content);
 
             _fragmentTitle.Typeface = Style.Semibold;
-            _balance.Typeface = Style.Semibold;
+            _balance.Typeface = Style.Light;
             _recipientTitle.Typeface = Style.Semibold;
             _recipientSearch.Typeface = Style.Light;
             _transferAmountTitle.Typeface = Style.Semibold;
@@ -188,6 +189,7 @@ namespace Steepshot.Fragment
             _transferCommentEdit.Typeface = Style.Light;
             _transferCoinName.Typeface = Style.Semibold;
             _emptyQueryLabel.Typeface = Style.Light;
+            _username.Typeface = Style.Semibold;
 
             _fragmentTitle.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Transfer);
             _recipientTitle.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.RecipientName);
@@ -199,6 +201,8 @@ namespace Steepshot.Fragment
             _transferCommentEdit.Hint = AppSettings.LocalizationManager.GetText(LocalizationKeys.TranferCommentHint);
             _emptyQueryLabel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.EmptyQuery);
             _transferBtn.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Transfer);
+            _username.Text = $"@{_userInfo?.Login ?? AppSettings.User.Login}";
+            _balance.Text = $"{AppSettings.LocalizationManager.GetText(LocalizationKeys.Balance)}:";
 
             _recipientSearch.SetFilters(new IInputFilter[] { new TextInputFilter(TextInputFilter.TagFilter) });
             _commentShape = new GradientDrawable();
@@ -331,7 +335,7 @@ namespace Steepshot.Fragment
         private void OnUserBalanceChanged()
         {
             if (_transferFacade.UserBalance != null)
-                _balance.Text = $"{_transferFacade.UserBalance.Value.ToString(CultureInfo.InvariantCulture)} {_pickedCoin.ToString()}";
+                _balance.Text = $"{AppSettings.LocalizationManager.GetText(LocalizationKeys.Balance)}:{_transferFacade.UserBalance.Value.ToString(CultureInfo.InvariantCulture)}";
         }
 
         private void OnRecipientChanged()
@@ -576,9 +580,10 @@ namespace Steepshot.Fragment
             var transferResponse = await _transferFacade.TransferPresenter.TryTransfer(_userInfo, _transferFacade.Recipient.Author, _transferAmountEdit.Text, _pickedCoin, _transferCommentEdit.Text);
             if (transferResponse.IsSuccess)
             {
-                var succes = new SuccessfullTrxDialog(Activity, _transferFacade.Recipient.Author, $"{_transferAmountEdit.Text} {_pickedCoin.ToString().ToUpper()}");
-                succes.Show();
+                var success = new SuccessfullTrxDialog(Activity, _transferFacade.Recipient.Author, $"{_transferAmountEdit.Text} {_pickedCoin.ToString().ToUpper()}");
+                success.Show();
                 ClearEdits();
+                ((BaseActivity)Activity).OnBackPressed();
             }
             else
             {
