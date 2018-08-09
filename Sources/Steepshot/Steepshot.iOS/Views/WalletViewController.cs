@@ -184,6 +184,7 @@ namespace Steepshot.iOS.Views
             NavigationItem.Title = "Wallet"; //AppSettings.LocalizationManager.GetText(LocalizationKeys.wa);
 
             var rightBarButton = new UIBarButtonItem(UIImage.FromBundle("ic_present"), UIBarButtonItemStyle.Plain, GoBack);
+            rightBarButton.TintColor = Constants.R231G72B0;
             NavigationItem.RightBarButtonItem = rightBarButton;
             NavigationController.NavigationBar.Translucent = false;
         }

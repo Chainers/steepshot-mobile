@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>NSCameraUsageDescription</key>
-	<string></string>
+	<string>This lets you take photos</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string></string>
+	<string>This lets you share photos from your library</string>
 	<key>CFBundleName</key>
 	<string>Steepshot</string>
 	<key>CFBundleIdentifier</key>
