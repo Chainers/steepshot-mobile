@@ -105,7 +105,7 @@ namespace Steepshot.iOS.Views
                         tags = collectionviewSource.LocalTags;
                     });
 
-                    var mre = new ManualResetEvent(false);
+                    mre = new ManualResetEvent(false);
 
                     model.Title = title;
                     model.Description = description;
