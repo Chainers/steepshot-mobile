@@ -284,7 +284,11 @@ namespace Steepshot.iOS.Views
             cancelButton.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom, commonMargin);
             cancelButton.AutoSetDimension(ALDimension.Height, 50);
 
-            powerUpButton.TouchDown += (s, ev) => { };
+            powerUpButton.TouchDown += (s, ev) =>
+            {
+                _alert.Hide();
+                NavigationController.PushViewController(new PowerManipulationViewController(_presenter.Balances[0], Core.Models.Enums.PowerAction.PowerUp), true);
+            };
             powerDownButton.TouchDown += (s, ev) => { };
             cancelButton.TouchDown += (s, ev) => { _alert.Hide(); };
 

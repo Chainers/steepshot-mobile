@@ -266,7 +266,7 @@ namespace Steepshot.iOS.Views
 
         private void EditingChanged(object sender, EventArgs e)
         {
-            _timer.Change(500, Timeout.Infinite);
+            _timer.Change(1300, Timeout.Infinite);
         }
 
         private void RemoveFocus()
