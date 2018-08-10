@@ -3,6 +3,7 @@ using System.Globalization;
 using Android.App;
 using Android.Content;
 using Android.OS;
+using Android.Support.V4.Widget;
 using Android.Text;
 using Android.Text.Style;
 using Android.Views;
@@ -98,11 +99,20 @@ namespace Steepshot.Fragment
             _amountEdit.SetFilters(new IInputFilter[] { new TransferAmountFilter(Int32.MaxValue, 3) });
             AmountEditOnTextChanged(null, null);
 
+            _tokenOneValue.ViewTreeObserver.GlobalLayout += TokenValuesGlobalLayout;
+            _tokenTwoValue.ViewTreeObserver.GlobalLayout += TokenValuesGlobalLayout;
             _tokenName.ViewTreeObserver.GlobalLayout += TokenLayedOut;
             _amountEdit.TextChanged += AmountEditOnTextChanged;
             _maxBtn.Click += MaxBtnOnClick;
             _powerBtn.Click += PowerBtnOnClick;
             _backBtn.Click += BackBtnOnClick;
+        }
+
+        private void TokenValuesGlobalLayout(object sender, EventArgs e)
+        {
+            var commonTextSize = (int)(Math.Min(_tokenOneValue.TextSize, _tokenTwoValue.TextSize) / Activity.Resources.DisplayMetrics.ScaledDensity);
+            TextViewCompat.SetAutoSizeTextTypeUniformWithConfiguration(_tokenOneValue, 2, commonTextSize, 2, (int)AutoSizeTextType.Uniform);
+            TextViewCompat.SetAutoSizeTextTypeUniformWithConfiguration(_tokenTwoValue, 2, commonTextSize, 2, (int)AutoSizeTextType.Uniform);
         }
 
         private void TokenLayedOut(object sender, EventArgs e)
