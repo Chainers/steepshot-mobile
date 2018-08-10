@@ -309,7 +309,7 @@ About 6 inches away</string>
     <string name="[&quot;Username may not be null&quot;]">Username may not be null</string>
     <string name="[&quot;Unable to create account&quot;]">Unable to create account</string>
     <string name="[&quot;AmountLimit&quot;]">limit</string>
-    <string name="[&quot;AmountLimitFull&quot;]">Exceeding your limit. Press max balance.</string>
+    <string name="[&quot;AmountLimitFull&quot;]">Limit exceeded. Press max balance.</string>
     <string name="[&quot;Balance&quot;]">Balance</string>
     <string name="[&quot;PowerHint&quot;]">Long press the heart under a post to see the scale</string>
 </resources>

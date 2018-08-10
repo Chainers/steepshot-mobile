@@ -235,14 +235,15 @@ namespace Steepshot.Fragment
                     _more.Visibility = ViewStates.Visible;
                     _more.Enabled = false;
                     _login.Text = _profileId;
-                    LoadProfile();
-                    GetUserPosts();
                 }
                 else
                 {
                     _more.Visibility = ViewStates.Gone;
                     _login.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.MyProfile);
                 }
+
+                LoadProfile();
+                GetUserPosts();
             }
 
             var postUrl = Activity?.Intent?.GetStringExtra(CommentsFragment.ResultString);

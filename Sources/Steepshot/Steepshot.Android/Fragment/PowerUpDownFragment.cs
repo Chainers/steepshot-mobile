@@ -83,15 +83,12 @@ namespace Steepshot.Fragment
             _amountEdit.Typeface = Style.Semibold;
             _amountLimitMessage.Typeface = Style.Semibold;
 
-            var minAmount = 0.001;
-
             _fragmentTitle.Text = AppSettings.LocalizationManager.GetText(_powerAction == PowerAction.PowerUp ? LocalizationKeys.PowerUp : LocalizationKeys.PowerDown);
             _tokenOneTitle.Text = _balance.CurrencyType.ToString().ToUpper();
             _tokenName.Text = _balance.CurrencyType.ToString().ToUpper();
             _tokenTwoTitle.Text = $"{_balance.CurrencyType} power".ToUpper();
             _amountTitle.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Amount);
             _amountEdit.Hint = "0";
-            _amountEdit.Text = minAmount.ToString(CultureInfo.InvariantCulture);
             _maxBtn.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Max);
             _powerBtn.Text = AppSettings.LocalizationManager.GetText(_powerAction == PowerAction.PowerUp ? LocalizationKeys.PowerUp : LocalizationKeys.PowerDown);
             _amountLimitMessage.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.AmountLimitFull);
@@ -110,6 +107,9 @@ namespace Steepshot.Fragment
 
         private void TokenValuesGlobalLayout(object sender, EventArgs e)
         {
+            if (!IsInitialized || IsDetached)
+                return;
+
             var commonTextSize = (int)(Math.Min(_tokenOneValue.TextSize, _tokenTwoValue.TextSize) / Activity.Resources.DisplayMetrics.ScaledDensity);
             TextViewCompat.SetAutoSizeTextTypeUniformWithConfiguration(_tokenOneValue, 2, commonTextSize, 2, (int)AutoSizeTextType.Uniform);
             TextViewCompat.SetAutoSizeTextTypeUniformWithConfiguration(_tokenTwoValue, 2, commonTextSize, 2, (int)AutoSizeTextType.Uniform);
@@ -123,6 +123,8 @@ namespace Steepshot.Fragment
 
         public override void OnDetach()
         {
+            _tokenOneValue.ViewTreeObserver.GlobalLayout -= TokenValuesGlobalLayout;
+            _tokenTwoValue.ViewTreeObserver.GlobalLayout -= TokenValuesGlobalLayout;
             base.OnDetach();
             Cheeseknife.Reset(this);
             GC.Collect(0);

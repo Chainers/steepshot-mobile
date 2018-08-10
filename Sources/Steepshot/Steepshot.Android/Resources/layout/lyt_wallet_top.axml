@@ -28,5 +28,6 @@
         android:layout_centerVertical="true"
         android:layout_alignParentRight="true"
         android:layout_marginRight="30dp"
+        android:visibility="gone"
         android:src="@drawable/ic_claim_rewards" />
 </RelativeLayout>
