@@ -1,10 +1,12 @@
 ﻿using System;
+using CoreGraphics;
 using PureLayout.Net;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
+using Steepshot.iOS.CustomViews;
 using Steepshot.iOS.Helpers;
 using Steepshot.iOS.ViewControllers;
 using UIKit;
@@ -47,6 +49,7 @@ namespace Steepshot.iOS.Views
 
             var label = new UILabel();
             label.Text = "Steem";
+            label.Font = Constants.Semibold14;
             steemView.AddSubview(label);
 
             label.AutoAlignAxisToSuperviewAxis(ALAxis.Horizontal);
@@ -80,6 +83,7 @@ namespace Steepshot.iOS.Views
 
             var label2 = new UILabel();
             label2.Text = "SteemPower";
+            label2.Font = Constants.Semibold14;
             spView.AddSubview(label2);
 
             label2.AutoAlignAxisToSuperviewAxis(ALAxis.Horizontal);
@@ -109,19 +113,55 @@ namespace Steepshot.iOS.Views
 
             var amountLabel = new UILabel();
             amountLabel.Text = "Amount";
+            amountLabel.Font = Constants.Semibold14;
             amountBackground.AddSubview(amountLabel);
 
             amountLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Top, 15);
             amountLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 20);
 
-            var amount = new UITextField();
-            amount.Text = "Amount";
+            var amount = new SearchTextField(() =>
+            {
+                //RemoveFocus();
+            }, AppSettings.LocalizationManager.GetText(LocalizationKeys.TransferAmountHint), new AmountFieldDelegate());
+            amount.KeyboardType = UIKeyboardType.DecimalPad;
+            amount.Layer.CornerRadius = 25;
             amountBackground.AddSubview(amount);
 
             amount.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 20);
             amount.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, amountLabel, 16);
             amount.AutoSetDimension(ALDimension.Height, 50);
             amount.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom, 20);
+
+            var max = new UIButton();
+            max.SetTitle("MAX", UIControlState.Normal);
+            max.SetTitleColor(UIColor.Black, UIControlState.Normal);
+            max.Font = Constants.Semibold14;
+            max.Layer.BorderWidth = 1;
+            max.Layer.BorderColor = Constants.R245G245B245.CGColor;
+            max.Layer.CornerRadius = 25;
+
+            amountBackground.AddSubview(max);
+
+            max.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 20);
+            max.AutoPinEdge(ALEdge.Left, ALEdge.Right, amount, 10);
+            max.AutoSetDimensionsToSize(new CGSize(80, 50));
+            max.AutoAlignAxis(ALAxis.Horizontal, amount);
+
+            var actionButton = new UIButton();
+            actionButton.SetTitle("POWER UP", UIControlState.Normal);
+            actionButton.SetTitleColor(UIColor.White, UIControlState.Normal);
+
+            View.AddSubview(actionButton);
+
+            actionButton.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, amountBackground, 30);
+            actionButton.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 20);
+            actionButton.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 20);
+            actionButton.AutoSetDimension(ALDimension.Height, 50);
+
+            actionButton.LayoutIfNeeded();
+
+            Constants.CreateGradient(actionButton, 25);
+            Constants.CreateShadowFromZeplin(actionButton, Constants.R231G72B0, 0.3f, 0, 10, 20, 0);
         }
 
         private void SetBackButton()
