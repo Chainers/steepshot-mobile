@@ -6,6 +6,7 @@ using SafariServices;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Utils;
+using Steepshot.iOS.Delegates;
 using Steepshot.iOS.Helpers;
 using UIKit;
 
@@ -23,7 +24,6 @@ namespace Steepshot.iOS.Views
         {
             ImageAssets = assets;
             _model = model;
-            plagiarismMode = true;
             this.plagiarismResult = plagiarismResult;
         }
 
@@ -32,6 +32,14 @@ namespace Steepshot.iOS.Views
             SetupMainScroll();
             SetNavigationBar();
             CreateView();
+        }
+
+        public override void ViewWillAppear(bool animated)
+        {
+        }
+
+        public override void ViewWillDisappear(bool animated)
+        {
         }
 
         public override void ViewDidLayoutSubviews()
@@ -241,22 +249,6 @@ namespace Steepshot.iOS.Views
                     NavigationController.PushViewController(new ProfileViewController { Username = _model.PlagiarismUsername }, true);
                     break;
             }
-        }
-    }
-
-    public class TTTAttributedLabelActionDelegate : Xamarin.TTTAttributedLabel.TTTAttributedLabelDelegate
-    {
-        private Action<PlagiarismLinkType> _linkAction;
-
-        public TTTAttributedLabelActionDelegate(Action<PlagiarismLinkType> linkAction)
-        {
-            _linkAction = linkAction;
-        }
-
-        public override void DidSelectLinkWithURL(Xamarin.TTTAttributedLabel.TTTAttributedLabel label, NSUrl url)
-        {
-            var type = (PlagiarismLinkType)Enum.Parse(typeof(PlagiarismLinkType), url.ToString(), true);
-            _linkAction?.Invoke(type);
         }
     }
 

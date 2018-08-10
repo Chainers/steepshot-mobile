@@ -434,6 +434,7 @@
     <Compile Include="Views\PlagiarismViewController.cs" />
     <Compile Include="Cells\ClaimTransactionCollectionViewCell.cs" />
     <Compile Include="Delegates\TransactionHistoryCollectionViewFlowDelegate.cs" />
+    <Compile Include="Delegates\TTTAttributedLabelActionDelegate.cs" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\ic_photo_holder.png" />
