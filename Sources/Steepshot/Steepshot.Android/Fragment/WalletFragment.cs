@@ -123,6 +123,7 @@ namespace Steepshot.Fragment
 
             _walletPager.PageScrolled += WalletPagerOnPageScrolled;
             WalletPagerAdapter.OnPageTransforming += OnPageTransforming;
+            WalletAdapter.AutoLinkAction += AutoLinkAction;
             _transferBtn.Click += TransferBtnOnClick;
             _trxHistory.ViewTreeObserver.GlobalLayout += RecyclerLayedOut;
             _moreBtn.Click += MoreBtnOnClick;

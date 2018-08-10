@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Globalization;
 using Android.Content;
 using Android.Graphics;
 using Android.Support.V7.Widget;
@@ -23,6 +24,7 @@ namespace Steepshot.Adapter
             TrxHistoryShimmer
         }
 
+        public Action<AutoLinkType, string> AutoLinkAction;
         private AccountHistoryResponse[] _accountHistory;
         private readonly View _headerView;
 
@@ -69,7 +71,7 @@ namespace Steepshot.Adapter
             {
                 case WalletAdapterHolders.TrxHistory:
                     var trxHistoryView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.lyt_trx_history, parent, false);
-                    return new TrxHistoryHolder(trxHistoryView);
+                    return new TrxHistoryHolder(trxHistoryView, AutoLinkAction);
                 case WalletAdapterHolders.TrxHistoryShimmer:
                     var trxHistoryShimmerView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.lyt_trx_history_shimmer, parent, false);
                     return new TrxHistoryShimmerHolder(trxHistoryShimmerView);
@@ -120,6 +122,7 @@ namespace Steepshot.Adapter
 
     public class TrxHistoryHolder : RecyclerView.ViewHolder
     {
+        private readonly Action<AutoLinkType, string> _autoLinkAction;
         private readonly TextView _date;
         private readonly TextView _trxType;
         private readonly AutoLinkTextView _recipient;
@@ -132,8 +135,9 @@ namespace Steepshot.Adapter
         private readonly TextView _tokenTwoValue;
         private readonly TextView _tokenThreeValue;
 
-        public TrxHistoryHolder(View itemView) : base(itemView)
+        public TrxHistoryHolder(View itemView, Action<AutoLinkType, string> autoLinkAction) : base(itemView)
         {
+            _autoLinkAction = autoLinkAction;
             _date = itemView.FindViewById<TextView>(Resource.Id.date);
             _trxType = itemView.FindViewById<TextView>(Resource.Id.trx_type);
             _recipient = itemView.FindViewById<AutoLinkTextView>(Resource.Id.recipient);
@@ -156,6 +160,13 @@ namespace Steepshot.Adapter
             _tokenOneValue.Typeface = Style.Semibold;
             _tokenTwoValue.Typeface = Style.Semibold;
             _tokenThreeValue.Typeface = Style.Semibold;
+
+            _recipient.LinkClick += LinkClick;
+        }
+
+        private void LinkClick(AutoLinkType type, string link)
+        {
+            _autoLinkAction?.Invoke(type, link);
         }
 
         public void UpdateData(AccountHistoryResponse transaction, bool headItem)

@@ -169,7 +169,7 @@ namespace Steepshot.Fragment
             return InflatedView;
         }
 
-        public override async void OnViewCreated(View view, Bundle savedInstanceState)
+        public override void OnViewCreated(View view, Bundle savedInstanceState)
         {
             if (IsInitialized)
                 return;
@@ -242,7 +242,7 @@ namespace Steepshot.Fragment
             State = FragmentState.TransferPrepare;
             _transferFacade.UserFriendPresenter.SourceChanged += PresenterOnSourceChanged;
 
-            await UpdateAccountInfo();
+            UpdateAccountInfo();
             if (_transferFacade.Recipient != null)
             {
                 _recipientSearch.Text = _transferFacade.Recipient.Author;
@@ -437,6 +437,10 @@ namespace Steepshot.Fragment
             _balance.Visibility = ViewStates.Gone;
             _balanceLoader.Visibility = ViewStates.Visible;
             var response = await _transferFacade.TryGetAccountInfo(_userInfo.Login);
+
+            if (!IsInitialized || IsDetached)
+                return;
+
             if (response.IsSuccess)
             {
                 _userInfo.AccountInfo = response.Result;
