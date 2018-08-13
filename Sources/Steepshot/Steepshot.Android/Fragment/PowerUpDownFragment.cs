@@ -182,7 +182,7 @@ namespace Steepshot.Fragment
 
         private void MaxBtnOnClick(object sender, EventArgs e)
         {
-            _amountEdit.Text = _balance.Value.ToBalanceValueString();
+            _amountEdit.Text = _powerAction == PowerAction.PowerUp ? _balance.Value.ToBalanceValueString() : _balance.EffectiveSp.ToBalanceValueString();
             _amountEdit.SetSelection(_amountEdit.Text.Length);
         }
 

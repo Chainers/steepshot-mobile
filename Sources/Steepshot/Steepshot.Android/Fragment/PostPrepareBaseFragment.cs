@@ -353,7 +353,7 @@ namespace Steepshot.Fragment
             {
                 _clearEdit.Visibility = ViewStates.Invisible;
             }
-            _timer.Change(500, Timeout.Infinite);
+            _timer.Change(1300, Timeout.Infinite);
         }
 
         protected void OnTagsAdapterClick(string tag)

@@ -57,7 +57,7 @@ namespace Steepshot.iOS.Views
 
             searchText.EditingChanged += (sender, e) =>
             {
-                _timer.Change(1500, Timeout.Infinite);
+                _timer.Change(1300, Timeout.Infinite);
             };
 
             Activeview = searchText;

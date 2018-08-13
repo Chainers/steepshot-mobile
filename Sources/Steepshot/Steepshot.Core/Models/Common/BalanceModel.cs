@@ -21,6 +21,10 @@ namespace Steepshot.Core.Models.Common
 
         public double RewardSbd { get; set; }
 
+        public double DelegatedToMe { get; set; }
+
+        public double DelegatedByMe { get; set; }
+
         public BalanceModel(double value, byte maxDecimals, CurrencyType currencyType)
         {
             Value = value;
