@@ -47,17 +47,24 @@ namespace Steepshot.Core.Sentry
 
         private async Task Send(Exception ex, string level)
         {
-            if (ex is TaskCanceledException || ex is OperationCanceledException)
-                return;
+            try
+            {
+                if (ex is TaskCanceledException || ex is OperationCanceledException)
+                    return;
 
-            if (!AppSettings.ConnectionService.IsConnectionAvailable())
-                return; //TODO: need to store locale
+                if (!AppSettings.ConnectionService.IsConnectionAvailable())
+                    return; //TODO: need to store locale
 
-            var packet = GetPacket();
-            packet.Level = level;
-            packet.Extra = new ExceptionData(ex);
-            packet.Exceptions = SentryException.GetList(ex);
-            await Send(packet, _dsn);
+                var packet = GetPacket();
+                packet.Level = level;
+                packet.Extra = new ExceptionData(ex);
+                packet.Exceptions = SentryException.GetList(ex);
+                await Send(packet, _dsn);
+            }
+            catch
+            {
+                //todo nothing
+            }
         }
 
         private JsonPacket GetPacket()

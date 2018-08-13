@@ -112,7 +112,17 @@ namespace Steepshot.Utils
             else if (exception is RequestException requestException)
             {
                 if (!string.IsNullOrEmpty(requestException.RawResponse))
+                {
                     msg = lm.GetText(requestException.RawResponse);
+                }
+                else
+                {
+                    do
+                    {
+                        msg = lm.GetText(exception.Message);
+                        exception = exception.InnerException;
+                    } while (string.IsNullOrEmpty(msg) && exception != null);
+                }
             }
             else
             {

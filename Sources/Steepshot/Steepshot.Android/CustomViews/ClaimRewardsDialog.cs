@@ -111,7 +111,7 @@ namespace Steepshot.CustomViews
                 Context.ShowAlert(LocalizationKeys.TransferSuccess);
                 Dismiss();
             }
-            else
+            else if (IsShowing)
             {
                 _claimBtn.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.ClaimRewards);
                 _claimSpinner.Visibility = ViewStates.Gone;

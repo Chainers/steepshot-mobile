@@ -48,6 +48,7 @@ namespace Steepshot.Activity
         [BindView(Resource.Id.btn_back)] private ImageButton _backButton;
         [BindView(Resource.Id.power_switch)] private SwitchCompat _powerSwitch;
         [BindView(Resource.Id.power_switch_text)] private TextView _powerSwitchText;
+        [BindView(Resource.Id.power_hint)] private TextView _powerHint;
         [BindView(Resource.Id.header_text)] private TextView _notificationSettings;
         [BindView(Resource.Id.post_upvotes)] private TextView _notificationUpvotes;
         [BindView(Resource.Id.post_upvotes_switch)] private SwitchCompat _notificationUpvotesSwitch;
@@ -59,6 +60,8 @@ namespace Steepshot.Activity
         [BindView(Resource.Id.comments_switch)] private SwitchCompat _notificationCommentsSwitch;
         [BindView(Resource.Id.posting)] private TextView _notificationPosting;
         [BindView(Resource.Id.posting_switch)] private SwitchCompat _notificationPostingSwitch;
+        [BindView(Resource.Id.transfer)] private TextView _notificationTransfer;
+        [BindView(Resource.Id.transfer_switch)] private SwitchCompat _notificationTransferSwitch;
 
         [BindView(Resource.Id.steem_avatar)] private ImageView _steemAvatar;
         [BindView(Resource.Id.steem_title)] private TextView _steemTitle;
@@ -99,12 +102,14 @@ namespace Steepshot.Activity
             _guideButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Guidelines);
             _termsButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.ToS);
             _powerSwitchText.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.VotingPowerSetting);
+            _powerHint.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PowerHint);
             _notificationSettings.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.NotificationSettings);
             _notificationUpvotes.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.NotificationPostUpvotes);
             _notificationCommentsUpvotes.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.NotificationCommentsUpvotes);
             _notificationFollowing.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.NotificationFollow);
             _notificationComments.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.NotificationComment);
             _notificationPosting.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.NotificationPosting);
+            _notificationTransfer.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.RecievedTransfers);
             _steemConnectButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Connect);
             _golosConnectButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Connect);
 
@@ -125,12 +130,14 @@ namespace Steepshot.Activity
             _lowSwitchText.Typeface = Style.Semibold;
             _termsButton.Typeface = Style.Semibold;
             _powerSwitchText.Typeface = Style.Semibold;
+            _powerHint.Typeface = Style.Light;
             _notificationSettings.Typeface = Style.Semibold;
             _notificationUpvotes.Typeface = Style.Semibold;
             _notificationCommentsUpvotes.Typeface = Style.Semibold;
             _notificationFollowing.Typeface = Style.Semibold;
             _notificationComments.Typeface = Style.Semibold;
             _notificationPosting.Typeface = Style.Semibold;
+            _notificationTransfer.Typeface = Style.Semibold;
             _termsButton.Click += TermsOfServiceClick;
             _guideButton.Typeface = Style.Semibold;
             _guideButton.Click += GuideClick;
@@ -171,6 +178,7 @@ namespace Steepshot.Activity
             _notificationFollowingSwitch.Checked = PushSettings.HasFlag(PushSettings.Follow);
             _notificationCommentsSwitch.Checked = PushSettings.HasFlag(PushSettings.Comment);
             _notificationPostingSwitch.Checked = PushSettings.HasFlag(PushSettings.User);
+            _notificationTransferSwitch.Checked = PushSettings.HasFlag(PushSettings.Transfer);
 
             _nsfwSwitcher.CheckedChange += OnNsfwSwitcherOnCheckedChange;
             _lowRatedSwitcher.CheckedChange += OnLowRatedSwitcherOnCheckedChange;
@@ -180,6 +188,7 @@ namespace Steepshot.Activity
             _notificationFollowingSwitch.CheckedChange += NotificationChange;
             _notificationCommentsSwitch.CheckedChange += NotificationChange;
             _notificationPostingSwitch.CheckedChange += NotificationChange;
+            _notificationTransferSwitch.CheckedChange += NotificationChange;
 
             //for tests
             if (AppSettings.User.IsDev || AppSettings.User.Login.Equals("joseph.kalu"))
@@ -247,6 +256,8 @@ namespace Steepshot.Activity
                 subscription = PushSettings.Comment;
             else if (Equals(sender, _notificationPostingSwitch))
                 subscription = PushSettings.User;
+            else if (Equals(sender, _notificationTransferSwitch))
+                subscription = PushSettings.Transfer;
 
             if (e.IsChecked)
                 PushSettings |= subscription;
@@ -259,8 +270,10 @@ namespace Steepshot.Activity
             if (AppSettings.User.PushSettings == PushSettings)
                 return;
 
-            var model = new PushNotificationsModel(AppSettings.User.UserInfo, true);
-            model.Subscriptions = PushSettings.FlagToStringList();
+            var model = new PushNotificationsModel(AppSettings.User.UserInfo, true)
+            {
+                Subscriptions = PushSettings.FlagToStringList()
+            };
 
             var resp = await Presenter.TrySubscribeForPushes(model);
             if (resp.IsSuccess)
@@ -355,7 +368,7 @@ namespace Steepshot.Activity
             StartActivity(intent);
         }
 
-        private async void OnAccountAdd()
+        private void OnAccountAdd()
         {
             App.MainChain = App.MainChain == KnownChains.Steem ? KnownChains.Golos : KnownChains.Steem;
             var intent = new Intent(this, typeof(PreSignInActivity));
@@ -445,7 +458,7 @@ namespace Steepshot.Activity
 
                         if (account.Chain == AppSettings.User.Chain)
                         {
-                            _steemTitle.SetTextColor(Resources.GetColor(Resource.Color.rgb255_34_5));
+                            _steemTitle.SetTextColor(Style.R255G34B5);
                             _steemState.SetImageResource(Resource.Drawable.ic_checked);
                         }
                         else
@@ -462,7 +475,7 @@ namespace Steepshot.Activity
                         _golosTitle.Text = account.Login;
                         if (account.Chain == AppSettings.User.Chain)
                         {
-                            _golosTitle.SetTextColor(Resources.GetColor(Resource.Color.rgb255_34_5));
+                            _golosTitle.SetTextColor(Style.R255G34B5);
                             _golosState.SetImageResource(Resource.Drawable.ic_checked);
                         }
                         else

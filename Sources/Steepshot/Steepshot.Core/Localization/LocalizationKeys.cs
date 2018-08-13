@@ -206,6 +206,8 @@
         Photo,
         AmountLimit,
         AmountLimitFull,
-        Balance
+        Balance,
+        PowerHint,
+        RecievedTransfers
     }
 }

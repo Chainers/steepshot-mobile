@@ -3,6 +3,7 @@ using System.Globalization;
 using Android.App;
 using Android.Content;
 using Android.OS;
+using Android.Support.V4.Widget;
 using Android.Text;
 using Android.Text.Style;
 using Android.Views;
@@ -82,15 +83,12 @@ namespace Steepshot.Fragment
             _amountEdit.Typeface = Style.Semibold;
             _amountLimitMessage.Typeface = Style.Semibold;
 
-            var minAmount = 0.001;
-
             _fragmentTitle.Text = AppSettings.LocalizationManager.GetText(_powerAction == PowerAction.PowerUp ? LocalizationKeys.PowerUp : LocalizationKeys.PowerDown);
             _tokenOneTitle.Text = _balance.CurrencyType.ToString().ToUpper();
             _tokenName.Text = _balance.CurrencyType.ToString().ToUpper();
             _tokenTwoTitle.Text = $"{_balance.CurrencyType} power".ToUpper();
             _amountTitle.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Amount);
             _amountEdit.Hint = "0";
-            _amountEdit.Text = minAmount.ToString(CultureInfo.InvariantCulture);
             _maxBtn.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Max);
             _powerBtn.Text = AppSettings.LocalizationManager.GetText(_powerAction == PowerAction.PowerUp ? LocalizationKeys.PowerUp : LocalizationKeys.PowerDown);
             _amountLimitMessage.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.AmountLimitFull);
@@ -98,11 +96,23 @@ namespace Steepshot.Fragment
             _amountEdit.SetFilters(new IInputFilter[] { new TransferAmountFilter(Int32.MaxValue, 3) });
             AmountEditOnTextChanged(null, null);
 
+            _tokenOneValue.ViewTreeObserver.GlobalLayout += TokenValuesGlobalLayout;
+            _tokenTwoValue.ViewTreeObserver.GlobalLayout += TokenValuesGlobalLayout;
             _tokenName.ViewTreeObserver.GlobalLayout += TokenLayedOut;
             _amountEdit.TextChanged += AmountEditOnTextChanged;
             _maxBtn.Click += MaxBtnOnClick;
             _powerBtn.Click += PowerBtnOnClick;
             _backBtn.Click += BackBtnOnClick;
+        }
+
+        private void TokenValuesGlobalLayout(object sender, EventArgs e)
+        {
+            if (!IsInitialized || IsDetached)
+                return;
+
+            var commonTextSize = (int)(Math.Min(_tokenOneValue.TextSize, _tokenTwoValue.TextSize) / Activity.Resources.DisplayMetrics.ScaledDensity);
+            TextViewCompat.SetAutoSizeTextTypeUniformWithConfiguration(_tokenOneValue, 2, commonTextSize, 2, (int)AutoSizeTextType.Uniform);
+            TextViewCompat.SetAutoSizeTextTypeUniformWithConfiguration(_tokenTwoValue, 2, commonTextSize, 2, (int)AutoSizeTextType.Uniform);
         }
 
         private void TokenLayedOut(object sender, EventArgs e)
@@ -113,6 +123,8 @@ namespace Steepshot.Fragment
 
         public override void OnDetach()
         {
+            _tokenOneValue.ViewTreeObserver.GlobalLayout -= TokenValuesGlobalLayout;
+            _tokenTwoValue.ViewTreeObserver.GlobalLayout -= TokenValuesGlobalLayout;
             base.OnDetach();
             Cheeseknife.Reset(this);
             GC.Collect(0);
@@ -170,7 +182,7 @@ namespace Steepshot.Fragment
 
         private void MaxBtnOnClick(object sender, EventArgs e)
         {
-            _amountEdit.Text = _balance.Value.ToBalanceValueString();
+            _amountEdit.Text = _powerAction == PowerAction.PowerUp ? _balance.Value.ToBalanceValueString() : _balance.EffectiveSp.ToBalanceValueString();
             _amountEdit.SetSelection(_amountEdit.Text.Length);
         }
 

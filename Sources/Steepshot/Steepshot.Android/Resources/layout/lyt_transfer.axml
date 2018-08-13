@@ -53,13 +53,14 @@
                         android:paddingLeft="20dp"
                         android:paddingRight="35dp"
                         android:background="@drawable/edit_text_borders" />
-                    <ImageView
+                    <ImageButton
                         android:id="@+id/search_clear"
-                        android:layout_width="15dp"
-                        android:layout_height="15dp"
-                        android:layout_marginRight="15dp"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
                         android:layout_centerVertical="true"
                         android:layout_alignParentRight="true"
+                        android:padding="35dp"
+                        android:background="@android:color/transparent"
                         android:src="@drawable/ic_search_small" />
                 </RelativeLayout>
             </RelativeLayout>
