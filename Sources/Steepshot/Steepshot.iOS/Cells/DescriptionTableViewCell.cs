@@ -76,8 +76,6 @@ namespace Steepshot.iOS.Cells
                 at.Append(new NSAttributedString($" #{tag}", linkAttribute));
             }
             attributedLabel.SetText(at);
-
-
         }
     }
 }
