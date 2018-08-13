@@ -63,6 +63,8 @@ namespace Steepshot.Activity
 
             if (AppSettings.User.HasPostingPermission)
                 OneSignal.Current.IdsAvailable(OneSignalCallback);
+
+            CheckForNewFeatures();
         }
 
         private async void OneSignalCallback(string playerId, string pushToken)
@@ -301,6 +303,17 @@ namespace Steepshot.Activity
                         () => { profileTab.SetIcon(BitmapUtils.GetViewDrawable(votingPowerFrame)); }, null);
             else
                 profileTab.SetIcon(BitmapUtils.GetViewDrawable(votingPowerFrame));
+        }
+
+        private void CheckForNewFeatures()
+        {
+            var handler = new Handler();
+            Action action = () =>
+            {
+                var featureScreen = new FeatureDialog(this);
+                featureScreen.Show();
+            };
+            handler.PostDelayed(action, 1500);
         }
     }
 }
