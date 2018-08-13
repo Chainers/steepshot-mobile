@@ -214,7 +214,6 @@ namespace Steepshot.iOS.Views
             label2.AutoAlignAxisToSuperviewAxis(ALAxis.Horizontal);
             label2.AutoPinEdgeToSuperviewEdge(ALEdge.Left);
 
-            _secondTokenText.Text = "4 > 8";
             spView.AddSubview(_secondTokenText);
 
             _secondTokenText.AutoAlignAxisToSuperviewAxis(ALAxis.Horizontal);
@@ -236,7 +235,7 @@ namespace Steepshot.iOS.Views
             amountBackground.AutoPinEdgeToSuperviewEdge(ALEdge.Right);
 
             var amountLabel = new UILabel();
-            amountLabel.Text = "Amount";
+            amountLabel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Amount);
             amountLabel.Font = Constants.Semibold14;
             amountBackground.AddSubview(amountLabel);
 
@@ -264,7 +263,7 @@ namespace Steepshot.iOS.Views
             };
 
             var max = new UIButton();
-            max.SetTitle("MAX", UIControlState.Normal);
+            max.SetTitle(AppSettings.LocalizationManager.GetText(LocalizationKeys.Max), UIControlState.Normal);
             max.SetTitleColor(UIColor.Black, UIControlState.Normal);
             max.Font = Constants.Semibold14;
             max.Layer.BorderWidth = 1;
