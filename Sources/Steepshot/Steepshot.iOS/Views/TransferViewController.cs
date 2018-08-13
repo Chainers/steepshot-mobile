@@ -152,7 +152,7 @@ namespace Steepshot.iOS.Views
         {
             if (!AppSettings.User.HasActivePermission)
             {
-                TabBarController.NavigationController.PushViewController(new LoginViewController(false), true);
+                NavigationController.PushViewController(new LoginViewController(false), true);
                 return;
             }
 

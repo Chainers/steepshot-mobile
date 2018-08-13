@@ -446,14 +446,18 @@ namespace Steepshot.Core.Clients
                         EffectiveSp = effectiveSp,
                         RewardSteem = acc.RewardSteemBalance.ToDouble(),
                         RewardSp = acc.RewardVestingBalance.ToDouble() * vestsExchangeRatio.Result,
-                        RewardSbd = acc.RewardSbdBalance.ToDouble()
+                        RewardSbd = acc.RewardSbdBalance.ToDouble(),
+                        DelegatedToMe = acc.ReceivedVestingShares.ToDouble()  * vestsExchangeRatio.Result,
+                        DelegatedByMe = acc.DelegatedVestingShares.ToDouble()  * vestsExchangeRatio.Result,
                     },
                     new BalanceModel(acc.SbdBalance.ToDouble(), 3, CurrencyType.Sbd)
                     {
                         EffectiveSp = effectiveSp,
                         RewardSteem = acc.RewardSteemBalance.ToDouble(),
                         RewardSp = acc.RewardVestingBalance.ToDouble() * vestsExchangeRatio.Result,
-                        RewardSbd = acc.RewardSbdBalance.ToDouble()
+                        RewardSbd = acc.RewardSbdBalance.ToDouble(),
+                        DelegatedToMe = acc.ReceivedVestingShares.ToDouble() * vestsExchangeRatio.Result,
+                        DelegatedByMe = acc.DelegatedVestingShares.ToDouble() * vestsExchangeRatio.Result,
                     }
                 }
             };

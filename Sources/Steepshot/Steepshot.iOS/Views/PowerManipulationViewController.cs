@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Globalization;
 using CoreGraphics;
+using Foundation;
 using PureLayout.Net;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Common;
@@ -9,6 +11,7 @@ using Steepshot.Core.Utils;
 using Steepshot.iOS.CustomViews;
 using Steepshot.iOS.Helpers;
 using Steepshot.iOS.ViewControllers;
+using Steepshot.Core.Extensions;
 using UIKit;
 
 namespace Steepshot.iOS.Views
@@ -18,6 +21,11 @@ namespace Steepshot.iOS.Views
         private readonly BalanceModel _balance;
         private readonly PowerAction _powerAction;
         private double _powerAmount;
+        private SearchTextField _amount;
+        private UILabel _firstTokenText = new UILabel();
+        private UILabel _secondTokenText = new UILabel();
+        private UIActivityIndicatorView _loader = new UIActivityIndicatorView();
+        private UIButton _actionButton = new UIButton();
 
         public PowerManipulationViewController(BalanceModel balance, PowerAction action)
         {
@@ -30,10 +38,127 @@ namespace Steepshot.iOS.Views
             base.ViewDidLoad();
             SetBackButton();
             CreateView();
+            AmountEditOnTextChanged(null, null);
+        }
+
+        private void AmountEditOnTextChanged(object sender, EventArgs e)
+        {
+            //_amountLimitMessage.Visibility = ViewStates.Gone;
+
+            if (string.IsNullOrEmpty(_amount.Text))
+            {
+                UpdateTokenValues(_balance.Value.ToBalanceValueString(), _balance.Value.ToBalanceValueString(), _balance.EffectiveSp.ToBalanceValueString(), _balance.EffectiveSp.ToBalanceValueString());
+                _powerAmount = -1;
+                return;
+            }
+
+            var amountEdit = double.Parse(_amount.Text, CultureInfo.InvariantCulture);
+            var amountAvailable = _balance.Value;
+            var spAvailiable = _balance.EffectiveSp;
+
+            if (amountEdit <= (_powerAction == PowerAction.PowerUp ? amountAvailable : spAvailiable))
+            {
+                switch (_powerAction)
+                {
+                    case PowerAction.PowerUp:
+                        UpdateTokenValues(_balance.Value.ToBalanceValueString(), (amountAvailable - amountEdit).ToBalanceValueString(), _balance.EffectiveSp.ToBalanceValueString(), (spAvailiable + amountEdit).ToBalanceValueString());
+                        break;
+                    case PowerAction.PowerDown:
+                        UpdateTokenValues(_balance.Value.ToBalanceValueString(), (amountAvailable + amountEdit).ToBalanceValueString(), _balance.EffectiveSp.ToBalanceValueString(), (spAvailiable - amountEdit).ToBalanceValueString());
+                        break;
+                }
+                _powerAmount = amountEdit;
+            }
+            else
+            {
+                UpdateTokenValues(_balance.Value.ToBalanceValueString(), AppSettings.LocalizationManager.GetText(LocalizationKeys.AmountLimit), _balance.EffectiveSp.ToBalanceValueString(), AppSettings.LocalizationManager.GetText(LocalizationKeys.AmountLimit));
+                _powerAmount = -1;
+                //_amountLimitMessage.Visibility = ViewStates.Visible;
+            }
+        }
+
+        private UIStringAttributes _noLinkAttribute = new UIStringAttributes
+        {
+            Font = Constants.Regular24,
+            ForegroundColor = Constants.R151G155B158,
+        };
+        private UIStringAttributes linkAttribute = new UIStringAttributes
+        {
+            Font = Constants.Regular24,
+            ForegroundColor = Constants.R255G34B5,
+        };
+
+        private void UpdateTokenValues(string currTokenOne, string nextTokenOne, string currTokenTwo, string nextTokenTwo)
+        {
+            var at = new NSMutableAttributedString();
+            at.Append(new NSAttributedString($"{currTokenOne} >", _noLinkAttribute));
+            at.Append(new NSAttributedString($" {nextTokenOne}", linkAttribute));
+            _firstTokenText.AttributedText = at;
+
+            var at2 = new NSMutableAttributedString();
+            at2.Append(new NSAttributedString($"{currTokenTwo} >", _noLinkAttribute));
+            at2.Append(new NSAttributedString($" {nextTokenTwo}", linkAttribute));
+            _secondTokenText.AttributedText = at2;
+        }
+
+        private void MaxBtnOnClick(object sender, EventArgs e)
+        {
+            _amount.Text = _powerAction == PowerAction.PowerUp ? _balance.Value.ToBalanceValueString() : (_balance.EffectiveSp - _balance.DelegatedToMe).ToBalanceValueString();
+            AmountEditOnTextChanged(null, null);
+        }
+
+        private void PowerBtnOnClick(object sender, EventArgs e)
+        {
+            if (_powerAmount <= 0)
+                return;
+
+            if (string.IsNullOrEmpty(_balance.UserInfo.ActiveKey))
+            {
+                NavigationController.PushViewController(new LoginViewController(false), true);
+                return;
+            }
+
+            DoPowerAction();
+        }
+
+        private async void DoPowerAction()
+        {
+            _loader.StartAnimating();
+            _actionButton.Enabled = false;
+
+            var model = new BalanceModel(_powerAmount, _balance.MaxDecimals, _balance.CurrencyType)
+            {
+                UserInfo = _balance.UserInfo
+            };
+
+            var response = await _presenter.TryPowerUpOrDown(model, _powerAction);
+
+            _loader.StopAnimating();
+            _actionButton.Enabled = true;
+
+            if (response.IsSuccess)
+            {
+                NavigationController.PopViewController(true);
+            }
+            else
+            {
+                ShowAlert(response.Exception);
+            }
         }
 
         private void CreateView()
         {
+            var minAmount = 0.001;
+
+            View.UserInteractionEnabled = true;
+
+            var viewTap = new UITapGestureRecognizer(() =>
+            {
+                _amount.ResignFirstResponder();
+            });
+
+            View.AddGestureRecognizer(viewTap);
+
             View.BackgroundColor = Constants.R250G250B250;
 
             var topBackground = new UIView();
@@ -55,13 +180,13 @@ namespace Steepshot.iOS.Views
             label.AutoAlignAxisToSuperviewAxis(ALAxis.Horizontal);
             label.AutoPinEdgeToSuperviewEdge(ALEdge.Left);
 
-            var label3 = new UILabel();
-            label3.Text = "4 > 5";
-            steemView.AddSubview(label3);
+            _firstTokenText = new UILabel();
+            _firstTokenText.Text = "4 > 5";
+            steemView.AddSubview(_firstTokenText);
 
-            label3.AutoAlignAxisToSuperviewAxis(ALAxis.Horizontal);
-            label3.AutoPinEdgeToSuperviewEdge(ALEdge.Right);
-            label3.SetContentHuggingPriority(1, UILayoutConstraintAxis.Horizontal);
+            _firstTokenText.AutoAlignAxisToSuperviewAxis(ALAxis.Horizontal);
+            _firstTokenText.AutoPinEdgeToSuperviewEdge(ALEdge.Right);
+            _firstTokenText.SetContentHuggingPriority(1, UILayoutConstraintAxis.Horizontal);
 
             steemView.AutoSetDimension(ALDimension.Height, 70);
             steemView.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 20);
@@ -89,13 +214,12 @@ namespace Steepshot.iOS.Views
             label2.AutoAlignAxisToSuperviewAxis(ALAxis.Horizontal);
             label2.AutoPinEdgeToSuperviewEdge(ALEdge.Left);
 
-            var label4 = new UILabel();
-            label4.Text = "4 > 8";
-            spView.AddSubview(label4);
+            _secondTokenText.Text = "4 > 8";
+            spView.AddSubview(_secondTokenText);
 
-            label4.AutoAlignAxisToSuperviewAxis(ALAxis.Horizontal);
-            label4.AutoPinEdgeToSuperviewEdge(ALEdge.Right);
-            label4.SetContentHuggingPriority(1, UILayoutConstraintAxis.Horizontal);
+            _secondTokenText.AutoAlignAxisToSuperviewAxis(ALAxis.Horizontal);
+            _secondTokenText.AutoPinEdgeToSuperviewEdge(ALEdge.Right);
+            _secondTokenText.SetContentHuggingPriority(1, UILayoutConstraintAxis.Horizontal);
 
             spView.AutoSetDimension(ALDimension.Height, 70);
             spView.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, separator);
@@ -119,18 +243,25 @@ namespace Steepshot.iOS.Views
             amountLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Top, 15);
             amountLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 20);
 
-            var amount = new SearchTextField(() =>
+            _amount = new SearchTextField(() =>
             {
-                //RemoveFocus();
-            }, AppSettings.LocalizationManager.GetText(LocalizationKeys.TransferAmountHint), new AmountFieldDelegate());
-            amount.KeyboardType = UIKeyboardType.DecimalPad;
-            amount.Layer.CornerRadius = 25;
-            amountBackground.AddSubview(amount);
 
-            amount.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 20);
-            amount.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, amountLabel, 16);
-            amount.AutoSetDimension(ALDimension.Height, 50);
-            amount.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom, 20);
+            }, AppSettings.LocalizationManager.GetText(LocalizationKeys.TransferAmountHint), new AmountFieldDelegate());
+            _amount.Text = minAmount.ToString(CultureInfo.InvariantCulture);
+            _amount.EditingChanged += AmountEditOnTextChanged;
+            _amount.KeyboardType = UIKeyboardType.DecimalPad;
+            _amount.Layer.CornerRadius = 25;
+            amountBackground.AddSubview(_amount);
+
+            _amount.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 20);
+            _amount.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, amountLabel, 16);
+            _amount.AutoSetDimension(ALDimension.Height, 50);
+            _amount.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom, 20);
+
+            _amount.TouchUpOutside += (object sender, EventArgs e) =>
+            {
+                _amount.ResignFirstResponder();
+            };
 
             var max = new UIButton();
             max.SetTitle("MAX", UIControlState.Normal);
@@ -143,25 +274,32 @@ namespace Steepshot.iOS.Views
             amountBackground.AddSubview(max);
 
             max.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 20);
-            max.AutoPinEdge(ALEdge.Left, ALEdge.Right, amount, 10);
+            max.AutoPinEdge(ALEdge.Left, ALEdge.Right, _amount, 10);
             max.AutoSetDimensionsToSize(new CGSize(80, 50));
-            max.AutoAlignAxis(ALAxis.Horizontal, amount);
+            max.AutoAlignAxis(ALAxis.Horizontal, _amount);
+            max.TouchDown += MaxBtnOnClick;
 
-            var actionButton = new UIButton();
-            actionButton.SetTitle("POWER UP", UIControlState.Normal);
-            actionButton.SetTitleColor(UIColor.White, UIControlState.Normal);
+            _actionButton.SetTitle(AppSettings.LocalizationManager.GetText(_powerAction == PowerAction.PowerUp ? LocalizationKeys.PowerUp : LocalizationKeys.PowerDown), UIControlState.Normal);
+            _actionButton.SetTitleColor(UIColor.White, UIControlState.Normal);
+            _actionButton.SetTitleColor(UIColor.Clear, UIControlState.Disabled);
 
-            View.AddSubview(actionButton);
+            View.AddSubview(_actionButton);
 
-            actionButton.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, amountBackground, 30);
-            actionButton.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 20);
-            actionButton.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 20);
-            actionButton.AutoSetDimension(ALDimension.Height, 50);
+            _actionButton.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, amountBackground, 30);
+            _actionButton.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 20);
+            _actionButton.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 20);
+            _actionButton.AutoSetDimension(ALDimension.Height, 50);
 
-            actionButton.LayoutIfNeeded();
+            _actionButton.LayoutIfNeeded();
+            _actionButton.TouchDown += PowerBtnOnClick;
 
-            Constants.CreateGradient(actionButton, 25);
-            Constants.CreateShadowFromZeplin(actionButton, Constants.R231G72B0, 0.3f, 0, 10, 20, 0);
+            _loader.ActivityIndicatorViewStyle = UIActivityIndicatorViewStyle.White;
+            _loader.HidesWhenStopped = true;
+            _actionButton.AddSubview(_loader);
+            _loader.AutoCenterInSuperview();
+
+            Constants.CreateGradient(_actionButton, 25);
+            Constants.CreateShadowFromZeplin(_actionButton, Constants.R231G72B0, 0.3f, 0, 10, 20, 0);
         }
 
         private void SetBackButton()
