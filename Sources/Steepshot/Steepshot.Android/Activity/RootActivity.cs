@@ -109,6 +109,7 @@ namespace Steepshot.Activity
                                 OpenNewContentFragment(new SinglePostFragment(link));
                                 break;
                             case string follow when follow.Equals(PushSettings.Follow.GetEnumDescription()):
+                            case string transfer when transfer.Equals(PushSettings.Transfer.GetEnumDescription()):
                                 OpenNewContentFragment(new ProfileFragment(link));
                                 break;
                         }

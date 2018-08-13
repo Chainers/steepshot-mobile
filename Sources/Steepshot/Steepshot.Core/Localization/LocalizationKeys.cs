@@ -207,6 +207,7 @@
         AmountLimit,
         AmountLimitFull,
         Balance,
-        PowerHint
+        PowerHint,
+        RecievedTransfers
     }
 }
