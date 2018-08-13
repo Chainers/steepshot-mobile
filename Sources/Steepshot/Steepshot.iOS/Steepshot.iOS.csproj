@@ -103,9 +103,6 @@
     <OutputPath>bin\x86\Release\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Com.OneSignal, Version=3.2.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Com.OneSignal.3.2.0\lib\Xamarin.iOS10\Com.OneSignal.dll</HintPath>
-    </Reference>
     <Reference Include="Com.OneSignal.Abstractions, Version=3.2.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Com.OneSignal.3.2.0\lib\Xamarin.iOS10\Com.OneSignal.Abstractions.dll</HintPath>
     </Reference>
@@ -183,6 +180,9 @@
     </Reference>
     <Reference Include="Xamarin.TTTAttributedLabel">
       <HintPath>..\packages\Xamarin.TTTAttributedLabel.2.0.0.2\lib\Xamarin.iOS\Xamarin.TTTAttributedLabel.dll</HintPath>
+    </Reference>
+    <Reference Include="Com.OneSignal, Version=3.2.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Com.OneSignal.3.2.0\lib\Xamarin.iOS10\Com.OneSignal.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -434,6 +434,7 @@
     <Compile Include="Views\PlagiarismViewController.cs" />
     <Compile Include="Cells\ClaimTransactionCollectionViewCell.cs" />
     <Compile Include="Delegates\TransactionHistoryCollectionViewFlowDelegate.cs" />
+    <Compile Include="Views\PowerManipulationViewController.cs" />
     <Compile Include="Delegates\TTTAttributedLabelActionDelegate.cs" />
   </ItemGroup>
   <ItemGroup>

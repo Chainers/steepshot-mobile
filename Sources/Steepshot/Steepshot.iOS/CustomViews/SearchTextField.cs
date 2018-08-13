@@ -7,7 +7,40 @@ using UIKit;
 
 namespace Steepshot.iOS.CustomViews
 {
-    public class SearchTextField : UITextField
+    public class BaseTextField : UITextField
+    {
+        private UIEdgeInsets _insets = new UIEdgeInsets();
+
+        public BaseTextField(UIEdgeInsets insets)
+        {
+            _insets = insets;
+        }
+
+        public override CGRect TextRect(CGRect forBounds)
+        {
+            return base.TextRect(CalculateRect(forBounds));
+        }
+
+        public override CGRect EditingRect(CGRect forBounds)
+        {
+            return base.EditingRect(CalculateRect(forBounds));
+        }
+
+        public override CGRect RightViewRect(CGRect forBounds)
+        {
+            return base.RightViewRect(CalculateRect(forBounds));;
+        }
+
+        private CGRect CalculateRect(CGRect forBounds)
+        {
+            return new CGRect(_insets.Left,
+                              _insets.Top,
+                              forBounds.Width - _insets.Left - _insets.Right,
+                              forBounds.Height - _insets.Top - _insets.Bottom);
+        }
+    }
+
+    public class SearchTextField : BaseTextField
     {
         public Action ClearButtonTapped;
 
@@ -23,7 +56,7 @@ namespace Steepshot.iOS.CustomViews
             private set;
         }
 
-        public SearchTextField(Action returnButtonTapped, string placeholder, BaseTextFieldDelegate deleg = null)
+        public SearchTextField(Action returnButtonTapped, string placeholder, BaseTextFieldDelegate deleg = null) : base(new UIEdgeInsets(0, 20, 0, 20))
         {
             var rightView = new UIView();
 
@@ -84,21 +117,6 @@ namespace Steepshot.iOS.CustomViews
             Text = string.Empty;
             ClearButton.Hidden = true;
             ((BaseTextFieldDelegate)Delegate).ChangeBackground(this);
-        }
-
-        public override CGRect TextRect(CGRect forBounds)
-        {
-            return base.TextRect(forBounds.Inset(20, 0));
-        }
-
-        public override CGRect EditingRect(CGRect forBounds)
-        {
-            return base.EditingRect(forBounds.Inset(20, 0));
-        }
-
-        public override CGRect RightViewRect(CGRect forBounds)
-        {
-            return base.RightViewRect(forBounds.Inset(20, 0));
         }
     }
 }

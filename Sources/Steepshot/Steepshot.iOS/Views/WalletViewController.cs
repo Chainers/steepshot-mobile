@@ -12,7 +12,6 @@ using Steepshot.iOS.ViewControllers;
 using Steepshot.iOS.ViewSources;
 using UIKit;
 using Steepshot.Core.Extensions;
-using Steepshot.Core.Models.Common;
 
 namespace Steepshot.iOS.Views
 {
@@ -188,7 +187,7 @@ namespace Steepshot.iOS.Views
             NavigationItem.SetLeftBarButtonItem(leftBarButton, true);
             NavigationController.NavigationBar.TintColor = Constants.R15G24B30;
 
-            NavigationItem.Title = "Wallet"; //AppSettings.LocalizationManager.GetText(LocalizationKeys.wa);
+            NavigationItem.Title = AppSettings.LocalizationManager.GetText(LocalizationKeys.Wallet);
 
             var rightBarButton = new UIBarButtonItem(UIImage.FromBundle("ic_present"), UIBarButtonItemStyle.Plain, ShowClaimPopUp);
             rightBarButton.TintColor = Constants.R231G72B0;
@@ -284,8 +283,17 @@ namespace Steepshot.iOS.Views
             cancelButton.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom, commonMargin);
             cancelButton.AutoSetDimension(ALDimension.Height, 50);
 
-            powerUpButton.TouchDown += (s, ev) => { };
-            powerDownButton.TouchDown += (s, ev) => { };
+            powerUpButton.TouchDown += (s, ev) =>
+            {
+                _alert.Hide();
+                NavigationController.PushViewController(new PowerManipulationViewController(_presenter.Balances[0], Core.Models.Enums.PowerAction.PowerUp), true);
+            };
+            powerDownButton.TouchDown += (s, ev) =>
+            {
+                _alert.Hide();
+                NavigationController.PushViewController(new PowerManipulationViewController(_presenter.Balances[0], Core.Models.Enums.PowerAction.PowerDown), true);
+            
+            };
             cancelButton.TouchDown += (s, ev) => { _alert.Hide(); };
 
             _alert.Show();
