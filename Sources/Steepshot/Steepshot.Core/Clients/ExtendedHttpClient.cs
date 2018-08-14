@@ -93,6 +93,43 @@ namespace Steepshot.Core.Clients
             return result;
         }
 
+        public async Task<OperationResult<UUIDModel>> UUID(string url, UploadMediaModel model, CancellationToken token)
+        {
+            var fTitle = Guid.NewGuid().ToString();
+
+            var file = new StreamContent(model.File);
+            file.Headers.ContentType = MediaTypeHeaderValue.Parse(model.ContentType);
+            var multiContent = new MultipartFormDataContent
+            {
+                {file, "file", fTitle},
+                {new StringContent(model.Thumbnails.ToString()), "thumbnails"},
+                {new StringContent(model.AWS.ToString()), "aws"},
+                {new StringContent(model.IPFS.ToString()), "ipfs"}
+            };
+
+            OperationResult<UUIDModel> result = null;
+
+            try
+            {
+                var response = await PostAsync(url, multiContent, token);
+                result = await CreateResult<UUIDModel>(response, token);
+
+                if (result.IsSuccess && result.Result == null)
+                    result.Exception = new ValidationException(LocalizationKeys.ServeUnexpectedError);
+            }
+            catch (Exception ex)
+            { }
+
+            return result;
+        }
+
+        public async Task<OperationResult<MediaModel>> MediaUpload(string url, CancellationToken token)
+        {
+            var response = await GetAsync(url, token);
+            var result = await CreateResult<MediaModel>(response, token);
+            return result;
+        }
+
         public async Task<OperationResult<NsfwRate>> NsfwCheck(Stream stream, CancellationToken token)
         {
             var multiContent = new MultipartFormDataContent { { new StreamContent(stream), "image", "nsfw" } };
@@ -155,4 +192,6 @@ namespace Steepshot.Core.Clients
             return await response.Result.Content.ReadAsStringAsync();
         }
     }
+
+
 }
