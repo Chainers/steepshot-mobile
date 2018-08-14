@@ -59,7 +59,8 @@ namespace Steepshot.Core.Clients
                         if (token.IsCancellationRequested)
                             break;
 
-                        if (_operationManager.ConnectTo(url, token))
+                        var isConnected = await _operationManager.ConnectTo(url, token);
+                        if (isConnected)
                         {
                             EnableWrite = true;
                             break;

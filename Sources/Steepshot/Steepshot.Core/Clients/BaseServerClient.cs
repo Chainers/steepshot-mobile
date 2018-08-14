@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -289,7 +288,7 @@ namespace Steepshot.Core.Clients
                     parameters.Add("target", target);
 
                 endpoint = $"{BaseUrl}/{GatewayVersion.V1}/log/{endpoint}";
-                var result = await HttpClient.Post<VoidResponse>(endpoint, parameters, token);
+                var result = await HttpClient.Put<VoidResponse, Dictionary<string, object>>(endpoint, parameters, token);
                 if (result.IsSuccess)
                     result.Result = new VoidResponse();
                 return result;
@@ -339,7 +338,7 @@ namespace Steepshot.Core.Clients
                 return new OperationResult<PreparePostResponse>(results);
 
             var endpoint = $"{BaseUrl}/{GatewayVersion.V1P1}/post/prepare";
-            return await HttpClient.Post<PreparePostResponse, PreparePostModel>(endpoint, model, ct);
+            return await HttpClient.Put<PreparePostResponse, PreparePostModel>(endpoint, model, ct);
         }
 
         public async Task<OperationResult<CreateAccountResponse>> CreateAccount(CreateAccountModel model, CancellationToken token)

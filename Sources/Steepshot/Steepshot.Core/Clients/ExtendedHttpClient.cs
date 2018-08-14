@@ -9,12 +9,13 @@ using Steepshot.Core.Serializing;
 using Steepshot.Core.Models.Common;
 using System.Linq;
 using System.Net.Http.Headers;
+using Ditch.Core;
 using Steepshot.Core.Exceptions;
 using Steepshot.Core.Localization;
 
 namespace Steepshot.Core.Clients
 {
-    public class ExtendedHttpClient : HttpClient
+    public class ExtendedHttpClient : RepeatHttpClient
     {
         protected readonly JsonNetConverter JsonNetConverter;
 
@@ -41,19 +42,6 @@ namespace Steepshot.Core.Clients
             return await CreateResult<T>(response, token);
         }
 
-        public async Task<OperationResult<T>> Post<T>(string url, Dictionary<string, object> parameters, CancellationToken token)
-        {
-            HttpContent content = null;
-            if (parameters != null && parameters.Count > 0)
-            {
-                var param = JsonNetConverter.Serialize(parameters);
-                content = new StringContent(param, Encoding.UTF8, "application/json");
-            }
-
-            var response = await PostAsync(url, content, token);
-            return await CreateResult<T>(response, token);
-        }
-
         public async Task<OperationResult<T>> Post<T, TData>(string url, TData data, CancellationToken token)
         {
             HttpContent content = null;
@@ -64,6 +52,20 @@ namespace Steepshot.Core.Clients
             }
 
             var response = await PostAsync(url, content, token);
+            return await CreateResult<T>(response, token);
+        }
+
+        public async Task<OperationResult<T>> Put<T, TData>(string url, TData data, CancellationToken token)
+        {
+            HttpContent content = null;
+            if (data != null)
+            {
+                var param = JsonNetConverter.Serialize(data);
+                content = new StringContent(param, Encoding.UTF8, "application/json");
+            }
+
+            var response = await PostAsync(url, content, token);
+            //var response = await PutAsync(url, content, token);
             return await CreateResult<T>(response, token);
         }
 

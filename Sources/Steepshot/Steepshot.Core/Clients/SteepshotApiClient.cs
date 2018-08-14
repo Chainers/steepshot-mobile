@@ -266,7 +266,7 @@ namespace Steepshot.Core.Clients
 
             var endpoint = $"{BaseUrl}/{GatewayVersion.V1P1}/{(model.Subscribe ? "subscribe" : "unsubscribe")}";
 
-            return await HttpClient.Post<object, PushNotificationsModel>(endpoint, model, ct);
+            return await HttpClient.Put<object, PushNotificationsModel>(endpoint, model, ct);
         }
 
         public async Task<OperationResult<VoidResponse>> Transfer(TransferModel model, CancellationToken ct)
