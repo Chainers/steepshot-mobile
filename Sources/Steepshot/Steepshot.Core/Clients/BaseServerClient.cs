@@ -406,5 +406,14 @@ namespace Steepshot.Core.Clients
             }
             return null;
         }
+
+        public async Task<OperationResult<SubscriptionsModel>> CheckSubscriptions(CancellationToken token)
+        {
+            if (!EnableRead)
+                return null;
+
+            var endpoint = $"{BaseUrl}/{GatewayVersion.V1P1}/subscriptions/{AppSettings.User.Login}/{ AppSettings.User.PushesPlayerId}";
+            return await HttpClient.Get<SubscriptionsModel>(endpoint, token);
+        }
     }
 }

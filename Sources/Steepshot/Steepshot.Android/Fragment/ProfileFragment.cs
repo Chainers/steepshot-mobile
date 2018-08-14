@@ -238,8 +238,11 @@ namespace Steepshot.Fragment
                 }
                 else
                 {
+                    _settings.Enabled = false;
                     _more.Visibility = ViewStates.Gone;
                     _login.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.MyProfile);
+                    Presenter.SubscriptionsUpdated += _presenter_SubscriptionsUpdated;
+                    Presenter.CheckSubscriptions();
                 }
 
                 LoadProfile();
@@ -259,6 +262,11 @@ namespace Steepshot.Fragment
                     _adapter.NotifyDataSetChanged();
                 }
             }
+        }
+
+        private void _presenter_SubscriptionsUpdated()
+        {
+            _settings.Enabled = true;
         }
 
         private void PostPagerOnPageScrolled(object sender, ViewPager.PageScrolledEventArgs pageScrolledEventArgs)

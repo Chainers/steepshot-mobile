@@ -14,10 +14,11 @@ using Constants = Steepshot.iOS.Helpers.Constants;
 using Steepshot.Core.Localization;
 using Com.OneSignal;
 using Steepshot.Core.Authorization;
+using Steepshot.Core.Presenters;
 
 namespace Steepshot.iOS.Views
 {
-    public partial class SettingsViewController : BaseViewController
+    public partial class SettingsViewController : BaseViewControllerWithPresenter<UserProfilePresenter>
     {
         private AccountsTableViewSource _tableSource;
 
@@ -74,14 +75,20 @@ namespace Steepshot.iOS.Views
             notificationSettings.TouchDown += (object sender, EventArgs e) =>
             {
                 NavigationController.PushViewController(new NotificationSettingsController(), true);
-            }; ;
+            };
             lowRatedSwitch.ValueChanged += SwitchLowRated;
             nsfwSwitch.ValueChanged += SwitchNSFW;
             SetBackButton();
-
+            _presenter.SubscriptionsUpdated += _presenter_SubscriptionsUpdated;
+            _presenter.CheckSubscriptions();
 #if !DEBUG
             lowRatedLabel.Hidden = nsfwLabel.Hidden = nsfwSwitch.Hidden = lowRatedSwitch.Hidden = true;
 #endif
+        }
+
+        private void _presenter_SubscriptionsUpdated()
+        {
+            notificationSettings.Enabled = true;
         }
 
         private void SendReport(object sender, EventArgs e)

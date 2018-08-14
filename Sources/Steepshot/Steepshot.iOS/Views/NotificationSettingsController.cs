@@ -49,7 +49,7 @@ namespace Steepshot.iOS.Views
             NavigationItem.Title = "Notifications settings";
         }
 
-        private async void NotificationChange(object sender, EventArgs e)
+        private void NotificationChange(object sender, EventArgs e)
         {
             if (!(sender is UISwitch switcher))
                 return;
@@ -85,8 +85,6 @@ namespace Steepshot.iOS.Views
             var resp = await _presenter.TrySubscribeForPushes(model);
             if (resp.IsSuccess)
                 AppSettings.User.PushSettings = PushSettings;
-            else
-                this.ShowAlert(resp.Exception);
         }
 
         public override async void ViewWillDisappear(bool animated)
