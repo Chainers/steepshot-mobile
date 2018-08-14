@@ -342,14 +342,6 @@ namespace Steepshot.Core.Clients
             return await HttpClient.Post<PreparePostResponse, PreparePostModel>(endpoint, model, ct);
         }
 
-        public async Task<OperationResult<NsfwRate>> NsfwCheck(Stream stream, CancellationToken token)
-        {
-            if (!EnableRead)
-                return null;
-
-            return await HttpClient.NsfwCheck(stream, token);
-        }
-
         public async Task<OperationResult<CreateAccountResponse>> CreateAccount(CreateAccountModel model, CancellationToken token)
         {
             var endpoint = "https://createacc.steepshot.org/api/v1/account";
