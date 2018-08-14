@@ -203,17 +203,11 @@ namespace Steepshot.Core.Clients
             var uuid = await HttpClient.UUID(endpoint, model, ct);
 
             OperationResult<MediaModel> result = null;
-            var uploaded = false;
 
-            while (!uploaded)
+            while (result?.Result == null)
             {
                 endpoint = $"{BaseUrl}/{GatewayVersion.V1P1}/media/{uuid?.Result.UUID}/result";
                 result = await HttpClient.MediaUpload(endpoint, ct);
-
-                if (result != null && result.IsSuccess && result.Result != null)
-                {
-                    uploaded = true;
-                }
             }
 
             return result;

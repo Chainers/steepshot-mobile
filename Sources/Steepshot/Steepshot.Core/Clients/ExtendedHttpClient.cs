@@ -71,28 +71,6 @@ namespace Steepshot.Core.Clients
             return await CreateResult<T>(response, token);
         }
 
-        public async Task<OperationResult<MediaModel>> UploadMedia(string url, UploadMediaModel model, CancellationToken token)
-        {
-            var fTitle = Guid.NewGuid().ToString();
-
-            var file = new StreamContent(model.File);
-            file.Headers.ContentType = MediaTypeHeaderValue.Parse(model.ContentType);
-            var multiContent = new MultipartFormDataContent
-            {
-                {new StringContent(model.VerifyTransaction), "trx"},
-                {file, "file", fTitle},
-                {new StringContent(model.GenerateThumbnail.ToString()), "generate_thumbnail"}
-            };
-
-            var response = await PostAsync(url, multiContent, token);
-            var result = await CreateResult<MediaModel>(response, token);
-
-            if (result.IsSuccess && result.Result == null)
-                result.Exception = new ValidationException(LocalizationKeys.ServeUnexpectedError);
-
-            return result;
-        }
-
         public async Task<OperationResult<UUIDModel>> UUID(string url, UploadMediaModel model, CancellationToken token)
         {
             var fTitle = Guid.NewGuid().ToString();

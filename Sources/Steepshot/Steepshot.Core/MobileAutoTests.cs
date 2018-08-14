@@ -291,7 +291,7 @@ namespace Steepshot.Core
 
             var request = new UploadMediaModel(_user, stream, ".jpg")
             {
-                GenerateThumbnail = false,
+                //GenerateThumbnail = false,
             };
             var mediaResponse = _api.UploadMedia(request, CancellationToken.None).Result;
             if (!mediaResponse.IsSuccess)
