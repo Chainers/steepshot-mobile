@@ -312,10 +312,6 @@ namespace Steepshot.Core.Clients
         #region Get
         public override async Task<OperationResult<string>> GetVerifyTransaction(AuthorizedPostingModel model, CancellationToken ct)
         {
-            var isConnected = await TryReconnectChain(ct);
-            if (!isConnected)
-                return new OperationResult<string>(new ValidationException(LocalizationKeys.EnableConnectToBlockchain));
-
             var keys = ToKeyArr(model.PostingKey);
             if (keys == null)
                 return new OperationResult<string>(new ValidationException(LocalizationKeys.WrongPrivatePostingKey));
