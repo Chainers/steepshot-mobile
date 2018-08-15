@@ -85,18 +85,11 @@ namespace Steepshot.Core.Clients
                 {new StringContent(model.IPFS.ToString()), "ipfs"}
             };
 
-            OperationResult<UUIDModel> result = null;
+            var response = await PostAsync(url, multiContent, token);
+            var result = await CreateResult<UUIDModel>(response, token);
 
-            try
-            {
-                var response = await PostAsync(url, multiContent, token);
-                result = await CreateResult<UUIDModel>(response, token);
-
-                if (result.IsSuccess && result.Result == null)
-                    result.Exception = new ValidationException(LocalizationKeys.ServeUnexpectedError);
-            }
-            catch (Exception ex)
-            { }
+            if (result.IsSuccess && result.Result == null)
+                result.Exception = new ValidationException(LocalizationKeys.ServeUnexpectedError);
 
             return result;
         }
