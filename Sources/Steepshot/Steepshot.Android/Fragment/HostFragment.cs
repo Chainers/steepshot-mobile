@@ -15,8 +15,8 @@ namespace Steepshot.Fragment
             {
                 if (Fragment != null)
                     return Fragment.UserVisibleHint;
-                else
-                    return base.UserVisibleHint;
+
+                return base.UserVisibleHint;
             }
             set
             {
@@ -41,16 +41,27 @@ namespace Steepshot.Fragment
             return view;
         }
 
-        public override void OnActivityCreated(Bundle savedInstanceState)
+        public override void OnResume()
         {
-            base.OnActivityCreated(savedInstanceState);
-            if (Activity is RootActivity rootActivity)
+            base.OnResume();
+            HandleAppActions();
+        }
+
+        public void HandleAppActions()
+        {
+            if (IsDetached)
+                return;
+
+            switch (Activity)
             {
-                rootActivity.HandleNotification(rootActivity.Intent);
-            }
-            if (Activity is BaseActivity baseActivity)
-            {
-                baseActivity.HandleLink(baseActivity.Intent);
+                case RootActivity rootActivity:
+                    rootActivity.HandleNotification(rootActivity.Intent);
+                    rootActivity.HandleSharingPhoto(rootActivity.Intent);
+                    rootActivity.HandleLink(rootActivity.Intent);
+                    break;
+                case BaseActivity baseActivity:
+                    baseActivity.HandleLink(baseActivity.Intent);
+                    break;
             }
         }
 

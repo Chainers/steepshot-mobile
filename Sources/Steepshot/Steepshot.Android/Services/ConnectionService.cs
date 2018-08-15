@@ -16,6 +16,10 @@ namespace Steepshot.Services
 
         public bool IsConnectionAvailable()
         {
+            //5 sec caching if connected
+            if (_isConnected && _time.HasValue && (DateTime.Now - _time.Value).TotalMilliseconds < 5000)
+                return _isConnected;
+
             var networkInfo = _connectivityManager?.ActiveNetworkInfo;
             if (networkInfo == null)
                 return false;
@@ -32,8 +36,8 @@ namespace Steepshot.Services
             {
                 lock (_connectivityManager)
                 {
-                    //5 sec caching
-                    if (_time.HasValue && (DateTime.Now - _time.Value).TotalMilliseconds < 5000)
+                    //5 sec caching if connected
+                    if (_isConnected && _time.HasValue && (DateTime.Now - _time.Value).TotalMilliseconds < 5000)
                         return _isConnected;
 
                     var entry = Dns.GetHostEntry("steepshot.org");

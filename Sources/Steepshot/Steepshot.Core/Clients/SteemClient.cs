@@ -37,48 +37,52 @@ namespace Steepshot.Core.Clients
             _operationManager = new OperationManager(httpManager);
         }
 
-        public override async Task<bool> TryReconnectChain(CancellationToken token)
+        public override Task<bool> TryReconnectChain(CancellationToken token)
         {
-            if (EnableWrite)
-                return EnableWrite;
-
-            var lockWasTaken = false;
-            try
+            return Task.Run(() =>
             {
-                Monitor.Enter(SyncConnection, ref lockWasTaken);
-                if (!EnableWrite)
+                if (EnableWrite)
+                    return EnableWrite;
+
+                var lockWasTaken = false;
+                try
                 {
-                    await AppSettings.ConfigManager.Update(ExtendedHttpClient, KnownChains.Steem, token);
-
-                    var cUrls = AppSettings.ConfigManager.SteemNodeConfigs
-                        .Where(n => n.IsEnabled)
-                        .OrderBy(n => n.Order)
-                        .Select(n => n.Url)
-                        .ToArray();
-                    foreach (var url in cUrls)
+                    Monitor.Enter(SyncConnection, ref lockWasTaken);
+                    if (!EnableWrite)
                     {
-                        if (token.IsCancellationRequested)
-                            break;
+                        AppSettings.ConfigManager.Update(ExtendedHttpClient, KnownChains.Steem, token).Wait(token);
 
-                        var isConnected = await _operationManager.ConnectTo(url, token);
-                        if (isConnected)
+                        var cUrls = AppSettings.ConfigManager.SteemNodeConfigs
+                            .Where(n => n.IsEnabled)
+                            .OrderBy(n => n.Order)
+                            .Select(n => n.Url)
+                            .ToArray();
+                        foreach (var url in cUrls)
                         {
-                            EnableWrite = true;
-                            break;
+                            if (token.IsCancellationRequested)
+                                break;
+
+                            var isConnected = _operationManager.ConnectTo(url, token).Result;
+                            if (isConnected)
+                            {
+                                EnableWrite = true;
+                                break;
+                            }
                         }
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                await AppSettings.Logger.Warning(ex);
-            }
-            finally
-            {
-                if (lockWasTaken)
-                    Monitor.Exit(SyncConnection);
-            }
-            return EnableWrite;
+                catch (Exception ex)
+                {
+                    AppSettings.Logger.Warning(ex).Wait(token);
+                }
+                finally
+                {
+                    if (lockWasTaken)
+                        Monitor.Exit(SyncConnection);
+                }
+
+                return EnableWrite;
+            }, token);
         }
 
         #region Post requests

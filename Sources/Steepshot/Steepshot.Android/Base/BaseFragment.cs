@@ -21,7 +21,7 @@ namespace Steepshot.Base
         protected void ToggleTabBar(bool shouldHide = false)
         {
             if (Activity is RootActivity activity)
-                activity._tabLayout.Visibility = shouldHide ? ViewStates.Gone : ViewStates.Visible;
+                activity.TabLayout.Visibility = shouldHide ? ViewStates.Gone : ViewStates.Visible;
         }
 
         public override void OnDetach()

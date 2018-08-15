@@ -8,7 +8,6 @@ using Android.OS;
 using Android.Support.V4.App;
 using Android.Support.V4.Content;
 using Android.Support.V7.App;
-using Android.Util;
 using Android.Views;
 using Android.Views.InputMethods;
 using Steepshot.Core.Utils;
@@ -20,7 +19,7 @@ namespace Steepshot.Base
     {
         public const string AppLinkingExtra = "appLinkingExtra";
         public static int CommonPermissionsRequestCode = 888;
-        protected HostFragment CurrentHostFragment;
+        protected virtual HostFragment CurrentHostFragment { get; set; }
         public static event Func<MotionEvent, bool> TouchEvent;
 
         public override bool DispatchTouchEvent(MotionEvent ev)
@@ -28,8 +27,9 @@ namespace Steepshot.Base
             return (TouchEvent?.Invoke(ev) ?? false) || base.DispatchTouchEvent(ev);
         }
 
-        public override View OnCreateView(View parent, string name, Context context, IAttributeSet attrs)
+        protected override void OnCreate(Bundle savedInstanceState)
         {
+            base.OnCreate(savedInstanceState);
             if (Build.VERSION.SdkInt >= BuildVersionCodes.M)
             {
                 Window.AddFlags(WindowManagerFlags.DrawsSystemBarBackgrounds);
@@ -40,7 +40,6 @@ namespace Steepshot.Base
             {
                 Window.SetStatusBarColor(Color.Black);
             }
-            return base.OnCreateView(parent, name, context, attrs);
         }
 
         public override void OnBackPressed()
@@ -56,7 +55,7 @@ namespace Steepshot.Base
             base.OnBackPressed();
         }
 
-        public virtual void OpenNewContentFragment(BaseFragment frag)
+        public void OpenNewContentFragment(BaseFragment frag)
         {
             CurrentHostFragment?.ReplaceFragment(frag, true);
         }
