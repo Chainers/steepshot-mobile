@@ -49,6 +49,15 @@ namespace Steepshot.Core.Presenters
             return exception;
         }
 
+        public async Task<OperationResult<OtherAccountInfoResponse>> TryGetInstagramAccount(string accessToken)
+        {
+            return await TryRunTask<string, OtherAccountInfoResponse>(GetInstagramAccount, OnDisposeCts.Token, accessToken);
+        }
+
+        private async Task<OperationResult<OtherAccountInfoResponse>> GetInstagramAccount(string accessToken, CancellationToken ct)
+        {
+            return await Api.GetInstagramAccount(accessToken, ct);
+        }
 
         public async Task<Exception> TryGetUserInfo(string user)
         {

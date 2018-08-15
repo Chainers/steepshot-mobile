@@ -23,6 +23,7 @@ namespace Steepshot.Core
         public const string BlocktradesRegUrl = "https://blocktrades.us/create-steem-account";
         public const string SteemPostUrl = "https://alpha.steepshot.io/post{0}";
         public const string GolosPostUrl = "https://alpha.steepshot.io/golos/post{0}";
+        public const string InstagramInfoUrl = "https://api.instagram.com/v1/users/self/?access_token={0}";
 
         public const string Tos = "https://steepshot.org/terms-of-service";
         public const string Guide = "https://alpha.steepshot.io/guide";

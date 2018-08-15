@@ -208,6 +208,10 @@
         AmountLimitFull,
         Balance,
         PowerHint,
-        RecievedTransfers
+        RecievedTransfers,
+        InstagramAccount,
+        HintForInstagram,
+        HintForInstagramConnection,
+        InstagramConnectionDescription,
     }
 }

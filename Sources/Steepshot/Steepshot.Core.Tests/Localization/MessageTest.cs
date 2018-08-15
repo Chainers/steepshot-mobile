@@ -39,7 +39,7 @@ namespace Steepshot.Core.Tests.Localization
         [Test]
         public void LocalizationKeysTest()
         {
-            Assert.AreEqual(LocalizationManager.Model.Version, 15);
+            Assert.AreEqual(LocalizationManager.Model.Version, 16);
 
             var str = string.Empty;
             var keys = Enum.GetNames(typeof(LocalizationKeys));

@@ -86,6 +86,11 @@ namespace Steepshot.Core.Extensions
             return $"{string.Format(Constants.ProxyForAvatars, width, height)}{link}";
         }
 
+        public static string Truncate(this string value, int maxChars)
+        {
+            return value.Length <= maxChars ? value : value.Substring(0, maxChars - 3) + "...";
+        }
+
         public static string ToBalanceValueString(this double value)
         {
             return value.ToString("F3", CultureInfo.InvariantCulture);

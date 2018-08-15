@@ -20,6 +20,9 @@ namespace Steepshot.Core.Models.Requests
         [JsonProperty]
         public string Description { get; set; } = string.Empty;
 
+        [JsonProperty("source_name")]
+        public string SourceName { get; set; } = string.Empty;
+
         public string Permlink
         {
             get

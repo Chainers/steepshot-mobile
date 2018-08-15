@@ -7,6 +7,7 @@ namespace Steepshot.Core.Models.Common
     public class Post
     {
         private string _permlink;
+        private string _sourceName;
 
         public string Body { get; set; }
 
@@ -67,6 +68,8 @@ namespace Steepshot.Core.Models.Common
         public bool IsNsfw { get; set; }
 
         public DateTime CashoutTime { get; set; }
+
+        public JsonMetadata JsonMetadata { get; set; }
 
         //system
         [JsonIgnore]

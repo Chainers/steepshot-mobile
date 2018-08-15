@@ -43,18 +43,23 @@ namespace Steepshot.Core.Localization
 
         public async void Update(ExtendedHttpClient gateway)
         {
-            var rez = await gateway.Get<string>(string.Format(UpdateUrl, Model.Lang), CancellationToken.None);
-            if (!rez.IsSuccess)
-                return;
-
-            var xml = rez.Result;
-            var changed = Update(xml, Model);
-            if (changed)
+            try
             {
-                if (!_localizationModel.ContainsKey(Model.Lang))
-                    _localizationModel.Add(Model.Lang, Model);
-                _saverService.Save(Localization, _localizationModel);
+                var rez = await gateway.Get<string>(string.Format(UpdateUrl, Model.Lang), CancellationToken.None);
+                if (!rez.IsSuccess)
+                    return;
+
+                var xml = rez.Result;
+                var changed = Update(xml, Model);
+                if (changed)
+                {
+                    if (!_localizationModel.ContainsKey(Model.Lang))
+                        _localizationModel.Add(Model.Lang, Model);
+                    _saverService.Save(Localization, _localizationModel);
+                }
             }
+            catch (Exception ex)
+            { }
         }
 
         public static bool Update(string xml, LocalizationModel model)

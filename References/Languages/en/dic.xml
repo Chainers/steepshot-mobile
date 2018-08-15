@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources version="15">
+<resources version="16">
     <string obsolete="true" name="[&quot;ResponseContentContainsHtml&quot;]">Response content contains HTML: </string>
     <string obsolete="true" name="[&quot;UnexpectedUrlFormat&quot;]">Unexpected url format: </string>
     <string obsolete="true" name="[&quot;EnableConnectToServer&quot;]">Can not connect to the server, check for an Internet connection and try again.</string>
@@ -313,4 +313,9 @@ About 6 inches away</string>
     <string name="[&quot;Balance&quot;]">Balance</string>
     <string name="[&quot;PowerHint&quot;]">Long press the heart under a post to see the scale</string>
     <string name="[&quot;RecievedTransfers&quot;]">Recieved transfers</string>
+
+    <string name="[&quot;HintForInstagram&quot;]">Connect Instagram and all your photos will be automatically copied to Steepshot.</string>
+    <string name="[&quot;HintForInstagramConnection&quot;]">Now all your photos, published in Instagram, automatically copied to Steepshot.</string>
+    <string name="[&quot;InstagramConnectionDescription&quot;]">Now you can connect your Instagram account to our application to automatically post your posts!</string>
+    <string name="[&quot;InstagramAccount&quot;]">Instagram account</string>
 </resources>

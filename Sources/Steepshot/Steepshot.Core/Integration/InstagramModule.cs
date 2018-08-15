@@ -3,8 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using Steepshot.Core.Authorization;
+using Steepshot.Core.Extensions;
 using Steepshot.Core.Clients;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
@@ -18,17 +21,12 @@ namespace Steepshot.Core.Integration
         private readonly Regex _tagRegex = new Regex(@"(?<=#)[\w.-]*", RegexOptions.CultureInvariant);
 
 
-        public InstagramModule(SteepshotApiClient client, User user) : base(client, user)
+        public override bool IsAuthorized(UserInfo userInfo)
         {
-        }
-
-
-        public override bool IsAuthorized()
-        {
-            if (!User.Integration.ContainsKey(AppId))
+            if (!userInfo.Integration.ContainsKey(AppId))
                 return false;
 
-            var json = User.Integration[AppId];
+            var json = userInfo.Integration[AppId];
             var model = JsonConvert.DeserializeObject<ModuleOptionsModel>(json);
 
             return !string.IsNullOrEmpty(model.AccessToken);
@@ -36,14 +34,34 @@ namespace Steepshot.Core.Integration
 
         public override async void TryCreateNewPost(CancellationToken token)
         {
-            var acc = GetOptionsOrDefault<ModuleOptionsModel>(AppId);
-            var args = new Dictionary<string, object>
+            var users = UserManager.Select().ToArray();
+            foreach (var user in users)
             {
-                {"access_token", acc.AccessToken},
-            };
+                if (IsAuthorized(user))
+                {
+                    SteepshotApiClient client;
+                    switch (user.Chain)
+                    {
+                        case KnownChains.Golos:
+                            client = GolosClient;
+                            break;
+                        case KnownChains.Steem:
+                            client = SteemClient;
+                            break;
+                        default:
+                            client = null;
+                            break;
+                    }
 
-            var rezult = await Client.HttpClient.Get<ModuleRecentMediaResult>("https://api.instagram.com/v1/users/self/media/recent/", args, token);
+                    await TryCreateNewPost(client, user, token);
+                }
+            }
+        }
 
+        private async Task TryCreateNewPost(SteepshotApiClient steepshotApiClient, UserInfo userInfo, CancellationToken token)
+        {
+            var acc = GetOptionsOrDefault<ModuleOptionsModel>(userInfo, AppId);
+            var rezult = await GetRecentMedia(steepshotApiClient, acc.AccessToken, token);
             if (!rezult.IsSuccess)
                 return;
 
@@ -52,6 +70,8 @@ namespace Steepshot.Core.Integration
                 var data = rezult.Result.Data.FirstOrDefault(i => i.Type.Equals("image", StringComparison.OrdinalIgnoreCase) || (i.CarouselMedia != null && i.CarouselMedia.Any(m => m.Type.Equals("image", StringComparison.OrdinalIgnoreCase))));
                 if (data != null)
                     acc.MinId = data.Id;
+
+                SaveOptions(userInfo, AppId, acc);
                 return;
             }
 
@@ -60,7 +80,9 @@ namespace Steepshot.Core.Integration
             foreach (var data in rezult.Result.Data.Where(i => i.Type.Equals("image", StringComparison.OrdinalIgnoreCase) || (i.CarouselMedia != null && i.CarouselMedia.Any(m => m.Type.Equals("image", StringComparison.OrdinalIgnoreCase)))))
             {
                 if (data.Id != acc.MinId)
+                {
                     prevData = data;
+                }
                 else
                     break;
             }
@@ -68,9 +90,24 @@ namespace Steepshot.Core.Integration
             if (prevData == null)
                 return;
 
-            var model = new PreparePostModel(User.UserInfo, AppSettings.AppInfo.GetModel())
+            var caption = prevData.Caption?.Text;
+            string title, description = string.Empty;
+
+            if (string.IsNullOrEmpty(caption))
             {
-                Title = prevData.Caption.Text
+                title = description = "Post from Instagram";
+            }
+            else
+            {
+                title = caption.Truncate(255);
+                description = caption.Length > 255 ? caption : string.Empty;
+            }
+
+            var model = new PreparePostModel(userInfo, AppSettings.AppInfo.GetModel())
+            {
+                Title = title,
+                Description = description,
+                SourceName = AppId
             };
 
             var tagsM = _tagRegex.Matches(model.Title);
@@ -95,13 +132,31 @@ namespace Steepshot.Core.Integration
                     .ToArray();
             }
 
-            var result = await CreatePost(model, token);
+            var result = await CreatePost(steepshotApiClient, userInfo, model, token);
 
             if (result.IsSuccess)
             {
                 acc.MinId = prevData.Id;
-                SaveOptions(AppId, acc);
+                SaveOptions(userInfo, AppId, acc);
             }
+        }
+
+        protected Task<OperationResult<InstagramUserInfo>> GetUserInfo(SteepshotApiClient steepshotApiClient, string accessToken, CancellationToken token)
+        {
+            var args = new Dictionary<string, object>
+            {
+                {"access_token", accessToken},
+            };
+            return HttpClient.Get<InstagramUserInfo>("https://api.instagram.com/v1/users/self", args, token);
+        }
+
+        protected Task<OperationResult<ModuleRecentMediaResult>> GetRecentMedia(SteepshotApiClient steepshotApiClient, string accessToken, CancellationToken token)
+        {
+            var args = new Dictionary<string, object>
+            {
+                {"access_token", accessToken},
+            };
+            return HttpClient.Get<ModuleRecentMediaResult>("https://api.instagram.com/v1/users/self/media/recent", args, token);
         }
 
         #region models for module
@@ -199,7 +254,8 @@ namespace Steepshot.Core.Integration
             public ModuleImage Images { get; set; }
 
             [JsonProperty("created_time")]
-            public string CreatedTime { get; set; }
+            [JsonConverter(typeof(UnixDateTimeConverter))]
+            public DateTime CreatedTime { get; set; }
 
             [JsonProperty("caption")]
             public ModuleCaption Caption { get; set; }
@@ -251,6 +307,34 @@ namespace Steepshot.Core.Integration
             public int Code { get; set; }
         }
 
+        protected class InstagramUserInfo
+        {
+            [JsonProperty("data")]
+            public UserData Data { get; set; }
+
+            [JsonProperty("meta")]
+            public ModuleMeta Meta { get; set; }
+        }
+
+        public class UserData
+        {
+            public string Id { get; set; }
+            public string Username { get; set; }
+            //public string ProfilePicture { get; set; }
+            //public string FullName { get; set; }
+            //public string Bio { get; set; }
+            //public string Website { get; set; }
+            public bool IsBusiness { get; set; }
+            public Counts Counts { get; set; }
+        }
+
+        public class Counts
+        {
+            public int Media { get; set; }
+            public int Follows { get; set; }
+            public int FollowedBy { get; set; }
+        }
+
         protected class ModuleRecentMediaResult
         {
             [JsonProperty("data")]
@@ -272,7 +356,7 @@ namespace Steepshot.Core.Integration
             public string Name { get; set; }
 
             [JsonProperty("id")]
-            public int Id { get; set; }
+            public object Id { get; set; }
         }
 
         #endregion

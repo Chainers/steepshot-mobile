@@ -40,9 +40,6 @@
     <AndroidTlsProvider>btls</AndroidTlsProvider>
     <AndroidLinkMode>None</AndroidLinkMode>
     <AndroidUseSharedRuntime>true</AndroidUseSharedRuntime>
-    <AotAssemblies>false</AotAssemblies>
-    <EnableLLVM>false</EnableLLVM>
-    <BundleAssemblies>false</BundleAssemblies>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugSymbols>True</DebugSymbols>
@@ -177,6 +174,8 @@
     <Compile Include="Activity\WelcomeActivity.cs" />
     <Compile Include="Activity\RegistrationActivity.cs" />
     <Compile Include="Fragment\PlagiarismCheckFragment.cs" />
+    <Compile Include="Services\BootBroadcastReceiver.cs" />
+    <Compile Include="Services\SocialReceiver.cs" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\values-v21\styles.xml">
@@ -196,6 +195,9 @@
     <AndroidResource Include="Resources\mipmap-xhdpi\ic_launcher.png" />
     <AndroidResource Include="Resources\mipmap-xxhdpi\ic_launcher.png" />
     <AndroidResource Include="Resources\mipmap-xxxhdpi\ic_launcher.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\instagramlogo.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\instagramlogo.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\instagramlogo.png" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\values-v21\styles.xml" />

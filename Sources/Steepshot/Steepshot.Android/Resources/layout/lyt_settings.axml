@@ -141,6 +141,67 @@
                 </LinearLayout>
             </LinearLayout>
             <LinearLayout
+                android:id="@+id/instagram_lyt"
+                android:layout_width="match_parent"
+                android:layout_height="70dp"
+                android:layout_marginTop="10dp"
+                android:paddingLeft="30dp"
+                android:paddingRight="30dp"
+                android:gravity="center_vertical"
+                android:background="@color/white">
+                <refractored.controls.CircleImageView
+                    android:id="@+id/instagram_avatar"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_marginRight="25dp"
+                    android:visibility="gone"
+                    android:src="@drawable/ic_holder" />
+                <TextView
+                    android:id="@+id/instagram_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/rgb15_24_30"
+                    android:textSize="14dp"
+                    android:layout_weight="1" />
+                <ImageView
+                    android:id="@+id/instagram_logo"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:visibility="gone"
+                    android:src="@drawable/instagramlogo" />
+                <RelativeLayout
+                    android:id="@+id/instagram_connect_lyt"
+                    android:layout_width="wrap_content"
+                    android:visibility="visible"
+                    android:layout_height="wrap_content">
+                    <Button
+                        android:id="@+id/instagram_button"
+                        android:layout_width="100dp"
+                        android:layout_height="30dp"
+                        android:textColor="@color/white"
+                        android:background="@drawable/orange_btn_style" />
+                    <ProgressBar
+                        android:id="@+id/instagram_spinner"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:indeterminateTintMode="src_atop"
+                        android:indeterminateTint="@color/white"
+                        android:layout_centerInParent="true"
+                        android:visibility="gone"
+                        android:elevation="10dp" />
+                </RelativeLayout>
+            </LinearLayout>
+            <TextView
+                android:id="@+id/instagram_description"
+                android:textSize="12sp"
+                android:textColor="@color/rgb151_155_158"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/light_gray_fa"
+                android:paddingLeft="30dp"
+                android:paddingRight="30dp"
+                android:layout_marginTop="7dp" />
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"

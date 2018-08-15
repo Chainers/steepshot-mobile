@@ -151,6 +151,15 @@ namespace Steepshot.Core.Clients
             return await HttpClient.Get<UserProfileResponse>(endpoint, parameters, token);
         }
 
+        public async Task<OperationResult<OtherAccountInfoResponse>> GetInstagramAccount(string accessToken, CancellationToken token)
+        {
+            if (!EnableRead)
+                return null;
+            var url = string.Format(Constants.InstagramInfoUrl, accessToken);
+            var result = await HttpClient.Get<OtherAccountInfoResponse>(url, token);
+            return result;
+        }
+
         public async Task<OperationResult<ListResponse<UserFriend>>> GetUserFriends(UserFriendsModel model, CancellationToken token)
         {
             if (!EnableRead)
@@ -297,6 +306,27 @@ namespace Steepshot.Core.Clients
             {
                 await AppSettings.Logger.Warning(ex);
             }
+            return null;
+        }
+
+        public async Task<OperationResult<VoidResponse>> Trace<T>(string endpoint, T arg, CancellationToken token)
+        { 
+            if(!EnableRead)
+                return null;
+            
+            try
+            {
+                endpoint = $"{BaseUrl}/{GatewayVersion.V1}/log/{endpoint}";
+                var result = await HttpClient.Post<VoidResponse, T>(endpoint, arg, token);
+                if (result.IsSuccess)
+                    result.Result = new VoidResponse();
+                return result;
+            }
+            catch (Exception ex)
+            { 
+                await AppSettings.Logger.Warning(ex);
+            }
+
             return null;
         }
 

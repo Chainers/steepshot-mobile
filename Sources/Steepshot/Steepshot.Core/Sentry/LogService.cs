@@ -44,7 +44,6 @@ namespace Steepshot.Core.Sentry
             await Send(ex, "info");
         }
 
-
         private async Task Send(Exception ex, string level)
         {
             try
