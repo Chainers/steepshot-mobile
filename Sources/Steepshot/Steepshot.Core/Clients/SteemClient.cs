@@ -267,7 +267,7 @@ namespace Steepshot.Core.Clients
             BaseOperation op;
             if (model.PowerAction == PowerAction.PowerUp)
             {
-                asset.FromOldFormat($"{model.Value} {Config.Steem}");
+                asset.FromOldFormat($"{model.Value.ToString(CultureInfo.InvariantCulture)} {Config.Steem}");
                 op = new TransferToVestingOperation(model.From, model.To, asset);
             }
             else
@@ -276,7 +276,7 @@ namespace Steepshot.Core.Clients
                 if (!vestsExchangeRatio.IsSuccess)
                     return new OperationResult<VoidResponse>(vestsExchangeRatio.Exception);
 
-                asset.FromOldFormat($"{(model.Value / vestsExchangeRatio.Result):F6} {Config.Vests}");
+                asset.FromOldFormat($"{(model.Value / vestsExchangeRatio.Result).ToString("F6", CultureInfo.InvariantCulture)} {Config.Vests}");
                 op = new WithdrawVestingOperation(model.Login, asset);
             }
 
@@ -312,10 +312,6 @@ namespace Steepshot.Core.Clients
         #region Get
         public override async Task<OperationResult<string>> GetVerifyTransaction(AuthorizedPostingModel model, CancellationToken ct)
         {
-            var isConnected = await TryReconnectChain(ct);
-            if (!isConnected)
-                return new OperationResult<string>(new ValidationException(LocalizationKeys.EnableConnectToBlockchain));
-
             var keys = ToKeyArr(model.PostingKey);
             if (keys == null)
                 return new OperationResult<string>(new ValidationException(LocalizationKeys.WrongPrivatePostingKey));

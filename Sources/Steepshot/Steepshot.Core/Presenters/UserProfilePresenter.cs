@@ -150,17 +150,18 @@ namespace Steepshot.Core.Presenters
             OperationResult<SubscriptionsModel> response;
             do
             {
-                response = await Api.CheckSubscriptions(CancellationToken.None);
+                response = await Api.CheckSubscriptions(AppSettings.User, CancellationToken.None);
 
                 if (response.IsSuccess)
                 {
                     AppSettings.User.PushSettings = response.Result.EnumSubscriptions;
                     SubscriptionsUpdated?.Invoke();
-                    break;
                 }
                 else
+                {
                     await Task.Delay(5000);
-            } while (response.IsSuccess);
+                }
+            } while (!response.IsSuccess);
         }
 
         #region IDisposable Support
