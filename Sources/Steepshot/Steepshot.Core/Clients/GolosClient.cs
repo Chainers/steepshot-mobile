@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -290,7 +291,7 @@ namespace Steepshot.Core.Clients
             Asset asset;
             if (model.PowerAction == PowerAction.PowerUp)
             {
-                asset = new Asset($"{model.Value} GOLOS");
+                asset = new Asset($"{model.Value.ToString(CultureInfo.InvariantCulture)} GOLOS");
                 op = new TransferToVestingOperation(model.From, model.To, asset);
             }
             else
@@ -299,7 +300,7 @@ namespace Steepshot.Core.Clients
                 if (!vestsExchangeRatio.IsSuccess)
                     return new OperationResult<VoidResponse>(vestsExchangeRatio.Exception);
 
-                asset = new Asset($"{(model.Value / vestsExchangeRatio.Result):F6} GESTS");
+                asset = new Asset($"{(model.Value / vestsExchangeRatio.Result).ToString("F6", CultureInfo.InvariantCulture)} GESTS");
                 op = new WithdrawVestingOperation(model.From, asset);
             }
 
