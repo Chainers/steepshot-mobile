@@ -49,6 +49,7 @@ namespace Steepshot.Fragment
                 return;
 
             base.OnViewCreated(view, savedInstanceState);
+            ToggleTabBar();
 
             _container.Visibility = ViewStates.Gone;
             _loadingBar.Visibility = ViewStates.Visible;
@@ -159,7 +160,7 @@ namespace Steepshot.Fragment
                 case ActionType.Edit:
                     {
                         ((BaseActivity)Activity).OpenNewContentFragment(new PostEditFragment(post));
-                        ((RootActivity)Activity)._tabLayout.Visibility = ViewStates.Gone;
+                        ToggleTabBar(true);
                         break;
                     }
                 case ActionType.Share:
@@ -179,15 +180,6 @@ namespace Steepshot.Fragment
                         StartActivity(intent);
                         break;
                     }
-            }
-        }
-
-        private void TagAction(string tag)
-        {
-            if (tag != null)
-            {
-                Activity.Intent.PutExtra(SearchFragment.SearchExtra, tag);
-                ((BaseActivity)Activity).OpenNewContentFragment(new PreSearchFragment());
             }
         }
     }
