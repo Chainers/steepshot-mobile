@@ -28,7 +28,6 @@ using System.Linq;
 using Android;
 using Android.Runtime;
 using WebSocketSharp;
-using OperationCanceledException = Android.OS.OperationCanceledException;
 
 namespace Steepshot.Activity
 {
@@ -266,7 +265,7 @@ namespace Steepshot.Activity
                 if (IsDestroyed)
                     return;
 
-                if (exception == null || exception is OperationCanceledException)
+                if (exception == null || exception is System.OperationCanceledException)
                 {
                     SetProfileChart(_tabLayout.LayoutParameters.Height);
                     break;
