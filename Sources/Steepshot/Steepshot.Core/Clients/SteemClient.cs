@@ -267,7 +267,7 @@ namespace Steepshot.Core.Clients
             BaseOperation op;
             if (model.PowerAction == PowerAction.PowerUp)
             {
-                asset.FromOldFormat($"{model.Value} {Config.Steem}");
+                asset.FromOldFormat($"{model.Value.ToString(CultureInfo.InvariantCulture)} {Config.Steem}");
                 op = new TransferToVestingOperation(model.From, model.To, asset);
             }
             else
@@ -276,7 +276,7 @@ namespace Steepshot.Core.Clients
                 if (!vestsExchangeRatio.IsSuccess)
                     return new OperationResult<VoidResponse>(vestsExchangeRatio.Exception);
 
-                asset.FromOldFormat($"{(model.Value / vestsExchangeRatio.Result):F6} {Config.Vests}");
+                asset.FromOldFormat($"{(model.Value / vestsExchangeRatio.Result).ToString("F6", CultureInfo.InvariantCulture)} {Config.Vests}");
                 op = new WithdrawVestingOperation(model.Login, asset);
             }
 
