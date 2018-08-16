@@ -208,6 +208,8 @@
         AmountLimitFull,
         Balance,
         PowerHint,
-        RecievedTransfers
+        RecievedTransfers,
+        TimeToClaimRewards,
+        RewardsClaimed
     }
 }

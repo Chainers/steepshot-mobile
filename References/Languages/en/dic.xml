@@ -313,4 +313,6 @@ About 6 inches away</string>
     <string name="[&quot;Balance&quot;]">Balance</string>
     <string name="[&quot;PowerHint&quot;]">Long press the heart under a post to see the scale</string>
     <string name="[&quot;RecievedTransfers&quot;]">Recieved transfers</string>
+    <string name="[&quot;RewardsClaimed&quot;]">Rewards successfully claimed!</string>
+    <string name="[&quot;TimeToClaimRewards&quot;]">Hello. It's time to claim rewards!</string>
 </resources>
