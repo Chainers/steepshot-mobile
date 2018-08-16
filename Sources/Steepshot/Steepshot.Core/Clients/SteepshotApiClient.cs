@@ -206,6 +206,7 @@ namespace Steepshot.Core.Clients
 
             while (result?.Result == null)
             {
+                Thread.Sleep(TimeSpan.FromSeconds(5));
                 endpoint = $"{BaseUrl}/{GatewayVersion.V1P1}/media/{uuid?.Result.UUID}/result";
                 result = await HttpClient.MediaUpload(endpoint, ct);
             }
