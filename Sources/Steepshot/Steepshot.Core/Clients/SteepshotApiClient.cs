@@ -251,6 +251,13 @@ namespace Steepshot.Core.Clients
             return await _ditchClient.UpdateUserProfile(model, ct);
         }
 
+        public async Task<OperationResult<VoidResponse>> UpdateUserPosts(string username, CancellationToken ct)
+        {
+            var endpoint = $"{BaseUrl}/{GatewayVersion.V1P1}/user/{username}/update";
+            var result = await HttpClient.Get<VoidResponse>(endpoint, ct);
+            return result;
+        }
+
         public async Task<OperationResult<object>> SubscribeForPushes(PushNotificationsModel model, CancellationToken ct)
         {
             var trxResp = await _ditchClient.GetVerifyTransaction(model, ct);

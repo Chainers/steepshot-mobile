@@ -204,6 +204,8 @@ namespace Steepshot.iOS.Views
 
         async void RefreshControl_ValueChanged(object sender, EventArgs e)
         {
+            await _presenter.TryUpdateUserPosts(AppSettings.User.Login);
+
             await RefreshPage();
             _refreshControl.EndRefreshing();
         }
