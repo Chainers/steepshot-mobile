@@ -5,7 +5,8 @@
     android:layout_height="match_parent"
     android:background="@drawable/popup_background"
     android:gravity="center"
-    android:padding="20dp">
+    android:padding="20dp"
+	android:animateLayoutChanges="true">
     <TextView
         android:id="@+id/title"
         android:layout_width="wrap_content"
@@ -97,6 +98,7 @@
         android:layout_marginTop="10dp"
         android:background="@color/rgb244_244_246" />
     <RelativeLayout
+		android:id="@+id/claimBtnContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp">
@@ -123,7 +125,7 @@
         android:textSize="14sp"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:gravity="center"
+        android:gravity="center"        
         android:background="@drawable/white_btn_style_edge_grey"
         android:layout_marginTop="10dp"
         android:layout_marginBottom="10dp"

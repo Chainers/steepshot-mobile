@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Ditch.Core;
 using Ditch.Core.JsonRpc;
+using Steepshot.Core.Authorization;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Models.Requests;
@@ -289,7 +289,7 @@ namespace Steepshot.Core.Clients
                     parameters.Add("target", target);
 
                 endpoint = $"{BaseUrl}/{GatewayVersion.V1}/log/{endpoint}";
-                var result = await HttpClient.Post<VoidResponse>(endpoint, parameters, token);
+                var result = await HttpClient.Put<VoidResponse, Dictionary<string, object>>(endpoint, parameters, token);
                 if (result.IsSuccess)
                     result.Result = new VoidResponse();
                 return result;
@@ -339,15 +339,7 @@ namespace Steepshot.Core.Clients
                 return new OperationResult<PreparePostResponse>(results);
 
             var endpoint = $"{BaseUrl}/{GatewayVersion.V1P1}/post/prepare";
-            return await HttpClient.Post<PreparePostResponse, PreparePostModel>(endpoint, model, ct);
-        }
-
-        public async Task<OperationResult<NsfwRate>> NsfwCheck(Stream stream, CancellationToken token)
-        {
-            if (!EnableRead)
-                return null;
-
-            return await HttpClient.NsfwCheck(stream, token);
+            return await HttpClient.Put<PreparePostResponse, PreparePostModel>(endpoint, model, ct);
         }
 
         public async Task<OperationResult<CreateAccountResponse>> CreateAccount(CreateAccountModel model, CancellationToken token)
@@ -407,12 +399,12 @@ namespace Steepshot.Core.Clients
             return null;
         }
 
-        public async Task<OperationResult<SubscriptionsModel>> CheckSubscriptions(CancellationToken token)
+        public async Task<OperationResult<SubscriptionsModel>> CheckSubscriptions(User user, CancellationToken token)
         {
-            if (!EnableRead)
-                return null;
+            if (!EnableRead || !user.HasPostingPermission || string.IsNullOrEmpty(user.PushesPlayerId))
+                return new OperationResult<SubscriptionsModel>(new NullReferenceException(nameof(user.PushesPlayerId)));
 
-            var endpoint = $"{BaseUrl}/{GatewayVersion.V1P1}/subscriptions/{AppSettings.User.Login}/{ AppSettings.User.PushesPlayerId}";
+            var endpoint = $"{BaseUrl}/{GatewayVersion.V1P1}/subscriptions/{user.Login}/{user.PushesPlayerId}";
             return await HttpClient.Get<SubscriptionsModel>(endpoint, token);
         }
     }

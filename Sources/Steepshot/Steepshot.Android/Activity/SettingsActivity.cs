@@ -267,7 +267,7 @@ namespace Steepshot.Activity
 
         private async Task SavePushSettings()
         {
-            if (AppSettings.User.PushSettings == PushSettings)
+            if (AppSettings.User.PushSettings == PushSettings || !AppSettings.User.HasPostingPermission)
                 return;
 
             var model = new PushNotificationsModel(AppSettings.User.UserInfo, true)
