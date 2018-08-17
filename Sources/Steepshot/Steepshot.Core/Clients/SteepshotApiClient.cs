@@ -200,18 +200,21 @@ namespace Steepshot.Core.Clients
                 return new OperationResult<MediaModel>(results);
 
             var endpoint = $"https://media.steepshot.org/api/v1/upload";
-            var uuid = await HttpClient.UUID(endpoint, model, ct);
+            var uuid = await HttpClient.MediaUpload(endpoint, model, ct);
 
-            OperationResult<MediaModel> result = null;
+            if (!uuid.IsSuccess)
+                return new OperationResult<MediaModel>(uuid.Exception);
 
-            while (result?.Result == null)
+            endpoint = $"{BaseUrl}/{GatewayVersion.V1P1}/media/{uuid?.Result.UUID}/result";
+
+            do
             {
-                Thread.Sleep(TimeSpan.FromSeconds(5));
-                endpoint = $"{BaseUrl}/{GatewayVersion.V1P1}/media/{uuid?.Result.UUID}/result";
-                result = await HttpClient.MediaUpload(endpoint, ct);
-            }
+                var result = await HttpClient.Get<MediaModel>(endpoint, ct);
+                if (result.IsSuccess)
+                    return result;
 
-            return result;
+                await Task.Delay(5000, ct);
+            } while (true);
         }
 
         public async Task<OperationResult<VoidResponse>> DeletePostOrComment(DeleteModel model, CancellationToken ct)

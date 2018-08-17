@@ -71,7 +71,7 @@ namespace Steepshot.Core.Clients
             return await CreateResult<T>(response, token);
         }
 
-        public async Task<OperationResult<UUIDModel>> UUID(string url, UploadMediaModel model, CancellationToken token)
+        public async Task<OperationResult<UUIDModel>> MediaUpload(string url, UploadMediaModel model, CancellationToken token)
         {
             var fTitle = Guid.NewGuid().ToString();
 
@@ -91,13 +91,6 @@ namespace Steepshot.Core.Clients
             if (result.IsSuccess && result.Result == null)
                 result.Exception = new ValidationException(LocalizationKeys.ServeUnexpectedError);
 
-            return result;
-        }
-
-        public async Task<OperationResult<MediaModel>> MediaUpload(string url, CancellationToken token)
-        {
-            var response = await GetAsync(url, token);
-            var result = await CreateResult<MediaModel>(response, token);
             return result;
         }
 
