@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Android.Animation;
 using Android.Content;
 using Android.Graphics;
 using Android.Support.Design.Widget;
@@ -36,7 +37,7 @@ namespace Steepshot.CustomViews
 
         public override void Show()
         {
-            using (var dialogView = LayoutInflater.From(Context).Inflate(Resource.Layout.lyt_claim_rewards, null))
+            using (var dialogView = (LinearLayout)LayoutInflater.From(Context).Inflate(Resource.Layout.lyt_claim_rewards, null))
             {
                 dialogView.SetMinimumWidth((int)(Context.Resources.DisplayMetrics.WidthPixels * 0.8));
 
@@ -90,6 +91,10 @@ namespace Steepshot.CustomViews
                 closeBtn.Click += CloseBtnOnClick;
 
                 _claimSpinner = dialogView.FindViewById<ProgressBar>(Resource.Id.claim_spinner);
+
+                LayoutTransition transition = new LayoutTransition();
+                transition.SetAnimateParentHierarchy(false);
+                dialogView.LayoutTransition = transition;
 
                 SetContentView(dialogView);
                 Window.FindViewById(Resource.Id.design_bottom_sheet).SetBackgroundColor(Color.Transparent);

@@ -297,14 +297,7 @@ namespace Steepshot.Fragment
 
         private async Task<Exception> Claim(BalanceModel balance)
         {
-            var exception = await Presenter.TryClaimRewards(balance);
-            if (exception == null)
-            {
-                TryUpdateBalance(balance);
-                return null;
-            }
-
-            return exception;
+            return await Presenter.TryClaimRewards(balance);
         }
 
         private void OnPageTransforming(TokenCardHolder fromCard, TokenCardHolder toCard, float progress)
@@ -328,14 +321,20 @@ namespace Steepshot.Fragment
             var toHasClaimRewards = toCard.Balance.RewardSteem > 0 || toCard.Balance.RewardSp > 0 ||
                                     toCard.Balance.RewardSbd > 0;
 
-            if (fromHasClaimRewards && !toHasClaimRewards || !fromHasClaimRewards && toHasClaimRewards)
+            if (!fromHasClaimRewards && !toHasClaimRewards)
+            {
+                _claimBtn.Visibility = ViewStates.Gone;
+                return;
+            }
+
+            if (fromHasClaimRewards && !toHasClaimRewards || !fromHasClaimRewards)
             {
                 _claimBtn.Alpha = 1 - progress;
                 _claimBtn.Visibility = _claimBtn.Alpha <= 0.1 ? ViewStates.Gone : ViewStates.Visible;
             }
             else
             {
-                _claimBtn.Visibility = fromHasClaimRewards ? ViewStates.Visible : ViewStates.Gone;
+                _claimBtn.Visibility = ViewStates.Visible;
             }
         }
     }

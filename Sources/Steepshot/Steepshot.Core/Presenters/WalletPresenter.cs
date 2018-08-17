@@ -92,6 +92,19 @@ namespace Steepshot.Core.Presenters
         {
             var claimRewardsModel = new ClaimRewardsModel(balance.UserInfo, balance.RewardSteem, balance.RewardSp, balance.RewardSbd);
             var response = await TryRunTask<ClaimRewardsModel, VoidResponse>(ClaimRewards, CancellationToken.None, claimRewardsModel);
+            if (response.IsSuccess)
+            {
+                Balances.ForEach(x =>
+                {
+                    if (x.CurrencyType == balance.CurrencyType &&
+                        x.UserInfo.Login.Equals(balance.UserInfo.Login, StringComparison.OrdinalIgnoreCase))
+                    {
+                        x.RewardSteem = x.RewardSbd = x.RewardSp = 0;
+                    }
+                });
+                await TryUpdateAccountInfo(balance.UserInfo);
+            }
+
             return response.Exception;
         }
 
