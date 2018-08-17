@@ -71,7 +71,7 @@ namespace Steepshot.Core.Clients
             return await CreateResult<T>(response, token);
         }
 
-        public async Task<OperationResult<UUIDModel>> MediaUpload(string url, UploadMediaModel model, CancellationToken token)
+        public async Task<OperationResult<UUIDModel>> UploadMedia(string url, UploadMediaModel model, CancellationToken token)
         {
             var fTitle = Guid.NewGuid().ToString();
 

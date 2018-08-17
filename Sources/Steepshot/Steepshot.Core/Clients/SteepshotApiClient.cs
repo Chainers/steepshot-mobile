@@ -200,7 +200,7 @@ namespace Steepshot.Core.Clients
                 return new OperationResult<MediaModel>(results);
 
             var endpoint = $"https://media.steepshot.org/api/v1/upload";
-            var uuid = await HttpClient.MediaUpload(endpoint, model, ct);
+            var uuid = await HttpClient.UploadMedia(endpoint, model, ct);
 
             if (!uuid.IsSuccess)
                 return new OperationResult<MediaModel>(uuid.Exception);
