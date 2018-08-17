@@ -90,6 +90,10 @@ namespace Steepshot.Core.Presenters
             return response.Exception;
         }
 
+        public async Task<Clients.BaseServerClient.PromoteResponse> FindPromoteBot(Clients.BaseServerClient.PromoteRequest r)
+        {
+            return await Api.FindPromoteBot(r);
+        }
 
         public void HidePost(Post post)
         {

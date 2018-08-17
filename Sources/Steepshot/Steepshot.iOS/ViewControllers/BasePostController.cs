@@ -4,15 +4,18 @@ using System.Threading.Tasks;
 using CoreGraphics;
 using Foundation;
 using PureLayout.Net;
+using Steepshot.Core;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models;
 using Steepshot.Core.Models.Common;
+using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 using Steepshot.iOS.CustomViews;
 using Steepshot.iOS.Helpers;
 using Steepshot.iOS.Views;
 using UIKit;
+using Constants = Steepshot.iOS.Helpers.Constants;
 
 namespace Steepshot.iOS.ViewControllers
 {
@@ -69,10 +72,365 @@ namespace Steepshot.iOS.ViewControllers
                 actionSheetAlert.AddAction(UIAlertAction.Create(AppSettings.LocalizationManager.GetText(LocalizationKeys.FlagPhoto), UIAlertActionStyle.Default, obj => FlagPhoto(post)));
                 actionSheetAlert.AddAction(UIAlertAction.Create(AppSettings.LocalizationManager.GetText(LocalizationKeys.HidePhoto), UIAlertActionStyle.Default, obj => HidePhoto(post)));
             }
+            actionSheetAlert.AddAction(UIAlertAction.Create("Promote", UIAlertActionStyle.Default, obj => PromotePost(post)));
             //Sharepost contain copylink function by default
             actionSheetAlert.AddAction(UIAlertAction.Create(AppSettings.LocalizationManager.GetText(LocalizationKeys.Sharepost), UIAlertActionStyle.Default, obj => SharePhoto(post)));
             actionSheetAlert.AddAction(UIAlertAction.Create("Cancel", UIAlertActionStyle.Cancel, null));
             PresentViewController(actionSheetAlert, true, null);
+        }
+
+        private List<CurrencyType> _coins;
+        private CurrencyType _pickedCoin = CurrencyType.Steem;
+
+        protected void PromotePost(Post post)
+        {
+            _pickedCoin = CurrencyType.Steem;
+            _coins = new List<CurrencyType>();
+            switch (AppSettings.User.Chain)
+            {
+                case KnownChains.Steem:
+                    _coins.AddRange(new[] { CurrencyType.Steem, CurrencyType.Sbd });
+                    break;
+                case KnownChains.Golos:
+                    _coins.AddRange(new[] { CurrencyType.Golos, CurrencyType.Gbg });
+                    break;
+            }
+
+            var popup = new UIView();
+            popup.ClipsToBounds = true;
+            popup.Layer.CornerRadius = 20;
+            popup.BackgroundColor = Constants.R255G255B255;
+
+            var _alert = new CustomAlertView(popup, TabBarController.NavigationController);
+
+            var dialogWidth = UIScreen.MainScreen.Bounds.Width - 10 * 2;
+            popup.AutoSetDimension(ALDimension.Width, dialogWidth);
+
+            var commonMargin = 20;
+
+            var title = new UILabel();
+            title.Font = Constants.Semibold14;
+            title.Text = "Promote post";
+            title.TextAlignment = UITextAlignment.Center;
+            popup.AddSubview(title);
+            title.AutoPinEdgeToSuperviewEdge(ALEdge.Top);
+            title.AutoPinEdgeToSuperviewEdge(ALEdge.Left);
+            title.AutoPinEdgeToSuperviewEdge(ALEdge.Right);
+            title.AutoSetDimension(ALDimension.Height, 70);
+
+            var topSeparator = new UIView();
+            topSeparator.BackgroundColor = Constants.R245G245B245;
+            popup.AddSubview(topSeparator);
+
+            topSeparator.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, title);
+            topSeparator.AutoPinEdgeToSuperviewEdge(ALEdge.Left, commonMargin);
+            topSeparator.AutoPinEdgeToSuperviewEdge(ALEdge.Right, commonMargin);
+            topSeparator.AutoSetDimension(ALDimension.Height, 1);
+
+            var container = new UIView();
+            popup.AddSubview(container);
+
+            container.AutoSetDimension(ALDimension.Height, 142);
+            container.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, topSeparator);
+            container.AutoPinEdgeToSuperviewEdge(ALEdge.Left, commonMargin);
+            container.AutoPinEdgeToSuperviewEdge(ALEdge.Right, commonMargin);
+
+            var promotionLabel = new UILabel();
+            promotionLabel.Text = "Amount";
+            promotionLabel.Font = Constants.Semibold14;
+
+            container.AddSubview(promotionLabel);
+
+            promotionLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Top, 27);
+            promotionLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Left);
+
+            var balanceLabel = new UILabel();
+            balanceLabel.Text = "Balance: 43534534";
+            balanceLabel.Font = Constants.Semibold14;
+            balanceLabel.TextColor = Constants.R151G155B158;
+            balanceLabel.TextAlignment = UITextAlignment.Right;
+
+            container.AddSubview(balanceLabel);
+
+            balanceLabel.AutoAlignAxis(ALAxis.Horizontal, promotionLabel);
+            balanceLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Right);
+            balanceLabel.AutoPinEdge(ALEdge.Left, ALEdge.Right, promotionLabel, 5);
+            balanceLabel.SetContentHuggingPriority(1, UILayoutConstraintAxis.Horizontal);
+
+            var rightView = new UIView();
+            container.AddSubview(rightView);
+            rightView.AutoSetDimension(ALDimension.Height, 50);
+
+            UIImageView pickerImage = new UIImageView(UIImage.FromBundle("ic_currency_picker.png"));
+            rightView.AddSubview(pickerImage);
+            pickerImage.AutoAlignAxisToSuperviewAxis(ALAxis.Horizontal);
+            pickerImage.AutoPinEdgeToSuperviewEdge(ALEdge.Right);
+
+            UILabel _pickerLabel = new UILabel();
+            _pickerLabel.Text = "STEEM";
+            _pickerLabel.TextAlignment = UITextAlignment.Center;
+            _pickerLabel.Font = Constants.Semibold14;
+            _pickerLabel.TextColor = Constants.R255G71B5;
+            rightView.AddSubview(_pickerLabel);
+            _pickerLabel.AutoAlignAxisToSuperviewAxis(ALAxis.Horizontal);
+            _pickerLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Left);
+            _pickerLabel.AutoPinEdge(ALEdge.Right, ALEdge.Left, pickerImage, -5);
+
+            rightView.LayoutIfNeeded();
+
+            var _amountTextField = new SearchTextField(AppSettings.LocalizationManager.GetText(LocalizationKeys.TransferAmountHint),
+                                                       new UIEdgeInsets(0, 20, 0, 5), new AmountFieldDelegate(), false, rightView);
+            _amountTextField.KeyboardType = UIKeyboardType.DecimalPad;
+            _amountTextField.Layer.CornerRadius = 25;
+            container.AddSubview(_amountTextField);
+
+            _amountTextField.AutoPinEdgeToSuperviewEdge(ALEdge.Left);
+            _amountTextField.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, promotionLabel, 16);
+            _amountTextField.AutoSetDimension(ALDimension.Height, 50);
+
+            var max = new UIButton();
+            max.SetTitle(AppSettings.LocalizationManager.GetText(LocalizationKeys.Max), UIControlState.Normal);
+            max.SetTitleColor(UIColor.Black, UIControlState.Normal);
+            max.Font = Constants.Semibold14;
+            max.Layer.BorderWidth = 1;
+            max.Layer.BorderColor = Constants.R245G245B245.CGColor;
+            max.Layer.CornerRadius = 25;
+
+            container.AddSubview(max);
+
+            max.AutoPinEdgeToSuperviewEdge(ALEdge.Right);
+            max.AutoPinEdge(ALEdge.Left, ALEdge.Right, _amountTextField, 10);
+            max.AutoSetDimensionsToSize(new CGSize(80, 50));
+            max.AutoAlignAxis(ALAxis.Horizontal, _amountTextField);
+            max.TouchDown += MaxBtnOnClick;
+
+            rightView.AutoAlignAxis(ALAxis.Horizontal, _amountTextField);
+            rightView.AutoPinEdge(ALEdge.Right, ALEdge.Right, _amountTextField);
+            container.BringSubviewToFront(rightView);
+
+            UIPickerView picker = new UIPickerView();
+            picker.Select(_coins.IndexOf(_pickedCoin), 0, true);
+            picker.Model = new CoinPickerViewModel(_coins);
+            picker.BackgroundColor = Constants.R255G255B255;
+            popup.AddSubview(picker);
+
+            picker.AutoMatchDimension(ALDimension.Height, ALDimension.Height, container);
+            picker.AutoMatchDimension(ALDimension.Width, ALDimension.Width, container);
+            picker.AutoPinEdge(ALEdge.Top, ALEdge.Top, container);
+            var pickerHidden = picker.AutoPinEdge(ALEdge.Right, ALEdge.Left, container, -20);
+            var pickerVisible = picker.AutoPinEdge(ALEdge.Right, ALEdge.Right, container);
+            pickerVisible.Active = false;
+
+            var promoteContainer = new UIView();
+            promoteContainer.BackgroundColor = Constants.R255G255B255;
+            popup.AddSubview(promoteContainer);
+
+            promoteContainer.AutoMatchDimension(ALDimension.Height, ALDimension.Height, container);
+            promoteContainer.AutoMatchDimension(ALDimension.Width, ALDimension.Width, container);
+            promoteContainer.AutoPinEdge(ALEdge.Top, ALEdge.Top, container);
+            var promoteHidden = promoteContainer.AutoPinEdge(ALEdge.Left, ALEdge.Right, container, 20);
+            var promoteVisible = promoteContainer.AutoPinEdge(ALEdge.Left, ALEdge.Left, container);
+            promoteVisible.Active = false;
+
+            var avatar = new UIImageView();
+            avatar.Layer.CornerRadius = 20;
+            avatar.ClipsToBounds = true;
+            promoteContainer.AddSubview(avatar);
+
+            avatar.AutoPinEdgeToSuperviewEdge(ALEdge.Top, 16);
+            avatar.AutoPinEdgeToSuperviewEdge(ALEdge.Left);
+            avatar.AutoSetDimensionsToSize(new CGSize(40, 40));
+
+            var promoterLogin = new UILabel();
+            promoterLogin.Font = Constants.Semibold14;
+            promoterLogin.TextColor = Constants.R255G34B5;
+            promoteContainer.AddSubview(promoterLogin);
+
+            promoterLogin.AutoPinEdge(ALEdge.Left, ALEdge.Right, avatar, 20);
+            promoterLogin.AutoPinEdgeToSuperviewEdge(ALEdge.Right);
+            promoterLogin.AutoAlignAxis(ALAxis.Horizontal, avatar);
+
+            var expectedTimeBackground = new UIView();
+            expectedTimeBackground.Layer.CornerRadius = 10;
+            expectedTimeBackground.BackgroundColor = Constants.R250G250B250;
+            promoteContainer.AddSubview(expectedTimeBackground);
+
+            expectedTimeBackground.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, avatar, 15);
+            expectedTimeBackground.AutoPinEdgeToSuperviewEdge(ALEdge.Left);
+            expectedTimeBackground.AutoPinEdgeToSuperviewEdge(ALEdge.Right);
+            expectedTimeBackground.AutoSetDimension(ALDimension.Height, 50);
+
+            var expectedTimeLabel = new UILabel();
+            expectedTimeLabel.Text = "Expected vote time";
+            expectedTimeLabel.Font = Constants.Regular14;
+            expectedTimeBackground.AddSubview(expectedTimeLabel);
+
+            expectedTimeLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Left, DeviceHelper.IsSmallDevice ? 10 : 20);
+            expectedTimeLabel.AutoAlignAxisToSuperviewAxis(ALAxis.Horizontal);
+
+            var expectedTimeValue = new UILabel();
+            expectedTimeValue.TextAlignment = UITextAlignment.Right;
+            expectedTimeValue.Font = Constants.Light20;
+            expectedTimeBackground.AddSubview(expectedTimeValue);
+
+            expectedTimeValue.AutoPinEdge(ALEdge.Left, ALEdge.Right, expectedTimeLabel);
+            expectedTimeValue.AutoPinEdgeToSuperviewEdge(ALEdge.Right, DeviceHelper.IsSmallDevice ? 10 : 20);
+            expectedTimeValue.AutoAlignAxisToSuperviewAxis(ALAxis.Horizontal);
+
+            var separator = new UIView();
+            separator.BackgroundColor = Constants.R245G245B245;
+            popup.AddSubview(separator);
+
+            separator.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, container);
+            separator.AutoPinEdgeToSuperviewEdge(ALEdge.Left, commonMargin);
+            separator.AutoPinEdgeToSuperviewEdge(ALEdge.Right, commonMargin);
+            separator.AutoSetDimension(ALDimension.Height, 1);
+
+            var selectButton = new UIButton();
+            selectButton.SetTitle(string.Empty, UIControlState.Disabled);
+            selectButton.SetTitle("FIND PROMOTER", UIControlState.Normal);
+            selectButton.SetTitleColor(UIColor.White, UIControlState.Normal);
+            selectButton.Layer.CornerRadius = 25;
+            selectButton.Font = Constants.Bold14;
+            popup.AddSubview(selectButton);
+
+            selectButton.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, separator, 20);
+            selectButton.AutoPinEdgeToSuperviewEdge(ALEdge.Right, commonMargin);
+            selectButton.AutoPinEdgeToSuperviewEdge(ALEdge.Left, commonMargin);
+            selectButton.AutoSetDimension(ALDimension.Height, 50);
+            selectButton.LayoutIfNeeded();
+
+            var loader = new UIActivityIndicatorView();
+            loader.ActivityIndicatorViewStyle = UIActivityIndicatorViewStyle.White;
+            loader.HidesWhenStopped = true;
+
+            selectButton.AddSubview(loader);
+
+            loader.AutoCenterInSuperview();
+
+            var tap = new UITapGestureRecognizer(() =>
+            {
+                pickerHidden.Active = false;
+                pickerVisible.Active = true;
+
+                UIView.Animate(0.2, 0, UIViewAnimationOptions.CurveEaseIn, () =>
+                  {
+                      popup.LayoutIfNeeded();
+                  }, () =>
+                  {
+                      title.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.SelectToken);
+                      selectButton.SetTitle(AppSettings.LocalizationManager.GetText(LocalizationKeys.Select), UIControlState.Normal);
+                  });
+            });
+
+            rightView.AddGestureRecognizer(tap);
+
+            var cancelButton = new UIButton();
+            cancelButton.SetTitle(AppSettings.LocalizationManager.GetText(LocalizationKeys.Close), UIControlState.Normal);
+            cancelButton.SetTitleColor(UIColor.Black, UIControlState.Normal);
+            cancelButton.Layer.CornerRadius = 25;
+            cancelButton.Font = Constants.Semibold14;
+            cancelButton.Layer.BorderWidth = 1;
+            cancelButton.Layer.BorderColor = Constants.R245G245B245.CGColor;
+            popup.AddSubview(cancelButton);
+
+            cancelButton.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, selectButton, 20);
+            cancelButton.AutoPinEdgeToSuperviewEdge(ALEdge.Left, commonMargin);
+            cancelButton.AutoPinEdgeToSuperviewEdge(ALEdge.Right, commonMargin);
+            cancelButton.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom, commonMargin);
+            cancelButton.AutoSetDimension(ALDimension.Height, 50);
+
+            NavigationController.View.EndEditing(true);
+
+            selectButton.TouchDown += async (sender, e) =>
+            {
+                if (pickerVisible.Active)
+                {
+                    _pickedCoin = _coins[(int)picker.SelectedRowInComponent(0)];
+                    _pickerLabel.Text = _pickedCoin.ToString().ToUpper();
+                    //_transferFacade.UserBalance = AppSettings.User.AccountInfo?.Balances?.First(b => b.CurrencyType == pickedCoin);
+
+                    pickerHidden.Active = true;
+                    pickerVisible.Active = false;
+                    UIView.Animate(0.5, () =>
+                    {
+                        popup.LayoutIfNeeded();
+                    }, () =>
+                    {
+                        title.Text = "Promote post";
+                        selectButton.SetTitle("FIND PROMOTER", UIControlState.Normal);
+                        _amountTextField.UpdateRightViewRect();
+                    });
+                }
+                else if(promoteVisible.Active)
+                {
+                    var steemPermlink = $"https://steemit.com{post.Url}";
+                }
+                else
+                {
+                    selectButton.Enabled = false;
+                    loader.StartAnimating();
+
+                    var pr = new Core.Clients.BaseServerClient.PromoteRequest()
+                    {
+                        Amount = double.Parse(_amountTextField.Text),
+                        CurrencyType = _pickedCoin,
+                        PostToPromote = post,
+                    };
+
+                    var promouter = await _presenter.FindPromoteBot(pr);
+
+                    if (promouter != null)
+                    {
+                        expectedTimeValue.Text = promouter.ExpectedUpvoteTime.ToString();
+                        promoterLogin.Text = $"@{promouter.Bot.Author}";
+
+                        if (!string.IsNullOrEmpty(promouter.Bot.Avatar))
+                            ImageLoader.Load(promouter.Bot.Avatar, avatar, size: new CGSize(300, 300));
+                        else
+                            avatar.Image = UIImage.FromBundle("ic_noavatar");
+
+                        promoteHidden.Active = false;
+                        promoteVisible.Active = true;
+                        UIView.Animate(0.2, 0, UIViewAnimationOptions.CurveEaseIn, () =>
+                        {
+                            popup.LayoutIfNeeded();
+                        }, () =>
+                        {
+                            selectButton.Enabled = true;
+                            loader.StopAnimating();
+                            title.Text = "Promoter found";
+                            selectButton.SetTitle("PROMOTE", UIControlState.Normal);
+                        });
+                    }
+                }
+            };
+            cancelButton.TouchDown += (sender, e) => { _alert.Hide(); };
+
+            var popuptap = new UITapGestureRecognizer(() =>
+            {
+                _amountTextField.ResignFirstResponder();
+            });
+            popup.AddGestureRecognizer(popuptap);
+
+            Constants.CreateGradient(selectButton, 25);
+            Constants.CreateShadowFromZeplin(selectButton, Constants.R231G72B0, 0.3f, 0, 10, 20, 0);
+            popup.BringSubviewToFront(selectButton);
+
+            _alert.Show();
+        }
+
+        private void MaxBtnOnClick(object sender, EventArgs e)
+        {
+            //_amount.Text = 
+
+        }
+
+        private void CoinSelected(CurrencyType pickedCoin)
+        {
+            _pickedCoin = pickedCoin;
+            //_pickerLabel.Text = _pickedCoin.ToString().ToUpper();
+            //_transferFacade.UserBalance = AppSettings.User.AccountInfo?.Balances?.First(b => b.CurrencyType == pickedCoin);
         }
 
         protected void HidePhoto(Post post)
@@ -118,6 +476,8 @@ namespace Steepshot.iOS.ViewControllers
 
         private void DeleteAlert(Post post)
         {
+            CustomAlertView _alert = null;
+
             if (_alert == null)
             {
                 var titleText = AppSettings.LocalizationManager.GetText(LocalizationKeys.DeleteAlertTitle);
@@ -220,8 +580,6 @@ namespace Steepshot.iOS.ViewControllers
             }
             _alert.Show();
         }
-
-        private CustomAlertView _alert; 
 
         private async void DeletePost(Post post, Action action)
         {
