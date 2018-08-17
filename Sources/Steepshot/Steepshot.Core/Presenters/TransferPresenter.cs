@@ -8,7 +8,7 @@ using Steepshot.Core.Models.Requests;
 
 namespace Steepshot.Core.Presenters
 {
-    public class TransferPresenter : BasePresenter
+    public class TransferPresenter : PreSignInPresenter
     {
         public async Task<OperationResult<VoidResponse>> TryTransfer(UserInfo userInfo, string recipient, string amount, CurrencyType type, string memo = null)
         {

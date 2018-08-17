@@ -450,6 +450,7 @@ namespace Steepshot.Core.Clients
                         RewardSbd = acc.RewardSbdBalance.ToDouble(),
                         DelegatedToMe = acc.ReceivedVestingShares.ToDouble()  * vestsExchangeRatio.Result,
                         DelegatedByMe = acc.DelegatedVestingShares.ToDouble()  * vestsExchangeRatio.Result,
+                        ToWithdraw = long.Parse(acc.ToWithdraw.ToString()) / 10e5 * vestsExchangeRatio.Result
                     },
                     new BalanceModel(acc.SbdBalance.ToDouble(), 3, CurrencyType.Sbd)
                     {
@@ -459,6 +460,7 @@ namespace Steepshot.Core.Clients
                         RewardSbd = acc.RewardSbdBalance.ToDouble(),
                         DelegatedToMe = acc.ReceivedVestingShares.ToDouble() * vestsExchangeRatio.Result,
                         DelegatedByMe = acc.DelegatedVestingShares.ToDouble() * vestsExchangeRatio.Result,
+                        ToWithdraw = long.Parse(acc.ToWithdraw.ToString()) / 10e5 * vestsExchangeRatio.Result
                     }
                 }
             };

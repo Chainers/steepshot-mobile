@@ -9,7 +9,6 @@ namespace Steepshot.Core.Facades
 {
     public sealed class TransferFacade
     {
-        private readonly PreSignInPresenter _preSignInPresenter;
         public UserFriendPresenter UserFriendPresenter { get; }
         public TransferPresenter TransferPresenter { get; }
         public Action OnUserBalanceChanged;
@@ -40,7 +39,6 @@ namespace Steepshot.Core.Facades
         public TransferFacade()
         {
             UserFriendPresenter = new UserFriendPresenter();
-            _preSignInPresenter = new PreSignInPresenter();
             TransferPresenter = new TransferPresenter();
         }
 
@@ -48,7 +46,6 @@ namespace Steepshot.Core.Facades
         {
             UserFriendPresenter.SetClient(client);
             TransferPresenter.SetClient(client);
-            _preSignInPresenter.SetClient(client);
         }
 
 
@@ -56,12 +53,12 @@ namespace Steepshot.Core.Facades
         public async Task<Exception> TryLoadNextSearchUser(string query) => await UserFriendPresenter.TryLoadNextSearchUser(query);
         public async Task<OperationResult<AccountInfoResponse>> TryGetAccountInfo(string login)
         {
-            return await _preSignInPresenter.TryGetAccountInfo(login);
+            return await TransferPresenter.TryGetAccountInfo(login);
         }
 
         public void TasksCancel()
         {
-            _preSignInPresenter.TasksCancel();
+            TransferPresenter.TasksCancel();
             UserFriendPresenter.TasksCancel();
         }
     }

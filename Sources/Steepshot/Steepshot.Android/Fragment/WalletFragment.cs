@@ -15,6 +15,7 @@ using Steepshot.Activity;
 using Steepshot.Adapter;
 using Steepshot.Base;
 using Steepshot.Core.Authorization;
+using Steepshot.Core.Extensions;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
@@ -201,24 +202,54 @@ namespace Steepshot.Fragment
 
         private void MoreBtnOnClick(object sender, EventArgs e)
         {
-            var moreDialog = new WalletExtraDialog((BaseActivity)Activity);
-            moreDialog.PowerUp += PowerUp;
-            moreDialog.PowerDown += PowerDown;
+            var moreDialog = new WalletExtraDialog(Activity, Presenter.Balances[_walletPager.CurrentItem]);
+            moreDialog.ExtraAction += ExtraAction;
             moreDialog.Show();
         }
 
-        private void PowerUp()
+        private void ExtraAction(PowerAction action)
         {
-            var powerUpFrag = new PowerUpDownFragment(Presenter.Balances[_walletPager.CurrentItem], PowerAction.PowerUp);
-            powerUpFrag.SetTargetFragment(this, WalletFragmentPowerUpOrDownRequestCode);
-            ((BaseActivity)Activity).OpenNewContentFragment(powerUpFrag);
+            switch (action)
+            {
+                case PowerAction.PowerUp:
+                case PowerAction.PowerDown:
+                    var powerUpOrDownFrag = new PowerUpDownFragment(Presenter.Balances[_walletPager.CurrentItem], action);
+                    powerUpOrDownFrag.SetTargetFragment(this, WalletFragmentPowerUpOrDownRequestCode);
+                    ((BaseActivity)Activity).OpenNewContentFragment(powerUpOrDownFrag);
+                    break;
+                case PowerAction.CancelPowerDown:
+                    var alertAction = new ActionAlertDialog(Activity, string.Format(AppSettings.LocalizationManager.GetText(LocalizationKeys.CancelPowerDownAlert), Presenter.Balances[_walletPager.CurrentItem].ToWithdraw.ToBalanceValueString()),
+                        string.Empty, AppSettings.LocalizationManager.GetText(LocalizationKeys.Yes),
+                        AppSettings.LocalizationManager.GetText(LocalizationKeys.No));
+                    alertAction.AlertAction += () =>
+                    {
+                        var userInfo = Presenter.Balances[_walletPager.CurrentItem].UserInfo;
+                        if (string.IsNullOrEmpty(userInfo.ActiveKey))
+                        {
+                            var intent = new Intent(Activity, typeof(ActiveSignInActivity));
+                            intent.PutExtra(ActiveSignInActivity.ActiveSignInUserName, userInfo.Login);
+                            intent.PutExtra(ActiveSignInActivity.ActiveSignInChain, (int)userInfo.Chain);
+                            StartActivityForResult(intent, ActiveSignInActivity.ActiveKeyRequestCode);
+                            return;
+                        }
+
+                        CancelPowerDown();
+                    };
+                    alertAction.Show();
+                    break;
+            }
         }
 
-        private void PowerDown()
+        private async void CancelPowerDown()
         {
-            var powerDownFrag = new PowerUpDownFragment(Presenter.Balances[_walletPager.CurrentItem], PowerAction.PowerDown);
-            powerDownFrag.SetTargetFragment(this, WalletFragmentPowerUpOrDownRequestCode);
-            ((BaseActivity)Activity).OpenNewContentFragment(powerDownFrag);
+            var balance = Presenter.Balances[_walletPager.CurrentItem];
+            var model = new BalanceModel(0, balance.MaxDecimals, balance.CurrencyType)
+            {
+                UserInfo = balance.UserInfo
+            };
+
+            await Presenter.TryPowerUpOrDown(model, PowerAction.CancelPowerDown);
+            TryUpdateBalance(balance);
         }
 
         public override void OnActivityResult(int requestCode, int resultCode, Intent data)
@@ -231,7 +262,7 @@ namespace Steepshot.Fragment
                         TryUpdateBalance(Presenter.Balances[_walletPager.CurrentItem]);
                         break;
                     case ActiveSignInActivity.ActiveKeyRequestCode:
-                        DoClaimReward();
+                        CancelPowerDown();
                         break;
                 }
             }

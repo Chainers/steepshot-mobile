@@ -443,11 +443,13 @@ namespace Steepshot.Core.Clients
                 {
                     new BalanceModel(acc.Balance.ToDouble(), 3, CurrencyType.Golos)
                     {
-                        EffectiveSp = effectiveSp
+                        EffectiveSp = effectiveSp,
+                        ToWithdraw = long.Parse(acc.ToWithdraw.ToString()) / 10e5 * vestsExchangeRatio.Result
                     },
                     new BalanceModel(acc.SbdBalance.ToDouble(), 3,  CurrencyType.Gbg)
                     {
-                        EffectiveSp =  effectiveSp
+                        EffectiveSp =  effectiveSp,
+                        ToWithdraw = long.Parse(acc.ToWithdraw.ToString()) / 10e5 * vestsExchangeRatio.Result
                     }
                 }
             };
