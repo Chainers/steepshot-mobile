@@ -365,6 +365,7 @@ namespace Steepshot.Fragment
 
         private async void RefresherRefresh(object sender, EventArgs e)
         {
+            await Presenter.TryUpdateUserPosts(AppSettings.User.Login);
             await UpdatePage(ProfileUpdateType.Full);
             if (!IsInitialized)
                 return;
