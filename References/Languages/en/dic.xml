@@ -185,7 +185,7 @@ About 6 inches away</string>
     <string name="[&quot;WatchUser&quot;]">Notify me of new posts</string>
     <string name="[&quot;UnwatchUser&quot;]">Stop notifying me of new posts</string>
     <string name="[&quot;TagSearchWarning&quot;]">Here should be at least 2 characters for hashtags search and 3 for the users' query</string>
-    <string name="[&quot;NoResultText&quot;]">Sorry, no results found. Please, try again</string>
+    <string name="[&quot;NoResultText&quot;]">No results found</string>
     <string name="[&quot;VotingPowerSetting&quot;]">Show voting slider</string>
     <string name="[&quot;Transfer&quot;]">Transfer</string>
     <string name="[&quot;RecipientName&quot;]">To</string>

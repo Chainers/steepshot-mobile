@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Linq;
 using CoreGraphics;
+using Foundation;
 using PureLayout.Net;
 using Steepshot.iOS.ViewControllers;
 using UIKit;
@@ -11,7 +13,7 @@ namespace Steepshot.iOS.CustomViews
         Bottom
     }
 
-    public class CustomAlertView
+    public class CustomAlertView : UIGestureRecognizerDelegate
     {
         private UIViewController controller;
         private UIView popup;
@@ -29,6 +31,11 @@ namespace Steepshot.iOS.CustomViews
             popup.UserInteractionEnabled = true;
 
             popup.AddSubview(dialog);
+
+            var touchOutsideRecognizer = new UITapGestureRecognizer(() => { Hide(); });
+            touchOutsideRecognizer.CancelsTouchesInView = false;
+            touchOutsideRecognizer.Delegate = this;
+            popup.AddGestureRecognizer(touchOutsideRecognizer);
 
             // view centering
             dialog.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom, 34);
@@ -49,7 +56,6 @@ namespace Steepshot.iOS.CustomViews
                     interactiveController.IsPushingViewController = false;
                 popup.RemoveFromSuperview();
             });
-
         }
 
         public void Show(AnimationType animationType = AnimationType.Bottom)
@@ -77,6 +83,11 @@ namespace Steepshot.iOS.CustomViews
                     });
                     break;
             }
+        }
+
+        public override bool ShouldReceiveTouch(UIGestureRecognizer recognizer, UITouch touch)
+        {
+            return (touch.View == popup);
         }
     }
 }

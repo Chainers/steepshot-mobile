@@ -130,6 +130,17 @@ namespace Steepshot.Core.Presenters
             return response.Exception;
         }
 
+        public async Task<Exception> TryUpdateUserPosts(string username)
+        { 
+            return await TryRunTask(UpdateUserPosts, OnDisposeCts.Token, username);
+        }
+
+        private async Task<Exception> UpdateUserPosts(string username, CancellationToken ct)
+        {
+            var response = await Api.UpdateUserPosts(username, ct);
+            return response.Exception;
+        }
+
         public override void Clear(bool isNotify = true)
         {
             CashPresenterManager.Remove(UserProfileResponse);

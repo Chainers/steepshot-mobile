@@ -186,10 +186,9 @@ namespace Steepshot.iOS.Views
         private void CreateNoResultView(UILabel label, UITableView tableToBind)
         {
             label.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.NoResultText);
-            label.Lines = 2;
             label.Hidden = true;
             label.TextAlignment = UITextAlignment.Center;
-            label.Font = Constants.Light27;
+            label.Font = Constants.Regular14;
             label.TextColor = Constants.R15G24B30;
 
             View.AddSubview(label);
