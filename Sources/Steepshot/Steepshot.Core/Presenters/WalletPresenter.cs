@@ -96,7 +96,7 @@ namespace Steepshot.Core.Presenters
             {
                 Balances.ForEach(x =>
                 {
-                    if (x.CurrencyType == balance.CurrencyType &&
+                    if (x.UserInfo.Chain == balance.UserInfo.Chain &&
                         x.UserInfo.Login.Equals(balance.UserInfo.Login, StringComparison.OrdinalIgnoreCase))
                     {
                         x.RewardSteem = x.RewardSbd = x.RewardSp = 0;
