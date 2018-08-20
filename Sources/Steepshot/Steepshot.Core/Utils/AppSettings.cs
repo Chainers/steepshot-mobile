@@ -59,7 +59,7 @@ namespace Steepshot.Core.Utils
 
         public static string VersionName
         {
-            get => SaverService.Get<char>("lastversionname").ToString();
+            get => SaverService.Get("lastversionname");
             set => SaverService.Save("lastversionname", value);
         }
     }

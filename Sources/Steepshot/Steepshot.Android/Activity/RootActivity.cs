@@ -316,23 +316,24 @@ namespace Steepshot.Activity
                 profileTab.SetIcon(BitmapUtils.GetViewDrawable(votingPowerFrame));
         }
 
-        private void CheckForNewFeatures()
+        protected void CheckForNewFeatures()
         {
             var handler = new Handler();
             var saverService = new SaverService();
-
-            var test = AppSettings.VersionName;
-            if (test != "0.0")
-            { 
-                
-            }
+            var lastVersion = AppSettings.VersionName;
             var versionName = PackageManager.GetPackageInfo(PackageName, 0).VersionName;
-            Action action = () =>
+
+            if (string.IsNullOrEmpty(lastVersion) || !lastVersion.Equals(versionName)) // new app instance or update
             {
-                var featureScreen = new FeatureDialog(this);
-                featureScreen.Show();
-            };
-            handler.PostDelayed(action, 1500);
+                Action action = () =>
+                {
+                    var featureScreen = new FeatureDialog(this);
+                    featureScreen.Show();
+                };
+                handler.PostDelayed(action, 2000);
+            }
+
+            AppSettings.VersionName = versionName;
         }
     }
 }

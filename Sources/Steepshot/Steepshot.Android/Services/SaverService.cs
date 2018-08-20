@@ -19,6 +19,14 @@ namespace Steepshot.Services
             return JsonConvert.DeserializeObject<T>(obj);
         }
 
+        public string Get(string key)
+        {
+            var obj = _preferences.GetString(key, null);
+            if (obj == null)
+                return string.Empty;
+            return JsonConvert.DeserializeObject<string>(obj);
+        }
+
         public void Save<T>(string key, T obj)
         {
             var prefEditor = _preferences.Edit();
