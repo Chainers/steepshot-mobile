@@ -56,5 +56,11 @@ namespace Steepshot.Core.Utils
             get => SaverService.Get<bool>("isdev");
             set => SaverService.Save("isdev", value);
         }
+
+        public static string VersionName
+        {
+            get => SaverService.Get<char>("lastversionname").ToString();
+            set => SaverService.Save("lastversionname", value);
+        }
     }
 }

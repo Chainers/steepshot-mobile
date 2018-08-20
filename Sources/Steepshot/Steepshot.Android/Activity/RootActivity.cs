@@ -28,6 +28,7 @@ using System.Linq;
 using Android;
 using Android.Runtime;
 using WebSocketSharp;
+using Steepshot.Services;
 
 namespace Steepshot.Activity
 {
@@ -318,6 +319,14 @@ namespace Steepshot.Activity
         private void CheckForNewFeatures()
         {
             var handler = new Handler();
+            var saverService = new SaverService();
+
+            var test = AppSettings.VersionName;
+            if (test != "0.0")
+            { 
+                
+            }
+            var versionName = PackageManager.GetPackageInfo(PackageName, 0).VersionName;
             Action action = () =>
             {
                 var featureScreen = new FeatureDialog(this);
