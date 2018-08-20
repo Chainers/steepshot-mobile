@@ -325,12 +325,12 @@ namespace Steepshot.Activity
 
             if (string.IsNullOrEmpty(lastVersion) || !lastVersion.Equals(versionName)) // new app instance or update
             {
-                Action action = () =>
-                {
-                    var featureScreen = new FeatureDialog(this);
-                    featureScreen.Show();
-                };
-                handler.PostDelayed(action, 2000);
+                //Action action = () =>
+                //{
+                //    var featureScreen = new FeatureDialog(this);
+                //    featureScreen.Show();
+                //};
+                //handler.PostDelayed(action, 2000);
             }
 
             AppSettings.VersionName = versionName;
