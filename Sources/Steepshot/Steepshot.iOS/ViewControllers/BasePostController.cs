@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Threading;
 using System.Threading.Tasks;
 using CoreGraphics;
 using Foundation;
@@ -15,6 +17,7 @@ using Steepshot.iOS.CustomViews;
 using Steepshot.iOS.Helpers;
 using Steepshot.iOS.Views;
 using UIKit;
+using static Steepshot.Core.Clients.BaseServerClient;
 using Constants = Steepshot.iOS.Helpers.Constants;
 
 namespace Steepshot.iOS.ViewControllers
@@ -81,6 +84,27 @@ namespace Steepshot.iOS.ViewControllers
 
         private List<CurrencyType> _coins;
         private CurrencyType _pickedCoin = CurrencyType.Steem;
+        private SearchTextField _amountTextField;
+
+        UIActivityIndicatorView balanceLoader;
+        UILabel balanceLabel;
+        UILabel errorMessage;
+
+        List<BalanceModel> balances;
+
+        private async void GetBalance()
+        {
+            balanceLoader.StartAnimating();
+            var response = await _presenter.TryGetAccountInfo(AppSettings.User.Login);
+
+            if (response.IsSuccess)
+            {
+                balances = response.Result?.Balances;
+                var balance = balances?.Find(x => x.CurrencyType == _pickedCoin);
+                balanceLabel.Text = $"Balance: {balance.Value}";
+            }
+            balanceLoader.StopAnimating();
+        }
 
         protected void PromotePost(Post post)
         {
@@ -144,8 +168,18 @@ namespace Steepshot.iOS.ViewControllers
             promotionLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Top, 27);
             promotionLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Left);
 
-            var balanceLabel = new UILabel();
-            balanceLabel.Text = "Balance: 43534534";
+            balanceLoader = new UIActivityIndicatorView();
+            balanceLoader.ActivityIndicatorViewStyle = UIActivityIndicatorViewStyle.White;
+            balanceLoader.Color = UIColor.Black;
+            balanceLoader.HidesWhenStopped = true;
+            balanceLoader.StartAnimating();
+
+            container.AddSubview(balanceLoader);
+
+            balanceLoader.AutoPinEdge(ALEdge.Left, ALEdge.Right, promotionLabel, 10);
+            balanceLoader.AutoAlignAxis(ALAxis.Horizontal, promotionLabel);
+
+            balanceLabel = new UILabel();
             balanceLabel.Font = Constants.Semibold14;
             balanceLabel.TextColor = Constants.R151G155B158;
             balanceLabel.TextAlignment = UITextAlignment.Right;
@@ -157,6 +191,8 @@ namespace Steepshot.iOS.ViewControllers
             balanceLabel.AutoPinEdge(ALEdge.Left, ALEdge.Right, promotionLabel, 5);
             balanceLabel.SetContentHuggingPriority(1, UILayoutConstraintAxis.Horizontal);
 
+            GetBalance();
+
             var rightView = new UIView();
             container.AddSubview(rightView);
             rightView.AutoSetDimension(ALDimension.Height, 50);
@@ -164,7 +200,7 @@ namespace Steepshot.iOS.ViewControllers
             UIImageView pickerImage = new UIImageView(UIImage.FromBundle("ic_currency_picker.png"));
             rightView.AddSubview(pickerImage);
             pickerImage.AutoAlignAxisToSuperviewAxis(ALAxis.Horizontal);
-            pickerImage.AutoPinEdgeToSuperviewEdge(ALEdge.Right);
+            pickerImage.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 10);
 
             UILabel _pickerLabel = new UILabel();
             _pickerLabel.Text = "STEEM";
@@ -178,8 +214,9 @@ namespace Steepshot.iOS.ViewControllers
 
             rightView.LayoutIfNeeded();
 
-            var _amountTextField = new SearchTextField(AppSettings.LocalizationManager.GetText(LocalizationKeys.TransferAmountHint),
-                                                       new UIEdgeInsets(0, 20, 0, 5), new AmountFieldDelegate(), false, rightView);
+            var amountTextFieldDelegate = new AmountFieldDelegate();
+            _amountTextField = new SearchTextField(AppSettings.LocalizationManager.GetText(LocalizationKeys.TransferAmountHint),
+                                                   new UIEdgeInsets(0, 20, 0, 0), amountTextFieldDelegate, false, rightView);
             _amountTextField.KeyboardType = UIKeyboardType.DecimalPad;
             _amountTextField.Layer.CornerRadius = 25;
             container.AddSubview(_amountTextField);
@@ -187,6 +224,17 @@ namespace Steepshot.iOS.ViewControllers
             _amountTextField.AutoPinEdgeToSuperviewEdge(ALEdge.Left);
             _amountTextField.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, promotionLabel, 16);
             _amountTextField.AutoSetDimension(ALDimension.Height, 50);
+
+            errorMessage = new UILabel();
+            errorMessage.Font = Constants.Semibold14;
+            errorMessage.TextColor = Constants.R255G34B5;
+            container.AddSubview(errorMessage);
+
+            errorMessage.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, _amountTextField);
+            errorMessage.AutoPinEdge(ALEdge.Left, ALEdge.Left, _amountTextField);
+            errorMessage.AutoPinEdge(ALEdge.Right, ALEdge.Right, _amountTextField);
+
+            _amountTextField.EditingChanged += 汤;
 
             var max = new UIButton();
             max.SetTitle(AppSettings.LocalizationManager.GetText(LocalizationKeys.Max), UIControlState.Normal);
@@ -277,6 +325,20 @@ namespace Steepshot.iOS.ViewControllers
             expectedTimeValue.AutoPinEdgeToSuperviewEdge(ALEdge.Right, DeviceHelper.IsSmallDevice ? 10 : 20);
             expectedTimeValue.AutoAlignAxisToSuperviewAxis(ALAxis.Horizontal);
 
+            var completeText = new UILabel();
+            completeText.BackgroundColor = Constants.R255G255B255;
+            completeText.Lines = 4;
+            completeText.TextAlignment = UITextAlignment.Center;
+            completeText.Font = Constants.Regular20;
+            popup.AddSubview(completeText);
+
+            completeText.AutoMatchDimension(ALDimension.Height, ALDimension.Height, container);
+            completeText.AutoMatchDimension(ALDimension.Width, ALDimension.Width, container);
+            completeText.AutoPinEdge(ALEdge.Top, ALEdge.Top, container);
+            var completeTextHidden = completeText.AutoPinEdge(ALEdge.Left, ALEdge.Right, container, 20);
+            var completeTextVisible = completeText.AutoPinEdge(ALEdge.Left, ALEdge.Left, container);
+            completeTextVisible.Active = false;
+
             var separator = new UIView();
             separator.BackgroundColor = Constants.R245G245B245;
             popup.AddSubview(separator);
@@ -342,13 +404,24 @@ namespace Steepshot.iOS.ViewControllers
 
             NavigationController.View.EndEditing(true);
 
+            Timer timer = null;
+
+            PromoteResponse promoter = null;
+
             selectButton.TouchDown += async (sender, e) =>
             {
+                if (balanceLoader.IsAnimating)
+                    return;
+
+                汤(null, null);
+
                 if (pickerVisible.Active)
                 {
                     _pickedCoin = _coins[(int)picker.SelectedRowInComponent(0)];
                     _pickerLabel.Text = _pickedCoin.ToString().ToUpper();
-                    //_transferFacade.UserBalance = AppSettings.User.AccountInfo?.Balances?.First(b => b.CurrencyType == pickedCoin);
+
+                    var balance = balances?.Find(x => x.CurrencyType == _pickedCoin);
+                    balanceLabel.Text = $"Balance: {balance.Value}";
 
                     pickerHidden.Active = true;
                     pickerVisible.Active = false;
@@ -362,12 +435,69 @@ namespace Steepshot.iOS.ViewControllers
                         _amountTextField.UpdateRightViewRect();
                     });
                 }
-                else if(promoteVisible.Active)
+                else if (promoteVisible.Active)
                 {
-                    var steemPermlink = $"https://steemit.com{post.Url}";
+                    if (!AppSettings.User.HasActivePermission)
+                    {
+                        NavigationController.PushViewController(new LoginViewController(false), true);
+                        return;
+                    }
+
+                    selectButton.Enabled = false;
+                    loader.StartAnimating();
+
+                    var transferResponse = await _presenter.TryTransfer(AppSettings.User.UserInfo, promoter.Bot.Author, _amountTextField.GetDoubleValue().ToString(), _pickedCoin, $"https://steemit.com{post.Url}");
+
+                    if (transferResponse.IsSuccess)
+                        completeText.Text = "Your bid has been successfully sent. Wait for upvote.";
+                    else
+                        completeText.Text = "Tokens transfer error";
+
+                    completeTextHidden.Active = false;
+                    completeTextVisible.Active = true;
+
+                    UIView.Animate(0.2, 0, UIViewAnimationOptions.CurveEaseIn, () =>
+                    {
+                        popup.LayoutIfNeeded();
+                    }, () =>
+                    {
+                        selectButton.Enabled = true;
+                        loader.StopAnimating();
+                        title.Text = true ? "Promote is complete" : "Transfer error";
+                        selectButton.SetTitle("Promote again???", UIControlState.Normal);
+
+                        promoteVisible.Active = false;
+                        promoteHidden.Active = true;
+                        popup.LayoutIfNeeded();
+                        timer?.Dispose();
+                    });
+                }
+                else if (completeTextVisible.Active)
+                {
+                    completeTextHidden.Active = true;
+                    completeTextVisible.Active = false;
+
+                    UIView.Animate(0.2, 0, UIViewAnimationOptions.CurveEaseIn, () =>
+                    {
+                        popup.LayoutIfNeeded();
+                    }, () =>
+                    {
+                        title.Text = "Promote post";
+                        selectButton.SetTitle("FIND PROMOTER", UIControlState.Normal);
+                    });
                 }
                 else
                 {
+                    if (_amountTextField.GetDoubleValue() > balances?.Find(x => x.CurrencyType == _pickedCoin).Value)
+                    {
+                        errorMessage.Text = "Not enough balance";
+                        errorMessage.Hidden = false;
+                        return;
+                    }
+
+                    if (string.IsNullOrEmpty(_amountTextField.Text) || !IsValidAmount())
+                        return;
+
                     selectButton.Enabled = false;
                     loader.StartAnimating();
 
@@ -378,15 +508,31 @@ namespace Steepshot.iOS.ViewControllers
                         PostToPromote = post,
                     };
 
-                    var promouter = await _presenter.FindPromoteBot(pr);
+                    promoter = await _presenter.FindPromoteBot(pr);
 
-                    if (promouter != null)
+                    if (promoter != null)
                     {
-                        expectedTimeValue.Text = promouter.ExpectedUpvoteTime.ToString();
-                        promoterLogin.Text = $"@{promouter.Bot.Author}";
+                        var expectedUpvoteTime = promoter.ExpectedUpvoteTime;
+                        if(expectedUpvoteTime.ToString().Length > 8)
+                            expectedTimeValue.Text = expectedUpvoteTime.ToString().Remove(8);
+                        timer = new Timer((obj) =>
+                        {
+                            expectedUpvoteTime = expectedUpvoteTime.Subtract(TimeSpan.FromSeconds(1));
+                            InvokeOnMainThread(() =>
+                            {
+                                if (expectedUpvoteTime.ToString().Length > 8)
+                                    expectedTimeValue.Text = expectedUpvoteTime.ToString().Remove(8);
+                                else
+                                    expectedTimeValue.Text = expectedUpvoteTime.ToString();
+                            });
 
-                        if (!string.IsNullOrEmpty(promouter.Bot.Avatar))
-                            ImageLoader.Load(promouter.Bot.Avatar, avatar, size: new CGSize(300, 300));
+                        }, null, DateTime.Now.Add(expectedUpvoteTime).Millisecond, (int)TimeSpan.FromSeconds(1).TotalMilliseconds);
+
+
+                        promoterLogin.Text = $"@{promoter.Bot.Author}";
+
+                        if (!string.IsNullOrEmpty(promoter.Bot.Avatar))
+                            ImageLoader.Load(promoter.Bot.Avatar, avatar, size: new CGSize(300, 300));
                         else
                             avatar.Image = UIImage.FromBundle("ic_noavatar");
 
@@ -403,9 +549,30 @@ namespace Steepshot.iOS.ViewControllers
                             selectButton.SetTitle("PROMOTE", UIControlState.Normal);
                         });
                     }
+                    else
+                    {
+                        completeText.Text = "We look, but there's no appropriate bot for promotion. Please, try a little later.";
+
+                        completeTextHidden.Active = false;
+                        completeTextVisible.Active = true;
+
+                        UIView.Animate(0.2, 0, UIViewAnimationOptions.CurveEaseIn, () =>
+                        {
+                            popup.LayoutIfNeeded();
+                        }, () =>
+                        {
+                            selectButton.Enabled = true;
+                            loader.StopAnimating();
+                            title.Text = "Promoter search result";
+                            selectButton.SetTitle("Search again", UIControlState.Normal);
+                        });
+                    }
                 }
             };
-            cancelButton.TouchDown += (sender, e) => { _alert.Hide(); };
+            cancelButton.TouchDown += (sender, e) =>
+            {
+                _alert.Hide();
+            };
 
             var popuptap = new UITapGestureRecognizer(() =>
             {
@@ -420,17 +587,39 @@ namespace Steepshot.iOS.ViewControllers
             _alert.Show();
         }
 
+        private void 汤(object sender, EventArgs e)
+        {
+            errorMessage.Hidden = true;
+            var transferAmount = _amountTextField.GetDoubleValue();
+            if (transferAmount == 0)
+                return;
+
+            if (transferAmount < 0.5)
+            {
+                errorMessage.Hidden = false;
+                errorMessage.Text = "Min bid is 0.5";
+            }
+            else if (transferAmount > 130)
+            {
+                errorMessage.Hidden = false;
+                errorMessage.Text = "Max bid is 100";
+            }
+        }
+
+        private bool IsValidAmount()
+        {
+            return _amountTextField.GetDoubleValue() >= 0.5 && _amountTextField.GetDoubleValue() <= 130;
+        }
+
         private void MaxBtnOnClick(object sender, EventArgs e)
         {
-            //_amount.Text = 
-
+            _amountTextField.Text = balances?.Find(x => x.CurrencyType == _pickedCoin).Value.ToString();
+            汤(null, null);
         }
 
         private void CoinSelected(CurrencyType pickedCoin)
         {
             _pickedCoin = pickedCoin;
-            //_pickerLabel.Text = _pickedCoin.ToString().ToUpper();
-            //_transferFacade.UserBalance = AppSettings.User.AccountInfo?.Balances?.First(b => b.CurrencyType == pickedCoin);
         }
 
         protected void HidePhoto(Post post)

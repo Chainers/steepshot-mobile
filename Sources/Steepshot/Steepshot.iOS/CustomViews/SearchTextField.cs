@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using CoreGraphics;
 using Foundation;
 using PureLayout.Net;
@@ -142,6 +143,13 @@ namespace Steepshot.iOS.CustomViews
 
             Delegate = deleg ?? new TagFieldDelegate();
             EditingChanged += DoEditingChanged;
+        }
+
+        public double GetDoubleValue()
+        {
+            double result;
+            double.TryParse(Text.Replace(',', '.'), NumberStyles.Any, CultureInfo.InvariantCulture, out result);
+            return result;
         }
 
         public void UpdateRightViewRect()
