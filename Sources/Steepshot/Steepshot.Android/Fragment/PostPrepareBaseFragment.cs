@@ -106,7 +106,7 @@ namespace Steepshot.Fragment
                 InflatedView = inflater.Inflate(Resource.Layout.lyt_post_description, null);
                 Cheeseknife.Bind(this, InflatedView);
             }
-
+            ToggleTabBar(true);
             return InflatedView;
         }
 
@@ -218,7 +218,7 @@ namespace Steepshot.Fragment
                 _postButton.Text = string.Empty;
                 _loadingSpinner.Visibility = ViewStates.Visible;
             }
-            
+
             _postButton.Enabled = enabled;
 
             if (enableFields)
@@ -312,7 +312,7 @@ namespace Steepshot.Fragment
                 TryCreateOrEditPost(false);
             }
             else if (resultCode == (int)Result.Canceled)
-            { 
+            {
                 EnabledPost();
                 EnablePostAndEdit(true);
             }
@@ -353,7 +353,7 @@ namespace Steepshot.Fragment
             {
                 _clearEdit.Visibility = ViewStates.Invisible;
             }
-            _timer.Change(500, Timeout.Infinite);
+            _timer.Change(1300, Timeout.Infinite);
         }
 
         protected void OnTagsAdapterClick(string tag)

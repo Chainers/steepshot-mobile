@@ -127,15 +127,6 @@ namespace Steepshot.Fragment
 
                     if (!operationResult.IsSuccess)
                     {
-                        App.Cache?.EvictAll();
-                        operationResult = await UploadPhoto(temp);
-
-                        if (!IsInitialized)
-                            return;
-                    }
-
-                    if (!operationResult.IsSuccess)
-                    {
                         Activity.ShowAlert(operationResult.Exception);
                         EnabledPost();
                         return;

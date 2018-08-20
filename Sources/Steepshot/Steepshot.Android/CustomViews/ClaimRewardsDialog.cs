@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Android.Animation;
 using Android.Content;
 using Android.Graphics;
 using Android.Support.Design.Widget;
@@ -20,7 +21,9 @@ namespace Steepshot.CustomViews
     {
         public Func<BalanceModel, Task<Exception>> Claim;
         private readonly BalanceModel _balance;
+        private TextView _title;
         private ProgressBar _claimSpinner;
+        private RelativeLayout _claimBtnContainer;
         private Button _claimBtn;
 
         public ClaimRewardsDialog(Context context, BalanceModel balance) : this(context)
@@ -34,13 +37,13 @@ namespace Steepshot.CustomViews
 
         public override void Show()
         {
-            using (var dialogView = LayoutInflater.From(Context).Inflate(Resource.Layout.lyt_claim_rewards, null))
+            using (var dialogView = (LinearLayout)LayoutInflater.From(Context).Inflate(Resource.Layout.lyt_claim_rewards, null))
             {
                 dialogView.SetMinimumWidth((int)(Context.Resources.DisplayMetrics.WidthPixels * 0.8));
 
-                var title = dialogView.FindViewById<TextView>(Resource.Id.title);
-                title.Typeface = Style.Light;
-                title.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.ClaimRewards);
+                _title = dialogView.FindViewById<TextView>(Resource.Id.title);
+                _title.Typeface = Style.Light;
+                _title.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.TimeToClaimRewards);
 
                 var tokenOne = dialogView.FindViewById<TextView>(Resource.Id.token_one);
                 tokenOne.Typeface = Style.Semibold;
@@ -77,6 +80,8 @@ namespace Steepshot.CustomViews
                         break;
                 }
 
+                _claimBtnContainer = dialogView.FindViewById<RelativeLayout>(Resource.Id.claimBtnContainer);
+
                 _claimBtn = dialogView.FindViewById<Button>(Resource.Id.claimBtn);
                 _claimBtn.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.ClaimRewards);
                 _claimBtn.Click += ClaimBtnOnClick;
@@ -86,6 +91,10 @@ namespace Steepshot.CustomViews
                 closeBtn.Click += CloseBtnOnClick;
 
                 _claimSpinner = dialogView.FindViewById<ProgressBar>(Resource.Id.claim_spinner);
+
+                LayoutTransition transition = new LayoutTransition();
+                transition.SetAnimateParentHierarchy(false);
+                dialogView.LayoutTransition = transition;
 
                 SetContentView(dialogView);
                 Window.FindViewById(Resource.Id.design_bottom_sheet).SetBackgroundColor(Color.Transparent);
@@ -108,10 +117,10 @@ namespace Steepshot.CustomViews
             var exception = await Claim.Invoke(_balance);
             if (exception == null)
             {
-                Context.ShowAlert(LocalizationKeys.TransferSuccess);
-                Dismiss();
+                _title.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.RewardsClaimed);
+                _claimBtnContainer.Visibility = ViewStates.Gone;
             }
-            else
+            else if (IsShowing)
             {
                 _claimBtn.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.ClaimRewards);
                 _claimSpinner.Visibility = ViewStates.Gone;

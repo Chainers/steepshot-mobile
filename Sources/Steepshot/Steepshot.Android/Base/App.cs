@@ -8,6 +8,12 @@ using Steepshot.Core.Utils;
 using Steepshot.Services;
 using Steepshot.Utils;
 using System;
+using System.Linq;
+using Android.Content;
+using Com.OneSignal;
+using Com.OneSignal.Abstractions;
+using Newtonsoft.Json;
+using Steepshot.Activity;
 using Steepshot.Core;
 using Steepshot.Core.Authorization;
 using Steepshot.Core.Clients;
@@ -37,7 +43,36 @@ namespace Steepshot.Base
             InitIoC(Context.Assets);
             InitPicassoCache();
 
+            InitPushes();
             AppSettings.LocalizationManager.Update(HttpClient);
+        }
+
+        private void InitPushes()
+        {
+            OneSignal.Current.StartInit("77fa644f-3280-4e87-9f14-1f0c7ddf8ca5")
+                .InFocusDisplaying(OSInFocusDisplayOption.None)
+                .HandleNotificationOpened(OneSignalNotificationOpened)
+                .EndInit();
+        }
+
+        private void OneSignalNotificationOpened(OSNotificationOpenedResult result)
+        {
+            var additionalData = result?.notification?.payload?.additionalData;
+            if (additionalData?.Any() ?? false)
+            {
+                try
+                {
+                    var data = JsonConvert.SerializeObject(additionalData.ToDictionary(x => x.Key, x => x.Value.ToString()));
+                    var intent = new Intent(this, typeof(RootActivity));
+                    intent.PutExtra(RootActivity.NotificationData, data);
+                    intent.SetFlags(ActivityFlags.ReorderToFront | ActivityFlags.NewTask);
+                    StartActivity(intent);
+                }
+                catch (Exception e)
+                {
+                    AppSettings.Logger.Error(e);
+                }
+            }
         }
 
         private void InitPicassoCache()

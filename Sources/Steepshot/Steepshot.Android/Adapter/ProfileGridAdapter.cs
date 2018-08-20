@@ -199,7 +199,8 @@ namespace Steepshot.Adapter
 
         private void OnBalanceContainerOnClick(object sender, EventArgs e)
         {
-            _profileAction?.Invoke(ActionType.Balance);
+            if (AppSettings.User.Login.Equals(_profile.Username, StringComparison.InvariantCultureIgnoreCase))
+                _profileAction?.Invoke(ActionType.Balance);
         }
 
         private void OnFollowersBtnOnClick(object sender, EventArgs e)
@@ -230,6 +231,8 @@ namespace Steepshot.Adapter
             }
             else
                 Picasso.With(_context).Load(Resource.Drawable.ic_holder).Into(_profileImage);
+
+            _transferButton.Visibility = AppSettings.User.HasPostingPermission ? ViewStates.Visible : ViewStates.Gone;
 
             if (profile.Username.Equals(AppSettings.User.Login, StringComparison.OrdinalIgnoreCase))
             {

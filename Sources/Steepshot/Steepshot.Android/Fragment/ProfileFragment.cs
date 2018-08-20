@@ -235,14 +235,18 @@ namespace Steepshot.Fragment
                     _more.Visibility = ViewStates.Visible;
                     _more.Enabled = false;
                     _login.Text = _profileId;
-                    LoadProfile();
-                    GetUserPosts();
                 }
                 else
                 {
+                    _settings.Enabled = false;
                     _more.Visibility = ViewStates.Gone;
                     _login.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.MyProfile);
+                    Presenter.SubscriptionsUpdated += _presenter_SubscriptionsUpdated;
+                    Presenter.CheckSubscriptions();
                 }
+
+                LoadProfile();
+                GetUserPosts();
             }
 
             var postUrl = Activity?.Intent?.GetStringExtra(CommentsFragment.ResultString);
@@ -258,6 +262,11 @@ namespace Steepshot.Fragment
                     _adapter.NotifyDataSetChanged();
                 }
             }
+        }
+
+        private void _presenter_SubscriptionsUpdated()
+        {
+            _settings.Enabled = true;
         }
 
         private void PostPagerOnPageScrolled(object sender, ViewPager.PageScrolledEventArgs pageScrolledEventArgs)
@@ -653,7 +662,7 @@ namespace Steepshot.Fragment
                 case ActionType.Edit:
                     {
                         ((BaseActivity)Activity).OpenNewContentFragment(new PostEditFragment(post));
-                        ((RootActivity)Activity)._tabLayout.Visibility = ViewStates.Gone;
+                        ToggleTabBar(true);
                         break;
                     }
                 case ActionType.Delete:

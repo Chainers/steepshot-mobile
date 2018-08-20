@@ -14,12 +14,12 @@ using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Presenters
 {
-    public class WalletPresenter : PreSignInPresenter, IEnumerator<UserInfo>
+    public class WalletPresenter : TransferPresenter, IEnumerator<UserInfo>
     {
         public Dictionary<int, UserInfo> ConnectedUsers { get; }
         public bool HasNext { get; private set; }
         public List<BalanceModel> Balances { get; }
-        public CurrencyRate[] CurrencyRates { get; private set; }
+        private CurrencyRate[] CurrencyRates { get; set; }
         private readonly int[] _logins;
         private int _current = -1;
 
@@ -92,6 +92,19 @@ namespace Steepshot.Core.Presenters
         {
             var claimRewardsModel = new ClaimRewardsModel(balance.UserInfo, balance.RewardSteem, balance.RewardSp, balance.RewardSbd);
             var response = await TryRunTask<ClaimRewardsModel, VoidResponse>(ClaimRewards, CancellationToken.None, claimRewardsModel);
+            if (response.IsSuccess)
+            {
+                Balances.ForEach(x =>
+                {
+                    if (x.CurrencyType == balance.CurrencyType &&
+                        x.UserInfo.Login.Equals(balance.UserInfo.Login, StringComparison.OrdinalIgnoreCase))
+                    {
+                        x.RewardSteem = x.RewardSbd = x.RewardSp = 0;
+                    }
+                });
+                await TryUpdateAccountInfo(balance.UserInfo);
+            }
+
             return response.Exception;
         }
 
@@ -128,7 +141,7 @@ namespace Steepshot.Core.Presenters
         public bool MoveNext()
         {
             var hasNext = _current + 1 < _logins.Length;
-            if(hasNext)
+            if (hasNext)
                 _current += 1;
             return hasNext;
         }

@@ -194,8 +194,6 @@ namespace Steepshot.Adapter
             _tokenBalance.Typeface = Style.Semibold;
             _tokenBalanceTitle2.Typeface = Style.Semibold;
             _tokenBalance2.Typeface = Style.Semibold;
-
-            _balanceTitle.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.AccountBalance);
         }
 
         public void UpdateData(BalanceModel balance, CurrencyRate currencyRate, int position)
@@ -211,6 +209,7 @@ namespace Steepshot.Adapter
                 case CurrencyType.Steem:
                 case CurrencyType.Golos:
                     {
+                        _balanceTitle.Text = $"{balance.CurrencyType.ToString()} {AppSettings.LocalizationManager.GetText(LocalizationKeys.Balance).ToLower()}";
                         _tokenBalanceTitle2.Text = $"{balance.CurrencyType.ToString()} Power".ToUpper();
                         usdBalance = (balance.Value + balance.EffectiveSp) * (currencyRate?.UsdRate ?? 1);
                         break;
@@ -218,6 +217,7 @@ namespace Steepshot.Adapter
                 case CurrencyType.Sbd:
                 case CurrencyType.Gbg:
                     {
+                        _balanceTitle.Text = $"{balance.CurrencyType.ToString().ToUpper()} {AppSettings.LocalizationManager.GetText(LocalizationKeys.Balance).ToLower()}";
                         _tokenBalanceTitle2.Visibility = ViewStates.Gone;
                         _tokenBalance2.Visibility = ViewStates.Gone;
                         usdBalance = balance.Value * (currencyRate?.UsdRate ?? 1);
@@ -225,7 +225,7 @@ namespace Steepshot.Adapter
                     }
             }
 
-            _username.Text = balance.UserInfo.Login.ToUpper();
+            _username.Text = $"@{balance.UserInfo.Login}";
             _balance.Text = $"$ {usdBalance.ToBalanceValueString()}".ToUpper();
             _tokenBalanceTitle.Text = balance.CurrencyType.ToString().ToUpper();
             _tokenBalance.Text = balance.Value.ToBalanceValueString();

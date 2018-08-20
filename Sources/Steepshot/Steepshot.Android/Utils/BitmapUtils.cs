@@ -89,6 +89,7 @@ namespace Steepshot.Utils
                 BitmapFactory.DecodeFileDescriptor(fd.FileDescriptor, null, options);
                 options.InSampleSize = CalculateInSampleSize(options, reqWidth, reqHeight);
                 options.InJustDecodeBounds = false;
+                options.InPreferQualityOverSpeed = true;
                 var bmp = BitmapFactory.DecodeFileDescriptor(fd.FileDescriptor, null, options);
                 return bmp;
             }

@@ -28,7 +28,6 @@ using System.Linq;
 using Android;
 using Android.Runtime;
 using WebSocketSharp;
-using OperationCanceledException = Android.OS.OperationCanceledException;
 
 namespace Steepshot.Activity
 {
@@ -36,15 +35,16 @@ namespace Steepshot.Activity
     public sealed class RootActivity : BaseActivityWithPresenter<UserProfilePresenter>, IClearable
     {
         public const string NotificationData = "NotificationData";
+        public const string SharingPhotoData = "SharingPhotoData";
+        protected override HostFragment CurrentHostFragment => CurrentHostFragment = _adapter.GetItem(_viewPager.CurrentItem) as HostFragment;
         private Adapter.PagerAdapter _adapter;
         private TabLayout.Tab _prevTab;
         private int _tabHeight;
 
 #pragma warning disable 0649, 4014
         [BindView(Resource.Id.view_pager)] private CustomViewPager _viewPager;
-        [BindView(Resource.Id.tab_layout)] public TabLayout _tabLayout;
+        [BindView(Resource.Id.tab_layout)] public TabLayout TabLayout;
 #pragma warning restore 0649
-
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
@@ -58,8 +58,8 @@ namespace Steepshot.Activity
             _viewPager.Adapter = _adapter;
             InitTabs();
 
-            _tabLayout.TabSelected += OnTabLayoutOnTabSelected;
-            _tabLayout.TabReselected += OnTabLayoutOnTabReselected;
+            TabLayout.TabSelected += OnTabLayoutOnTabSelected;
+            TabLayout.TabReselected += OnTabLayoutOnTabReselected;
 
             if (AppSettings.User.HasPostingPermission)
                 OneSignal.Current.IdsAvailable(OneSignalCallback);
@@ -111,6 +111,7 @@ namespace Steepshot.Activity
                                 OpenNewContentFragment(new SinglePostFragment(link));
                                 break;
                             case string follow when follow.Equals(PushSettings.Follow.GetEnumDescription()):
+                            case string transfer when transfer.Equals(PushSettings.Transfer.GetEnumDescription()):
                                 OpenNewContentFragment(new ProfileFragment(link));
                                 break;
                         }
@@ -123,17 +124,24 @@ namespace Steepshot.Activity
             }
         }
 
-        protected override void OnNewIntent(Intent intent)
+        public void HandleSharingPhoto(Intent intent)
         {
-            HandleNotification(intent);
-            HandleLink(intent);
-            base.OnNewIntent(intent);
+            var uri = (Android.Net.Uri)intent.GetParcelableExtra(SharingPhotoData);
+            intent.RemoveExtra(SharingPhotoData);
+            if (uri != null)
+            {
+                var galleryModel = new GalleryMediaModel
+                {
+                    Path = BitmapUtils.GetUriRealPath(this, uri)
+                };
+                OpenNewContentFragment(new PostCreateFragment(galleryModel));
+            }
         }
 
-        public override void OpenNewContentFragment(BaseFragment frag)
+        protected override void OnNewIntent(Intent intent)
         {
-            CurrentHostFragment = _adapter.GetItem(_viewPager.CurrentItem) as HostFragment;
-            base.OpenNewContentFragment(frag);
+            base.OnNewIntent(intent);
+            Intent = intent;
         }
 
         public override void OnBackPressed()
@@ -156,6 +164,8 @@ namespace Steepshot.Activity
         protected override void OnDestroy()
         {
             base.OnDestroy();
+            TabLayout.TabSelected -= OnTabLayoutOnTabSelected;
+            TabLayout.TabReselected -= OnTabLayoutOnTabReselected;
             Cheeseknife.Reset(this);
         }
 
@@ -200,9 +210,9 @@ namespace Steepshot.Activity
 
         private void OnTabLayoutOnTabReselected(object sender, TabLayout.TabReselectedEventArgs e)
         {
-            if (_tabLayout.GetTabAt(e.Tab.Position) == _prevTab)
+            if (TabLayout.GetTabAt(e.Tab.Position) == _prevTab)
             {
-                var hostFragment = _adapter.GetItem(_tabLayout.SelectedTabPosition) as HostFragment;
+                var hostFragment = _adapter.GetItem(TabLayout.SelectedTabPosition) as HostFragment;
                 hostFragment?.Clear();
                 var fragments = hostFragment?.ChildFragmentManager.Fragments;
                 if (fragments != null && fragments[fragments.Count - 1] is ICanOpenPost fragment)
@@ -214,25 +224,25 @@ namespace Steepshot.Activity
         {
             for (var i = 0; i < _adapter.TabIconsInactive.Length; i++)
             {
-                var tab = _tabLayout.NewTab();
+                var tab = TabLayout.NewTab();
                 var tabView = new ImageView(this) { Id = Android.Resource.Id.Icon };
                 tabView.SetScaleType(ImageView.ScaleType.CenterInside);
                 tabView.LayoutParameters = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MatchParent, _tabHeight);
                 tab.SetCustomView(tabView);
 
-                _tabLayout.AddTab(tab);
+                TabLayout.AddTab(tab);
                 if (i == _adapter.TabIconsInactive.Length - 1)
-                    SetProfileChart(_tabLayout.LayoutParameters.Height);
+                    SetProfileChart(TabLayout.LayoutParameters.Height);
                 tab.SetIcon(ContextCompat.GetDrawable(this, _adapter.TabIconsInactive[i]));
             }
             SelectTab(AppSettings.User.SelectedTab);
-            _prevTab = _tabLayout.GetTabAt(AppSettings.User.SelectedTab);
+            _prevTab = TabLayout.GetTabAt(AppSettings.User.SelectedTab);
             _viewPager.OffscreenPageLimit = _adapter.Count - 1;
         }
 
         public void SelectTab(int position)
         {
-            var tab = _tabLayout.GetTabAt(position);
+            var tab = TabLayout.GetTabAt(position);
             tab.Select();
             OnTabSelected(position);
         }
@@ -247,15 +257,15 @@ namespace Steepshot.Activity
         private void OnTabSelected(int position)
         {
             _viewPager.SetCurrentItem(position, false);
-            for (var i = 0; i < _tabLayout.TabCount - 1; i++)
+            for (var i = 0; i < TabLayout.TabCount - 1; i++)
             {
-                var tab = _tabLayout.GetTabAt(i);
+                var tab = TabLayout.GetTabAt(i);
                 tab?.SetIcon(i == position
                              ? ContextCompat.GetDrawable(this, _adapter.TabIconsActive[i])
                              : ContextCompat.GetDrawable(this, _adapter.TabIconsInactive[i]));
             }
 
-            SetProfileChart(_tabLayout.LayoutParameters.Height);
+            SetProfileChart(TabLayout.LayoutParameters.Height);
             TryUpdateProfile();
         }
 
@@ -267,9 +277,9 @@ namespace Steepshot.Activity
                 if (IsDestroyed)
                     return;
 
-                if (exception == null || exception is OperationCanceledException)
+                if (exception == null || exception is System.OperationCanceledException)
                 {
-                    SetProfileChart(_tabLayout.LayoutParameters.Height);
+                    SetProfileChart(TabLayout.LayoutParameters.Height);
                     break;
                 }
 
@@ -296,7 +306,7 @@ namespace Steepshot.Activity
             avatar.SetImageResource(Resource.Drawable.ic_holder);
             votingPowerFrame.AddView(avatar);
 
-            var profileTab = _tabLayout.GetTabAt(_tabLayout.TabCount - 1);
+            var profileTab = TabLayout.GetTabAt(TabLayout.TabCount - 1);
             if (!string.IsNullOrEmpty(Presenter.UserProfileResponse?.ProfileImage))
                 Picasso.With(this).Load(Presenter.UserProfileResponse.ProfileImage).NoFade().Resize(size, size).CenterCrop()
                     .Placeholder(Resource.Drawable.ic_holder).Into(avatar,

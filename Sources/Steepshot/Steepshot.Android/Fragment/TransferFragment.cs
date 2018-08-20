@@ -52,9 +52,10 @@ namespace Steepshot.Fragment
         [BindView(Resource.Id.recipient_avatar)] private CircleImageView _recipientAvatar;
         [BindView(Resource.Id.recipient_name)] private TextView _recipientTitle;
         [BindView(Resource.Id.recipient_search)] private EditText _recipientSearch;
-        [BindView(Resource.Id.search_clear)] private ImageView _recipientSearchClear;
+        [BindView(Resource.Id.search_clear)] private ImageButton _recipientSearchClear;
         [BindView(Resource.Id.transfer_amount)] private TextView _transferAmountTitle;
         [BindView(Resource.Id.transfer_amount_edit)] private EditText _transferAmountEdit;
+        [BindView(Resource.Id.amount_limit)] private TextView _amountLimitMessage;
         [BindView(Resource.Id.transfer_comment)] private TextView _transferCommentTitle;
         [BindView(Resource.Id.max)] private Button _maxBtn;
         [BindView(Resource.Id.transfer_comment_edit)] private EditText _transferCommentEdit;
@@ -184,6 +185,7 @@ namespace Steepshot.Fragment
             _recipientSearch.Typeface = Style.Light;
             _transferAmountTitle.Typeface = Style.Semibold;
             _transferAmountEdit.Typeface = Style.Light;
+            _amountLimitMessage.Typeface = Style.Semibold;
             _maxBtn.Typeface = Style.Semibold;
             _transferCommentTitle.Typeface = Style.Semibold;
             _transferCommentEdit.Typeface = Style.Light;
@@ -203,6 +205,7 @@ namespace Steepshot.Fragment
             _transferBtn.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Transfer);
             _username.Text = $"@{_userInfo?.Login ?? AppSettings.User.Login}";
             _balance.Text = $"{AppSettings.LocalizationManager.GetText(LocalizationKeys.Balance)}:";
+            _amountLimitMessage.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.AmountLimitFull);
 
             _recipientSearch.SetFilters(new IInputFilter[] { new TextInputFilter(TextInputFilter.TagFilter) });
             _commentShape = new GradientDrawable();
@@ -230,6 +233,8 @@ namespace Steepshot.Fragment
             _recipientSearch.KeyPress += RecipientSearchOnKeyPress;
             _recipientSearchClear.Click += RecipientSearchClearOnClick;
             _maxBtn.Click += MaxBtnOnClick;
+            _transferAmountEdit.TextChanged += TransferAmountEditOnTextChanged;
+            _transferCoinName.ViewTreeObserver.GlobalLayout += TokenLayedOut;
             _transferCoinType.Click += TransferCoinTypeOnClick;
             _transferCommentTitle.Click += TransferCommentTitleOnClick;
             _transferCommentEdit.FocusChange += TransferCommentEditOnFocusChange;
@@ -237,6 +242,7 @@ namespace Steepshot.Fragment
             _transferBtn.Touch += TransferBtnOnTouch;
             _transferBtn.FocusChange += TransferBtnOnFocusChange;
             _backBtn.Click += BackBtnOnClick;
+            _username.Click += UsernameOnClick;
             _activityRoot.ViewTreeObserver.GlobalLayout += OnKeyboardOpening;
 
             State = FragmentState.TransferPrepare;
@@ -253,12 +259,18 @@ namespace Steepshot.Fragment
 
         public override void OnDetach()
         {
+            base.OnDetach();
             _activityRoot.ViewTreeObserver.GlobalLayout -= OnKeyboardClosing;
             _activityRoot.ViewTreeObserver.GlobalLayout -= OnKeyboardOpening;
+            _transferCoinName.ViewTreeObserver.GlobalLayout -= TokenLayedOut;
             _transferFacade.TasksCancel();
-            base.OnDetach();
             Cheeseknife.Reset(this);
             GC.Collect(0);
+        }
+
+        private void TokenLayedOut(object sender, EventArgs e)
+        {
+            _transferAmountEdit?.SetPadding(_transferAmountEdit.PaddingLeft, _transferAmountEdit.PaddingTop, ((View)_transferCoinName.Parent).Width, _transferAmountEdit.PaddingBottom);
         }
 
         private void OnKeyboardOpening(object sender, EventArgs e)
@@ -335,7 +347,7 @@ namespace Steepshot.Fragment
         private void OnUserBalanceChanged()
         {
             if (_transferFacade.UserBalance != null)
-                _balance.Text = $"{AppSettings.LocalizationManager.GetText(LocalizationKeys.Balance)}:{_transferFacade.UserBalance.Value.ToString(CultureInfo.InvariantCulture)}";
+                _balance.Text = $"{AppSettings.LocalizationManager.GetText(LocalizationKeys.Balance)}: {_transferFacade.UserBalance.Value.ToString(CultureInfo.InvariantCulture)}";
         }
 
         private void OnRecipientChanged()
@@ -414,6 +426,9 @@ namespace Steepshot.Fragment
 
         private void RecipientSearchClearOnClick(object sender, EventArgs e)
         {
+            if (string.IsNullOrEmpty(_recipientSearch.Text))
+                return;
+
             _prevQuery = string.Empty;
             _recipientSearch.Text = string.Empty;
             _transferFacade.Recipient = null;
@@ -430,6 +445,20 @@ namespace Steepshot.Fragment
         {
             _transferAmountEdit.Text = _transferFacade.UserBalance.Value.ToBalanceValueString();
             _transferAmountEdit.SetSelection(_transferAmountEdit.Text.Length);
+        }
+
+        private void TransferAmountEditOnTextChanged(object sender, TextChangedEventArgs e)
+        {
+            _amountLimitMessage.Visibility = ViewStates.Gone;
+
+            if (string.IsNullOrEmpty(_transferAmountEdit.Text))
+                return;
+
+            if (double.TryParse(_transferAmountEdit.Text, NumberStyles.Any, CultureInfo.InvariantCulture, out var amountEdit))
+            {
+                var amountAvailable = _transferFacade.UserBalance.Value;
+                _amountLimitMessage.Visibility = amountEdit <= amountAvailable ? ViewStates.Gone : ViewStates.Visible;
+            }
         }
 
         private async Task UpdateAccountInfo()
@@ -611,6 +640,11 @@ namespace Steepshot.Fragment
         {
             _recipientSearch.Text = _transferAmountEdit.Text = _transferCommentEdit.Text = string.Empty;
             _transferFacade.Recipient = null;
+        }
+
+        private void UsernameOnClick(object sender, EventArgs e)
+        {
+            ((BaseActivity)Activity).OpenNewContentFragment(new ProfileFragment(_userInfo.Login));
         }
 
         private void BackBtnOnClick(object sender, EventArgs e)

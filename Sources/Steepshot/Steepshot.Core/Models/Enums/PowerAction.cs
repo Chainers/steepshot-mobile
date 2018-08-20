@@ -3,6 +3,7 @@
     public enum PowerAction
     {
         PowerUp,
-        PowerDown
+        PowerDown,
+        CancelPowerDown
     }
 }

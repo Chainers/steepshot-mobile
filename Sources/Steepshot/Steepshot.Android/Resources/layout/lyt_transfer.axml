@@ -53,13 +53,14 @@
                         android:paddingLeft="20dp"
                         android:paddingRight="35dp"
                         android:background="@drawable/edit_text_borders" />
-                    <ImageView
+                    <ImageButton
                         android:id="@+id/search_clear"
-                        android:layout_width="15dp"
-                        android:layout_height="15dp"
-                        android:layout_marginRight="15dp"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
                         android:layout_centerVertical="true"
                         android:layout_alignParentRight="true"
+                        android:padding="35dp"
+                        android:background="@android:color/transparent"
                         android:src="@drawable/ic_search_small" />
                 </RelativeLayout>
             </RelativeLayout>
@@ -83,7 +84,16 @@
                         android:paddingRight="20dp"
                         android:layout_alignParentRight="true"
                         android:background="@drawable/white_btn_style_edge_grey" />
-                    <LinearLayout
+                     <TextView
+						android:id="@+id/amount_limit"
+						android:layout_below="@id/max"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:layout_marginTop="10dp"
+						android:textSize="12sp"
+						android:textColor="@color/rgb255_34_5"
+						android:visibility="gone"/>
+					<LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content">
                         <TextView

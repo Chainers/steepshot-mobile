@@ -15,9 +15,11 @@ namespace Steepshot.Core.Models.Requests
 
         public string ContentType { get; }
 
-        public string VerifyTransaction { get; set; }
+        public bool Thumbnails { get; set; } = true;
 
-        public bool GenerateThumbnail { get; set; } = true;
+        public bool AWS { get; set; } = true;
+
+        public bool IPFS { get; set; } = true;
 
         public UploadMediaModel(UserInfo user, Stream file, string extension)
             : base(user)

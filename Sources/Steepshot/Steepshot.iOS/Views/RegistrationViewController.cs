@@ -144,7 +144,7 @@ namespace Steepshot.iOS.Views
                     _usernameLabel.Hidden = true;
                 }
                 else
-                    _timer.Change(500, Timeout.Infinite);
+                    _timer.Change(1300, Timeout.Infinite);
             };
             View.AddSubview(_username);
 

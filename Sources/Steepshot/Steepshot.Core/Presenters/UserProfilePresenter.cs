@@ -5,6 +5,7 @@ using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Utils;
+using Steepshot.Core.Models.Common;
 
 namespace Steepshot.Core.Presenters
 {
@@ -16,6 +17,7 @@ namespace Steepshot.Core.Presenters
 
         public UserProfileResponse UserProfileResponse { get; private set; }
 
+        public Action SubscriptionsUpdated;
 
         public async Task<Exception> TryLoadNextPosts()
         {
@@ -132,6 +134,25 @@ namespace Steepshot.Core.Presenters
         {
             CashPresenterManager.Remove(UserProfileResponse);
             base.Clear(isNotify);
+        }
+
+        public async void CheckSubscriptions()
+        {
+            OperationResult<SubscriptionsModel> response;
+            do
+            {
+                response = await Api.CheckSubscriptions(AppSettings.User, CancellationToken.None);
+
+                if (response.IsSuccess)
+                {
+                    AppSettings.User.PushSettings = response.Result.EnumSubscriptions;
+                    SubscriptionsUpdated?.Invoke();
+                }
+                else
+                {
+                    await Task.Delay(5000);
+                }
+            } while (!response.IsSuccess);
         }
 
         #region IDisposable Support

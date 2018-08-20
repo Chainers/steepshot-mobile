@@ -185,7 +185,7 @@ namespace Steepshot.iOS.Views
         private void EditingDidChange(object sender, EventArgs e)
         {
             _tagField.ClearButton.Hidden = _tagField.Text.Length == 0;
-            _timer.Change(500, Timeout.Infinite);
+            _timer.Change(1300, Timeout.Infinite);
         }
 
         private void AddLocalTag(string txt, bool shouldClear = true)

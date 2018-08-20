@@ -26,7 +26,10 @@ namespace Steepshot.Core.Models.Enums
         [EnumMember(Value = "post")]
         User = 16,
 
-        All = Upvote | UpvoteComment | Comment | Follow | User
+        [EnumMember(Value = "transfer")]
+        Transfer = 32,
+
+        All = Upvote | UpvoteComment | Comment | Follow | User | Transfer
 
     }
 }

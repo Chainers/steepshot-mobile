@@ -309,7 +309,14 @@ About 6 inches away</string>
     <string name="[&quot;Username may not be null&quot;]">Username may not be null</string>
     <string name="[&quot;Unable to create account&quot;]">Unable to create account</string>
     <string name="[&quot;AmountLimit&quot;]">limit</string>
-    <string name="[&quot;AmountLimitFull&quot;]">Exceeding your limit. Press max balance.</string>
+    <string name="[&quot;AmountLimitFull&quot;]">Limit exceeded. Press max balance.</string>
     <string name="[&quot;Balance&quot;]">Balance</string>
     <string name="[&quot;PowerHint&quot;]">Long press the heart under a post to see the scale</string>
+    <string name="[&quot;RecievedTransfers&quot;]">Recieved transfers</string>
+    <string name="[&quot;RewardsClaimed&quot;]">Rewards successfully claimed!</string>
+    <string name="[&quot;TimeToClaimRewards&quot;]">Hello. It's time to claim rewards!</string>
+    <string name="[&quot;CancelPowerDown&quot;]">Cancel power down</string>
+    <string name="[&quot;CancelPowerDownAlert&quot;]">You are in the process of powering down the {0} Steem Power. Are you sure you want to cancel?</string>
+    <string name="[&quot;Yes&quot;]">Yes</string>
+    <string name="[&quot;No&quot;]">No</string>
 </resources>

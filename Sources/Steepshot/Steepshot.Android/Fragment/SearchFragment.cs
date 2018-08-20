@@ -15,7 +15,6 @@ using Steepshot.Core.Models.Common;
 using Steepshot.Utils;
 using Steepshot.Core.Models;
 using Steepshot.Core.Models.Enums;
-using Steepshot.Activity;
 using Steepshot.Core;
 using Steepshot.Core.Facades;
 using Steepshot.Core.Utils;
@@ -128,9 +127,8 @@ namespace Steepshot.Fragment
 
         public override void OnResume()
         {
-            if (Activity is RootActivity activity)
-                activity._tabLayout.Visibility = ViewStates.Gone;
             base.OnResume();
+            ToggleTabBar(true);
         }
 
         public override void OnDetach()
