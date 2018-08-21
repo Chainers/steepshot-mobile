@@ -91,9 +91,9 @@ namespace Steepshot.Core.Presenters
             return response.Exception;
         }
 
-        public async Task<Clients.BaseServerClient.PromoteResponse> FindPromoteBot(Clients.BaseServerClient.PromoteRequest r)
+        public async Task<PromoteResponse> FindPromoteBot(PromoteRequest request)
         {
-            return await Api.FindPromoteBot(r);
+            return await Api.FindPromoteBot(request);
         }
 
         //copypaste, need to remake architecture
