@@ -393,15 +393,24 @@ namespace Steepshot.Adapter
             }
         }
 
-        private void PromoteOnClick(object sender, EventArgs eventArgs)
-        {
-            
-        }
-
         private void EditOnClick(object sender, EventArgs eventArgs)
         {
             _moreActionsDialog.Dismiss();
             _postAction?.Invoke(ActionType.Edit, Post);
+        }
+
+        private void PromoteOnClick(object sender, EventArgs eventArgs)
+        {
+            _moreActionsDialog.Dismiss();
+            var alertBuilder = new AlertDialog.Builder(Context);
+            var alert = alertBuilder.Create();
+            var inflater = (LayoutInflater)Context.GetSystemService(Context.LayoutInflaterService);
+            var alertView = inflater.Inflate(Resource.Layout.lyt_promote_popup, null);
+
+            alert.SetCancelable(true);
+            alert.SetView(alertView);
+            alert.Window.SetBackgroundDrawable(new ColorDrawable(Color.Transparent));
+            alert.Show();
         }
 
         private void DeleteOnClick(object sender, EventArgs eventArgs)

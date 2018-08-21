@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:maxWidth="355dp"
+    android:layout_height="wrap_content"
+    android:layout_margin="30dp"
+    android:paddingLeft="20dp"
+    android:paddingRight="20dp"
+    android:background="@drawable/popup_background">
+    <TextView
+        android:id="@+id/promote_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Promote post"
+        android:textSize="14sp"
+        android:textColor="@color/black"
+        android:includeFontPadding="false"
+        android:layout_marginTop="25dp"
+        android:gravity="center_horizontal" />
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2px"
+        android:layout_marginTop="26dp"
+        android:background="@color/rgb244_244_246" />
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp">
+        <TextView
+            android:id="@+id/promote_amount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Amount"
+            android:textSize="14sp"
+            android:textColor="@color/black"
+            android:includeFontPadding="false" />
+        <TextView
+            android:id="@+id/user_balance"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="end"
+            android:text="Balance: 19999"
+            android:textSize="14sp"
+            android:textColor="@color/rgb151_155_158"
+            android:includeFontPadding="false" />
+    </LinearLayout>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp">
+        <Button
+            android:id="@+id/promote_max"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:minWidth="72dp"
+            android:layout_marginLeft="10dp"
+            android:text="max"
+            android:textAllCaps="true"
+            android:layout_alignParentRight="true"
+            android:background="@drawable/grey_rounded_border" />
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toLeftOf="@id/promote_max">
+            <EditText
+                android:id="@+id/promote_amount_edit"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:digits="0123456789."
+                android:inputType="numberDecimal"
+                android:textSize="14sp"
+                android:maxLines="1"
+                android:hint="e.g. 100"
+                android:paddingLeft="20dp"
+                android:background="@drawable/edit_text_borders" />
+            <LinearLayout
+                android:id="@+id/promote_coin"
+                android:layout_width="wrap_content"
+                android:layout_height="50dp"
+                android:orientation="horizontal"
+                android:layout_alignParentRight="true"
+                android:gravity="center"
+                android:paddingLeft="15dp"
+                android:paddingRight="15dp">
+                <TextView
+                    android:id="@+id/promotecoin_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="Steem"
+                    android:textSize="14sp"
+                    android:textAllCaps="true"
+                    android:textColor="@color/rgb255_34_5" />
+                <ImageView
+                    android:src="@drawable/ic_arrows"
+                    android:layout_marginLeft="10dp"
+                    android:layout_width="8dp"
+                    android:layout_height="16dp" />
+            </LinearLayout>
+        </RelativeLayout>
+    </RelativeLayout>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2px"
+        android:layout_marginTop="30dp"
+        android:background="@color/rgb244_244_246" />
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp">
+        <ProgressBar
+            android:id="@+id/power_spinner"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:indeterminateTintMode="src_atop"
+            android:indeterminateTint="@color/white"
+            android:layout_centerHorizontal="true"
+            android:visibility="gone"
+            android:elevation="10dp" />
+        <Button
+            android:id="@+id/findpromote_btn"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:text="find promoter"
+            android:textAllCaps="true"
+            android:textSize="14sp"
+            android:textColor="@color/white"
+            android:background="@drawable/orange_btn_style" />
+    </RelativeLayout>
+    <Button
+        android:id="@+id/close"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="20dp"
+        android:text="close"
+        android:textAllCaps="true"
+        android:textSize="14dp"
+        android:background="@drawable/grey_rounded_border" />
+</LinearLayout>
