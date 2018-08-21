@@ -285,16 +285,16 @@ namespace Steepshot.iOS.Views
 
             powerUpButton.TouchDown += (s, ev) =>
             {
-                _alert.Hide();
+                _alert.Close();
                 NavigationController.PushViewController(new PowerManipulationViewController(_presenter.Balances[0], Core.Models.Enums.PowerAction.PowerUp), true);
             };
             powerDownButton.TouchDown += (s, ev) =>
             {
-                _alert.Hide();
+                _alert.Close();
                 NavigationController.PushViewController(new PowerManipulationViewController(_presenter.Balances[0], Core.Models.Enums.PowerAction.PowerDown), true);
             
             };
-            cancelButton.TouchDown += (s, ev) => { _alert.Hide(); };
+            cancelButton.TouchDown += (s, ev) => { _alert.Close(); };
 
             _alert.Show();
         }
@@ -472,12 +472,12 @@ namespace Steepshot.iOS.Views
                 if (exception == null)
                 {
                     LoadData();
-                    _alert.Hide();
+                    _alert.Close();
                 }
                 else
                     ShowAlert(exception);
             };
-            cancelButton.TouchDown += (s, ev) => { _alert.Hide(); };
+            cancelButton.TouchDown += (s, ev) => { _alert.Close(); };
 
             Constants.CreateGradient(selectButton, 25);
             Constants.CreateShadowFromZeplin(selectButton, Constants.R231G72B0, 0.3f, 0, 10, 20, 0);

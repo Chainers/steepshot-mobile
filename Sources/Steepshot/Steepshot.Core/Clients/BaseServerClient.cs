@@ -463,7 +463,8 @@ namespace Steepshot.Core.Clients
             {
                 foreach (var item in suitableBots)
                 {
-                    if (item.MinBid <= promoteModel.Amount)
+                    if (item.MinBid <= promoteModel.Amount && promoteModel.CurrencyType == CurrencyType.Sbd ||
+                        item.MinBidSteem <= promoteModel.Amount && promoteModel.CurrencyType == CurrencyType.Steem)
                     {
                         var isOld = (DateTime.Now - promoteModel.PostToPromote.Created).TotalDays >= TimeSpan.FromDays(item.MaxPostAge.Value).TotalDays;
 

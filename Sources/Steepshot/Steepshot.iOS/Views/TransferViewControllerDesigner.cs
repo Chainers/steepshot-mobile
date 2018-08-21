@@ -288,9 +288,9 @@ namespace Steepshot.iOS.Views
                     selectButton.TouchDown += (sender, e) =>
                     {
                         CoinSelected(_coins[(int)picker.SelectedRowInComponent(0)]);
-                        _alert.Hide();
+                        _alert.Close();
                     };
-                    cancelButton.TouchDown += (sender, e) => { _alert.Hide(); };
+                    cancelButton.TouchDown += (sender, e) => { _alert.Close(); };
 
                     popup.SizeToFit();
                     Constants.CreateGradient(selectButton, 25);
@@ -573,7 +573,7 @@ namespace Steepshot.iOS.Views
                 NavigationController.View.EndEditing(true);
 
                 _successAlert = new CustomAlertView(popup, TabBarController);
-                cancelButton.TouchDown += (sender, e) => { _successAlert.Hide(); };
+                cancelButton.TouchDown += (sender, e) => { _successAlert.Close(); };
 
                 popup.SizeToFit();
             }
