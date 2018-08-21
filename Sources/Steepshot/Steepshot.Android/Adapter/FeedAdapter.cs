@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using Android.App;
 using Android.Content;
 using Android.Graphics;
 using Android.Support.V7.Widget;
@@ -316,7 +317,7 @@ namespace Steepshot.Adapter
                 flag.Typeface = Style.Semibold;
 
                 var title = dialogView.FindViewById<TextView>(Resource.Id.post_alert_title);
-                title.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.ActionWithPost);
+                title.Text = "Action with post";
                 title.Typeface = Style.Semibold;
 
                 var promote = dialogView.FindViewById<Button>(Resource.Id.promote);
@@ -401,15 +402,8 @@ namespace Steepshot.Adapter
         private void PromoteOnClick(object sender, EventArgs eventArgs)
         {
             _moreActionsDialog.Dismiss();
-            var alertBuilder = new AlertDialog.Builder(Context);
-            var alert = alertBuilder.Create();
-            var inflater = (LayoutInflater)Context.GetSystemService(Context.LayoutInflaterService);
-            var alertView = inflater.Inflate(Resource.Layout.lyt_promote_popup, null);
-
-            alert.SetCancelable(true);
-            alert.SetView(alertView);
-            alert.Window.SetBackgroundDrawable(new ColorDrawable(Color.Transparent));
-            alert.Show();
+            var actionAlert = new PromoteAlertDialog(Context);
+            actionAlert.Show();
         }
 
         private void DeleteOnClick(object sender, EventArgs eventArgs)
