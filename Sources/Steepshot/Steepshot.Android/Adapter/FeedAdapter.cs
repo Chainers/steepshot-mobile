@@ -316,6 +316,15 @@ namespace Steepshot.Adapter
                 flag.Text = AppSettings.LocalizationManager.GetText(Post.Flag ? LocalizationKeys.UnFlagPost : LocalizationKeys.FlagPost);
                 flag.Typeface = Style.Semibold;
 
+                var title = dialogView.FindViewById<TextView>(Resource.Id.post_alert_title);
+                title.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.ActionWithPost);
+                title.Typeface = Style.Semibold;
+
+                var promote = dialogView.FindViewById<Button>(Resource.Id.promote);
+                promote.Text = "Promote this post";
+                promote.Typeface = Style.Semibold;
+                promote.Visibility = ViewStates.Visible;
+
                 var hide = dialogView.FindViewById<Button>(Resource.Id.hide);
                 hide.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.HidePost);
                 hide.Typeface = Style.Semibold;
@@ -349,6 +358,9 @@ namespace Steepshot.Adapter
                 cancel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Cancel);
                 cancel.Typeface = Style.Semibold;
 
+                promote.Click -= PromoteOnClick;
+                promote.Click += PromoteOnClick;
+
                 flag.Click -= DoFlagAction;
                 flag.Click += DoFlagAction;
 
@@ -371,10 +383,19 @@ namespace Steepshot.Adapter
                 cancel.Click += DoDialogCancelAction;
 
                 _moreActionsDialog.SetContentView(dialogView);
-                dialogView.SetBackgroundColor(Color.Transparent);
                 _moreActionsDialog.Window.FindViewById(Resource.Id.design_bottom_sheet).SetBackgroundColor(Color.Transparent);
+                var dialogPadding = (int)Android.Util.TypedValue.ApplyDimension(Android.Util.ComplexUnitType.Dip, 10, Context.Resources.DisplayMetrics);
+                _moreActionsDialog.Window.DecorView.SetPadding(dialogPadding, dialogPadding, dialogPadding, dialogPadding);
                 _moreActionsDialog.Show();
+
+                var bottomSheet = _moreActionsDialog.FindViewById<FrameLayout>(Resource.Id.design_bottom_sheet);
+                BottomSheetBehavior.From(bottomSheet).State = BottomSheetBehavior.StateExpanded;
             }
+        }
+
+        private void PromoteOnClick(object sender, EventArgs eventArgs)
+        {
+            
         }
 
         private void EditOnClick(object sender, EventArgs eventArgs)
@@ -386,7 +407,7 @@ namespace Steepshot.Adapter
         private void DeleteOnClick(object sender, EventArgs eventArgs)
         {
             _moreActionsDialog.Dismiss();
-            AlertDialog.Builder alertBuilder = new AlertDialog.Builder(Context);
+            var alertBuilder = new AlertDialog.Builder(Context);
             var alert = alertBuilder.Create();
             var inflater = (LayoutInflater)Context.GetSystemService(Context.LayoutInflaterService);
             var alertView = inflater.Inflate(Resource.Layout.lyt_deletion_alert, null);

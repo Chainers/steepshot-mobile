@@ -208,6 +208,7 @@
         AmountLimitFull,
         Balance,
         PowerHint,
-        RecievedTransfers
+        RecievedTransfers,
+        ActionWithPost,
     }
 }
