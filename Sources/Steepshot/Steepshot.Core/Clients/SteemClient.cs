@@ -37,48 +37,52 @@ namespace Steepshot.Core.Clients
             _operationManager = new OperationManager(httpManager);
         }
 
-        public override async Task<bool> TryReconnectChain(CancellationToken token)
+        public override Task<bool> TryReconnectChain(CancellationToken token)
         {
-            if (EnableWrite)
-                return EnableWrite;
-
-            var lockWasTaken = false;
-            try
+            return Task.Run(() =>
             {
-                Monitor.Enter(SyncConnection, ref lockWasTaken);
-                if (!EnableWrite)
+                if (EnableWrite)
+                    return EnableWrite;
+
+                var lockWasTaken = false;
+                try
                 {
-                    await AppSettings.ConfigManager.Update(ExtendedHttpClient, KnownChains.Steem, token);
-
-                    var cUrls = AppSettings.ConfigManager.SteemNodeConfigs
-                        .Where(n => n.IsEnabled)
-                        .OrderBy(n => n.Order)
-                        .Select(n => n.Url)
-                        .ToArray();
-                    foreach (var url in cUrls)
+                    Monitor.Enter(SyncConnection, ref lockWasTaken);
+                    if (!EnableWrite)
                     {
-                        if (token.IsCancellationRequested)
-                            break;
+                        AppSettings.ConfigManager.Update(ExtendedHttpClient, KnownChains.Steem, token).Wait(token);
 
-                        var isConnected = await _operationManager.ConnectTo(url, token);
-                        if (isConnected)
+                        var cUrls = AppSettings.ConfigManager.SteemNodeConfigs
+                            .Where(n => n.IsEnabled)
+                            .OrderBy(n => n.Order)
+                            .Select(n => n.Url)
+                            .ToArray();
+                        foreach (var url in cUrls)
                         {
-                            EnableWrite = true;
-                            break;
+                            if (token.IsCancellationRequested)
+                                break;
+
+                            var isConnected = _operationManager.ConnectTo(url, token).Result;
+                            if (isConnected)
+                            {
+                                EnableWrite = true;
+                                break;
+                            }
                         }
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                await AppSettings.Logger.Warning(ex);
-            }
-            finally
-            {
-                if (lockWasTaken)
-                    Monitor.Exit(SyncConnection);
-            }
-            return EnableWrite;
+                catch (Exception ex)
+                {
+                    AppSettings.Logger.Warning(ex).Wait(token);
+                }
+                finally
+                {
+                    if (lockWasTaken)
+                        Monitor.Exit(SyncConnection);
+                }
+
+                return EnableWrite;
+            }, token);
         }
 
         #region Post requests
@@ -267,7 +271,7 @@ namespace Steepshot.Core.Clients
             BaseOperation op;
             if (model.PowerAction == PowerAction.PowerUp)
             {
-                asset.FromOldFormat($"{model.Value} {Config.Steem}");
+                asset.FromOldFormat($"{model.Value.ToString(CultureInfo.InvariantCulture)} {Config.Steem}");
                 op = new TransferToVestingOperation(model.From, model.To, asset);
             }
             else
@@ -276,7 +280,7 @@ namespace Steepshot.Core.Clients
                 if (!vestsExchangeRatio.IsSuccess)
                     return new OperationResult<VoidResponse>(vestsExchangeRatio.Exception);
 
-                asset.FromOldFormat($"{(model.Value / vestsExchangeRatio.Result):F6} {Config.Vests}");
+                asset.FromOldFormat($"{(model.Value / vestsExchangeRatio.Result).ToString("F6", CultureInfo.InvariantCulture)} {Config.Vests}");
                 op = new WithdrawVestingOperation(model.Login, asset);
             }
 
@@ -312,10 +316,6 @@ namespace Steepshot.Core.Clients
         #region Get
         public override async Task<OperationResult<string>> GetVerifyTransaction(AuthorizedPostingModel model, CancellationToken ct)
         {
-            var isConnected = await TryReconnectChain(ct);
-            if (!isConnected)
-                return new OperationResult<string>(new ValidationException(LocalizationKeys.EnableConnectToBlockchain));
-
             var keys = ToKeyArr(model.PostingKey);
             if (keys == null)
                 return new OperationResult<string>(new ValidationException(LocalizationKeys.WrongPrivatePostingKey));
@@ -450,6 +450,7 @@ namespace Steepshot.Core.Clients
                         RewardSbd = acc.RewardSbdBalance.ToDouble(),
                         DelegatedToMe = acc.ReceivedVestingShares.ToDouble()  * vestsExchangeRatio.Result,
                         DelegatedByMe = acc.DelegatedVestingShares.ToDouble()  * vestsExchangeRatio.Result,
+                        ToWithdraw = long.Parse(acc.ToWithdraw.ToString()) / 10e5 * vestsExchangeRatio.Result
                     },
                     new BalanceModel(acc.SbdBalance.ToDouble(), 3, CurrencyType.Sbd)
                     {
@@ -459,6 +460,7 @@ namespace Steepshot.Core.Clients
                         RewardSbd = acc.RewardSbdBalance.ToDouble(),
                         DelegatedToMe = acc.ReceivedVestingShares.ToDouble() * vestsExchangeRatio.Result,
                         DelegatedByMe = acc.DelegatedVestingShares.ToDouble() * vestsExchangeRatio.Result,
+                        ToWithdraw = long.Parse(acc.ToWithdraw.ToString()) / 10e5 * vestsExchangeRatio.Result
                     }
                 }
             };

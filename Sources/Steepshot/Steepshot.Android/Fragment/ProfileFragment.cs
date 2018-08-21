@@ -365,6 +365,7 @@ namespace Steepshot.Fragment
 
         private async void RefresherRefresh(object sender, EventArgs e)
         {
+            await Presenter.TryUpdateUserPosts(AppSettings.User.Login);
             await UpdatePage(ProfileUpdateType.Full);
             if (!IsInitialized)
                 return;
@@ -662,7 +663,7 @@ namespace Steepshot.Fragment
                 case ActionType.Edit:
                     {
                         ((BaseActivity)Activity).OpenNewContentFragment(new PostEditFragment(post));
-                        ((RootActivity)Activity)._tabLayout.Visibility = ViewStates.Gone;
+                        ToggleTabBar(true);
                         break;
                     }
                 case ActionType.Delete:

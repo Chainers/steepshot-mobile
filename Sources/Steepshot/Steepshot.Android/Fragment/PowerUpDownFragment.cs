@@ -147,42 +147,49 @@ namespace Steepshot.Fragment
         private void AmountEditOnTextChanged(object sender, TextChangedEventArgs e)
         {
             _amountLimitMessage.Visibility = ViewStates.Gone;
+            var amountAvailable = _balance.Value;
+            var spAvailiable = _balance.EffectiveSp - (_powerAction == PowerAction.PowerDown ? _balance.DelegatedToMe + 5 : 0);
 
             if (string.IsNullOrEmpty(_amountEdit.Text))
             {
-                UpdateTokenValues(_balance.Value.ToBalanceValueString(), _balance.Value.ToBalanceValueString(), _balance.EffectiveSp.ToBalanceValueString(), _balance.EffectiveSp.ToBalanceValueString());
+                UpdateTokenValues(amountAvailable.ToBalanceValueString(), amountAvailable.ToBalanceValueString(), spAvailiable.ToBalanceValueString(), spAvailiable.ToBalanceValueString());
                 _powerAmount = -1;
                 return;
             }
 
-            var amountEdit = double.Parse(_amountEdit.Text, CultureInfo.InvariantCulture);
-            var amountAvailable = _balance.Value;
-            var spAvailiable = _balance.EffectiveSp;
-
-            if (amountEdit <= (_powerAction == PowerAction.PowerUp ? amountAvailable : spAvailiable))
+            if (double.TryParse(_amountEdit.Text, NumberStyles.Any, CultureInfo.InvariantCulture, out var amountEdit))
             {
-                switch (_powerAction)
-                {
-                    case PowerAction.PowerUp:
-                        UpdateTokenValues(_balance.Value.ToBalanceValueString(), (amountAvailable - amountEdit).ToBalanceValueString(), _balance.EffectiveSp.ToBalanceValueString(), (spAvailiable + amountEdit).ToBalanceValueString());
-                        break;
-                    case PowerAction.PowerDown:
-                        UpdateTokenValues(_balance.Value.ToBalanceValueString(), (amountAvailable + amountEdit).ToBalanceValueString(), _balance.EffectiveSp.ToBalanceValueString(), (spAvailiable - amountEdit).ToBalanceValueString());
-                        break;
-                }
                 _powerAmount = amountEdit;
-            }
-            else
-            {
-                UpdateTokenValues(_balance.Value.ToBalanceValueString(), AppSettings.LocalizationManager.GetText(LocalizationKeys.AmountLimit), _balance.EffectiveSp.ToBalanceValueString(), AppSettings.LocalizationManager.GetText(LocalizationKeys.AmountLimit));
-                _powerAmount = -1;
-                _amountLimitMessage.Visibility = ViewStates.Visible;
+                if (_powerAction == PowerAction.PowerUp && amountEdit <= amountAvailable)
+                {
+                    UpdateTokenValues(_balance.Value.ToBalanceValueString(),
+                        (amountAvailable - amountEdit).ToBalanceValueString(),
+                        spAvailiable.ToBalanceValueString(),
+                        (spAvailiable + amountEdit).ToBalanceValueString());
+                }
+                else if (_powerAction == PowerAction.PowerDown && amountEdit <= spAvailiable)
+                {
+                    UpdateTokenValues(_balance.Value.ToBalanceValueString(),
+                        (amountAvailable + amountEdit).ToBalanceValueString(),
+                        spAvailiable.ToBalanceValueString(),
+                        (spAvailiable - amountEdit).ToBalanceValueString());
+                }
+                else
+                {
+                    UpdateTokenValues(_balance.Value.ToBalanceValueString(),
+                        AppSettings.LocalizationManager.GetText(LocalizationKeys.AmountLimit),
+                        spAvailiable.ToBalanceValueString(),
+                        AppSettings.LocalizationManager.GetText(LocalizationKeys.AmountLimit));
+                    _powerAmount = -1;
+                    _amountLimitMessage.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.AmountLimitFull);
+                    _amountLimitMessage.Visibility = ViewStates.Visible;
+                }
             }
         }
 
         private void MaxBtnOnClick(object sender, EventArgs e)
         {
-            _amountEdit.Text = _powerAction == PowerAction.PowerUp ? _balance.Value.ToBalanceValueString() : _balance.EffectiveSp.ToBalanceValueString();
+            _amountEdit.Text = _powerAction == PowerAction.PowerUp ? _balance.Value.ToBalanceValueString() : (_balance.EffectiveSp - _balance.DelegatedToMe - 5).ToBalanceValueString();
             _amountEdit.SetSelection(_amountEdit.Text.Length);
         }
 

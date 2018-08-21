@@ -1,11 +1,13 @@
 ﻿using System;
+using Android.Content;
 using Android.Graphics;
 using Android.Support.Design.Widget;
 using Android.Util;
 using Android.Views;
 using Android.Widget;
-using Steepshot.Base;
 using Steepshot.Core.Localization;
+using Steepshot.Core.Models.Common;
+using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Utils;
 using Steepshot.Utils;
 
@@ -13,13 +15,12 @@ namespace Steepshot.CustomViews
 {
     public class WalletExtraDialog : BottomSheetDialog
     {
-        public Action PowerUp;
-        public Action PowerDown;
-        private readonly BaseActivity _baseActivityContext;
+        public Action<PowerAction> ExtraAction;
+        private readonly BalanceModel _balance;
 
-        public WalletExtraDialog(BaseActivity context) : base(context)
+        public WalletExtraDialog(Context context, BalanceModel balance) : base(context)
         {
-            _baseActivityContext = context;
+            _balance = balance;
         }
 
         public override void Show()
@@ -41,6 +42,13 @@ namespace Steepshot.CustomViews
                 porwerDown.Typeface = Style.Semibold;
                 porwerDown.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PowerDown);
                 porwerDown.Click += PorwerDownOnClick;
+                porwerDown.Visibility = _balance.EffectiveSp - _balance.DelegatedToMe - 5 > 0 ? ViewStates.Visible : ViewStates.Gone;
+
+                var cancelPorwerDown = dialogView.FindViewById<Button>(Resource.Id.cancel_power_down);
+                cancelPorwerDown.Typeface = Style.Semibold;
+                cancelPorwerDown.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.CancelPowerDown);
+                cancelPorwerDown.Click += CancelPorwerDownOnClick;
+                cancelPorwerDown.Visibility = _balance.ToWithdraw > 0 ? ViewStates.Visible : ViewStates.Gone;
 
                 var cancel = dialogView.FindViewById<Button>(Resource.Id.cancel);
                 cancel.Typeface = Style.Semibold;
@@ -61,13 +69,19 @@ namespace Steepshot.CustomViews
         private void PorwerUpOnClick(object sender, EventArgs e)
         {
             Dismiss();
-            PowerUp?.Invoke();
+            ExtraAction?.Invoke(PowerAction.PowerUp);
         }
 
         private void PorwerDownOnClick(object sender, EventArgs e)
         {
             Dismiss();
-            PowerDown?.Invoke();
+            ExtraAction?.Invoke(PowerAction.PowerDown);
+        }
+
+        private void CancelPorwerDownOnClick(object sender, EventArgs e)
+        {
+            Dismiss();
+            ExtraAction?.Invoke(PowerAction.CancelPowerDown);
         }
 
         private void CancelOnClick(object sender, EventArgs e)

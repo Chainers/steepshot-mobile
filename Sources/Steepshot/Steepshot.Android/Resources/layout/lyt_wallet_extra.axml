@@ -40,6 +40,15 @@
         android:textColor="@color/black"
         android:gravity="center"
         android:background="@drawable/white_btn_style_edge_grey" />
+	<Button
+        android:id="@+id/cancel_power_down"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginBottom="10dp"
+        android:textSize="14sp"
+        android:textColor="@color/black"
+        android:gravity="center"
+        android:background="@drawable/white_btn_style_edge_grey" />
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"

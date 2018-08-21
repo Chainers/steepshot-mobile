@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Ditch.Core;
 using Ditch.Core.JsonRpc;
 using Newtonsoft.Json;
+using Steepshot.Core.Authorization;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Models.Requests;
@@ -399,12 +400,12 @@ namespace Steepshot.Core.Clients
             return null;
         }
 
-        public async Task<OperationResult<SubscriptionsModel>> CheckSubscriptions(CancellationToken token)
+        public async Task<OperationResult<SubscriptionsModel>> CheckSubscriptions(User user, CancellationToken token)
         {
-            if (!EnableRead)
-                return null;
+            if (!EnableRead || !user.HasPostingPermission || string.IsNullOrEmpty(user.PushesPlayerId))
+                return new OperationResult<SubscriptionsModel>(new NullReferenceException(nameof(user.PushesPlayerId)));
 
-            var endpoint = $"{BaseUrl}/{GatewayVersion.V1P1}/subscriptions/{AppSettings.User.Login}/{ AppSettings.User.PushesPlayerId}";
+            var endpoint = $"{BaseUrl}/{GatewayVersion.V1P1}/subscriptions/{user.Login}/{user.PushesPlayerId}";
             return await HttpClient.Get<SubscriptionsModel>(endpoint, token);
         }
 

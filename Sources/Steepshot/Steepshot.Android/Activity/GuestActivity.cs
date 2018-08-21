@@ -9,7 +9,7 @@ using System.Linq;
 
 namespace Steepshot.Activity
 {
-    [Activity(ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait, LaunchMode = LaunchMode.SingleTask)]
+    [Activity(ScreenOrientation = ScreenOrientation.Portrait, LaunchMode = LaunchMode.SingleTask)]
     public sealed class GuestActivity : BaseActivity, IClearable
     {
         protected override void OnCreate(Bundle savedInstanceState)
