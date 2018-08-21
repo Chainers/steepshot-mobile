@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Ditch.Core;
 using Ditch.Core.JsonRpc;
 using Newtonsoft.Json;
+using Steepshot.Core.Authorization;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Models.Requests;
@@ -399,39 +400,13 @@ namespace Steepshot.Core.Clients
             return null;
         }
 
-        public async Task<OperationResult<SubscriptionsModel>> CheckSubscriptions(CancellationToken token)
+        public async Task<OperationResult<SubscriptionsModel>> CheckSubscriptions(User user, CancellationToken token)
         {
-            if (!EnableRead)
-                return null;
+            if (!EnableRead || !user.HasPostingPermission || string.IsNullOrEmpty(user.PushesPlayerId))
+                return new OperationResult<SubscriptionsModel>(new NullReferenceException(nameof(user.PushesPlayerId)));
 
-            var endpoint = $"{BaseUrl}/{GatewayVersion.V1P1}/subscriptions/{AppSettings.User.Login}/{ AppSettings.User.PushesPlayerId}";
+            var endpoint = $"{BaseUrl}/{GatewayVersion.V1P1}/subscriptions/{user.Login}/{user.PushesPlayerId}";
             return await HttpClient.Get<SubscriptionsModel>(endpoint, token);
-        }
-
-        public List<string> SupportedListBots = new List<string>() { "promobot", "upme", "therising", "upmewhale", "rocky1", "boomerang","appreciator",
-        "postpromoter", "smartsteem", "spydo", "booster", "emperorofnaps", "jerrybanfield" };
-
-
-        public class PromoteRequest
-        {
-            public CurrencyType CurrencyType { get; set; }
-
-            public double Amount { get; set; }
-
-            public Post PostToPromote { get; set; }
-        }
-
-        public class PromoteResponse
-        {
-            public TimeSpan ExpectedUpvoteTime { get; private set; }
-
-            public UserFriend Bot { get; private set; }
-
-            public PromoteResponse(UserFriend bot, TimeSpan amount)
-            {
-                Bot = bot;
-                ExpectedUpvoteTime = amount;
-            }
         }
 
         public async Task<PromoteResponse> FindPromoteBot(PromoteRequest promoteModel)
@@ -443,7 +418,7 @@ namespace Steepshot.Core.Clients
             var respo = await HttpClient.Get<List<BidBot>>(endpoint, CancellationToken.None);
             if (!respo.IsSuccess)
                 return null;
-            var suitableBots = respo.Result.Where(x => x.MinBid >= 0.5 && SupportedListBots.Contains(x.Name)).ToList();
+            var suitableBots = respo.Result.Where(x => x.MinBid >= 0.5 && Constants.SupportedListBots.Contains(x.Name)).ToList();
 
             var endpoint2 = "https://postpromoter.net/api/prices";
             var respo2 = await HttpClient.Get<Price>(endpoint2, CancellationToken.None);
@@ -459,60 +434,51 @@ namespace Steepshot.Core.Clients
 
             var muchSuitableBots = new List<BidBot>();
 
-            try
+            foreach (var item in suitableBots)
             {
-                foreach (var item in suitableBots)
+                if (item.MinBid <= promoteModel.Amount && promoteModel.CurrencyType == CurrencyType.Sbd ||
+                    item.MinBidSteem <= promoteModel.Amount && promoteModel.CurrencyType == CurrencyType.Steem)
                 {
-                    if (item.MinBid <= promoteModel.Amount && promoteModel.CurrencyType == CurrencyType.Sbd ||
-                        item.MinBidSteem <= promoteModel.Amount && promoteModel.CurrencyType == CurrencyType.Steem)
-                    {
-                        var isOld = (DateTime.Now - promoteModel.PostToPromote.Created).TotalDays >= TimeSpan.FromDays(item.MaxPostAge.Value).TotalDays;
+                    var isOld = (DateTime.Now - promoteModel.PostToPromote.Created).TotalDays >= TimeSpan.FromDays(item.MaxPostAge.Value).TotalDays;
 
-                        if (item.Next <= 100 * 1000 ||
-                            (!item.AcceptsSteem && promoteModel.CurrencyType == CurrencyType.Steem) ||
-                            isOld ||
-                            item.IsDisabled ||
-                            !checkAmount(promoteModel.Amount, steemToUSD, sbdToUSD, promoteModel.CurrencyType, item) ||
-                            checkUpvotedUsers(item.Name, usersResult.Result.Results))
+                    if (item.Next <= 100 * 1000 ||
+                        (!item.AcceptsSteem && promoteModel.CurrencyType == CurrencyType.Steem) ||
+                        isOld ||
+                        item.IsDisabled ||
+                        !CheckAmount(promoteModel.Amount, steemToUSD, sbdToUSD, promoteModel.CurrencyType, item) ||
+                        CheckUpvotedUsers(item.Name, usersResult.Result.Results))
+                    {
+                        continue;
+                    }
+                    if (muchSuitableBots.Count >= 1)
+                    {
+                        if (muchSuitableBots[0].Next > item.Next)
                         {
-                            continue;
-                        }
-                        if (muchSuitableBots.Count >= 1)
-                        {
-                            if (muchSuitableBots[0].Next > item.Next)
-                            {
-                                muchSuitableBots.Insert(0, item);
-                            }
-                            else
-                            {
-                                muchSuitableBots.Add(item);
-                            }
+                            muchSuitableBots.Insert(0, item);
                         }
                         else
                         {
                             muchSuitableBots.Add(item);
                         }
                     }
+                    else
+                    {
+                        muchSuitableBots.Add(item);
+                    }
                 }
-            }
-            catch(Exception ex)
-            {
-                
             }
 
             if (muchSuitableBots.Count == 0)
-            {
                 return null;
-            }
 
             var suitableBot = muchSuitableBots[0];
 
             var response = await SearchUser(new SearchWithQueryModel(suitableBot.Name), CancellationToken.None);
 
-            if(response.IsSuccess)
+            if (response.IsSuccess)
             {
                 var bot = response.Result.Results.FirstOrDefault();
-                if(bot != null)
+                if (bot != null)
                 {
                     var promoteResponse = new PromoteResponse(bot, TimeSpan.FromMilliseconds(suitableBot.Next.Value));
                     return promoteResponse;
@@ -521,94 +487,26 @@ namespace Steepshot.Core.Clients
             return null;
         }
 
-        bool checkAmount(double promoteAmount, double steemToUSD, double sbdToUSD, CurrencyType token, BidBot botInfo)
+        private bool CheckAmount(double promoteAmount, double steemToUSD, double sbdToUSD, CurrencyType token, BidBot botInfo)
         {
             var amountLimit = botInfo.VoteUsd;
             var bidsAmountInBot = botInfo.TotalUsd;
             double userBidInUSD = 0;
             if (token == CurrencyType.Steem)
-            {
                 userBidInUSD = promoteAmount * steemToUSD;
-            }
             if (token == CurrencyType.Sbd)
-            {
                 userBidInUSD = promoteAmount * sbdToUSD;
-            }
             return (userBidInUSD + bidsAmountInBot) < amountLimit - (amountLimit * 0.25);
         }
 
-        bool checkUpvotedUsers(string probablySuitableBot, List<UserFriend> usersArr)
+        private bool CheckUpvotedUsers(string probablySuitableBot, List<UserFriend> usersArr)
         {
             foreach (var item in usersArr)
             {
                 if (probablySuitableBot == item.Author)
-                {
                     return true;
-                }
             }
             return false;
         }
-    }
-
-    public class Price
-    {
-        [JsonProperty("sbd_price")]
-        public double SbdPrice { get; set; }
-        [JsonProperty("steem_price")]
-        public double SteemPrice { get; set; }
-    }
-
-    public class BidBot
-    {
-        [JsonProperty("name")]
-        public string Name { get; set; }
-        [JsonProperty("api_errors")]
-        public double? ApiErrors { get; set; }
-        [JsonProperty("min_bid")]
-        public double? MinBid { get; set; }
-        [JsonProperty("min_bid_steem")]
-        public double? MinBidSteem { get; set; }
-        [JsonProperty("max_bid")]
-        public double? MaxBid { get; set; }
-        [JsonProperty("max_bid_wl")]
-        public double? MaxBidWl { get; set; }
-        [JsonProperty("fill_limit")]
-        public object FillLimit { get; set; }
-        [JsonProperty("max_roi")]
-        public double? MaxRoi { get; set; }
-        [JsonProperty("interval")]
-        public double? Interval { get; set; }
-        [JsonProperty("max_post_age")]
-        public double? MaxPostAge { get; set; }
-        [JsonProperty("min_post_age")]
-        public double? MinPostAge { get; set; }
-        [JsonProperty("is_disabled")]
-        public bool IsDisabled { get; set; }
-        [JsonProperty("funding_url")]
-        public string FundingUrl { get; set; }
-        [JsonProperty("rules_url")]
-        public string RulesUrl { get; set; }
-        [JsonProperty("accepts_steem")]
-        public bool AcceptsSteem { get; set; }
-        [JsonProperty("refunds")]
-        public bool Refunds { get; set; }
-        [JsonProperty("comments")]
-        public bool Comments { get; set; }
-        [JsonProperty("posts_comment")]
-        public bool PostsComment { get; set; }
-        [JsonProperty("vote")]
-        public double? Vote { get; set; }
-        [JsonProperty("power")]
-        public double? Power { get; set; }
-        [JsonProperty("last")]
-        public double? Last { get; set; }
-        [JsonProperty("next")]
-        public double? Next { get; set; }
-        [JsonProperty("vote_usd")]
-        public double? VoteUsd { get; set; }
-        [JsonProperty("total_usd")]
-        public double? TotalUsd { get; set; }
-        [JsonProperty("last_api_error")]
-        public DateTime LastApiError { get; set; }
     }
 }

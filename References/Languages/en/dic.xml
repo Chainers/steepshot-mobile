@@ -313,6 +313,10 @@ About 6 inches away</string>
     <string name="[&quot;Balance&quot;]">Balance</string>
     <string name="[&quot;PowerHint&quot;]">Long press the heart under a post to see the scale</string>
     <string name="[&quot;RecievedTransfers&quot;]">Recieved transfers</string>
-
-    <string name="[&quot;ActionWithPost&quot;]">Action with post</string>
+    <string name="[&quot;RewardsClaimed&quot;]">Rewards successfully claimed!</string>
+    <string name="[&quot;TimeToClaimRewards&quot;]">Hello. It's time to claim rewards!</string>
+    <string name="[&quot;CancelPowerDown&quot;]">Cancel power down</string>
+    <string name="[&quot;CancelPowerDownAlert&quot;]">You are in the process of powering down the {0} Steem Power. Are you sure you want to cancel?</string>
+    <string name="[&quot;Yes&quot;]">Yes</string>
+    <string name="[&quot;No&quot;]">No</string>
 </resources>

@@ -191,6 +191,7 @@
         SelectAction,
         PowerUp,
         PowerDown,
+        CancelPowerDown,
         Max,
         ClaimRewards,
         PlagiarismTitle,
@@ -209,6 +210,10 @@
         Balance,
         PowerHint,
         RecievedTransfers,
-        ActionWithPost,
+        TimeToClaimRewards,
+        RewardsClaimed,
+        CancelPowerDownAlert,
+        Yes,
+        No
     }
 }

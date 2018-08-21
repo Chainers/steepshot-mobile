@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -7,6 +7,8 @@ using System.Net.Http;
 using System.Text;
 using Steepshot.Core.Serializing;
 using Steepshot.Core.Models.Common;
+using Steepshot.Core.Models.Responses;
+using System.IO;
 using System.Linq;
 using System.Net.Http.Headers;
 using Ditch.Core;
@@ -69,7 +71,7 @@ namespace Steepshot.Core.Clients
             return await CreateResult<T>(response, token);
         }
 
-        public async Task<OperationResult<MediaModel>> UploadMedia(string url, UploadMediaModel model, CancellationToken token)
+        public async Task<OperationResult<UUIDModel>> UploadMedia(string url, UploadMediaModel model, CancellationToken token)
         {
             var fTitle = Guid.NewGuid().ToString();
 
@@ -77,13 +79,14 @@ namespace Steepshot.Core.Clients
             file.Headers.ContentType = MediaTypeHeaderValue.Parse(model.ContentType);
             var multiContent = new MultipartFormDataContent
             {
-                {new StringContent(model.VerifyTransaction), "trx"},
                 {file, "file", fTitle},
-                {new StringContent(model.GenerateThumbnail.ToString()), "generate_thumbnail"}
+                {new StringContent(model.Thumbnails.ToString()), "thumbnails"},
+                {new StringContent(model.AWS.ToString()), "aws"},
+                {new StringContent(model.IPFS.ToString()), "ipfs"}
             };
 
             var response = await PostAsync(url, multiContent, token);
-            var result = await CreateResult<MediaModel>(response, token);
+            var result = await CreateResult<UUIDModel>(response, token);
 
             if (result.IsSuccess && result.Result == null)
                 result.Exception = new ValidationException(LocalizationKeys.ServeUnexpectedError);

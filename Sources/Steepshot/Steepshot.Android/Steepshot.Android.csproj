@@ -17,7 +17,6 @@
     <AndroidManifest>Properties\AndroidManifest.xml</AndroidManifest>
     <MonoAndroidResourcePrefix>Resources</MonoAndroidResourcePrefix>
     <MonoAndroidAssetsPrefix>Assets</MonoAndroidAssetsPrefix>
-    <AndroidUseLatestPlatformSdk>true</AndroidUseLatestPlatformSdk>
     <AndroidTlsProvider>
     </AndroidTlsProvider>
     <NuGetPackageImportStamp>
@@ -77,6 +76,7 @@
     <Compile Include="Base\App.cs" />
     <Compile Include="Base\BaseSignInActivity.cs" />
     <Compile Include="CustomViews\AccurateMovementMethod.cs" />
+    <Compile Include="CustomViews\ActionAlertDialog.cs" />
     <Compile Include="CustomViews\AutoLinkTextView.cs" />
     <Compile Include="CustomViews\ClaimRewardsDialog.cs" />
     <Compile Include="CustomViews\CoinPickDialog.cs" />
