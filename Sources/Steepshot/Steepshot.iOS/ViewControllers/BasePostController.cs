@@ -106,6 +106,16 @@ namespace Steepshot.iOS.ViewControllers
             balanceLoader.StopAnimating();
         }
 
+        public override void ViewDidAppear(bool animated)
+        {
+            if(_alert != null)
+                _alert.Hidden = false;
+
+            base.ViewDidAppear(animated);
+        }
+
+        CustomAlertView _alert;
+
         protected void PromotePost(Post post)
         {
             _pickedCoin = CurrencyType.Steem;
@@ -125,7 +135,7 @@ namespace Steepshot.iOS.ViewControllers
             popup.Layer.CornerRadius = 20;
             popup.BackgroundColor = Constants.R255G255B255;
 
-            var _alert = new CustomAlertView(popup, TabBarController.NavigationController);
+            _alert = new CustomAlertView(popup, TabBarController.NavigationController);
 
             var dialogWidth = UIScreen.MainScreen.Bounds.Width - 10 * 2;
             popup.AutoSetDimension(ALDimension.Width, dialogWidth);
@@ -235,7 +245,6 @@ namespace Steepshot.iOS.ViewControllers
             errorMessage.AutoPinEdge(ALEdge.Right, ALEdge.Right, _amountTextField);
 
             _amountTextField.EditingChanged += 汤;
-
             var max = new UIButton();
             max.SetTitle(AppSettings.LocalizationManager.GetText(LocalizationKeys.Max), UIControlState.Normal);
             max.SetTitleColor(UIColor.Black, UIControlState.Normal);
@@ -439,7 +448,9 @@ namespace Steepshot.iOS.ViewControllers
                 {
                     if (!AppSettings.User.HasActivePermission)
                     {
-                        NavigationController.PushViewController(new LoginViewController(false), true);
+                        _alert.Hidden = true;
+
+                        TabBarController.NavigationController.PushViewController(new LoginViewController(false), true);
                         return;
                     }
 
@@ -503,7 +514,7 @@ namespace Steepshot.iOS.ViewControllers
 
                     var pr = new Core.Clients.BaseServerClient.PromoteRequest()
                     {
-                        Amount = double.Parse(_amountTextField.Text),
+                        Amount = _amountTextField.GetDoubleValue(),
                         CurrencyType = _pickedCoin,
                         PostToPromote = post,
                     };
@@ -571,7 +582,7 @@ namespace Steepshot.iOS.ViewControllers
             };
             cancelButton.TouchDown += (sender, e) =>
             {
-                _alert.Hide();
+                _alert.Close();
             };
 
             var popuptap = new UITapGestureRecognizer(() =>
@@ -761,8 +772,8 @@ namespace Steepshot.iOS.ViewControllers
 
                 _alert = new CustomAlertView(dialog, TabBarController);
 
-                leftButton.TouchDown += (sender, e) => { _alert.Hide(); };
-                rightButton.TouchDown += (sender, e) => { DeletePost(post, _alert.Hide); };
+                leftButton.TouchDown += (sender, e) => { _alert.Close(); };
+                rightButton.TouchDown += (sender, e) => { DeletePost(post, _alert.Close); };
 
                 Constants.CreateGradient(rightButton, 25);
                 Constants.CreateShadow(rightButton, Constants.R231G72B0, 0.5f, 25, 10, 12);
