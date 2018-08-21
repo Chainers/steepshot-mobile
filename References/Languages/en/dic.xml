@@ -319,4 +319,20 @@ About 6 inches away</string>
     <string name="[&quot;CancelPowerDownAlert&quot;]">You are in the process of powering down the {0} Steem Power. Are you sure you want to cancel?</string>
     <string name="[&quot;Yes&quot;]">Yes</string>
     <string name="[&quot;No&quot;]">No</string>
+    <string name="[&quot;PromotePost&quot;]">Promote post</string>
+    <string name="[&quot;ExpectedVoteTime&quot;]">Expected vote time</string>
+    <string name="[&quot;FindPromoter&quot;]">FIND PROMOTER</string>
+    <string name="[&quot;NotEnoughBalance&quot;]">Not enough balance</string>
+    <string name="[&quot;SuccessPromote&quot;]">Your bid has been successfully sent. Wait for upvote.</string>
+    <string name="[&quot;TokenTransferError&quot;]">Tokens transfer error</string>
+    <string name="[&quot;PromoteComplete&quot;]">Promote is complete</string>
+    <string name="[&quot;TransferError&quot;]">Transfer error</string>
+    <string name="[&quot;PromoteAgain&quot;]">Promote again???</string>
+    <string name="[&quot;PromoterFound&quot;]">Promoter found</string>
+    <string name="[&quot;Promote&quot;]">PROMOTE</string> 
+    <string name="[&quot;PromoterNotFound&quot;]">We look, but there's no appropriate bot for promotion. Please, try a little later.</string>
+    <string name="[&quot;PromoterSearchResult&quot;]">Promoter search result</string>
+    <string name="[&quot;SearchAgain&quot;]">Search again</string>
+    <string name="[&quot;MaxBid&quot;]">Max bid is</string>
+    <string name="[&quot;MinBid&quot;]">Min bid is</string>
 </resources>
