@@ -38,5 +38,8 @@ namespace Steepshot.Core
 
         public static readonly List<string> SupportedListBots = new List<string>() { "promobot", "upme", "therising", "upmewhale", "rocky1", "boomerang","appreciator",
         "postpromoter", "smartsteem", "spydo", "booster", "emperorofnaps", "jerrybanfield" };
+
+        public const double MinBid = 0.5;
+        public const double MaxBid = 130;
     }
 }

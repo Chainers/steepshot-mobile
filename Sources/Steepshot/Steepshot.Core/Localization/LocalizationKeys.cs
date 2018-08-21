@@ -214,6 +214,22 @@
         RewardsClaimed,
         CancelPowerDownAlert,
         Yes,
-        No
+        No,
+        PromotePost,
+        ExpectedVoteTime,
+        FindPromoter,
+        NotEnoughBalance,
+        SuccessPromote,
+        TokenTransferError,
+        PromoteComplete,
+        TransferError,
+        PromoteAgain,
+        PromoterFound,
+        Promote,
+        PromoterNotFound,
+        PromoterSearchResult,
+        SearchAgain,
+        MinBid,
+        MaxBid,
     }
 }
