@@ -12,7 +12,6 @@
         android:id="@+id/promote_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Promote post"
         android:textSize="14sp"
         android:textColor="@color/black"
         android:includeFontPadding="false"
@@ -23,8 +22,7 @@
         android:layout_height="2px"
         android:layout_marginTop="26dp"
         android:background="@color/rgb244_244_246" />
-    <LinearLayout
-        android:orientation="horizontal"
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp">
@@ -35,17 +33,26 @@
             android:text="Amount"
             android:textSize="14sp"
             android:textColor="@color/black"
-            android:includeFontPadding="false" />
+            android:layout_alignParentLeft="true" />
         <TextView
             android:id="@+id/user_balance"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="end"
             android:text="Balance: 19999"
+            android:gravity="end"
             android:textSize="14sp"
             android:textColor="@color/rgb151_155_158"
-            android:includeFontPadding="false" />
-    </LinearLayout>
+            android:layout_toRightOf="@id/promote_amount"
+            android:layout_alignParentRight="true" />
+        <ProgressBar
+            android:id="@+id/balance_spinner"
+            android:layout_width="19dp"
+            android:layout_height="19dp"
+            android:indeterminateTintMode="src_atop"
+            android:indeterminateTint="@color/black"
+            android:visibility="gone"
+            android:layout_alignParentRight="true" />
+    </RelativeLayout>
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

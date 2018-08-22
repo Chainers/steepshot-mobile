@@ -104,6 +104,7 @@ namespace Steepshot.Adapter
                 default:
                     var itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.lyt_feed_item, parent, false);
                     var vh = new FeedViewHolder(itemView, PostAction, AutoLinkAction, parent.Context.Resources.DisplayMetrics.WidthPixels);
+                    vh.presenter = Presenter;
                     return vh;
             }
         }
@@ -139,9 +140,10 @@ namespace Steepshot.Adapter
         private readonly TextView _likeScalePower;
         protected readonly Context Context;
         private CancellationSignal _isAnimationRuning;
-
+        
         protected Post Post;
         public const string ClipboardTitle = "Steepshot's post link";
+        public BasePostPresenter presenter;
 
         private const string TagFormat = " #{0}";
         private const string TagToExclude = "steepshot";
@@ -402,7 +404,7 @@ namespace Steepshot.Adapter
         private void PromoteOnClick(object sender, EventArgs eventArgs)
         {
             _moreActionsDialog.Dismiss();
-            var actionAlert = new PromoteAlertDialog(Context);
+            var actionAlert = new PromoteAlertDialog(Context, presenter);
             actionAlert.Show();
         }
 
