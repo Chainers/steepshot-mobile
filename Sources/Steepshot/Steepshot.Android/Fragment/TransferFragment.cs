@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Threading;
 using System.Threading.Tasks;
 using Android.App;
 using Android.Content;
@@ -43,6 +44,8 @@ namespace Steepshot.Fragment
             Comment,
             Cancel
         }
+        private Timer _timer;
+
 #pragma warning disable 0649, 4014        
         [BindView(Resource.Id.transfer_details)] private ScrollView _transferDetailsScroll;
         [BindView(Resource.Id.arrow_back)] private ImageButton _backBtn;
@@ -245,6 +248,8 @@ namespace Steepshot.Fragment
             _username.Click += UsernameOnClick;
             _activityRoot.ViewTreeObserver.GlobalLayout += OnKeyboardOpening;
 
+            _timer = new Timer(OnTimer);
+
             State = FragmentState.TransferPrepare;
             _transferFacade.UserFriendPresenter.SourceChanged += PresenterOnSourceChanged;
 
@@ -393,13 +398,31 @@ namespace Steepshot.Fragment
                 State = FragmentState.Search;
         }
 
-        private async void RecipientSearchOnTextChanged(object sender, TextChangedEventArgs e)
+        private void RecipientSearchOnTextChanged(object sender, TextChangedEventArgs e)
         {
             if (_recipientSearch.Text == _transferFacade?.Recipient?.Author)
                 return;
 
             var isEmpty = string.IsNullOrEmpty(_recipientSearch.Text);
             _recipientSearchClear.SetImageResource(isEmpty ? Resource.Drawable.ic_search_small : Resource.Drawable.ic_close_tag_active);
+
+            _timer.Change(1300, Timeout.Infinite);
+        }
+
+        private void OnTimer(object state)
+        {
+            if (!IsInitialized)
+                return;
+
+            Activity.RunOnUiThread(() =>
+            {
+                GetUserList();
+            });
+        }
+
+        private async Task GetUserList()
+        {
+            var isEmpty = string.IsNullOrEmpty(_recipientSearch.Text);
             if (!isEmpty && _recipientSearch.Text.Length > 2 && !_prevQuery.Equals(_recipientSearch.Text))
             {
                 _transferFacade.UserFriendPresenter.Clear();
@@ -410,6 +433,10 @@ namespace Steepshot.Fragment
                 {
                     _prevQuery = _recipientSearch.Text;
                 }
+            }
+            else
+            {
+                _transferFacade.UserFriendPresenter.Clear();
             }
         }
 
