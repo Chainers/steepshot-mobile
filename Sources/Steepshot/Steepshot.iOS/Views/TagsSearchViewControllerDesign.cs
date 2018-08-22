@@ -38,7 +38,8 @@ namespace Steepshot.iOS.Views
         private void CreateView()
         {
             View.BackgroundColor = UIColor.White;
-            searchTextField = new SearchTextField(ShouldReturn, "Tap to search");
+            searchTextField = new SearchTextField("Tap to search");
+            searchTextField.ReturnButtonTapped += ShouldReturn;
             searchTextField.BecomeFirstResponder();
             //searchTextField.Font = Constants.Regular14;
             View.AddSubview(searchTextField);

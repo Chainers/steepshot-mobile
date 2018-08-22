@@ -51,7 +51,8 @@ namespace Steepshot.iOS.Views
             tagsCollectionView.Delegate = _flowDelegate;
             tagsCollectionView.BackgroundColor = UIColor.White;
 
-            _tagField = new SearchTextField(() => { AddLocalTag(_tagField.Text); }, "Hashtag");
+            _tagField = new SearchTextField("Hashtag");
+            _tagField.ReturnButtonTapped += () => { AddLocalTag(_tagField.Text); };
             View.AddSubview(_tagField);
 
             _tagField.ClearButtonTapped += () => { OnTimer(null); };

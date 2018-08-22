@@ -133,10 +133,12 @@ namespace Steepshot.iOS.Views
             recipientStackView.AddArrangedSubview(_recipientAvatar);
             _recipientAvatar.AutoSetDimension(ALDimension.Width, 50);
 
-            _recepientTextField = new SearchTextField(() =>
-            {
+            _recepientTextField = new SearchTextField(AppSettings.LocalizationManager.GetText(LocalizationKeys.RecipientNameHint));
+
+            _recepientTextField.ReturnButtonTapped += () => {
                 RemoveFocus();
-            }, AppSettings.LocalizationManager.GetText(LocalizationKeys.RecipientNameHint));
+            };
+
             _recepientTextField.EditingChanged += EditingChanged;
             _recepientTextField.Layer.CornerRadius = 25;
             _recepientTextField.EditingChanged += (object sender, EventArgs e) =>
@@ -182,10 +184,7 @@ namespace Steepshot.iOS.Views
             amountLabel.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, recipientStackView, 25);
             amountLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 15);
 
-            _amountTextField = new SearchTextField(() =>
-            {
-                RemoveFocus();
-            }, AppSettings.LocalizationManager.GetText(LocalizationKeys.TransferAmountHint), new AmountFieldDelegate());
+            _amountTextField = new SearchTextField(AppSettings.LocalizationManager.GetText(LocalizationKeys.TransferAmountHint), new AmountFieldDelegate());
             _amountTextField.KeyboardType = UIKeyboardType.DecimalPad;
             _amountTextField.Layer.CornerRadius = 25;
             View.AddSubview(_amountTextField);
@@ -289,9 +288,9 @@ namespace Steepshot.iOS.Views
                     selectButton.TouchDown += (sender, e) =>
                     {
                         CoinSelected(_coins[(int)picker.SelectedRowInComponent(0)]);
-                        _alert.Hide();
+                        _alert.Close();
                     };
-                    cancelButton.TouchDown += (sender, e) => { _alert.Hide(); };
+                    cancelButton.TouchDown += (sender, e) => { _alert.Close(); };
 
                     popup.SizeToFit();
                     Constants.CreateGradient(selectButton, 25);
@@ -574,7 +573,7 @@ namespace Steepshot.iOS.Views
                 NavigationController.View.EndEditing(true);
 
                 _successAlert = new CustomAlertView(popup, TabBarController);
-                cancelButton.TouchDown += (sender, e) => { _successAlert.Hide(); };
+                cancelButton.TouchDown += (sender, e) => { _successAlert.Close(); };
 
                 popup.SizeToFit();
             }
