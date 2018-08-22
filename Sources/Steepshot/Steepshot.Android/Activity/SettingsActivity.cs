@@ -172,7 +172,13 @@ namespace Steepshot.Activity
             _lowRatedSwitcher.Checked = AppSettings.User.IsLowRated;
             _powerSwitch.Checked = AppSettings.User.ShowVotingSlider;
 
+
+            Presenter.SubscriptionsUpdated += _presenter_SubscriptionsUpdated;
+            Presenter.CheckSubscriptions();
+
             PushSettings = AppSettings.User.PushSettings;
+            EnableNotificationSwitch(false);
+
             _notificationUpvotesSwitch.Checked = PushSettings.HasFlag(PushSettings.Upvote);
             _notificationCommentsUpvotesSwitch.Checked = PushSettings.HasFlag(PushSettings.UpvoteComment);
             _notificationFollowingSwitch.Checked = PushSettings.HasFlag(PushSettings.Follow);
@@ -196,6 +202,21 @@ namespace Steepshot.Activity
                 _testsButton.Visibility = ViewStates.Visible;
                 _testsButton.Click += StartTestActivity;
             }
+        }
+
+        private void _presenter_SubscriptionsUpdated()
+        {
+            EnableNotificationSwitch(true);
+        }
+
+        private void EnableNotificationSwitch(bool isenabled)
+        {
+            _notificationUpvotesSwitch.Enabled = isenabled;
+            _notificationCommentsUpvotesSwitch.Enabled = isenabled;
+            _notificationFollowingSwitch.Enabled = isenabled;
+            _notificationCommentsSwitch.Enabled = isenabled;
+            _notificationPostingSwitch.Enabled = isenabled;
+            _notificationTransferSwitch.Enabled = isenabled;
         }
 
         private void PowerSwitchOnCheckedChange(object sender, CompoundButton.CheckedChangeEventArgs e)
