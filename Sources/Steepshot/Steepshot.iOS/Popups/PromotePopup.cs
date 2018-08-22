@@ -343,7 +343,7 @@ namespace Steepshot.iOS.Popups
 
             Timer timer = null;
 
-            PromoteResponse promoter = null;
+            OperationResult<PromoteResponse> promoter = null;
 
             selectButton.TouchDown += async (sender, e) =>
             {
@@ -385,7 +385,7 @@ namespace Steepshot.iOS.Popups
                     selectButton.Enabled = false;
                     loader.StartAnimating();
 
-                    var transferResponse = await _presenter.TryTransfer(AppSettings.User.UserInfo, promoter.Bot.Author, _amountTextField.GetDoubleValue().ToString(), _pickedCoin, $"https://steemit.com{post.Url}");
+                    var transferResponse = await _presenter.TryTransfer(AppSettings.User.UserInfo, promoter.Result.Bot.Author, _amountTextField.GetDoubleValue().ToString(), _pickedCoin, $"https://steemit.com{post.Url}");
 
                     if (transferResponse.IsSuccess)
                         completeText.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.SuccessPromote);
@@ -449,9 +449,9 @@ namespace Steepshot.iOS.Popups
 
                     promoter = await _presenter.FindPromoteBot(pr);
 
-                    if (promoter != null)
+                    if (promoter.IsSuccess)
                     {
-                        var expectedUpvoteTime = promoter.ExpectedUpvoteTime;
+                        var expectedUpvoteTime = promoter.Result.ExpectedUpvoteTime;
                         if (expectedUpvoteTime.ToString().Length > 8)
                             expectedTimeValue.Text = expectedUpvoteTime.ToString().Remove(8);
                         timer = new Timer((obj) =>
@@ -468,10 +468,10 @@ namespace Steepshot.iOS.Popups
                         }, null, DateTime.Now.Add(expectedUpvoteTime).Millisecond, (int)TimeSpan.FromSeconds(1).TotalMilliseconds);
 
 
-                        promoterLogin.Text = $"@{promoter.Bot.Author}";
+                        promoterLogin.Text = $"@{promoter.Result.Bot.Author}";
 
-                        if (!string.IsNullOrEmpty(promoter.Bot.Avatar))
-                            ImageLoader.Load(promoter.Bot.Avatar, avatar, size: new CGSize(300, 300));
+                        if (!string.IsNullOrEmpty(promoter.Result.Bot.Avatar))
+                            ImageLoader.Load(promoter.Result.Bot.Avatar, avatar, size: new CGSize(300, 300));
                         else
                             avatar.Image = UIImage.FromBundle("ic_noavatar");
 
