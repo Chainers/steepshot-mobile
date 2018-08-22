@@ -40,7 +40,7 @@ namespace Steepshot.Core.Tests
             builder.RegisterType<StubLogService>().As<ILogService>().SingleInstance();
 
             AppSettings.Container = builder.Build();
-            AppSettings.IsDev = IsDev;
+            AppSettings.Settings.IsDev = IsDev;
             ExtendedHttpClient = new ExtendedHttpClient();
 
             Users = new Dictionary<KnownChains, UserInfo>
