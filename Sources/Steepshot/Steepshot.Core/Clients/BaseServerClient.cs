@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Ditch.Core;
 using Ditch.Core.JsonRpc;
+using Newtonsoft.Json;
 using Steepshot.Core.Authorization;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
@@ -406,6 +407,80 @@ namespace Steepshot.Core.Clients
 
             var endpoint = $"{BaseUrl}/{GatewayVersion.V1P1}/subscriptions/{user.Login}/{user.PushesPlayerId}";
             return await HttpClient.Get<SubscriptionsModel>(endpoint, token);
+        }
+
+        public async Task<OperationResult<PromoteResponse>> FindPromoteBot(PromoteRequest promoteModel)
+        {
+            if (!EnableRead)
+                return null;
+
+            var botsResponse = await HttpClient.Get<List<BidBot>>("https://steembottracker.net/bid_bots", CancellationToken.None);
+            if (!botsResponse.IsSuccess)
+                return new OperationResult<PromoteResponse>(botsResponse.Exception);
+
+            var priceResponse = await HttpClient.Get<Price>("https://postpromoter.net/api/prices", CancellationToken.None);
+            if (!priceResponse.IsSuccess)
+                return new OperationResult<PromoteResponse>(priceResponse.Exception);
+
+            var steemToUSD = priceResponse.Result.SteemPrice;
+            var sbdToUSD = priceResponse.Result.SbdPrice;
+
+            var votersModel = new VotersModel(promoteModel.PostToPromote.Url, VotersType.Likes);
+            var usersResult = await GetPostVoters(votersModel, CancellationToken.None);
+            if (!usersResult.IsSuccess)
+                return new OperationResult<PromoteResponse>(usersResult.Exception);
+
+
+            var postAge = (DateTime.Now - promoteModel.PostToPromote.Created).TotalDays;
+
+            var suitableBot = botsResponse.Result
+                                          .Where(x => CheckBot(x, postAge, promoteModel, steemToUSD, sbdToUSD, usersResult.Result.Results))
+                                          .OrderBy(x => x.Next)
+                                          .FirstOrDefault();
+
+            if (suitableBot == null)
+                return new OperationResult<PromoteResponse>(new ValidationException());
+
+            var response = await SearchUser(new SearchWithQueryModel(suitableBot.Name), CancellationToken.None);
+
+            if (!response.IsSuccess)
+                return new OperationResult<PromoteResponse>(response.Exception);
+
+            var promoteResponse = new PromoteResponse(response.Result.Results.First(), TimeSpan.FromMilliseconds(suitableBot.Next.Value));
+            return new OperationResult<PromoteResponse>(promoteResponse);
+        }
+
+        private bool CheckBot(BidBot bot, double postAge, PromoteRequest promoteModel, double steemToUSD, double sbdToUSD, List<UserFriend> users)
+        {
+            return !bot.IsDisabled &&
+                   Constants.SupportedListBots.Contains(bot.Name) &&
+                  (!bot.MaxPostAge.HasValue || postAge < TimeSpan.FromDays(bot.MaxPostAge.Value).TotalDays) &&
+                  (!bot.MinPostAge.HasValue || postAge > TimeSpan.FromMinutes(bot.MinPostAge.Value).TotalDays) &&
+                  CheckAmount(promoteModel.Amount, steemToUSD, sbdToUSD, promoteModel.CurrencyType, bot) &&
+                  !users.Any(r => r.Name.Equals(bot.Name)) &&
+                  (promoteModel.CurrencyType == CurrencyType.Sbd
+                   ? (bot.MinBid.HasValue && bot.MinBid <= promoteModel.Amount)
+                   : (bot.MinBidSteem.HasValue && bot.AcceptsSteem && bot.MinBidSteem <= promoteModel.Amount));
+        }
+
+
+        private bool CheckAmount(double promoteAmount, double steemToUSD, double sbdToUSD, CurrencyType token, BidBot botInfo)
+        {
+            var amountLimit = botInfo.VoteUsd;
+            var bidsAmountInBot = botInfo.TotalUsd;
+            double userBidInUSD = 0;
+            switch (token)
+            {
+                case CurrencyType.Steem:
+                    userBidInUSD = promoteAmount * steemToUSD;
+                    break;
+                case CurrencyType.Sbd:
+                    userBidInUSD = promoteAmount * sbdToUSD;
+                    break;
+                default:
+                    return false;
+            }
+            return (userBidInUSD + bidsAmountInBot) < amountLimit - (amountLimit * 0.25);
         }
     }
 }

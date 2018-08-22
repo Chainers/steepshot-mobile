@@ -10,9 +10,9 @@ using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 using Steepshot.iOS.CustomViews;
-using Steepshot.iOS.Helpers;
 using Steepshot.iOS.Views;
 using UIKit;
+using Constants = Steepshot.iOS.Helpers.Constants;
 
 namespace Steepshot.iOS.ViewControllers
 {
@@ -20,6 +20,7 @@ namespace Steepshot.iOS.ViewControllers
     {
         private UIView dialog;
         private UIButton rightButton;
+        private CustomAlertView _alert;
 
         protected async void Vote(Post post)
         {
@@ -69,10 +70,19 @@ namespace Steepshot.iOS.ViewControllers
                 actionSheetAlert.AddAction(UIAlertAction.Create(AppSettings.LocalizationManager.GetText(LocalizationKeys.FlagPhoto), UIAlertActionStyle.Default, obj => FlagPhoto(post)));
                 actionSheetAlert.AddAction(UIAlertAction.Create(AppSettings.LocalizationManager.GetText(LocalizationKeys.HidePhoto), UIAlertActionStyle.Default, obj => HidePhoto(post)));
             }
+            actionSheetAlert.AddAction(UIAlertAction.Create("Promote", UIAlertActionStyle.Default, obj => _alert = Popups.PromotePopup.Create(post, TabBarController.NavigationController, _presenter, View)));
             //Sharepost contain copylink function by default
             actionSheetAlert.AddAction(UIAlertAction.Create(AppSettings.LocalizationManager.GetText(LocalizationKeys.Sharepost), UIAlertActionStyle.Default, obj => SharePhoto(post)));
             actionSheetAlert.AddAction(UIAlertAction.Create("Cancel", UIAlertActionStyle.Cancel, null));
             PresentViewController(actionSheetAlert, true, null);
+        }
+
+        public override void ViewDidAppear(bool animated)
+        {
+            if(_alert != null)
+                _alert.Hidden = false;
+
+            base.ViewDidAppear(animated);
         }
 
         protected void HidePhoto(Post post)
@@ -118,7 +128,9 @@ namespace Steepshot.iOS.ViewControllers
 
         private void DeleteAlert(Post post)
         {
-            if (_alert == null)
+            CustomAlertView _deleteAlert = null;
+
+            if (_deleteAlert == null)
             {
                 var titleText = AppSettings.LocalizationManager.GetText(LocalizationKeys.DeleteAlertTitle);
                 var messageText = AppSettings.LocalizationManager.GetText(LocalizationKeys.DeleteAlertMessage);
@@ -210,18 +222,16 @@ namespace Steepshot.iOS.ViewControllers
 
                 NavigationController.View.EndEditing(true);
 
-                _alert = new CustomAlertView(dialog, TabBarController);
+                _deleteAlert = new CustomAlertView(dialog, TabBarController);
 
-                leftButton.TouchDown += (sender, e) => { _alert.Hide(); };
-                rightButton.TouchDown += (sender, e) => { DeletePost(post, _alert.Hide); };
+                leftButton.TouchDown += (sender, e) => { _deleteAlert.Close(); };
+                rightButton.TouchDown += (sender, e) => { DeletePost(post, _deleteAlert.Close); };
 
                 Constants.CreateGradient(rightButton, 25);
                 Constants.CreateShadow(rightButton, Constants.R231G72B0, 0.5f, 25, 10, 12);
             }
-            _alert.Show();
+            _deleteAlert.Show();
         }
-
-        private CustomAlertView _alert; 
 
         private async void DeletePost(Post post, Action action)
         {

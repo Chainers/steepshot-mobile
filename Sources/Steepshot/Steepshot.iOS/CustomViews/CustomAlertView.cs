@@ -32,7 +32,7 @@ namespace Steepshot.iOS.CustomViews
 
             popup.AddSubview(dialog);
 
-            var touchOutsideRecognizer = new UITapGestureRecognizer(() => { Hide(); });
+            var touchOutsideRecognizer = new UITapGestureRecognizer(() => { Close(); });
             touchOutsideRecognizer.CancelsTouchesInView = false;
             touchOutsideRecognizer.Delegate = this;
             popup.AddGestureRecognizer(touchOutsideRecognizer);
@@ -44,7 +44,7 @@ namespace Steepshot.iOS.CustomViews
             targetY = dialog.Frame.Y;
         }
 
-        public void Hide()
+        public void Close()
         {
             UIView.Animate(0.3, () =>
             {
@@ -56,6 +56,18 @@ namespace Steepshot.iOS.CustomViews
                     interactiveController.IsPushingViewController = false;
                 popup.RemoveFromSuperview();
             });
+        }
+
+        public bool Hidden
+        {
+            get
+            {
+                return popup.Hidden;
+            }
+            set
+            {
+                popup.Hidden = value;
+            }
         }
 
         public void Show(AnimationType animationType = AnimationType.Bottom)

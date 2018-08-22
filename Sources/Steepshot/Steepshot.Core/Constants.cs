@@ -1,4 +1,5 @@
-﻿
+﻿using System.Collections.Generic;
+
 namespace Steepshot.Core
 {
     public class GatewayVersion
@@ -34,5 +35,12 @@ namespace Steepshot.Core
         public const int PhotoMaxSize = 1200;
         public const string DeletedPostText = "*deleted*";
         public const string ProxyForAvatars = "https://steemitimages.com/{0}x{0}/";
+
+        public static readonly HashSet<string> SupportedListBots = new HashSet<string> 
+        { "promobot", "upme", "therising", "upmewhale", "rocky1", "boomerang","appreciator",
+        "postpromoter", "smartsteem", "spydo", "booster", "emperorofnaps", "jerrybanfield" };
+
+        public const double MinBid = 0.5;
+        public const double MaxBid = 130;
     }
 }

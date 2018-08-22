@@ -242,10 +242,7 @@ namespace Steepshot.iOS.Views
             amountLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Top, 15);
             amountLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 20);
 
-            _amount = new SearchTextField(() =>
-            {
-
-            }, AppSettings.LocalizationManager.GetText(LocalizationKeys.TransferAmountHint), new AmountFieldDelegate());
+            _amount = new SearchTextField(AppSettings.LocalizationManager.GetText(LocalizationKeys.TransferAmountHint), new AmountFieldDelegate());
             _amount.Text = minAmount.ToString(CultureInfo.InvariantCulture);
             _amount.EditingChanged += AmountEditOnTextChanged;
             _amount.KeyboardType = UIKeyboardType.DecimalPad;
