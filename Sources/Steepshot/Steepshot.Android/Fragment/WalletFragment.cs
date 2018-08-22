@@ -297,7 +297,10 @@ namespace Steepshot.Fragment
 
         private async Task<Exception> Claim(BalanceModel balance)
         {
-            return await Presenter.TryClaimRewards(balance);
+            var error = await Presenter.TryClaimRewards(balance);
+            if (error == null)
+                _claimBtn.Visibility = ViewStates.Gone;
+            return error;
         }
 
         private void OnPageTransforming(TokenCardHolder fromCard, TokenCardHolder toCard, float progress)

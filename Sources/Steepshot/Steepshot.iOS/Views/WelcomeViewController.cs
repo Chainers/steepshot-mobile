@@ -27,7 +27,7 @@ namespace Steepshot.iOS.Views
             NavigationController.SetNavigationBarHidden(false, false);
             steemLogin.Layer.CornerRadius = newAccount.Layer.CornerRadius = 25;
             steemLogin.TitleLabel.Font = newAccount.TitleLabel.Font = Constants.Semibold14;
-            devSwitch.On = AppSettings.IsDev;
+            devSwitch.On = AppSettings.Settings.IsDev;
             Constants.CreateShadow(steemLogin, Constants.R231G72B0, 0.5f, 25, 10, 12);
             Constants.CreateShadow(newAccount, Constants.R204G204B204, 0.7f, 25, 10, 12);
 
