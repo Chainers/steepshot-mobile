@@ -409,104 +409,78 @@ namespace Steepshot.Core.Clients
             return await HttpClient.Get<SubscriptionsModel>(endpoint, token);
         }
 
-        public async Task<PromoteResponse> FindPromoteBot(PromoteRequest promoteModel)
+        public async Task<OperationResult<PromoteResponse>> FindPromoteBot(PromoteRequest promoteModel)
         {
             if (!EnableRead)
                 return null;
 
-            var endpoint = "https://steembottracker.net/bid_bots";
-            var respo = await HttpClient.Get<List<BidBot>>(endpoint, CancellationToken.None);
-            if (!respo.IsSuccess)
-                return null;
-            var suitableBots = respo.Result.Where(x => x.MinBid >= 0.5 && Constants.SupportedListBots.Contains(x.Name)).ToList();
+            var botsResponse = await HttpClient.Get<List<BidBot>>("https://steembottracker.net/bid_bots", CancellationToken.None);
+            if (!botsResponse.IsSuccess)
+                return new OperationResult<PromoteResponse>(botsResponse.Exception);
 
-            var endpoint2 = "https://postpromoter.net/api/prices";
-            var respo2 = await HttpClient.Get<Price>(endpoint2, CancellationToken.None);
+            var priceResponse = await HttpClient.Get<Price>("https://postpromoter.net/api/prices", CancellationToken.None);
+            if (!priceResponse.IsSuccess)
+                return new OperationResult<PromoteResponse>(priceResponse.Exception);
 
-            if (!respo2.IsSuccess)
-                return null;
-
-            var steemToUSD = respo2.Result.SteemPrice;
-            var sbdToUSD = respo2.Result.SbdPrice;
+            var steemToUSD = priceResponse.Result.SteemPrice;
+            var sbdToUSD = priceResponse.Result.SbdPrice;
 
             var votersModel = new VotersModel(promoteModel.PostToPromote.Url, VotersType.Likes);
             var usersResult = await GetPostVoters(votersModel, CancellationToken.None);
+            if (!usersResult.IsSuccess)
+                return new OperationResult<PromoteResponse>(usersResult.Exception);
 
-            var muchSuitableBots = new List<BidBot>();
 
-            foreach (var item in suitableBots)
-            {
-                if (item.MinBid <= promoteModel.Amount && promoteModel.CurrencyType == CurrencyType.Sbd ||
-                    item.MinBidSteem <= promoteModel.Amount && promoteModel.CurrencyType == CurrencyType.Steem)
-                {
-                    var isOld = (DateTime.Now - promoteModel.PostToPromote.Created).TotalDays >= TimeSpan.FromDays(item.MaxPostAge.Value).TotalDays;
+            var postAge = (DateTime.Now - promoteModel.PostToPromote.Created).TotalDays;
 
-                    if (item.Next <= 100 * 1000 ||
-                        (!item.AcceptsSteem && promoteModel.CurrencyType == CurrencyType.Steem) ||
-                        isOld ||
-                        item.IsDisabled ||
-                        !CheckAmount(promoteModel.Amount, steemToUSD, sbdToUSD, promoteModel.CurrencyType, item) ||
-                        CheckUpvotedUsers(item.Name, usersResult.Result.Results))
-                    {
-                        continue;
-                    }
-                    if (muchSuitableBots.Count >= 1)
-                    {
-                        if (muchSuitableBots[0].Next > item.Next)
-                        {
-                            muchSuitableBots.Insert(0, item);
-                        }
-                        else
-                        {
-                            muchSuitableBots.Add(item);
-                        }
-                    }
-                    else
-                    {
-                        muchSuitableBots.Add(item);
-                    }
-                }
-            }
+            var suitableBot = botsResponse.Result
+                                          .Where(x => CheckBot(x, postAge, promoteModel, steemToUSD, sbdToUSD, usersResult.Result.Results))
+                                          .OrderBy(x => x.Next)
+                                          .FirstOrDefault();
 
-            if (muchSuitableBots.Count == 0)
-                return null;
-
-            var suitableBot = muchSuitableBots[0];
+            if (suitableBot == null)
+                return new OperationResult<PromoteResponse>(new ValidationException());
 
             var response = await SearchUser(new SearchWithQueryModel(suitableBot.Name), CancellationToken.None);
 
-            if (response.IsSuccess)
-            {
-                var bot = response.Result.Results.FirstOrDefault();
-                if (bot != null)
-                {
-                    var promoteResponse = new PromoteResponse(bot, TimeSpan.FromMilliseconds(suitableBot.Next.Value));
-                    return promoteResponse;
-                }
-            }
-            return null;
+            if (!response.IsSuccess)
+                return new OperationResult<PromoteResponse>(response.Exception);
+
+            var promoteResponse = new PromoteResponse(response.Result.Results.First(), TimeSpan.FromMilliseconds(suitableBot.Next.Value));
+            return new OperationResult<PromoteResponse>(promoteResponse);
         }
+
+        private bool CheckBot(BidBot bot, double postAge, PromoteRequest promoteModel, double steemToUSD, double sbdToUSD, List<UserFriend> users)
+        {
+            return !bot.IsDisabled &&
+                   Constants.SupportedListBots.Contains(bot.Name) &&
+                  (!bot.MaxPostAge.HasValue || postAge < TimeSpan.FromDays(bot.MaxPostAge.Value).TotalDays) &&
+                  (!bot.MinPostAge.HasValue || postAge > TimeSpan.FromMinutes(bot.MinPostAge.Value).TotalDays) &&
+                  CheckAmount(promoteModel.Amount, steemToUSD, sbdToUSD, promoteModel.CurrencyType, bot) &&
+                  !users.Any(r => r.Name.Equals(bot.Name)) &&
+                  (promoteModel.CurrencyType == CurrencyType.Sbd
+                   ? (bot.MinBid.HasValue && bot.MinBid <= promoteModel.Amount)
+                   : (bot.MinBidSteem.HasValue && bot.AcceptsSteem && bot.MinBidSteem <= promoteModel.Amount));
+        }
+
 
         private bool CheckAmount(double promoteAmount, double steemToUSD, double sbdToUSD, CurrencyType token, BidBot botInfo)
         {
             var amountLimit = botInfo.VoteUsd;
             var bidsAmountInBot = botInfo.TotalUsd;
             double userBidInUSD = 0;
-            if (token == CurrencyType.Steem)
-                userBidInUSD = promoteAmount * steemToUSD;
-            if (token == CurrencyType.Sbd)
-                userBidInUSD = promoteAmount * sbdToUSD;
-            return (userBidInUSD + bidsAmountInBot) < amountLimit - (amountLimit * 0.25);
-        }
-
-        private bool CheckUpvotedUsers(string probablySuitableBot, List<UserFriend> usersArr)
-        {
-            foreach (var item in usersArr)
+            switch (token)
             {
-                if (probablySuitableBot == item.Author)
-                    return true;
+                case CurrencyType.Steem:
+                    userBidInUSD = promoteAmount * steemToUSD;
+                    break;
+                case CurrencyType.Sbd:
+                    userBidInUSD = promoteAmount * sbdToUSD;
+                    break;
+                default:
+                    return false;
             }
-            return false;
+            return (userBidInUSD + bidsAmountInBot) < amountLimit - (amountLimit * 0.25);
         }
     }
 }
