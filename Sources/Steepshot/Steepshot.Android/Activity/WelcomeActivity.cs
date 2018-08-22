@@ -53,7 +53,7 @@ namespace Steepshot.Activity
             _steemLogin.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.SignInButtonText, "Steem");
             _golosLogin.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.SignInButtonText, "Golos");
             _regButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.CreateButtonText);
-            _devSwitcher.Checked = AppSettings.IsDev;
+            _devSwitcher.Checked = AppSettings.Settings.IsDev;
             _devSwitcher.CheckedChange += OnDevSwitcherOnCheckedChange;
 
             _steemLogin.Click += SteemLogin;

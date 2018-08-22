@@ -318,13 +318,17 @@ namespace Steepshot.Activity
 
         protected void CheckForNewFeatures()
         {
-            var handler = new Handler();
-            var saverService = new SaverService();
-            var lastVersion = AppSettings.VersionName;
-            var versionName = PackageManager.GetPackageInfo(PackageName, 0).VersionName;
+            var lastVersion = AppSettings.Settings.BuildVersion;
+            var currentVersion = AppSettings.AppInfo.GetBuildVersion();
 
-            if (string.IsNullOrEmpty(lastVersion) || !lastVersion.Equals(versionName)) // new app instance or update
+            if (currentVersion.Equals(lastVersion))
+                return;
+
+            if (!string.IsNullOrEmpty(lastVersion))
             {
+                //var handler = new Handler();
+                //var saverService = new SaverService();
+
                 //Action action = () =>
                 //{
                 //    var featureScreen = new FeatureDialog(this);
@@ -333,7 +337,8 @@ namespace Steepshot.Activity
                 //handler.PostDelayed(action, 2000);
             }
 
-            AppSettings.VersionName = versionName;
+            AppSettings.Settings.BuildVersion = currentVersion;
+            AppSettings.SaveSettings();
         }
     }
 }

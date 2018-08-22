@@ -4,6 +4,5 @@
     {
         void Save<T>(string key, T obj);
         T Get<T>(string key) where T : new();
-        string Get(string key);
     }
 }

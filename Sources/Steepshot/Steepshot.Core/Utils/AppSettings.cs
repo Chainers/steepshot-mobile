@@ -9,6 +9,8 @@ namespace Steepshot.Core.Utils
 {
     public static class AppSettings
     {
+        private const string AppSettingsKey = "AppSettings";
+
         public static ProfileUpdateType ProfileUpdateType = ProfileUpdateType.None;
 
         public static IContainer Container { get; set; }
@@ -51,16 +53,12 @@ namespace Steepshot.Core.Utils
             }
         }
 
-        public static bool IsDev
-        {
-            get => SaverService.Get<bool>("isdev");
-            set => SaverService.Save("isdev", value);
-        }
+        private static AppSettingsModel _appSettingsModel;
+        public static AppSettingsModel Settings => _appSettingsModel ?? (_appSettingsModel = SaverService.Get<AppSettingsModel>(AppSettingsKey) ?? new AppSettingsModel());
 
-        public static string VersionName
+        public static void SaveSettings()
         {
-            get => SaverService.Get("lastversionname");
-            set => SaverService.Save("lastversionname", value);
+            SaverService.Save(AppSettingsKey, _appSettingsModel);
         }
     }
 }
