@@ -1,5 +1,4 @@
-﻿using System;
-namespace Steepshot.Core.Models.Responses
+﻿namespace Steepshot.Core.Models.Responses
 {
     public class SpamResponse
     {

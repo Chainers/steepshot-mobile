@@ -1,7 +1,6 @@
 ﻿using System;
 using Foundation;
 using PureLayout.Net;
-using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 using Steepshot.iOS.ViewControllers;
 using UIKit;
@@ -14,6 +13,13 @@ namespace Steepshot.iOS.Views
 {
     public partial class WelcomeViewController : BaseViewController, ISFSafariViewControllerDelegate
     {
+        private bool _showRegistration;
+
+        public WelcomeViewController(bool showRegistration)
+        {
+            _showRegistration = showRegistration;
+        }
+
         public override void ViewDidLoad()
         {
             base.ViewDidLoad();
@@ -21,7 +27,7 @@ namespace Steepshot.iOS.Views
             NavigationController.SetNavigationBarHidden(false, false);
             steemLogin.Layer.CornerRadius = newAccount.Layer.CornerRadius = 25;
             steemLogin.TitleLabel.Font = newAccount.TitleLabel.Font = Constants.Semibold14;
-            devSwitch.On = AppSettings.IsDev;
+            devSwitch.On = AppSettings.Settings.IsDev;
             Constants.CreateShadow(steemLogin, Constants.R231G72B0, 0.5f, 25, 10, 12);
             Constants.CreateShadow(newAccount, Constants.R204G204B204, 0.7f, 25, 10, 12);
 
@@ -32,6 +38,8 @@ namespace Steepshot.iOS.Views
             steemLogin.TouchDown += GoToPreLogin;
             newAccount.TouchDown += CreateAccount;
             devSwitch.ValueChanged += SwitchEnvironment;
+
+            newAccount.Hidden = !_showRegistration;
 
             SetBackButton();
             SetAgreementDecoration();
@@ -88,7 +96,9 @@ namespace Steepshot.iOS.Views
 
         private void SwitchEnvironment(object sender, EventArgs e)
         {
-            BasePresenter.SwitchChain(((UISwitch)sender).On);
+            var isDev = ((UISwitch) sender).On;
+            AppDelegate.SteemClient.SetDev(isDev);
+            AppDelegate.GolosClient.SetDev(isDev);
         }
 
         private void ToggleDevSwitchVisibility()

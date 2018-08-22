@@ -2,7 +2,6 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Foundation;
-using Steepshot.Core.Errors;
 using Steepshot.Core.Presenters;
 using Steepshot.iOS.Cells;
 using Steepshot.iOS.ViewControllers;
@@ -58,17 +57,17 @@ namespace Steepshot.iOS.Views
 
             searchText.EditingChanged += (sender, e) =>
             {
-                _timer.Change(1500, Timeout.Infinite);
+                _timer.Change(1300, Timeout.Infinite);
             };
 
             Activeview = searchText;
 
-            var error = await _presenter.TryGetTopTags();
+            var exception = await _presenter.TryGetTopTags();
 
-            if (error == null)
+            if (exception == null)
                 tagsTable.ReloadData();
 
-            ShowAlert(error);
+            ShowAlert(exception);
         }
 
         private void TableTagSelected(int row)
@@ -96,19 +95,19 @@ namespace Steepshot.iOS.Views
                 return;
 
             _presenter.Clear();
-            ErrorBase error;
+            Exception exception;
             if (string.IsNullOrEmpty(query))
             {
-                error = await _presenter.TryGetTopTags();
+                exception = await _presenter.TryGetTopTags();
             }
             else
             {
-                error = await _presenter.TryLoadNext(query);
+                exception = await _presenter.TryLoadNext(query);
             }
 
-            if (error == null)
+            if (exception == null)
                 tagsTable.ReloadData();
-            ShowAlert(error);
+            ShowAlert(exception);
         }
 
         private void AddTags(object sender, EventArgs e)

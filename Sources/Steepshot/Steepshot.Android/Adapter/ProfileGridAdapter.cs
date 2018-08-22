@@ -3,9 +3,11 @@ using Android.Content;
 using Android.Graphics;
 using Android.Graphics.Drawables;
 using Android.Support.V7.Widget;
+using Android.Util;
 using Android.Views;
 using Android.Widget;
 using Square.Picasso;
+using Steepshot.Base;
 using Steepshot.Core.Extensions;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Enums;
@@ -101,6 +103,7 @@ namespace Steepshot.Adapter
         private readonly Button _transferButton;
         private readonly ProgressBar _loadingSpinner;
         private readonly VotingPowerFrame _votingPower;
+        private readonly GradientDrawable _followBtnBackground;
 
         private readonly Action<ActionType> _profileAction;
 
@@ -157,6 +160,10 @@ namespace Steepshot.Adapter
             _votingPowerText.Typeface = Style.Regular;
             _transferButton.Typeface = Style.Semibold;
 
+            _followBtnBackground = new GradientDrawable();
+            _followBtnBackground.SetCornerRadius(TypedValue.ApplyDimension(ComplexUnitType.Dip, 25, itemView.Context.Resources.DisplayMetrics));
+            _followButton.Background = _followBtnBackground;
+            _site.Flags = (int)AutoLinkType.Url;
             _profileAction = profileAction;
 
             _followingBtn.Click += OnFollowingBtnOnClick;
@@ -192,7 +199,8 @@ namespace Steepshot.Adapter
 
         private void OnBalanceContainerOnClick(object sender, EventArgs e)
         {
-            _profileAction?.Invoke(ActionType.Balance);
+            if (AppSettings.User.Login.Equals(_profile.Username, StringComparison.InvariantCultureIgnoreCase))
+                _profileAction?.Invoke(ActionType.Balance);
         }
 
         private void OnFollowersBtnOnClick(object sender, EventArgs e)
@@ -224,6 +232,8 @@ namespace Steepshot.Adapter
             else
                 Picasso.With(_context).Load(Resource.Drawable.ic_holder).Into(_profileImage);
 
+            _transferButton.Visibility = AppSettings.User.HasPostingPermission ? ViewStates.Visible : ViewStates.Gone;
+
             if (profile.Username.Equals(AppSettings.User.Login, StringComparison.OrdinalIgnoreCase))
             {
                 _votingPower.VotingPower = (float)profile.VotingPower;
@@ -232,12 +242,11 @@ namespace Steepshot.Adapter
             }
             else
             {
-                var background = (GradientDrawable)_followButton.Background;
                 if (profile.FollowedChanging)
                 {
-                    background.SetColors(new int[] { Style.R255G121B4, Style.R255G22B5 });
-                    background.SetOrientation(GradientDrawable.Orientation.LeftRight);
-                    background.SetStroke(0, Color.White);
+                    _followBtnBackground.SetColors(new int[] { Style.R255G121B4, Style.R255G22B5 });
+                    _followBtnBackground.SetOrientation(GradientDrawable.Orientation.LeftRight);
+                    _followBtnBackground.SetStroke(0, Color.White);
                     _followButton.Text = string.Empty;
                     _followButton.SetTextColor(Color.White);
                     _followButton.Enabled = false;
@@ -247,16 +256,16 @@ namespace Steepshot.Adapter
                 {
                     if (profile.HasFollowed)
                     {
-                        background.SetColors(new int[] { Color.White, Color.White });
-                        background.SetStroke(3, Style.R244G244B246);
+                        _followBtnBackground.SetColors(new int[] { Color.White, Color.White });
+                        _followBtnBackground.SetStroke(3, Style.R244G244B246);
                         _followButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Unfollow);
                         _followButton.SetTextColor(Style.R15G24B30);
                     }
                     else
                     {
-                        background.SetColors(new int[] { Style.R255G121B4, Style.R255G22B5 });
-                        background.SetOrientation(GradientDrawable.Orientation.LeftRight);
-                        background.SetStroke(0, Color.White);
+                        _followBtnBackground.SetColors(new int[] { Style.R255G121B4, Style.R255G22B5 });
+                        _followBtnBackground.SetOrientation(GradientDrawable.Orientation.LeftRight);
+                        _followBtnBackground.SetStroke(0, Color.White);
                         _followButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Follow);
                         _followButton.SetTextColor(Color.White);
                     }
@@ -304,7 +313,7 @@ namespace Steepshot.Adapter
             _followingCount.Text = profile.FollowingCount.ToString("#,##0");
             _followersCount.Text = profile.FollowersCount.ToString("#,##0");
 
-            _balance.Text = BasePresenter.ToFormatedCurrencyString(profile.EstimatedBalance);
+            _balance.Text = StringHelper.ToFormatedCurrencyString(profile.EstimatedBalance, App.MainChain);
         }
 
         private void OnError()

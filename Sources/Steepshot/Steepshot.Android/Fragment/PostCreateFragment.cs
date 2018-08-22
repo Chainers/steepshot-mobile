@@ -11,33 +11,27 @@ using Android.Util;
 using Android.Views;
 using Android.Widget;
 using Java.IO;
-using Steepshot.Adapter;
 using Steepshot.Base;
 using Steepshot.Core;
-using Steepshot.Core.Errors;
+using Steepshot.Core.Exceptions;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Utils;
 using Steepshot.Utils;
+using Exception = System.Exception;
 using ViewUtils = Steepshot.Utils.ViewUtils;
 
 namespace Steepshot.Fragment
 {
     public class PostCreateFragment : PostPrepareBaseFragment
     {
-        private readonly List<GalleryMediaModel> _media;
-        private GalleryHorizontalAdapter GalleryAdapter => _galleryAdapter ?? (_galleryAdapter = new GalleryHorizontalAdapter(_media));
-
-
-        public PostCreateFragment(List<GalleryMediaModel> media)
+        public PostCreateFragment(List<GalleryMediaModel> media) : base(media)
         {
-            _media = media;
         }
 
-        public PostCreateFragment(GalleryMediaModel media)
+        public PostCreateFragment(GalleryMediaModel media) : base(media)
         {
-            _media = new List<GalleryMediaModel> { media };
         }
 
 
@@ -91,9 +85,8 @@ namespace Steepshot.Fragment
             }
 
             SearchTextChanged();
-            CheckOnSpam();
+            CheckOnSpam(false);
         }
-
 
         protected void PreviewOnTouch(object sender, View.TouchEventArgs touchEventArgs)
         {
@@ -112,7 +105,7 @@ namespace Steepshot.Fragment
 
         protected override async Task OnPostAsync()
         {
-            await CheckOnSpam();
+            await CheckOnSpam(true);
             if (isSpammer)
                 return;
 
@@ -134,16 +127,7 @@ namespace Steepshot.Fragment
 
                     if (!operationResult.IsSuccess)
                     {
-                        App.Cache?.EvictAll();
-                        operationResult = await UploadPhoto(temp);
-
-                        if (!IsInitialized)
-                            return;
-                    }
-
-                    if (!operationResult.IsSuccess)
-                    {
-                        Activity.ShowAlert(operationResult.Error);
+                        Activity.ShowAlert(operationResult.Exception);
                         EnabledPost();
                         return;
                     }
@@ -157,6 +141,8 @@ namespace Steepshot.Fragment
             _model.Tags = _localTagsAdapter.LocalTags.ToArray();
             if (await TryCreateOrEditPost())
                 Activity.ShowAlert(LocalizationKeys.PostDelay, ToastLength.Long);
+
+            EnablePostAndEdit(true);
         }
 
         private void RatioBtnOnClick(object sender, EventArgs eventArgs)
@@ -169,9 +155,9 @@ namespace Steepshot.Fragment
             _preview.Rotate(_preview.DrawableImageParameters.Rotation + 90f);
         }
 
-
-        private async Task CheckOnSpam()
+        private async Task CheckOnSpam(bool disableEditing)
         {
+            EnablePostAndEdit(false, disableEditing);
             isSpammer = false;
 
             var spamCheck = await Presenter.TryCheckForSpam(AppSettings.User.Login);
@@ -187,6 +173,10 @@ namespace Steepshot.Fragment
                         StartPostTimer((int)spamCheck.Result.WaitingTime);
                         Activity.ShowAlert(LocalizationKeys.Posts5minLimit, ToastLength.Long);
                     }
+                    else
+                    {
+                        EnabledPost();
+                    }
                 }
                 else
                 {
@@ -198,7 +188,7 @@ namespace Steepshot.Fragment
                 }
             }
 
-            _postButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PublishButtonText);
+            EnablePostAndEdit(true);
         }
 
         private async void StartPostTimer(int startSeconds)
@@ -218,8 +208,7 @@ namespace Steepshot.Fragment
             }
 
             isSpammer = false;
-            _postButton.Enabled = true;
-            _postButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PublishButtonText);
+            EnabledPost();
         }
 
         private string SaveFileTemp(Bitmap btmp, string pathToExif)
@@ -249,8 +238,8 @@ namespace Steepshot.Fragment
             catch (Exception ex)
             {
                 _postButton.Enabled = false;
-                Context.ShowAlert(LocalizationKeys.UnexpectedError);
-                AppSettings.Reporter.SendCrash(ex);
+                AppSettings.Logger.Error(ex);
+                Context.ShowAlert(ex);
             }
             finally
             {
@@ -276,8 +265,8 @@ namespace Steepshot.Fragment
             }
             catch (Exception ex)
             {
-                AppSettings.Reporter.SendCrash(ex);
-                return new OperationResult<MediaModel>(new AppError(LocalizationKeys.PhotoUploadError));
+                await AppSettings.Logger.Error(ex);
+                return new OperationResult<MediaModel>(new InternalException(LocalizationKeys.PhotoUploadError, ex));
             }
             finally
             {

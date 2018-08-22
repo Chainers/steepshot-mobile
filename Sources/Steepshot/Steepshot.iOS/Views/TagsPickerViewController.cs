@@ -2,7 +2,6 @@
 using System.Threading;
 using Foundation;
 using PureLayout.Net;
-using Steepshot.Core.Errors;
 using Steepshot.Core.Models;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Presenters;
@@ -52,7 +51,8 @@ namespace Steepshot.iOS.Views
             tagsCollectionView.Delegate = _flowDelegate;
             tagsCollectionView.BackgroundColor = UIColor.White;
 
-            _tagField = new SearchTextField(() => { AddLocalTag(_tagField.Text); }, "Hashtag");
+            _tagField = new SearchTextField("Hashtag");
+            _tagField.ReturnButtonTapped += () => { AddLocalTag(_tagField.Text); };
             View.AddSubview(_tagField);
 
             _tagField.ClearButtonTapped += () => { OnTimer(null); };
@@ -72,9 +72,9 @@ namespace Steepshot.iOS.Views
             _tableSource.ScrolledToBottom += async () =>
             {
                 _tagField.Loader.StartAnimating();
-                var error = await _presenter.TryLoadNext(_tagField.Text, false);
+                var exception = await _presenter.TryLoadNext(_tagField.Text, false);
                 _tagField.Loader.StopAnimating();
-                ShowAlert(error);
+                ShowAlert(exception);
             };
 
             tagsTableView.Source = _tableSource;
@@ -172,21 +172,21 @@ namespace Steepshot.iOS.Views
             _tagField.Loader.StartAnimating();
             _previousQuery = _tagField.Text;
 
-            ErrorBase error = null;
+            Exception exception = null;
             if (_tagField.Text.Length == 0)
-                error = await _presenter.TryGetTopTags();
+                exception = await _presenter.TryGetTopTags();
             else if (_tagField.Text.Length > 1)
-                error = await _presenter.TryLoadNext(_tagField.Text, showUnknownTag : true);
+                exception = await _presenter.TryLoadNext(_tagField.Text, showUnknownTag : true);
 
-            if(!(error is CanceledError))
+            if(!(exception is OperationCanceledException))
                 _tagField.Loader.StopAnimating();
-            ShowAlert(error);
+            ShowAlert(exception);
         }
 
         private void EditingDidChange(object sender, EventArgs e)
         {
             _tagField.ClearButton.Hidden = _tagField.Text.Length == 0;
-            _timer.Change(500, Timeout.Infinite);
+            _timer.Change(1300, Timeout.Infinite);
         }
 
         private void AddLocalTag(string txt, bool shouldClear = true)

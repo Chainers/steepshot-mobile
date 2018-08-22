@@ -1,9 +1,7 @@
 ﻿using System;
-
 using Foundation;
 using Steepshot.Core.Authorization;
 using Steepshot.Core.Models.Enums;
-using Steepshot.Core.Presenters;
 using UIKit;
 
 namespace Steepshot.iOS.Cells
@@ -53,8 +51,7 @@ namespace Steepshot.iOS.Cells
         {
             _currentAccount = user;
             networkName.Text = $"{_currentAccount.Chain.ToString()} account";
-            networkStatus.Image = BasePresenter.Chain == _currentAccount.Chain ?
-                UIImage.FromBundle("ic_activated") :  UIImage.FromBundle("ic_deactivated");
+            networkStatus.Image = AppDelegate.MainChain == _currentAccount.Chain ? UIImage.FromBundle("ic_activated") : UIImage.FromBundle("ic_deactivated");
         }
     }
 }

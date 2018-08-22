@@ -1,10 +1,9 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Ditch.Core.JsonRpc;
-using Steepshot.Core.Errors;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
-using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Presenters
@@ -13,29 +12,29 @@ namespace Steepshot.Core.Presenters
     {
         private const int ItemsLimit = 60;
 
-        public async Task<ErrorBase> TryLoadNextComments(Post post)
+        public async Task<Exception> TryLoadNextComments(Post post)
         {
             return await RunAsSingleTask(LoadNextComments, post);
         }
 
-        private async Task<ErrorBase> LoadNextComments(Post post, CancellationToken ct)
+        private async Task<Exception> LoadNextComments(Post post, CancellationToken ct)
         {
             var request = new NamedInfoModel(post.Url)
             {
                 Login = AppSettings.User.Login
             };
 
-            ErrorBase error;
+            Exception exception;
             var isNeedClearItems = true;
             bool isNeedRepeat;
             do
             {
                 var response = await Api.GetComments(request, ct);
-                isNeedRepeat = ResponseProcessing(response, ItemsLimit, out error, nameof(TryLoadNextComments), isNeedClearItems, true);
+                isNeedRepeat = ResponseProcessing(response, ItemsLimit, out exception, nameof(TryLoadNextComments), isNeedClearItems, true);
                 isNeedClearItems = false;
             } while (isNeedRepeat);
 
-            return error;
+            return exception;
         }
 
         public async Task<OperationResult<VoidResponse>> TryCreateComment(Post parentPost, string body)

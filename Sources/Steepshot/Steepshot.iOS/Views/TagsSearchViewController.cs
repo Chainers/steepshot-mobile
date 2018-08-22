@@ -10,9 +10,9 @@ using Steepshot.iOS.ViewControllers;
 using Steepshot.iOS.ViewSources;
 using UIKit;
 using Steepshot.Core.Utils;
-using Steepshot.iOS.Helpers;
 using System.Threading.Tasks;
-using Steepshot.Core.Errors;
+using Steepshot.Core;
+using Steepshot.Core.Exceptions;
 
 namespace Steepshot.iOS.Views
 {
@@ -33,7 +33,10 @@ namespace Steepshot.iOS.Views
         {
             base.ViewDidLoad();
             CreateView();
+
+            var client = AppDelegate.MainChain == KnownChains.Steem ? AppDelegate.SteemClient : AppDelegate.GolosClient;
             _searchFacade = new SearchFacade();
+            _searchFacade.SetClient(client);
 
             _timer = new Timer(OnTimer);
 
@@ -64,7 +67,7 @@ namespace Steepshot.iOS.Views
 
         private void EditingChanged(object sender, EventArgs e)
         {
-            _timer.Change(500, Timeout.Infinite);
+            _timer.Change(1300, Timeout.Infinite);
         }
 
         private void ShouldReturn()
@@ -112,7 +115,7 @@ namespace Steepshot.iOS.Views
         {
             NavigationItem.Title = "Search";
             var leftBarButton = new UIBarButtonItem(UIImage.FromBundle("ic_back_arrow"), UIBarButtonItemStyle.Plain, GoBack);
-            leftBarButton.TintColor = Constants.R15G24B30;
+            leftBarButton.TintColor = Helpers.Constants.R15G24B30;
             NavigationItem.LeftBarButtonItem = leftBarButton;
         }
 
@@ -125,8 +128,8 @@ namespace Steepshot.iOS.Views
         {
             if (user != null)
             {
-                var errors = await _searchFacade.UserFriendPresenter.TryFollow(user);
-                ShowAlert(errors);
+                var exception = await _searchFacade.UserFriendPresenter.TryFollow(user);
+                ShowAlert(exception);
             }
         }
 
@@ -161,7 +164,8 @@ namespace Steepshot.iOS.Views
             var shouldHideLoader = await Search(clear, shouldAnimate, isLoaderNeeded);
             if (shouldHideLoader)
             {
-                _noResultViewPeople.Hidden = _searchFacade.UserFriendPresenter.Count > 0;
+                if(searchTextField.Text.Length > 2)
+                    _noResultViewPeople.Hidden = _searchFacade.UserFriendPresenter.Count > 0;
                 _peopleLoader.StopAnimating();
             }
         }
@@ -201,13 +205,13 @@ namespace Steepshot.iOS.Views
                 }
             }
 
-            var error = await _searchFacade.TrySearchCategories(searchTextField.Text, _searchType);
-            if (error is CanceledError)
+            var exception = await _searchFacade.TrySearchCategories(searchTextField.Text, _searchType);
+            if (exception is OperationCanceledException)
                 return false;
 
             if (shouldAnimate)
             {
-                if (!_isWarningOpen && error != null)
+                if (!_isWarningOpen && exception is ValidationException)
                 {
                     UIView.Animate(0.3f, 0f, UIViewAnimationOptions.CurveEaseOut, () =>
                     {

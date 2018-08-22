@@ -27,15 +27,12 @@ namespace Steepshot.iOS.Views
             _isComment = isComment;
         }
 
-        protected override void CreatePresenter()
-        {
-            _presenter = new UserFriendPresenter() { VotersType = _votersType };
-            _presenter.SourceChanged += SourceChanged;
-        }
-
         public override void ViewDidLoad()
         {
             base.ViewDidLoad();
+
+            _presenter.VotersType = _votersType;
+            _presenter.SourceChanged += SourceChanged;
 
             var tableSource = new FollowTableViewSource(_presenter, votersTable);
             votersTable.Source = tableSource;
@@ -98,8 +95,8 @@ namespace Steepshot.iOS.Views
 
         public async void GetItems()
         {
-            var errors = await _presenter.TryLoadNextPostVoters(!_isComment ? _post.Url : _post.Url.Substring(_post.Url.LastIndexOf("@", StringComparison.Ordinal)));
-            ShowAlert(errors);
+            var exception = await _presenter.TryLoadNextPostVoters(!_isComment ? _post.Url : _post.Url.Substring(_post.Url.LastIndexOf("@", StringComparison.Ordinal)));
+            ShowAlert(exception);
             progressBar.StopAnimating();
         }
 
@@ -107,8 +104,8 @@ namespace Steepshot.iOS.Views
         {
             if (user != null)
             {
-                var errors = await _presenter.TryFollow(user);
-                ShowAlert(errors);
+                var exception = await _presenter.TryFollow(user);
+                ShowAlert(exception);
             }
         }
 

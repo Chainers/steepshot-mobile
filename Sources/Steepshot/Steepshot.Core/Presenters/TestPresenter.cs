@@ -1,4 +1,4 @@
-﻿using Steepshot.Core.HttpClient;
+﻿using Steepshot.Core.Clients;
 
 namespace Steepshot.Core.Presenters
 {

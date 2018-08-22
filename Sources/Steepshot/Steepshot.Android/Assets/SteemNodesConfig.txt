@@ -13,15 +13,5 @@
 		"url": "https://steemd.steepshot.org",
 		"is_enabled": "false",
 		"order":30
-	},
-    {
-        "url": "https://steemd.minnowsupportproject.org",
-        "is_enabled": "true",
-        "order":40
-    },
-    {
-        "url": "https://rpc.buildteam.io",
-        "is_enabled": "true",
-        "order":50
     }
 ]

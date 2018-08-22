@@ -13,7 +13,6 @@ using Steepshot.Core;
 using Steepshot.Core.Extensions;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Responses;
-using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 using Steepshot.Utils;
 using ZXing.Mobile;
@@ -63,7 +62,7 @@ namespace Steepshot.Base
             _buttonScanDefaultView.Typeface = Style.Semibold;
 #if DEBUG
             var di = AppSettings.AssetHelper.GetDebugInfo();
-            _password.Text = BasePresenter.Chain == KnownChains.Golos
+            _password.Text = App.MainChain == KnownChains.Golos
                 ? di.GolosTestWif
                 : di.SteemTestWif;
 #endif            
@@ -118,8 +117,8 @@ namespace Steepshot.Base
             }
             catch (Exception ex)
             {
-                AppSettings.Reporter.SendCrash(ex);
-                this.ShowAlert(LocalizationKeys.UnknownError, ToastLength.Short);
+                await AppSettings.Logger.Error(ex);
+                this.ShowAlert(ex, ToastLength.Short);
             }
         }
 

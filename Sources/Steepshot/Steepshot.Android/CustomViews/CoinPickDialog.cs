@@ -54,7 +54,7 @@ namespace Steepshot.CustomViews
                 _wheelPicker.SetAtmospheric(true);
                 _wheelPicker.SelectedItemTextColor = Style.R255G34B5;
                 _wheelPicker.ItemTextColor = Color.Black;
-                _wheelPicker.ItemTextSize = (int)TypedValue.ApplyDimension(ComplexUnitType.Sp, 20, Context.Resources.DisplayMetrics);
+                _wheelPicker.ItemTextSize = (int)TypedValue.ApplyDimension(ComplexUnitType.Sp, 27, Context.Resources.DisplayMetrics);
                 _wheelPicker.ItemSpace = (int)TypedValue.ApplyDimension(ComplexUnitType.Dip, 20, Context.Resources.DisplayMetrics);
                 _wheelPicker.Data = _displayCoins;
                 _wheelPicker.SelectedItemPosition = _selectedPosition;

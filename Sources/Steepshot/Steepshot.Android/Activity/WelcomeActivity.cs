@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading.Tasks;
 using Android.App;
 using Android.Content;
 using Android.OS;
@@ -12,7 +11,6 @@ using CheeseBind;
 using Steepshot.Base;
 using Steepshot.Core;
 using Steepshot.Core.Localization;
-using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 using Steepshot.Utils;
 
@@ -55,7 +53,7 @@ namespace Steepshot.Activity
             _steemLogin.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.SignInButtonText, "Steem");
             _golosLogin.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.SignInButtonText, "Golos");
             _regButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.CreateButtonText);
-            _devSwitcher.Checked = AppSettings.IsDev;
+            _devSwitcher.Checked = AppSettings.Settings.IsDev;
             _devSwitcher.CheckedChange += OnDevSwitcherOnCheckedChange;
 
             _steemLogin.Click += SteemLogin;
@@ -76,9 +74,7 @@ namespace Steepshot.Activity
             _steemLogin.Enabled = false;
             _steemLogin.Text = string.Empty;
 
-            await PickChain(KnownChains.Steem);
-            if (IsFinishing || IsDestroyed)
-                return;
+            PickChain(KnownChains.Steem);
 
             _steemLoader.Visibility = ViewStates.Gone;
             _steemLogin.Enabled = true;
@@ -91,10 +87,7 @@ namespace Steepshot.Activity
             _golosLogin.Enabled = false;
             _golosLogin.Text = string.Empty;
 
-            await PickChain(KnownChains.Golos);
-            if (IsFinishing || IsDestroyed)
-                return;
-
+            PickChain(KnownChains.Golos);
             _golosLoder.Visibility = ViewStates.Gone;
             _golosLogin.Enabled = true;
             _golosLogin.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.SignInButtonText, "Golos");
@@ -118,20 +111,15 @@ namespace Steepshot.Activity
                 _devSwitcher.Visibility = ViewStates.Gone;
         }
 
-        private async void OnDevSwitcherOnCheckedChange(object sender, CompoundButton.CheckedChangeEventArgs e)
+        private void OnDevSwitcherOnCheckedChange(object sender, CompoundButton.CheckedChangeEventArgs e)
         {
-            await BasePresenter.SwitchChain(e.IsChecked);
+            App.SteemClient.SetDev(e.IsChecked);
+            App.GolosClient.SetDev(e.IsChecked);
         }
 
-        private async Task PickChain(KnownChains chain)
+        private void PickChain(KnownChains chain)
         {
-            if (BasePresenter.Chain != chain)
-            {
-                await BasePresenter.SwitchChain(chain);
-                if (IsFinishing || IsDestroyed)
-                    return;
-            }
-
+            App.MainChain = chain;
             var intent = new Intent(this, typeof(PreSignInActivity));
             StartActivity(intent);
         }

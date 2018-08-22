@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Com.OneSignal;
 using CoreGraphics;
-using FFImageLoading;
-using Steepshot.Core.Errors;
+using Steepshot.Core;
 using Steepshot.Core.Extensions;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Models.Requests;
@@ -13,6 +11,7 @@ using Steepshot.Core.Utils;
 using Steepshot.iOS.Helpers;
 using Steepshot.iOS.Views;
 using UIKit;
+using Constants = Steepshot.iOS.Helpers.Constants;
 
 namespace Steepshot.iOS.ViewControllers
 {
@@ -74,10 +73,19 @@ namespace Steepshot.iOS.ViewControllers
             _avatar.ContentMode = UIViewContentMode.ScaleAspectFill;
 
             _presenter = new UserProfilePresenter() { UserName = AppSettings.User.Login };
+            switch (AppDelegate.MainChain)
+            {
+                case KnownChains.Golos:
+                    _presenter.SetClient(AppDelegate.GolosClient);
+                    break;
+                case KnownChains.Steem:
+                    _presenter.SetClient(AppDelegate.SteemClient);
+                    break;
+            }
 
             TabBar.Subviews[3].AddSubview(_powerFrame);
             InitializePowerFrame();
-            if (AppSettings.AppInfo.GetModel() != "Simulator")
+            if (!AppSettings.AppInfo.GetModel().Contains("Simulator"))
                 InitPushes();
         }
 
@@ -96,25 +104,23 @@ namespace Steepshot.iOS.ViewControllers
                 {
                     Subscriptions = PushSettings.All.FlagToStringList()
                 };
-                var response = await BasePresenter.TrySubscribeForPushes(model);
+                var response = await _presenter.TrySubscribeForPushes(model);
                 if (response.IsSuccess)
                     AppSettings.User.PushesPlayerId = playerId;
             }
         }
 
-        public async void UpdateProfile()
+        public void UpdateProfile()
         {
-            var userData = await ((ProfileViewController)((InteractivePopNavigationController)ViewControllers[3]).RootViewController).GetUserInfo();
-            if (userData == null)
-                InitializePowerFrame();
+            InitializePowerFrame();
         }
 
         private async void InitializePowerFrame()
         {
             do
             {
-                var error = await _presenter.TryGetUserInfo(AppSettings.User.Login);
-                if (error == null || error is CanceledError)
+                var exception = await _presenter.TryGetUserInfo(AppSettings.User.Login);
+                if (exception == null || exception is OperationCanceledException)
                 {
                     _powerFrame.ChangePercents((int)_presenter.UserProfileResponse.VotingPower);
                     if (!string.IsNullOrEmpty(_presenter.UserProfileResponse.ProfileImage))

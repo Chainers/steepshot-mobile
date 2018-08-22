@@ -15,7 +15,7 @@ using Steepshot.Core.Models.Common;
 using Steepshot.Utils;
 using Steepshot.Core.Models;
 using Steepshot.Core.Models.Enums;
-using Steepshot.Activity;
+using Steepshot.Core;
 using Steepshot.Core.Facades;
 using Steepshot.Core.Utils;
 
@@ -58,7 +58,11 @@ namespace Steepshot.Fragment
             base.OnCreate(savedInstanceState);
 
             if (_searchFacade == null)
+            {
+                var client = App.MainChain == KnownChains.Steem ? App.SteemClient : App.GolosClient;
                 _searchFacade = new SearchFacade();
+                _searchFacade.SetClient(client);
+            }
         }
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -123,9 +127,8 @@ namespace Steepshot.Fragment
 
         public override void OnResume()
         {
-            if (Activity is RootActivity activity)
-                activity._tabLayout.Visibility = ViewStates.Gone;
             base.OnResume();
+            ToggleTabBar(true);
         }
 
         public override void OnDetach()
@@ -182,7 +185,7 @@ namespace Steepshot.Fragment
                 ? ViewStates.Gone
                 : ViewStates.Visible;
 
-            _timer.Change(500, Timeout.Infinite);
+            _timer.Change(1300, Timeout.Infinite);
         }
 
         private void OnClick(UserFriend userFriend)
@@ -210,11 +213,11 @@ namespace Steepshot.Fragment
             if (userFriend == null)
                 return;
 
-            var error = await _searchFacade.UserFriendPresenter.TryFollow(userFriend);
+            var exception = await _searchFacade.UserFriendPresenter.TryFollow(userFriend);
             if (!IsInitialized)
                 return;
 
-            Context.ShowAlert(error);
+            Context.ShowAlert(exception);
         }
 
         private void OnTimer(object state)
@@ -263,11 +266,11 @@ namespace Steepshot.Fragment
                     _tagSpinner.Visibility = ViewStates.Visible;
             }
 
-            var error = await _searchFacade.TrySearchCategories(_searchView.Text, _searchType);
+            var exception = await _searchFacade.TrySearchCategories(_searchView.Text, _searchType);
             if (!IsInitialized)
                 return;
             CheckQueryIsEmpty();
-            Context.ShowAlert(error, ToastLength.Short);
+            Context.ShowAlert(exception, ToastLength.Short);
         }
 
         private void CheckQueryIsEmpty()

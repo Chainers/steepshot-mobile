@@ -13,11 +13,11 @@ namespace Steepshot.Core.Tests.Presenters
         [TestCase(KnownChains.Golos, "@joseph.kalu/4k-photo-test-2017-10-10-07-15-42")]
         public async Task GetPostVotersTest(KnownChains apiName, string url)
         {
-            await BasePresenter.SwitchChain(apiName);
             var presenter = new UserFriendPresenter() { VotersType = VotersType.All };
+            presenter.SetClient(Api[apiName]);
             Assert.IsTrue(presenter.Count == 0);
-            var error = await presenter.TryLoadNextPostVoters(url);
-            Assert.IsTrue(error == null);
+            var exception = await presenter.TryLoadNextPostVoters(url);
+            Assert.IsTrue(exception == null);
             Assert.IsTrue(presenter.Count > 0);
         }
     }

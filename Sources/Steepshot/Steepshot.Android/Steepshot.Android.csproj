@@ -17,7 +17,6 @@
     <AndroidManifest>Properties\AndroidManifest.xml</AndroidManifest>
     <MonoAndroidResourcePrefix>Resources</MonoAndroidResourcePrefix>
     <MonoAndroidAssetsPrefix>Assets</MonoAndroidAssetsPrefix>
-    <AndroidUseLatestPlatformSdk>true</AndroidUseLatestPlatformSdk>
     <AndroidTlsProvider>
     </AndroidTlsProvider>
     <NuGetPackageImportStamp>
@@ -40,6 +39,9 @@
     <AndroidTlsProvider>btls</AndroidTlsProvider>
     <AndroidLinkMode>None</AndroidLinkMode>
     <AndroidUseSharedRuntime>true</AndroidUseSharedRuntime>
+    <AotAssemblies>false</AotAssemblies>
+    <EnableLLVM>false</EnableLLVM>
+    <BundleAssemblies>false</BundleAssemblies>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugSymbols>True</DebugSymbols>
@@ -69,19 +71,27 @@
     <Compile Include="Adapter\SpinnerAdapter.cs" />
     <Compile Include="Activity\ActiveSignInActivity.cs" />
     <Compile Include="Adapter\RecipientsAdapter.cs" />
+    <Compile Include="Adapter\WalletAdapter.cs" />
+    <Compile Include="Adapter\WalletPagerAdapter.cs" />
     <Compile Include="Base\App.cs" />
     <Compile Include="Base\BaseSignInActivity.cs" />
     <Compile Include="CustomViews\AccurateMovementMethod.cs" />
+    <Compile Include="CustomViews\ActionAlertDialog.cs" />
     <Compile Include="CustomViews\AutoLinkTextView.cs" />
+    <Compile Include="CustomViews\ClaimRewardsDialog.cs" />
     <Compile Include="CustomViews\CoinPickDialog.cs" />
     <Compile Include="CustomViews\ExpandableTextView.cs" />
     <Compile Include="CustomViews\MediaPager.cs" />
     <Compile Include="CustomViews\SuccessfullTrxDialog.cs" />
     <Compile Include="CustomViews\TouchableSpan.cs" />
+    <Compile Include="CustomViews\WalletExtraDialog.cs" />
     <Compile Include="Fragment\PostCreateFragment.cs" />
     <Compile Include="Fragment\PostPrepareBaseFragment.cs" />
+    <Compile Include="Fragment\PowerUpDownFragment.cs" />
     <Compile Include="Fragment\TransferFragment.cs" />
+    <Compile Include="Fragment\WalletFragment.cs" />
     <Compile Include="Integration\InstagramModule.cs" />
+    <Compile Include="Resources\Resource.designer.cs" />
     <Compile Include="Utils\TextInputFilter.cs" />
     <Compile Include="Utils\NotificationExtender.cs" />
     <Compile Include="Adapter\GalleryGridAdapter.cs" />
@@ -118,7 +128,6 @@
     <AndroidEnvironment Include="environment.txt" />
     <Compile Include="Fragment\CameraFragment.cs" />
     <Compile Include="Interfaces\ICanOpenPost.cs" />
-    <Compile Include="Resources\Resource.designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Base\BaseActivity.cs" />
     <Compile Include="Base\BaseFragment.cs" />
@@ -167,8 +176,14 @@
     <Compile Include="Utils\ViewUtils.cs" />
     <Compile Include="Activity\WelcomeActivity.cs" />
     <Compile Include="Activity\RegistrationActivity.cs" />
+    <Compile Include="Fragment\PlagiarismCheckFragment.cs" />
+    <Compile Include="CustomViews\FeatureDialog.cs" />
   </ItemGroup>
   <ItemGroup>
+    <AndroidResource Include="Resources\values-v21\styles.xml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:UpdateGeneratedFiles</Generator>
+    </AndroidResource>
     <None Include="app.config" />
     <AndroidAsset Include="Assets\Config.txt.template" />
     <AndroidAsset Include="Assets\IntegrationModuleConfig.txt.template" />
@@ -176,208 +191,421 @@
     <AndroidAsset Include="Assets\SFUIDisplay-Regular.otf" />
     <AndroidAsset Include="Assets\SFUIDisplay-Semibold.otf" />
     <None Include="packages.config" />
-    <None Include="Resources\AboutResources.txt" />
     <None Include="Properties\AndroidManifest.xml" />
-    <None Include="Assets\AboutAssets.txt" />
-    <AndroidResource Include="Resources\layout\lyt_auto_test.axml" />
-    <AndroidResource Include="Resources\layout\lyt_old_camera.axml" />
-    <AndroidResource Include="Resources\drawable-mdpi\ic_revert.png" />
-    <AndroidResource Include="Resources\drawable-hdpi\ic_revert.png" />
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_revert.png" />
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_revert.png" />
-    <AndroidResource Include="Resources\drawable-mdpi\ic_flash.png" />
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_flash.png" />
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_flash.png" />
-    <AndroidResource Include="Resources\drawable-mdpi\ic_shot.png" />
-    <AndroidResource Include="Resources\drawable-hdpi\ic_shot.png" />
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_shot.png" />
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_shot.png" />
-    <AndroidResource Include="Resources\drawable-mdpi\ic_close.png" />
-    <AndroidResource Include="Resources\drawable-hdpi\ic_close.png" />
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_close.png" />
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_close.png" />
-    <AndroidResource Include="Resources\drawable-mdpi\ic_logo_small.png" />
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_logo_small.png" />
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_logo_small.png" />
-    <AndroidResource Include="Resources\drawable-mdpi\ic_holder.png" />
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_holder.png" />
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_holder.png" />
-    <AndroidResource Include="Resources\drawable-mdpi\ic_edit.png" />
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_edit.png" />
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_edit.png" />
-    <AndroidResource Include="Resources\layout\lyt_local_tags_item.axml" />
-    <AndroidResource Include="Resources\drawable\white_btn_style_edge_grey.xml" />
-    <AndroidResource Include="Resources\drawable-mdpi\ic_close_black.png" />
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_close_black.png" />
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_close_black.png" />
-    <AndroidResource Include="Resources\drawable-mdpi\ic_send.png" />
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_send.png" />
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_send.png" />
-    <AndroidResource Include="Resources\layout\lyt_welcome.axml" />
-    <AndroidResource Include="Resources\drawable-mdpi\ic_more.png" />
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_more.png" />
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_more.png" />
-    <AndroidResource Include="Resources\drawable\blue_btn_style.xml" />
-    <AndroidResource Include="Resources\drawable-mdpi\ic_new_like_filled.png" />
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_new_like_filled.png" />
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_new_like_filled.png" />
-    <AndroidResource Include="Resources\layout\lyt_account_item.axml" />
-    <AndroidResource Include="Resources\drawable-mdpi\ic_checked.png" />
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_checked.png" />
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_checked.png" />
-    <AndroidResource Include="Resources\drawable-mdpi\ic_unchecked.png" />
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_unchecked.png" />
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_unchecked.png" />
-    <AndroidResource Include="Resources\layout\lyt_feed_popup.axml" />
-    <AndroidResource Include="Resources\drawable-mdpi\ic_rotate.png" />
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_rotate.png" />
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_rotate.png" />
-    <AndroidResource Include="Resources\drawable-mdpi\ic_flash_off.png" />
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_flash_off.png" />
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_flash_off.png" />
-    <AndroidResource Include="Resources\layout\lyt_post_view_item.axml" />
-    <AndroidResource Include="Resources\layout\lyt_postcard_loading.axml" />
-    <AndroidResource Include="Resources\layout\lyt_nsfw_mask.axml" />
-    <AndroidResource Include="Resources\layout\lyt_grid_item.axml" />
-    <AndroidResource Include="Resources\layout\lyt_description_item.axml" />
-    <AndroidResource Include="Resources\layout\lyt_deletion_alert.axml" />
-    <AndroidResource Include="Resources\layout\lyt_gallery.axml" />
-    <AndroidResource Include="Resources\layout\lyt_gallery_top.axml" />
-    <AndroidResource Include="Resources\layout\lyt_empty_feed.axml" />
-    <AndroidResource Include="Resources\layout\lyt_alert.axml" />
-    <AndroidResource Include="Resources\layout\lyt_single_post.axml" />
-    <AndroidResource Include="Resources\layout\lyt_notifications_settings.axml" />
-    <AndroidResource Include="Resources\layout\lyt_profile_popup.axml" />
-    <AndroidResource Include="Resources\layout\lyt_registration_alert.axml" />
-    <AndroidResource Include="Resources\drawable\registration_button_border.xml" />
-    <AndroidResource Include="Resources\drawable\grey_rounded_border.xml" />
-    <AndroidResource Include="Resources\drawable-mdpi\ic_blocktrade.png" />
-    <AndroidResource Include="Resources\drawable-mdpi\ic_steem.png" />
-    <AndroidResource Include="Resources\drawable-mdpi\ic_steemcreate.png" />
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_blocktrade.png" />
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_steem.png" />
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_steemcreate.png" />
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_blocktrade.png" />
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_steem.png" />
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_steemcreate.png" />
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_steemit.png" />
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_golos.png" />
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_steemit.png" />
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_golos.png" />
-    <AndroidResource Include="Resources\layout\lyt_account_popup.axml" />
+    <AndroidResource Include="Resources\mipmap-hdpi\ic_launcher.png" />
+    <AndroidResource Include="Resources\mipmap-mdpi\ic_launcher.png" />
+    <AndroidResource Include="Resources\mipmap-xhdpi\ic_launcher.png" />
+    <AndroidResource Include="Resources\mipmap-xxhdpi\ic_launcher.png" />
+    <AndroidResource Include="Resources\mipmap-xxxhdpi\ic_launcher.png" />
   </ItemGroup>
   <ItemGroup>
-    <AndroidResource Include="Resources\drawable\splash.xml" />
-    <AndroidResource Include="Resources\layout\lyt_post_preview.axml" />
-    <AndroidResource Include="Resources\layout\lyt_pre_sign_in.axml" />
-    <AndroidResource Include="Resources\layout\HostLayout.axml" />
-    <AndroidResource Include="Resources\values\Strings.xml" />
-    <AndroidResource Include="Resources\values\Colors.xml">
-      <SubType>Designer</SubType>
-    </AndroidResource>
-    <AndroidResource Include="Resources\values\Dimens.xml" />
-    <AndroidResource Include="Resources\values\Styles.xml" />
+    <AndroidResource Include="Resources\values-v21\styles.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Steepshot.Core\Steepshot.Core.csproj">
+      <Project>{8C01B785-CFC3-4308-8BE9-BB2F043631DA}</Project>
+      <Name>Steepshot.Core</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidAsset Include="Assets\OpenSans-Regular.ttf" />
+    <AndroidAsset Include="Assets\OpenSans-Semibold.ttf" />
+    <AndroidAsset Include="Assets\OpenSans-Light.ttf" />
+    <AndroidAsset Include="Assets\DebugWif.txt.template" />
+    <AndroidAsset Include="Assets\DebugWif.txt" />
+    <AndroidAsset Include="Assets\Config.txt" />
+    <AndroidAsset Include="Assets\CensoredWords.txt" />
+    <AndroidAsset Include="Assets\SteemNodesConfig.txt" />
+    <AndroidAsset Include="Assets\GolosNodesConfig.txt" />
+    <AndroidAsset Include="..\..\..\References\Languages\en\dic.xml">
+      <Link>Assets\Languages\en\dic.xml</Link>
+    </AndroidAsset>
+    <AndroidAsset Include="Assets\IntegrationModuleConfig.txt" />
+  </ItemGroup>
+  <ItemGroup>
     <AndroidResource Include="Resources\Anim\down_up.xml" />
     <AndroidResource Include="Resources\Anim\rotate0.xml" />
     <AndroidResource Include="Resources\Anim\rotate180.xml" />
     <AndroidResource Include="Resources\Anim\up_down.xml" />
+    <AndroidResource Include="Resources\drawable\blue_btn_style.xml" />
+    <AndroidResource Include="Resources\drawable\circle_border.xml" />
+    <AndroidResource Include="Resources\drawable\edit_text_borders.xml" />
+    <AndroidResource Include="Resources\drawable\follow_button_corners.xml" />
     <AndroidResource Include="Resources\drawable\gray_border.xml" />
+    <AndroidResource Include="Resources\drawable\grey_radius10dip.xml" />
+    <AndroidResource Include="Resources\drawable\grey_rounded_border.xml" />
+    <AndroidResource Include="Resources\drawable\grey_rounded_border10dip.xml" />
+    <AndroidResource Include="Resources\drawable\grey_rounded_border12dip.xml" />
+    <AndroidResource Include="Resources\drawable\grey_rounded_border16dip.xml" />
+    <AndroidResource Include="Resources\drawable\grey_rounded_border25dip.xml" />
+    <AndroidResource Include="Resources\drawable\like_power_bg.xml" />
+    <AndroidResource Include="Resources\drawable\multiline_edittext_borders.xml" />
+    <AndroidResource Include="Resources\drawable\orange_btn_style.xml" />
+    <AndroidResource Include="Resources\drawable\orange_rounded_border12dip.xml" />
     <AndroidResource Include="Resources\drawable\photo_btn_bcak.xml" />
+    <AndroidResource Include="Resources\drawable\popup_background.xml" />
+    <AndroidResource Include="Resources\drawable\popup_separator.xml" />
+    <AndroidResource Include="Resources\drawable\postpager_dot_selector.xml" />
     <AndroidResource Include="Resources\drawable\primary_corner_white_btn.xml" />
     <AndroidResource Include="Resources\drawable\primary_order.xml" />
+    <AndroidResource Include="Resources\drawable\registration_button_border.xml" />
+    <AndroidResource Include="Resources\drawable\rotate_button_states.xml" />
+    <AndroidResource Include="Resources\drawable\seekbar_progress.xml" />
+    <AndroidResource Include="Resources\drawable\seekbar_thumb.xml" />
+    <AndroidResource Include="Resources\drawable\settings_separator.xml" />
+    <AndroidResource Include="Resources\drawable\spinner_dropdown.xml" />
+    <AndroidResource Include="Resources\drawable\splash.xml" />
+    <AndroidResource Include="Resources\drawable\tags_rounded_border.xml" />
+    <AndroidResource Include="Resources\drawable\transparent_rounded_border.xml" />
+    <AndroidResource Include="Resources\drawable\wallet_card_username.xml" />
+    <AndroidResource Include="Resources\drawable\wallet_dot_selector.xml" />
+    <AndroidResource Include="Resources\drawable\welcome_screen_background.xml" />
     <AndroidResource Include="Resources\drawable\white_bottom_shadow.xml" />
+    <AndroidResource Include="Resources\drawable\white_btn_style_edge_black.xml" />
+    <AndroidResource Include="Resources\drawable\white_btn_style_edge_grey.xml" />
     <AndroidResource Include="Resources\drawable\white_corner_primary_btn.xml" />
-    <AndroidResource Include="Resources\drawable\follow_button_corners.xml" />
+    <AndroidResource Include="Resources\drawable\white_radius100dip_edge_grey.xml" />
+    <AndroidResource Include="Resources\drawable\white_rounded_border16dip.xml" />
+    <AndroidResource Include="Resources\drawable\white_shimmer_bg.xml" />
     <AndroidResource Include="Resources\drawable\white_solid_btn.xml" />
     <AndroidResource Include="Resources\drawable\white_top_shadow.xml" />
-    <AndroidResource Include="Resources\layout\lyt_search_tag.axml" />
-    <AndroidResource Include="Resources\layout\lyt_comment_item.axml">
-      <SubType>Designer</SubType>
-    </AndroidResource>
+    <AndroidResource Include="Resources\drawable-hdpi\ic_back.png" />
+    <AndroidResource Include="Resources\drawable-hdpi\ic_balance.png" />
+    <AndroidResource Include="Resources\drawable-hdpi\ic_camera_white.png" />
+    <AndroidResource Include="Resources\drawable-hdpi\ic_close.png" />
+    <AndroidResource Include="Resources\drawable-hdpi\ic_forward.png" />
+    <AndroidResource Include="Resources\drawable-hdpi\ic_grid.png" />
+    <AndroidResource Include="Resources\drawable-hdpi\ic_micro_heart.png" />
+    <AndroidResource Include="Resources\drawable-hdpi\ic_photo_holder.png" />
+    <AndroidResource Include="Resources\drawable-hdpi\ic_revert.png" />
+    <AndroidResource Include="Resources\drawable-hdpi\ic_settings.png" />
+    <AndroidResource Include="Resources\drawable-hdpi\ic_shot.png" />
+    <AndroidResource Include="Resources\drawable-hdpi\ic_stat_onesignal_default.png" />
+    <AndroidResource Include="Resources\drawable-hdpi\ic_user_placeholder.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_add_tag.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_add_tag_active.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_arrows.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_back.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_back_arrow.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_balance.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_blocktrade.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_browse.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_browse_active.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_camera_white.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_checked.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_claim_rewards.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_close.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_close_black.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_close_nsfw_mask.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_close_tag.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_close_tag_active.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_create.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_create_active.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_delete.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_edit.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_flag.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_flag_active.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_flash.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_flash_off.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_forward.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_gallery.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_golos.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_grid.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_grid_active.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_holder.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_home.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_home_active.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_ilustration.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_input.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_logo_main.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_logo_small.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_micro_heart.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_more.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_more_black.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_multiselect.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_multiselect_active.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_new_like.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_new_like_disabled.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_new_like_filled.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_new_like_selected.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_next_arrow.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_photo_holder.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_profile.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_profile_active.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_ratio.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_revert.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_rotate.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_rotate_press.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_search_small.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_send.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_settings.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_shot.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_stat_onesignal_default.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_steem.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_steemcreate.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_steemit.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_tag.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_tag_active.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_top_arrow.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_trx_success.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_unchecked.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_user_placeholder.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_welcome_background.jpg" />
+    <AndroidResource Include="Resources\drawable-mdpi\wallet_card_bg1.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\wallet_card_bg2.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\wallet_card_bg3.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\wallet_card_bg4.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\wallet_card_bg5.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\wallet_card_bg6.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\wallet_card_bg7.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\wallet_card_bg8.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_add_tag.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_add_tag_active.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_arrows.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_back.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_back_arrow.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_balance.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_blocktrade.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_browse.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_browse_active.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_camera_white.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_checked.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_claim_rewards.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_close.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_close_black.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_close_nsfw_mask.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_close_tag.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_close_tag_active.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_create.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_create_active.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_delete.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_edit.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_flag.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_flag_active.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_flash.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_flash_off.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_forward.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_gallery.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_golos.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_grid.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_grid_active.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_holder.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_home.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_home_active.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_ilustration.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_input.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_list.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_logo_main.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_logo_small.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_micro_heart.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_more.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_more_black.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_multiselect.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_multiselect_active.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_new_like.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_new_like_disabled.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_new_like_filled.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_new_like_selected.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_next_arrow.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_photo_holder.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_profile.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_profile_active.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_ratio.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_revert.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_rotate.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_rotate_press.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_search_small.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_send.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_settings.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_shot.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_stat_onesignal_default.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_steem.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_steemcreate.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_steemit.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_tag.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_tag_active.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_top_arrow.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_trx_success.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_unchecked.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_user_placeholder.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_welcome_background.jpg" />
+    <AndroidResource Include="Resources\drawable-xhdpi\wallet_card_bg1.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\wallet_card_bg2.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\wallet_card_bg3.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\wallet_card_bg4.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\wallet_card_bg5.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\wallet_card_bg6.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\wallet_card_bg7.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\wallet_card_bg8.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_add_tag.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_add_tag_active.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_arrows.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_back.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_back_arrow.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_balance.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_blocktrade.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_browse.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_browse_active.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_camera_white.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_checked.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_claim_rewards.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_close.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_close_black.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_close_nsfw_mask.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_close_tag.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_close_tag_active.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_create.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_create_active.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_delete.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_edit.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_flag.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_flag_active.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_flash.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_flash_off.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_forward.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_gallery.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_golos.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_gps.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_gps_n.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_grid.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_grid_active.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_holder.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_home.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_home_active.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_ilustration.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_input.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_list.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_logo_main.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_logo_small.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_more.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_more_black.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_multiselect.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_multiselect_active.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_new_like.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_new_like_disabled.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_new_like_filled.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_new_like_selected.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_next_arrow.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_photo_holder.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_profile.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_profile_active.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_ratio.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_revert.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_rotate.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_rotate_press.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_search_small.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_send.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_settings.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_shot.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_stat_onesignal_default.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_steem.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_steemcreate.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_steemit.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_tag.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_tag_active.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_top_arrow.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_trx_success.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_unchecked.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_user_placeholder.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_welcome_background.jpg" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\wallet_card_bg1.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\wallet_card_bg2.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\wallet_card_bg3.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\wallet_card_bg4.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\wallet_card_bg5.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\wallet_card_bg6.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\wallet_card_bg7.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\wallet_card_bg8.png" />
+    <AndroidResource Include="Resources\layout\HostLayout.axml" />
+    <AndroidResource Include="Resources\layout\loading_item.axml" />
+    <AndroidResource Include="Resources\layout\lyt_account_item.axml" />
+    <AndroidResource Include="Resources\layout\lyt_account_popup.axml" />
+    <AndroidResource Include="Resources\layout\lyt_alert.axml" />
+    <AndroidResource Include="Resources\layout\lyt_auto_test.axml" />
+    <AndroidResource Include="Resources\layout\lyt_coin_pick.axml" />
+    <AndroidResource Include="Resources\layout\lyt_comment_item.axml" />
     <AndroidResource Include="Resources\layout\lyt_comments.axml" />
-    <AndroidResource Include="Resources\layout\lyt_feed_item.axml">
-      <SubType>Designer</SubType>
-    </AndroidResource>
-    <AndroidResource Include="Resources\layout\lyt_feed.axml">
-      <SubType>Designer</SubType>
-    </AndroidResource>
-    <AndroidResource Include="Resources\layout\lyt_followers_item.axml" />
+    <AndroidResource Include="Resources\layout\lyt_deletion_alert.axml" />
+    <AndroidResource Include="Resources\layout\lyt_description_item.axml" />
+    <AndroidResource Include="Resources\layout\lyt_empty_feed.axml" />
+    <AndroidResource Include="Resources\layout\lyt_feed.axml" />
+    <AndroidResource Include="Resources\layout\lyt_feed_item.axml" />
+    <AndroidResource Include="Resources\layout\lyt_feed_popup.axml" />
     <AndroidResource Include="Resources\layout\lyt_followers.axml" />
-    <AndroidResource Include="Resources\layout\lyt_fragment_profile.axml">
-      <SubType>Designer</SubType>
-    </AndroidResource>
+    <AndroidResource Include="Resources\layout\lyt_followers_item.axml" />
+    <AndroidResource Include="Resources\layout\lyt_fragment_profile.axml" />
     <AndroidResource Include="Resources\layout\lyt_fragment_take_photo.axml" />
-    <AndroidResource Include="Resources\layout\lyt_post_description.axml">
-      <SubType>Designer</SubType>
-    </AndroidResource>
+    <AndroidResource Include="Resources\layout\lyt_gallery.axml" />
+    <AndroidResource Include="Resources\layout\lyt_gallery_top.axml" />
+    <AndroidResource Include="Resources\layout\lyt_grid_item.axml" />
+    <AndroidResource Include="Resources\layout\lyt_local_tags_item.axml" />
+    <AndroidResource Include="Resources\layout\lyt_notifications_settings.axml" />
+    <AndroidResource Include="Resources\layout\lyt_nsfw_mask.axml" />
+    <AndroidResource Include="Resources\layout\lyt_old_camera.axml" />
+    <AndroidResource Include="Resources\layout\lyt_post_description.axml" />
+    <AndroidResource Include="Resources\layout\lyt_post_preview.axml" />
+    <AndroidResource Include="Resources\layout\lyt_post_view_item.axml" />
+    <AndroidResource Include="Resources\layout\lyt_postcard_loading.axml" />
+    <AndroidResource Include="Resources\layout\lyt_pre_sign_in.axml" />
+    <AndroidResource Include="Resources\layout\lyt_presearch.axml" />
     <AndroidResource Include="Resources\layout\lyt_profile_header.axml" />
+    <AndroidResource Include="Resources\layout\lyt_profile_popup.axml" />
+    <AndroidResource Include="Resources\layout\lyt_recipients_item.axml" />
+    <AndroidResource Include="Resources\layout\lyt_registration_alert.axml" />
     <AndroidResource Include="Resources\layout\lyt_search.axml" />
+    <AndroidResource Include="Resources\layout\lyt_search_tag.axml" />
     <AndroidResource Include="Resources\layout\lyt_settings.axml" />
     <AndroidResource Include="Resources\layout\lyt_sign_in.axml" />
+    <AndroidResource Include="Resources\layout\lyt_single_post.axml" />
+    <AndroidResource Include="Resources\layout\lyt_successfull_transaction.axml" />
     <AndroidResource Include="Resources\layout\lyt_tab_host.axml" />
-    <AndroidResource Include="Resources\drawable-mdpi\ic_new_like_selected.png" />
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_new_like_selected.png" />
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_new_like_selected.png" />
-    <AndroidResource Include="Resources\drawable-mdpi\ic_new_like.png" />
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_new_like.png" />
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_new_like.png" />
-    <AndroidResource Include="Resources\drawable-mdpi\ic_home.png" />
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_home.png" />
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_home.png" />
-    <AndroidResource Include="Resources\drawable-mdpi\ic_home_active.png" />
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_home_active.png" />
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_home_active.png" />
-    <AndroidResource Include="Resources\drawable-mdpi\ic_browse.png" />
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_browse.png" />
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_browse.png" />
-    <AndroidResource Include="Resources\drawable-mdpi\ic_browse_active.png" />
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_browse_active.png" />
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_browse_active.png" />
-    <AndroidResource Include="Resources\drawable-mdpi\ic_profile.png" />
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_profile.png" />
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_profile.png" />
-    <AndroidResource Include="Resources\drawable-mdpi\ic_profile_active.png" />
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_profile_active.png" />
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_profile_active.png" />
-    <AndroidResource Include="Resources\drawable-mdpi\ic_create.png" />
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_create.png" />
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_create.png" />
-    <AndroidResource Include="Resources\drawable-mdpi\ic_create_active.png" />
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_create_active.png" />
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_create_active.png" />
-    <AndroidResource Include="Resources\drawable-mdpi\ic_grid.png" />
-    <AndroidResource Include="Resources\drawable-hdpi\ic_grid.png" />
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_grid.png" />
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_grid.png" />
-    <AndroidResource Include="Resources\drawable-hdpi\ic_grid_active.png" />
-    <AndroidResource Include="Resources\drawable-mdpi\ic_grid_active.png" />
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_grid_active.png" />
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_grid_active.png" />
-    <AndroidResource Include="Resources\drawable-hdpi\ic_balance.png" />
-    <AndroidResource Include="Resources\drawable-mdpi\ic_balance.png" />
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_balance.png" />
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_balance.png" />
-    <AndroidResource Include="Resources\drawable-hdpi\ic_forward.png" />
-    <AndroidResource Include="Resources\drawable-mdpi\ic_forward.png" />
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_forward.png" />
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_forward.png" />
-    <AndroidResource Include="Resources\drawable-hdpi\ic_settings.png" />
-    <AndroidResource Include="Resources\drawable-mdpi\ic_settings.png" />
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_settings.png" />
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_settings.png" />
-    <AndroidResource Include="Resources\drawable-mdpi\ic_back_arrow.png" />
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_back_arrow.png" />
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_back_arrow.png" />
+    <AndroidResource Include="Resources\layout\lyt_transfer.axml" />
+    <AndroidResource Include="Resources\layout\lyt_transfer_top.axml" />
+    <AndroidResource Include="Resources\layout\lyt_trx_history.axml" />
+    <AndroidResource Include="Resources\layout\lyt_trx_history_shimmer.axml" />
+    <AndroidResource Include="Resources\layout\lyt_wallet.axml" />
+    <AndroidResource Include="Resources\layout\lyt_wallet_card.axml" />
+    <AndroidResource Include="Resources\layout\lyt_wallet_card_shimmer.axml" />
+    <AndroidResource Include="Resources\layout\lyt_wallet_top.axml" />
+    <AndroidResource Include="Resources\layout\lyt_welcome.axml" />
     <AndroidResource Include="Resources\layout\top_panel.axml" />
-    <AndroidResource Include="Resources\layout\loading_item.axml" />
-    <AndroidResource Include="Resources\drawable-mdpi\ic_search_small.png" />
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_search_small.png" />
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_search_small.png" />
-    <AndroidResource Include="Resources\drawable-mdpi\ic_input.png" />
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_input.png" />
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_input.png" />
-    <AndroidResource Include="Resources\drawable\circle_border.xml" />
-    <AndroidResource Include="Resources\layout\lyt_presearch.axml" />
+    <AndroidResource Include="Resources\mipmap-hdpi\ic_launch_icon.png" />
+    <AndroidResource Include="Resources\mipmap-mdpi\ic_launch_icon.png" />
+    <AndroidResource Include="Resources\mipmap-xhdpi\ic_launch_icon.png" />
+    <AndroidResource Include="Resources\mipmap-xxhdpi\ic_launch_icon.png" />
+    <AndroidResource Include="Resources\mipmap-xxxhdpi\ic_launch_icon.png" />
+    <AndroidResource Include="Resources\values\Attributes.xml" />
+    <AndroidResource Include="Resources\values\Colors.xml" />
+    <AndroidResource Include="Resources\values\Dimens.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\values\Strings.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\values\Styles.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\layout\lyt_wallet_extra.axml">
+      <SubType>Designer</SubType>
+    </AndroidResource>
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable\grey_rounded_border20dip.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\layout\lyt_power_up_down.axml">
+      <SubType>Designer</SubType>
+    </AndroidResource>
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\layout\lyt_power_up_down_top.axml">
+      <SubType>Designer</SubType>
+    </AndroidResource>
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\layout\lyt_claim_rewards.axml">
+      <SubType>Designer</SubType>
+    </AndroidResource>
   </ItemGroup>
   <ItemGroup>
     <Reference Include="AndroidFlowLayout, Version=1.9.1.0, Culture=neutral, processorArchitecture=MSIL">
@@ -398,23 +626,21 @@
     <Reference Include="Com.OneSignal.Abstractions, Version=3.2.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Com.OneSignal.3.2.0\lib\MonoAndroid10\Com.OneSignal.Abstractions.dll</HintPath>
     </Reference>
-    <Reference Include="Cryptography.ECDSA, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Cryptography.ECDSA.Secp256K1.1.1.0\lib\netstandard2.0\Cryptography.ECDSA.dll</HintPath>
+    <Reference Include="Cryptography.ECDSA, Version=1.1.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Cryptography.ECDSA.Secp256K1.1.1.2\lib\netstandard2.0\Cryptography.ECDSA.dll</HintPath>
     </Reference>
-    <Reference Include="Ditch.Core, Version=3.2.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Ditch.Core.3.2.0-alpha\lib\netstandard2.0\Ditch.Core.dll</HintPath>
+    <Reference Include="Ditch.Core, Version=4.0.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Ditch.Core.4.0.3\lib\netstandard2.0\Ditch.Core.dll</HintPath>
     </Reference>
-    <Reference Include="Ditch.Golos, Version=3.2.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Ditch.Golos.3.2.0-alpha\lib\netstandard2.0\Ditch.Golos.dll</HintPath>
+    <Reference Include="Ditch.Golos, Version=4.0.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Ditch.Golos.4.0.1\lib\netstandard2.0\Ditch.Golos.dll</HintPath>
     </Reference>
-    <Reference Include="Ditch.Steem.Old, Version=0.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Ditch.Steem.Old.0.1.0-alpha\lib\netstandard2.0\Ditch.Steem.Old.dll</HintPath>
+    <Reference Include="Ditch.Steem, Version=4.0.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Ditch.Steem.4.0.1\lib\netstandard2.0\Ditch.Steem.dll</HintPath>
     </Reference>
     <Reference Include="FastAndroidCamera, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\FastAndroidCamera.2.0.0\lib\MonoAndroid403\FastAndroidCamera.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=84e04ff9cfb79065, processorArchitecture=MSIL" />
     <Reference Include="Naxam.WheelPicker, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Naxam.WheelPicker.1.1.2\lib\MonoAndroid10\Naxam.WheelPicker.dll</HintPath>
     </Reference>
@@ -426,6 +652,9 @@
     </Reference>
     <Reference Include="Refractored.Controls.CircleImageView, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Refractored.Controls.CircleImageView.1.0.1\lib\MonoAndroid10\Refractored.Controls.CircleImageView.dll</HintPath>
+    </Reference>
+    <Reference Include="ShimmerLayout, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Karamunting.Android.TeamSupercharge.ShimmerLayout.2.1.0\lib\monoandroid71\ShimmerLayout.dll</HintPath>
     </Reference>
     <Reference Include="Square.OkHttp, Version=2.7.5.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Square.OkHttp.2.7.5.0\lib\MonoAndroid\Square.OkHttp.dll</HintPath>
@@ -439,26 +668,18 @@
     <Reference Include="SuperSocket.ClientEngine, Version=0.10.0.0, Culture=neutral, PublicKeyToken=ee9af13f57f00acc, processorArchitecture=MSIL">
       <HintPath>..\packages\SuperSocket.ClientEngine.Core.0.10.0\lib\netstandard1.3\SuperSocket.ClientEngine.dll</HintPath>
     </Reference>
-    <Reference Include="System">
-      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\Framework\MonoAndroid\v1.0\System.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Core">
-      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\Framework\MonoAndroid\v1.0\System.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Data">
-      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\Framework\MonoAndroid\v1.0\System.Data.dll</HintPath>
-    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Core" />
+    <Reference Include="Mono.Android" />
+    <Reference Include="System.Data" />
     <Reference Include="System.IO.Compression" />
     <Reference Include="System.Json" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Numerics" />
     <Reference Include="System.Runtime.Serialization" />
-    <Reference Include="System.Xml">
-      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\Framework\MonoAndroid\v1.0\System.Xml.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Xml.Linq">
-      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\Framework\MonoAndroid\v1.0\System.Xml.Linq.dll</HintPath>
-    </Reference>
+    <Reference Include="Microsoft.CSharp" />
     <Reference Include="websocket-sharp, Version=1.0.2.59611, Culture=neutral, PublicKeyToken=5660b08a1845a91e, processorArchitecture=MSIL">
       <HintPath>..\packages\WebSocketSharp.1.0.3-rc11\lib\websocket-sharp.dll</HintPath>
     </Reference>
@@ -569,358 +790,20 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <AndroidResource Include="Resources\values-v21\styles.xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Steepshot.Core\Steepshot.Core.csproj">
-      <Project>{8C01B785-CFC3-4308-8BE9-BB2F043631DA}</Project>
-      <Name>Steepshot.Core</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-hdpi\ic_back.png" />
-    <AndroidResource Include="Resources\drawable-hdpi\ic_camera_white.png" />
-    <AndroidResource Include="Resources\drawable-hdpi\ic_micro_heart.png" />
-    <AndroidResource Include="Resources\drawable-hdpi\ic_photo_holder.png" />
-    <AndroidResource Include="Resources\drawable-hdpi\ic_user_placeholder.png" />
-    <AndroidResource Include="Resources\drawable-mdpi\ic_back.png" />
-    <AndroidResource Include="Resources\drawable-mdpi\ic_camera_white.png" />
-    <AndroidResource Include="Resources\drawable-mdpi\ic_micro_heart.png" />
-    <AndroidResource Include="Resources\drawable-mdpi\ic_photo_holder.png" />
-    <AndroidResource Include="Resources\drawable-mdpi\ic_user_placeholder.png" />
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_back.png" />
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_camera_white.png" />
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_list.png" />
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_micro_heart.png" />
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_photo_holder.png" />
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_user_placeholder.png" />
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_back.png" />
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_camera_white.png" />
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_list.png" />
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_photo_holder.png" />
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_user_placeholder.png" />
-    <AndroidResource Include="Resources\mipmap-hdpi\ic_launch_icon.png" />
-    <AndroidResource Include="Resources\mipmap-mdpi\ic_launch_icon.png" />
-    <AndroidResource Include="Resources\mipmap-xhdpi\ic_launch_icon.png" />
-    <AndroidResource Include="Resources\mipmap-xxhdpi\ic_launch_icon.png" />
-    <AndroidResource Include="Resources\mipmap-xxxhdpi\ic_launch_icon.png" />
-    <AndroidResource Include="Resources\drawable-mdpi\ic_stat_onesignal_default.png" />
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_stat_onesignal_default.png" />
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_stat_onesignal_default.png" />
-    <AndroidResource Include="Resources\drawable-mdpi\ic_multiselect.png" />
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_multiselect.png" />
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_multiselect.png" />
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_multiselect_active.png" />
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_multiselect_active.png" />
-    <AndroidResource Include="Resources\drawable-mdpi\ic_multiselect_active.png" />
-    <AndroidResource Include="Resources\drawable-mdpi\ic_next_arrow.png" />
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_next_arrow.png" />
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_next_arrow.png" />
-    <AndroidResource Include="Resources\drawable-mdpi\ic_tag.png" />
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_tag.png" />
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_tag.png" />
-    <AndroidResource Include="Resources\drawable\tags_rounded_border.xml" />
-    <AndroidResource Include="Resources\drawable-mdpi\ic_ratio.png" />
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_ratio.png" />
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_ratio.png" />
-    <AndroidResource Include="Resources\drawable\postpager_dot_selector.xml" />
-    <AndroidResource Include="Resources\drawable-mdpi\ic_gallery.png" />
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_gallery.png" />
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_gallery.png" />
-    <AndroidResource Include="Resources\drawable-mdpi\ic_close_tag.png" />
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_close_tag.png" />
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_close_tag.png" />
-    <AndroidResource Include="Resources\drawable-mdpi\ic_ilustration.png" />
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_ilustration.png" />
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_ilustration.png" />
-    <AndroidResource Include="Resources\drawable-mdpi\ic_logo_main.png" />
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_logo_main.png" />
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_logo_main.png" />
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_welcome_background.jpg" />
-    <AndroidResource Include="Resources\drawable-mdpi\ic_welcome_background.jpg" />
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_welcome_background.jpg" />
-    <AndroidResource Include="Resources\drawable-mdpi\ic_flag_active.png" />
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_flag_active.png" />
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_flag_active.png" />
-    <AndroidResource Include="Resources\drawable-mdpi\ic_flag.png" />
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_flag.png" />
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_flag.png" />
-    <AndroidResource Include="Resources\drawable-mdpi\ic_more_black.png" />
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_more_black.png" />
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_more_black.png" />
-    <AndroidResource Include="Resources\drawable-mdpi\ic_close_nsfw_mask.png" />
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_close_nsfw_mask.png" />
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_close_nsfw_mask.png" />
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_gps.png" />
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_gps_n.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidAsset Include="Assets\OpenSans-Regular.ttf" />
-    <AndroidAsset Include="Assets\OpenSans-Semibold.ttf" />
-    <AndroidAsset Include="Assets\OpenSans-Light.ttf" />
-    <AndroidAsset Include="Assets\DebugWif.txt.template" />
-    <AndroidAsset Include="Assets\DebugWif.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable\settings_separator.xml" />
-    <AndroidResource Include="Resources\drawable\orange_btn_style.xml" />
-    <AndroidResource Include="Resources\drawable\welcome_screen_background.xml" />
-    <AndroidResource Include="Resources\drawable\popup_background.xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidAsset Include="Assets\Config.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable\transparent_rounded_border.xml" />
-    <AndroidAsset Include="Assets\CensoredWords.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\values\Attributes.xml">
-      <SubType>Designer</SubType>
+    <AndroidResource Include="Resources\layout\lyt_plagiarism.axml">
+      <Generator>MSBuild:UpdateGeneratedFiles</Generator>
     </AndroidResource>
   </ItemGroup>
   <ItemGroup>
-    <AndroidAsset Include="Assets\Localization.en-us.txt" />
+    <AndroidResource Include="Resources\drawable\blue_gradient_style.xml" />
   </ItemGroup>
   <ItemGroup>
-    <AndroidResource Include="Resources\drawable\popup_separator.xml" />
+    <AndroidResource Include="Resources\drawable\round_image_borders.xml" />
   </ItemGroup>
   <ItemGroup>
-    <AndroidResource Include="Resources\drawable\edit_text_borders.xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-mdpi\ic_add_tag.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-mdpi\ic_add_tag_active.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-mdpi\ic_close_tag_active.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-mdpi\ic_tag_active.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_add_tag.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_add_tag_active.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_close_tag_active.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_tag_active.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_add_tag.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_add_tag_active.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_close_tag_active.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_tag_active.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable\rotate_button_states.xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-mdpi\ic_rotate_press.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_rotate_press.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_rotate_press.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable\like_power_bg.xml">
+    <AndroidResource Include="Resources\layout\lyt_wallet_cards.axml">
       <SubType>Designer</SubType>
     </AndroidResource>
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-mdpi\ic_multiselect.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_multiselect.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_multiselect.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_multiselect_active.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_multiselect_active.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-mdpi\ic_multiselect_active.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-mdpi\ic_next_arrow.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_next_arrow.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_next_arrow.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-mdpi\ic_tag.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_tag.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_tag.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable\tags_rounded_border.xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-mdpi\ic_ratio.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_ratio.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_ratio.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable\postpager_dot_selector.xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-mdpi\ic_gallery.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_gallery.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_gallery.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-mdpi\ic_close_tag.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_close_tag.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_close_tag.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-mdpi\ic_ilustration.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_ilustration.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_ilustration.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable\seekbar_progress.xml">
-      <SubType>Designer</SubType>
-    </AndroidResource>
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable\seekbar_thumb.xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-mdpi\ic_new_like_disabled.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_new_like_disabled.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_new_like_disabled.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-hdpi\ic_stat_onesignal_default.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidAsset Include="Assets\SteemNodesConfig.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidAsset Include="Assets\GolosNodesConfig.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-mdpi\ic_delete.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_delete.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_delete.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidAsset Include="Assets\IntegrationModuleConfig.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable\spinner_dropdown.xml" />
-    <AndroidResource Include="Resources\layout\lyt_transfer.axml">
-      <SubType>Designer</SubType>
-    </AndroidResource>
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\layout\lyt_coin_pick.axml">
-      <SubType>Designer</SubType>
-    </AndroidResource>
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable\multiline_edittext_borders.xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-mdpi\ic_arrows.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_arrows.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_arrows.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\layout\lyt_recipients_item.axml">
-      <SubType>Designer</SubType>
-    </AndroidResource>
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-mdpi\ic_top_arrow.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_top_arrow.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_top_arrow.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\layout\lyt_transfer_top.axml">
-      <SubType>Designer</SubType>
-    </AndroidResource>
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable\white_radius100dip_edge_grey.xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable\white_btn_style_edge_black.xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\layout\lyt_successfull_transaction.axml">
-      <SubType>Designer</SubType>
-    </AndroidResource>
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable\grey_radius10dip.xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-mdpi\ic_trx_success.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_trx_success.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_trx_success.png" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <Import Project="..\packages\Xamarin.Build.Download.0.4.2\build\Xamarin.Build.Download.targets" Condition="Exists('..\packages\Xamarin.Build.Download.0.4.2\build\Xamarin.Build.Download.targets')" />
@@ -930,7 +813,6 @@
   <Import Project="..\packages\Xamarin.Android.Support.Animated.Vector.Drawable.25.1.0\build\MonoAndroid70\Xamarin.Android.Support.Animated.Vector.Drawable.targets" Condition="Exists('..\packages\Xamarin.Android.Support.Animated.Vector.Drawable.25.1.0\build\MonoAndroid70\Xamarin.Android.Support.Animated.Vector.Drawable.targets')" />
   <Import Project="..\packages\Xamarin.Android.Support.Transition.25.1.0\build\MonoAndroid70\Xamarin.Android.Support.Transition.targets" Condition="Exists('..\packages\Xamarin.Android.Support.Transition.25.1.0\build\MonoAndroid70\Xamarin.Android.Support.Transition.targets')" />
   <Import Project="..\packages\Xamarin.Android.Support.Design.25.1.0\build\MonoAndroid70\Xamarin.Android.Support.Design.targets" Condition="Exists('..\packages\Xamarin.Android.Support.Design.25.1.0\build\MonoAndroid70\Xamarin.Android.Support.Design.targets')" />
-  <Import Project="..\packages\NETStandard.Library.2.0.1\build\netstandard2.0\NETStandard.Library.targets" Condition="Exists('..\packages\NETStandard.Library.2.0.1\build\netstandard2.0\NETStandard.Library.targets')" />
   <Import Project="..\packages\Xamarin.Android.Support.Annotations.27.0.2.1\build\MonoAndroid81\Xamarin.Android.Support.Annotations.targets" Condition="Exists('..\packages\Xamarin.Android.Support.Annotations.27.0.2.1\build\MonoAndroid81\Xamarin.Android.Support.Annotations.targets')" />
   <Import Project="..\packages\Xamarin.Android.Arch.Core.Common.1.0.0.1\build\MonoAndroid80\Xamarin.Android.Arch.Core.Common.targets" Condition="Exists('..\packages\Xamarin.Android.Arch.Core.Common.1.0.0.1\build\MonoAndroid80\Xamarin.Android.Arch.Core.Common.targets')" />
   <Import Project="..\packages\Xamarin.Android.Arch.Lifecycle.Common.1.0.3.1\build\MonoAndroid80\Xamarin.Android.Arch.Lifecycle.Common.targets" Condition="Exists('..\packages\Xamarin.Android.Arch.Lifecycle.Common.1.0.3.1\build\MonoAndroid80\Xamarin.Android.Arch.Lifecycle.Common.targets')" />
@@ -943,6 +825,7 @@
   <Import Project="..\packages\Xamarin.Android.Support.Media.Compat.27.0.2.1\build\MonoAndroid81\Xamarin.Android.Support.Media.Compat.targets" Condition="Exists('..\packages\Xamarin.Android.Support.Media.Compat.27.0.2.1\build\MonoAndroid81\Xamarin.Android.Support.Media.Compat.targets')" />
   <Import Project="..\packages\Xamarin.Android.Support.Transition.27.0.2.1\build\MonoAndroid81\Xamarin.Android.Support.Transition.targets" Condition="Exists('..\packages\Xamarin.Android.Support.Transition.27.0.2.1\build\MonoAndroid81\Xamarin.Android.Support.Transition.targets')" />
   <Import Project="..\packages\Xamarin.Android.Support.v4.27.0.2.1\build\MonoAndroid81\Xamarin.Android.Support.v4.targets" Condition="Exists('..\packages\Xamarin.Android.Support.v4.27.0.2.1\build\MonoAndroid81\Xamarin.Android.Support.v4.targets')" />
+  <Import Project="..\packages\Xamarin.Android.Support.v7.CardView.27.0.2.1\build\MonoAndroid81\Xamarin.Android.Support.v7.CardView.targets" Condition="Exists('..\packages\Xamarin.Android.Support.v7.CardView.27.0.2.1\build\MonoAndroid81\Xamarin.Android.Support.v7.CardView.targets')" />
   <Import Project="..\packages\Xamarin.Android.Support.v7.RecyclerView.27.0.2.1\build\MonoAndroid81\Xamarin.Android.Support.v7.RecyclerView.targets" Condition="Exists('..\packages\Xamarin.Android.Support.v7.RecyclerView.27.0.2.1\build\MonoAndroid81\Xamarin.Android.Support.v7.RecyclerView.targets')" />
   <Import Project="..\packages\Xamarin.Android.Support.Vector.Drawable.27.0.2.1\build\MonoAndroid81\Xamarin.Android.Support.Vector.Drawable.targets" Condition="Exists('..\packages\Xamarin.Android.Support.Vector.Drawable.27.0.2.1\build\MonoAndroid81\Xamarin.Android.Support.Vector.Drawable.targets')" />
   <Import Project="..\packages\Xamarin.Android.Support.Animated.Vector.Drawable.27.0.2.1\build\MonoAndroid81\Xamarin.Android.Support.Animated.Vector.Drawable.targets" Condition="Exists('..\packages\Xamarin.Android.Support.Animated.Vector.Drawable.27.0.2.1\build\MonoAndroid81\Xamarin.Android.Support.Animated.Vector.Drawable.targets')" />
@@ -961,5 +844,5 @@
   <Import Project="..\packages\Xamarin.GooglePlayServices.Gcm.60.1142.1\build\MonoAndroid80\Xamarin.GooglePlayServices.Gcm.targets" Condition="Exists('..\packages\Xamarin.GooglePlayServices.Gcm.60.1142.1\build\MonoAndroid80\Xamarin.GooglePlayServices.Gcm.targets')" />
   <Import Project="..\packages\Xamarin.GooglePlayServices.TagManager.V4.Impl.60.1142.1\build\MonoAndroid80\Xamarin.GooglePlayServices.TagManager.V4.Impl.targets" Condition="Exists('..\packages\Xamarin.GooglePlayServices.TagManager.V4.Impl.60.1142.1\build\MonoAndroid80\Xamarin.GooglePlayServices.TagManager.V4.Impl.targets')" />
   <Import Project="..\packages\Xamarin.GooglePlayServices.Analytics.60.1142.1\build\MonoAndroid80\Xamarin.GooglePlayServices.Analytics.targets" Condition="Exists('..\packages\Xamarin.GooglePlayServices.Analytics.60.1142.1\build\MonoAndroid80\Xamarin.GooglePlayServices.Analytics.targets')" />
-  <Import Project="..\packages\Xamarin.Android.Support.v7.CardView.27.0.2.1\build\MonoAndroid81\Xamarin.Android.Support.v7.CardView.targets" Condition="Exists('..\packages\Xamarin.Android.Support.v7.CardView.27.0.2.1\build\MonoAndroid81\Xamarin.Android.Support.v7.CardView.targets')" />
+  <Import Project="..\packages\NETStandard.Library.2.0.3\build\netstandard2.0\NETStandard.Library.targets" Condition="Exists('..\packages\NETStandard.Library.2.0.3\build\netstandard2.0\NETStandard.Library.targets')" />
 </Project>

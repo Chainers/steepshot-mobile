@@ -38,7 +38,8 @@ namespace Steepshot.iOS.Views
         private void CreateView()
         {
             View.BackgroundColor = UIColor.White;
-            searchTextField = new SearchTextField(ShouldReturn, "Tap to search");
+            searchTextField = new SearchTextField("Tap to search");
+            searchTextField.ReturnButtonTapped += ShouldReturn;
             searchTextField.BecomeFirstResponder();
             //searchTextField.Font = Constants.Regular14;
             View.AddSubview(searchTextField);
@@ -186,10 +187,9 @@ namespace Steepshot.iOS.Views
         private void CreateNoResultView(UILabel label, UITableView tableToBind)
         {
             label.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.NoResultText);
-            label.Lines = 2;
             label.Hidden = true;
             label.TextAlignment = UITextAlignment.Center;
-            label.Font = Constants.Light27;
+            label.Font = Constants.Regular14;
             label.TextColor = Constants.R15G24B30;
 
             View.AddSubview(label);
@@ -208,6 +208,7 @@ namespace Steepshot.iOS.Views
             usersTable.RegisterNibForCellReuse(UINib.FromName(nameof(FollowViewCell), NSBundle.MainBundle), nameof(FollowViewCell));
             usersTable.RegisterClassForCellReuse(typeof(LoaderCell), nameof(LoaderCell));
             usersTable.RowHeight = 70f;
+            usersTable.ShowsVerticalScrollIndicator = false;
 
             var _tagsSource = new TagsTableViewSource(_searchFacade.TagsPresenter, tagsTable, true);
             _tagsSource.CellAction += CellAction;
@@ -218,6 +219,7 @@ namespace Steepshot.iOS.Views
             tagsTable.RegisterClassForCellReuse(typeof(TagTableViewCell), nameof(TagTableViewCell));
             tagsTable.RegisterNibForCellReuse(UINib.FromName(nameof(TagTableViewCell), NSBundle.MainBundle), nameof(TagTableViewCell));
             tagsTable.RowHeight = 65f;
+            tagsTable.ShowsVerticalScrollIndicator = false;
         }
     }
 }

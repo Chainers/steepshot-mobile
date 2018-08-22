@@ -1,26 +1,21 @@
 ﻿using System;
-using System.Linq;
 using System.Threading.Tasks;
 using Android.App;
 using Android.Content.PM;
 using Android.OS;
 using Steepshot.Base;
 using Steepshot.Core;
-using Steepshot.Core.Utils;
 using Steepshot.Utils;
 using Android.Content;
 using Android.Runtime;
-using Com.OneSignal;
-using Com.OneSignal.Abstractions;
-using Newtonsoft.Json;
 using Steepshot.Core.Localization;
-using Steepshot.Fragment;
 using Steepshot.Services;
+using static Steepshot.Core.Utils.AppSettings;
 
 namespace Steepshot.Activity
 {
-    [Activity(Label = Constants.Steepshot, MainLauncher = true, LaunchMode = LaunchMode.SingleTask, ScreenOrientation = ScreenOrientation.Portrait, NoHistory = true, Theme = "@style/SplashTheme")]
-    [IntentFilter(new[] { Intent.ActionSend }, Categories = new[] { Intent.CategoryDefault }, Icon = "@mipmap/ic_launch_icon", DataMimeType = "image/*")]
+    [Activity(Label = Constants.Steepshot, MainLauncher = true, ScreenOrientation = ScreenOrientation.Portrait, NoHistory = true, Theme = "@style/SplashTheme")]
+    [IntentFilter(new[] { Intent.ActionSend }, Categories = new[] { Intent.CategoryDefault }, DataMimeType = "image/*")]
     [IntentFilter(new[] { Intent.ActionView }, Categories = new[] { Intent.CategoryDefault, Intent.CategoryBrowsable }, DataSchemes = new[] { "https", "http" }, DataHosts = new[] { "alpha.steepshot.io", "qa.alpha.steepshot.io" }, DataPathPrefixes = new[] { "/post", "/@" })]
     public sealed class SplashActivity : BaseActivity
     {
@@ -28,32 +23,26 @@ namespace Steepshot.Activity
         {
             base.OnCreate(savedInstanceState);
 
-            AppDomain.CurrentDomain.UnhandledException -= OnCurrentDomainOnUnhandledException;
+            AppDomain.CurrentDomain.UnhandledException -= OnCurrentDomainOnUnhandledExceptionAsync;
             TaskScheduler.UnobservedTaskException -= OnTaskSchedulerOnUnobservedTaskException;
             AndroidEnvironment.UnhandledExceptionRaiser -= OnUnhandledExceptionRaiser;
 
-            AppDomain.CurrentDomain.UnhandledException += OnCurrentDomainOnUnhandledException;
+            AppDomain.CurrentDomain.UnhandledException += OnCurrentDomainOnUnhandledExceptionAsync;
             TaskScheduler.UnobservedTaskException += OnTaskSchedulerOnUnobservedTaskException;
             AndroidEnvironment.UnhandledExceptionRaiser += OnUnhandledExceptionRaiser;
 
             GAService.Instance.InitializeGAService(this);
-            InitPushes();
 
             switch (Intent.Action)
             {
                 case Intent.ActionSend:
                     {
-                        if (AppSettings.User.HasPostingPermission)
+                        if (User.HasPostingPermission)
                         {
-                            var uri = (Android.Net.Uri)Intent.GetParcelableExtra(Intent.ExtraStream);
-                            var fragmentTransaction = SupportFragmentManager.BeginTransaction();
-                            var galleryModel = new GalleryMediaModel
-                            {
-                                Path = BitmapUtils.GetUriRealPath(this, uri)
-                            };
-                            CurrentHostFragment = HostFragment.NewInstance(new PostCreateFragment(galleryModel));
-                            fragmentTransaction.Add(Android.Resource.Id.Content, CurrentHostFragment);
-                            fragmentTransaction.Commit();
+                            var intent = new Intent(this, typeof(RootActivity));
+                            intent.PutExtra(RootActivity.SharingPhotoData, (IParcelable)Intent.GetParcelableExtra(Intent.ExtraStream));
+                            intent.SetFlags(ActivityFlags.ReorderToFront | ActivityFlags.NewTask);
+                            StartActivity(intent);
                         }
                         else
                         {
@@ -63,52 +52,42 @@ namespace Steepshot.Activity
                     }
                 case Intent.ActionView:
                     {
-                        var intent = new Intent(this, AppSettings.User.HasPostingPermission ? typeof(RootActivity) : typeof(GuestActivity));
+                        var intent = new Intent(this, User.HasPostingPermission ? typeof(RootActivity) : typeof(GuestActivity));
                         intent.PutExtra(AppLinkingExtra, Intent?.Data?.Path);
+                        intent.SetFlags(ActivityFlags.ReorderToFront | ActivityFlags.NewTask);
                         StartActivity(intent);
                         return;
                     }
             }
-            StartActivity(AppSettings.User.HasPostingPermission ? typeof(RootActivity) : typeof(GuestActivity));
+            StartActivity(User.HasPostingPermission ? typeof(RootActivity) : typeof(GuestActivity));
         }
 
-        private void InitPushes()
+        private async void OnTaskSchedulerOnUnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs e)
         {
-            OneSignal.Current.StartInit("77fa644f-3280-4e87-9f14-1f0c7ddf8ca5")
-                .InFocusDisplaying(OSInFocusDisplayOption.None)
-                .HandleNotificationOpened(OneSignalNotificationOpened)
-                .EndInit();
-        }
+            await Logger.Error(e.Exception);
 
-        private void OneSignalNotificationOpened(OSNotificationOpenedResult result)
-        {
-            RunOnUiThread(() =>
-            {
-                var intent = new Intent(this, typeof(RootActivity));
-                intent.PutExtra(RootActivity.NotificationData, JsonConvert.SerializeObject(result.notification.payload.additionalData.ToDictionary(x => x.Key, x => x.Value.ToString())));
-                StartActivity(intent);
-            });
-        }
-
-        private void OnTaskSchedulerOnUnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs e)
-        {
-            AppSettings.Reporter.SendCrash(e.Exception);
             this.ShowAlert(LocalizationKeys.UnexpectedError, Android.Widget.ToastLength.Short);
         }
 
-        private void OnCurrentDomainOnUnhandledException(object sender, UnhandledExceptionEventArgs e)
+        private async void OnCurrentDomainOnUnhandledExceptionAsync(object sender, UnhandledExceptionEventArgs e)
         {
             var ex = e.ExceptionObject as Exception;
             if (ex != null)
                 ex = new Exception(e.ExceptionObject.ToString());
-            AppSettings.Reporter.SendCrash(ex);
-            this.ShowAlert(LocalizationKeys.UnexpectedError, Android.Widget.ToastLength.Short);
+
+            if (e.IsTerminating)
+                await Logger.Fatal(ex);
+            else
+                await Logger.Error(ex);
+
+            this.ShowAlert(ex, Android.Widget.ToastLength.Short);
         }
 
-        private void OnUnhandledExceptionRaiser(object sender, RaiseThrowableEventArgs e)
+        private async void OnUnhandledExceptionRaiser(object sender, RaiseThrowableEventArgs e)
         {
-            AppSettings.Reporter.SendCrash(e.Exception);
-            this.ShowAlert(LocalizationKeys.UnexpectedError, Android.Widget.ToastLength.Short);
+            await Logger.Error(e.Exception);
+
+            this.ShowAlert(e.Exception, Android.Widget.ToastLength.Short);
         }
     }
 }

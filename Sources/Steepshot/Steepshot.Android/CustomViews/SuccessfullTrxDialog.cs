@@ -16,11 +16,13 @@ namespace Steepshot.CustomViews
         private readonly string _recipient;
         private readonly string _amount;
 
+
         public SuccessfullTrxDialog(Context context, string recipient, string amount) : this(context)
         {
             _recipient = recipient;
             _amount = amount;
         }
+
 
         private SuccessfullTrxDialog(Context context) : base(context)
         {

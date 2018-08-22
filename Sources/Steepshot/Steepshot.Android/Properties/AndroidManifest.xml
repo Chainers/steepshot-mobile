@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:versionName="0.3.5" package="com.droid.steepshot" android:installLocation="auto" android:versionCode="83">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:versionName="0.3.6" package="com.droid.steepshot" android:installLocation="auto" android:versionCode="87">
 	<uses-sdk android:minSdkVersion="19" android:targetSdkVersion="27" />
 	<uses-permission android:name="android.permission.INTERNET" />
 	<uses-permission android:name="android.permission.CAMERA" />
@@ -10,8 +10,9 @@
 	<uses-permission android:name="com.droid.steepshot.permission.C2D_MESSAGE" />
 	<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 	<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-	<application android:allowBackup="true" android:label="Steepshot" android:theme="@style/AppBaseTheme" android:largeHeap="true" android:icon="@mipmap/ic_launch_icon">
+	<application android:allowBackup="true" android:label="Steepshot" android:theme="@style/AppBaseTheme" android:largeHeap="true" android:icon="@mipmap/ic_launch_icon" android:roundIcon="@mipmap/ic_launcher">
 		<meta-data android:name="com.onesignal.BadgeCount" android:value="DISABLE" />
+		<meta-data android:name="com.onesignal.NotificationOpened.DEFAULT" android:value="DISABLE" />
 		<receiver android:name="com.onesignal.GcmBroadcastReceiver" android:permission="com.google.android.c2dm.permission.SEND">
 			<intent-filter>
 				<action android:name="com.google.android.c2dm.intent.RECEIVE" />

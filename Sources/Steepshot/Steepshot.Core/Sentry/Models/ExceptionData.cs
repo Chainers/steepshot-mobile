@@ -6,14 +6,16 @@ namespace Steepshot.Core.Sentry.Models
 {
     public class ExceptionData : Dictionary<string, object>
     {
-        private readonly string exceptionType;
+        [JsonProperty("type")]
+        public string ExceptionType { get; set; }
+
 
         public ExceptionData(Exception exception)
         {
             if (exception == null)
-                throw new ArgumentNullException("exception");
+                throw new ArgumentNullException(nameof(exception));
 
-            exceptionType = exception.GetType().FullName;
+            ExceptionType = exception.GetType().FullName;
 
             foreach (var k in exception.Data.Keys)
             {
@@ -23,11 +25,13 @@ namespace Steepshot.Core.Sentry.Models
                     var key = k as string ?? k.ToString();
                     Add(key, value);
                 }
-                catch (Exception e)
+                catch
                 {
                     //todo nothing
                 }
             }
+
+            Add("StackTrace", exception.StackTrace);
 
             if (exception.InnerException == null)
                 return;
@@ -42,11 +46,6 @@ namespace Steepshot.Core.Sentry.Models
             exceptionData.AddTo(this);
         }
 
-        [JsonProperty("type")]
-        public string ExceptionType
-        {
-            get { return exceptionType; }
-        }
 
 
         private void AddTo(IDictionary<string, object> dictionary)
@@ -66,12 +65,12 @@ namespace Steepshot.Core.Sentry.Models
 
             for (var i = 0; i < 10000; i++)
             {
-                var newKey = String.Concat(stringKey, i);
+                var newKey = string.Concat(stringKey, i);
                 if (!dictionary.ContainsKey(newKey))
                     return newKey;
             }
 
-            throw new ArgumentException(String.Format("Unable to find a unique key for '{0}'.", stringKey), "key");
+            throw new ArgumentException($"Unable to find a unique key for '{stringKey}'.", nameof(key));
         }
     }
 }

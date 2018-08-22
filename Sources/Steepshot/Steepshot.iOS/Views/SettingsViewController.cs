@@ -4,7 +4,6 @@ using Foundation;
 using MessageUI;
 using PureLayout.Net;
 using Steepshot.Core.Models.Enums;
-using Steepshot.Core.Presenters;
 using Steepshot.Core.Services;
 using Steepshot.Core.Utils;
 using Steepshot.iOS.Cells;
@@ -15,10 +14,11 @@ using Constants = Steepshot.iOS.Helpers.Constants;
 using Steepshot.Core.Localization;
 using Com.OneSignal;
 using Steepshot.Core.Authorization;
+using Steepshot.Core.Presenters;
 
 namespace Steepshot.iOS.Views
 {
-    public partial class SettingsViewController : BaseViewController
+    public partial class SettingsViewController : BaseViewControllerWithPresenter<UserProfilePresenter>
     {
         private AccountsTableViewSource _tableSource;
 
@@ -67,22 +67,28 @@ namespace Steepshot.iOS.Views
             forwardImage4.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 0f);
 
             var appInfoService = AppSettings.Container.Resolve<IAppInfo>();
-            versionLabel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.AppVersion2, appInfoService.GetAppVersion(), appInfoService.GetBuildVersion());
+            versionLabel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.AppVersion, appInfoService.GetAppVersion(), appInfoService.GetBuildVersion());
 
             reportButton.TouchDown += SendReport;
             termsButton.TouchDown += ShowTos;
             guideButton.TouchDown += ShowGuide;
-            notificationSettings.TouchDown += (object sender, EventArgs e) => 
+            notificationSettings.TouchDown += (object sender, EventArgs e) =>
             {
                 NavigationController.PushViewController(new NotificationSettingsController(), true);
-            };;
+            };
             lowRatedSwitch.ValueChanged += SwitchLowRated;
             nsfwSwitch.ValueChanged += SwitchNSFW;
             SetBackButton();
-
+            _presenter.SubscriptionsUpdated += _presenter_SubscriptionsUpdated;
+            _presenter.CheckSubscriptions();
 #if !DEBUG
             lowRatedLabel.Hidden = nsfwLabel.Hidden = nsfwSwitch.Hidden = lowRatedSwitch.Hidden = true;
 #endif
+        }
+
+        private void _presenter_SubscriptionsUpdated()
+        {
+            notificationSettings.Enabled = true;
         }
 
         private void SendReport(object sender, EventArgs e)
@@ -111,14 +117,14 @@ namespace Steepshot.iOS.Views
         {
             AppSettings.User.IsLowRated = lowRatedSwitch.On;
         }
-/*
-        private void AddAccount()
-        {
-            var myViewController = new PreLoginViewController();
-            myViewController.NewAccountNetwork = BasePresenter.Chain == KnownChains.Steem ? KnownChains.Golos : KnownChains.Steem;
-            NavigationController.PushViewController(myViewController, true);
-        }
-*/
+        /*
+                private void AddAccount()
+                {
+                    var myViewController = new PreLoginViewController();
+                    myViewController.NewAccountNetwork = BasePresenter.Chain == KnownChains.Steem ? KnownChains.Golos : KnownChains.Steem;
+                    NavigationController.PushViewController(myViewController, true);
+                }
+        */
         private void RemoveAccount(UserInfo account)
         {
             AppSettings.User.Delete(account);
@@ -137,7 +143,7 @@ namespace Steepshot.iOS.Views
 
         private void SwitchAccount()
         {
-            
+
         }
 
         private void SetBackButton()
@@ -192,11 +198,12 @@ namespace Steepshot.iOS.Views
 */
         private void SwitchNetwork(UserInfo user)
         {
-            if (BasePresenter.Chain == user.Chain)
+            if (AppDelegate.MainChain == user.Chain)
                 return;
+
             AppSettings.User.SwitchUser(user);
             //HighlightView(user.Chain);
-            BasePresenter.SwitchChain(user.Chain);
+            AppDelegate.MainChain = user.Chain;
 
             SetAddButton();
 
@@ -225,7 +232,7 @@ namespace Steepshot.iOS.Views
             }
             else
             {
-                if (BasePresenter.Chain != account.Chain)
+                if (AppDelegate.MainChain != account.Chain)
                 {
                     SetAddButton();
                 }

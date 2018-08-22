@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Linq;
 using CoreGraphics;
+using Foundation;
 using PureLayout.Net;
 using Steepshot.iOS.ViewControllers;
 using UIKit;
@@ -11,7 +13,7 @@ namespace Steepshot.iOS.CustomViews
         Bottom
     }
 
-    public class CustomAlertView
+    public class CustomAlertView : UIGestureRecognizerDelegate
     {
         private UIViewController controller;
         private UIView popup;
@@ -28,22 +30,21 @@ namespace Steepshot.iOS.CustomViews
             popup.BackgroundColor = UIColor.Black.ColorWithAlpha(0.0f);
             popup.UserInteractionEnabled = true;
 
-            popup.AddSubview(view);
+            popup.AddSubview(dialog);
 
-            if (controller is InteractivePopNavigationController interactiveController)
-                interactiveController.IsPushingViewController = true;
-
-            controller.View.AddSubview(popup);
+            var touchOutsideRecognizer = new UITapGestureRecognizer(() => { Close(); });
+            touchOutsideRecognizer.CancelsTouchesInView = false;
+            touchOutsideRecognizer.Delegate = this;
+            popup.AddGestureRecognizer(touchOutsideRecognizer);
 
             // view centering
-            view.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom, 34);
-            view.AutoAlignAxisToSuperviewAxis(ALAxis.Vertical);
+            dialog.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom, 34);
+            dialog.AutoAlignAxisToSuperviewAxis(ALAxis.Vertical);
 
-            targetY = view.Frame.Y;
-            SetAnimation(animationType);
+            targetY = dialog.Frame.Y;
         }
 
-        public void Hide()
+        public void Close()
         {
             UIView.Animate(0.3, () =>
             {
@@ -55,11 +56,27 @@ namespace Steepshot.iOS.CustomViews
                     interactiveController.IsPushingViewController = false;
                 popup.RemoveFromSuperview();
             });
-
         }
 
-        private void SetAnimation(AnimationType animationType )
+        public bool Hidden
         {
+            get
+            {
+                return popup.Hidden;
+            }
+            set
+            {
+                popup.Hidden = value;
+            }
+        }
+
+        public void Show(AnimationType animationType = AnimationType.Bottom)
+        {
+            if (controller is InteractivePopNavigationController interactiveController)
+                interactiveController.IsPushingViewController = true;
+
+            controller.View.AddSubview(popup);
+
             switch (animationType)
             {
                 case AnimationType.Bottom:
@@ -78,6 +95,11 @@ namespace Steepshot.iOS.CustomViews
                     });
                     break;
             }
+        }
+
+        public override bool ShouldReceiveTouch(UIGestureRecognizer recognizer, UITouch touch)
+        {
+            return (touch.View == popup);
         }
     }
 }

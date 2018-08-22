@@ -1,7 +1,6 @@
 ﻿using System;
 using Steepshot.Core;
 using Steepshot.Core.Presenters;
-using Steepshot.iOS.Helpers;
 using Steepshot.iOS.ViewControllers;
 using UIKit;
 using Constants = Steepshot.iOS.Helpers.Constants;
@@ -24,7 +23,7 @@ namespace Steepshot.iOS.Views
             loginButton.TouchDown += Login;
 #if DEBUG
             var di = AppSettings.AssetHelper.GetDebugInfo();
-            if (BasePresenter.Chain == KnownChains.Steem)
+            if (AppDelegate.MainChain == KnownChains.Steem)
                 loginText.Text = di.SteemTestLogin;
             else
                 loginText.Text = di.GolosTestLogin;
@@ -46,11 +45,6 @@ namespace Steepshot.iOS.Views
             NavigationController.NavigationBar.TintColor = Helpers.Constants.R15G24B30;
 
             NavigationItem.Title = "Your account name";
-        }
-
-        private void GoBack(object sender, EventArgs e)
-        {
-            NavigationController.PopViewController(true);
         }
 
         private bool LoginShouldReturn(UITextField textField)
@@ -81,7 +75,7 @@ namespace Steepshot.iOS.Views
                 NavigationController.PushViewController(myViewController, true);
             }
             else
-                ShowAlert(response.Error);
+                ShowAlert(response.Exception);
 
             loginButton.Enabled = true;
             activityIndicator.StopAnimating();

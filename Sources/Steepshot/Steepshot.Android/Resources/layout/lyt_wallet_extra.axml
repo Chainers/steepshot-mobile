@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingLeft="30dp"
+    android:paddingRight="30dp"
+    android:background="@drawable/grey_rounded_border20dip">
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="25dp"
+        android:layout_marginBottom="25dp"
+        android:gravity="center"
+        android:textSize="14sp"
+        android:textColor="@color/black"
+        android:textAllCaps="true" />
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginBottom="10dp"
+        android:background="@color/rgb245_245_245" />
+    <Button
+        android:id="@+id/power_up"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:textSize="14sp"
+        android:textColor="@color/black"
+        android:gravity="center"
+        android:background="@drawable/white_btn_style_edge_grey" />
+    <Button
+        android:id="@+id/power_down"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginBottom="10dp"
+        android:textSize="14sp"
+        android:textColor="@color/black"
+        android:gravity="center"
+        android:background="@drawable/white_btn_style_edge_grey" />
+	<Button
+        android:id="@+id/cancel_power_down"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginBottom="10dp"
+        android:textSize="14sp"
+        android:textColor="@color/black"
+        android:gravity="center"
+        android:background="@drawable/white_btn_style_edge_grey" />
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:background="@color/rgb245_245_245" />
+    <Button
+        android:id="@+id/cancel"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="20dp"
+        android:textSize="14sp"
+        android:textColor="@color/black"
+        android:gravity="center"
+        android:background="@drawable/white_btn_style_edge_grey" />
+</LinearLayout>

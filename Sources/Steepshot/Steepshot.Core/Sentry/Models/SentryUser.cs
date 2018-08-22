@@ -1,5 +1,4 @@
-﻿using System.Security.Principal;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 
 namespace Steepshot.Core.Sentry.Models
 {
@@ -9,28 +8,6 @@ namespace Steepshot.Core.Sentry.Models
     /// </summary>
     public class SentryUser
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="SentryUser"/> class.
-        /// </summary>
-        /// <param name="principal">The principal.</param>
-        public SentryUser(IPrincipal principal)
-        {
-            if (principal != null)
-                Username = principal.Identity.Name;
-        }
-
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="SentryUser"/> class.
-        /// </summary>
-        /// <param name="identity">The identity.</param>
-        public SentryUser(IIdentity identity)
-        {
-            if (identity != null)
-                Username = identity.Name;
-        }
-
-
         /// <summary>
         /// Initializes a new instance of the <see cref="SentryUser"/> class.
         /// </summary>

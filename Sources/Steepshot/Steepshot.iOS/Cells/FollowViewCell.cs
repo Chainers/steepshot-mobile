@@ -23,6 +23,7 @@ namespace Steepshot.iOS.Cells
         private UserFriend _currentUser;
         private IScheduledWork _scheduledWorkAvatar;
         private nfloat _cornerRadius = 20;
+        public bool HideFollowButton;
 
         static FollowViewCell()
         {
@@ -60,7 +61,10 @@ namespace Steepshot.iOS.Cells
                 nameHiddenConstraint.Active = false;
                 nameVisibleConstraint.Active = true;
             }
-            DecorateFollowButton();
+            if(HideFollowButton)
+                followButton.Hidden = true;
+            else
+                DecorateFollowButton();
 
             base.LayoutSubviews();
         }

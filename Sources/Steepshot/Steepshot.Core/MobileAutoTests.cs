@@ -5,7 +5,6 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Steepshot.Core.HttpClient;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Models.Requests;
@@ -13,6 +12,7 @@ using Steepshot.Core.Services;
 using Steepshot.Core.Utils;
 using Ditch.Core;
 using Steepshot.Core.Authorization;
+using Steepshot.Core.Clients;
 
 namespace Steepshot.Core
 {
@@ -102,7 +102,7 @@ namespace Steepshot.Core
 
                 if (!postsResp.IsSuccess)
                 {
-                    sb.AppendLine($"fail. Reason:{Environment.NewLine} {postsResp.Error.Message}");
+                    sb.AppendLine($"fail. Reason:{Environment.NewLine} {postsResp.Exception.Message}");
                     return;
                 }
                 if (postsResp.Result.Results.Count == 0)
@@ -123,7 +123,7 @@ namespace Steepshot.Core
 
             if (!rez.IsSuccess)
             {
-                sb.AppendLine($"fail. Reason:{Environment.NewLine} {rez.Error.Message}");
+                sb.AppendLine($"fail. Reason:{Environment.NewLine} {rez.Exception.Message}");
                 return;
             }
 
@@ -136,7 +136,7 @@ namespace Steepshot.Core
 
             if (!verifyPostresp.IsSuccess)
             {
-                sb.AppendLine($"fail. Reason:{Environment.NewLine} {verifyPostresp.Error.Message}");
+                sb.AppendLine($"fail. Reason:{Environment.NewLine} {verifyPostresp.Exception.Message}");
                 return;
             }
             if (verifyPostresp.Result.Results.Count != 1)
@@ -165,7 +165,7 @@ namespace Steepshot.Core
 
             if (!postsResp.IsSuccess)
             {
-                sb.AppendLine($"fail. Reason:{Environment.NewLine} {postsResp.Error.Message}");
+                sb.AppendLine($"fail. Reason:{Environment.NewLine} {postsResp.Exception.Message}");
                 return;
             }
             if (postsResp.Result.Results.Count == 0)
@@ -182,7 +182,7 @@ namespace Steepshot.Core
 
             if (!rez.IsSuccess)
             {
-                sb.AppendLine($"fail. Reason:{Environment.NewLine} {rez.Error.Message}");
+                sb.AppendLine($"fail. Reason:{Environment.NewLine} {rez.Exception.Message}");
                 return;
             }
 
@@ -192,7 +192,7 @@ namespace Steepshot.Core
             var verifyResp = _api.GetUserFriends(userFriendsReq, CancellationToken.None).Result;
             if (!verifyResp.IsSuccess)
             {
-                sb.AppendLine($"fail. Reason:{Environment.NewLine} {verifyResp.Error.Message}");
+                sb.AppendLine($"fail. Reason:{Environment.NewLine} {verifyResp.Exception.Message}");
                 return;
             }
             if (verifyResp.Result.Results.Count != 1)
@@ -212,7 +212,7 @@ namespace Steepshot.Core
             var response = _api.ValidatePrivateKey(request, CancellationToken.None).Result;
             if (!response.IsSuccess)
             {
-                sb.AppendLine($"fail. Reason:{Environment.NewLine} {response.Error.Message}");
+                sb.AppendLine($"fail. Reason:{Environment.NewLine} {response.Exception.Message}");
                 return;
             }
             sb.AppendLine("pass.");
@@ -231,7 +231,7 @@ namespace Steepshot.Core
 
             if (!postsResp.IsSuccess)
             {
-                sb.AppendLine($"fail. Reason:{Environment.NewLine} {postsResp.Error.Message}");
+                sb.AppendLine($"fail. Reason:{Environment.NewLine} {postsResp.Exception.Message}");
                 return;
             }
             if (postsResp.Result.Results.Count == 0)
@@ -255,7 +255,7 @@ namespace Steepshot.Core
 
             if (!rez.IsSuccess)
             {
-                sb.AppendLine($"fail. Reason:{Environment.NewLine} {rez.Error.Message}");
+                sb.AppendLine($"fail. Reason:{Environment.NewLine} {rez.Exception.Message}");
                 return;
             }
 
@@ -267,7 +267,7 @@ namespace Steepshot.Core
 
             if (!verifyPostresp.IsSuccess)
             {
-                sb.AppendLine($"fail. Reason:{Environment.NewLine} {verifyPostresp.Error.Message}");
+                sb.AppendLine($"fail. Reason:{Environment.NewLine} {verifyPostresp.Exception.Message}");
                 return;
             }
             if (verifyPostresp.Result.Results.Count != 1)
@@ -291,12 +291,12 @@ namespace Steepshot.Core
 
             var request = new UploadMediaModel(_user, stream, ".jpg")
             {
-                GenerateThumbnail = false,
+                Thumbnails = false,
             };
             var mediaResponse = _api.UploadMedia(request, CancellationToken.None).Result;
             if (!mediaResponse.IsSuccess)
             {
-                sb.AppendLine($"fail. Reason:{Environment.NewLine} {mediaResponse.Error.Message}");
+                sb.AppendLine($"fail. Reason:{Environment.NewLine} {mediaResponse.Exception.Message}");
                 return;
             }
 
@@ -310,7 +310,7 @@ namespace Steepshot.Core
             var response = _api.CreateOrEditPost(model, CancellationToken.None).Result;
             if (!response.IsSuccess)
             {
-                sb.AppendLine($"fail. Reason:{Environment.NewLine} {response.Error.Message}");
+                sb.AppendLine($"fail. Reason:{Environment.NewLine} {response.Exception.Message}");
                 return;
             }
             sb.AppendLine("pass.");
@@ -468,7 +468,7 @@ namespace Steepshot.Core
             var response = _api.GetUserProfile(request, CancellationToken.None).Result;
             if (!response.IsSuccess)
             {
-                sb.AppendLine($"fail. Reason:{Environment.NewLine} {response.Error.Message}");
+                sb.AppendLine($"fail. Reason:{Environment.NewLine} {response.Exception.Message}");
                 return;
             }
 
@@ -523,7 +523,7 @@ namespace Steepshot.Core
 
             if (!postsResp.IsSuccess)
             {
-                sb.AppendLine($"fail. Reason:{Environment.NewLine} {postsResp.Error.Message}");
+                sb.AppendLine($"fail. Reason:{Environment.NewLine} {postsResp.Exception.Message}");
                 return;
             }
             if (postsResp.Result.Results.Count == 0)
@@ -539,7 +539,7 @@ namespace Steepshot.Core
             var response = _api.GetPostInfo(request, CancellationToken.None).Result;
             if (!response.IsSuccess)
             {
-                sb.AppendLine($"fail. Reason:{Environment.NewLine} {postsResp.Error.Message}");
+                sb.AppendLine($"fail. Reason:{Environment.NewLine} {postsResp.Exception.Message}");
                 return;
             }
 
@@ -577,7 +577,7 @@ namespace Steepshot.Core
             var response = _api.UserExistsCheck(request, CancellationToken.None).Result;
             if (!response.IsSuccess)
             {
-                sb.AppendLine($"fail. Reason:{Environment.NewLine} {response.Error.Message}");
+                sb.AppendLine($"fail. Reason:{Environment.NewLine} {response.Exception.Message}");
                 return;
             }
 
@@ -638,7 +638,7 @@ namespace Steepshot.Core
         {
             if (!response.IsSuccess)
             {
-                sb.AppendLine($"fail. Reason:{Environment.NewLine} {response.Error.Message}");
+                sb.AppendLine($"fail. Reason:{Environment.NewLine} {response.Exception.Message}");
                 return true;
             }
             if (count != limit)
@@ -653,7 +653,7 @@ namespace Steepshot.Core
         {
             if (!response.IsSuccess)
             {
-                sb.AppendLine($"fail. Reason:{Environment.NewLine} {response.Error.Message}");
+                sb.AppendLine($"fail. Reason:{Environment.NewLine} {response.Exception.Message}");
                 return true;
             }
             var rez = response.Result;
@@ -713,7 +713,7 @@ namespace Steepshot.Core
 
                 if (!postsResp.IsSuccess)
                 {
-                    sb.AppendLine($"fail. Reason:{Environment.NewLine} {postsResp.Error.Message}");
+                    sb.AppendLine($"fail. Reason:{Environment.NewLine} {postsResp.Exception.Message}");
                     return null;
                 }
                 if (postsResp.Result.Results.Count == 0)

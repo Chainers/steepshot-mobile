@@ -1,35 +1,39 @@
-﻿using System;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using Ditch.Core.JsonRpc;
+using Steepshot.Core.Authorization;
 using Steepshot.Core.Models.Common;
+using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Models.Requests;
-using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Presenters
 {
-    public class TransferPresenter : BasePresenter
+    public class TransferPresenter : PreSignInPresenter
     {
-        public async Task<OperationResult<VoidResponse>> TryTransfer(string recipient, double amount, CurrencyType type, string chainCurrency, string memo = null)
+        public async Task<OperationResult<VoidResponse>> TryTransfer(UserInfo userInfo, string recipient, string amount, CurrencyType type, string memo = null)
         {
-            return await TryRunTask<(string Recipient, double Amount, CurrencyType Type, string ChainCurrency, string Memo), VoidResponse>(Transfer, OnDisposeCts.Token, (recipient, amount, type, chainCurrency, memo));
+            var transferModel = new TransferModel(userInfo, recipient, amount, type);
+
+            if (!string.IsNullOrEmpty(memo))
+                transferModel.Memo = memo;
+
+            return await TryRunTask<TransferModel, VoidResponse>(Transfer, OnDisposeCts.Token, transferModel);
         }
 
-        private Task<OperationResult<VoidResponse>> Transfer((string Recipient, double Amount, CurrencyType Type, string ChainCurrency, string Memo) transferData, CancellationToken ct)
+        private Task<OperationResult<VoidResponse>> Transfer(TransferModel model, CancellationToken ct)
         {
-            var transferModel = new TransferModel(
-                AppSettings.User.Login,
-                AppSettings.User.ActiveKey,
-                transferData.Recipient,
-                (long)(transferData.Amount * 1000),
-                3,
-                transferData.Type,
-                transferData.ChainCurrency);
+            return Api.Transfer(model, ct);
+        }
 
-            if (!string.IsNullOrEmpty(transferData.Memo))
-                transferModel.Memo = transferData.Memo;
+        public async Task<OperationResult<VoidResponse>> TryPowerUpOrDown(BalanceModel balance, PowerAction powerAction)
+        {
+            var model = new PowerUpDownModel(balance, powerAction);
+            return await TryRunTask<PowerUpDownModel, VoidResponse>(PowerDownOrDown, OnDisposeCts.Token, model);
+        }
 
-            return Api.Transfer(transferModel, ct);
+        private Task<OperationResult<VoidResponse>> PowerDownOrDown(PowerUpDownModel model, CancellationToken ct)
+        {
+            return Api.PowerUpOrDown(model, ct);
         }
     }
 }

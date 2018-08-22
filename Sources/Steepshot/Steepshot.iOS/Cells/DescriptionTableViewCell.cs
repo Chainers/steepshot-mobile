@@ -1,15 +1,7 @@
 ﻿using System;
-using FFImageLoading;
-using FFImageLoading.Work;
 using Foundation;
 using Steepshot.Core.Models.Common;
-using Steepshot.Core.Extensions;
 using UIKit;
-using Steepshot.Core.Models.Enums;
-using Steepshot.Core.Presenters;
-using CoreGraphics;
-using Steepshot.Core.Localization;
-using Steepshot.Core.Utils;
 using Xamarin.TTTAttributedLabel;
 using PureLayout.Net;
 
@@ -20,6 +12,7 @@ namespace Steepshot.iOS.Cells
         protected DescriptionTableViewCell(IntPtr handle) : base(handle) { }
         public static readonly NSString Key = new NSString(nameof(DescriptionTableViewCell));
         public static readonly UINib Nib;
+        private TTTAttributedLabel attributedLabel;
 
         static DescriptionTableViewCell()
         {
@@ -28,7 +21,7 @@ namespace Steepshot.iOS.Cells
 
         public void UpdateCell(Post post, Action<string> TagAction)
         {
-            var attributedLabel = new TTTAttributedLabel();
+            attributedLabel = new TTTAttributedLabel();
             attributedLabel.EnabledTextCheckingTypes = NSTextCheckingType.Link;
             var prop = new NSDictionary();
             attributedLabel.LinkAttributes = prop;
@@ -83,8 +76,6 @@ namespace Steepshot.iOS.Cells
                 at.Append(new NSAttributedString($" #{tag}", linkAttribute));
             }
             attributedLabel.SetText(at);
-
-
         }
     }
 }

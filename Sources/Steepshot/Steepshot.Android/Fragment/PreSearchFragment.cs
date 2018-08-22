@@ -23,11 +23,11 @@ using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
 using Steepshot.Core.Models;
-using Steepshot.Core.Errors;
 using Steepshot.Core.Localization;
 using Steepshot.Interfaces;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Utils;
+using OperationCanceledException = System.OperationCanceledException;
 
 namespace Steepshot.Fragment
 {
@@ -472,14 +472,14 @@ namespace Steepshot.Fragment
                     {
                         if (AppSettings.User.HasPostingPermission)
                         {
-                            var error = await Presenter.TryVote(post);
+                            var exception = await Presenter.TryVote(post);
                             if (!IsInitialized)
                                 return;
 
-                            if (error == null && Activity is RootActivity root)
+                            if (exception == null && Activity is RootActivity root)
                                 root.TryUpdateProfile();
 
-                            Context.ShowAlert(error);
+                            Context.ShowAlert(exception);
                         }
                         else
                         {
@@ -527,14 +527,14 @@ namespace Steepshot.Fragment
                         if (!AppSettings.User.HasPostingPermission)
                             return;
 
-                        var error = await Presenter.TryFlag(post);
+                        var exception = await Presenter.TryFlag(post);
                         if (!IsInitialized)
                             return;
 
-                        if (error == null && Activity is RootActivity root)
+                        if (exception == null && Activity is RootActivity root)
                             root.TryUpdateProfile();
 
-                        Context.ShowAlert(error);
+                        Context.ShowAlert(exception);
                         break;
                     }
                 case ActionType.Hide:
@@ -545,16 +545,16 @@ namespace Steepshot.Fragment
                 case ActionType.Edit:
                     {
                         ((BaseActivity)Activity).OpenNewContentFragment(new PostEditFragment(post));
-                        ((RootActivity)Activity)._tabLayout.Visibility = ViewStates.Gone;
+                        ToggleTabBar(true);
                         break;
                     }
                 case ActionType.Delete:
                     {
-                        var error = await Presenter.TryDeletePost(post);
+                        var exception = await Presenter.TryDeletePost(post);
                         if (!IsInitialized)
                             return;
 
-                        Context.ShowAlert(error);
+                        Context.ShowAlert(exception);
                         break;
                     }
                 case ActionType.Share:
@@ -587,21 +587,21 @@ namespace Steepshot.Fragment
                 Presenter.Clear();
             }
 
-            ErrorBase error;
+            Exception exception;
             if (string.IsNullOrEmpty(tag))
-                error = await Presenter.TryLoadNextTopPosts();
+                exception = await Presenter.TryLoadNextTopPosts();
             else
-                error = await Presenter.TryGetSearchedPosts();
+                exception = await Presenter.TryGetSearchedPosts();
 
             if (!IsInitialized)
                 return;
 
-            if (error is CanceledError)
+            if (exception is OperationCanceledException)
                 return;
 
-            Context.ShowAlert(error);
+            Context.ShowAlert(exception, ToastLength.Short);
 
-            if (error == null)
+            if (exception == null)
             {
                 _refresher.Refreshing = false;
                 _spinner.Visibility = ViewStates.Gone;

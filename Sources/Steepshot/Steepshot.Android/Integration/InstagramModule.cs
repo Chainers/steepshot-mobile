@@ -2,21 +2,21 @@
 using Android.Content;
 using Newtonsoft.Json;
 using Steepshot.Core.Authorization;
-using Steepshot.Core.HttpClient;
+using Steepshot.Core.Clients;
 using Steepshot.Core.Utils;
 using Xamarin.Auth;
 
 namespace Steepshot.Integration
 {
-    public class InstagramModule : Steepshot.Core.Integration.InstagramModule
+    public class InstagramModule : Core.Integration.InstagramModule
     {
         protected const string AccessTokenKeyName = "access_token";
         protected readonly Uri AuthorizeUrl = new Uri("https://api.instagram.com/oauth/authorize/");
         private readonly ModuleConfig _moduleConfig;
 
 
-        public InstagramModule(ApiGateway gateway, User user)
-            : base(gateway, user)
+        public InstagramModule(SteepshotApiClient client, User user)
+            : base(client, user)
         {
             var dic = AppSettings.AssetHelper.IntegrationModuleConfig();
             if (dic != null && dic.ContainsKey(AppId))

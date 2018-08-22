@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Android.App;
 using Android.Content;
 using Android.OS;
 using Android.Support.V7.Widget;
@@ -14,7 +16,7 @@ using CheeseBind;
 using Steepshot.Activity;
 using Steepshot.Adapter;
 using Steepshot.Base;
-using Steepshot.Core.Errors;
+using Steepshot.Core;
 using Steepshot.Core.Facades;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models;
@@ -31,6 +33,8 @@ namespace Steepshot.Fragment
     {
         #region Fields
 
+        protected GalleryHorizontalAdapter GalleryAdapter => _galleryAdapter ?? (_galleryAdapter = new GalleryHorizontalAdapter(_media));
+        protected readonly List<GalleryMediaModel> _media;
         protected TimeSpan PostingLimit;
         protected Timer _timer;
         protected GalleryHorizontalAdapter _galleryAdapter;
@@ -40,6 +44,7 @@ namespace Steepshot.Fragment
         protected string _previousQuery;
         protected TagPickerFacade _tagPickerFacade;
         protected bool isSpammer;
+        protected bool isPlagiarism;
 
 #pragma warning disable 0649, 4014
         [BindView(Resource.Id.btn_back)] protected ImageButton _backButton;
@@ -80,6 +85,20 @@ namespace Steepshot.Fragment
 
         #endregion
 
+        public PostPrepareBaseFragment()
+        {
+        }
+
+        public PostPrepareBaseFragment(List<GalleryMediaModel> media)
+        {
+            _media = media;
+        }
+
+        public PostPrepareBaseFragment(GalleryMediaModel media)
+        {
+            _media = new List<GalleryMediaModel> { media };
+        }
+
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
             if (!IsInitialized)
@@ -87,7 +106,7 @@ namespace Steepshot.Fragment
                 InflatedView = inflater.Inflate(Resource.Layout.lyt_post_description, null);
                 Cheeseknife.Bind(this, InflatedView);
             }
-
+            ToggleTabBar(true);
             return InflatedView;
         }
 
@@ -122,7 +141,9 @@ namespace Steepshot.Fragment
             _localTagsList.SetAdapter(LocalTagsAdapter);
             _localTagsList.AddItemDecoration(new ListItemDecoration((int)TypedValue.ApplyDimension(ComplexUnitType.Dip, 15, Resources.DisplayMetrics)));
 
+            var client = App.MainChain == KnownChains.Steem ? App.SteemClient : App.GolosClient;
             _tagPickerFacade = new TagPickerFacade(_localTagsAdapter.LocalTags);
+            _tagPickerFacade.SetClient(client);
             _tagPickerFacade.SourceChanged += TagPickerFacadeOnSourceChanged;
 
             _tagsList.SetLayoutManager(new LinearLayoutManager(Activity));
@@ -165,7 +186,7 @@ namespace Steepshot.Fragment
             _postButton.Text = string.Empty;
             EnablePostAndEdit(false);
 
-            var isConnected = BasePresenter.ConnectionService.IsConnectionAvailable();
+            var isConnected = AppSettings.ConnectionService.IsConnectionAvailable();
 
             if (!isConnected)
             {
@@ -186,19 +207,28 @@ namespace Steepshot.Fragment
 
         protected abstract Task OnPostAsync();
 
-        protected void EnablePostAndEdit(bool enabled)
+        protected void EnablePostAndEdit(bool enabled, bool enableFields = true)
         {
             if (enabled)
+            {
                 _loadingSpinner.Visibility = ViewStates.Gone;
+            }
             else
+            {
+                _postButton.Text = string.Empty;
                 _loadingSpinner.Visibility = ViewStates.Visible;
+            }
 
             _postButton.Enabled = enabled;
-            _title.Enabled = enabled;
-            _description.Enabled = enabled;
-            _tag.Enabled = enabled;
-            _localTagsAdapter.Enabled = enabled;
-            _tagLabel.Enabled = enabled;
+
+            if (enableFields)
+            {
+                _title.Enabled = enabled;
+                _description.Enabled = enabled;
+                _tag.Enabled = enabled;
+                _localTagsAdapter.Enabled = enabled;
+                _tagLabel.Enabled = enabled;
+            }
         }
 
         protected void EnabledPost()
@@ -217,7 +247,7 @@ namespace Steepshot.Fragment
             TryCreateOrEditPost();
         }
 
-        protected async Task<bool> TryCreateOrEditPost()
+        protected async Task<bool> TryCreateOrEditPost(bool checkForPlagiarism = true)
         {
             if (_model.Media == null)
             {
@@ -225,7 +255,16 @@ namespace Steepshot.Fragment
                 return false;
             }
 
+            if (checkForPlagiarism)
+            {
+                await CheckForPlagiarism();
+
+                if (isPlagiarism)
+                    return false;
+            }
+
             var resp = await Presenter.TryCreateOrEditPost(_model);
+
             if (!IsInitialized)
                 return false;
 
@@ -233,17 +272,49 @@ namespace Steepshot.Fragment
             {
                 AppSettings.User.UserInfo.LastPostTime = DateTime.Now;
                 EnabledPost();
-                BasePresenter.ProfileUpdateType = ProfileUpdateType.Full;
+                AppSettings.ProfileUpdateType = ProfileUpdateType.Full;
                 if (Activity is SplashActivity || Activity is CameraActivity)
                     Activity.Finish();
                 else
                     ((BaseActivity)Activity).OnBackPressed();
                 return true;
             }
-            else
+
+            Activity.ShowInteractiveMessage(resp.Exception, TryAgainAction, ForgetAction);
+            return false;
+        }
+
+        private async Task CheckForPlagiarism()
+        {
+            isPlagiarism = false;
+            var plagiarismCheck = await Presenter.TryCheckForPlagiarism(_model);
+
+            if (plagiarismCheck.IsSuccess)
             {
-                Activity.ShowInteractiveMessage(resp.Error, TryAgainAction, ForgetAction);
-                return false;
+                if (plagiarismCheck.Result.plagiarism.IsPlagiarism)
+                {
+                    isPlagiarism = true;
+
+                    var fragment = new PlagiarismCheckFragment(_media, GalleryAdapter, plagiarismCheck.Result.plagiarism);
+                    fragment.SetTargetFragment(this, 0);
+                    ((BaseActivity)Activity).OpenNewContentFragment(fragment);
+
+                    _postButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PublishButtonText);
+                }
+            }
+        }
+
+        public override void OnActivityResult(int requestCode, int resultCode, Intent data)
+        {
+            if (resultCode == (int)Result.Ok)
+            {
+                EnablePostAndEdit(false);
+                TryCreateOrEditPost(false);
+            }
+            else if (resultCode == (int)Result.Canceled)
+            {
+                EnabledPost();
+                EnablePostAndEdit(true);
             }
         }
 
@@ -282,7 +353,7 @@ namespace Steepshot.Fragment
             {
                 _clearEdit.Visibility = ViewStates.Invisible;
             }
-            _timer.Change(500, Timeout.Infinite);
+            _timer.Change(1300, Timeout.Infinite);
         }
 
         protected void OnTagsAdapterClick(string tag)
@@ -290,7 +361,7 @@ namespace Steepshot.Fragment
             if (string.IsNullOrWhiteSpace(tag))
                 return;
 
-            var index = _tagsAdapter.IndexOfTag(tag); ;
+            var index = _tagsAdapter.IndexOfTag(tag);
             if (AddTag(tag) && index != -1)
                 _tagsAdapter.NotifyItemRemoved(index);
 
@@ -375,16 +446,16 @@ namespace Steepshot.Fragment
             _tagsList.ScrollToPosition(0);
             _tagPickerFacade.Clear();
 
-            ErrorBase error = null;
+            Exception exception = null;
             if (text.Length == 0)
-                error = await _tagPickerFacade.TryGetTopTags();
+                exception = await _tagPickerFacade.TryGetTopTags();
             else if (text.Length > 1)
-                error = await _tagPickerFacade.TryLoadNext(text);
+                exception = await _tagPickerFacade.TryLoadNext(text);
 
             if (IsInitialized)
                 return;
 
-            Activity.ShowAlert(error);
+            Activity.ShowAlert(exception, ToastLength.Short);
         }
 
         protected void HideTagsList()

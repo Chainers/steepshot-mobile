@@ -1,5 +1,4 @@
-﻿using System;
-using Foundation;
+﻿using Foundation;
 using Steepshot.Core.Models;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
@@ -26,15 +25,12 @@ namespace Steepshot.iOS.Views
             _user = user;
         }
 
-        protected override void CreatePresenter()
-        {
-            _presenter = new UserFriendPresenter { FollowType = _friendsType };
-            _presenter.SourceChanged += SourceChanged;
-        }
-
         public override void ViewDidLoad()
         {
             base.ViewDidLoad();
+
+            _presenter.FollowType = _friendsType;
+            _presenter.SourceChanged += SourceChanged;
 
             var tableSource = new FollowTableViewSource(_presenter, followTableView);
             followTableView.Source = tableSource;
@@ -70,11 +66,6 @@ namespace Steepshot.iOS.Views
             NavigationItem.Title = _presenter.FollowType.GetDescription();
         }
 
-        private void GoBack(object sender, EventArgs e)
-        {
-            NavigationController.PopViewController(true);
-        }
-
         private void CellAction(ActionType type, UserFriend user)
         {
             switch (type)
@@ -101,8 +92,8 @@ namespace Steepshot.iOS.Views
 
         public async void GetItems()
         {
-            var errors = await _presenter.TryLoadNextUserFriends(_user.Username);
-            ShowAlert(errors);
+            var exception = await _presenter.TryLoadNextUserFriends(_user.Username);
+            ShowAlert(exception);
             progressBar.StopAnimating();
         }
 
@@ -110,8 +101,8 @@ namespace Steepshot.iOS.Views
         {
             if (user != null)
             {
-                var errors = await _presenter.TryFollow(user);
-                ShowAlert(errors);
+                var exception = await _presenter.TryFollow(user);
+                ShowAlert(exception);
             }
         }
 

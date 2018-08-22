@@ -3,15 +3,15 @@
 <plist version="1.0">
 <dict>
 	<key>NSCameraUsageDescription</key>
-	<string></string>
+	<string>This lets you take photos</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string></string>
+	<string>This lets you share photos from your library</string>
 	<key>CFBundleName</key>
 	<string>Steepshot</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.chainartsoft.Steepshot</string>
 	<key>CFBundleShortVersionString</key>
-	<string>0.3.1</string>
+	<string>0.3.5</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>MinimumOSVersion</key>
@@ -33,7 +33,7 @@
 	<key>XSAppIconAssets</key>
 	<string>Assets.xcassets/AppIcon.appiconset</string>
 	<key>CFBundleVersion</key>
-	<string>58.0.0</string>
+	<string>63.0.0</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>Fonts/OpenSans-Regular.ttf</string>

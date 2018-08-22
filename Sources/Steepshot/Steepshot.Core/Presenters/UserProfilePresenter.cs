@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Steepshot.Core.Errors;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Utils;
+using Steepshot.Core.Models.Common;
 
 namespace Steepshot.Core.Presenters
 {
-    public sealed class UserProfilePresenter : BasePostPresenter, IDisposable
+    public sealed class UserProfilePresenter : BasePostPresenter
     {
         private const int ItemsLimit = 18;
 
@@ -17,8 +17,9 @@ namespace Steepshot.Core.Presenters
 
         public UserProfileResponse UserProfileResponse { get; private set; }
 
+        public Action SubscriptionsUpdated;
 
-        public async Task<ErrorBase> TryLoadNextPosts()
+        public async Task<Exception> TryLoadNextPosts()
         {
             if (IsLastReaded)
                 return null;
@@ -26,7 +27,7 @@ namespace Steepshot.Core.Presenters
             return await RunAsSingleTask(LoadNextPosts);
         }
 
-        private async Task<ErrorBase> LoadNextPosts(CancellationToken ct)
+        private async Task<Exception> LoadNextPosts(CancellationToken ct)
         {
             var request = new UserPostsModel(UserName)
             {
@@ -37,24 +38,24 @@ namespace Steepshot.Core.Presenters
                 ShowLowRated = AppSettings.User.IsLowRated
             };
 
-            ErrorBase error;
+            Exception exception;
             bool isNeedRepeat;
             do
             {
                 var response = await Api.GetUserPosts(request, ct);
-                isNeedRepeat = ResponseProcessing(response, ItemsLimit, out error, nameof(TryLoadNextPosts));
+                isNeedRepeat = ResponseProcessing(response, ItemsLimit, out exception, nameof(TryLoadNextPosts));
             } while (isNeedRepeat);
 
-            return error;
+            return exception;
         }
 
 
-        public async Task<ErrorBase> TryGetUserInfo(string user)
+        public async Task<Exception> TryGetUserInfo(string user)
         {
             return await TryRunTask(GetUserInfo, OnDisposeCts.Token, user);
         }
 
-        private async Task<ErrorBase> GetUserInfo(string user, CancellationToken ct)
+        private async Task<Exception> GetUserInfo(string user, CancellationToken ct)
         {
             var req = new UserProfileModel(user)
             {
@@ -70,11 +71,11 @@ namespace Steepshot.Core.Presenters
                 CashPresenterManager.Add(UserProfileResponse);
                 NotifySourceChanged(nameof(TryGetUserInfo), true);
             }
-            return response.Error;
+            return response.Exception;
         }
-       
 
-        public async Task<ErrorBase> TryFollow()
+
+        public async Task<Exception> TryFollow()
         {
             if (UserProfileResponse.FollowedChanging)
                 return null;
@@ -82,14 +83,14 @@ namespace Steepshot.Core.Presenters
             UserProfileResponse.FollowedChanging = true;
             NotifySourceChanged(nameof(TryFollow), true);
 
-            var error = await TryRunTask(Follow, OnDisposeCts.Token, UserProfileResponse);
+            var exception = await TryRunTask(Follow, OnDisposeCts.Token, UserProfileResponse);
             UserProfileResponse.FollowedChanging = false;
             CashPresenterManager.Update(UserProfileResponse);
             NotifySourceChanged(nameof(TryFollow), true);
-            return error;
+            return exception;
         }
 
-        private async Task<ErrorBase> Follow(UserProfileResponse userProfileResponse, CancellationToken ct)
+        private async Task<Exception> Follow(UserProfileResponse userProfileResponse, CancellationToken ct)
         {
             var hasFollowed = userProfileResponse.HasFollowed;
             var request = new FollowModel(AppSettings.User.UserInfo, hasFollowed ? FollowType.UnFollow : FollowType.Follow, UserName);
@@ -98,14 +99,14 @@ namespace Steepshot.Core.Presenters
             if (response.IsSuccess)
                 userProfileResponse.HasFollowed = !hasFollowed;
 
-            return response.Error;
+            return response.Exception;
         }
 
 
-        public async Task<ErrorBase> TryUpdateUserProfile(UpdateUserProfileModel model, UserProfileResponse currentProfile)
+        public async Task<Exception> TryUpdateUserProfile(UpdateUserProfileModel model, UserProfileResponse currentProfile)
         {
-            var error = await TryRunTask(UpdateUserProfile, OnDisposeCts.Token, model);
-            if (error != null)
+            var exception = await TryRunTask(UpdateUserProfile, OnDisposeCts.Token, model);
+            if (exception != null)
             {
                 NotifySourceChanged(nameof(TryUpdateUserProfile), false);
             }
@@ -120,13 +121,24 @@ namespace Steepshot.Core.Presenters
                 NotifySourceChanged(nameof(TryUpdateUserProfile), false);
             }
 
-            return error;
+            return exception;
         }
 
-        private async Task<ErrorBase> UpdateUserProfile(UpdateUserProfileModel model, CancellationToken ct)
+        private async Task<Exception> UpdateUserProfile(UpdateUserProfileModel model, CancellationToken ct)
         {
             var response = await Api.UpdateUserProfile(model, ct);
-            return response.Error;
+            return response.Exception;
+        }
+
+        public async Task<Exception> TryUpdateUserPosts(string username)
+        { 
+            return await TryRunTask(UpdateUserPosts, OnDisposeCts.Token, username);
+        }
+
+        private async Task<Exception> UpdateUserPosts(string username, CancellationToken ct)
+        {
+            var response = await Api.UpdateUserPosts(username, ct);
+            return response.Exception;
         }
 
         public override void Clear(bool isNotify = true)
@@ -135,10 +147,29 @@ namespace Steepshot.Core.Presenters
             base.Clear(isNotify);
         }
 
+        public async void CheckSubscriptions()
+        {
+            OperationResult<SubscriptionsModel> response;
+            do
+            {
+                response = await Api.CheckSubscriptions(AppSettings.User, CancellationToken.None);
+
+                if (response.IsSuccess)
+                {
+                    AppSettings.User.PushSettings = response.Result.EnumSubscriptions;
+                    SubscriptionsUpdated?.Invoke();
+                }
+                else
+                {
+                    await Task.Delay(5000);
+                }
+            } while (!response.IsSuccess);
+        }
+
         #region IDisposable Support
         private bool _disposedValue = false; // To detect redundant calls
 
-        private void Dispose(bool disposing)
+        protected override void Dispose(bool disposing)
         {
             if (!_disposedValue)
             {
@@ -152,21 +183,6 @@ namespace Steepshot.Core.Presenters
 
                 _disposedValue = true;
             }
-        }
-
-        // override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
-        // ~BasePostPresenter() {
-        //   // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
-        //   Dispose(false);
-        // }
-
-        // This code added to correctly implement the disposable pattern.
-        public void Dispose()
-        {
-            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
-            Dispose(true);
-            // uncomment the following line if the finalizer is overridden above.
-            // GC.SuppressFinalize(this);
         }
         #endregion
     }

@@ -1,5 +1,4 @@
 ﻿using CoreGraphics;
-using Steepshot.Core.Presenters;
 using Steepshot.iOS.CustomViews;
 using Steepshot.iOS.ViewControllers;
 using UIKit;

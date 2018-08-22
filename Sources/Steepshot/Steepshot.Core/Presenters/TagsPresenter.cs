@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Steepshot.Core.Errors;
 using Steepshot.Core.Extensions;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
@@ -13,12 +12,12 @@ namespace Steepshot.Core.Presenters
     {
         private const int ItemsLimit = 40;
 
-        public async Task<ErrorBase> TryLoadNext(string s, bool shouldClear = true, bool showUnknownTag = false)
+        public async Task<Exception> TryLoadNext(string s, bool shouldClear = true, bool showUnknownTag = false)
         {
             return await RunAsSingleTask(LoadNext, new Tuple<string, bool, bool>(s, shouldClear, showUnknownTag));
         }
 
-        private async Task<ErrorBase> LoadNext(Tuple<string, bool, bool> queryParams, CancellationToken ct)
+        private async Task<Exception> LoadNext(Tuple<string, bool, bool> queryParams, CancellationToken ct)
         {
             if (queryParams.Item2)
                 Clear();
@@ -52,15 +51,15 @@ namespace Steepshot.Core.Presenters
                     IsLastReaded = true;
                 NotifySourceChanged(nameof(TryLoadNext), true);
             }
-            return response.Error;
+            return response.Exception;
         }
 
-        public async Task<ErrorBase> TryGetTopTags()
+        public async Task<Exception> TryGetTopTags()
         {
             return await RunAsSingleTask(GetTopTags);
         }
 
-        private async Task<ErrorBase> GetTopTags(CancellationToken ct)
+        private async Task<Exception> GetTopTags(CancellationToken ct)
         {
             Clear();
             var request = new OffsetLimitModel()
@@ -87,7 +86,7 @@ namespace Steepshot.Core.Presenters
                     IsLastReaded = true;
                 NotifySourceChanged(nameof(TryGetTopTags), true);
             }
-            return response.Error;
+            return response.Exception;
         }
     }
 }

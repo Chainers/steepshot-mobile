@@ -1,17 +1,22 @@
 ﻿using Autofac;
 using Steepshot.Core.Authorization;
-using Steepshot.Core.HttpClient;
+using Steepshot.Core.Clients;
 using Steepshot.Core.Localization;
+using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Services;
 
 namespace Steepshot.Core.Utils
 {
     public static class AppSettings
     {
+        private const string AppSettingsKey = "AppSettings";
+
+        public static ProfileUpdateType ProfileUpdateType = ProfileUpdateType.None;
+
         public static IContainer Container { get; set; }
 
-        private static IReporterService _reporter;
-        public static IReporterService Reporter => _reporter ?? (_reporter = Container.Resolve<IReporterService>());
+        private static ILogService _log;
+        public static ILogService Logger => _log ?? (_log = Container.Resolve<ILogService>());
 
         private static ISaverService _saverService;
         public static ISaverService SaverService => _saverService ?? (_saverService = Container.Resolve<ISaverService>());
@@ -48,10 +53,12 @@ namespace Steepshot.Core.Utils
             }
         }
 
-        public static bool IsDev
+        private static AppSettingsModel _appSettingsModel;
+        public static AppSettingsModel Settings => _appSettingsModel ?? (_appSettingsModel = SaverService.Get<AppSettingsModel>(AppSettingsKey) ?? new AppSettingsModel());
+
+        public static void SaveSettings()
         {
-            get => SaverService.Get<bool>("isdev");
-            set => SaverService.Save("isdev", value);
+            SaverService.Save(AppSettingsKey, _appSettingsModel);
         }
     }
 }

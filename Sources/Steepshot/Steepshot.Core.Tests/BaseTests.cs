@@ -4,7 +4,6 @@ using System.Configuration;
 using System.IO;
 using Autofac;
 using NUnit.Framework;
-using Steepshot.Core.HttpClient;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Services;
 using Steepshot.Core.Tests.Stubs;
@@ -12,6 +11,7 @@ using Steepshot.Core.Utils;
 using System.ComponentModel.DataAnnotations;
 using Newtonsoft.Json;
 using Steepshot.Core.Authorization;
+using Steepshot.Core.Clients;
 using Steepshot.Core.Localization;
 
 namespace Steepshot.Core.Tests
@@ -19,25 +19,29 @@ namespace Steepshot.Core.Tests
     public class BaseTests
     {
         private const bool IsDev = true;
+        private static readonly ExtendedHttpClient ExtendedHttpClient;
         protected static readonly Dictionary<KnownChains, UserInfo> Users;
         protected static readonly Dictionary<KnownChains, SteepshotApiClient> Api;
 
         static BaseTests()
         {
             var builder = new ContainerBuilder();
+
             var saverService = new StubSaverService();
             var assetsHelper = new AssetsHelperStub();
+            var lm = new LocalizationManager(saverService, assetsHelper);
 
             builder.RegisterInstance(assetsHelper).As<IAssetHelper>().SingleInstance();
             builder.RegisterInstance(new StubAppInfo()).As<IAppInfo>().SingleInstance();
             builder.RegisterInstance(new UserManager(saverService)).As<UserManager>().SingleInstance();
             builder.RegisterInstance(saverService).As<ISaverService>().SingleInstance();
             builder.RegisterInstance(new StubConnectionService()).As<IConnectionService>().SingleInstance();
-            builder.RegisterInstance(new LocalizationManager(saverService, assetsHelper)).As<LocalizationManager>().SingleInstance();
-            builder.RegisterType<StubReporterService>().As<IReporterService>().SingleInstance();
+            builder.RegisterInstance(lm).As<LocalizationManager>().SingleInstance();
+            builder.RegisterType<StubLogService>().As<ILogService>().SingleInstance();
 
             AppSettings.Container = builder.Build();
-            AppSettings.IsDev = IsDev;
+            AppSettings.Settings.IsDev = IsDev;
+            ExtendedHttpClient = new ExtendedHttpClient();
 
             Users = new Dictionary<KnownChains, UserInfo>
             {
@@ -47,12 +51,12 @@ namespace Steepshot.Core.Tests
 
             Api = new Dictionary<KnownChains, SteepshotApiClient>
             {
-                {KnownChains.Steem, new SteepshotApiClient()},
-                {KnownChains.Golos, new SteepshotApiClient()},
+                {KnownChains.Steem, new SteepshotApiClient(ExtendedHttpClient, KnownChains.Steem)},
+                {KnownChains.Golos, new SteepshotApiClient(ExtendedHttpClient, KnownChains.Golos)},
             };
 
-            Api[KnownChains.Steem].InitConnector(KnownChains.Steem, IsDev);
-            Api[KnownChains.Golos].InitConnector(KnownChains.Golos, IsDev);
+            Api[KnownChains.Steem].SetDev(IsDev);
+            Api[KnownChains.Golos].SetDev(IsDev);
         }
 
         protected string GetTestImagePath()
@@ -70,14 +74,14 @@ namespace Steepshot.Core.Tests
             {
                 Assert.NotNull(response.Result, "Response is success, but result is NULL");
                 Console.WriteLine(JsonConvert.SerializeObject(response.Result));
-                Assert.IsNull(response.Error, "Response is success, but errors array is NOT empty");
+                Assert.IsNull(response.Exception, "Response is success, but errors array is NOT empty");
             }
             else
             {
                 Assert.IsNull(response.Result, "Response is failed, but result is NOT null");
-                Assert.IsNotNull(response.Error, "Response is failed, but errors array is EMPTY");
+                Assert.IsNotNull(response.Exception, "Response is failed, but errors array is EMPTY");
 
-                Console.WriteLine(response.Error.Message);
+                Console.WriteLine(response.Exception.Message);
                 if (throwIfError)
                     Assert.IsTrue(response.IsSuccess);
             }

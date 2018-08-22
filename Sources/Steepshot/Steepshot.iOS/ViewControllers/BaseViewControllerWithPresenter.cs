@@ -1,4 +1,5 @@
 ﻿using System;
+using Steepshot.Core;
 using Steepshot.Core.Presenters;
 
 namespace Steepshot.iOS.ViewControllers
@@ -16,6 +17,16 @@ namespace Steepshot.iOS.ViewControllers
         protected virtual void CreatePresenter()
         {
             _presenter = new T();
+
+            switch (AppDelegate.MainChain)
+            {
+                case KnownChains.Golos:
+                    _presenter.SetClient(AppDelegate.GolosClient);
+                    break;
+                case KnownChains.Steem:
+                    _presenter.SetClient(AppDelegate.SteemClient);
+                    break;
+            }
         }
 
         protected virtual void GoBack(object sender, EventArgs e)

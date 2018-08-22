@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Ditch.Core;
 using Ditch.Core.JsonRpc;
-using Steepshot.Core.HttpClient;
+using Steepshot.Core.Clients;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Models.Requests;
@@ -33,7 +32,8 @@ namespace Steepshot.Core.Tests.Stubs
         private string GetUserFriendsFollowersJson;
         private string GetUserFriendsFollowingJson;
 
-        public ApiPositiveStub()
+
+        public ApiPositiveStub(ExtendedHttpClient extendedHttpClient, KnownChains chain) : base(extendedHttpClient, chain)
         {
             #region posts response in json
             GetUserRecentPostsJson1 = "{\"offset\":\"/steepshot/@labutin/norvegiya-kirkines-2017-09-23-19-04-19\",\"count\":20,\"results\":[{\"body\":\"https://steepshot.org/api/v1/image/4d57382b-db06-444e-bbfe-494adb0d1ba7.jpeg\",\"photos\":[\"https://steepshot.org/api/v1/image/4d57382b-db06-444e-bbfe-494adb0d1ba7.jpeg\"],\"description\":\"\",\"title\":\"Норвегия\",\"url\":\"/steepshot/@labutin/norvegiya-2017-10-02-20-57-08\",\"category\":\"steepshot\",\"author\":\"labutin\",\"avatar\":\"\",\"cover_image\":\"\",\"author_rewards\":0,\"author_reputation\":30,\"net_votes\":1,\"children\":1,\"created\":\"2017-10-02T20:56:21Z\",\"curator_payout_value\":0.0,\"total_payout_value\":0.0,\"pending_payout_value\":0.237,\"max_accepted_payout\":1000000.0,\"total_payout_reward\":\"0.24\",\"vote\":false,\"flag\":false,\"tags\":[\"steepshot\",\"steepshot\"],\"image_size\":{},\"depth\":0},{\"body\":\"https://steepshot.org/api/v1/image/bd904b32-596d-4fed-a2df-3975c4677db8.jpeg\",\"photos\":[\"https://steepshot.org/api/v1/image/bd904b32-596d-4fed-a2df-3975c4677db8.jpeg\"],\"description\":\"\",\"title\":\"In my city, snow melts only in May.\",\"url\":\"/photography/@cement41/in-my-city-snow-melts-only-in-may-\",\"category\":\"photography\",\"author\":\"cement41\",\"avatar\":\"http://luxfon.com/images/201203/luxfon.com_1667.jpg\",\"cover_image\":\"\",\"author_rewards\":0,\"author_reputation\":42,\"net_votes\":3,\"children\":1,\"created\":\"2017-10-02T14:10:18Z\",\"curator_payout_value\":0.0,\"total_payout_value\":0.0,\"pending_payout_value\":0.008,\"max_accepted_payout\":1000000.0,\"total_payout_reward\":\"0.01\",\"vote\":false,\"flag\":false,\"tags\":[\"photography\",\"life\",\"blog\",\"news\",\"steepshot\"],\"image_size\":{},\"depth\":0},{\"body\":\"https://steepshot.org/api/v1/image/6c7f68dd-f0ab-470e-8426-e69f87f02b2a.jpeg\",\"photos\":[\"https://steepshot.org/api/v1/image/6c7f68dd-f0ab-470e-8426-e69f87f02b2a.jpeg\"],\"description\":\"\",\"title\":\"Today in my city snow fell, somehow unexpectedly and symbolically on October 1. Most of the snow falls in the numbers of September 20-25. And last year snow fell in November, it was amazing.\",\"url\":\"/photography/@cement41/today-in-my-city-snow-fell-somehow-unexpectedly-and-symbolically-on-october-1--most-of-the-snow-falls-in-the-numbers-of-september-20-25--and-last-year-snow-fell-in-november-it-was-amazing-\",\"category\":\"photography\",\"author\":\"cement41\",\"avatar\":\"http://luxfon.com/images/201203/luxfon.com_1667.jpg\",\"cover_image\":\"\",\"author_rewards\":0,\"author_reputation\":42,\"net_votes\":4,\"children\":0,\"created\":\"2017-10-01T15:29:51Z\",\"curator_payout_value\":0.0,\"total_payout_value\":0.0,\"pending_payout_value\":0.007,\"max_accepted_payout\":1000000.0,\"total_payout_reward\":\"0.01\",\"vote\":false,\"flag\":false,\"tags\":[\"photography\",\"blog\",\"nature\",\"steepshot\"],\"image_size\":{},\"depth\":0},{\"body\":\"https://steepshot.org/api/v1/image/d80e6142-1a08-49eb-b53c-969c0ddd671a.jpeg\",\"photos\":[\"https://steepshot.org/api/v1/image/d80e6142-1a08-49eb-b53c-969c0ddd671a.jpeg\"],\"description\":\"\",\"title\":\"Small nations such as Khanty, Nenets graze deer make themselves fur coats from reindeer leads a nomadic way of life for each reindeer herder from 100 to 300 deer.\",\"url\":\"/photography/@cement41/small-nations-such-as-khanty-nenets-graze-deer-make-themselves-fur-coats-from-reindeer-leads-a-nomadic-way-of-life-for-each-reindeer-herder-from-100-to-300-deer-\",\"category\":\"photography\",\"author\":\"cement41\",\"avatar\":\"http://luxfon.com/images/201203/luxfon.com_1667.jpg\",\"cover_image\":\"\",\"author_rewards\":0,\"author_reputation\":42,\"net_votes\":7,\"children\":2,\"created\":\"2017-10-01T04:13:21Z\",\"curator_payout_value\":0.0,\"total_payout_value\":0.0,\"pending_payout_value\":0.069,\"max_accepted_payout\":1000000.0,\"total_payout_reward\":\"0.07\",\"vote\":false,\"flag\":false,\"tags\":[\"photography\",\"blog\",\"news\",\"introduceyourself\",\"steepshot\"],\"image_size\":{},\"depth\":0},{\"body\":\"https://steepshot.org/api/v1/image/9c0671c8-b18b-46c7-9cfa-d79d6daf7fc7.jpeg\",\"photos\":[\"https://steepshot.org/api/v1/image/9c0671c8-b18b-46c7-9cfa-d79d6daf7fc7.jpeg\"],\"description\":\"\",\"title\":\"In my city 26 thousand people in this number are such nationalities as the Nenets, Khanty and others. The city is small in area only 22 km square.\",\"url\":\"/photography/@cement41/in-my-city-26-thousand-people-in-this-number-are-such-nationalities-as-the-nenets-khanty-and-others--the-city-is-small-in-area-only-22-km-square-\",\"category\":\"photography\",\"author\":\"cement41\",\"avatar\":\"http://luxfon.com/images/201203/luxfon.com_1667.jpg\",\"cover_image\":\"\",\"author_rewards\":0,\"author_reputation\":42,\"net_votes\":2,\"children\":1,\"created\":\"2017-09-30T08:59:33Z\",\"curator_payout_value\":0.0,\"total_payout_value\":0.0,\"pending_payout_value\":0.01,\"max_accepted_payout\":1000000.0,\"total_payout_reward\":\"0.01\",\"vote\":false,\"flag\":false,\"tags\":[\"photography\",\"blog\",\"nature\",\"steepshot\"],\"image_size\":{},\"depth\":0},{\"body\":\"https://steepshot.org/api/v1/image/bca5881b-0fe8-493d-bdfb-16d961db6b80.jpeg\",\"photos\":[\"https://steepshot.org/api/v1/image/bca5881b-0fe8-493d-bdfb-16d961db6b80.jpeg\"],\"description\":\"\",\"title\":\"Hello to all my name is Nikolay. I live in Russia on the Yamal Peninsula. This monument stands in my city.\",\"url\":\"/photography/@cement41/hello-to-all-my-name-is-nikolay--i-live-in-russia-on-the-yamal-peninsula--this-monument-stands-in-my-city-\",\"category\":\"photography\",\"author\":\"cement41\",\"avatar\":\"http://luxfon.com/images/201203/luxfon.com_1667.jpg\",\"cover_image\":\"\",\"author_rewards\":0,\"author_reputation\":42,\"net_votes\":7,\"children\":1,\"created\":\"2017-09-28T09:20:30Z\",\"curator_payout_value\":0.0,\"total_payout_value\":0.0,\"pending_payout_value\":0.228,\"max_accepted_payout\":1000000.0,\"total_payout_reward\":\"0.23\",\"vote\":true,\"flag\":false,\"tags\":[\"photography\",\"blog\",\"story\",\"steepshot\"],\"image_size\":{},\"depth\":0},{\"body\":\"https://steepshot.org/api/v1/image/6d44661e-f587-4e97-8c24-bd150e9f7e3f.jpeg\",\"photos\":[\"https://steepshot.org/api/v1/image/6d44661e-f587-4e97-8c24-bd150e9f7e3f.jpeg\"],\"description\":\"\",\"title\":\"долгожданная встреча)\",\"url\":\"/steepshot/@labutin/dolgozhdannaya-vstrecha-2017-09-28-05-14-25\",\"category\":\"steepshot\",\"author\":\"labutin\",\"avatar\":\"\",\"cover_image\":\"\",\"author_rewards\":0,\"author_reputation\":28,\"net_votes\":33,\"children\":2,\"created\":\"2017-09-28T05:13:45Z\",\"curator_payout_value\":0.0,\"total_payout_value\":0.0,\"pending_payout_value\":0.092,\"max_accepted_payout\":1000000.0,\"total_payout_reward\":\"0.09\",\"vote\":true,\"flag\":false,\"tags\":[\"steepshot\",\"ru--semxya\",\"family\",\"steepshot\"],\"image_size\":{},\"depth\":0},{\"body\":\"https://steepshot.org/api/v1/image/4707c7fc-65dc-4ecc-9f74-78b12060e737.jpeg\",\"photos\":[\"https://steepshot.org/api/v1/image/4707c7fc-65dc-4ecc-9f74-78b12060e737.jpeg\"],\"description\":\"\",\"title\":\"��\",\"url\":\"/steepshot/@yanakorsak/-2017-09-28-04-21-32\",\"category\":\"steepshot\",\"author\":\"yanakorsak\",\"avatar\":\"https://pp.userapi.com/c639627/v639627135/21477/7beId35TSQM.jpg\",\"cover_image\":\"\",\"author_rewards\":0,\"author_reputation\":34,\"net_votes\":4,\"children\":0,\"created\":\"2017-09-28T04:09:30Z\",\"curator_payout_value\":0.0,\"total_payout_value\":0.0,\"pending_payout_value\":0.011,\"max_accepted_payout\":1000000.0,\"total_payout_reward\":\"0.01\",\"vote\":true,\"flag\":false,\"tags\":[\"steepshot\",\"photo\",\"life\",\"me\",\"steepshot\"],\"image_size\":{},\"depth\":0},{\"body\":\"https://steepshot.org/api/v1/image/5f4fe7f5-5ce0-4ebd-92ec-2f8ad6c75694.jpeg\",\"photos\":[\"https://steepshot.org/api/v1/image/5f4fe7f5-5ce0-4ebd-92ec-2f8ad6c75694.jpeg\"],\"description\":\"\",\"title\":\"I'm with whale, maybe I'll become a whale in Steepshot��������������������\",\"url\":\"/steepshot/@leno4ek/im-with-whale-maybe-ill-become-a-whale-in-steepshot-2017-09-26-16-51-46\",\"category\":\"steepshot\",\"author\":\"leno4ek\",\"avatar\":\"https://s30.postimg.org/ieo4o4vb5/2016-10-30_13.42.07.jpg\",\"cover_image\":\"\",\"author_rewards\":0,\"author_reputation\":58,\"net_votes\":21,\"children\":1,\"created\":\"2017-09-26T16:50:03Z\",\"curator_payout_value\":0.0,\"total_payout_value\":0.0,\"pending_payout_value\":11.771,\"max_accepted_payout\":1000000.0,\"total_payout_reward\":\"11.77\",\"vote\":true,\"flag\":false,\"tags\":[\"steepshot\",\"photography\",\"photo\",\"steepshot\"],\"image_size\":{},\"depth\":0},{\"body\":\"https://steepshot.org/api/v1/image/3ca3a2de-07b6-47a3-bb21-7c9d48de24a8.jpeg\",\"photos\":[\"https://steepshot.org/api/v1/image/3ca3a2de-07b6-47a3-bb21-7c9d48de24a8.jpeg\"],\"description\":\"\",\"title\":\"Beach in Tel-Aviv Israel������������������\",\"url\":\"/steepshot/@leno4ek/beach-in-tel-aviv-israel-2017-09-26-16-46-37\",\"category\":\"steepshot\",\"author\":\"leno4ek\",\"avatar\":\"https://s30.postimg.org/ieo4o4vb5/2016-10-30_13.42.07.jpg\",\"cover_image\":\"\",\"author_rewards\":0,\"author_reputation\":58,\"net_votes\":8,\"children\":0,\"created\":\"2017-09-26T16:44:51Z\",\"curator_payout_value\":0.0,\"total_payout_value\":0.0,\"pending_payout_value\":1.021,\"max_accepted_payout\":1000000.0,\"total_payout_reward\":\"1.02\",\"vote\":true,\"flag\":false,\"tags\":[\"steepshot\",\"steepshot\"],\"image_size\":{},\"depth\":0},{\"body\":\"https://steepshot.org/api/v1/image/a413d057-4bd5-4abb-bda8-bc5c774191d7.jpeg\",\"photos\":[\"https://steepshot.org/api/v1/image/a413d057-4bd5-4abb-bda8-bc5c774191d7.jpeg\"],\"description\":\"\",\"title\":\"I'm with heart-umbrella������☔����������☔��\",\"url\":\"/steepshot/@leno4ek/im-with-heart-umbrella-2017-09-26-15-48-47\",\"category\":\"steepshot\",\"author\":\"leno4ek\",\"avatar\":\"https://s30.postimg.org/ieo4o4vb5/2016-10-30_13.42.07.jpg\",\"cover_image\":\"\",\"author_rewards\":0,\"author_reputation\":58,\"net_votes\":10,\"children\":2,\"created\":\"2017-09-26T15:47:03Z\",\"curator_payout_value\":0.0,\"total_payout_value\":0.0,\"pending_payout_value\":1.049,\"max_accepted_payout\":1000000.0,\"total_payout_reward\":\"1.05\",\"vote\":true,\"flag\":false,\"tags\":[\"steepshot\",\"steepshot\"],\"image_size\":{},\"depth\":0},{\"body\":\"https://steepshot.org/api/v1/image/2c26bad5-0cb0-4a31-aba5-8fafe223792f.jpeg\",\"photos\":[\"https://steepshot.org/api/v1/image/2c26bad5-0cb0-4a31-aba5-8fafe223792f.jpeg\"],\"description\":\"\",\"title\":\"new stadium in our city/ новый стадион в нашем городе\",\"url\":\"/photography/@cement41/new-stadium-in-our-city-----\",\"category\":\"photography\",\"author\":\"cement41\",\"avatar\":\"http://luxfon.com/images/201203/luxfon.com_1667.jpg\",\"cover_image\":\"\",\"author_rewards\":0,\"author_reputation\":42,\"net_votes\":2,\"children\":2,\"created\":\"2017-09-26T11:03:42Z\",\"curator_payout_value\":0.0,\"total_payout_value\":0.0,\"pending_payout_value\":0.004,\"max_accepted_payout\":1000000.0,\"total_payout_reward\":\"0.00\",\"vote\":false,\"flag\":false,\"tags\":[\"photography\",\"news\",\"funny\",\"cn\",\"steepshot\"],\"image_size\":{},\"depth\":0},{\"body\":\"https://steepshot.org/api/v1/image/d223a98d-e0a1-4157-b8c3-f3338be9251a.jpeg\",\"photos\":[\"https://steepshot.org/api/v1/image/d223a98d-e0a1-4157-b8c3-f3338be9251a.jpeg\"],\"description\":\"\",\"title\":\"The moss on trees.��������������������☔\",\"url\":\"/steepshot/@leno4ek/the-moss-on-trees--2017-09-26-06-32-39\",\"category\":\"steepshot\",\"author\":\"leno4ek\",\"avatar\":\"https://s30.postimg.org/ieo4o4vb5/2016-10-30_13.42.07.jpg\",\"cover_image\":\"\",\"author_rewards\":810,\"author_reputation\":58,\"net_votes\":12,\"children\":3,\"created\":\"2017-09-26T06:30:54Z\",\"curator_payout_value\":0.278,\"total_payout_value\":1.186,\"pending_payout_value\":0.0,\"max_accepted_payout\":1000000.0,\"total_payout_reward\":\"1.46\",\"vote\":true,\"flag\":false,\"tags\":[\"steepshot\",\"photography\",\"photo\",\"nature\",\"steepshot\"],\"image_size\":{},\"depth\":0},{\"body\":\"https://steepshot.org/api/v1/image/d80aefab-5821-4c28-b097-5a0b199ffa71.jpeg\",\"photos\":[\"https://steepshot.org/api/v1/image/d80aefab-5821-4c28-b097-5a0b199ffa71.jpeg\"],\"description\":\"\",\"title\":\"vegan carrot cake\",\"url\":\"/steepshot/@yanakorsak/vegan-carrot-cake-2017-09-26-06-21-48\",\"category\":\"steepshot\",\"author\":\"yanakorsak\",\"avatar\":\"https://pp.userapi.com/c639627/v639627135/21477/7beId35TSQM.jpg\",\"cover_image\":\"\",\"author_rewards\":0,\"author_reputation\":34,\"net_votes\":5,\"children\":2,\"created\":\"2017-09-26T06:09:45Z\",\"curator_payout_value\":0.0,\"total_payout_value\":0.0,\"pending_payout_value\":0.017,\"max_accepted_payout\":1000000.0,\"total_payout_reward\":\"0.02\",\"vote\":true,\"flag\":false,\"tags\":[\"steepshot\",\"photo\",\"cake\",\"vegan\",\"steepshot\"],\"image_size\":{},\"depth\":0},{\"body\":\"https://steepshot.org/api/v1/image/d0696b89-ac8f-4bdb-97b8-e187bd2cb5a1.jpeg\",\"photos\":[\"https://steepshot.org/api/v1/image/d0696b89-ac8f-4bdb-97b8-e187bd2cb5a1.jpeg\"],\"description\":\"\",\"title\":\"Царицано Москва\",\"url\":\"/steepshot/@labutin/czariczano-moskva-2017-09-25-18-55-19\",\"category\":\"steepshot\",\"author\":\"labutin\",\"avatar\":\"\",\"cover_image\":\"\",\"author_rewards\":0,\"author_reputation\":28,\"net_votes\":1,\"children\":1,\"created\":\"2017-09-25T18:54:39Z\",\"curator_payout_value\":0.0,\"total_payout_value\":0.0,\"pending_payout_value\":0.002,\"max_accepted_payout\":1000000.0,\"total_payout_reward\":\"0.00\",\"vote\":false,\"flag\":false,\"tags\":[\"steepshot\",\"steepshot\"],\"image_size\":{},\"depth\":0},{\"body\":\"https://steepshot.org/api/v1/image/9158ba67-cb8f-444f-88c5-a7d57b6bcd31.jpeg\",\"photos\":[\"https://steepshot.org/api/v1/image/9158ba67-cb8f-444f-88c5-a7d57b6bcd31.jpeg\"],\"description\":\"\",\"title\":\"Норвегия киркинес\",\"url\":\"/steepshot/@labutin/norvegiya-kirkines-2017-09-25-18-45-08\",\"category\":\"steepshot\",\"author\":\"labutin\",\"avatar\":\"\",\"cover_image\":\"\",\"author_rewards\":0,\"author_reputation\":28,\"net_votes\":1,\"children\":0,\"created\":\"2017-09-25T18:44:33Z\",\"curator_payout_value\":0.0,\"total_payout_value\":0.0,\"pending_payout_value\":0.002,\"max_accepted_payout\":1000000.0,\"total_payout_reward\":\"0.00\",\"vote\":false,\"flag\":false,\"tags\":[\"steepshot\",\"steepshot\"],\"image_size\":{},\"depth\":0},{\"body\":\"https://steepshot.org/api/v1/image/f30aff28-386c-4282-a4ea-479003c17f0b.jpeg\",\"photos\":[\"https://steepshot.org/api/v1/image/f30aff28-386c-4282-a4ea-479003c17f0b.jpeg\"],\"description\":\"\",\"title\":\"ягуар)\",\"url\":\"/steepshot/@labutin/yaguar-2017-09-25-07-28-47\",\"category\":\"steepshot\",\"author\":\"labutin\",\"avatar\":\"\",\"cover_image\":\"\",\"author_rewards\":16,\"author_reputation\":28,\"net_votes\":2,\"children\":0,\"created\":\"2017-09-25T07:28:15Z\",\"curator_payout_value\":0.001,\"total_payout_value\":0.022,\"pending_payout_value\":0.0,\"max_accepted_payout\":1000000.0,\"total_payout_reward\":\"0.02\",\"vote\":false,\"flag\":false,\"tags\":[\"steepshot\",\"steepshot\"],\"image_size\":{},\"depth\":0},{\"body\":\"https://steepshot.org/api/v1/image/1dd2dcee-571f-462d-9f02-6edc2df3c027.jpeg\",\"photos\":[\"https://steepshot.org/api/v1/image/1dd2dcee-571f-462d-9f02-6edc2df3c027.jpeg\"],\"description\":\"\",\"title\":\"поход в кино)\",\"url\":\"/steepshot/@labutin/pokhod-v-kino-2017-09-24-06-33-16\",\"category\":\"steepshot\",\"author\":\"labutin\",\"avatar\":\"\",\"cover_image\":\"\",\"author_rewards\":0,\"author_reputation\":28,\"net_votes\":2,\"children\":0,\"created\":\"2017-09-24T06:32:54Z\",\"curator_payout_value\":0.0,\"total_payout_value\":0.0,\"pending_payout_value\":0.001,\"max_accepted_payout\":1000000.0,\"total_payout_reward\":\"0.00\",\"vote\":false,\"flag\":false,\"tags\":[\"steepshot\",\"ru--kino\",\"ru--semxya\",\"ru--otdykh\",\"steepshot\"],\"image_size\":{},\"depth\":0},{\"body\":\"https://steepshot.org/api/v1/image/cd1deae3-df3a-42f5-9003-cb4a061a83b4.jpeg\",\"photos\":[\"https://steepshot.org/api/v1/image/cd1deae3-df3a-42f5-9003-cb4a061a83b4.jpeg\"],\"description\":\"\",\"title\":\"семья) совместный отдых)\",\"url\":\"/steepshot/@labutin/semxya-sovmestnyij-otdykh-2017-09-23-21-26-43\",\"category\":\"steepshot\",\"author\":\"labutin\",\"avatar\":\"\",\"cover_image\":\"\",\"author_rewards\":125,\"author_reputation\":28,\"net_votes\":2,\"children\":1,\"created\":\"2017-09-23T21:26:24Z\",\"curator_payout_value\":0.054,\"total_payout_value\":0.172,\"pending_payout_value\":0.0,\"max_accepted_payout\":1000000.0,\"total_payout_reward\":\"0.23\",\"vote\":false,\"flag\":false,\"tags\":[\"steepshot\",\"steepshot\"],\"image_size\":{},\"depth\":0},{\"body\":\"https://steepshot.org/api/v1/image/e6e593c9-4f54-40f9-9e85-e078d9fe9045.jpeg\",\"photos\":[\"https://steepshot.org/api/v1/image/e6e593c9-4f54-40f9-9e85-e078d9fe9045.jpeg\"],\"description\":\"\",\"title\":\"Норвегия Киркинес\",\"url\":\"/steepshot/@labutin/norvegiya-kirkines-2017-09-23-19-04-19\",\"category\":\"steepshot\",\"author\":\"labutin\",\"avatar\":\"\",\"cover_image\":\"\",\"author_rewards\":0,\"author_reputation\":25,\"net_votes\":0,\"children\":0,\"created\":\"2017-09-23T19:03:57Z\",\"curator_payout_value\":0.0,\"total_payout_value\":0.0,\"pending_payout_value\":0.0,\"max_accepted_payout\":1000000.0,\"total_payout_reward\":\"0.00\",\"vote\":false,\"flag\":false,\"tags\":[\"steepshot\",\"steepshot\"],\"image_size\":{},\"depth\":0}]}";
@@ -74,340 +74,401 @@ namespace Steepshot.Core.Tests.Stubs
 
         public async Task<OperationResult<VoidResponse>> LoginWithPostingKey(AuthorizedPostingModel model, CancellationToken ct)
         {
-            return new OperationResult<VoidResponse>
-            {
-                Result = new VoidResponse()
-            };
+            return await Task.Run(() => new OperationResult<VoidResponse>(), ct);
         }
 
-        public async Task<OperationResult<ListResponse<Post>>> GetUserPosts(UserPostsModel model, CancellationToken ct)
+        public new async Task<OperationResult<ListResponse<Post>>> GetUserPosts(UserPostsModel model, CancellationToken ct)
         {
-            var resp = Converter.Deserialize<ListResponse<Post>>(GetUserPostsJson);
+            return await Task.Run(() =>
+            {
+                var resp = Converter.Deserialize<ListResponse<Post>>(GetUserPostsJson);
 
-            if (!model.ShowLowRated)
-            {
-                resp.Results = resp.Results.Where(i => i.AuthorReputation > 0 && i.NetVotes > 0).ToList();
-            }
-            if (!model.ShowNsfw)
-            {
-                resp.Results = resp.Results.Where(i => !i.Tags.Contains("nsfw")).ToList();
-            }
-
-            var skip = 0;
-            if (!string.IsNullOrEmpty(model.Offset))
-            {
-                foreach (var itm in resp.Results)
+                if (!model.ShowLowRated)
                 {
-                    if (model.Offset.Equals(itm.Url))
-                        break;
-                    skip++;
+                    resp.Results = resp.Results.Where(i => i.AuthorReputation > 0 && i.NetVotes > 0).ToList();
                 }
-            }
-            resp.Results = resp.Results.Skip(skip).Take(model.Limit).ToList();
 
-            if (string.IsNullOrEmpty(model.Login))
-                for (var i = 0; i < resp.Results.Count; i++)
-                    resp.Results[i].Vote = false;
-
-            return new OperationResult<ListResponse<Post>> { Result = resp };
-        }
-
-        public async Task<OperationResult<ListResponse<Post>>> GetUserRecentPosts(CensoredNamedRequestWithOffsetLimitModel request, CancellationToken ct)
-        {
-            var resp = string.IsNullOrEmpty(request.Offset)
-                ? Converter.Deserialize<ListResponse<Post>>(GetUserRecentPostsJson1)
-                : Converter.Deserialize<ListResponse<Post>>(GetUserRecentPostsJson2);
-
-            if (!request.ShowLowRated)
-            {
-                resp.Results = resp.Results.Where(i => i.AuthorReputation > 0 && i.NetVotes > 0).ToList();
-            }
-            if (!request.ShowNsfw)
-            {
-                resp.Results = resp.Results.Where(i => !i.Tags.Contains("nsfw")).ToList();
-            }
-            if (string.IsNullOrEmpty(request.Login))
-                for (var i = 0; i < resp.Results.Count; i++)
-                    resp.Results[i].Vote = false;
-            return new OperationResult<ListResponse<Post>> { Result = resp };
-        }
-
-        public async Task<OperationResult<ListResponse<Post>>> GetPosts(PostsModel model, CancellationToken ct)
-        {
-            ListResponse<Post> resp = null;
-            switch (model.Type)
-            {
-                case PostType.Top:
-                    {
-                        resp = Converter.Deserialize<ListResponse<Post>>(GetPostsTopJson);
-                        break;
-                    }
-                case PostType.Hot:
-                    {
-                        resp = Converter.Deserialize<ListResponse<Post>>(GetPostsHotJson);
-                        break;
-                    }
-                case PostType.New:
-                    {
-                        resp = Converter.Deserialize<ListResponse<Post>>(GetPostsNewJson);
-                        break;
-                    }
-            }
-
-            if (!model.ShowLowRated)
-            {
-                resp.Results = resp.Results.Where(i => i.AuthorReputation > 0 && i.NetVotes > 0).ToList();
-            }
-            if (!model.ShowNsfw)
-            {
-                resp.Results = resp.Results.Where(i => !i.Tags.Contains("nsfw")).ToList();
-            }
-
-            var skip = 0;
-            if (!string.IsNullOrEmpty(model.Offset))
-            {
-                foreach (var itm in resp.Results)
+                if (!model.ShowNsfw)
                 {
-                    if (model.Offset.Equals(itm.Url))
-                        break;
-                    skip++;
+                    resp.Results = resp.Results.Where(i => !i.Tags.Contains("nsfw")).ToList();
                 }
-            }
-            resp.Results = resp.Results.Skip(skip).Take(model.Limit).ToList();
 
-            if (string.IsNullOrEmpty(model.Login))
-                for (var i = 0; i < resp.Results.Count; i++)
-                    resp.Results[i].Vote = false;
-
-            return new OperationResult<ListResponse<Post>> { Result = resp };
-        }
-
-        public async Task<OperationResult<ListResponse<Post>>> GetPostsByCategory(PostsByCategoryModel model, CancellationToken ct)
-        {
-            ListResponse<Post> resp = null;
-            switch (model.Type)
-            {
-                case PostType.Top:
-                    {
-                        resp = Converter.Deserialize<ListResponse<Post>>(GetPostsTopJson);
-                        break;
-                    }
-                case PostType.Hot:
-                    {
-                        resp = Converter.Deserialize<ListResponse<Post>>(GetPostsHotJson);
-                        break;
-                    }
-                case PostType.New:
-                    {
-                        resp = Converter.Deserialize<ListResponse<Post>>(GetPostsNewJson);
-                        break;
-                    }
-            }
-
-            if (!model.ShowLowRated)
-            {
-                resp.Results = resp.Results.Where(i => i.AuthorReputation > 0 && i.NetVotes > 0).ToList();
-            }
-            if (!model.ShowNsfw)
-            {
-                resp.Results = resp.Results.Where(i => !i.Tags.Contains("nsfw")).ToList();
-            }
-
-            if (!string.IsNullOrEmpty(model.Category))
-            {
-                resp.Results = resp.Results.Where(i => i.Tags.Contains(model.Category)).ToList();
-            }
-
-            var skip = 0;
-            if (!string.IsNullOrEmpty(model.Offset))
-            {
-                foreach (var itm in resp.Results)
+                var skip = 0;
+                if (!string.IsNullOrEmpty(model.Offset))
                 {
-                    if (model.Offset.Equals(itm.Url))
-                        break;
-                    skip++;
+                    foreach (var itm in resp.Results)
+                    {
+                        if (model.Offset.Equals(itm.Url))
+                            break;
+                        skip++;
+                    }
                 }
-            }
-            resp.Results = resp.Results.Skip(skip).Take(model.Limit).ToList();
 
-            if (string.IsNullOrEmpty(model.Login))
-                for (var i = 0; i < resp.Results.Count; i++)
-                    resp.Results[i].Vote = false;
+                resp.Results = resp.Results.Skip(skip).Take(model.Limit).ToList();
 
-            return new OperationResult<ListResponse<Post>> { Result = resp };
+                if (string.IsNullOrEmpty(model.Login))
+                    for (var i = 0; i < resp.Results.Count; i++)
+                        resp.Results[i].Vote = false;
+
+                return new OperationResult<ListResponse<Post>> { Result = resp };
+            }, ct);
         }
 
-        public async Task<OperationResult<ListResponse<UserFriend>>> GetPostVoters(VotersModel model, CancellationToken ct)
+        public new async Task<OperationResult<ListResponse<Post>>> GetUserRecentPosts(CensoredNamedRequestWithOffsetLimitModel request, CancellationToken ct)
         {
-            var resp = Converter.Deserialize<ListResponse<UserFriend>>(VotersResult1Json);
-            var skip = 0;
-            if (!string.IsNullOrEmpty(model.Offset))
+            return await Task.Run(() =>
             {
-                foreach (var itm in resp.Results)
+                var resp = string.IsNullOrEmpty(request.Offset)
+                    ? Converter.Deserialize<ListResponse<Post>>(GetUserRecentPostsJson1)
+                    : Converter.Deserialize<ListResponse<Post>>(GetUserRecentPostsJson2);
+
+                if (!request.ShowLowRated)
                 {
-                    if (model.Offset.Equals(itm.Author))
-                        break;
-                    skip++;
+                    resp.Results = resp.Results.Where(i => i.AuthorReputation > 0 && i.NetVotes > 0).ToList();
                 }
-            }
-            resp.Results = resp.Results.Skip(skip).Take(model.Limit).ToList();
 
-            return new OperationResult<ListResponse<UserFriend>> { Result = resp };
+                if (!request.ShowNsfw)
+                {
+                    resp.Results = resp.Results.Where(i => !i.Tags.Contains("nsfw")).ToList();
+                }
+
+                if (string.IsNullOrEmpty(request.Login))
+                    for (var i = 0; i < resp.Results.Count; i++)
+                        resp.Results[i].Vote = false;
+                return new OperationResult<ListResponse<Post>> { Result = resp };
+            }, ct);
         }
 
-        public async Task<OperationResult<VoteResponse>> Vote(VoteModel model, CancellationToken ct)
+        public new async Task<OperationResult<ListResponse<Post>>> GetPosts(PostsModel model, CancellationToken ct)
         {
-            return new OperationResult<VoteResponse> { Result = new VoteResponse() { NetVotes = model.Type == VoteType.Up ? 100500 : 777, NewTotalPayoutReward = 10000 } };
+            return await Task.Run(() =>
+            {
+                ListResponse<Post> resp = null;
+                switch (model.Type)
+                {
+                    case PostType.Top:
+                        {
+                            resp = Converter.Deserialize<ListResponse<Post>>(GetPostsTopJson);
+                            break;
+                        }
+                    case PostType.Hot:
+                        {
+                            resp = Converter.Deserialize<ListResponse<Post>>(GetPostsHotJson);
+                            break;
+                        }
+                    case PostType.New:
+                        {
+                            resp = Converter.Deserialize<ListResponse<Post>>(GetPostsNewJson);
+                            break;
+                        }
+                }
+
+                if (!model.ShowLowRated)
+                {
+                    resp.Results = resp.Results.Where(i => i.AuthorReputation > 0 && i.NetVotes > 0).ToList();
+                }
+                if (!model.ShowNsfw)
+                {
+                    resp.Results = resp.Results.Where(i => !i.Tags.Contains("nsfw")).ToList();
+                }
+
+                var skip = 0;
+                if (!string.IsNullOrEmpty(model.Offset))
+                {
+                    foreach (var itm in resp.Results)
+                    {
+                        if (model.Offset.Equals(itm.Url))
+                            break;
+                        skip++;
+                    }
+                }
+                resp.Results = resp.Results.Skip(skip).Take(model.Limit).ToList();
+
+                if (string.IsNullOrEmpty(model.Login))
+                    for (var i = 0; i < resp.Results.Count; i++)
+                        resp.Results[i].Vote = false;
+
+                return new OperationResult<ListResponse<Post>> { Result = resp };
+            }, ct);
         }
 
-        public async Task<OperationResult<VoidResponse>> Follow(FollowModel model, CancellationToken ct)
+        public new async Task<OperationResult<ListResponse<Post>>> GetPostsByCategory(PostsByCategoryModel model, CancellationToken ct)
         {
-            return new OperationResult<VoidResponse> { Result = new VoidResponse() };
+            return await Task.Run(() =>
+            {
+                ListResponse<Post> resp = null;
+                switch (model.Type)
+                {
+                    case PostType.Top:
+                        {
+                            resp = Converter.Deserialize<ListResponse<Post>>(GetPostsTopJson);
+                            break;
+                        }
+                    case PostType.Hot:
+                        {
+                            resp = Converter.Deserialize<ListResponse<Post>>(GetPostsHotJson);
+                            break;
+                        }
+                    case PostType.New:
+                        {
+                            resp = Converter.Deserialize<ListResponse<Post>>(GetPostsNewJson);
+                            break;
+                        }
+                }
+
+                if (!model.ShowLowRated)
+                {
+                    resp.Results = resp.Results.Where(i => i.AuthorReputation > 0 && i.NetVotes > 0).ToList();
+                }
+                if (!model.ShowNsfw)
+                {
+                    resp.Results = resp.Results.Where(i => !i.Tags.Contains("nsfw")).ToList();
+                }
+
+                if (!string.IsNullOrEmpty(model.Category))
+                {
+                    resp.Results = resp.Results.Where(i => i.Tags.Contains(model.Category)).ToList();
+                }
+
+                var skip = 0;
+                if (!string.IsNullOrEmpty(model.Offset))
+                {
+                    foreach (var itm in resp.Results)
+                    {
+                        if (model.Offset.Equals(itm.Url))
+                            break;
+                        skip++;
+                    }
+                }
+                resp.Results = resp.Results.Skip(skip).Take(model.Limit).ToList();
+
+                if (string.IsNullOrEmpty(model.Login))
+                    for (var i = 0; i < resp.Results.Count; i++)
+                        resp.Results[i].Vote = false;
+
+                return new OperationResult<ListResponse<Post>> { Result = resp };
+            }, ct);
         }
 
-        public async Task<OperationResult<ListResponse<Post>>> GetComments(NamedInfoModel model, CancellationToken ct)
+        public new async Task<OperationResult<ListResponse<UserFriend>>> GetPostVoters(VotersModel model, CancellationToken ct)
         {
-            var rez = Converter.Deserialize<ListResponse<Post>>(GetCommentsJson);
-            if (string.IsNullOrEmpty(model.Login))
-                foreach (var itm in rez.Results)
-                    itm.Vote = false;
+            return await Task.Run(() =>
+            {
+                var resp = Converter.Deserialize<ListResponse<UserFriend>>(VotersResult1Json);
+                var skip = 0;
+                if (!string.IsNullOrEmpty(model.Offset))
+                {
+                    foreach (var itm in resp.Results)
+                    {
+                        if (model.Offset.Equals(itm.Author))
+                            break;
+                        skip++;
+                    }
+                }
+                resp.Results = resp.Results.Skip(skip).Take(model.Limit).ToList();
 
-            return new OperationResult<ListResponse<Post>> { Result = rez };
+                return new OperationResult<ListResponse<UserFriend>> { Result = resp };
+            }, ct);
+        }
+
+        public new async Task<OperationResult<VoteResponse>> Vote(VoteModel model, CancellationToken ct)
+        {
+            return await Task.Run(() =>
+            {
+                return new OperationResult<VoteResponse> { Result = new VoteResponse() { NetVotes = model.Type == VoteType.Up ? 100500 : 777, NewTotalPayoutReward = 10000 } };
+            }, ct);
+        }
+
+        public new async Task<OperationResult<VoidResponse>> Follow(FollowModel model, CancellationToken ct)
+        {
+            return await Task.Run(() =>
+            {
+                return new OperationResult<VoidResponse> { Result = new VoidResponse() };
+            }, ct);
+        }
+
+        public new async Task<OperationResult<ListResponse<Post>>> GetComments(NamedInfoModel model, CancellationToken ct)
+        {
+            return await Task.Run(() =>
+            {
+                var rez = Converter.Deserialize<ListResponse<Post>>(GetCommentsJson);
+                if (string.IsNullOrEmpty(model.Login))
+                    foreach (var itm in rez.Results)
+                        itm.Vote = false;
+
+                return new OperationResult<ListResponse<Post>> { Result = rez };
+            }, ct);
         }
 
         public async Task<OperationResult<VoidResponse>> CreateComment(CreateOrEditCommentModel model, CancellationToken ct)
         {
-            return new OperationResult<VoidResponse> { Result = new VoidResponse() };
+            return await Task.Run(() =>
+            {
+                return new OperationResult<VoidResponse> { Result = new VoidResponse() };
+            }, ct);
         }
 
         public async Task<OperationResult<VoidResponse>> EditComment(CommentModel model, CancellationToken ct)
         {
-            return new OperationResult<VoidResponse> { Result = new VoidResponse() };
+            return await Task.Run(() =>
+            {
+                return new OperationResult<VoidResponse> { Result = new VoidResponse() };
+            }, ct);
         }
 
         public async Task<OperationResult<PreparePostResponse>> CreatePost(UploadMediaModel model, MediaModel mediaModel, CancellationToken ct)
         {
-            return new OperationResult<PreparePostResponse> { Result = new PreparePostResponse() };
+            return await Task.Run(() =>
+            {
+                return new OperationResult<PreparePostResponse> { Result = new PreparePostResponse() };
+            }, ct);
         }
 
         public async Task<OperationResult<MediaModel>> UploadWithPrepare(UploadMediaModel model, CancellationToken ct)
         {
-            return new OperationResult<MediaModel> { Result = new MediaModel() };
+            return await Task.Run(() =>
+            {
+                return new OperationResult<MediaModel> { Result = new MediaModel() };
+            }, ct);
         }
 
-        public async Task<OperationResult<ListResponse<SearchResult>>> GetCategories(OffsetLimitModel request, CancellationToken ct)
+        public new async Task<OperationResult<ListResponse<SearchResult>>> GetCategories(OffsetLimitModel request, CancellationToken ct)
         {
-            var tags = new List<string>();
-            foreach (var item in Converter.Deserialize<ListResponse<Post>>(GetPostsTopJson).Results.Select(i => i.Tags))
-                tags = tags.Union(item).Distinct().ToList();
-            foreach (var item in Converter.Deserialize<ListResponse<Post>>(GetPostsHotJson).Results.Select(i => i.Tags))
-                tags = tags.Union(item).Distinct().ToList();
-            foreach (var item in Converter.Deserialize<ListResponse<Post>>(GetPostsNewJson).Results.Select(i => i.Tags))
-                tags = tags.Union(item).Distinct().ToList();
-
-            var rez = new ListResponse<SearchResult>
+            return await Task.Run(() =>
             {
-                Results = new List<SearchResult>(tags.Select(i => new SearchResult { Name = i })),
-            };
+                var tags = new List<string>();
+                foreach (var item in Converter.Deserialize<ListResponse<Post>>(GetPostsTopJson).Results.Select(i => i.Tags))
+                    tags = tags.Union(item).Distinct().ToList();
+                foreach (var item in Converter.Deserialize<ListResponse<Post>>(GetPostsHotJson).Results.Select(i => i.Tags))
+                    tags = tags.Union(item).Distinct().ToList();
+                foreach (var item in Converter.Deserialize<ListResponse<Post>>(GetPostsNewJson).Results.Select(i => i.Tags))
+                    tags = tags.Union(item).Distinct().ToList();
 
-            var skip = 0;
-            if (!string.IsNullOrEmpty(request.Offset))
-            {
-                foreach (var itm in rez.Results)
+                var rez = new ListResponse<SearchResult>
                 {
-                    if (request.Offset.Equals(itm.Name))
-                        break;
-                    skip++;
-                }
-            }
-            rez.Results = rez.Results.Skip(skip).Take(request.Limit).ToList();
+                    Results = new List<SearchResult>(tags.Select(i => new SearchResult { Name = i })),
+                };
 
-            return new OperationResult<ListResponse<SearchResult>> { Result = rez };
-        }
-
-        public async Task<OperationResult<ListResponse<SearchResult>>> SearchCategories(SearchWithQueryModel model, CancellationToken ct)
-        {
-            var tags = new List<string>();
-            foreach (var item in Converter.Deserialize<ListResponse<Post>>(GetPostsTopJson).Results.Select(i => i.Tags))
-                tags = tags.Union(item).Distinct().ToList();
-            foreach (var item in Converter.Deserialize<ListResponse<Post>>(GetPostsHotJson).Results.Select(i => i.Tags))
-                tags = tags.Union(item).Distinct().ToList();
-            foreach (var item in Converter.Deserialize<ListResponse<Post>>(GetPostsNewJson).Results.Select(i => i.Tags))
-                tags = tags.Union(item).Distinct().ToList();
-
-            var rez = new ListResponse<SearchResult>
-            {
-                Results = new List<SearchResult>(tags.Select(i => new SearchResult { Name = i }))
-            };
-
-            if (!string.IsNullOrEmpty(model.Query))
-            {
-                rez.Results = rez.Results.Where(i => i.Name.Contains(model.Query)).ToList();
-            }
-
-            var skip = 0;
-            if (!string.IsNullOrEmpty(model.Offset))
-            {
-                foreach (var itm in rez.Results)
+                var skip = 0;
+                if (!string.IsNullOrEmpty(request.Offset))
                 {
-                    if (model.Offset.Equals(itm.Name))
-                        break;
-                    skip++;
+                    foreach (var itm in rez.Results)
+                    {
+                        if (request.Offset.Equals(itm.Name))
+                            break;
+                        skip++;
+                    }
                 }
-            }
-            rez.Results = rez.Results.Skip(skip).Take(model.Limit).ToList();
+                rez.Results = rez.Results.Skip(skip).Take(request.Limit).ToList();
 
-            return new OperationResult<ListResponse<SearchResult>> { Result = rez };
+                return new OperationResult<ListResponse<SearchResult>> { Result = rez };
+            }, ct);
         }
 
-        public async Task<OperationResult<UserProfileResponse>> GetUserProfile(UserProfileModel model, CancellationToken ct)
+        public new async Task<OperationResult<ListResponse<SearchResult>>> SearchCategories(SearchWithQueryModel model, CancellationToken ct)
         {
-            var rez = Converter.Deserialize<UserProfileResponse>(GetUserProfileJson);
-            return new OperationResult<UserProfileResponse> { Result = rez };
+            return await Task.Run(() =>
+            {
+                var tags = new List<string>();
+                foreach (var item in Converter.Deserialize<ListResponse<Post>>(GetPostsTopJson).Results.Select(i => i.Tags))
+                    tags = tags.Union(item).Distinct().ToList();
+                foreach (var item in Converter.Deserialize<ListResponse<Post>>(GetPostsHotJson).Results.Select(i => i.Tags))
+                    tags = tags.Union(item).Distinct().ToList();
+                foreach (var item in Converter.Deserialize<ListResponse<Post>>(GetPostsNewJson).Results.Select(i => i.Tags))
+                    tags = tags.Union(item).Distinct().ToList();
+
+                var rez = new ListResponse<SearchResult>
+                {
+                    Results = new List<SearchResult>(tags.Select(i => new SearchResult { Name = i }))
+                };
+
+                if (!string.IsNullOrEmpty(model.Query))
+                {
+                    rez.Results = rez.Results.Where(i => i.Name.Contains(model.Query)).ToList();
+                }
+
+                var skip = 0;
+                if (!string.IsNullOrEmpty(model.Offset))
+                {
+                    foreach (var itm in rez.Results)
+                    {
+                        if (model.Offset.Equals(itm.Name))
+                            break;
+                        skip++;
+                    }
+                }
+                rez.Results = rez.Results.Skip(skip).Take(model.Limit).ToList();
+
+                return new OperationResult<ListResponse<SearchResult>> { Result = rez };
+            }, ct);
         }
 
-        public async Task<OperationResult<ListResponse<UserFriend>>> GetUserFriends(UserFriendsModel model, CancellationToken ct)
+        public new async Task<OperationResult<UserProfileResponse>> GetUserProfile(UserProfileModel model, CancellationToken ct)
         {
-            var rez = model.Type == FriendsType.Followers
-                ? Converter.Deserialize<ListResponse<UserFriend>>(GetUserFriendsFollowersJson)
-                : Converter.Deserialize<ListResponse<UserFriend>>(GetUserFriendsFollowingJson);
-            return new OperationResult<ListResponse<UserFriend>> { Result = rez };
+            return await Task.Run(() =>
+            {
+                var rez = Converter.Deserialize<UserProfileResponse>(GetUserProfileJson);
+                return new OperationResult<UserProfileResponse> { Result = rez };
+            }, ct);
+        }
+
+        public new async Task<OperationResult<ListResponse<UserFriend>>> GetUserFriends(UserFriendsModel model, CancellationToken ct)
+        {
+            return await Task.Run(() =>
+                {
+                    var rez = model.Type == FriendsType.Followers
+                    ? Converter.Deserialize<ListResponse<UserFriend>>(GetUserFriendsFollowersJson)
+                    : Converter.Deserialize<ListResponse<UserFriend>>(GetUserFriendsFollowingJson);
+                    return new OperationResult<ListResponse<UserFriend>> { Result = rez };
+                }, ct);
         }
 
         [Obsolete]
-        public async Task<OperationResult<Post>> GetPostInfo(NamedInfoModel model, CancellationToken ct)
+        public new async Task<OperationResult<Post>> GetPostInfo(NamedInfoModel model, CancellationToken ct)
         {
-            return new OperationResult<Post>();
-        }
-
-        public async Task<OperationResult<ListResponse<UserFriend>>> SearchUser(SearchWithQueryModel model, CancellationToken ct)
-        {
-            var tags = new List<string>();
-            tags = tags.Union(Converter.Deserialize<ListResponse<Post>>(GetPostsTopJson).Results.Select(i => i.Author)).Distinct().ToList();
-            tags = tags.Union(Converter.Deserialize<ListResponse<Post>>(GetPostsHotJson).Results.Select(i => i.Author)).Distinct().ToList();
-            tags = tags.Union(Converter.Deserialize<ListResponse<Post>>(GetPostsNewJson).Results.Select(i => i.Author)).Distinct().ToList();
-
-            var rez = new ListResponse<UserFriend>
+            return await Task.Run(() =>
             {
-                Results = new List<UserFriend>(tags.Select(i => new UserFriend { Author = i })),
-            };
+                return new OperationResult<Post>();
+            }, ct);
+        }
 
-            if (!string.IsNullOrEmpty(model.Query))
+        public new async Task<OperationResult<ListResponse<UserFriend>>> SearchUser(SearchWithQueryModel model, CancellationToken ct)
+        {
+            return await Task.Run(() =>
             {
-                rez.Results = rez.Results.Where(i => i.Author.Contains(model.Query)).ToList();
-            }
+                var tags = new List<string>();
+                tags = tags.Union(Converter.Deserialize<ListResponse<Post>>(GetPostsTopJson).Results.Select(i => i.Author)).Distinct().ToList();
+                tags = tags.Union(Converter.Deserialize<ListResponse<Post>>(GetPostsHotJson).Results.Select(i => i.Author)).Distinct().ToList();
+                tags = tags.Union(Converter.Deserialize<ListResponse<Post>>(GetPostsNewJson).Results.Select(i => i.Author)).Distinct().ToList();
 
-            return new OperationResult<ListResponse<UserFriend>> { Result = rez };
+                var rez = new ListResponse<UserFriend>
+                {
+                    Results = new List<UserFriend>(tags.Select(i => new UserFriend { Author = i })),
+                };
+
+                if (!string.IsNullOrEmpty(model.Query))
+                {
+                    rez.Results = rez.Results.Where(i => i.Author.Contains(model.Query)).ToList();
+                }
+
+                return new OperationResult<ListResponse<UserFriend>> { Result = rez };
+            }, ct);
         }
 
-        public async Task<OperationResult<UserExistsResponse>> UserExistsCheck(UserExistsModel model, CancellationToken ct)
+        public new async Task<OperationResult<UserExistsResponse>> UserExistsCheck(UserExistsModel model, CancellationToken ct)
         {
-            return new OperationResult<UserExistsResponse> { Result = new UserExistsResponse { Exists = true, Username = model.Username } };
+            return await Task.Run(() =>
+            {
+                return new OperationResult<UserExistsResponse> { Result = new UserExistsResponse { Exists = true, Username = model.Username } };
+            }, ct);
         }
 
-        public async Task<OperationResult<VoidResponse>> DeletePostOrComment(DeleteModel model, CancellationToken ct)
+        public new async Task<OperationResult<VoidResponse>> DeletePostOrComment(DeleteModel model, CancellationToken ct)
         {
-            return new OperationResult<VoidResponse>() { Result = new VoidResponse() };
+            return await Task.Run(() =>
+            {
+                return new OperationResult<VoidResponse>() { Result = new VoidResponse() };
+            }, ct);
         }
     }
 }

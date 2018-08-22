@@ -49,6 +49,7 @@ namespace Steepshot.Fragment
                 return;
 
             base.OnViewCreated(view, savedInstanceState);
+            ToggleTabBar();
 
             _container.Visibility = ViewStates.Gone;
             _loadingBar.Visibility = ViewStates.Visible;
@@ -93,17 +94,17 @@ namespace Steepshot.Fragment
                         if (!AppSettings.User.HasPostingPermission)
                             return;
 
-                        var error = await Presenter.TryVote(post);
+                        var exception = await Presenter.TryVote(post);
                         if (!IsInitialized)
                             return;
 
-                        if (error == null && Activity is RootActivity root)
+                        if (exception == null && Activity is RootActivity root)
                         {
                             root.TryUpdateProfile();
                             PostViewHolder.UpdateData(post, Activity);
                         }
 
-                        Context.ShowAlert(error);
+                        Context.ShowAlert(exception);
                         break;
                     }
                 case ActionType.VotersLikes:
@@ -131,35 +132,35 @@ namespace Steepshot.Fragment
                         if (!AppSettings.User.HasPostingPermission)
                             return;
 
-                        var error = await Presenter.TryFlag(post);
+                        var exception = await Presenter.TryFlag(post);
                         if (!IsInitialized)
                             return;
 
-                        if (error == null && Activity is RootActivity root)
+                        if (exception == null && Activity is RootActivity root)
                         {
                             root.TryUpdateProfile();
                             PostViewHolder.UpdateData(post, Activity);
                         }
 
-                        Context.ShowAlert(error);
+                        Context.ShowAlert(exception);
                         break;
                     }
                 case ActionType.Delete:
                     {
-                        var error = await Presenter.TryDeletePost(post);
+                        var exception = await Presenter.TryDeletePost(post);
                         if (!IsInitialized)
                             return;
 
-                        if (error == null)
+                        if (exception == null)
                             ((BaseActivity)Activity).OnBackPressed();
 
-                        Context.ShowAlert(error);
+                        Context.ShowAlert(exception);
                         break;
                     }
                 case ActionType.Edit:
                     {
                         ((BaseActivity)Activity).OpenNewContentFragment(new PostEditFragment(post));
-                        ((RootActivity)Activity)._tabLayout.Visibility = ViewStates.Gone;
+                        ToggleTabBar(true);
                         break;
                     }
                 case ActionType.Share:
@@ -179,15 +180,6 @@ namespace Steepshot.Fragment
                         StartActivity(intent);
                         break;
                     }
-            }
-        }
-
-        private void TagAction(string tag)
-        {
-            if (tag != null)
-            {
-                Activity.Intent.PutExtra(SearchFragment.SearchExtra, tag);
-                ((BaseActivity)Activity).OpenNewContentFragment(new PreSearchFragment());
             }
         }
     }

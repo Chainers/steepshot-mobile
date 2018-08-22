@@ -1,8 +1,6 @@
-﻿using Newtonsoft.Json;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Utils;
-using System.Collections.Generic;
 
 namespace Steepshot.Core.Tests
 {

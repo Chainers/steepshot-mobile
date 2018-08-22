@@ -1,14 +1,14 @@
 ﻿using System;
-using System.Globalization;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using CoreGraphics;
 using Foundation;
-using Steepshot.Core.Errors;
-using Steepshot.Core.Presenters;
 using UIKit;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Utils;
 using PureLayout.Net;
+using Steepshot.Core.Exceptions;
+using Steepshot.Core.Interfaces;
 using Steepshot.iOS.Helpers;
 using Steepshot.iOS.Views;
 
@@ -16,8 +16,6 @@ namespace Steepshot.iOS.ViewControllers
 {
     public class BaseViewController : UIViewController, IWillEnterForeground
     {
-        private static readonly CultureInfo CultureInfo = CultureInfo.InvariantCulture;
-
         public static string Tos => AppSettings.User.IsDev ? "https://qa.steepshot.org/terms-of-service" : "https://steepshot.org/terms-of-service";
         public static string Pp => AppSettings.User.IsDev ? "https://qa.steepshot.org/privacy-policy" : "https://steepshot.org/privacy-policy";
 
@@ -63,8 +61,12 @@ namespace Steepshot.iOS.ViewControllers
 
             CloseKeyboardToken = NSNotificationCenter.DefaultCenter.AddObserver
             (UIKeyboard.WillHideNotification, KeyBoardDownNotification);
+
             if (TabBarController != null)
+            {
                 ((MainTabBarController)TabBarController).WillEnterForegroundAction += WillEnterForeground;
+                ((MainTabBarController)TabBarController).SameTabTapped += SameTabTapped;
+            }
 
             Services.GAService.Instance.TrackAppPage(GetType().Name);
         }
@@ -74,10 +76,24 @@ namespace Steepshot.iOS.ViewControllers
             View.EndEditing(true);
         }
 
+        private void SameTabTapped()
+        {
+            var controllers = NavigationController?.ViewControllers;
+
+            NavigationController?.PopToRootViewController(true);
+
+            if (controllers != null && controllers[0] is IPageCloser controller)
+                controller.ClosePost();
+        }
+
         public override void ViewDidDisappear(bool animated)
         {
             if (TabBarController != null)
+            {
                 ((MainTabBarController)TabBarController).WillEnterForegroundAction -= WillEnterForeground;
+                ((MainTabBarController)TabBarController).SameTabTapped -= SameTabTapped;
+            }
+
             if (ShowKeyboardToken != null)
             {
                 NSNotificationCenter.DefaultCenter.RemoveObservers(new[] { CloseKeyboardToken, ShowKeyboardToken, ForegroundToken });
@@ -109,7 +125,7 @@ namespace Steepshot.iOS.ViewControllers
             if (ScrollAmount > 0)
             {
                 MoveViewUp = true;
-                ScrollTheView(MoveViewUp);
+                this.ScrollTheView(MoveViewUp);
             }
             else
                 MoveViewUp = false;
@@ -236,26 +252,24 @@ namespace Steepshot.iOS.ViewControllers
             });
         }
 
-        protected void ShowAlert(ErrorBase error, Action<UIAlertAction> okAction = null)
+        protected void ShowAlert(Exception exception, Action<UIAlertAction> okAction = null)
         {
-            if (error == null || error is CanceledError)
+            if (IsSkeepError(exception))
                 return;
 
-            var message = GetMsg(error);
+            var message = GetMsg(exception);
 
             var alert = UIAlertController.Create(null, message, UIAlertControllerStyle.Alert);
             alert.AddAction(UIAlertAction.Create(AppSettings.LocalizationManager.GetText(LocalizationKeys.Ok), UIAlertActionStyle.Cancel, okAction));
             PresentViewController(alert, true, null);
         }
 
-        protected void ShowDialog(ErrorBase error, LocalizationKeys leftButtonText, LocalizationKeys rightButtonText, Action<UIAlertAction> leftButtonAction = null, Action<UIAlertAction> rightButtonAction = null)
+        protected void ShowDialog(Exception exception, LocalizationKeys leftButtonText, LocalizationKeys rightButtonText, Action<UIAlertAction> leftButtonAction = null, Action<UIAlertAction> rightButtonAction = null)
         {
-            if (error == null || error is CanceledError)
+            if (IsSkeepError(exception))
                 return;
 
-            var message = GetMsg(error);
-
-
+            var message = GetMsg(exception);
 
             var alert = UIAlertController.Create(null, message, UIAlertControllerStyle.Alert);
             alert.AddAction(UIAlertAction.Create(AppSettings.LocalizationManager.GetText(leftButtonText), UIAlertActionStyle.Cancel, leftButtonAction));
@@ -263,32 +277,58 @@ namespace Steepshot.iOS.ViewControllers
             PresentViewController(alert, true, null);
         }
 
-        private static string GetMsg(ErrorBase error)
+        private static string GetMsg(Exception exception)
         {
-            var message = error.Message;
-            if (string.IsNullOrWhiteSpace(message))
-                return message;
-
             var lm = AppSettings.LocalizationManager;
-            if (!lm.ContainsKey(message))
+
+            if (exception is ValidationException validationException)
+                return lm.GetText(validationException);
+
+
+            AppSettings.Logger.Error(exception);
+            var msg = string.Empty;
+
+            if (exception is InternalException internalException)
             {
-                if (error is BlockchainError blError)
+                msg = lm.GetText(internalException.Key);
+            }
+            else if (exception is RequestException requestException)
+            {
+                if (!string.IsNullOrEmpty(requestException.RawResponse))
                 {
-                    AppSettings.Reporter.SendMessage($"New message: {LocalizationManager.NormalizeKey(blError.Message)}{Environment.NewLine}Full Message:{blError.FullMessage}");
+                    msg = lm.GetText(requestException.RawResponse);
                 }
                 else
                 {
-                    AppSettings.Reporter.SendMessage($"New message: {LocalizationManager.NormalizeKey(message)}");
+                    do
+                    {
+                        msg = lm.GetText(exception.Message);
+                        exception = exception.InnerException;
+                    } while (string.IsNullOrEmpty(msg) && exception != null);
                 }
-                message = nameof(LocalizationKeys.UnexpectedError);
+            }
+            else
+            {
+                msg = lm.GetText(exception.Message);
             }
 
-            var txt = lm.GetText(message);
-            if (error.Parameters != null)
-                txt = string.Format(txt, error.Parameters);
-
-            return txt;
+            return string.IsNullOrEmpty(msg) ? lm.GetText(LocalizationKeys.UnexpectedError) : msg;
         }
+
+        private static bool IsSkeepError(Exception exception)
+        {
+            if (exception == null || exception is TaskCanceledException || exception is OperationCanceledException)
+                return true;
+
+            if (exception is RequestException requestException)
+            {
+                if (requestException.Exception is TaskCanceledException || requestException.Exception is OperationCanceledException)
+                    return true;
+            }
+
+            return false;
+        }
+
         protected void TagAction(string tag)
         {
             var myViewController = new PreSearchViewController();

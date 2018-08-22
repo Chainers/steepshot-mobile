@@ -1,21 +1,20 @@
 using System;
-using Steepshot.Core.Errors;
 
 namespace Steepshot.Core.Models.Common
 {
     public class OperationResult
     {
-        public bool IsSuccess => Error == null;
+        public bool IsSuccess => Exception == null;
 
-        public ErrorBase Error { get; set; }
+        public Exception Exception { get; set; }
 
         public OperationResult()
         {
         }
 
-        public OperationResult(ErrorBase error)
+        public OperationResult(Exception exception)
         {
-            Error = error;
+            Exception = exception;
         }
     }
 
@@ -25,7 +24,7 @@ namespace Steepshot.Core.Models.Common
 
         public OperationResult() { }
 
-        public OperationResult(ErrorBase error) : base(error) { }
+        public OperationResult(Exception exception) : base(exception) { }
 
         public OperationResult(T result)
         {

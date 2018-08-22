@@ -13,8 +13,12 @@ namespace Steepshot.iOS.ViewSources
         string _cellIdentifier = nameof(FollowViewCell);
         string _loaderCellIdentifier = nameof(LoaderCell);
         public Action<ActionType, UserFriend> CellAction;
+        private bool _hideFollowButton;
 
-        public FollowTableViewSource(UserFriendPresenter presenter, UITableView table) : base(presenter, table) { }
+        public FollowTableViewSource(UserFriendPresenter presenter, UITableView table, bool hideFollowButton = false) : base(presenter, table)
+        {
+            _hideFollowButton = hideFollowButton;
+        }
 
         public override UITableViewCell GetCell(UITableView tableView, NSIndexPath indexPath)
         {
@@ -28,6 +32,8 @@ namespace Steepshot.iOS.ViewSources
                 cell = (FollowViewCell)tableView.DequeueReusableCell(_cellIdentifier, indexPath);
                 if (!((FollowViewCell)cell).IsCellActionSet)
                     ((FollowViewCell)cell).CellAction += CellAction;
+
+                ((FollowViewCell)cell).HideFollowButton = _hideFollowButton;
 
                 var user = ((UserFriendPresenter)Presenter)[indexPath.Row];
                 if (user != null)

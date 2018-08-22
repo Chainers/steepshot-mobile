@@ -185,12 +185,12 @@ namespace Steepshot.Fragment
 
             if (_editControls.Visibility == ViewStates.Visible)
             {
-                var error = await Presenter.TryEditComment(AppSettings.User.UserInfo, _post, _editComment, _textInput.Text, AppSettings.AppInfo);
+                var exception = await Presenter.TryEditComment(AppSettings.User.UserInfo, _post, _editComment, _textInput.Text, AppSettings.AppInfo);
 
                 if (!IsInitialized)
                     return;
 
-                Context.ShowAlert(error);
+                Context.ShowAlert(exception);
                 CommentEditCancelBtnOnClick(null, null);
             }
             else
@@ -205,12 +205,12 @@ namespace Steepshot.Fragment
                     _textInput.Text = string.Empty;
                     _textInput.ClearFocus();
 
-                    var error = await Presenter.TryLoadNextComments(_post);
+                    var exception = await Presenter.TryLoadNextComments(_post);
 
                     if (!IsInitialized)
                         return;
 
-                    Context.ShowAlert(error, ToastLength.Short);
+                    Context.ShowAlert(exception, ToastLength.Short);
                     _comments.MoveToPosition(Presenter.Count);
 
                     _counter++;
@@ -220,7 +220,7 @@ namespace Steepshot.Fragment
                 }
                 else
                 {
-                    Context.ShowAlert(resp.Error, ToastLength.Short);
+                    Context.ShowAlert(resp.Exception, ToastLength.Short);
                 }
             }
 
@@ -233,12 +233,12 @@ namespace Steepshot.Fragment
         {
             _spinner.Visibility = ViewStates.Visible;
 
-            var error = await Presenter.TryLoadNextComments(post);
+            var exception = await Presenter.TryLoadNextComments(post);
 
             if (!IsInitialized)
                 return;
 
-            Context.ShowAlert(error, ToastLength.Short);
+            Context.ShowAlert(exception, ToastLength.Short);
 
             _spinner.Visibility = ViewStates.Gone;
         }
@@ -251,11 +251,11 @@ namespace Steepshot.Fragment
                     {
                         if (AppSettings.User.HasPostingPermission)
                         {
-                            var error = await Presenter.TryVote(post);
+                            var exception = await Presenter.TryVote(post);
 
                             if (!IsInitialized)
                                 return;
-                            Context.ShowAlert(error, ToastLength.Short);
+                            Context.ShowAlert(exception, ToastLength.Short);
                         }
                         else
                         {
@@ -290,11 +290,11 @@ namespace Steepshot.Fragment
                     {
                         if (AppSettings.User.HasPostingPermission)
                         {
-                            var error = await Presenter.TryFlag(post);
+                            var exception = await Presenter.TryFlag(post);
 
                             if (!IsInitialized)
                                 return;
-                            Context.ShowAlert(error, ToastLength.Short);
+                            Context.ShowAlert(exception, ToastLength.Short);
                         }
                         else
                         {
@@ -336,11 +336,11 @@ namespace Steepshot.Fragment
                     }
                 case ActionType.Delete:
                     {
-                        var error = await Presenter.TryDeleteComment(post, _post);
+                        var exception = await Presenter.TryDeleteComment(post, _post);
                         if (!IsInitialized)
                             return;
 
-                        Context.ShowAlert(error);
+                        Context.ShowAlert(exception);
                         break;
                     }
             }

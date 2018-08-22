@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="13771" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14113" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13772"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14088"/>
         <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -23,6 +23,7 @@
                 <outlet property="searchButton" destination="iYy-X8-jGG" id="WMm-kN-X3c"/>
                 <outlet property="searchHeight" destination="aaP-V5-Z6d" id="G7S-z9-edp"/>
                 <outlet property="searchTopMargin" destination="GFV-RE-HMj" id="xCB-5S-Kit"/>
+                <outlet property="signInLoader" destination="gD6-ie-7VI" id="Uds-hk-eSn"/>
                 <outlet property="sliderCollection" destination="cVd-qK-OJW" id="SiY-2w-M91"/>
                 <outlet property="sliderCollectionOffset" destination="LsF-BV-SQX" id="ZKE-SC-T1F"/>
                 <outlet property="switcher" destination="DgU-q8-f8k" id="efp-XC-rEg"/>
@@ -190,10 +191,17 @@
                     <state key="normal" title="Sign in">
                         <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                     </state>
+                    <state key="disabled">
+                        <color key="titleColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    </state>
                 </button>
+                <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="white" translatesAutoresizingMaskIntoConstraints="NO" id="gD6-ie-7VI">
+                    <rect key="frame" x="177" y="615" width="20" height="20"/>
+                </activityIndicatorView>
             </subviews>
             <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
             <constraints>
+                <constraint firstItem="gD6-ie-7VI" firstAttribute="centerY" secondItem="FA9-GS-ZPk" secondAttribute="centerY" id="0Pz-yh-yq5"/>
                 <constraint firstItem="Sju-E1-39z" firstAttribute="leading" secondItem="2" secondAttribute="leading" id="3So-gj-7jk"/>
                 <constraint firstAttribute="bottom" secondItem="cVd-qK-OJW" secondAttribute="bottom" id="5jW-4q-vbo"/>
                 <constraint firstAttribute="trailing" secondItem="hnw-jm-3iE" secondAttribute="trailing" id="7mc-VR-9Qh"/>
@@ -218,6 +226,7 @@
                 <constraint firstAttribute="trailing" secondItem="cVd-qK-OJW" secondAttribute="trailing" id="nIM-bP-6Oo"/>
                 <constraint firstAttribute="bottom" secondItem="FA9-GS-ZPk" secondAttribute="bottom" constant="17" id="oof-QW-C4W"/>
                 <constraint firstItem="lNO-d0-qmR" firstAttribute="centerX" secondItem="2" secondAttribute="centerX" id="q5z-0V-4rT"/>
+                <constraint firstItem="gD6-ie-7VI" firstAttribute="centerX" secondItem="FA9-GS-ZPk" secondAttribute="centerX" id="vrh-DE-URQ"/>
             </constraints>
             <point key="canvasLocation" x="24.5" y="51.5"/>
         </view>

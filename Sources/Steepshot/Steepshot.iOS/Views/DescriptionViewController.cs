@@ -17,20 +17,21 @@ using System.Collections.Generic;
 using Steepshot.Core.Models.Enums;
 using System.IO;
 using System.Linq;
-using Steepshot.Core.Errors;
 using Steepshot.Core.Localization;
 using ImageIO;
 using PureLayout.Net;
+using Steepshot.Core.Exceptions;
 using Steepshot.iOS.CustomViews;
 
 namespace Steepshot.iOS.Views
 {
-    public partial class DescriptionViewController : BaseViewControllerWithPresenter<PostDescriptionPresenter>
+    public class DescriptionViewController : BaseViewControllerWithPresenter<PostDescriptionPresenter>
     {
         private const int _photoSize = 900; //kb
         private TimeSpan PostingLimit;
         private UIDeviceOrientation _rotation;
-        private List<Tuple<NSDictionary, UIImage>> ImageAssets;
+        private PlagiarismResult plagiarismResult;
+        protected List<Tuple<NSDictionary, UIImage>> ImageAssets;
         protected nfloat _separatorMargin = 30;
         private nfloat photoViewSide;
         protected int photoMargin;
@@ -38,24 +39,25 @@ namespace Steepshot.iOS.Views
         private string ImageExtension;
         private bool _isSpammer;
 
-        private UIScrollView mainScroll;
-        private CropView _cropView;
-        private UIImageView titleEditImage;
-        private UIImageView descriptionEditImage;
-        private UILabel tagField;
-        private UIImageView hashtagImage;
-        private UIButton postPhotoButton;
-        private UIActivityIndicatorView loadingView;
-        private NSLayoutConstraint tagsCollectionHeight;
-        private UIImageView _rotateButton;
-        private UIImageView _resizeButton;
-        private bool _isinitialized;
+        protected UIScrollView mainScroll;
+        protected CropView _cropView;
+        protected UIImageView titleEditImage;
+        protected UIImageView descriptionEditImage;
+        protected UILabel tagField;
+        protected UIImageView hashtagImage;
+        protected UIButton postPhotoButton;
+        protected UIActivityIndicatorView loadingView;
+        protected NSLayoutConstraint tagsCollectionHeight;
+        protected UIImageView _rotateButton;
+        protected UIImageView _resizeButton;
+        protected bool _isinitialized;
         protected CGSize _cellSize;
         protected const int cellSide = 160;
         protected const int sectionInset = 15;
 
         protected Post post;
         protected PreparePostModel model;
+        protected ManualResetEvent mre;
         protected LocalTagsCollectionViewFlowDelegate collectionViewDelegate;
         protected LocalTagsCollectionViewSource collectionviewSource;
 
@@ -106,7 +108,7 @@ namespace Steepshot.iOS.Views
             SetPlaceholder();
 
             if (!editMode)
-                CheckOnSpam();
+                CheckOnSpam(false);
         }
 
         protected override void KeyBoardUpNotification(NSNotification notification)
@@ -128,27 +130,33 @@ namespace Steepshot.iOS.Views
 
         private void SetupMainScroll()
         {
-            mainScroll = new UIScrollView();
-            mainScroll.BackgroundColor = UIColor.White;
-
-            mainScroll.ShowsVerticalScrollIndicator = true;
-            mainScroll.ScrollEnabled = true;
-            mainScroll.Bounces = true;
-
-            mainScroll.DelaysContentTouches = true;
-            mainScroll.CanCancelContentTouches = true;
-            mainScroll.ContentMode = UIViewContentMode.ScaleToFill;
-            mainScroll.UserInteractionEnabled = true;
-
-            mainScroll.Opaque = true;
-            mainScroll.ClipsToBounds = true;
-
+            mainScroll = CreateScrollView();
             View.AddSubview(mainScroll);
 
             mainScroll.AutoPinEdgeToSuperviewEdge(ALEdge.Top);
             mainScroll.AutoPinEdgeToSuperviewEdge(ALEdge.Right);
             mainScroll.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom);
             mainScroll.AutoPinEdgeToSuperviewEdge(ALEdge.Left);
+        }
+
+        protected UIScrollView CreateScrollView()
+        {
+            var scroll = new UIScrollView();
+            scroll.BackgroundColor = UIColor.White;
+
+            scroll.ShowsVerticalScrollIndicator = true;
+            scroll.ScrollEnabled = true;
+            scroll.Bounces = true;
+
+            scroll.DelaysContentTouches = true;
+            scroll.CanCancelContentTouches = true;
+            scroll.ContentMode = UIViewContentMode.ScaleToFill;
+            scroll.UserInteractionEnabled = true;
+
+            scroll.Opaque = true;
+            scroll.ClipsToBounds = true;
+
+            return scroll;
         }
 
         private void CreateView()
@@ -192,7 +200,7 @@ namespace Steepshot.iOS.Views
             hashtagCollectionSeparator.BackgroundColor = Constants.R245G245B245;
 
             postPhotoButton = new UIButton();
-            postPhotoButton.SetTitle(AppSettings.LocalizationManager.GetText(LocalizationKeys.PublishButtonText), UIControlState.Normal);
+            postPhotoButton.SetTitle(AppSettings.LocalizationManager.GetText(LocalizationKeys.PublishButtonText).ToUpper(), UIControlState.Normal);
             postPhotoButton.SetTitle("", UIControlState.Disabled);
             postPhotoButton.Layer.CornerRadius = 25;
             postPhotoButton.TitleLabel.Font = Constants.Semibold14;
@@ -410,6 +418,11 @@ namespace Steepshot.iOS.Views
         {
             base.ViewWillAppear(animated);
 
+            if (plagiarismResult != null && plagiarismResult.Continue && !IsMovingToParentViewController)
+            {
+                OnPostAsync(true);
+            }
+
             collectionviewSource.CellAction += CollectionCellAction;
 
             if (!IsMovingToParentViewController)
@@ -428,6 +441,7 @@ namespace Steepshot.iOS.Views
         public override void ViewDidAppear(bool animated)
         {
             base.ViewDidAppear(animated);
+
             if (_isFromCamera && IsMovingToParentViewController)
             {
                 RotatePhotoIfNeeded();
@@ -560,11 +574,6 @@ namespace Steepshot.iOS.Views
             NavigationItem.RightBarButtonItem = null;
         }
 
-        protected override void CreatePresenter()
-        {
-            _presenter = new PostDescriptionPresenter();
-        }
-
         private async Task<OperationResult<MediaModel>> UploadPhoto(UIImage photo, NSDictionary metadata)
         {
             Stream stream = null;
@@ -600,8 +609,7 @@ namespace Steepshot.iOS.Views
             }
             catch (Exception ex)
             {
-                AppSettings.Reporter.SendCrash(ex);
-                return new OperationResult<MediaModel>(new AppError(LocalizationKeys.PhotoProcessingError));
+                return new OperationResult<MediaModel>(new InternalException(LocalizationKeys.PhotoProcessingError, ex));
             }
             finally
             {
@@ -640,11 +648,13 @@ namespace Steepshot.iOS.Views
             return NSDictionary.FromObjectsAndKeys(values.ToArray(), keys.ToArray());
         }
 
-        private async Task CheckOnSpam()
+        private async Task CheckOnSpam(bool disableEditing)
         {
+            EnablePostAndEdit(false, disableEditing);
             _isSpammer = false;
 
             var spamCheck = await _presenter.TryCheckForSpam(AppSettings.User.Login);
+            EnablePostAndEdit(true);
 
             if (spamCheck.IsSuccess)
             {
@@ -690,7 +700,7 @@ namespace Steepshot.iOS.Views
 
             _isSpammer = false;
             postPhotoButton.UserInteractionEnabled = true;
-            postPhotoButton.SetTitle(AppSettings.LocalizationManager.GetText(LocalizationKeys.PublishButtonText), UIControlState.Normal);
+            postPhotoButton.SetTitle(AppSettings.LocalizationManager.GetText(LocalizationKeys.PublishButtonText).ToUpper(), UIControlState.Normal);
         }
 
         private async void PostPhoto(object sender, EventArgs e)
@@ -703,14 +713,14 @@ namespace Steepshot.iOS.Views
 
             RemoveFocusFromTextFields();
 
-            OnPostAsync();
+            OnPostAsync(false);
         }
 
-        private async void OnPostAsync()
+        protected virtual async void OnPostAsync(bool skipPreparationSteps)
         {
-            if (!editMode)
+            if (!skipPreparationSteps)
             {
-                await CheckOnSpam();
+                await CheckOnSpam(true);
 
                 if (_isSpammer)
                     return;
@@ -718,7 +728,7 @@ namespace Steepshot.iOS.Views
 
             EnablePostAndEdit(false);
 
-            if (_isFromCamera)
+            if (_isFromCamera && !skipPreparationSteps)
             {
                 var croppedPhoto = _cropView.CropImage(new SavedPhoto(null, ImageAssets[0].Item2, _cropView.ContentOffset) { OriginalImageSize = _cropView.originalImageSize, Scale = _cropView.ZoomScale });
                 ImageAssets.RemoveAt(0);
@@ -729,6 +739,7 @@ namespace Steepshot.iOS.Views
             {
                 try
                 {
+                    var shouldReturn = false;
                     string title = null;
                     string description = null;
                     IList<string> tags = null;
@@ -740,11 +751,10 @@ namespace Steepshot.iOS.Views
                         tags = collectionviewSource.LocalTags;
                     });
 
-                    var mre = new ManualResetEvent(false);
+                    mre = new ManualResetEvent(false);
 
-                    if (!editMode)
+                    if (!skipPreparationSteps)
                     {
-                        var shouldReturn = false;
                         var photoUploadRetry = false;
                         OperationResult<MediaModel>[] photoUploadResponse = new OperationResult<MediaModel>[ImageAssets.Count];
                         do
@@ -760,7 +770,8 @@ namespace Steepshot.iOS.Views
                                 InvokeOnMainThread(() =>
                                 {
                                     //Remake this
-                                    ShowDialog(photoUploadResponse[0].Error, LocalizationKeys.Cancel, LocalizationKeys.Retry, (arg) =>
+                                    ShowDialog(photoUploadResponse[0].Exception, LocalizationKeys.Cancel,
+                                        LocalizationKeys.Retry, (arg) =>
                                         {
                                             shouldReturn = true;
                                             mre.Set();
@@ -789,56 +800,72 @@ namespace Steepshot.iOS.Views
                             Media = photoUploadResponse.Select(r => r.Result).ToArray(),
                         };
                     }
-                    else
-                    {
-                        model.Title = title;
-                        model.Description = description;
-                        model.Device = "iOS";
-                        model.Tags = tags.ToArray();
-                        model.Media = post.Media;
-                    }
 
-                    var pushToBlockchainRetry = false;
-                    do
-                    {
-                        pushToBlockchainRetry = false;
-                        var response = _presenter.TryCreateOrEditPost(model).Result;
-                        if (!(response != null && response.IsSuccess))
-                        {
-                            InvokeOnMainThread(() =>
-                            {
-                                ShowDialog(response.Error, LocalizationKeys.Cancel, LocalizationKeys.Retry, (arg) =>
-                                {
-                                    mre.Set();
-                                }, (arg) =>
-                                {
-                                    pushToBlockchainRetry = true;
-                                    mre.Set();
-                                });
-                            });
-
-                            mre.Reset();
-                            mre.WaitOne();
-                        }
-                        else
-                        {
-                            InvokeOnMainThread(() =>
-                            {
-                                ShouldProfileUpdate = true;
-                                NavigationController.ViewControllers = new UIViewController[] { NavigationController.ViewControllers[0], this };
-                                NavigationController.PopViewController(false);
-                            });
-                        }
-                    } while (pushToBlockchainRetry);
+                    CreateOrEditPost(skipPreparationSteps);
+                }
+                catch (Exception ex)
+                {
+                    AppSettings.Logger.Warning(ex);
                 }
                 finally
                 {
-                    InvokeOnMainThread(() =>
-                    {
-                        EnablePostAndEdit(true);
-                    });
+                    InvokeOnMainThread(() => { EnablePostAndEdit(true); });
                 }
             });
+        }
+
+        protected async void CreateOrEditPost(bool skipPlagiarismCheck)
+        {
+            var pushToBlockchainRetry = false;
+            do
+            {
+                if (!skipPlagiarismCheck)
+                {
+                    var plagiarismCheck = _presenter.TryCheckForPlagiarism(model).Result;
+                    if (plagiarismCheck.IsSuccess)
+                    {
+                        if (plagiarismCheck.Result.plagiarism.IsPlagiarism)
+                        {
+                            InvokeOnMainThread(() =>
+                            {
+                                plagiarismResult = new PlagiarismResult();
+                                var plagiarismViewController = new PlagiarismViewController(ImageAssets, plagiarismCheck.Result.plagiarism, plagiarismResult);
+                                NavigationController.PushViewController(plagiarismViewController, true);
+                            });
+
+                            return;
+                        }
+                    }
+                }
+
+                pushToBlockchainRetry = false;
+                var response = _presenter.TryCreateOrEditPost(model).Result;
+                if (!(response != null && response.IsSuccess))
+                {
+                    InvokeOnMainThread(() =>
+                    {
+                        ShowDialog(response.Exception, LocalizationKeys.Cancel, LocalizationKeys.Retry,
+                            (arg) => { mre.Set(); }, (arg) =>
+                            {
+                                pushToBlockchainRetry = true;
+                                mre.Set();
+                            });
+                    });
+
+                    mre.Reset();
+                    mre.WaitOne();
+                }
+                else
+                {
+                    InvokeOnMainThread(() =>
+                    {
+                        ShouldProfileUpdate = true;
+                        NavigationController.ViewControllers = new UIViewController[]
+                            {NavigationController.ViewControllers[0], this};
+                        NavigationController.PopViewController(false);
+                    });
+                }
+            } while (pushToBlockchainRetry);
         }
 
         private void RotatePhotoIfNeeded()
@@ -897,7 +924,7 @@ namespace Steepshot.iOS.Views
             _cropView.ApplyCriticalScale();
         }
 
-        private void EnablePostAndEdit(bool enabled)
+        protected void EnablePostAndEdit(bool enabled, bool enableFields = true)
         {
             if (enabled)
                 loadingView.StopAnimating();
@@ -911,10 +938,14 @@ namespace Steepshot.iOS.Views
                 photoView.UserInteractionEnabled = enabled;
             }
             postPhotoButton.Enabled = enabled;
-            titleTextField.UserInteractionEnabled = enabled;
-            descriptionTextField.UserInteractionEnabled = enabled;
-            tagField.UserInteractionEnabled = enabled;
-            tagsCollectionView.UserInteractionEnabled = enabled;
+
+            if (enableFields)
+            {
+                titleTextField.UserInteractionEnabled = enabled;
+                descriptionTextField.UserInteractionEnabled = enabled;
+                tagField.UserInteractionEnabled = enabled;
+                tagsCollectionView.UserInteractionEnabled = enabled;
+            }
         }
 
         private void GoBack(object sender, EventArgs e)

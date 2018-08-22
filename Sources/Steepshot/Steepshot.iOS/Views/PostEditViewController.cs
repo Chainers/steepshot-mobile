@@ -1,19 +1,14 @@
-﻿using UIKit;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Linq;
 using System.Collections.Generic;
 using FFImageLoading;
-using CoreGraphics;
-using PureLayout.Net;
-using Steepshot.iOS.Cells;
 using Steepshot.iOS.ViewSources;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
-using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
-using Steepshot.Core.Localization;
+using System.Threading.Tasks;
 using System;
+using System.Threading;
+using UIKit;
 
 namespace Steepshot.iOS.Views
 {
@@ -88,6 +83,47 @@ namespace Steepshot.iOS.Views
                 descriptionTextField.Text = post.Description;
                 descriptionPlaceholderLabel.Hidden = true;
             }
+        }
+
+        protected override async void OnPostAsync(bool skipPreparationSteps)
+        {
+            EnablePostAndEdit(false);
+
+            await Task.Run(() =>
+            {
+                try
+                {
+                    var shouldReturn = false;
+                    string title = null;
+                    string description = null;
+                    IList<string> tags = null;
+
+                    InvokeOnMainThread(() =>
+                    {
+                        title = titleTextField.Text;
+                        description = descriptionTextField.Text;
+                        tags = collectionviewSource.LocalTags;
+                    });
+
+                    mre = new ManualResetEvent(false);
+
+                    model.Title = title;
+                    model.Description = description;
+                    model.Device = "iOS";
+                    model.Tags = tags.ToArray();
+                    model.Media = post.Media;
+
+                    CreateOrEditPost(true);
+                }
+                catch (Exception ex)
+                {
+                    AppSettings.Logger.Warning(ex);
+                }
+                finally
+                { 
+                    InvokeOnMainThread(() => { EnablePostAndEdit(true); });
+                }
+            });
         }
     }
 }

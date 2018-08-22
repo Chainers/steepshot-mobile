@@ -5,10 +5,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using Steepshot.Core.Authorization;
-using Steepshot.Core.HttpClient;
+using Steepshot.Core.Clients;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Enums;
-using Steepshot.Core.Serializing;
 using Steepshot.Core.Tests.Stubs;
 
 namespace Steepshot.Core.Tests
@@ -22,11 +21,10 @@ namespace Steepshot.Core.Tests
 
         static ServerResponseTests()
         {
-            var converter = new JsonNetConverter();
             Gateway = new Dictionary<KnownChains, BaseServerClient>
             {
-                {KnownChains.Steem, new StubServerClient(converter, IsDev ? Constants.SteemUrlQa : Constants.SteemUrl)},
-                {KnownChains.Golos, new StubServerClient(converter, IsDev ? Constants.GolosUrlQa : Constants.GolosUrl)},
+                {KnownChains.Steem, new StubServerClient( IsDev ? Constants.SteemUrlQa : Constants.SteemUrl)},
+                {KnownChains.Golos, new StubServerClient( IsDev ? Constants.GolosUrlQa : Constants.GolosUrl)},
             };
 
             Users = new Dictionary<KnownChains, UserInfo>
@@ -50,7 +48,7 @@ namespace Steepshot.Core.Tests
             };
 
             var result = await Gateway[apiName].GetUserPosts(request, CancellationToken.None);
-            Assert.IsTrue(result.IsSuccess, result.Error?.Message);
+            Assert.IsTrue(result.IsSuccess, result.Exception?.Message);
         }
 
         [Test]
@@ -67,7 +65,7 @@ namespace Steepshot.Core.Tests
             };
 
             var result = await Gateway[apiName].GetUserRecentPosts(request, CancellationToken.None);
-            Assert.IsTrue(result.IsSuccess, result.Error?.Message);
+            Assert.IsTrue(result.IsSuccess, result.Exception?.Message);
         }
 
         [Test]
@@ -78,7 +76,7 @@ namespace Steepshot.Core.Tests
             var request = new PostsModel(PostType.Top);
 
             var result = await Gateway[apiName].GetPosts(request, CancellationToken.None);
-            Assert.IsTrue(result.IsSuccess, result.Error?.Message);
+            Assert.IsTrue(result.IsSuccess, result.Exception?.Message);
         }
 
         [Test]
@@ -88,7 +86,7 @@ namespace Steepshot.Core.Tests
         {
             var request = new PostsByCategoryModel(PostType.Top, category);
             var result = await Gateway[apiName].GetPostsByCategory(request, CancellationToken.None);
-            Assert.IsTrue(result.IsSuccess, result.Error?.Message);
+            Assert.IsTrue(result.IsSuccess, result.Exception?.Message);
         }
 
         [Test]
@@ -106,7 +104,7 @@ namespace Steepshot.Core.Tests
             };
 
             var operationResult = await Gateway[apiName].GetPostVoters(votersModel, CancellationToken.None);
-            Assert.IsTrue(operationResult.IsSuccess, result.Error?.Message);
+            Assert.IsTrue(operationResult.IsSuccess, result.Exception?.Message);
         }
 
         [Test]
@@ -116,7 +114,7 @@ namespace Steepshot.Core.Tests
         {
             var request = new NamedInfoModel(url);
             var result = await Gateway[apiName].GetComments(request, CancellationToken.None);
-            Assert.IsTrue(result.IsSuccess, result.Error?.Message);
+            Assert.IsTrue(result.IsSuccess, result.Exception?.Message);
         }
 
         [Test]
@@ -127,7 +125,7 @@ namespace Steepshot.Core.Tests
             var user = Users[apiName];
             var request = new UserProfileModel(user.Login);
             var result = await Gateway[apiName].GetUserProfile(request, CancellationToken.None);
-            Assert.IsTrue(result.IsSuccess, result.Error?.Message);
+            Assert.IsTrue(result.IsSuccess, result.Exception?.Message);
         }
 
 
@@ -139,7 +137,7 @@ namespace Steepshot.Core.Tests
             var user = Users[apiName];
             var request = new UserFriendsModel(user.Login, FriendsType.Following);
             var result = await Gateway[apiName].GetUserFriends(request, CancellationToken.None);
-            Assert.IsTrue(result.IsSuccess, result.Error?.Message);
+            Assert.IsTrue(result.IsSuccess, result.Exception?.Message);
         }
 
         [Test]
@@ -153,7 +151,7 @@ namespace Steepshot.Core.Tests
                 ShowLowRated = true
             };
             var result = await Gateway[apiName].GetPostInfo(request, CancellationToken.None);
-            Assert.IsTrue(result.IsSuccess, result.Error?.Message);
+            Assert.IsTrue(result.IsSuccess, result.Exception?.Message);
         }
 
         [Test]
@@ -163,7 +161,7 @@ namespace Steepshot.Core.Tests
         {
             var request = new SearchWithQueryModel("aar");
             var result = await Gateway[apiName].SearchUser(request, CancellationToken.None);
-            Assert.IsTrue(result.IsSuccess, result.Error?.Message);
+            Assert.IsTrue(result.IsSuccess, result.Exception?.Message);
         }
 
         [Test]
@@ -174,7 +172,7 @@ namespace Steepshot.Core.Tests
             var user = Users[apiName];
             var request = new UserExistsModel(user.Login);
             var result = await Gateway[apiName].UserExistsCheck(request, CancellationToken.None);
-            Assert.IsTrue(result.IsSuccess, result.Error?.Message);
+            Assert.IsTrue(result.IsSuccess, result.Exception?.Message);
         }
 
         [Test]
@@ -184,7 +182,7 @@ namespace Steepshot.Core.Tests
         {
             var request = new OffsetLimitModel();
             var result = await Gateway[apiName].GetCategories(request, CancellationToken.None);
-            Assert.IsTrue(result.IsSuccess, result.Error?.Message);
+            Assert.IsTrue(result.IsSuccess, result.Exception?.Message);
         }
 
         [Test]
@@ -194,7 +192,7 @@ namespace Steepshot.Core.Tests
         {
             var request = new SearchWithQueryModel("ru");
             var result = await Gateway[apiName].SearchCategories(request, CancellationToken.None);
-            Assert.IsTrue(result.IsSuccess, result.Error?.Message);
+            Assert.IsTrue(result.IsSuccess, result.Exception?.Message);
         }
     }
 }

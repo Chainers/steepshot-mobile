@@ -16,6 +16,11 @@ namespace Steepshot.Utils
 
         public static bool ToLocalTouchEvent(this View view, MotionEvent ev) => (bool)_toLocalTouchEvent?.Invoke(view, ev);
 
+        private static readonly Method _toGlobalTouchEvent = Class.FromType(typeof(View))
+            .GetDeclaredMethod("toGlobalMotionEvent", Class.FromType(typeof(MotionEvent)));
+
+        public static bool ToGlobalTouchEvent(this View view, MotionEvent ev) => (bool)_toGlobalTouchEvent?.Invoke(view, ev);
+
         public static (int Width, int Height) CalculateImagePreviewSize(int width, int height,
             int maxWidth, int maxHeight) => width > height || maxHeight == int.MaxValue ?
             (maxWidth, Math.Round(maxWidth * height / (float)width)) : (Math.Round(maxHeight * width / (float)height), maxHeight);

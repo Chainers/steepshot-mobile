@@ -3,31 +3,76 @@ using Android.Runtime;
 using Autofac;
 using Square.Picasso;
 using Steepshot.Core.Localization;
-using Steepshot.Core.Sentry;
 using Steepshot.Core.Services;
 using Steepshot.Core.Utils;
 using Steepshot.Services;
 using Steepshot.Utils;
 using System;
+using System.Linq;
+using Android.Content;
+using Com.OneSignal;
+using Com.OneSignal.Abstractions;
+using Newtonsoft.Json;
+using Steepshot.Activity;
+using Steepshot.Core;
 using Steepshot.Core.Authorization;
-using Steepshot.Core.HttpClient;
+using Steepshot.Core.Clients;
+using Steepshot.Core.Sentry;
 
 namespace Steepshot.Base
 {
     [Application]
     public class App : Application
     {
-        public App(IntPtr javaReference, JniHandleOwnership transfer) : base(javaReference, transfer)
+        public static LruCache Cache;
+        public static ExtendedHttpClient HttpClient;
+        public static SteepshotApiClient SteemClient;
+        public static SteepshotApiClient GolosClient;
+
+        public static KnownChains MainChain { get; set; } = KnownChains.Steem;
+
+
+        public App(IntPtr javaReference, JniHandleOwnership transfer)
+            : base(javaReference, transfer)
         {
         }
-
-        public static LruCache Cache;
 
         public override void OnCreate()
         {
             base.OnCreate();
             InitIoC(Context.Assets);
             InitPicassoCache();
+
+            InitPushes();
+            AppSettings.LocalizationManager.Update(HttpClient);
+        }
+
+        private void InitPushes()
+        {
+            OneSignal.Current.StartInit("77fa644f-3280-4e87-9f14-1f0c7ddf8ca5")
+                .InFocusDisplaying(OSInFocusDisplayOption.None)
+                .HandleNotificationOpened(OneSignalNotificationOpened)
+                .EndInit();
+        }
+
+        private void OneSignalNotificationOpened(OSNotificationOpenedResult result)
+        {
+            var additionalData = result?.notification?.payload?.additionalData;
+            if (additionalData?.Any() ?? false)
+            {
+                try
+                {
+                    var data = JsonConvert.SerializeObject(additionalData.ToDictionary(x => x.Key, x => x.Value.ToString()));
+                    var intent = new Intent(this, typeof(RootActivity));
+                    intent.PutExtra(RootActivity.NotificationData, data);
+                    intent.SetFlags(ActivityFlags.ReorderToFront | ActivityFlags.NewTask);
+                    StartActivity(intent);
+                }
+                catch (Exception e)
+                {
+                    AppSettings.Logger.Error(e);
+                }
+            }
         }
 
         private void InitPicassoCache()
@@ -41,10 +86,12 @@ namespace Steepshot.Base
             }
         }
 
-        public static void InitIoC(Android.Content.Res.AssetManager assetManagerssets)
+        private void InitIoC(Android.Content.Res.AssetManager assetManagerssets)
         {
             if (AppSettings.Container == null)
             {
+                HttpClient = new ExtendedHttpClient();
+
                 var builder = new ContainerBuilder();
                 var saverService = new SaverService();
                 var dataProvider = new UserManager(saverService);
@@ -60,13 +107,16 @@ namespace Steepshot.Base
                 builder.RegisterInstance(saverService).As<ISaverService>().SingleInstance();
                 builder.RegisterInstance(dataProvider).As<UserManager>().SingleInstance();
                 builder.RegisterInstance(connectionService).As<IConnectionService>().SingleInstance();
-                builder.RegisterInstance(connectionService).As<IConnectionService>().SingleInstance();
                 builder.RegisterInstance(localizationManager).As<LocalizationManager>().SingleInstance();
                 builder.RegisterInstance(configManager).As<ConfigManager>().SingleInstance();
                 var configInfo = assetsHelper.GetConfigInfo();
-                var reporterService = new ReporterService(appInfo, configInfo.RavenClientDsn);
-                builder.RegisterInstance(reporterService).As<IReporterService>().SingleInstance();
+                var reporterService = new LogService(HttpClient, appInfo, configInfo.RavenClientDsn);
+                builder.RegisterInstance(reporterService).As<ILogService>().SingleInstance();
                 AppSettings.Container = builder.Build();
+
+                MainChain = AppSettings.User.Chain;
+                SteemClient = new SteepshotApiClient(HttpClient, KnownChains.Steem);
+                GolosClient = new SteepshotApiClient(HttpClient, KnownChains.Golos);
             }
         }
     }

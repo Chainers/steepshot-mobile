@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 using Ditch.Core.JsonRpc;
 using Newtonsoft.Json;
 using Steepshot.Core.Authorization;
-using Steepshot.Core.Errors;
-using Steepshot.Core.HttpClient;
+using Steepshot.Core.Clients;
+using Steepshot.Core.Exceptions;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
@@ -18,14 +18,13 @@ namespace Steepshot.Core.Integration
     public abstract class BaseModule
     {
         protected User User;
-        private SteepshotApiClient Client;
+        protected readonly SteepshotApiClient Client;
 
 
-        protected BaseModule(User user)
+        protected BaseModule(SteepshotApiClient client, User user)
         {
+            Client = client;
             User = user;
-            Client = new SteepshotApiClient();
-            Client.InitConnector(User.Chain, false);
         }
 
         public abstract bool IsAuthorized();
@@ -40,7 +39,7 @@ namespace Steepshot.Core.Integration
                 var media = model.Media[i];
                 var uploadResult = await UploadPhoto(media.Url, token);
                 if (!uploadResult.IsSuccess)
-                    return new OperationResult<VoidResponse>(uploadResult.Error);
+                    return new OperationResult<VoidResponse>(uploadResult.Exception);
 
                 model.Media[i] = uploadResult.Result;
             }
@@ -65,8 +64,7 @@ namespace Steepshot.Core.Integration
             }
             catch (Exception ex)
             {
-                AppSettings.Reporter.SendCrash(ex);
-                return new OperationResult<MediaModel>(new AppError(LocalizationKeys.PhotoUploadError));
+                return new OperationResult<MediaModel>(new InternalException(LocalizationKeys.PhotoUploadError, ex));
             }
             finally
             {
