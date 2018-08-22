@@ -36,12 +36,18 @@ namespace Steepshot.Utils
 
         public static void ShowAlert(this Context context, LocalizationKeys keys, ToastLength length)
         {
+            if (IsDestroyed(context))
+                return;
+
             var message = AppSettings.LocalizationManager.GetText(keys);
             Toast.MakeText(context, message, length).Show();
         }
 
         public static void ShowAlert(this Context context, Exception exception, ToastLength length)
         {
+            if (IsDestroyed(context))
+                return;
+
             if (IsSkeepException(exception))
                 return;
 
@@ -70,6 +76,9 @@ namespace Steepshot.Utils
 
         private static void CreateAndShowDialog(Context context, string msg, string positiveButtonText, EventHandler<DialogClickEventArgs> positiveButtonAction = null, string negativeButtonText = null, EventHandler<DialogClickEventArgs> negativeButtonAction = null)
         {
+            if (IsDestroyed(context))
+                return;
+
             var alert = new AlertDialog.Builder(context);
             if (msg.Contains("https:"))
             {
@@ -140,6 +149,17 @@ namespace Steepshot.Utils
             if (exception is RequestException requestException)
             {
                 if (requestException.Exception is TaskCanceledException || requestException.Exception is OperationCanceledException)
+                    return true;
+            }
+
+            return false;
+        }
+
+        private static bool IsDestroyed(Context context)
+        {
+            if (context is Android.App.Activity activity)
+            {
+                if (activity.IsFinishing || activity.IsDestroyed)
                     return true;
             }
 
