@@ -335,4 +335,5 @@ About 6 inches away</string>
     <string name="[&quot;SearchAgain&quot;]">Search again</string>
     <string name="[&quot;MaxBid&quot;]">Max bid is</string>
     <string name="[&quot;MinBid&quot;]">Min bid is</string>
+    <string name="[&quot;MinSP&quot;]">The minimal amount of Steem Power in your account should be not less than 3 Steem</string>
 </resources>

@@ -231,5 +231,6 @@
         SearchAgain,
         MinBid,
         MaxBid,
+        MinSP,
     }
 }
