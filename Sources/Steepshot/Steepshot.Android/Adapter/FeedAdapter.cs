@@ -60,7 +60,7 @@ namespace Steepshot.Adapter
                 foreach (var media in post.Media)
                 {
                     if (!string.IsNullOrEmpty(media.Url))
-                        Picasso.With(Context).Load(post.Url.GetProxy(Context.Resources.DisplayMetrics.WidthPixels,
+                        Picasso.With(Context).Load(post.Url.GetImageProxy(Context.Resources.DisplayMetrics.WidthPixels,
                                 Context.Resources.DisplayMetrics.WidthPixels))
                             .Priority(Picasso.Priority.Low)
                             .MemoryPolicy(MemoryPolicy.NoCache)
@@ -530,7 +530,7 @@ namespace Steepshot.Adapter
             _author.Text = post.Author;
 
             if (!string.IsNullOrEmpty(Post.Avatar))
-                Picasso.With(Context).Load(Post.Avatar.GetProxy(_avatar.LayoutParameters.Width, _avatar.LayoutParameters.Height)).Placeholder(Resource.Drawable.ic_holder).Priority(Picasso.Priority.Low).Into(_avatar, null, () =>
+                Picasso.With(Context).Load(Post.Avatar.GetImageProxy(_avatar.LayoutParameters.Width, _avatar.LayoutParameters.Height)).Placeholder(Resource.Drawable.ic_holder).Priority(Picasso.Priority.Low).Into(_avatar, null, () =>
                 Picasso.With(Context).Load(Post.Avatar).Placeholder(Resource.Drawable.ic_holder).NoFade().Into(_avatar));
             else
                 Picasso.With(context).Load(Resource.Drawable.ic_holder).Into(_avatar);
@@ -554,7 +554,7 @@ namespace Steepshot.Adapter
                 _topLikers.AddView(topLikersAvatar, layoutParams);
                 var avatarUrl = Post.TopLikersAvatars[i];
                 if (!string.IsNullOrEmpty(avatarUrl))
-                    Picasso.With(Context).Load(avatarUrl.GetProxy(topLikersSize, topLikersSize)).Placeholder(Resource.Drawable.ic_holder).Priority(Picasso.Priority.Low).Into(topLikersAvatar, null,
+                    Picasso.With(Context).Load(avatarUrl.GetImageProxy(topLikersSize, topLikersSize)).Placeholder(Resource.Drawable.ic_holder).Priority(Picasso.Priority.Low).Into(topLikersAvatar, null,
                         () =>
                         {
                             Picasso.With(context).Load(Resource.Drawable.ic_holder).Into(topLikersAvatar);
@@ -672,7 +672,7 @@ namespace Steepshot.Adapter
                 if (mediaModel != null)
                 {
                     var url = mediaModel.Url;
-                    Picasso.With(_context).Load(url.GetProxy(_context.Resources.DisplayMetrics.WidthPixels, _context.Resources.DisplayMetrics.WidthPixels))
+                    Picasso.With(_context).Load(url.GetImageProxy(_context.Resources.DisplayMetrics.WidthPixels, _context.Resources.DisplayMetrics.WidthPixels))
                         .Placeholder(new ColorDrawable(Style.R245G245B245))
                         .NoFade()
                         .Priority(Picasso.Priority.High)
