@@ -12,6 +12,7 @@ using Steepshot.Core.Localization;
 using Steepshot.iOS.Helpers;
 using System.Collections.Generic;
 using Steepshot.Core.Models.Requests;
+using Steepshot.Core.Extensions;
 
 namespace Steepshot.iOS.Views
 {
@@ -31,7 +32,7 @@ namespace Steepshot.iOS.Views
         private UIView warningView;
         private UILabel _noResultViewTags = new UILabel();
         private UIActivityIndicatorView _balanceLoader = new UIActivityIndicatorView();
-        private UILabel _balance;
+        private UILabel _balanceLabel;
         private UIImageView _recipientAvatar;
         private BaseTextViewDelegate _memoTextViewDelegate;
         private nfloat _tableScrollAmount;
@@ -43,6 +44,7 @@ namespace Steepshot.iOS.Views
         private CustomAlertView _successAlert;
         private UILabel recipientValue;
         private UILabel amountValue;
+        private UILabel errorMessage = new UILabel();
 
         private void SetupTable()
         {
@@ -86,22 +88,16 @@ namespace Steepshot.iOS.Views
 
             NavigationItem.Title = AppSettings.LocalizationManager.GetText(LocalizationKeys.Transfer);
 
-            _balance = new UILabel(new CGRect(0, 0, 100, 50))
+            var username = new UILabel(new CGRect(0, 0, 100, 50))
             {
-                Font = Constants.Semibold20,
-                TextColor = Constants.R151G155B158,
+                Font = Constants.Semibold14,
+                TextColor = Constants.R255G34B5,
                 TextAlignment = UITextAlignment.Right,
+                Text = $"@{AppSettings.User.Login}"
             };
 
-            var rightBarButton = new UIBarButtonItem(_balance);
+            var rightBarButton = new UIBarButtonItem(username);
             NavigationItem.RightBarButtonItem = rightBarButton;
-
-            _balanceLoader = new UIActivityIndicatorView();
-            _balanceLoader.ActivityIndicatorViewStyle = UIActivityIndicatorViewStyle.White;
-            _balanceLoader.Color = Constants.R231G72B0;
-            _balanceLoader.HidesWhenStopped = true;
-            _balance.AddSubview(_balanceLoader);
-            _balanceLoader.AutoCenterInSuperview();
         }
 
         private void CreateView()
@@ -182,20 +178,84 @@ namespace Steepshot.iOS.Views
 
             amountLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 15);
             amountLabel.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, recipientStackView, 25);
-            amountLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 15);
 
-            _amountTextField = new SearchTextField(AppSettings.LocalizationManager.GetText(LocalizationKeys.TransferAmountHint), new AmountFieldDelegate());
+            _balanceLoader.ActivityIndicatorViewStyle = UIActivityIndicatorViewStyle.White;
+            _balanceLoader.Color = UIColor.Black;
+            _balanceLoader.HidesWhenStopped = true;
+            _balanceLoader.StartAnimating();
+
+            View.AddSubview(_balanceLoader);
+
+            _balanceLoader.AutoPinEdge(ALEdge.Left, ALEdge.Right, amountLabel, 10);
+            _balanceLoader.AutoAlignAxis(ALAxis.Horizontal, amountLabel);
+
+            _balanceLabel = new UILabel();
+            _balanceLabel.Font = Constants.Semibold14;
+            _balanceLabel.TextColor = Constants.R151G155B158;
+            _balanceLabel.TextAlignment = UITextAlignment.Right;
+
+            View.AddSubview(_balanceLabel);
+
+            _balanceLabel.AutoAlignAxis(ALAxis.Horizontal, amountLabel);
+            _balanceLabel.AutoPinEdge(ALEdge.Left, ALEdge.Right, amountLabel, 5);
+            _balanceLabel.SetContentHuggingPriority(1, UILayoutConstraintAxis.Horizontal);
+
+            var rightView = new UIView();
+            View.AddSubview(rightView);
+            rightView.AutoSetDimension(ALDimension.Height, 50);
+
+            UIImageView pickerImage = new UIImageView(UIImage.FromBundle("ic_currency_picker.png"));
+            rightView.AddSubview(pickerImage);
+            pickerImage.AutoAlignAxisToSuperviewAxis(ALAxis.Horizontal);
+            pickerImage.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 10);
+
+            _pickerLabel.Text = "STEEM";
+            _pickerLabel.TextAlignment = UITextAlignment.Center;
+            _pickerLabel.Font = Constants.Semibold14;
+            _pickerLabel.TextColor = Constants.R255G71B5;
+            rightView.AddSubview(_pickerLabel);
+            _pickerLabel.AutoAlignAxisToSuperviewAxis(ALAxis.Horizontal);
+            _pickerLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Left);
+            _pickerLabel.AutoPinEdge(ALEdge.Right, ALEdge.Left, pickerImage, -5);
+
+            rightView.LayoutIfNeeded();
+
+            _amountTextField = new SearchTextField(AppSettings.LocalizationManager.GetText(LocalizationKeys.TransferAmountHint),
+                                                   new UIEdgeInsets(0, 20, 0, 0), new AmountFieldDelegate(), false, rightView);
+
             _amountTextField.KeyboardType = UIKeyboardType.DecimalPad;
             _amountTextField.Layer.CornerRadius = 25;
             View.AddSubview(_amountTextField);
 
-            _amountTextField.ClearButtonTapped += () => { };
+            //_amountTextField.ClearButtonTapped += () => { };
+            _amountTextField.EditingChanged += IsEnoughBalance;
 
             View.AddSubview(_amountTextField);
 
             _amountTextField.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 15);
             _amountTextField.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, amountLabel, 16);
             _amountTextField.AutoSetDimension(ALDimension.Height, 50);
+
+            var max = new UIButton();
+            max.SetTitle(AppSettings.LocalizationManager.GetText(LocalizationKeys.Max), UIControlState.Normal);
+            max.SetTitleColor(UIColor.Black, UIControlState.Normal);
+            max.Font = Constants.Semibold14;
+            max.Layer.BorderWidth = 1;
+            max.Layer.BorderColor = Constants.R245G245B245.CGColor;
+            max.Layer.CornerRadius = 25;
+
+            View.AddSubview(max);
+
+            max.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 15);
+            max.AutoPinEdge(ALEdge.Left, ALEdge.Right, _amountTextField, 10);
+            max.AutoSetDimensionsToSize(new CGSize(80, 50));
+            max.AutoAlignAxis(ALAxis.Horizontal, _amountTextField);
+            max.TouchDown += MaxBtnOnClick;
+
+            rightView.AutoAlignAxis(ALAxis.Horizontal, _amountTextField);
+            rightView.AutoPinEdge(ALEdge.Right, ALEdge.Right, _amountTextField);
+            View.BringSubviewToFront(rightView);
+            _balanceLabel.AutoPinEdge(ALEdge.Right, ALEdge.Right, _amountTextField);
 
             UIView pickerView = new UIView();
             pickerView.Layer.CornerRadius = 25;
@@ -283,12 +343,13 @@ namespace Steepshot.iOS.Views
 
                     NavigationController.View.EndEditing(true);
 
-                    _alert = new CustomAlertView(popup, this);
+                    _alert = new CustomAlertView(popup, NavigationController);
 
                     selectButton.TouchDown += (sender, e) =>
                     {
                         CoinSelected(_coins[(int)picker.SelectedRowInComponent(0)]);
                         _alert.Close();
+                        _amountTextField.UpdateRightViewRect();
                     };
                     cancelButton.TouchDown += (sender, e) => { _alert.Close(); };
 
@@ -297,26 +358,7 @@ namespace Steepshot.iOS.Views
                 }
                 _alert.Show();
             });
-            pickerView.AddGestureRecognizer(pickerTap);
-            View.AddSubview(pickerView);
-
-            pickerView.AutoSetDimensionsToSize(new CGSize(125, 50));
-            pickerView.AutoPinEdge(ALEdge.Left, ALEdge.Right, _amountTextField, 10);
-            pickerView.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 15);
-            pickerView.AutoAlignAxis(ALAxis.Horizontal, _amountTextField);
-
-            UIImageView pickerImage = new UIImageView(UIImage.FromBundle("ic_currency_picker.png"));
-            pickerView.AddSubview(pickerImage);
-            pickerImage.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 20);
-            pickerImage.AutoAlignAxisToSuperviewAxis(ALAxis.Horizontal);
-
-            _pickerLabel.TextAlignment = UITextAlignment.Center;
-            _pickerLabel.Font = Constants.Semibold14;
-            _pickerLabel.TextColor = Constants.R255G71B5;
-            pickerView.AddSubview(_pickerLabel);
-            _pickerLabel.AutoAlignAxisToSuperviewAxis(ALAxis.Horizontal);
-            _pickerLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 3);
-            _pickerLabel.AutoPinEdge(ALEdge.Right, ALEdge.Left, pickerImage);
+            rightView.AddGestureRecognizer(pickerTap);
 
             var bottomStackView = new UIStackView();
             bottomStackView.Axis = UILayoutConstraintAxis.Vertical;
@@ -327,8 +369,14 @@ namespace Steepshot.iOS.Views
             bottomStackView.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 15);
             bottomStackView.Spacing = 16;
 
+            errorMessage.Font = Constants.Semibold12;
+            errorMessage.Hidden = true;
+            errorMessage.TextColor = Constants.R255G34B5;
+            errorMessage.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.AmountLimitFull);
+            bottomStackView.AddArrangedSubview(errorMessage);
+
             memoLabel = new UILabel();
-            memoLabel.Text = "+ add comment";
+            memoLabel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.TransferComment);
             memoLabel.TextColor = Constants.R255G71B5;
             memoLabel.Font = Constants.Semibold14;
             memoLabel.UserInteractionEnabled = true;
@@ -453,6 +501,25 @@ namespace Steepshot.iOS.Views
             View.AddGestureRecognizer(tap);
         }
 
+        private void MaxBtnOnClick(object sender, EventArgs e)
+        {
+            _amountTextField.Text = _transferFacade.UserBalance.Value.ToBalanceValueString();
+            IsEnoughBalance(null, null);
+        }
+
+        private void IsEnoughBalance(object sender, EventArgs e)
+        {
+            errorMessage.Hidden = true;
+            var transferAmount = _amountTextField.GetDoubleValue();
+            if (transferAmount == 0)
+                return;
+
+            if (transferAmount > _transferFacade.UserBalance.Value)
+            {
+                errorMessage.Hidden = false;
+            }
+        }
+
         private void ShowSuccessPopUp()
         {
             if (_successAlert == null)
@@ -572,7 +639,7 @@ namespace Steepshot.iOS.Views
 
                 NavigationController.View.EndEditing(true);
 
-                _successAlert = new CustomAlertView(popup, TabBarController);
+                _successAlert = new CustomAlertView(popup, NavigationController);
                 cancelButton.TouchDown += (sender, e) => { _successAlert.Close(); };
 
                 popup.SizeToFit();
