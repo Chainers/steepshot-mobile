@@ -11,7 +11,6 @@ using Android.Util;
 using Android.Views;
 using Android.Widget;
 using Java.IO;
-using Steepshot.Base;
 using Steepshot.Core;
 using Steepshot.Core.Exceptions;
 using Steepshot.Core.Localization;
@@ -33,7 +32,6 @@ namespace Steepshot.Fragment
         public PostCreateFragment(GalleryMediaModel media) : base(media)
         {
         }
-
 
         public override void OnViewCreated(View view, Bundle savedInstanceState)
         {

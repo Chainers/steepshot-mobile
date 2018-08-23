@@ -41,8 +41,7 @@ namespace Steepshot.Adapter
         {
             foreach (var post in Presenter)
             {
-                if (!string.IsNullOrEmpty(post.Media[0].Url))
-                    Picasso.With(Context).Load(post.Url.GetProxy(CellSize, CellSize)).Priority(Picasso.Priority.Low).MemoryPolicy(MemoryPolicy.NoCache).Fetch();
+                Picasso.With(Context).Load(post.Media[0].GetImageProxy(CellSize, CellSize)).Priority(Picasso.Priority.Low).MemoryPolicy(MemoryPolicy.NoCache).Fetch();
             }
         }
 
@@ -95,7 +94,7 @@ namespace Steepshot.Adapter
         private readonly TextView _nsfwMaskMessage;
         private Post _post;
         private Context _context;
-        private string _photoString;
+        private MediaModel _mediaModel;
 
 
         public ImageViewHolder(View itemView, Action<Post> click) : base(itemView)
@@ -122,11 +121,11 @@ namespace Steepshot.Adapter
             _post = post;
             _context = context;
 
-            _photoString = post.Media[0].Url;
+            _mediaModel = post.Media[0];
 
-            if (_photoString != null)
+            if (_mediaModel != null)
             {
-                Picasso.With(_context).Load(_photoString.GetProxy(cellSize, cellSize))
+                Picasso.With(_context).Load(_mediaModel.GetImageProxy(cellSize, cellSize))
                     .Placeholder(Resource.Color.rgb244_244_246)
                     .NoFade()
                     .Priority(Picasso.Priority.High)
@@ -146,7 +145,7 @@ namespace Steepshot.Adapter
 
         private void OnError()
         {
-            Picasso.With(_context).Load(_photoString).Placeholder(Resource.Color.rgb244_244_246).NoFade().Into(_photo);
+            Picasso.With(_context).Load(_mediaModel.Thumbnails.Mini).Placeholder(Resource.Color.rgb244_244_246).NoFade().Into(_photo);
         }
     }
 }

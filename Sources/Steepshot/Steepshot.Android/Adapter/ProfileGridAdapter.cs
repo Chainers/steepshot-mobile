@@ -224,7 +224,7 @@ namespace Steepshot.Adapter
             _userAvatar = profile.ProfileImage;
             if (!string.IsNullOrEmpty(_userAvatar))
             {
-                Picasso.With(_context).Load(_userAvatar.GetProxy(_profileImage.LayoutParameters.Width, _profileImage.LayoutParameters.Height))
+                Picasso.With(_context).Load(_userAvatar.GetImageProxy(_profileImage.LayoutParameters.Width, _profileImage.LayoutParameters.Height))
                       .Placeholder(Resource.Drawable.ic_holder)
                       .NoFade()
                       .Into(_profileImage, null, OnError);
