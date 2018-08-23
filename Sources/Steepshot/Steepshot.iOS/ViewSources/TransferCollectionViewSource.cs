@@ -13,6 +13,7 @@ namespace Steepshot.iOS.ViewSources
     {
         public List<IGrouping<DateTime, AccountHistoryResponse>> GroupedHistory = new List<IGrouping<DateTime, AccountHistoryResponse>>();
         private WalletPresenter _presenter;
+        public event Action<string> CellAction;
 
         public TransferCollectionViewSource(WalletPresenter presenter)
         {
@@ -50,6 +51,7 @@ namespace Steepshot.iOS.ViewSources
             else
             {
                 var cell = (TransactionCollectionViewCell)collectionView.DequeueReusableCell(nameof(TransactionCollectionViewCell), indexPath);
+                cell.CellAction += CellAction;
                 cell.UpdateCard(transaction, isFirst, isLast);
                 return cell;
             }

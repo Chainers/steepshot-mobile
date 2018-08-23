@@ -47,7 +47,11 @@ namespace Steepshot.iOS.Views
                 _cardsCollection.ReloadData();
                 _pageControl.Pages = _presenter.Balances.Count;
 
-                NavigationItem.RightBarButtonItem.Enabled = true;
+                if (_presenter.Balances[0].RewardSp > 0 || _presenter.Balances[0].RewardSbd > 0 || _presenter.Balances[0].RewardSteem > 0)
+                {
+                    NavigationItem.RightBarButtonItem.TintColor = Constants.R231G72B0;
+                    NavigationItem.RightBarButtonItem.Enabled = true;
+                }
             }
         }
 
@@ -77,6 +81,16 @@ namespace Steepshot.iOS.Views
             View.Add(_historyCollection);
 
             _historySource = new TransferCollectionViewSource(_presenter);
+
+            _historySource.CellAction += (string obj) =>
+            {
+                if(obj == AppSettings.User.Login)
+                    return;
+                var myViewController = new ProfileViewController();
+                myViewController.Username = obj;
+                NavigationController.PushViewController(myViewController, true);
+            };
+
             _historyCollection.Source = _historySource;
             _historyCollection.Delegate = new TransactionHistoryCollectionViewFlowDelegate(_historySource);
 
@@ -154,7 +168,7 @@ namespace Steepshot.iOS.Views
             transfer.Font = Constants.Bold14;
             transfer.BackgroundColor = UIColor.FromRGB(255, 24, 5);
             transfer.SetTitleColor(UIColor.White, UIControlState.Normal);
-            transfer.Layer.CornerRadius = 12;
+            transfer.Layer.CornerRadius = 25;
             transfer.ClipsToBounds = true;
             View.AddSubview(transfer);
 
@@ -190,7 +204,8 @@ namespace Steepshot.iOS.Views
             NavigationItem.Title = AppSettings.LocalizationManager.GetText(LocalizationKeys.Wallet);
 
             var rightBarButton = new UIBarButtonItem(UIImage.FromBundle("ic_present"), UIBarButtonItemStyle.Plain, ShowClaimPopUp);
-            rightBarButton.TintColor = Constants.R231G72B0;
+
+            rightBarButton.TintColor = UIColor.Clear;
             NavigationItem.RightBarButtonItem = rightBarButton;
             NavigationItem.RightBarButtonItem.Enabled = false;
             NavigationController.NavigationBar.Translucent = false;
@@ -353,7 +368,6 @@ namespace Steepshot.iOS.Views
             steemAmount.AutoAlignAxisToSuperviewAxis(ALAxis.Horizontal);
             steemAmount.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 20);
 
-
             var sbdAmountView = new UIView();
             sbdAmountView.BackgroundColor = Constants.R250G250B250;
             sbdAmountView.Layer.CornerRadius = 8;
@@ -383,7 +397,6 @@ namespace Steepshot.iOS.Views
             sbdAmount.AutoPinEdge(ALEdge.Left, ALEdge.Right, sbdAmountLabel, 5);
             sbdAmount.AutoAlignAxisToSuperviewAxis(ALAxis.Horizontal);
             sbdAmount.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 20);
-
 
             var spAmountView = new UIView();
             spAmountView.BackgroundColor = Constants.R250G250B250;

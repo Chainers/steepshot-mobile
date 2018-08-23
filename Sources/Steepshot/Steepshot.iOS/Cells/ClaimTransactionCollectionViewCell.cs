@@ -63,7 +63,6 @@ namespace Steepshot.iOS.Cells
             steemAmountLabel.AutoAlignAxisToSuperviewAxis(ALAxis.Horizontal);
 
             steemAmount.Font = Constants.Semibold14;
-            steemAmount.TextColor = Constants.R255G34B5;
             steemAmount.TextAlignment = UITextAlignment.Right;
             steemAmountView.AddSubview(steemAmount);
             steemAmount.SetContentHuggingPriority(1, UILayoutConstraintAxis.Horizontal);
@@ -92,7 +91,6 @@ namespace Steepshot.iOS.Cells
             sbdAmountLabel.AutoAlignAxisToSuperviewAxis(ALAxis.Horizontal);
 
             sbdAmount.Font = Constants.Semibold14;
-            sbdAmount.TextColor = Constants.R255G34B5;
             sbdAmount.TextAlignment = UITextAlignment.Right;
             sbdAmountView.AddSubview(sbdAmount);
             sbdAmount.SetContentHuggingPriority(1, UILayoutConstraintAxis.Horizontal);
@@ -121,7 +119,6 @@ namespace Steepshot.iOS.Cells
             spAmountLabel.AutoAlignAxisToSuperviewAxis(ALAxis.Horizontal);
 
             spAmount.Font = Constants.Semibold14;
-            spAmount.TextColor = Constants.R255G34B5;
             spAmount.TextAlignment = UITextAlignment.Right;
             spAmountView.AddSubview(spAmount);
             spAmount.SetContentHuggingPriority(1, UILayoutConstraintAxis.Horizontal);

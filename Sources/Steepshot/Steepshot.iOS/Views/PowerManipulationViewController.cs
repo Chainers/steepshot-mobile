@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Globalization;
 using CoreGraphics;
 using Foundation;
 using PureLayout.Net;
@@ -175,6 +174,7 @@ namespace Steepshot.iOS.Views
 
             _firstTokenText.BaselineAdjustment = UIBaselineAdjustment.AlignCenters;
             _firstTokenText.AdjustsFontSizeToFitWidth = true;
+            _firstTokenText.TextAlignment = UITextAlignment.Right;
             steemView.AddSubview(_firstTokenText);
 
             _firstTokenText.AutoAlignAxis(ALAxis.Horizontal, label);
@@ -210,6 +210,7 @@ namespace Steepshot.iOS.Views
 
             _secondTokenText.BaselineAdjustment = UIBaselineAdjustment.AlignCenters;
             _secondTokenText.AdjustsFontSizeToFitWidth = true;
+            _secondTokenText.TextAlignment = UITextAlignment.Right;
             spView.AddSubview(_secondTokenText);
 
             _secondTokenText.AutoAlignAxisToSuperviewAxis(ALAxis.Horizontal);
@@ -239,7 +240,7 @@ namespace Steepshot.iOS.Views
             amountLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Top, 15);
             amountLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 20);
 
-            _amountTextField = new SearchTextField(AppSettings.LocalizationManager.GetText(LocalizationKeys.TransferAmountHint), new AmountFieldDelegate());
+            _amountTextField = new SearchTextField(AppSettings.LocalizationManager.GetText(LocalizationKeys.TransferAmountHint), new AmountFieldDelegate(), false);
             _amountTextField.EditingChanged += AmountEditOnTextChanged;
             _amountTextField.KeyboardType = UIKeyboardType.DecimalPad;
             _amountTextField.Layer.CornerRadius = 25;

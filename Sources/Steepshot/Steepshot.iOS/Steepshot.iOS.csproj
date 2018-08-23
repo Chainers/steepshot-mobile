@@ -437,6 +437,7 @@
     <Compile Include="Views\PowerManipulationViewController.cs" />
     <Compile Include="Delegates\TTTAttributedLabelActionDelegate.cs" />
     <Compile Include="Popups\PromotePopup.cs" />
+    <Compile Include="Delegates\TTTAttributedLabelSimpleDelegate.cs" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\ic_photo_holder.png" />
