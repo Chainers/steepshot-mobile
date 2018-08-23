@@ -19,6 +19,7 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using Android.Graphics.Drawables;
 using Android.OS;
+using Android.Provider;
 using Android.Support.V4.View;
 using Steepshot.Base;
 using Steepshot.Core.Localization;
@@ -27,6 +28,7 @@ using Steepshot.CustomViews;
 using Object = Java.Lang.Object;
 using Steepshot.Activity;
 using Steepshot.Core;
+using Steepshot.Utils.Media;
 
 namespace Steepshot.Adapter
 {
@@ -57,14 +59,13 @@ namespace Steepshot.Adapter
         {
             foreach (var post in Presenter)
             {
-                foreach (var media in post.Media)
+                foreach (var media in post.Media.Where(i => !string.IsNullOrEmpty(i.ContentType) && i.ContentType.StartsWith("image")))
                 {
-                    if (!string.IsNullOrEmpty(media.Url))
-                        Picasso.With(Context).Load(post.Url.GetImageProxy(Context.Resources.DisplayMetrics.WidthPixels,
-                                Context.Resources.DisplayMetrics.WidthPixels))
-                            .Priority(Picasso.Priority.Low)
-                            .MemoryPolicy(MemoryPolicy.NoCache)
-                            .Fetch();
+                    Picasso.With(Context)
+                        .Load(media.GetImageProxy(Context.Resources.DisplayMetrics.WidthPixels, Context.Resources.DisplayMetrics.WidthPixels))
+                        .Priority(Picasso.Priority.Low)
+                        .MemoryPolicy(MemoryPolicy.NoCache)
+                        .Fetch();
                 }
             }
         }
@@ -530,8 +531,11 @@ namespace Steepshot.Adapter
             _author.Text = post.Author;
 
             if (!string.IsNullOrEmpty(Post.Avatar))
-                Picasso.With(Context).Load(Post.Avatar.GetImageProxy(_avatar.LayoutParameters.Width, _avatar.LayoutParameters.Height)).Placeholder(Resource.Drawable.ic_holder).Priority(Picasso.Priority.Low).Into(_avatar, null, () =>
-                Picasso.With(Context).Load(Post.Avatar).Placeholder(Resource.Drawable.ic_holder).NoFade().Into(_avatar));
+                Picasso.With(Context)
+                    .Load(Post.Avatar.GetImageProxy(_avatar.LayoutParameters.Width, _avatar.LayoutParameters.Height))
+                    .Placeholder(Resource.Drawable.ic_holder)
+                    .Priority(Picasso.Priority.Low)
+                    .Into(_avatar, null, () => Picasso.With(Context).Load(Post.Avatar).Placeholder(Resource.Drawable.ic_holder).NoFade().Into(_avatar));
             else
                 Picasso.With(context).Load(Resource.Drawable.ic_holder).Into(_avatar);
 
@@ -554,11 +558,10 @@ namespace Steepshot.Adapter
                 _topLikers.AddView(topLikersAvatar, layoutParams);
                 var avatarUrl = Post.TopLikersAvatars[i];
                 if (!string.IsNullOrEmpty(avatarUrl))
-                    Picasso.With(Context).Load(avatarUrl.GetImageProxy(topLikersSize, topLikersSize)).Placeholder(Resource.Drawable.ic_holder).Priority(Picasso.Priority.Low).Into(topLikersAvatar, null,
-                        () =>
-                        {
-                            Picasso.With(context).Load(Resource.Drawable.ic_holder).Into(topLikersAvatar);
-                        });
+                    Picasso.With(Context)
+                        .Load(avatarUrl.GetImageProxy(topLikersSize, topLikersSize))
+                        .Placeholder(Resource.Drawable.ic_holder)
+                        .Priority(Picasso.Priority.Low).Into(topLikersAvatar, null, () => { Picasso.With(context).Load(Resource.Drawable.ic_holder).Into(topLikersAvatar); });
                 else
                     Picasso.With(context).Load(Resource.Drawable.ic_holder).Into(topLikersAvatar);
             }
@@ -647,7 +650,7 @@ namespace Steepshot.Adapter
         class PostPhotosPagerAdapter : Android.Support.V4.View.PagerAdapter
         {
             private const int CachedPagesCount = 5;
-            private readonly List<ImageView> _photoHolders;
+            private readonly List<MediaView> _mediaViews;
             private readonly Context _context;
             private readonly ViewGroup.LayoutParams _layoutParams;
             private readonly Action<Post> _photoAction;
@@ -658,7 +661,7 @@ namespace Steepshot.Adapter
                 _context = context;
                 _layoutParams = layoutParams;
                 _photoAction = photoAction;
-                _photoHolders = new List<ImageView>(Enumerable.Repeat<ImageView>(null, CachedPagesCount));
+                _mediaViews = new List<MediaView>(Enumerable.Repeat<MediaView>(null, CachedPagesCount));
             }
 
             public void UpdateData(Post post)
@@ -667,43 +670,44 @@ namespace Steepshot.Adapter
                 NotifyDataSetChanged();
             }
 
-            private void LoadPhoto(MediaModel mediaModel, ImageView photo)
+            private void LoadMedia(MediaModel mediaModel, MediaView mediaView)
             {
                 if (mediaModel != null)
                 {
-                    var url = mediaModel.Url;
-                    Picasso.With(_context).Load(url.GetImageProxy(_context.Resources.DisplayMetrics.WidthPixels, _context.Resources.DisplayMetrics.WidthPixels))
-                        .Placeholder(new ColorDrawable(Style.R245G245B245))
-                        .NoFade()
-                        .Priority(Picasso.Priority.High)
-                        .Into(photo, null, () =>
-                        {
-                            Picasso.With(_context).Load(url).Placeholder(new ColorDrawable(Style.R245G245B245)).NoFade().Priority(Picasso.Priority.High).Into(photo);
-                        });
-
-                    photo.LayoutParameters.Height = ((View)photo.Parent).LayoutParameters.Height;
+                    var size = new Size { Height = mediaModel.Size.Height / Style.Density, Width = mediaModel.Size.Width / Style.Density };
+                    var height = (int)(OptimalPhotoSize.Get(size, Style.ScreenWidthInDp, 130, Style.MaxPostHeight) * Style.Density);
+                    mediaView.LayoutParameters.Height = height;
+                    ((View)mediaView.Parent).LayoutParameters.Height = height;
+                    mediaView.LayoutParameters.Height = height;
+                    mediaView.MediaSource = mediaModel;
                 }
             }
 
             public override Object InstantiateItem(ViewGroup container, int position)
             {
                 var reusePosition = position % CachedPagesCount;
-                if (_photoHolders[reusePosition] == null)
+                var mediaView = _mediaViews[reusePosition];
+
+                if (mediaView == null)
                 {
-                    var photo = new ImageView(_context) { LayoutParameters = _layoutParams };
-                    photo.SetImageDrawable(null);
-                    photo.SetScaleType(ImageView.ScaleType.CenterCrop);
-                    photo.Click += PhotoOnClick;
-                    _photoHolders[reusePosition] = photo;
+                    mediaView = new MediaView(_context) { LayoutParameters = container.LayoutParameters };
+                    mediaView.OnClick += MediaClick;
+                    _mediaViews[reusePosition] = mediaView;
                 }
-                container.AddView(_photoHolders[reusePosition]);
-                LoadPhoto(_post.Media[position], _photoHolders[reusePosition]);
-                return _photoHolders[reusePosition];
+
+                container.AddView(mediaView);
+                LoadMedia(_post.Media[position], mediaView);
+                return mediaView;
             }
 
-            private void PhotoOnClick(object sender, EventArgs eventArgs)
+            private void MediaClick(MediaType mediaType)
             {
-                _photoAction?.Invoke(_post);
+                switch (mediaType)
+                {
+                    case MediaType.Image:
+                        _photoAction?.Invoke(_post);
+                        break;
+                }
             }
 
             public override int GetItemPosition(Object @object) => PositionNone;

@@ -114,7 +114,7 @@ namespace Steepshot.Utils.Media
             {
                 if (!IsAvailable) return;
                 var canvas = LockCanvas();
-                canvas.DrawColor(Color.White);
+                canvas.DrawColor(Color.Orange);//Style.R245G245B245
                 if (_buffer?.Handle != IntPtr.Zero && _buffer != null && !_buffer.IsRecycled)
                     canvas.DrawBitmap(_buffer, 0, 0, null);
                 UnlockCanvasAndPost(canvas);
