@@ -405,6 +405,7 @@ namespace Steepshot.Adapter
         {
             _moreActionsDialog.Dismiss();
             var actionAlert = new PromoteAlertDialog(Context, presenter);
+            actionAlert.Window.RequestFeature(WindowFeatures.NoTitle);
             actionAlert.Show();
         }
 
