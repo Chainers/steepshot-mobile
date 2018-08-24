@@ -8,13 +8,15 @@ namespace Steepshot.iOS.Cells
 {
     public class TransactionHeaderCollectionViewCell : UICollectionReusableView
     {
-        private UILabel _date = new UILabel();
-        private UIView _line;
+        private readonly UILabel _date = new UILabel();
+        private readonly UIView _line;
 
         protected TransactionHeaderCollectionViewCell(IntPtr handle) : base(handle)
         {
-            _line = new UIView();
-            _line.BackgroundColor = UIColor.FromRGB(240, 240, 240);
+            _line = new UIView
+            {
+                BackgroundColor = UIColor.FromRGB(240, 240, 240)
+            };
             AddSubview(_line);
 
             _line.AutoSetDimension(ALDimension.Width, 2);

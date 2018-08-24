@@ -438,6 +438,8 @@
     <Compile Include="Delegates\TTTAttributedLabelActionDelegate.cs" />
     <Compile Include="Popups\PromotePopup.cs" />
     <Compile Include="Delegates\TTTAttributedLabelSimpleDelegate.cs" />
+    <Compile Include="Cells\CardsContainerHeader.cs" />
+    <Compile Include="Popups\PowerManipulationPopup.cs" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\ic_photo_holder.png" />
