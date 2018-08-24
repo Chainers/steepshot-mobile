@@ -41,9 +41,13 @@ namespace Steepshot.Core.Localization
             return null;
         }
 
-        public async void Update(ExtendedHttpClient gateway)
+        public async void Update(ExtendedHttpClient httpClient)
         {
-            var rez = await gateway.Get<string>(string.Format(UpdateUrl, Model.Lang), CancellationToken.None);
+            var available = AppSettings.ConnectionService.IsConnectionAvailable();
+            if (!available)
+                return;
+
+            var rez = await httpClient.Get<string>(string.Format(UpdateUrl, Model.Lang), CancellationToken.None);
             if (!rez.IsSuccess)
                 return;
 
