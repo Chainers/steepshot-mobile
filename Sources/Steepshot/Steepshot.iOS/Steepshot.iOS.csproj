@@ -440,6 +440,7 @@
     <Compile Include="Delegates\TTTAttributedLabelSimpleDelegate.cs" />
     <Compile Include="Cells\CardsContainerHeader.cs" />
     <Compile Include="Popups\PowerManipulationPopup.cs" />
+    <Compile Include="Popups\TransferDialogPopup.cs" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\ic_photo_holder.png" />

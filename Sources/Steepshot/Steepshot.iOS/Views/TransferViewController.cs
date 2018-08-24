@@ -149,7 +149,7 @@ namespace Steepshot.iOS.Views
             memoLabel.UserInteractionEnabled = enabled;
         }
 
-        private async void Transfer(object sender, EventArgs e)
+        private void Transfer(object sender, EventArgs e)
         {
             if (_transferFacade.UserBalance == null || _transferFacade.Recipient == null)
             {
@@ -168,28 +168,41 @@ namespace Steepshot.iOS.Views
                 return;
             }
 
-            TogglButtons(false);
+            Popups.TransferDialogPopup.Create(NavigationController,
+                                              _transferFacade.Recipient.Author,
+                                              _amountTextField.GetDoubleValue().ToString(),
+                                              _pickedCoin,
+                                              ContinueTransfer
+                                             );
+        }
 
-            _tranfserLoader.StartAnimating();
-            RemoveFocus();
-
-            var transferResponse = await _presenter.TryTransfer(AppSettings.User.UserInfo, _transferFacade.Recipient.Author, _amountTextField.GetDoubleValue().ToString(), _pickedCoin, _memoTextView.Text);
-
-            _tranfserLoader.StopAnimating();
-            TogglButtons(true);
-
-            if (transferResponse.IsSuccess)
+        private async void ContinueTransfer(bool shouldContinue)
+        {
+            if (shouldContinue)
             {
-                ShowSuccessPopUp();
-                _transferFacade.UserFriendPresenter.Clear();
-                _userTableSource.ClearPosition();
-                _recepientTextField.Clear();
-                _amountTextField.Clear();
-                _transferFacade.Recipient = null;
-                _memoTextView.Text = string.Empty;
+                TogglButtons(false);
+
+                _tranfserLoader.StartAnimating();
+                RemoveFocus();
+
+                var transferResponse = await _presenter.TryTransfer(AppSettings.User.UserInfo, _transferFacade.Recipient.Author, _amountTextField.GetDoubleValue().ToString(), _pickedCoin, _memoTextView.Text);
+
+                _tranfserLoader.StopAnimating();
+                TogglButtons(true);
+
+                if (transferResponse.IsSuccess)
+                {
+                    ShowSuccessPopUp();
+                    _transferFacade.UserFriendPresenter.Clear();
+                    _userTableSource.ClearPosition();
+                    _recepientTextField.Clear();
+                    _amountTextField.Clear();
+                    _transferFacade.Recipient = null;
+                    _memoTextView.Text = string.Empty;
+                }
+                else
+                    ShowAlert(transferResponse.Exception);
             }
-            else
-                ShowAlert(transferResponse.Exception);
         }
 
         private async void UpdateAccountInfo()
