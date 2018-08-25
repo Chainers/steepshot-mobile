@@ -25,7 +25,7 @@ namespace Steepshot.Utils.Media
         {
             _media = media;
             Picasso.With(_context)
-                .Load(_media.GetImageProxy(_context.Resources.DisplayMetrics.WidthPixels, _context.Resources.DisplayMetrics.WidthPixels))
+                .Load(_media.GetImageProxy(_context.Resources.DisplayMetrics.WidthPixels))
                 .Placeholder(new ColorDrawable(Style.R245G245B245))
                 .NoFade()
                 .Priority(Picasso.Priority.High)

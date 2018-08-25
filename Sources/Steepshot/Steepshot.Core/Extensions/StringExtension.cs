@@ -87,13 +87,13 @@ namespace Steepshot.Core.Extensions
             return $"{string.Format(Constants.ProxyForAvatars, width, height)}{link}";
         }
 
-        public static string GetImageProxy(this MediaModel mediaModel, int width, int height)
+        public static string GetImageProxy(this MediaModel mediaModel, int width)
         {
             var url = mediaModel.Url;
             if (!string.IsNullOrEmpty(mediaModel.ContentType) && mediaModel.ContentType.StartsWith("video"))
                 url = mediaModel.Thumbnails.Mini;
 
-            return $"{string.Format(Constants.ProxyForAvatars, width, height)}{url}";
+            return $"{string.Format(Constants.ProxyForAvatars, width)}{url}";
         }
 
         public static string ToBalanceValueString(this double value)

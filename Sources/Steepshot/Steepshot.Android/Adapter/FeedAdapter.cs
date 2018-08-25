@@ -62,7 +62,7 @@ namespace Steepshot.Adapter
                 foreach (var media in post.Media.Where(i => !string.IsNullOrEmpty(i.ContentType) && i.ContentType.StartsWith("image")))
                 {
                     Picasso.With(Context)
-                        .Load(media.GetImageProxy(Context.Resources.DisplayMetrics.WidthPixels, Context.Resources.DisplayMetrics.WidthPixels))
+                        .Load(media.GetImageProxy(Context.Resources.DisplayMetrics.WidthPixels))
                         .Priority(Picasso.Priority.Low)
                         .MemoryPolicy(MemoryPolicy.NoCache)
                         .Fetch();
@@ -539,8 +539,7 @@ namespace Steepshot.Adapter
             else
                 Picasso.With(context).Load(Resource.Drawable.ic_holder).Into(_avatar);
 
-            var size = new Size { Height = post.Media[0].Size.Height / Style.Density, Width = post.Media[0].Size.Width / Style.Density };
-            var height = (int)(OptimalPhotoSize.Get(size, Style.ScreenWidthInDp, 130, Style.MaxPostHeight) * Style.Density);
+            var height = post.Media[0].OptimalPhotoSize(Style.ScreenWidth, 130 * Style.Density, Style.MaxPostHeight);
             PhotosViewPager.LayoutParameters.Height = height;
             ((PostPhotosPagerAdapter)PhotosViewPager.Adapter).UpdateData(Post);
 
@@ -674,11 +673,10 @@ namespace Steepshot.Adapter
             {
                 if (mediaModel != null)
                 {
-                    var size = new Size { Height = mediaModel.Size.Height / Style.Density, Width = mediaModel.Size.Width / Style.Density };
-                    var height = (int)(OptimalPhotoSize.Get(size, Style.ScreenWidthInDp, 130, Style.MaxPostHeight) * Style.Density);
+                    var height = mediaModel.OptimalPhotoSize(Style.ScreenWidth, 130 * Style.Density, Style.MaxPostHeight);
                     mediaView.LayoutParameters.Height = height;
+                    mediaView.LayoutParameters.Width = Style.ScreenWidth;
                     ((View)mediaView.Parent).LayoutParameters.Height = height;
-                    mediaView.LayoutParameters.Height = height;
                     mediaView.MediaSource = mediaModel;
                 }
             }

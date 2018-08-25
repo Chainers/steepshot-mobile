@@ -41,7 +41,7 @@ namespace Steepshot.Adapter
         {
             foreach (var post in Presenter)
             {
-                Picasso.With(Context).Load(post.Media[0].GetImageProxy(CellSize, CellSize)).Priority(Picasso.Priority.Low).MemoryPolicy(MemoryPolicy.NoCache).Fetch();
+                Picasso.With(Context).Load(post.Media[0].GetImageProxy(CellSize)).Priority(Picasso.Priority.Low).MemoryPolicy(MemoryPolicy.NoCache).Fetch();
             }
         }
 
@@ -125,7 +125,7 @@ namespace Steepshot.Adapter
 
             if (_mediaModel != null)
             {
-                Picasso.With(_context).Load(_mediaModel.GetImageProxy(cellSize, cellSize))
+                Picasso.With(_context).Load(_mediaModel.GetImageProxy(cellSize))
                     .Placeholder(Resource.Color.rgb244_244_246)
                     .NoFade()
                     .Priority(Picasso.Priority.High)

@@ -116,10 +116,35 @@ namespace Steepshot.Utils.Media
                 var canvas = LockCanvas();
                 canvas.DrawColor(Color.Orange);//Style.R245G245B245
                 if (_buffer?.Handle != IntPtr.Zero && _buffer != null && !_buffer.IsRecycled)
+                {
                     canvas.DrawBitmap(_buffer, 0, 0, null);
+                }
                 UnlockCanvasAndPost(canvas);
                 Invalidate();
             });
+        }
+
+        public Matrix GetMatrix(int frameWidth, int frameHeight, int imageWidh, int imageHeight)
+        {
+            if (frameWidth == imageWidh && frameHeight == imageHeight)
+            {
+                return null;
+            }
+
+            var dW = (float)frameWidth / imageWidh;
+            var dH = (float)frameHeight / imageHeight;
+            var delta = Math.Max(dW, dH);
+
+            var scaledWidth = delta * imageWidh;
+            var scaledHeight = delta * imageHeight;
+
+            var x = Math.Max((int)((scaledWidth - frameWidth) / 2), 0);
+            var y = Math.Max((int)((scaledHeight - frameHeight) / 2), 0);
+
+            var matrix = new Matrix();
+            matrix.SetScale(delta, delta);
+            matrix.MapRect(new RectF(x, y, frameWidth, frameHeight));
+            return matrix;
         }
 
         public Task<bool> PrepareBufferAsync(Bitmap bitmap)
@@ -129,13 +154,31 @@ namespace Steepshot.Utils.Media
                 try
                 {
                     ReleaseBuffer();
-                    var cropped = Bitmap.CreateBitmap(bitmap, Math.Max((bitmap.Width - LayoutParameters.Width) / 2, 0),
-                                                              Math.Max((bitmap.Height - LayoutParameters.Height) / 2, 0),
-                                                              Math.Min(bitmap.Width, LayoutParameters.Width),
-                                                              Math.Min(bitmap.Height, LayoutParameters.Height));
+
+                    var frameWidth = LayoutParameters.Width;
+                    var frameHeight = LayoutParameters.Height;
+                    var imageWidh = bitmap.Width;
+                    var imageHeight = bitmap.Height;
+
+
+                    if (frameWidth == imageWidh && frameHeight == imageHeight)
+                    {
+                        _buffer = bitmap;
+                        return true;
+                    }
+
+                    var dW = (float)frameWidth / imageWidh;
+                    var dH = (float)frameHeight / imageHeight;
+                    var delta = Math.Max(dW, dH);
+                    
+                    var x = Math.Max((int)((imageWidh - frameWidth / delta) / 2), 0);
+                    var y = Math.Max((int)((imageHeight - frameHeight / delta) / 2), 0);
+
+                    var matrix = new Matrix();
+                    matrix.PostScale(delta, delta);
+                    _buffer = Bitmap.CreateBitmap(bitmap, x, y, imageWidh - x * 2, imageHeight - y * 2, matrix, true);
                     BitmapUtils.ReleaseBitmap(bitmap);
-                    _buffer = Bitmap.CreateScaledBitmap(cropped, LayoutParameters.Width, LayoutParameters.Height, false);
-                    BitmapUtils.ReleaseBitmap(cropped);
+
                     return true;
                 }
                 catch (Java.Lang.OutOfMemoryError e)
