@@ -169,11 +169,10 @@ namespace Steepshot.iOS.Views
             }
 
             Popups.TransferDialogPopup.Create(NavigationController,
-                                              _transferFacade.Recipient.Author,
                                               _amountTextField.GetDoubleValue().ToString(),
-                                              _pickedCoin,
-                                              ContinueTransfer
-                                             );
+                                              ContinueTransfer,
+                                              recipient: _transferFacade.Recipient.Author,
+                                              type: _pickedCoin);
         }
 
         private async void ContinueTransfer(bool shouldContinue)

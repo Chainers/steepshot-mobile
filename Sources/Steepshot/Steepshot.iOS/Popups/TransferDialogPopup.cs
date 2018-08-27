@@ -2,11 +2,13 @@
 using Foundation;
 using PureLayout.Net;
 using Steepshot.Core.Localization;
+using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Utils;
 using Steepshot.iOS.CustomViews;
 using Steepshot.iOS.Helpers;
 using UIKit;
+using Steepshot.Core.Extensions;
 
 namespace Steepshot.iOS.Popups
 {
@@ -24,7 +26,12 @@ namespace Steepshot.iOS.Popups
             ForegroundColor = Constants.R255G0B0,
         };
 
-        public static void Create(UINavigationController controller, string recipient, string amount, CurrencyType type, Action<bool> dialogAction)
+        public static void Create(UINavigationController controller,
+                                  string amount,
+                                  Action<bool> dialogAction,
+                                  CurrencyType type = CurrencyType.Steem,
+                                  string recipient = null,
+                                  PowerAction powerAction = PowerAction.None)
         {
             var commonMargin = 20;
 
@@ -46,11 +53,17 @@ namespace Steepshot.iOS.Popups
             title.AutoPinEdgeToSuperviewEdge(ALEdge.Top, 34);
             title.AutoPinEdgeToSuperviewEdge(ALEdge.Right, commonMargin);
             title.AutoPinEdgeToSuperviewEdge(ALEdge.Left, commonMargin);
-
             var at = new NSMutableAttributedString();
-            at.Append(new NSAttributedString($"Are you sure you want to transfer {amount} {type.ToString()} to ", _noLinkAttribute));
-            at.Append(new NSAttributedString($"@{recipient}", _linkAttribute));
-            at.Append(new NSAttributedString("?", _noLinkAttribute));
+            if (powerAction == PowerAction.None)
+            {
+                at.Append(new NSAttributedString($"Are you sure you want to transfer {amount} {type.ToString()} to ", _noLinkAttribute));
+                at.Append(new NSAttributedString($"@{recipient}", _linkAttribute));
+                at.Append(new NSAttributedString("?", _noLinkAttribute));
+            }
+            else
+            {
+                at.Append(new NSAttributedString($"Are you sure you want to {powerAction.GetDescription()} {amount} {type.ToString()}?", _noLinkAttribute));
+            }
 
             title.AttributedText = at;
 

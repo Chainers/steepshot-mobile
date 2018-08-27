@@ -119,25 +119,36 @@ namespace Steepshot.iOS.Views
             DoPowerAction();
         }
 
-        private async void DoPowerAction()
+        private void DoPowerAction()
         {
-            _loader.StartAnimating();
-            _actionButton.Enabled = false;
+            Popups.TransferDialogPopup.Create(NavigationController,
+                                              _amountTextField.GetDoubleValue().ToString(),
+                                              ContinuePowerAction,
+                                              powerAction: _powerAction);
+        }
 
-            var model = new BalanceModel(_powerAmount, _balance.MaxDecimals, _balance.CurrencyType)
+        private async void ContinuePowerAction(bool shouldContinue)
+        {
+            if(shouldContinue)
             {
-                UserInfo = _balance.UserInfo
-            };
+                _loader.StartAnimating();
+                _actionButton.Enabled = false;
 
-            var response = await _presenter.TryPowerUpOrDown(model, _powerAction);
+                var model = new BalanceModel(_powerAmount, _balance.MaxDecimals, _balance.CurrencyType)
+                {
+                    UserInfo = _balance.UserInfo
+                };
 
-            _loader.StopAnimating();
-            _actionButton.Enabled = true;
+                var response = await _presenter.TryPowerUpOrDown(model, _powerAction);
 
-            if (response.IsSuccess)
-                NavigationController.PopViewController(true);
-            else
-                ShowAlert(response.Exception);
+                _loader.StopAnimating();
+                _actionButton.Enabled = true;
+
+                if (response.IsSuccess)
+                    NavigationController.PopViewController(true);
+                else
+                    ShowAlert(response.Exception);
+            }
         }
 
         private void CreateView()
