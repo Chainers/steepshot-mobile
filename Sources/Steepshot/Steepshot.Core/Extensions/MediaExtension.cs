@@ -4,12 +4,12 @@ namespace Steepshot.Core.Extensions
 {
     public static class MediaExtension
     {
-        public static int OptimalPhotoSize(this MediaModel media, float screenWidth, float minHeight, float maxHeight)
+        public static int OptimalPhotoSize(this FrameSize size, float screenWidth, float minHeight, float maxHeight)
         {
             float correction = screenWidth;
-            if (media.Size != null && media.Size.Width != 0)
+            if (size != null && size.Width != 0)
             {
-                var height = screenWidth * media.Size.Height / media.Size.Width;
+                var height = screenWidth * size.Height / size.Width;
                 if (height >= minHeight && height <= maxHeight)
                 {
                     correction = height;
@@ -24,6 +24,11 @@ namespace Steepshot.Core.Extensions
                 }
             }
             return (int)correction;
+        }
+
+        public static int OptimalPhotoSize(this MediaModel media, float screenWidth, float minHeight, float maxHeight)
+        {
+            return OptimalPhotoSize(media.Size, screenWidth, minHeight, maxHeight);
         }
     }
 }

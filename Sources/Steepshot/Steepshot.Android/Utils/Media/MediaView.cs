@@ -114,7 +114,7 @@ namespace Steepshot.Utils.Media
             {
                 if (!IsAvailable) return;
                 var canvas = LockCanvas();
-                canvas.DrawColor(Color.Orange);//Style.R245G245B245
+                canvas.DrawColor(Style.R245G245B245);
                 if (_buffer?.Handle != IntPtr.Zero && _buffer != null && !_buffer.IsRecycled)
                 {
                     canvas.DrawBitmap(_buffer, 0, 0, null);
@@ -153,8 +153,6 @@ namespace Steepshot.Utils.Media
             {
                 try
                 {
-                    ReleaseBuffer();
-
                     var frameWidth = LayoutParameters.Width;
                     var frameHeight = LayoutParameters.Height;
                     var imageWidh = bitmap.Width;
@@ -163,6 +161,7 @@ namespace Steepshot.Utils.Media
 
                     if (frameWidth == imageWidh && frameHeight == imageHeight)
                     {
+                        ReleaseBuffer();
                         _buffer = bitmap;
                         return true;
                     }
@@ -170,13 +169,32 @@ namespace Steepshot.Utils.Media
                     var dW = (float)frameWidth / imageWidh;
                     var dH = (float)frameHeight / imageHeight;
                     var delta = Math.Max(dW, dH);
-                    
-                    var x = Math.Max((int)((imageWidh - frameWidth / delta) / 2), 0);
-                    var y = Math.Max((int)((imageHeight - frameHeight / delta) / 2), 0);
+
+                    var x = 0;
+                    var newWidh = imageWidh;
+
+                    if (dH > dW)
+                    {
+                        newWidh = (int)Math.Round(frameWidth * imageHeight / (float)frameHeight);
+                        newWidh = Math.Min(newWidh, imageWidh);
+                        x = (int)((imageWidh - newWidh) / 2.0);
+                    }
+
+                    var y = 0;
+                    var newHeight = imageHeight;
+
+                    if (dW > dH)
+                    {
+                        newHeight = (int)Math.Round(frameHeight * imageWidh / (float)frameWidth);
+                        newHeight = Math.Min(newHeight, imageHeight);
+                        y = (int)((imageHeight - newHeight) / 2.0);
+                    }
 
                     var matrix = new Matrix();
                     matrix.PostScale(delta, delta);
-                    _buffer = Bitmap.CreateBitmap(bitmap, x, y, imageWidh - x * 2, imageHeight - y * 2, matrix, true);
+
+                    ReleaseBuffer();
+                    _buffer = Bitmap.CreateBitmap(bitmap, x, y, newWidh, newHeight, matrix, true);
                     BitmapUtils.ReleaseBitmap(bitmap);
 
                     return true;
