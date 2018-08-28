@@ -14,9 +14,9 @@ namespace Steepshot.iOS.Cells
     {
         private readonly UIView _cardBehind = new UIView();
         private UICollectionView _cardsCollection;
-        private UIPageControl _pageControl;
-        private CardCollectionViewFlowDelegate _cardsGridDelegate;
-
+        private readonly UIPageControl _pageControl = new UIPageControl();
+        private readonly CardCollectionViewFlowDelegate _cardsGridDelegate = new CardCollectionViewFlowDelegate();
+        private readonly UIButton transfer = new UIButton();
         private WalletPresenter _presenter;
 
         public WalletPresenter Presenter
@@ -52,6 +52,13 @@ namespace Steepshot.iOS.Cells
         protected CardsContainerHeader(IntPtr handle) : base(handle)
         {
             SetupCardsCollection();
+        }
+
+        public override void LayoutSubviews()
+        {
+            base.LayoutSubviews();
+            if(transfer.Layer?.Sublayers?.Length < 2)
+                Constants.CreateGradient(transfer, 25);
         }
 
         private void SetupCardsCollection()
@@ -90,7 +97,6 @@ namespace Steepshot.iOS.Cells
             _cardsCollection.AutoPinEdgeToSuperviewEdge(ALEdge.Right);
             _cardsCollection.AutoSetDimension(ALDimension.Height, cellSize.Height);
 
-            _cardsGridDelegate = new CardCollectionViewFlowDelegate();
             _cardsGridDelegate.CardsScrolled += () =>
             {
                 var pageWidth = cellSize.Width + 20;
@@ -106,8 +112,6 @@ namespace Steepshot.iOS.Cells
             _cardsCollection.RegisterClassForCell(typeof(SliderFeedCollectionViewCell), nameof(SliderFeedCollectionViewCell));
             _cardsCollection.DelaysContentTouches = false;
 
-
-            _pageControl = new UIPageControl();
             _pageControl.PageIndicatorTintColor = UIColor.FromRGB(0, 0, 0).ColorWithAlpha(0.1f);
             _pageControl.CurrentPageIndicatorTintColor = UIColor.FromRGB(0, 0, 0).ColorWithAlpha(0.4f);
             _pageControl.UserInteractionEnabled = false;
@@ -116,10 +120,8 @@ namespace Steepshot.iOS.Cells
             _pageControl.AutoPinEdgeToSuperviewEdge(ALEdge.Top, cardBottom);
             _pageControl.AutoAlignAxis(ALAxis.Vertical, _cardsCollection);
 
-            var transfer = new UIButton();
             transfer.SetTitle("TRANSFER", UIControlState.Normal);
             transfer.Font = Constants.Bold14;
-            transfer.BackgroundColor = UIColor.FromRGB(255, 24, 5);
             transfer.SetTitleColor(UIColor.White, UIControlState.Normal);
             transfer.Layer.CornerRadius = 25;
             transfer.ClipsToBounds = true;
@@ -137,7 +139,7 @@ namespace Steepshot.iOS.Cells
             var more = new UIButton();
             more.BackgroundColor = Constants.R250G250B250;
             more.SetImage(UIImage.FromBundle("ic_more"), UIControlState.Normal);
-            more.Layer.CornerRadius = 12;
+            more.Layer.CornerRadius = 25;
             more.ClipsToBounds = true;
             more.TouchDown += (object sender, EventArgs e) =>
             {
@@ -149,7 +151,6 @@ namespace Steepshot.iOS.Cells
             more.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 20);
             more.AutoPinEdge(ALEdge.Left, ALEdge.Right, transfer, 10);
             more.AutoSetDimensionsToSize(new CGSize(50, 50));
-
 
             var historyLabel = new UILabel();
             historyLabel.Text = "Transaction history";

@@ -12,6 +12,7 @@ using Steepshot.iOS.ViewControllers;
 using Steepshot.iOS.ViewSources;
 using UIKit;
 using Steepshot.Core.Extensions;
+using System.Threading.Tasks;
 
 namespace Steepshot.iOS.Views
 {
@@ -20,6 +21,7 @@ namespace Steepshot.iOS.Views
         private UICollectionView _historyCollection;
         private TransferCollectionViewSource _historySource;
         private readonly UIActivityIndicatorView _loader = new UIActivityIndicatorView();
+        private readonly UIRefreshControl _refreshControl = new UIRefreshControl();
 
         public override void ViewDidLoad()
         {
@@ -39,9 +41,19 @@ namespace Steepshot.iOS.Views
 
             View.AddSubview(_loader);
             _loader.AutoCenterInSuperview();
+
+            _historyCollection.Add(_refreshControl);
+            _refreshControl.ValueChanged += OnRefresh;
         }
 
-        private async void LoadData()
+        private async void OnRefresh(object sender, EventArgs e)
+        {
+            _presenter.Reset();
+            await LoadData();
+            _refreshControl.EndRefreshing();
+        }
+
+        private async Task LoadData()
         {
             var exception = await _presenter.TryLoadNextAccountInfo();
             if (exception == null)
