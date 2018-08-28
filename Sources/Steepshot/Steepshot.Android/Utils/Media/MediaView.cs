@@ -124,29 +124,6 @@ namespace Steepshot.Utils.Media
             });
         }
 
-        public Matrix GetMatrix(int frameWidth, int frameHeight, int imageWidh, int imageHeight)
-        {
-            if (frameWidth == imageWidh && frameHeight == imageHeight)
-            {
-                return null;
-            }
-
-            var dW = (float)frameWidth / imageWidh;
-            var dH = (float)frameHeight / imageHeight;
-            var delta = Math.Max(dW, dH);
-
-            var scaledWidth = delta * imageWidh;
-            var scaledHeight = delta * imageHeight;
-
-            var x = Math.Max((int)((scaledWidth - frameWidth) / 2), 0);
-            var y = Math.Max((int)((scaledHeight - frameHeight) / 2), 0);
-
-            var matrix = new Matrix();
-            matrix.SetScale(delta, delta);
-            matrix.MapRect(new RectF(x, y, frameWidth, frameHeight));
-            return matrix;
-        }
-
         public Task<bool> PrepareBufferAsync(Bitmap bitmap)
         {
             return Task.Run(async () =>
