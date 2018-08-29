@@ -17,6 +17,7 @@ using Steepshot.iOS.Helpers;
 using Steepshot.iOS.ViewControllers;
 using Steepshot.iOS.ViewSources;
 using UIKit;
+using Steepshot.iOS.Popups;
 
 namespace Steepshot.iOS.Views
 {
@@ -265,6 +266,8 @@ namespace Steepshot.iOS.Views
             {
                 RefreshPage();
                 ShouldProfileUpdate = false;
+
+                PostCreatedPopup.Show(View);
             }
         }
 
