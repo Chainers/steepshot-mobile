@@ -62,7 +62,7 @@ namespace Steepshot.Adapter
             {
                 var itemView = LayoutInflater.From(_context)
                     .Inflate(Resource.Layout.lyt_post_view_item, container, false);
-                vh = new PostViewHolder(itemView, PostAction, AutoLinkAction, CloseAction, _context.Resources.DisplayMetrics.WidthPixels);
+                vh = new PostViewHolder(itemView, PostAction, AutoLinkAction, CloseAction, Style.ScreenWidth, (int)(Style.ScreenWidth * 0.8));
                 _viewHolders[reusePosition] = vh;
                 container.AddView(vh.ItemView);
             }
@@ -154,7 +154,8 @@ namespace Steepshot.Adapter
     public sealed class PostViewHolder : FeedViewHolder
     {
         private readonly Action _closeAction;
-        public PostViewHolder(View itemView, Action<ActionType, Post> postAction, Action<AutoLinkType, string> autoLinkAction, Action closeAction, int height) : base(itemView, postAction, autoLinkAction, height)
+        public PostViewHolder(View itemView, Action<ActionType, Post> postAction, Action<AutoLinkType, string> autoLinkAction, Action closeAction, int height, int width)
+            : base(itemView, postAction, autoLinkAction, height, width)
         {
             PhotoPagerType = PostPagerType.PostScreen;
             _closeAction = closeAction;

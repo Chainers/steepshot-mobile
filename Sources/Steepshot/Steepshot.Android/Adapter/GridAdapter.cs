@@ -32,7 +32,7 @@ namespace Steepshot.Adapter
         public GridAdapter(Context context, T presenter)
         {
             Context = context;
-            CellSize = Context.Resources.DisplayMetrics.WidthPixels / 3 - 2; // [x+2][1+x+1][2+x]   
+            CellSize = Style.ScreenWidth / 3 - 2; // [x+2][1+x+1][2+x]   
             Presenter = presenter;
             Presenter.SourceChanged += PresenterOnSourceChanged;
         }

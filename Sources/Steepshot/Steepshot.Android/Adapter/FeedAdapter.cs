@@ -62,7 +62,7 @@ namespace Steepshot.Adapter
                 foreach (var media in post.Media.Where(i => !string.IsNullOrEmpty(i.ContentType) && i.ContentType.StartsWith("image")))
                 {
                     Picasso.With(Context)
-                        .Load(media.GetImageProxy(Context.Resources.DisplayMetrics.WidthPixels))
+                        .Load(media.GetImageProxy(Style.ScreenWidth))
                         .Priority(Picasso.Priority.Low)
                         .MemoryPolicy(MemoryPolicy.NoCache)
                         .Fetch();
@@ -103,7 +103,7 @@ namespace Steepshot.Adapter
                     return loaderVh;
                 default:
                     var itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.lyt_feed_item, parent, false);
-                    var vh = new FeedViewHolder(itemView, PostAction, AutoLinkAction, parent.Context.Resources.DisplayMetrics.WidthPixels);
+                    var vh = new FeedViewHolder(itemView, PostAction, AutoLinkAction, Style.ScreenWidth, Style.ScreenWidth);
                     return vh;
             }
         }
@@ -148,7 +148,8 @@ namespace Steepshot.Adapter
         private const int MaxLines = 5;
         protected PostPagerType PhotoPagerType;
 
-        public FeedViewHolder(View itemView, Action<ActionType, Post> postAction, Action<AutoLinkType, string> autoLinkAction, int height) : base(itemView)
+        public FeedViewHolder(View itemView, Action<ActionType, Post> postAction, Action<AutoLinkType, string> autoLinkAction, int height, int width)
+            : base(itemView)
         {
             Context = itemView.Context;
             PhotoPagerType = PostPagerType.Feed;
@@ -193,6 +194,7 @@ namespace Steepshot.Adapter
 
             var parameters = PhotosViewPager.LayoutParameters;
             parameters.Height = height;
+            parameters.Width = width;
 
             PhotosViewPager.LayoutParameters = parameters;
             PhotosViewPager.Adapter = new PostPhotosPagerAdapter(Context, PhotosViewPager.LayoutParameters, post =>
@@ -673,10 +675,9 @@ namespace Steepshot.Adapter
             {
                 if (mediaModel != null)
                 {
-                    var height = mediaModel.OptimalPhotoSize(Style.ScreenWidth, 130 * Style.Density, Style.MaxPostHeight);
-                    mediaView.LayoutParameters.Height = height;
-                    mediaView.LayoutParameters.Width = Style.ScreenWidth;
-                    ((View)mediaView.Parent).LayoutParameters.Height = height;
+                    var parent = (View)mediaView.Parent;
+                    mediaView.LayoutParameters.Height = parent.LayoutParameters.Height;
+                    mediaView.LayoutParameters.Width = parent.LayoutParameters.Width;
                     mediaView.MediaSource = mediaModel;
                 }
             }
