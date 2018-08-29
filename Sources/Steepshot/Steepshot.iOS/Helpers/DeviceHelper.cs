@@ -178,6 +178,18 @@ namespace Steepshot.iOS.Helpers
             }
         }
 
+        public static bool IsPlusDevice
+        {
+            get
+            {
+                var currentVersion = GetVersion();
+                return currentVersion == HardwareVersion.iPhone6Plus ||
+                       currentVersion == HardwareVersion.iPhone6SPlus ||
+                       currentVersion == HardwareVersion.iPhone7Plus ||
+                       currentVersion == HardwareVersion.iPhone8Plus;
+            }
+        }
+
         public enum HardwareVersion
         {
             iPhone,
