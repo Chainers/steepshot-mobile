@@ -277,7 +277,6 @@
     <AndroidResource Include="Resources\drawable-hdpi\ic_close.png" />
     <AndroidResource Include="Resources\drawable-hdpi\ic_forward.png" />
     <AndroidResource Include="Resources\drawable-hdpi\ic_grid.png" />
-    <AndroidResource Include="Resources\drawable-hdpi\ic_grid_active.png" />
     <AndroidResource Include="Resources\drawable-hdpi\ic_micro_heart.png" />
     <AndroidResource Include="Resources\drawable-hdpi\ic_photo_holder.png" />
     <AndroidResource Include="Resources\drawable-hdpi\ic_revert.png" />
