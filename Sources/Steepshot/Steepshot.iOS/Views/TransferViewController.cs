@@ -129,7 +129,7 @@ namespace Steepshot.iOS.Views
         private void OnUserBalanceChanged()
         {
             if (_transferFacade.UserBalance != null)
-                _balance.Text = $"{_transferFacade.UserBalance.Value} {_pickedCoin.ToString()}";
+                _balanceLabel.Text = $"{AppSettings.LocalizationManager.GetText(LocalizationKeys.Balance)}: {_transferFacade.UserBalance.Value}";
         }
 
         private void CoinSelected(CurrencyType pickedCoin)
@@ -137,6 +137,7 @@ namespace Steepshot.iOS.Views
             _pickedCoin = pickedCoin;
             _pickerLabel.Text = _pickedCoin.ToString().ToUpper();
             _transferFacade.UserBalance = AppSettings.User.AccountInfo?.Balances?.First(b => b.CurrencyType == pickedCoin);
+            IsEnoughBalance(null, null);
         }
 
         private void TogglButtons(bool enabled)
@@ -148,62 +149,64 @@ namespace Steepshot.iOS.Views
             memoLabel.UserInteractionEnabled = enabled;
         }
 
-        private async void Transfer(object sender, EventArgs e)
+        private void Transfer(object sender, EventArgs e)
         {
-            if (!AppSettings.User.HasActivePermission)
-            {
-                NavigationController.PushViewController(new LoginViewController(false), true);
-                return;
-            }
-
             if (_transferFacade.UserBalance == null || _transferFacade.Recipient == null)
             {
                 ShowAlert(LocalizationKeys.WrongRecipientName);
                 return;
             }
 
-            if (string.IsNullOrEmpty(_amountTextField.Text))
-            {
-                ShowAlert(LocalizationKeys.WrongTransferAmount);
-                return;
-            }
-
-            var transferAmount = double.Parse(_amountTextField.Text.Replace(',', '.'), CultureInfo.InvariantCulture);
+            var transferAmount = _amountTextField.GetDoubleValue();
 
             if (Math.Abs(transferAmount) < 0.00000001 || transferAmount > _transferFacade.UserBalance.Value)
+                return;
+
+            if (!AppSettings.User.HasActivePermission)
             {
-                ShowAlert(LocalizationKeys.WrongTransferAmount);
+                NavigationController.PushViewController(new LoginViewController(false), true);
                 return;
             }
 
-            TogglButtons(false);
+            Popups.TransferDialogPopup.Create(NavigationController,
+                                              _amountTextField.GetDoubleValue().ToString(),
+                                              ContinueTransfer,
+                                              recipient: _transferFacade.Recipient.Author,
+                                              type: _pickedCoin);
+        }
 
-            _tranfserLoader.StartAnimating();
-            RemoveFocus();
-
-            var transferResponse = await _presenter.TryTransfer(AppSettings.User.UserInfo, _transferFacade.Recipient.Author, _amountTextField.Text, _pickedCoin, _memoTextView.Text);
-
-            _tranfserLoader.StopAnimating();
-            TogglButtons(true);
-
-            if (transferResponse.IsSuccess)
+        private async void ContinueTransfer(bool shouldContinue)
+        {
+            if (shouldContinue)
             {
-                ShowSuccessPopUp();
+                TogglButtons(false);
 
-                _transferFacade.UserFriendPresenter.Clear();
-                _userTableSource.ClearPosition();
-                _recepientTextField.Clear();
-                _amountTextField.Clear();
-                _transferFacade.Recipient = null;
-                _memoTextView.Text = string.Empty;
+                _tranfserLoader.StartAnimating();
+                RemoveFocus();
+
+                var transferResponse = await _presenter.TryTransfer(AppSettings.User.UserInfo, _transferFacade.Recipient.Author, _amountTextField.GetDoubleValue().ToString(), _pickedCoin, _memoTextView.Text);
+
+                _tranfserLoader.StopAnimating();
+                TogglButtons(true);
+
+                if (transferResponse.IsSuccess)
+                {
+                    ShowSuccessPopUp();
+                    _transferFacade.UserFriendPresenter.Clear();
+                    _userTableSource.ClearPosition();
+                    _recepientTextField.Clear();
+                    _amountTextField.Clear();
+                    _transferFacade.Recipient = null;
+                    _memoTextView.Text = string.Empty;
+                }
+                else
+                    ShowAlert(transferResponse.Exception);
             }
-            else
-                ShowAlert(transferResponse.Exception);
         }
 
         private async void UpdateAccountInfo()
         {
-            _balance.TextColor = UIColor.Clear;
+            _balanceLabel.TextColor = UIColor.Clear;
             _balanceLoader.StartAnimating();
             var response = await _transferFacade.TryGetAccountInfo(AppSettings.User.Login);
             if (response.IsSuccess)
@@ -211,7 +214,7 @@ namespace Steepshot.iOS.Views
                 AppSettings.User.AccountInfo = response.Result;
                 _transferFacade.UserBalance = AppSettings.User.AccountInfo?.Balances?.First(b => b.CurrencyType == _pickedCoin);
             }
-            _balance.TextColor = Constants.R151G155B158;
+            _balanceLabel.TextColor = Constants.R151G155B158;
             _balanceLoader.StopAnimating();
         }
 

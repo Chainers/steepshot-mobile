@@ -4,22 +4,39 @@ using Foundation;
 using PureLayout.Net;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Utils;
+using Steepshot.iOS.Delegates;
 using Steepshot.iOS.Helpers;
 using UIKit;
+using Xamarin.TTTAttributedLabel;
+using Constants = Steepshot.iOS.Helpers.Constants;
 
 namespace Steepshot.iOS.Cells
 {
     public class TransactionCollectionViewCell : UICollectionViewCell
     {
         private UILabel _action = new UILabel();
-        private UILabel _to = new UILabel();
+        private TTTAttributedLabel _to = new TTTAttributedLabel();
         private UILabel _amount = new UILabel();
         private UIView _topLine;
         private UIView _bottomLine;
+        public event Action<string> CellAction
+        {
+            add
+            {
+                if(_to.Delegate == null)
+                    _to.Delegate = new TTTAttributedLabelSimpleDelegate(value);
+            }
+            remove
+            {
+                throw new NotImplementedException();
+            }
+        }
 
         protected TransactionCollectionViewCell(IntPtr handle) : base(handle)
         {
             var sideMargin = DeviceHelper.IsSmallDevice ? 15 : 30;
+
+            ContentView.UserInteractionEnabled = true;
 
             var background = new UIView();
             background.BackgroundColor = Constants.R255G255B255;
@@ -52,6 +69,13 @@ namespace Steepshot.iOS.Cells
             _action.AutoPinEdgeToSuperviewEdge(ALEdge.Left);
             _action.AutoPinEdgeToSuperviewEdge(ALEdge.Right);
 
+
+            _to.EnabledTextCheckingTypes = NSTextCheckingType.Link;
+            var prop = new NSDictionary();
+            _to.LinkAttributes = prop;
+            _to.ActiveLinkAttributes = prop;
+            _to.UserInteractionEnabled = true;
+            _to.Enabled = true;
             leftContainer.AddSubview(_to);
 
             _to.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, _action);
@@ -112,18 +136,18 @@ namespace Steepshot.iOS.Cells
 
             var at = new NSMutableAttributedString();
             at.Append(new NSAttributedString(transaction.From.Equals(AppSettings.User.Login) ? $"to " : $"from ", _noLinkAttribute));
+            var login = transaction.From.Equals(AppSettings.User.Login) ? transaction.To : transaction.From;
 
             var linkAttribute = new UIStringAttributes
             {
                 Font = Constants.Semibold12,
                 ForegroundColor = Constants.R255G34B5,
+                Link = new NSUrl(login),
             };
-
-            var login = transaction.From.Equals(AppSettings.User.Login) ? transaction.To : transaction.From;
 
             at.Append(new NSAttributedString($"@{login}", linkAttribute));
 
-            _to.AttributedText = at;
+            _to.SetText(at);;
         }
     }
 }
