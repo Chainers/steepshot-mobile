@@ -19,6 +19,7 @@ namespace Steepshot.Core.Presenters
         public Dictionary<int, UserInfo> ConnectedUsers { get; }
         public bool HasNext { get; private set; }
         public List<BalanceModel> Balances { get; }
+        public Action UpdateWallet;
         private CurrencyRate[] CurrencyRates { get; set; }
         private readonly int[] _logins;
         private int _current = -1;

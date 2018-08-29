@@ -1,6 +1,8 @@
 ﻿using System;
 using CoreGraphics;
 using PureLayout.Net;
+using Steepshot.Core.Models.Common;
+using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Presenters;
 using Steepshot.iOS.Helpers;
 using Steepshot.iOS.Views;
@@ -143,7 +145,20 @@ namespace Steepshot.iOS.Cells
             more.ClipsToBounds = true;
             more.TouchDown += (object sender, EventArgs e) =>
             {
-                Popups.PowerManipulationPopup.Create(_navigationController, _presenter);
+                Popups.PowerManipulationPopup.Create(_navigationController, _presenter, async (bool response) => 
+                {
+                    if(response)
+                    {
+                        var balance = _presenter.Balances[0];
+                        var model = new BalanceModel(0, balance.MaxDecimals, balance.CurrencyType)
+                        {
+                            UserInfo = balance.UserInfo
+                        };
+
+                        await _presenter.TryPowerUpOrDown(model, PowerAction.CancelPowerDown);
+                        _presenter.UpdateWallet?.Invoke();
+                    }
+                });
             };
             AddSubview(more);
 

@@ -44,6 +44,7 @@ namespace Steepshot.iOS.Views
 
             _historyCollection.Add(_refreshControl);
             _refreshControl.ValueChanged += OnRefresh;
+            _presenter.UpdateWallet += () => { OnRefresh(null, null); };
         }
 
         private async void OnRefresh(object sender, EventArgs e)

@@ -12,6 +12,7 @@ using Steepshot.iOS.Helpers;
 using Steepshot.iOS.ViewControllers;
 using Steepshot.Core.Extensions;
 using UIKit;
+using Steepshot.Core.Models.Requests;
 
 namespace Steepshot.iOS.Views
 {
@@ -69,27 +70,16 @@ namespace Steepshot.iOS.Views
             }
         }
 
-        private UIStringAttributes _noLinkAttribute = new UIStringAttributes
-        {
-            Font = Constants.Regular24,
-            ForegroundColor = Constants.R151G155B158,
-        };
-        private UIStringAttributes linkAttribute = new UIStringAttributes
-        {
-            Font = Constants.Regular24,
-            ForegroundColor = Constants.R255G34B5,
-        };
-
         private void UpdateTokenValues(string currTokenOne, string nextTokenOne, string currTokenTwo, string nextTokenTwo)
         {
             var at = new NSMutableAttributedString();
-            at.Append(new NSAttributedString($"{currTokenOne} >", _noLinkAttribute));
-            at.Append(new NSAttributedString($" {nextTokenOne}", linkAttribute));
+            at.Append(new NSAttributedString($"{currTokenOne} >", Constants.PowerManipulationTextStyle));
+            at.Append(new NSAttributedString($" {nextTokenOne}", Constants.PowerManipulatioSelectedTextStyle));
             _firstTokenText.AttributedText = at;
 
             var at2 = new NSMutableAttributedString();
-            at2.Append(new NSAttributedString($"{currTokenTwo} >", _noLinkAttribute));
-            at2.Append(new NSAttributedString($" {nextTokenTwo}", linkAttribute));
+            at2.Append(new NSAttributedString($"{currTokenTwo} >", Constants.PowerManipulationTextStyle));
+            at2.Append(new NSAttributedString($" {nextTokenTwo}", Constants.PowerManipulatioSelectedTextStyle));
             _secondTokenText.AttributedText = at2;
         }
 
@@ -121,10 +111,9 @@ namespace Steepshot.iOS.Views
 
         private void DoPowerAction()
         {
-            Popups.TransferDialogPopup.Create(NavigationController,
-                                              _amountTextField.GetDoubleValue().ToString(),
-                                              ContinuePowerAction,
-                                              powerAction: _powerAction);
+            var at = new NSMutableAttributedString();
+            at.Append(new NSAttributedString($"Are you sure you want to {_powerAction.GetDescription()} {_amountTextField.GetDoubleValue().ToString()} {CurrencyType.Steem.ToString()}?", Constants.DialogPopupTextStyle));
+            Popups.TransferDialogPopup.Create(NavigationController, at, ContinuePowerAction);
         }
 
         private async void ContinuePowerAction(bool shouldContinue)

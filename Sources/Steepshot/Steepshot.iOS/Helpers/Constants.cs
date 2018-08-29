@@ -53,6 +53,27 @@ namespace Steepshot.iOS.Helpers
 
         public static readonly TimeSpan ImageCacheDuration = TimeSpan.FromDays(2);
 
+        public static readonly UIStringAttributes PowerManipulationTextStyle = new UIStringAttributes
+        {
+            Font = Regular24,
+            ForegroundColor = R151G155B158,
+        };
+        public static readonly UIStringAttributes PowerManipulatioSelectedTextStyle = new UIStringAttributes
+        {
+            Font = Regular24,
+            ForegroundColor = R255G34B5,
+        };
+        public static readonly UIStringAttributes DialogPopupTextStyle = new UIStringAttributes
+        {
+            Font = Regular20,
+            ForegroundColor = R15G24B30,
+        };
+        public static readonly UIStringAttributes DialogPopupSelectedTextStyle = new UIStringAttributes
+        {
+            Font = Regular20,
+            ForegroundColor = R255G0B0,
+        };
+
         public static void CreateGradient(UIView view, nfloat cornerRadius, GradientType gradientType = GradientType.Orange)
         {
             var gradient = new CAGradientLayer();

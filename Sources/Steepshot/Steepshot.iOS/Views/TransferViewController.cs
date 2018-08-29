@@ -168,11 +168,12 @@ namespace Steepshot.iOS.Views
                 return;
             }
 
-            Popups.TransferDialogPopup.Create(NavigationController,
-                                              _amountTextField.GetDoubleValue().ToString(),
-                                              ContinueTransfer,
-                                              recipient: _transferFacade.Recipient.Author,
-                                              type: _pickedCoin);
+            var at = new NSMutableAttributedString();
+            at.Append(new NSAttributedString($"Are you sure you want to transfer {_amountTextField.GetDoubleValue().ToString()} {_pickedCoin.ToString()} to ", Constants.DialogPopupTextStyle));
+            at.Append(new NSAttributedString($"@{_transferFacade.Recipient.Author}", Constants.DialogPopupSelectedTextStyle));
+            at.Append(new NSAttributedString("?", Constants.DialogPopupTextStyle));
+
+            Popups.TransferDialogPopup.Create(NavigationController, at, ContinueTransfer);
         }
 
         private async void ContinueTransfer(bool shouldContinue)
