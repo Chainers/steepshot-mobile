@@ -24,8 +24,10 @@ namespace Steepshot.Utils
         public static readonly Color R230G230B230;
 
         public static readonly int ScreenWidth;
+        public static readonly int PagerScreenWidth;
         public static readonly float MaxPostHeight;
         public static readonly float Density;
+        public static readonly int PostPagerMargin;
 
         static Style()
         {
@@ -47,14 +49,16 @@ namespace Steepshot.Utils
 
             Density = Application.Context.Resources.DisplayMetrics.Density;
 
-            var topPanelHeightInDp = Application.Context.Resources.GetDimension(Resource.Dimension.dp_top_panel_height);
-            var tabBarHeightInDp = Application.Context.Resources.GetDimension(Resource.Dimension.dp_tab_bar_height);
-            var feedItemHeaderHeightInDp = Application.Context.Resources.GetDimension(Resource.Dimension.dp_feed_item_header_height);
+            var topPanelHeight = Application.Context.Resources.GetDimension(Resource.Dimension.dp_top_panel_height);
+            var tabBarHeight = Application.Context.Resources.GetDimension(Resource.Dimension.dp_tab_bar_height);
+            var feedItemHeaderHeight = Application.Context.Resources.GetDimension(Resource.Dimension.dp_feed_item_header_height);
+            PostPagerMargin = (int)Application.Context.Resources.GetDimension(Resource.Dimension.dp_post_pager_margin);
 
             var screenHeight = Application.Context.Resources.DisplayMetrics.HeightPixels;
             ScreenWidth = Application.Context.Resources.DisplayMetrics.WidthPixels;
 
-            MaxPostHeight = screenHeight - topPanelHeightInDp - feedItemHeaderHeightInDp - tabBarHeightInDp - 54 * Density;
+            PagerScreenWidth = ScreenWidth - PostPagerMargin * 4;
+            MaxPostHeight = screenHeight - topPanelHeight - feedItemHeaderHeight - tabBarHeight - 54 * Density;
         }
     }
 }

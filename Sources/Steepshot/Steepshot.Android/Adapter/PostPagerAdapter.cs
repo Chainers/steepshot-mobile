@@ -62,7 +62,7 @@ namespace Steepshot.Adapter
             {
                 var itemView = LayoutInflater.From(_context)
                     .Inflate(Resource.Layout.lyt_post_view_item, container, false);
-                vh = new PostViewHolder(itemView, PostAction, AutoLinkAction, CloseAction, Style.ScreenWidth, (int)(Style.ScreenWidth * 0.8));
+                vh = new PostViewHolder(itemView, PostAction, AutoLinkAction, CloseAction, Style.ScreenWidth, Style.PagerScreenWidth);
                 _viewHolders[reusePosition] = vh;
                 container.AddView(vh.ItemView);
             }
