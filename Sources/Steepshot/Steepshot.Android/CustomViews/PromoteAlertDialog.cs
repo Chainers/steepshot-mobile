@@ -16,6 +16,7 @@ using Steepshot.Core.Extensions;
 using Steepshot.Core.Utils;
 using Steepshot.Utils;
 using Android.Support.Design.Widget;
+using Com.Aigestudio.Wheelpicker;
 
 namespace Steepshot.CustomViews
 {
@@ -23,25 +24,30 @@ namespace Steepshot.CustomViews
     {
         private readonly Context context;
 
+        private LinearLayout _mainPanel;
+        private LinearLayout _notFoundPanel;
+        private LinearLayout _counterPanel;
+
+        private TextView _completePanel;
         private TextView _errorMessage;
         private TextView _balanceLabel;
         private ProgressBar _balanceLoader;
         private EditText _amountTextField;
-        private Button _findBtn;
+        private Button _actionBtn;
         private Button _maxBtn;
         private LinearLayout _promoteCoin;
+        private WheelPicker _coinPicker;
 
         private CurrencyType _pickedCoin = CurrencyType.Steem;
         private BasePostPresenter _presenter;
         private List<BalanceModel> _balances;
-        private ViewGroup _activityRoot;
 
         private bool EditEnabled
         {
             set
             {
                 _amountTextField.Enabled = value;
-                _findBtn.Enabled = value;
+                _actionBtn.Enabled = value;
                 _maxBtn.Enabled = value;
                 _promoteCoin.Enabled = value;
             }
@@ -98,15 +104,22 @@ namespace Steepshot.CustomViews
                     _amountTextField.SetSelection(_amountTextField.Text.Length);
                 };
 
-                _findBtn = dialogView.FindViewById<Button>(Resource.Id.findpromote_btn);
-                _findBtn.Typeface = Style.Semibold;
-                _findBtn.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.FindPromoter);
-                _findBtn.Typeface = Style.Semibold;
+                _actionBtn = dialogView.FindViewById<Button>(Resource.Id.findpromote_btn);
+                _actionBtn.Typeface = Style.Semibold;
+                _actionBtn.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.FindPromoter);
+                _actionBtn.Typeface = Style.Semibold;
+                _actionBtn.Click += ActionButtonClick;
 
                 var close = dialogView.FindViewById<Button>(Resource.Id.close);
                 close.Typeface = Style.Semibold;
                 close.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Close);
                 close.Click += (sender, e) => { Cancel(); };
+
+                _mainPanel = dialogView.FindViewById<LinearLayout>(Resource.Id.mainpromote_lyt);
+                _notFoundPanel = dialogView.FindViewById<LinearLayout>(Resource.Id.notfound_lyt);
+                _counterPanel = dialogView.FindViewById<LinearLayout>(Resource.Id.counter_lyt);
+                _coinPicker = dialogView.FindViewById<WheelPicker>(Resource.Id.coin_picker);
+                _completePanel = dialogView.FindViewById<TextView>(Resource.Id.complete_promote);
 
                 SetContentView(dialogView);
                 Window.FindViewById(Resource.Id.design_bottom_sheet).SetBackgroundColor(Color.Transparent);
@@ -135,6 +148,10 @@ namespace Steepshot.CustomViews
 
             _balanceLabel.Visibility = ViewStates.Visible;
             _balanceLoader.Visibility = ViewStates.Gone;
+        }
+
+        private void ActionButtonClick(object sender, EventArgs e)
+        {
         }
 
         private void IsEnoughBalance(object sender, TextChangedEventArgs e)
