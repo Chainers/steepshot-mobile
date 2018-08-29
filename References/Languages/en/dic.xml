@@ -182,6 +182,7 @@ About 6 inches away</string>
     <string name="[&quot;NotificationFollow&quot;]">Follower Requests</string>
     <string name="[&quot;NotificationComment&quot;]">All comments</string>
     <string name="[&quot;NotificationPosting&quot;]">New Posts</string>
+    <string name="[&quot;NotificationTransfers&quot;]">Transfers</string>
     <string name="[&quot;WatchUser&quot;]">Notify me of new posts</string>
     <string name="[&quot;UnwatchUser&quot;]">Stop notifying me of new posts</string>
     <string name="[&quot;TagSearchWarning&quot;]">Here should be at least 2 characters for hashtags search and 3 for the users' query</string>
@@ -336,4 +337,5 @@ About 6 inches away</string>
     <string name="[&quot;MaxBid&quot;]">Max bid is</string>
     <string name="[&quot;MinBid&quot;]">Min bid is</string>
     <string name="[&quot;MinSP&quot;]">The minimal amount of Steem Power in your account should be not less than 3 Steem</string>
+    <string name="[&quot;NotificationWarning&quot;]">By including or disabling notifications here, you control both normal notifications and push notifications.</string>
 </resources>

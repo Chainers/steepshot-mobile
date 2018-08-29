@@ -232,5 +232,7 @@
         MinBid,
         MaxBid,
         MinSP,
+        NotificationWarning,
+        NotificationTransfers,
     }
 }
