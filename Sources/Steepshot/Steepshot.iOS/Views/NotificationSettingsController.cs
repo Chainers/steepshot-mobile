@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using PureLayout.Net;
 using Steepshot.Core.Extensions;
+using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Presenters;
@@ -19,6 +20,7 @@ namespace Steepshot.iOS.Views
         private readonly UISwitch _notificationFollowingSwitch = new UISwitch();
         private readonly UISwitch _notificationCommentsSwitch = new UISwitch();
         private readonly UISwitch _notificationPostingSwitch = new UISwitch();
+        private readonly UISwitch _notificationTranfserSwitch = new UISwitch();
         private PushSettings PushSettings;
 
         public override void ViewDidLoad()
@@ -33,12 +35,14 @@ namespace Steepshot.iOS.Views
             _notificationFollowingSwitch.On = PushSettings.HasFlag(PushSettings.Follow);
             _notificationCommentsSwitch.On = PushSettings.HasFlag(PushSettings.Comment);
             _notificationPostingSwitch.On = PushSettings.HasFlag(PushSettings.User);
+            _notificationTranfserSwitch.On = PushSettings.HasFlag(PushSettings.Transfer);
 
             _notificationUpvotesSwitch.ValueChanged += NotificationChange;
             _notificationCommentsUpvotesSwitch.ValueChanged += NotificationChange;
             _notificationFollowingSwitch.ValueChanged += NotificationChange;
             _notificationCommentsSwitch.ValueChanged += NotificationChange;
             _notificationPostingSwitch.ValueChanged += NotificationChange;
+            _notificationTranfserSwitch.ValueChanged += NotificationChange;
         }
 
         private void SetBackButton()
@@ -66,6 +70,8 @@ namespace Steepshot.iOS.Views
                 subscription = PushSettings.Comment;
             else if (Equals(sender, _notificationPostingSwitch))
                 subscription = PushSettings.User;
+            else if (Equals(sender, _notificationTranfserSwitch))
+                subscription = PushSettings.Transfer;
 
             if (switcher.On)
                 PushSettings |= subscription;
@@ -137,35 +143,42 @@ namespace Steepshot.iOS.Views
             likeSeparator.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, likeLabel, 30);
 
             var commentlikeLabel = new UILabel();
-            commentlikeLabel.Text = "Comment likes";
+            commentlikeLabel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.NotificationCommentsUpvotes);
             commentlikeLabel.Font = Constants.Semibold14;
             var commentlikeSeparator = new UIView();
             commentlikeSeparator.BackgroundColor = Constants.R245G245B245;
             BindBlock(commentlikeLabel, _notificationCommentsUpvotesSwitch, commentlikeSeparator, likeSeparator, contentView);
 
             var followLabel = new UILabel();
-            followLabel.Text = "Follower request";
+            followLabel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.NotificationFollow);
             followLabel.Font = Constants.Semibold14;
             var followSeparator = new UIView();
             followSeparator.BackgroundColor = Constants.R245G245B245;
             BindBlock(followLabel, _notificationFollowingSwitch, followSeparator, commentlikeSeparator, contentView);
 
             var commentsLabel = new UILabel();
-            commentsLabel.Text = "All comments";
+            commentsLabel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.NotificationComment);
             commentsLabel.Font = Constants.Semibold14;
             var commentsSeparator = new UIView();
             commentsSeparator.BackgroundColor = Constants.R245G245B245;
             BindBlock(commentsLabel, _notificationCommentsSwitch, commentsSeparator, followSeparator, contentView);
 
             var postsLabel = new UILabel();
-            postsLabel.Text = "New posts";
+            postsLabel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.NotificationPosting);
             postsLabel.Font = Constants.Semibold14;
             var postsSeparator = new UIView();
+            postsSeparator.BackgroundColor = Constants.R245G245B245;
             BindBlock(postsLabel, _notificationPostingSwitch, postsSeparator, commentsSeparator, contentView);
-            postsSeparator.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom);
+
+            var transfersLabel = new UILabel();
+            transfersLabel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.NotificationTransfers);
+            transfersLabel.Font = Constants.Semibold14;
+            var transfersSeparator = new UIView();
+            BindBlock(transfersLabel, _notificationTranfserSwitch, transfersSeparator, postsSeparator, contentView);
+            transfersSeparator.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom);
 
             var warningLabel = new UILabel();
-            warningLabel.Text = "By including or disabling notifications here, you control both normal notifications and push notifications.";
+            warningLabel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.NotificationWarning);
             warningLabel.Font = Constants.Regular12;
             warningLabel.Lines = 3;
             warningLabel.TextColor = Constants.R151G155B158;

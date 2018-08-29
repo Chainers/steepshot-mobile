@@ -167,7 +167,8 @@ namespace Steepshot.iOS.CustomViews
         public void Clear()
         {
             Text = string.Empty;
-            ClearButton.Hidden = true;
+            if (IsClearButtonNeeded)
+                ClearButton.Hidden = true;
             ((BaseTextFieldDelegate)Delegate).ChangeBackground(this);
         }
     }

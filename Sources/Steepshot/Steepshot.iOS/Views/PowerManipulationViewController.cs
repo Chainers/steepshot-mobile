@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Globalization;
 using CoreGraphics;
 using Foundation;
 using PureLayout.Net;
@@ -21,11 +20,12 @@ namespace Steepshot.iOS.Views
         private readonly BalanceModel _balance;
         private readonly PowerAction _powerAction;
         private double _powerAmount;
-        private SearchTextField _amount;
+        private SearchTextField _amountTextField;
         private UILabel _firstTokenText = new UILabel();
         private UILabel _secondTokenText = new UILabel();
         private UIActivityIndicatorView _loader = new UIActivityIndicatorView();
         private UIButton _actionButton = new UIButton();
+        private UILabel errorMessage;
 
         public PowerManipulationViewController(BalanceModel balance, PowerAction action)
         {
@@ -43,28 +43,20 @@ namespace Steepshot.iOS.Views
 
         private void AmountEditOnTextChanged(object sender, EventArgs e)
         {
-            //_amountLimitMessage.Visibility = ViewStates.Gone;
-
-            if (string.IsNullOrEmpty(_amount.Text))
-            {
-                UpdateTokenValues(_balance.Value.ToBalanceValueString(), _balance.Value.ToBalanceValueString(), _balance.EffectiveSp.ToBalanceValueString(), _balance.EffectiveSp.ToBalanceValueString());
-                _powerAmount = -1;
-                return;
-            }
-
-            var amountEdit = double.Parse(_amount.Text, CultureInfo.InvariantCulture);
+            var spAvailiable = _balance.EffectiveSp - _balance.DelegatedToMe;
+            var amountEdit = _amountTextField.GetDoubleValue();
             var amountAvailable = _balance.Value;
-            var spAvailiable = _balance.EffectiveSp;
+            errorMessage.Hidden = true;
 
             if (amountEdit <= (_powerAction == PowerAction.PowerUp ? amountAvailable : spAvailiable))
             {
                 switch (_powerAction)
                 {
                     case PowerAction.PowerUp:
-                        UpdateTokenValues(_balance.Value.ToBalanceValueString(), (amountAvailable - amountEdit).ToBalanceValueString(), _balance.EffectiveSp.ToBalanceValueString(), (spAvailiable + amountEdit).ToBalanceValueString());
+                        UpdateTokenValues(_balance.Value.ToBalanceValueString(), (amountAvailable - amountEdit).ToBalanceValueString(), _balance.EffectiveSp.ToBalanceValueString(), (_balance.EffectiveSp + amountEdit).ToBalanceValueString());
                         break;
                     case PowerAction.PowerDown:
-                        UpdateTokenValues(_balance.Value.ToBalanceValueString(), (amountAvailable + amountEdit).ToBalanceValueString(), _balance.EffectiveSp.ToBalanceValueString(), (spAvailiable - amountEdit).ToBalanceValueString());
+                        UpdateTokenValues(_balance.Value.ToBalanceValueString(), (amountAvailable + amountEdit).ToBalanceValueString(), spAvailiable.ToBalanceValueString(), (spAvailiable - amountEdit).ToBalanceValueString());
                         break;
                 }
                 _powerAmount = amountEdit;
@@ -73,7 +65,7 @@ namespace Steepshot.iOS.Views
             {
                 UpdateTokenValues(_balance.Value.ToBalanceValueString(), AppSettings.LocalizationManager.GetText(LocalizationKeys.AmountLimit), _balance.EffectiveSp.ToBalanceValueString(), AppSettings.LocalizationManager.GetText(LocalizationKeys.AmountLimit));
                 _powerAmount = -1;
-                //_amountLimitMessage.Visibility = ViewStates.Visible;
+                errorMessage.Hidden = false;
             }
         }
 
@@ -103,7 +95,13 @@ namespace Steepshot.iOS.Views
 
         private void MaxBtnOnClick(object sender, EventArgs e)
         {
-            _amount.Text = _powerAction == PowerAction.PowerUp ? _balance.Value.ToBalanceValueString() : (_balance.EffectiveSp - _balance.DelegatedToMe).ToBalanceValueString();
+            if (_powerAction == PowerAction.PowerDown)
+                ShowAlert(LocalizationKeys.MinSP);
+
+            var maxPowerDown = _balance.EffectiveSp - _balance.DelegatedToMe - 3;
+            maxPowerDown = maxPowerDown < 0 ? 0 : maxPowerDown;
+
+            _amountTextField.Text = _powerAction == PowerAction.PowerUp ? _balance.Value.ToBalanceValueString() : maxPowerDown.ToBalanceValueString();
             AmountEditOnTextChanged(null, null);
         }
 
@@ -121,40 +119,45 @@ namespace Steepshot.iOS.Views
             DoPowerAction();
         }
 
-        private async void DoPowerAction()
+        private void DoPowerAction()
         {
-            _loader.StartAnimating();
-            _actionButton.Enabled = false;
+            Popups.TransferDialogPopup.Create(NavigationController,
+                                              _amountTextField.GetDoubleValue().ToString(),
+                                              ContinuePowerAction,
+                                              powerAction: _powerAction);
+        }
 
-            var model = new BalanceModel(_powerAmount, _balance.MaxDecimals, _balance.CurrencyType)
+        private async void ContinuePowerAction(bool shouldContinue)
+        {
+            if(shouldContinue)
             {
-                UserInfo = _balance.UserInfo
-            };
+                _loader.StartAnimating();
+                _actionButton.Enabled = false;
 
-            var response = await _presenter.TryPowerUpOrDown(model, _powerAction);
+                var model = new BalanceModel(_powerAmount, _balance.MaxDecimals, _balance.CurrencyType)
+                {
+                    UserInfo = _balance.UserInfo
+                };
 
-            _loader.StopAnimating();
-            _actionButton.Enabled = true;
+                var response = await _presenter.TryPowerUpOrDown(model, _powerAction);
 
-            if (response.IsSuccess)
-            {
-                NavigationController.PopViewController(true);
-            }
-            else
-            {
-                ShowAlert(response.Exception);
+                _loader.StopAnimating();
+                _actionButton.Enabled = true;
+
+                if (response.IsSuccess)
+                    NavigationController.PopViewController(true);
+                else
+                    ShowAlert(response.Exception);
             }
         }
 
         private void CreateView()
         {
-            var minAmount = 0.001;
-
             View.UserInteractionEnabled = true;
 
             var viewTap = new UITapGestureRecognizer(() =>
             {
-                _amount.ResignFirstResponder();
+                _amountTextField.ResignFirstResponder();
             });
 
             View.AddGestureRecognizer(viewTap);
@@ -180,12 +183,14 @@ namespace Steepshot.iOS.Views
             label.AutoAlignAxisToSuperviewAxis(ALAxis.Horizontal);
             label.AutoPinEdgeToSuperviewEdge(ALEdge.Left);
 
-            _firstTokenText = new UILabel();
-            _firstTokenText.Text = "4 > 5";
+            _firstTokenText.BaselineAdjustment = UIBaselineAdjustment.AlignCenters;
+            _firstTokenText.AdjustsFontSizeToFitWidth = true;
+            _firstTokenText.TextAlignment = UITextAlignment.Right;
             steemView.AddSubview(_firstTokenText);
 
-            _firstTokenText.AutoAlignAxisToSuperviewAxis(ALAxis.Horizontal);
+            _firstTokenText.AutoAlignAxis(ALAxis.Horizontal, label);
             _firstTokenText.AutoPinEdgeToSuperviewEdge(ALEdge.Right);
+            _firstTokenText.AutoPinEdge(ALEdge.Left, ALEdge.Right, label, 5);
             _firstTokenText.SetContentHuggingPriority(1, UILayoutConstraintAxis.Horizontal);
 
             steemView.AutoSetDimension(ALDimension.Height, 70);
@@ -207,17 +212,21 @@ namespace Steepshot.iOS.Views
             topBackground.AddSubview(spView);
 
             var label2 = new UILabel();
-            label2.Text = "SteemPower";
+            label2.Text = "Steem Power";
             label2.Font = Constants.Semibold14;
             spView.AddSubview(label2);
 
             label2.AutoAlignAxisToSuperviewAxis(ALAxis.Horizontal);
             label2.AutoPinEdgeToSuperviewEdge(ALEdge.Left);
 
+            _secondTokenText.BaselineAdjustment = UIBaselineAdjustment.AlignCenters;
+            _secondTokenText.AdjustsFontSizeToFitWidth = true;
+            _secondTokenText.TextAlignment = UITextAlignment.Right;
             spView.AddSubview(_secondTokenText);
 
             _secondTokenText.AutoAlignAxisToSuperviewAxis(ALAxis.Horizontal);
             _secondTokenText.AutoPinEdgeToSuperviewEdge(ALEdge.Right);
+            _secondTokenText.AutoPinEdge(ALEdge.Left, ALEdge.Right, label2, 5);
             _secondTokenText.SetContentHuggingPriority(1, UILayoutConstraintAxis.Horizontal);
 
             spView.AutoSetDimension(ALDimension.Height, 70);
@@ -242,22 +251,34 @@ namespace Steepshot.iOS.Views
             amountLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Top, 15);
             amountLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 20);
 
-            _amount = new SearchTextField(AppSettings.LocalizationManager.GetText(LocalizationKeys.TransferAmountHint), new AmountFieldDelegate());
-            _amount.Text = minAmount.ToString(CultureInfo.InvariantCulture);
-            _amount.EditingChanged += AmountEditOnTextChanged;
-            _amount.KeyboardType = UIKeyboardType.DecimalPad;
-            _amount.Layer.CornerRadius = 25;
-            amountBackground.AddSubview(_amount);
+            _amountTextField = new SearchTextField(AppSettings.LocalizationManager.GetText(LocalizationKeys.TransferAmountHint), new AmountFieldDelegate(), false);
+            _amountTextField.EditingChanged += AmountEditOnTextChanged;
+            _amountTextField.KeyboardType = UIKeyboardType.DecimalPad;
+            _amountTextField.Layer.CornerRadius = 25;
+            amountBackground.AddSubview(_amountTextField);
 
-            _amount.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 20);
-            _amount.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, amountLabel, 16);
-            _amount.AutoSetDimension(ALDimension.Height, 50);
-            _amount.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom, 20);
+            _amountTextField.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 20);
+            _amountTextField.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, amountLabel, 16);
+            _amountTextField.AutoSetDimension(ALDimension.Height, 50);
+            _amountTextField.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom, 20);
 
-            _amount.TouchUpOutside += (object sender, EventArgs e) =>
+            _amountTextField.TouchUpOutside += (object sender, EventArgs e) =>
             {
-                _amount.ResignFirstResponder();
+                _amountTextField.ResignFirstResponder();
             };
+
+            errorMessage = new UILabel
+            {
+                Font = Constants.Semibold14,
+                TextColor = Constants.R255G34B5,
+                Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.AmountLimitFull),
+                Hidden = true,
+            };
+            amountBackground.AddSubview(errorMessage);
+
+            errorMessage.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, _amountTextField);
+            errorMessage.AutoPinEdge(ALEdge.Left, ALEdge.Left, _amountTextField);
+            errorMessage.AutoPinEdge(ALEdge.Right, ALEdge.Right, _amountTextField);
 
             var max = new UIButton();
             max.SetTitle(AppSettings.LocalizationManager.GetText(LocalizationKeys.Max), UIControlState.Normal);
@@ -270,9 +291,9 @@ namespace Steepshot.iOS.Views
             amountBackground.AddSubview(max);
 
             max.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 20);
-            max.AutoPinEdge(ALEdge.Left, ALEdge.Right, _amount, 10);
+            max.AutoPinEdge(ALEdge.Left, ALEdge.Right, _amountTextField, 10);
             max.AutoSetDimensionsToSize(new CGSize(80, 50));
-            max.AutoAlignAxis(ALAxis.Horizontal, _amount);
+            max.AutoAlignAxis(ALAxis.Horizontal, _amountTextField);
             max.TouchDown += MaxBtnOnClick;
 
             _actionButton.SetTitle(AppSettings.LocalizationManager.GetText(_powerAction == PowerAction.PowerUp ? LocalizationKeys.PowerUp : LocalizationKeys.PowerDown), UIControlState.Normal);
