@@ -29,9 +29,15 @@ namespace Steepshot.Utils.Media
                 {
                     _mediaSource = value;
                     ReleaseBuffer();
-                    var extension = _mediaSource.Url.Substring(_mediaSource.Url.LastIndexOf('.'));
-                    var mimeType = MimeTypeHelper.GetMimeType(extension);
-                    if (mimeType.StartsWith("video"))
+
+                    var mimeType = _mediaSource.ContentType;
+                    if (string.IsNullOrEmpty(mimeType))
+                    {
+                        var extension = _mediaSource.Url.Substring(_mediaSource.Url.LastIndexOf('.'));
+                        mimeType = MimeTypeHelper.GetMimeType(extension);
+                    }
+                    
+                    if (mimeType.StartsWith("video") || mimeType.StartsWith("audio"))
                     {
                         MediaType = MediaType.Video;
                     }
