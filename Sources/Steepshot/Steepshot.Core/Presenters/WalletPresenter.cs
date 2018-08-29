@@ -149,6 +149,7 @@ namespace Steepshot.Core.Presenters
         public void Reset()
         {
             _current = -1;
+            HasNext = MoveNext();
         }
 
         public UserInfo Current => ConnectedUsers[_logins[_current]];

@@ -48,13 +48,13 @@ namespace Steepshot.iOS.Views
 
         private async void OnRefresh(object sender, EventArgs e)
         {
-            _presenter.Reset();
             await LoadData();
             _refreshControl.EndRefreshing();
         }
 
         private async Task LoadData()
         {
+            _presenter.Reset();
             var exception = await _presenter.TryLoadNextAccountInfo();
             if (exception == null)
             {
