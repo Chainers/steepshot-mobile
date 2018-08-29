@@ -28,6 +28,7 @@ using System.Linq;
 using Android;
 using Android.Runtime;
 using WebSocketSharp;
+using Steepshot.Services;
 
 namespace Steepshot.Activity
 {
@@ -63,6 +64,8 @@ namespace Steepshot.Activity
 
             if (AppSettings.User.HasPostingPermission)
                 OneSignal.Current.IdsAvailable(OneSignalCallback);
+
+            CheckForNewFeatures();
         }
 
         private async void OneSignalCallback(string playerId, string pushToken)
@@ -311,6 +314,31 @@ namespace Steepshot.Activity
                         () => { profileTab.SetIcon(BitmapUtils.GetViewDrawable(votingPowerFrame)); }, null);
             else
                 profileTab.SetIcon(BitmapUtils.GetViewDrawable(votingPowerFrame));
+        }
+
+        protected void CheckForNewFeatures()
+        {
+            var lastVersion = AppSettings.Settings.BuildVersion;
+            var currentVersion = AppSettings.AppInfo.GetBuildVersion();
+
+            if (currentVersion.Equals(lastVersion))
+                return;
+
+            if (!string.IsNullOrEmpty(lastVersion))
+            {
+                //var handler = new Handler();
+                //var saverService = new SaverService();
+
+                //Action action = () =>
+                //{
+                //    var featureScreen = new FeatureDialog(this);
+                //    featureScreen.Show();
+                //};
+                //handler.PostDelayed(action, 2000);
+            }
+
+            AppSettings.Settings.BuildVersion = currentVersion;
+            AppSettings.SaveSettings();
         }
     }
 }

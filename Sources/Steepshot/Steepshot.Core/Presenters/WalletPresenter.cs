@@ -25,7 +25,7 @@ namespace Steepshot.Core.Presenters
 
         public WalletPresenter()
         {
-            ConnectedUsers = AppSettings.DataProvider.Select().ToDictionary(x => x.Id, x => x);
+            ConnectedUsers = AppSettings.DataProvider.Select().OrderByDescending(x=>x.LoginTime).ToDictionary(x => x.Id, x => x);
             _logins = ConnectedUsers.Keys.ToArray();
             Balances = new List<BalanceModel>();
             HasNext = MoveNext();
@@ -96,7 +96,7 @@ namespace Steepshot.Core.Presenters
             {
                 Balances.ForEach(x =>
                 {
-                    if (x.CurrencyType == balance.CurrencyType &&
+                    if (x.UserInfo.Chain == balance.UserInfo.Chain &&
                         x.UserInfo.Login.Equals(balance.UserInfo.Login, StringComparison.OrdinalIgnoreCase))
                     {
                         x.RewardSteem = x.RewardSbd = x.RewardSp = 0;
