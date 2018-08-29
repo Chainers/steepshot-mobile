@@ -187,6 +187,15 @@ namespace Steepshot.Core.Clients
             {
                 await Trace("post", model.Login, result.Exception, model.PostPermlink, ct);
             }
+
+            var infoModel = new NamedInfoModel($"@{model.Author}/{model.Permlink}")
+            {
+                Login = model.Login,
+                ShowLowRated = true,
+                ShowNsfw = true
+            };
+            var postInfo = await GetPostInfo(infoModel, ct);
+
             return result;
         }
 
