@@ -814,7 +814,7 @@ namespace Steepshot.iOS.Views
             });
         }
 
-        protected async void CreateOrEditPost(bool skipPlagiarismCheck)
+        protected void CreateOrEditPost(bool skipPlagiarismCheck)
         {
             var pushToBlockchainRetry = false;
             do
@@ -948,7 +948,7 @@ namespace Steepshot.iOS.Views
             }
         }
 
-        private void GoBack(object sender, EventArgs e)
+        protected override void GoBack(object sender, EventArgs e)
         {
             _presenter.TasksCancel();
             NavigationController.PopViewController(true);
