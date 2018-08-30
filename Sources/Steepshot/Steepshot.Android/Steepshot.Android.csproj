@@ -85,6 +85,7 @@
     <Compile Include="CustomViews\SuccessfullTrxDialog.cs" />
     <Compile Include="CustomViews\TouchableSpan.cs" />
     <Compile Include="CustomViews\WalletExtraDialog.cs" />
+    <Compile Include="CustomViews\WheelPicker.cs" />
     <Compile Include="Fragment\PostCreateFragment.cs" />
     <Compile Include="Fragment\PostPrepareBaseFragment.cs" />
     <Compile Include="Fragment\PowerUpDownFragment.cs" />
@@ -92,6 +93,7 @@
     <Compile Include="Fragment\WalletFragment.cs" />
     <Compile Include="Integration\InstagramModule.cs" />
     <Compile Include="Resources\Resource.designer.cs" />
+    <Compile Include="Utils\CustomBottomSheetCallback.cs" />
     <Compile Include="Utils\TextInputFilter.cs" />
     <Compile Include="Utils\NotificationExtender.cs" />
     <Compile Include="Adapter\GalleryGridAdapter.cs" />
