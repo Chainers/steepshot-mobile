@@ -17,6 +17,7 @@ using Steepshot.Core.Utils;
 using Steepshot.Utils;
 using Android.Support.Design.Widget;
 using Com.Aigestudio.Wheelpicker;
+using Steepshot.Adapter;
 
 namespace Steepshot.CustomViews
 {
@@ -38,9 +39,7 @@ namespace Steepshot.CustomViews
         private LinearLayout _promoteCoin;
         private WheelPicker _coinPicker;
 
-        private CurrencyType _pickedCoin = CurrencyType.Steem;
         private BasePostPresenter _presenter;
-        private List<BalanceModel> _balances;
 
         private bool EditEnabled
         {
@@ -71,38 +70,9 @@ namespace Steepshot.CustomViews
                 promoteTitle.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PromotePost);
                 promoteTitle.Typeface = Style.Semibold;
 
-                var promoteAmount = dialogView.FindViewById<TextView>(Resource.Id.promote_amount);
-                promoteAmount.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Amount);
-                promoteAmount.Typeface = Style.Semibold;
-
-                _balanceLabel = dialogView.FindViewById<TextView>(Resource.Id.user_balance);
-                _balanceLabel.Typeface = Style.Semibold;
-                _balanceLoader = dialogView.FindViewById<ProgressBar>(Resource.Id.balance_spinner);
-                GetBalance();
-
-                _amountTextField = dialogView.FindViewById<EditText>(Resource.Id.promote_amount_edit);
-                _amountTextField.Typeface = Style.Light;
-                _amountTextField.Hint = AppSettings.LocalizationManager.GetText(LocalizationKeys.TransferAmountHint);
-                _amountTextField.TextChanged += IsEnoughBalance;
-
-                _errorMessage = dialogView.FindViewById<TextView>(Resource.Id.promote_errormessage);
-                _errorMessage.Typeface = Style.Semibold;
-
-                var pickerLabel = dialogView.FindViewById<TextView>(Resource.Id.promotecoin_name);
-                pickerLabel.Text = "Steem";
-                pickerLabel.Typeface = Style.Semibold;
-
-                _promoteCoin = dialogView.FindViewById<LinearLayout>(Resource.Id.promote_coin);
-                _promoteCoin.Click += (sender, e) => { };
-
-                _maxBtn = dialogView.FindViewById<Button>(Resource.Id.promote_max);
-                _maxBtn.Typeface = Style.Semibold;
-                _maxBtn.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Max);
-                _maxBtn.Click += (sender, e) =>
-                {
-                    _amountTextField.Text = _balances.Find(x => x.CurrencyType == _pickedCoin).Value.ToBalanceValueString();
-                    _amountTextField.SetSelection(_amountTextField.Text.Length);
-                };
+                var container = dialogView.FindViewById<Android.Support.V4.View.ViewPager>(Resource.Id.promote_container);
+                container.Adapter = new PromotePagerAdapter(context, _presenter);
+                container.SetCurrentItem(1, false);
 
                 _actionBtn = dialogView.FindViewById<Button>(Resource.Id.findpromote_btn);
                 _actionBtn.Typeface = Style.Semibold;
@@ -115,11 +85,11 @@ namespace Steepshot.CustomViews
                 close.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Close);
                 close.Click += (sender, e) => { Cancel(); };
 
-                _mainPanel = dialogView.FindViewById<LinearLayout>(Resource.Id.mainpromote_lyt);
-                _notFoundPanel = dialogView.FindViewById<LinearLayout>(Resource.Id.notfound_lyt);
-                _counterPanel = dialogView.FindViewById<LinearLayout>(Resource.Id.counter_lyt);
-                _coinPicker = dialogView.FindViewById<WheelPicker>(Resource.Id.coin_picker);
-                _completePanel = dialogView.FindViewById<TextView>(Resource.Id.complete_promote);
+                //_mainPanel = dialogView.FindViewById<LinearLayout>(Resource.Id.mainpromote_lyt);
+                //_notFoundPanel = dialogView.FindViewById<LinearLayout>(Resource.Id.notfound_lyt);
+                //_counterPanel = dialogView.FindViewById<LinearLayout>(Resource.Id.counter_lyt);
+                //_coinPicker = dialogView.FindViewById<WheelPicker>(Resource.Id.coin_picker);
+                //_completePanel = dialogView.FindViewById<TextView>(Resource.Id.complete_promote);
 
                 SetContentView(dialogView);
                 Window.FindViewById(Resource.Id.design_bottom_sheet).SetBackgroundColor(Color.Transparent);
@@ -130,24 +100,6 @@ namespace Steepshot.CustomViews
                 var bottomSheet = FindViewById<FrameLayout>(Resource.Id.design_bottom_sheet);
                 BottomSheetBehavior.From(bottomSheet).State = BottomSheetBehavior.StateExpanded;
             }
-        }
-
-        private async void GetBalance()
-        {
-            _balanceLabel.Visibility = ViewStates.Gone;
-            _balanceLoader.Visibility = ViewStates.Visible;
-
-            var response = await _presenter.TryGetAccountInfo(AppSettings.User.Login);
-
-            if (response.IsSuccess)
-            {
-                _balances = response.Result?.Balances;
-                var balance = _balances?.Find(x => x.CurrencyType == _pickedCoin);
-                _balanceLabel.Text = $"{AppSettings.LocalizationManager.GetText(LocalizationKeys.Balance)}: {balance.Value}";
-            }
-
-            _balanceLabel.Visibility = ViewStates.Visible;
-            _balanceLoader.Visibility = ViewStates.Gone;
         }
 
         private void ActionButtonClick(object sender, EventArgs e)

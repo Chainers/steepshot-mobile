@@ -1,0 +1,97 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" 
+              android:orientation="vertical" 
+              android:layout_width="match_parent" 
+              android:layout_height="142dp">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="16dp"
+        android:layout_weight="1.2"
+        android:gravity="bottom">
+        <TextView
+            android:id="@+id/promote_amount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="14sp"
+            android:textColor="@color/black"
+            android:layout_alignParentLeft="true" />
+        <TextView
+            android:id="@+id/user_balance"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="end"
+            android:textSize="14sp"
+            android:textColor="@color/rgb151_155_158"
+            android:layout_toRightOf="@id/promote_amount"
+            android:layout_alignParentRight="true" />
+        <ProgressBar
+            android:id="@+id/balance_spinner"
+            android:layout_width="19dp"
+            android:layout_height="19dp"
+            android:indeterminateTintMode="src_atop"
+            android:indeterminateTint="@color/rgb151_155_158"
+            android:visibility="gone"
+            android:layout_alignParentRight="true" />
+    </RelativeLayout>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1">
+        <Button
+            android:id="@+id/promote_max"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:minWidth="72dp"
+            android:layout_marginLeft="10dp"
+            android:textAllCaps="true"
+            android:layout_alignParentRight="true"
+            android:background="@drawable/grey_rounded_border" />
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toLeftOf="@id/promote_max">
+            <EditText
+                android:id="@+id/promote_amount_edit"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:digits="0123456789."
+                android:inputType="numberDecimal"
+                android:textSize="14sp"
+                android:maxLines="1"
+                android:paddingLeft="20dp"
+                android:background="@drawable/edit_text_borders" />
+            <LinearLayout
+                android:id="@+id/promote_coin"
+                android:layout_width="wrap_content"
+                android:layout_height="50dp"
+                android:orientation="horizontal"
+                android:layout_alignParentRight="true"
+                android:gravity="center"
+                android:paddingLeft="15dp"
+                android:paddingRight="15dp">
+                <TextView
+                    android:id="@+id/promotecoin_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:textSize="14sp"
+                    android:textAllCaps="true"
+                    android:textColor="@color/rgb255_34_5" />
+                <ImageView
+                    android:src="@drawable/ic_arrows"
+                    android:layout_marginLeft="10dp"
+                    android:layout_width="8dp"
+                    android:layout_height="16dp" />
+            </LinearLayout>
+        </RelativeLayout>
+    </RelativeLayout>
+    <TextView
+        android:id="@+id/promote_errormessage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left"
+        android:visibility="gone"
+        android:textSize="14sp"
+        android:textColor="@color/rgb255_34_5" />
+</LinearLayout>
