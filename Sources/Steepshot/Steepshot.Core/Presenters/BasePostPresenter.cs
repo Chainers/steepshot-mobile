@@ -158,6 +158,18 @@ namespace Steepshot.Core.Presenters
                             if (AppSettings.User.PostBlackList.Contains(item.Url))
                                 continue;
 
+                            if (Items.Count == 0)
+                            {
+                                var media = item.Media[0];
+                                media.Url = "http://steepshot.org/api/v1/image/a9a8f651-9617-42ca-9d30-22562509e44e.m3u8"; //"https://www.ixbt.com/multimedia/video-methodology/bitrates/avc-1080-25p/1080-25p-10mbps.mp4";
+                                media.Size.Height = 1080;
+                                media.Size.Width = 1080;
+                                media.Thumbnails.Mini = "https://dtxu61vdboi82.cloudfront.net/2018-08-23/a9a8f651-9617-42ca-9d30-22562509e44e_thumbnail_1024p.jpeg";
+                                media.Thumbnails.Micro = "https://dtxu61vdboi82.cloudfront.net/2018-08-23/a9a8f651-9617-42ca-9d30-22562509e44e_thumbnail_256p.jpeg";
+                                media.ContentType = MimeTypeHelper.GetMimeType(MimeTypeHelper.Mp4);
+                            }
+
+
                             if (!Items.Any(itm => itm.Url.Equals(item.Url, StringComparison.OrdinalIgnoreCase))
                                 && (enableEmptyMedia || IsValidMedia(item)))
                             {

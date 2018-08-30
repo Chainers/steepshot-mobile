@@ -36,7 +36,7 @@ namespace Steepshot.Utils.Media
                         var extension = _mediaSource.Url.Substring(_mediaSource.Url.LastIndexOf('.'));
                         mimeType = MimeTypeHelper.GetMimeType(extension);
                     }
-                    
+
                     if (mimeType.StartsWith("video") || mimeType.StartsWith("audio"))
                     {
                         MediaType = MediaType.Video;
@@ -81,7 +81,7 @@ namespace Steepshot.Utils.Media
         {
             _mediaProducers = new Dictionary<MediaType, IMediaProducer>();
             _mediaProducers.Add(MediaType.Image, new ImageProducer(Context, this));
-            _mediaProducers.Add(MediaType.Video, new VideoProducer(this));
+            _mediaProducers.Add(MediaType.Video, new VideoProducer(Context, this));
             SurfaceTextureListener = this;
             Click += MediaViewClick;
         }

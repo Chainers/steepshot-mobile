@@ -42,6 +42,7 @@
     <AotAssemblies>false</AotAssemblies>
     <EnableLLVM>false</EnableLLVM>
     <BundleAssemblies>false</BundleAssemblies>
+    <AndroidEnableMultiDex>true</AndroidEnableMultiDex>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugSymbols>True</DebugSymbols>
@@ -642,6 +643,24 @@
     </Reference>
     <Reference Include="Ditch.Steem, Version=4.0.1.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Ditch.Steem.4.0.1\lib\netstandard2.0\Ditch.Steem.dll</HintPath>
+    </Reference>
+    <Reference Include="ExoPlayer, Version=2.8.8.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Xam.Plugins.Android.ExoPlayer.2.8.8\lib\monoandroid81\ExoPlayer.dll</HintPath>
+    </Reference>
+    <Reference Include="ExoPlayer.Core, Version=2.8.8.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Xam.Plugins.Android.ExoPlayer.Core.2.8.8\lib\monoandroid81\ExoPlayer.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="ExoPlayer.Dash, Version=2.8.8.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Xam.Plugins.Android.ExoPlayer.Dash.2.8.8\lib\monoandroid81\ExoPlayer.Dash.dll</HintPath>
+    </Reference>
+    <Reference Include="ExoPlayer.Hls, Version=2.8.8.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Xam.Plugins.Android.ExoPlayer.Hls.2.8.8\lib\monoandroid81\ExoPlayer.Hls.dll</HintPath>
+    </Reference>
+    <Reference Include="ExoPlayer.SmoothStreaming, Version=2.8.8.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Xam.Plugins.Android.ExoPlayer.SmoothStreaming.2.8.8\lib\monoandroid81\ExoPlayer.SmoothStreaming.dll</HintPath>
+    </Reference>
+    <Reference Include="ExoPlayer.UI, Version=2.8.8.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Xam.Plugins.Android.ExoPlayer.UI.2.8.8\lib\monoandroid81\ExoPlayer.UI.dll</HintPath>
     </Reference>
     <Reference Include="FastAndroidCamera, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\FastAndroidCamera.2.0.0\lib\MonoAndroid403\FastAndroidCamera.dll</HintPath>
