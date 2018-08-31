@@ -67,7 +67,10 @@ namespace Steepshot.Core.Models.Requests
         [JsonProperty]
         [Required(ErrorMessage = nameof(LocalizationKeys.EmptyDeviceField))]
         public string Device { get; set; }
-
+        
+        [JsonProperty]
+        public UUIDModel[] UploadMedia { get; set; }
+        
         public bool IsEditMode { get; }
 
         public string Category
@@ -80,6 +83,7 @@ namespace Steepshot.Core.Models.Requests
                 return _category;
             }
         }
+
 
         public PreparePostModel(UserInfo user, string device) : base(user)
         {

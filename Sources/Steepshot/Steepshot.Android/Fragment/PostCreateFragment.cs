@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Android.Graphics;
 using Android.Media;
@@ -11,7 +12,6 @@ using Android.Util;
 using Android.Views;
 using Android.Widget;
 using Java.IO;
-using Steepshot.Base;
 using Steepshot.Core;
 using Steepshot.Core.Exceptions;
 using Steepshot.Core.Localization;
@@ -26,6 +26,8 @@ namespace Steepshot.Fragment
 {
     public class PostCreateFragment : PostPrepareBaseFragment
     {
+        private ManualResetEvent MediaUpload = new ManualResetEvent(false);
+
         public PostCreateFragment(List<GalleryMediaModel> media) : base(media)
         {
         }
@@ -85,7 +87,7 @@ namespace Steepshot.Fragment
             }
 
             SearchTextChanged();
-            CheckOnSpam(false);
+            StartUploadMedia();
         }
 
         protected void PreviewOnTouch(object sender, View.TouchEventArgs touchEventArgs)
@@ -103,38 +105,108 @@ namespace Steepshot.Fragment
                 _descriptionScrollContainer.RequestDisallowInterceptTouchEvent(false);
         }
 
+        private async void StartUploadMedia()
+        {
+            MediaUpload.Set();
+
+            await CheckOnSpam(false);
+            if (isSpammer)
+                return;
+
+            if (_media.Count == 1 && _media[0].PreparedBitmap == null)
+                _media[0].PreparedBitmap = _preview.Crop(_media[0].Path, _preview.DrawableImageParameters);
+
+
+            if (_model.UploadMedia == null)
+                _model.UploadMedia = new UUIDModel[_media.Count];
+
+
+            await RepeatUpload();
+
+            for (var i = 0; i < _media.Count; i++)
+            {
+
+            }
+
+            if (_model.Media == null)
+                _model.Media = new MediaModel[_media.Count];
+
+            MediaUpload.Reset();
+        }
+
+        private async Task RepeatUpload()
+        {
+            do
+            {
+                for (var i = 0; i < _media.Count; i++)
+                {
+                    if (_model.UploadMedia[i] != null)
+                        continue;
+
+                    var media = _media[i];
+                    var temp = SaveFileTemp(media.PreparedBitmap, media.Path);
+                    var operationResult = await UploadMedia(temp);
+
+                    if (!IsInitialized)
+                        return;
+
+                    if (!operationResult.IsSuccess)
+                        Activity.ShowAlert(operationResult.Exception, ToastLength.Short);
+                    else
+                        _model.UploadMedia[i] = operationResult.Result;
+                }
+            } while (_model.UploadMedia.Any(i => i == null));
+        }
+
+        private async Task RepeatGet()
+        {
+            do
+            {
+                for (var i = 0; i < _model.UploadMedia.Length; i++)
+                {
+                    var operationResult = await Presenter.TryGetMediaStatus(_model.UploadMedia[i]);
+
+                    if (operationResult.IsSuccess)
+                    {
+                        switch (operationResult.Result.Code)
+                        {
+                            case UploadMediaCode.Done:
+                               var mediaResult = await Presenter.TryGetMedia(_model.UploadMedia[i]);
+                                if (mediaResult.IsSuccess)
+                                {
+
+                                }
+                                break;
+                            case UploadMediaCode.FailedToProcess:
+                            case UploadMediaCode.FailedToUpload:
+                            case UploadMediaCode.FailedToSave:
+                                _model.UploadMedia[i] = null;
+                                break;
+                        }
+                    }
+
+                    if (!IsInitialized)
+                        return;
+
+                    if (!operationResult.IsSuccess)
+                        Activity.ShowAlert(operationResult.Exception, ToastLength.Short);
+                    else
+                        _model.UploadMedia[i] = operationResult.Result;
+                }
+            } while (_model.UploadMedia.Any(i => i == null));
+        }
+
+
         protected override async Task OnPostAsync()
         {
             await CheckOnSpam(true);
             if (isSpammer)
                 return;
 
+            WaitHandle.WaitAll(new WaitHandle[] { MediaUpload });
+
             _postButton.Text = string.Empty;
             EnablePostAndEdit(false);
-
-            if (_model.Media == null || _model.Media.Any(x => x == null))
-            {
-                _model.Media = new MediaModel[_media.Count];
-                if (_media.Count == 1 && _media[0].PreparedBitmap == null)
-                    _media[0].PreparedBitmap = _preview.Crop(_media[0].Path, _preview.DrawableImageParameters);
-
-                for (var i = 0; i < _media.Count; i++)
-                {
-                    var temp = SaveFileTemp(_media[i].PreparedBitmap, _media[i].Path);
-                    var operationResult = await UploadPhoto(temp);
-                    if (!IsInitialized)
-                        return;
-
-                    if (!operationResult.IsSuccess)
-                    {
-                        Activity.ShowAlert(operationResult.Exception);
-                        EnabledPost();
-                        return;
-                    }
-
-                    _model.Media[i] = operationResult.Result;
-                }
-            }
 
             _model.Title = _title.Text;
             _model.Description = _description.Text;
@@ -248,7 +320,7 @@ namespace Steepshot.Fragment
             return string.Empty;
         }
 
-        private async Task<OperationResult<MediaModel>> UploadPhoto(string path)
+        private async Task<OperationResult<UUIDModel>> UploadMedia(string path)
         {
             System.IO.Stream stream = null;
             FileInputStream fileInputStream = null;
@@ -266,7 +338,7 @@ namespace Steepshot.Fragment
             catch (Exception ex)
             {
                 await AppSettings.Logger.Error(ex);
-                return new OperationResult<MediaModel>(new InternalException(LocalizationKeys.PhotoUploadError, ex));
+                return new OperationResult<UUIDModel>(new InternalException(LocalizationKeys.PhotoUploadError, ex));
             }
             finally
             {
