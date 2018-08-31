@@ -67,6 +67,11 @@ namespace Steepshot.iOS.Views
                     NavigationItem.RightBarButtonItem.TintColor = Constants.R231G72B0;
                     NavigationItem.RightBarButtonItem.Enabled = true;
                 }
+                else
+                {
+                    NavigationItem.RightBarButtonItem.TintColor = UIColor.Clear;
+                    NavigationItem.RightBarButtonItem.Enabled = false;
+                }
                 _historyCollection.Hidden = false;
                 _loader.StopAnimating();
             }

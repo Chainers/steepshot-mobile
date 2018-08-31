@@ -438,6 +438,8 @@ namespace Steepshot.Core.Clients
                                           .OrderBy(x => x.Next)
                                           .FirstOrDefault();
 
+            var t = !usersResult.Result.Results.Any(r => r.Author.Equals("jerrybanfield"));
+
             if (suitableBot == null)
                 return new OperationResult<PromoteResponse>(new ValidationException());
 
@@ -457,7 +459,7 @@ namespace Steepshot.Core.Clients
                   (!bot.MaxPostAge.HasValue || postAge < TimeSpan.FromDays(bot.MaxPostAge.Value).TotalDays) &&
                   (!bot.MinPostAge.HasValue || postAge > TimeSpan.FromMinutes(bot.MinPostAge.Value).TotalDays) &&
                   CheckAmount(promoteModel.Amount, steemToUSD, sbdToUSD, promoteModel.CurrencyType, bot) &&
-                  !users.Any(r => r.Name.Equals(bot.Name)) &&
+                  !users.Any(r => r.Author.Equals(bot.Name)) &&
                   (promoteModel.CurrencyType == CurrencyType.Sbd
                    ? (bot.MinBid.HasValue && bot.MinBid <= promoteModel.Amount)
                    : (bot.MinBidSteem.HasValue && bot.AcceptsSteem && bot.MinBidSteem <= promoteModel.Amount));
