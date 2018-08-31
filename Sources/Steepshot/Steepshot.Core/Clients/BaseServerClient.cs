@@ -438,8 +438,6 @@ namespace Steepshot.Core.Clients
                                           .OrderBy(x => x.Next)
                                           .FirstOrDefault();
 
-            var t = !usersResult.Result.Results.Any(r => r.Author.Equals("jerrybanfield"));
-
             if (suitableBot == null)
                 return new OperationResult<PromoteResponse>(new ValidationException());
 
