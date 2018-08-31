@@ -173,6 +173,8 @@ namespace Steepshot.iOS.Views
             at.Append(new NSAttributedString($"@{_transferFacade.Recipient.Author}", Constants.DialogPopupSelectedTextStyle));
             at.Append(new NSAttributedString("?", Constants.DialogPopupTextStyle));
 
+            NavigationController.ResignFirstResponder();
+
             Popups.TransferDialogPopup.Create(NavigationController, at, ContinueTransfer);
         }
 
