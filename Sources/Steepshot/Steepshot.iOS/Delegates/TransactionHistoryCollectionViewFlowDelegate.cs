@@ -33,7 +33,9 @@ namespace Steepshot.iOS.Delegates
         {
             if (section == 0)
                 if (DeviceHelper.IsPlusDevice)
-                    return new CGSize(UIScreen.MainScreen.Bounds.Width, 415);
+                    return new CGSize(UIScreen.MainScreen.Bounds.Width, 420);
+                else if (DeviceHelper.IsSmallDevice)
+                    return new CGSize(UIScreen.MainScreen.Bounds.Width, 370);
                 else
                     return new CGSize(UIScreen.MainScreen.Bounds.Width, 400);
             return new CGSize(UIScreen.MainScreen.Bounds.Width, 53);
