@@ -13,6 +13,7 @@ using Steepshot.iOS.ViewControllers;
 using Steepshot.Core.Extensions;
 using UIKit;
 using Steepshot.Core.Models.Requests;
+using System.Globalization;
 
 namespace Steepshot.iOS.Views
 {
@@ -112,7 +113,7 @@ namespace Steepshot.iOS.Views
         private void DoPowerAction()
         {
             var at = new NSMutableAttributedString();
-            at.Append(new NSAttributedString($"Are you sure you want to {_powerAction.GetDescription()} {_amountTextField.GetDoubleValue().ToString()} {CurrencyType.Steem.ToString()}?", Constants.DialogPopupTextStyle));
+            at.Append(new NSAttributedString($"Are you sure you want to {_powerAction.GetDescription()} {_amountTextField.GetDoubleValue().ToString(CultureInfo.InvariantCulture)} {CurrencyType.Steem.ToString()}?", Constants.DialogPopupTextStyle));
             Popups.TransferDialogPopup.Create(NavigationController, at, ContinuePowerAction);
         }
 

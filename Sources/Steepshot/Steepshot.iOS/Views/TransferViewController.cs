@@ -169,7 +169,7 @@ namespace Steepshot.iOS.Views
             }
 
             var at = new NSMutableAttributedString();
-            at.Append(new NSAttributedString($"Are you sure you want to transfer {_amountTextField.GetDoubleValue().ToString()} {_pickedCoin.ToString()} to ", Constants.DialogPopupTextStyle));
+            at.Append(new NSAttributedString($"Are you sure you want to transfer {_amountTextField.GetDoubleValue().ToString(CultureInfo.InvariantCulture)} {_pickedCoin.ToString()} to ", Constants.DialogPopupTextStyle));
             at.Append(new NSAttributedString($"@{_transferFacade.Recipient.Author}", Constants.DialogPopupSelectedTextStyle));
             at.Append(new NSAttributedString("?", Constants.DialogPopupTextStyle));
 
@@ -185,7 +185,7 @@ namespace Steepshot.iOS.Views
                 _tranfserLoader.StartAnimating();
                 RemoveFocus();
 
-                var transferResponse = await _presenter.TryTransfer(AppSettings.User.UserInfo, _transferFacade.Recipient.Author, _amountTextField.GetDoubleValue().ToString(), _pickedCoin, _memoTextView.Text);
+                var transferResponse = await _presenter.TryTransfer(AppSettings.User.UserInfo, _transferFacade.Recipient.Author, _amountTextField.GetDoubleValue().ToString(CultureInfo.InvariantCulture), _pickedCoin, _memoTextView.Text);
 
                 _tranfserLoader.StopAnimating();
                 TogglButtons(true);

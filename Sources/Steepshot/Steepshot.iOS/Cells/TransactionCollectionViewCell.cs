@@ -69,7 +69,7 @@ namespace Steepshot.iOS.Cells
             _action.AutoPinEdgeToSuperviewEdge(ALEdge.Left);
             _action.AutoPinEdgeToSuperviewEdge(ALEdge.Right);
 
-
+            _to.AdjustsFontSizeToFitWidth = true;
             _to.EnabledTextCheckingTypes = NSTextCheckingType.Link;
             var prop = new NSDictionary();
             _to.LinkAttributes = prop;
