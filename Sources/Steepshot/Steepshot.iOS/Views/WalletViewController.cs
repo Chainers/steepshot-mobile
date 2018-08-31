@@ -37,7 +37,6 @@ namespace Steepshot.iOS.Views
             _loader.ActivityIndicatorViewStyle = UIActivityIndicatorViewStyle.WhiteLarge;
             _loader.HidesWhenStopped = true;
             _loader.Color = UIColor.Black;
-            _loader.StartAnimating();
 
             View.AddSubview(_loader);
             _loader.AutoCenterInSuperview();
@@ -82,9 +81,9 @@ namespace Steepshot.iOS.Views
             })
             {
                 BackgroundColor = UIColor.Clear,
-                Hidden = true,
             };
             _historyCollection.RegisterClassForCell(typeof(TransactionCollectionViewCell), nameof(TransactionCollectionViewCell));
+            _historyCollection.RegisterClassForCell(typeof(TransactionShimmerCollectionViewCell), nameof(TransactionShimmerCollectionViewCell));
             _historyCollection.RegisterClassForCell(typeof(ClaimTransactionCollectionViewCell), nameof(ClaimTransactionCollectionViewCell));
             _historyCollection.RegisterClassForSupplementaryView(typeof(TransactionHeaderCollectionViewCell), UICollectionElementKindSection.Header, nameof(TransactionHeaderCollectionViewCell));
             _historyCollection.RegisterClassForSupplementaryView(typeof(CardsContainerHeader), UICollectionElementKindSection.Header, nameof(CardsContainerHeader));

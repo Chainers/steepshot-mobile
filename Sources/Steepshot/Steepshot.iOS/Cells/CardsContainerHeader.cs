@@ -19,6 +19,7 @@ namespace Steepshot.iOS.Cells
         private readonly UIPageControl _pageControl = new UIPageControl();
         private readonly CardCollectionViewFlowDelegate _cardsGridDelegate = new CardCollectionViewFlowDelegate();
         private readonly UIButton transfer = new UIButton();
+        private readonly UIButton more = new UIButton();
         private WalletPresenter _presenter;
 
         public WalletPresenter Presenter
@@ -47,6 +48,10 @@ namespace Steepshot.iOS.Cells
 
         public void ReloadCollection()
         {
+            more.Enabled = true;
+            transfer.Enabled = true;
+            Constants.CreateGradient(transfer, 25);
+            _cardsCollection.UserInteractionEnabled = true;
             _cardsCollection.ReloadData();
             _pageControl.Pages = _presenter.Balances.Count;
         }
@@ -54,13 +59,6 @@ namespace Steepshot.iOS.Cells
         protected CardsContainerHeader(IntPtr handle) : base(handle)
         {
             SetupCardsCollection();
-        }
-
-        public override void LayoutSubviews()
-        {
-            base.LayoutSubviews();
-            if(transfer.Layer?.Sublayers?.Length < 2)
-                Constants.CreateGradient(transfer, 25);
         }
 
         private void SetupCardsCollection()
@@ -91,6 +89,8 @@ namespace Steepshot.iOS.Cells
             {
                 BackgroundColor = UIColor.Clear
             };
+
+            _cardsCollection.RegisterClassForCell(typeof(CardShimmerCollectionView), nameof(CardShimmerCollectionView));
             _cardsCollection.RegisterClassForCell(typeof(CardCollectionViewCell), nameof(CardCollectionViewCell));
             AddSubview(_cardsCollection);
 
@@ -105,15 +105,13 @@ namespace Steepshot.iOS.Cells
                 _pageControl.CurrentPage = (int)Math.Floor((_cardsCollection.ContentOffset.X - pageWidth / 2) / pageWidth) + 1;
             };
 
+            _cardsCollection.UserInteractionEnabled = false;
             _cardsCollection.DecelerationRate = UIScrollView.DecelerationRateFast;
             _cardsCollection.ShowsHorizontalScrollIndicator = false;
-
             _cardsCollection.Layer.MasksToBounds = false;
             _cardsCollection.ClipsToBounds = false;
-            _cardsCollection.RegisterClassForCell(typeof(LoaderCollectionCell), nameof(LoaderCollectionCell));
-            _cardsCollection.RegisterClassForCell(typeof(SliderFeedCollectionViewCell), nameof(SliderFeedCollectionViewCell));
-            _cardsCollection.DelaysContentTouches = false;
 
+            _pageControl.Pages = 5;
             _pageControl.PageIndicatorTintColor = UIColor.FromRGB(0, 0, 0).ColorWithAlpha(0.1f);
             _pageControl.CurrentPageIndicatorTintColor = UIColor.FromRGB(0, 0, 0).ColorWithAlpha(0.4f);
             _pageControl.UserInteractionEnabled = false;
@@ -122,10 +120,12 @@ namespace Steepshot.iOS.Cells
             _pageControl.AutoPinEdgeToSuperviewEdge(ALEdge.Top, cardBottom);
             _pageControl.AutoAlignAxis(ALAxis.Vertical, _cardsCollection);
 
+            transfer.Enabled = false;
             transfer.SetTitle("TRANSFER", UIControlState.Normal);
             transfer.Font = Constants.Bold14;
             transfer.SetTitleColor(UIColor.White, UIControlState.Normal);
             transfer.Layer.CornerRadius = 25;
+            transfer.BackgroundColor = UIColor.FromRGB(230, 230, 230);
             transfer.ClipsToBounds = true;
             AddSubview(transfer);
 
@@ -138,16 +138,16 @@ namespace Steepshot.iOS.Cells
             transfer.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 20);
             transfer.AutoSetDimension(ALDimension.Height, 50);
 
-            var more = new UIButton();
+            more.Enabled = false;
             more.BackgroundColor = Constants.R250G250B250;
             more.SetImage(UIImage.FromBundle("ic_more"), UIControlState.Normal);
             more.Layer.CornerRadius = 25;
             more.ClipsToBounds = true;
             more.TouchDown += (object sender, EventArgs e) =>
             {
-                Popups.PowerManipulationPopup.Create(_navigationController, _presenter, async (bool response) => 
+                Popups.PowerManipulationPopup.Create(_navigationController, _presenter, async (bool response) =>
                 {
-                    if(response)
+                    if (response)
                     {
                         var balance = _presenter.Balances[0];
                         var model = new BalanceModel(0, balance.MaxDecimals, balance.CurrencyType)
@@ -176,6 +176,7 @@ namespace Steepshot.iOS.Cells
 
             historyLabel.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, _cardBehind, 27);
             historyLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 20);
+            historyLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom);
         }
     }
 }

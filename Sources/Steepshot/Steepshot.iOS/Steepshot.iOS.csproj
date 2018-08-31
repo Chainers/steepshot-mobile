@@ -443,6 +443,8 @@
     <Compile Include="Popups\TransferDialogPopup.cs" />
     <Compile Include="Popups\PostCreatedPopup.cs" />
     <Compile Include="CustomViews\CustomView.cs" />
+    <Compile Include="Cells\TransactionShimmerCollectionViewCell.cs" />
+    <Compile Include="Cells\CardShimmerCollectionView.cs" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\ic_photo_holder.png" />

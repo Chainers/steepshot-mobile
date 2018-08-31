@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using CoreAnimation;
 using CoreGraphics;
+using Foundation;
 using UIKit;
 
 namespace Steepshot.iOS.Helpers
@@ -139,6 +140,27 @@ namespace Steepshot.iOS.Helpers
                     view.Layer.ShadowPath = UIBezierPath.FromRect(rect).CGPath;
                 }
             }
+        }
+
+        public static void ApplyShimmer(UIView viewToApplyShimmer)
+        {
+            var gradientLayer = new CAGradientLayer
+            {
+                Colors = new CGColor[] { UIColor.White.ColorWithAlpha(0f).CGColor, UIColor.White.ColorWithAlpha(1f).CGColor, UIColor.White.ColorWithAlpha(0f).CGColor },
+                StartPoint = new CGPoint(0.7, 1.0),
+                EndPoint = new CGPoint(0, 0.8),
+                Frame = viewToApplyShimmer.Bounds
+            };
+            viewToApplyShimmer.Layer.InsertSublayer(gradientLayer, 0);
+
+            var animation = new CABasicAnimation();
+            animation.KeyPath = "transform.translation.x";
+            animation.Duration = 1;
+            animation.From = NSNumber.FromNFloat(-viewToApplyShimmer.Frame.Size.Width);
+            animation.To = NSNumber.FromNFloat(viewToApplyShimmer.Frame.Size.Width);
+            animation.RepeatCount = float.PositiveInfinity;
+
+            gradientLayer.AddAnimation(animation, "");
         }
     }
 

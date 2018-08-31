@@ -30,6 +30,8 @@ namespace Steepshot.iOS.ViewSources
 
         public override nint GetItemsCount(UICollectionView collectionView, nint section)
         {
+            if (GroupedHistory.Count == 0)
+                return 4;
             if (section == 0)
                 return 0;
             return GroupedHistory[(int)section - 1].Count();
@@ -38,11 +40,20 @@ namespace Steepshot.iOS.ViewSources
         [Export("numberOfSectionsInCollectionView:")]
         public override nint NumberOfSections(UICollectionView collectionView)
         {
+            if (GroupedHistory.Count == 0)
+                return 1;
             return GroupedHistory.Count() + 1;
         }
 
         public override UICollectionViewCell GetCell(UICollectionView collectionView, NSIndexPath indexPath)
         {
+            if(GroupedHistory.Count == 0)
+            {
+                var cell = (TransactionShimmerCollectionViewCell)collectionView.DequeueReusableCell(nameof(TransactionShimmerCollectionViewCell), indexPath);
+                cell.UpdateCard(indexPath.Row == 0, indexPath.Row == 3);
+                return cell;
+            }
+
             var transaction = GroupedHistory[indexPath.Section - 1].ElementAt(indexPath.Row);
 
             var isFirst = indexPath.Section - 1 == 0 && indexPath.Row == 0;
