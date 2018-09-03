@@ -42,7 +42,7 @@ namespace Steepshot.CustomViews
         {
             using (var dialogView = LayoutInflater.From(Context).Inflate(Resource.Layout.lyt_coin_pick, null))
             {
-                dialogView.SetMinimumWidth((int)(Context.Resources.DisplayMetrics.WidthPixels * 0.8));
+                dialogView.SetMinimumWidth((int)(Style.ScreenWidth * 0.8));
 
                 var dialogTitle = dialogView.FindViewById<TextView>(Resource.Id.dialog_title);
                 dialogTitle.Typeface = Style.Semibold;

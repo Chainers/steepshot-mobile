@@ -7,6 +7,7 @@ using Android.Graphics;
 using Android.Widget;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Utils;
+using Steepshot.Utils;
 
 namespace Steepshot.CustomViews
 {
@@ -19,8 +20,8 @@ namespace Steepshot.CustomViews
         public override void Show()
         {
             using (var dialogView = LayoutInflater.From(Context).Inflate(Resource.Layout.lyt_successfull_transaction, null))
-            { 
-                dialogView.SetMinimumWidth((int)(Context.Resources.DisplayMetrics.WidthPixels * 0.8));
+            {
+                dialogView.SetMinimumWidth((int)(Style.ScreenWidth * 0.8));
 
                 // TODO: setup content
                 // ...

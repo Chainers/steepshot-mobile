@@ -21,15 +21,13 @@ namespace Steepshot.Utils
         public static readonly Color R255G81B4;
         public static readonly Color R245G245B245;
         public static readonly Color R254G249B229;
-        public static readonly Color R230G230B230;        
+        public static readonly Color R230G230B230;
 
-        public static readonly float TopPanelHeightInDp;
-        public static readonly float TabBarHeightInDp;
-        public static readonly float FeedItemHeaderHeightInDp;
-        public static readonly float ScreenHeightInDp;
-        public static readonly float ScreenWidthInDp;
+        public static readonly int ScreenWidth;
+        public static readonly int PagerScreenWidth;
         public static readonly float MaxPostHeight;
         public static readonly float Density;
+        public static readonly int PostPagerMargin;
 
         static Style()
         {
@@ -47,15 +45,20 @@ namespace Steepshot.Utils
             R255G81B4 = BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(Application.Context, Resource.Color.rgb255_81_4));
             R245G245B245 = BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(Application.Context, Resource.Color.rgb245_245_245));
             R254G249B229 = BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(Application.Context, Resource.Color.rgb254_249_229));
-            R230G230B230 = BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(Application.Context, Resource.Color.rgb230_230_230));            
+            R230G230B230 = BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(Application.Context, Resource.Color.rgb230_230_230));
 
             Density = Application.Context.Resources.DisplayMetrics.Density;
-            TopPanelHeightInDp = Application.Context.Resources.GetDimension(Resource.Dimension.dp_top_panel_height) / Density;
-            TabBarHeightInDp = Application.Context.Resources.GetDimension(Resource.Dimension.dp_tab_bar_height) / Density;
-            FeedItemHeaderHeightInDp = Application.Context.Resources.GetDimension(Resource.Dimension.dp_feed_item_header_height) / Density;
-            ScreenHeightInDp = Application.Context.Resources.DisplayMetrics.HeightPixels / Density;
-            ScreenWidthInDp = Application.Context.Resources.DisplayMetrics.WidthPixels / Density;
-            MaxPostHeight = ScreenHeightInDp - TopPanelHeightInDp - FeedItemHeaderHeightInDp - TabBarHeightInDp - 54;
+
+            var topPanelHeight = Application.Context.Resources.GetDimension(Resource.Dimension.dp_top_panel_height);
+            var tabBarHeight = Application.Context.Resources.GetDimension(Resource.Dimension.dp_tab_bar_height);
+            var feedItemHeaderHeight = Application.Context.Resources.GetDimension(Resource.Dimension.dp_feed_item_header_height);
+            PostPagerMargin = (int)Application.Context.Resources.GetDimension(Resource.Dimension.dp_post_pager_margin);
+
+            var screenHeight = Application.Context.Resources.DisplayMetrics.HeightPixels;
+            ScreenWidth = Application.Context.Resources.DisplayMetrics.WidthPixels;
+
+            PagerScreenWidth = ScreenWidth - PostPagerMargin * 4;
+            MaxPostHeight = screenHeight - topPanelHeight - feedItemHeaderHeight - tabBarHeight - 54 * Density;
         }
     }
 }
