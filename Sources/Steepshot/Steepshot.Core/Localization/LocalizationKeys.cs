@@ -231,5 +231,8 @@
         SearchAgain,
         MinBid,
         MaxBid,
+        MinSP,
+        NotificationWarning,
+        NotificationTransfers,
     }
 }

@@ -35,6 +35,8 @@ namespace Steepshot.Core.Models.Common
                         subscription |= PushSettings.Comment;
                     else if (item == PushSettings.User.GetEnumDescription())
                         subscription |= PushSettings.User;
+                    else if (item == PushSettings.Transfer.GetEnumDescription())
+                        subscription |= PushSettings.Transfer;
                 }
 
                 return subscription;
