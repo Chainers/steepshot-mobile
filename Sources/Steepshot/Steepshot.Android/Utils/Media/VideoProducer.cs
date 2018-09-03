@@ -35,7 +35,7 @@ namespace Steepshot.Utils.Media
             var defaultRenderersFactory = new DefaultRenderersFactory(_context);
 
             _player = ExoPlayerFactory.NewSimpleInstance(defaultRenderersFactory, defaultTrackSelector);
-            
+
             _media = media;
         }
 
@@ -70,7 +70,11 @@ namespace Steepshot.Utils.Media
             var defaultDataSourceFactory = new DefaultDataSourceFactory(_context, null, defaultHttpDataSourceFactory);
 
             _extractorMediaSource = new HlsMediaSource.Factory(defaultDataSourceFactory);
-            _player.SetVideoTextureView((TextureView)_mediaPerformer);
+            var texture = (TextureView)_mediaPerformer;
+            if (!texture.IsAvailable)
+                return;
+            var surface = new Surface(texture.SurfaceTexture);
+            _player.SetVideoSurface(surface);
 
             var mediaUri = Android.Net.Uri.Parse(_media.Url);
             _player.Prepare(_extractorMediaSource.CreateMediaSource(mediaUri));
