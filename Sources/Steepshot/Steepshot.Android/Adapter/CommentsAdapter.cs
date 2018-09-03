@@ -156,7 +156,7 @@ namespace Steepshot.Adapter
         {
             _post = post;
             if (!string.IsNullOrEmpty(_post.Avatar))
-                Picasso.With(context).Load(_post.Avatar.GetProxy(_avatar.LayoutParameters.Width, _avatar.LayoutParameters.Height)).
+                Picasso.With(context).Load(_post.Avatar.GetImageProxy(_avatar.LayoutParameters.Width, _avatar.LayoutParameters.Height)).
                     Placeholder(Resource.Drawable.ic_holder).
                     Priority(Picasso.Priority.Low).Into(_avatar, null, OnPicassoError);
             else
@@ -352,7 +352,7 @@ namespace Steepshot.Adapter
             }
 
             if (!string.IsNullOrEmpty(_post.Avatar))
-                Picasso.With(_context).Load(_post.Avatar.GetProxy(_avatar.LayoutParameters.Width, _avatar.LayoutParameters.Height))
+                Picasso.With(_context).Load(_post.Avatar.GetImageProxy(_avatar.LayoutParameters.Width, _avatar.LayoutParameters.Height))
                        .Placeholder(Resource.Drawable.ic_holder)
                        .NoFade()
                        .Priority(Picasso.Priority.Normal)

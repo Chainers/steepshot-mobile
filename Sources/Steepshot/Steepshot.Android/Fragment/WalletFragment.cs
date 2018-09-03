@@ -96,7 +96,7 @@ namespace Steepshot.Fragment
             _trxHistoryTitle = _walletCardsLayout.FindViewById<TextView>(Resource.Id.trx_history_title);
 
             _cardRatio = TypedValue.ApplyDimension(ComplexUnitType.Dip, 335, Resources.DisplayMetrics) / TypedValue.ApplyDimension(ComplexUnitType.Dip, 190, Resources.DisplayMetrics);
-            _walletPager.LayoutParameters.Width = Resources.DisplayMetrics.WidthPixels;
+            _walletPager.LayoutParameters.Width = Style.ScreenWidth;
             _walletPager.LayoutParameters.Height = (int)((_walletPager.LayoutParameters.Width - _pageOffset * 1.5) / _cardRatio);
             _walletPager.RequestLayout();
 

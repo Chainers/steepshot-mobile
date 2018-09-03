@@ -16,5 +16,8 @@ namespace Steepshot.Core.Models.Common
 
         [JsonProperty("size")]
         public FrameSize Size { get; set; }
+
+        [JsonProperty("content_type")]
+        public string ContentType { get;  set; }
     }
 }

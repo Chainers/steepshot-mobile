@@ -308,5 +308,14 @@ namespace Steepshot.Utils
             }
             return dic;
         }
+        
+        public static void ReleaseBitmap(Bitmap bitmap)
+        {
+            if (bitmap == null || bitmap.Handle == IntPtr.Zero) return;
+            bitmap?.Recycle();
+            bitmap?.Dispose();
+            bitmap = null;
+        }
+
     }
 }

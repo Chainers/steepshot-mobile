@@ -7,6 +7,7 @@ namespace Steepshot.Core.Utils
     {
         public const string Jpg = ".jpg";
         public const string Jpeg = ".jpeg";
+        public const string Mp4 = ".mp4";
 
 
         private static readonly IDictionary<string, string> Mappings =

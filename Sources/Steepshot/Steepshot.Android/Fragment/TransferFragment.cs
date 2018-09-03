@@ -364,14 +364,14 @@ namespace Steepshot.Fragment
             {
                 if (!string.IsNullOrEmpty(_transferFacade.Recipient.Avatar))
                     Picasso.With(Activity)
-                        .Load(_transferFacade.Recipient.Avatar.GetProxy(_recipientAvatar.LayoutParameters.Width, _recipientAvatar.LayoutParameters.Height))
+                        .Load(_transferFacade.Recipient.Avatar.GetImageProxy(_recipientAvatar.LayoutParameters.Width, _recipientAvatar.LayoutParameters.Height))
                         .Placeholder(Resource.Drawable.ic_holder)
                         .NoFade()
                         .Priority(Picasso.Priority.Normal)
                         .Into(_recipientAvatar, null, () =>
                         {
                             Picasso.With(Activity)
-                                .Load(_transferFacade.Recipient.Avatar.GetProxy(_recipientAvatar.LayoutParameters.Width, _recipientAvatar.LayoutParameters.Height))
+                                .Load(_transferFacade.Recipient.Avatar.GetImageProxy(_recipientAvatar.LayoutParameters.Width, _recipientAvatar.LayoutParameters.Height))
                                 .Placeholder(Resource.Drawable.ic_holder)
                                 .NoFade()
                                 .Priority(Picasso.Priority.Normal)

@@ -146,7 +146,7 @@ namespace Steepshot.Adapter
                 _friendLogin.Text = userFriends.Author;
 
                 if (!string.IsNullOrEmpty(_userFriends.Avatar))
-                    Picasso.With(_context).Load(_userFriends.Avatar.GetProxy(_friendAvatar.LayoutParameters.Width, _friendAvatar.LayoutParameters.Height))
+                    Picasso.With(_context).Load(_userFriends.Avatar.GetImageProxy(_friendAvatar.LayoutParameters.Width, _friendAvatar.LayoutParameters.Height))
                        .Placeholder(Resource.Drawable.ic_holder)
                        .NoFade()
                        .Priority(Picasso.Priority.Normal)

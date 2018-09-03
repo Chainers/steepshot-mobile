@@ -67,7 +67,7 @@ namespace Steepshot.Base
                 : di.SteemTestWif;
 #endif            
             if (!string.IsNullOrEmpty(ProfileImageUrl))
-                Picasso.With(this).Load(ProfileImageUrl.GetProxy(_profileImage.LayoutParameters.Width, _profileImage.LayoutParameters.Height))
+                Picasso.With(this).Load(ProfileImageUrl.GetImageProxy(_profileImage.LayoutParameters.Width, _profileImage.LayoutParameters.Height))
                        .Placeholder(Resource.Drawable.ic_holder)
                        .NoFade()
                        .Priority(Picasso.Priority.Normal)
