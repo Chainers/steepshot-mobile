@@ -323,7 +323,7 @@ namespace Steepshot.Adapter
                 title.Typeface = Style.Semibold;
 
                 var promote = dialogView.FindViewById<Button>(Resource.Id.promote);
-                promote.Text = "Promote this post";
+                promote.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Promote);
                 promote.Typeface = Style.Semibold;
                 promote.Visibility = ViewStates.Visible;
 
@@ -404,7 +404,7 @@ namespace Steepshot.Adapter
         private void PromoteOnClick(object sender, EventArgs eventArgs)
         {
             _moreActionsDialog.Dismiss();
-            var actionAlert = new PromoteAlertDialog(Context, presenter);
+            var actionAlert = new PromoteAlertDialog(Context, presenter, Post);
             actionAlert.Window.RequestFeature(WindowFeatures.NoTitle);
             actionAlert.Show();
         }

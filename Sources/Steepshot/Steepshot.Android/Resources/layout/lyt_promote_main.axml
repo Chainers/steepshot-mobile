@@ -84,14 +84,14 @@
                     android:layout_width="8dp"
                     android:layout_height="16dp" />
             </LinearLayout>
+            <TextView
+                android:id="@+id/promote_errormessage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/promote_amount_edit"
+                android:layout_gravity="left"
+                android:textSize="14sp"
+                android:textColor="@color/rgb255_34_5" />
         </RelativeLayout>
     </RelativeLayout>
-    <TextView
-        android:id="@+id/promote_errormessage"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="left"
-        android:visibility="gone"
-        android:textSize="14sp"
-        android:textColor="@color/rgb255_34_5" />
 </LinearLayout>

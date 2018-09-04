@@ -8,7 +8,7 @@
         android:layout_height="match_parent"
         android:layout_weight="1"
         android:gravity="center_vertical">
-        <ImageView
+        <refractored.controls.CircleImageView
             android:id="@+id/promoter_avatar"
             android:src="@drawable/ic_holder"
             android:layout_width="40dp"
@@ -48,7 +48,7 @@
                 android:layout_marginRight="20dp"
                 android:text="00:34"
                 android:textSize="16sp"
-                android:textAlignment="textEnd"
+                android:gravity="right"
                 android:textColor="@color/black"/>
         </LinearLayout>
     </RelativeLayout>
