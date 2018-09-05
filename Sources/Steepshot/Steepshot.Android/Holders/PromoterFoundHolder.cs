@@ -52,7 +52,7 @@ namespace Steepshot.Holders
             _promoterLogin.Text = $"@{promoteInfo.Bot.Author}";
 
             if (!string.IsNullOrEmpty(promoteInfo.Bot.Avatar))
-                Picasso.With(context).Load(promoteInfo.Bot.Avatar.GetProxy(_promoterAvatar.LayoutParameters.Width, _promoterAvatar.LayoutParameters.Height))
+                Picasso.With(context).Load(promoteInfo.Bot.Avatar.GetImageProxy(_promoterAvatar.LayoutParameters.Width, _promoterAvatar.LayoutParameters.Height))
                        .Placeholder(Resource.Drawable.ic_holder)
                        .NoFade()
                        .Priority(Picasso.Priority.Normal)
