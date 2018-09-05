@@ -117,9 +117,8 @@ namespace Steepshot.Activity
 
                 if (media[0].PreparedBitmap != null)
                 {
-                    var previewSize = Utils.ViewUtils.CalculateImagePreviewSize(media[0].PreparedBitmap.Width,
-                        media[0].PreparedBitmap.Height, Resources.DisplayMetrics.WidthPixels - margin * 2,
-                        int.MaxValue);
+                    var previewSize = Utils.ViewUtils
+                        .CalculateImagePreviewSize(media[0].PreparedBitmap.Width, media[0].PreparedBitmap.Height, Style.ScreenWidth - margin * 2, int.MaxValue);
                     var layoutParams = new RelativeLayout.LayoutParams(previewSize.Width, previewSize.Height);
                     layoutParams.SetMargins(margin, 0, margin, margin);
                     _previewContainer.LayoutParameters = layoutParams;

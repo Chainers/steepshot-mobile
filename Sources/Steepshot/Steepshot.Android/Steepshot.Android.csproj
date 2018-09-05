@@ -92,6 +92,11 @@
     <Compile Include="Fragment\WalletFragment.cs" />
     <Compile Include="Integration\InstagramModule.cs" />
     <Compile Include="Resources\Resource.designer.cs" />
+    <Compile Include="Utils\Media\ImageProducer.cs" />
+    <Compile Include="Utils\Media\IMediaPerformer.cs" />
+    <Compile Include="Utils\Media\IMediaProducer.cs" />
+    <Compile Include="Utils\Media\MediaView.cs" />
+    <Compile Include="Utils\Media\VideoProducer.cs" />
     <Compile Include="Utils\TextInputFilter.cs" />
     <Compile Include="Utils\NotificationExtender.cs" />
     <Compile Include="Adapter\GalleryGridAdapter.cs" />

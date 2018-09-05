@@ -49,7 +49,7 @@ namespace Steepshot.Fragment
                 _previewContainer.Visibility = ViewStates.Visible;
                 var margin = (int)BitmapUtils.DpToPixel(15, Resources);
                 var previewSize = ViewUtils.CalculateImagePreviewSize(_editPost.Media[0].Size.Width,
-                    _editPost.Media[0].Size.Height, Resources.DisplayMetrics.WidthPixels - margin * 2,
+                    _editPost.Media[0].Size.Height, Style.ScreenWidth - margin * 2,
                     int.MaxValue);
                 var layoutParams = new RelativeLayout.LayoutParams(previewSize.Width, previewSize.Height);
                 layoutParams.SetMargins(margin, 0, margin, margin);

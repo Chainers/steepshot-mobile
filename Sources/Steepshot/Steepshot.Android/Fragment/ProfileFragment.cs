@@ -260,7 +260,7 @@ namespace Steepshot.Fragment
                 }
             }
         }
-        
+
         private void PostPagerOnPageScrolled(object sender, ViewPager.PageScrolledEventArgs pageScrolledEventArgs)
         {
             if (pageScrolledEventArgs.Position == Presenter.Count)
@@ -395,7 +395,7 @@ namespace Steepshot.Fragment
                 var inflater = (LayoutInflater)Context.GetSystemService(Context.LayoutInflaterService);
                 using (var dialogView = inflater.Inflate(Resource.Layout.lyt_profile_popup, null))
                 {
-                    dialogView.SetMinimumWidth((int)(Resources.DisplayMetrics.WidthPixels * 0.8));
+                    dialogView.SetMinimumWidth((int)(Style.ScreenWidth * 0.8));
                     var pushes = dialogView.FindViewById<Button>(Resource.Id.pushes);
                     if (isSubscribed)
                     {

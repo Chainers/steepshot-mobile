@@ -11,7 +11,6 @@ using Android.Util;
 using Android.Views;
 using Android.Widget;
 using Java.IO;
-using Steepshot.Base;
 using Steepshot.Core;
 using Steepshot.Core.Exceptions;
 using Steepshot.Core.Localization;
@@ -33,7 +32,6 @@ namespace Steepshot.Fragment
         public PostCreateFragment(GalleryMediaModel media) : base(media)
         {
         }
-
 
         public override void OnViewCreated(View view, Bundle savedInstanceState)
         {
@@ -60,7 +58,7 @@ namespace Steepshot.Fragment
 
                 if (_media[0].PreparedBitmap == null)
                 {
-                    var layoutParams = new RelativeLayout.LayoutParams(Resources.DisplayMetrics.WidthPixels - margin * 2, Resources.DisplayMetrics.WidthPixels - margin * 2);
+                    var layoutParams = new RelativeLayout.LayoutParams(Style.ScreenWidth - margin * 2, Style.ScreenWidth - margin * 2);
                     layoutParams.SetMargins(margin, 0, margin, margin);
                     _previewContainer.LayoutParameters = layoutParams;
 
@@ -71,7 +69,7 @@ namespace Steepshot.Fragment
                 else
                 {
                     var previewSize = ViewUtils.CalculateImagePreviewSize(_media[0].PreparedBitmap.Width,
-                        _media[0].PreparedBitmap.Height, Resources.DisplayMetrics.WidthPixels - margin * 2,
+                        _media[0].PreparedBitmap.Height, Style.ScreenWidth - margin * 2,
                         int.MaxValue);
                     var layoutParams = new RelativeLayout.LayoutParams(previewSize.Width, previewSize.Height);
                     layoutParams.SetMargins(margin, 0, margin, margin);
