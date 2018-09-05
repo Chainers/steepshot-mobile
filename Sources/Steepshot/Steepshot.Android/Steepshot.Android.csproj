@@ -183,6 +183,7 @@
     <Compile Include="Holders\PromoteMainHolder.cs" />
     <Compile Include="Holders\PromotePickerHolder.cs" />
     <Compile Include="Holders\PromoterFoundHolder.cs" />
+    <Compile Include="Holders\PromoteMessageHolder.cs" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\values-v21\styles.xml">
@@ -206,6 +207,7 @@
     <AndroidResource Include="Resources\layout\lyt_promote_main.axml" />
     <AndroidResource Include="Resources\layout\lyt_promote_picker.axml" />
     <AndroidResource Include="Resources\layout\lyt_promote_searching.axml" />
+    <AndroidResource Include="Resources\layout\lyt_promote_message.axml" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\values-v21\styles.xml" />

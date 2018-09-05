@@ -38,7 +38,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="20dp"
-                android:text="Expected vote time"
                 android:textSize="14sp"
                 android:textColor="@color/black"/>
             <TextView
@@ -46,7 +45,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="20dp"
-                android:text="00:34"
                 android:textSize="16sp"
                 android:gravity="right"
                 android:textColor="@color/black"/>

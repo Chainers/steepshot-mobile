@@ -29,7 +29,7 @@ namespace Steepshot.Holders
         private ProgressBar _balanceLoader;
 
         public List<BalanceModel> balances;
-        public Action<ActionType> PromoteAction;
+        public Action PromoteAction;
         public CurrencyType pickedCoin = CurrencyType.Steem;
 
         public string AmountEdit => _amountTextField.Text;
@@ -64,10 +64,7 @@ namespace Steepshot.Holders
             _pickerLabel.Typeface = Style.Semibold;
 
             var promoteCoin = ItemView.FindViewById<LinearLayout>(Resource.Id.promote_coin);
-            promoteCoin.Click += (sender, e) =>
-            {
-                PromoteAction?.Invoke(ActionType.PickCoin);
-            };
+            promoteCoin.Click += (sender, e) => { PromoteAction?.Invoke(); };
 
             _maxBtn = ItemView.FindViewById<Button>(Resource.Id.promote_max);
             _maxBtn.Typeface = Style.Semibold;

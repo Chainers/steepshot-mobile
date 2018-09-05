@@ -15,7 +15,7 @@ namespace Steepshot.Adapter
     {
         private readonly Context context;
         private readonly BasePostPresenter presenter;
-        private readonly Action<ActionType> promoteAction;
+        private readonly Action promoteAction;
         private readonly Action<CurrencyType> coinAction;
         private CurrencyType _pickedCoin;
 
@@ -23,12 +23,13 @@ namespace Steepshot.Adapter
         public PromotePickerHolder pickerHolder;
         public PromoteMainHolder mainHolder;
         public PromoterFoundHolder foundHolder;
+        public PromoteMessageHolder messageHolder;
 
-        public override int Count => 3;
+        public override int Count => 4;
 
         public override int GetItemPosition(Java.Lang.Object @object) => PositionNone;
 
-        public PromotePagerAdapter(Context context, BasePostPresenter presenter, Action<ActionType> promoteAction)
+        public PromotePagerAdapter(Context context, BasePostPresenter presenter, Action promoteAction)
         {
             this.context = context;
             this.presenter = presenter;
@@ -52,7 +53,7 @@ namespace Steepshot.Adapter
             var inflater = (LayoutInflater)container.Context.GetSystemService(Context.LayoutInflaterService);
             var resId = 0;
             View view;
-            
+
             switch (position)
             {
                 case 0:
@@ -70,12 +71,18 @@ namespace Steepshot.Adapter
                     };
                     container.AddView(mainHolder.ItemView);
                     return mainHolder.ItemView;
-                default:
+                case 2:
                     resId = Resource.Layout.lyt_promote_searching;
                     view = inflater.Inflate(resId, container, false);
                     foundHolder = new PromoterFoundHolder(view, context);
                     container.AddView(foundHolder.ItemView);
                     return foundHolder.ItemView;
+                default:
+                    resId = Resource.Layout.lyt_promote_message;
+                    view = inflater.Inflate(resId, container, false);
+                    messageHolder = new PromoteMessageHolder(view);
+                    container.AddView(messageHolder.ItemView);
+                    return messageHolder.ItemView;
             }
         }
 

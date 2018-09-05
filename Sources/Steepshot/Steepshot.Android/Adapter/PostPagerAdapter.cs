@@ -69,6 +69,7 @@ namespace Steepshot.Adapter
             else
                 vh = _viewHolders[reusePosition];
 
+            vh.presenter = _presenter;
             vh.UpdateData(_presenter[position], _context);
             return vh.ItemView;
         }
