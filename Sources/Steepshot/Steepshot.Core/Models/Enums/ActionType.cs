@@ -27,6 +27,5 @@
         LikePower,
         ProfilePower,
         Transfer,
-        PickCoin,
     }
 }
