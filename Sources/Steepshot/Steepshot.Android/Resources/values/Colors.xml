@@ -39,4 +39,5 @@
   <item name="rgb254_249_229" type="color">#FEF9E5</item>
   <item name="rgb230_230_230" type="color">#E6E6E6</item>
   <item name="rgb97_179_241" type="color">#61B3F1</item>
+  <item name="argb66_0_0_0" type="color">#66000000</item>
 </resources>

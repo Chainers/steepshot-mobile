@@ -113,7 +113,7 @@
     <Compile Include="Fragment\SinglePostFragment.cs" />
     <Compile Include="Utils\GalleryMediaModel.cs" />
     <Compile Include="CustomViews\SelectableImageView.cs" />
-    <Compile Include="CustomViews\VotingPowerFrame.cs" />
+    <Compile Include="CustomViews\PowerIndicator.cs" />
     <Compile Include="Utils\StreamConverter.cs" />
     <Compile Include="Activity\PostPreviewActivity.cs" />
     <Compile Include="Activity\GuestActivity.cs" />

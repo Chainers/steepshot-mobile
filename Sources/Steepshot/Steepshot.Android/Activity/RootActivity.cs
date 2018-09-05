@@ -293,11 +293,11 @@ namespace Steepshot.Activity
 
         private void SetProfileChart(int size)
         {
-            var votingPowerFrame = new VotingPowerFrame(this)
+            var votingPowerFrame = new PowerIndicator(this)
             {
                 Draw = true,
-                VotingPower = Presenter.UserProfileResponse == null ? 0 : (float)Presenter.UserProfileResponse.VotingPower,
-                VotingPowerWidth = BitmapUtils.DpToPixel(3, Resources)
+                Power = Presenter.UserProfileResponse == null ? 0 : (float)Presenter.UserProfileResponse.VotingPower,
+                PowerWidth = BitmapUtils.DpToPixel(3, Resources)
             };
             var padding = (int)BitmapUtils.DpToPixel(7, Resources);
             votingPowerFrame.Layout(0, 0, size, size);

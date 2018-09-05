@@ -33,30 +33,44 @@
         android:layout_alignParentTop="true"
         android:layout_alignParentRight="true"
         android:background="@android:color/transparent" />
-    <ImageButton
-        android:id="@+id/shot_button"
-        android:src="@drawable/ic_shot"
-        android:layout_width="62dp"
-        android:layout_height="62dp"
+     <Steepshot.CustomViews.PowerIndicator xmlns:customAttrs="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/video_indicator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="35dp"
         android:layout_marginBottom="21dp"
-        android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:background="@android:color/transparent" />
-    <ProgressBar
-        android:id="@+id/loading_spinner"
-        android:layout_width="62dp"
-        android:layout_height="62dp"
-        android:visibility="gone"
-        android:layout_marginBottom="21dp"
         android:layout_alignParentBottom="true"
+        customAttrs:powerWidth="3dp"
+        customAttrs:backgroundColor="@color/argb66_0_0_0">
+        <ImageButton
+            android:id="@+id/shot_button"
+            android:src="@drawable/ic_shot"
+            android:layout_width="62dp"
+            android:layout_height="62dp"
+            android:background="@android:color/transparent" />
+        <ProgressBar
+            android:id="@+id/loading_spinner"
+            android:layout_width="62dp"
+            android:layout_height="62dp"
+            android:visibility="gone"
+            android:indeterminateTint="@color/color_primary" />
+    </Steepshot.CustomViews.PowerIndicator>
+    <TextView
+        android:id="@+id/elapsed_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/video_indicator"
         android:layout_centerHorizontal="true"
-        android:indeterminateTint="@color/color_primary"
-        android:layout_centerInParent="true" />
+        android:layout_marginBottom="5dp"
+        android:textSize="14sp"
+        android:textColor="@color/white" />
     <ImageButton
         android:id="@+id/revert_button"
         android:src="@drawable/ic_revert"
         android:layout_width="60dp"
         android:layout_height="60dp"
+        android:layout_marginRight="15dp"
         android:layout_marginBottom="21dp"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
@@ -65,6 +79,7 @@
         android:id="@+id/gallery_button"
         android:layout_width="60dp"
         android:layout_height="60dp"
+        android:layout_marginLeft="15dp"
         android:clickable="true"
         android:layout_marginBottom="21dp"
         android:layout_alignParentBottom="true"
