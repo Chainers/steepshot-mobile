@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections;
-using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -293,7 +292,7 @@ namespace Steepshot.Core
         //    {
         //        Thumbnails = false,
         //    };
-        //    var mediaResponse = _api.UploadMedia(request, CancellationToken.None).Result;
+        //    var mediaResponse = _api.UploadMediaUuid(request, CancellationToken.None).Result;
         //    if (!mediaResponse.IsSuccess)
         //    {
         //        sb.AppendLine($"fail. Reason:{Environment.NewLine} {mediaResponse.Exception.Message}");

@@ -2,13 +2,11 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Android.Graphics;
 using Android.Media;
 using Android.OS;
 using Android.Support.V7.Widget;
-using Android.Util;
 using Android.Views;
 using Android.Widget;
 using Java.IO;
@@ -19,20 +17,21 @@ using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Utils;
 using Steepshot.Utils;
-using Exception = System.Exception;
-using ViewUtils = Steepshot.Utils.ViewUtils;
 
 namespace Steepshot.Fragment
 {
     public class PostCreateFragment : PostPrepareBaseFragment
     {
-        private ManualResetEvent MediaUpload = new ManualResetEvent(false);
+        public static string PostCreateGalleryTemp = "PostCreateGalleryTemp" + AppSettings.User.Login;
+        public static string PreparePostTemp = "PreparePostTemp" + AppSettings.User.Login;
+        private readonly PreparePostModel _tepmPost;
 
-        public PostCreateFragment(List<GalleryMediaModel> media) : base(media)
+        public PostCreateFragment(List<GalleryMediaModel> media, PreparePostModel model) : base(media)
         {
+            _tepmPost = model;
         }
 
-        public PostCreateFragment(GalleryMediaModel media) : base(media)
+        public PostCreateFragment(List<GalleryMediaModel> media) : base(media)
         {
         }
 
@@ -43,108 +42,129 @@ namespace Steepshot.Fragment
 
             base.OnViewCreated(view, savedInstanceState);
 
+            if (_tepmPost != null)
+            {
+                _model.Media = _tepmPost.Media;
+                _title.Text = _model.Title;
+                _description.Text = _model.Description;
+                for (var i = 0; i < _model.Tags.Length; i++)
+                    _localTagsAdapter.LocalTags.Add(_model.Tags[i]);
+            }
+
+            InitData();
+            SearchTextChanged();
+        }
+
+        protected virtual async void InitData()
+        {
             if (_media.Count > 1)
             {
                 _photos.Visibility = ViewStates.Visible;
                 _previewContainer.Visibility = ViewStates.Gone;
                 _photos.SetLayoutManager(new LinearLayoutManager(Activity, LinearLayoutManager.Horizontal, false));
+                _photos.AddItemDecoration(new ListItemDecoration(Style.Margin10));
+                _photos.LayoutParameters.Height = Style.GalleryHorizontalHeight;
+
                 _photos.SetAdapter(GalleryAdapter);
-                _photos.AddItemDecoration(new ListItemDecoration((int)TypedValue.ApplyDimension(ComplexUnitType.Dip, 10, Resources.DisplayMetrics)));
+
+                await ConvertAndSave();
+                if (!IsInitialized)
+                    return;
             }
             else
             {
                 _photos.Visibility = ViewStates.Gone;
                 _previewContainer.Visibility = ViewStates.Visible;
-                _preview.CornerRadius = BitmapUtils.DpToPixel(5, Resources);
+                _preview.CornerRadius = Style.CornerRadius5;
+                _ratioBtn.Visibility = ViewStates.Gone;
+                _rotateBtn.Visibility = ViewStates.Gone;
 
-                var margin = (int)BitmapUtils.DpToPixel(15, Resources);
+                await ConvertAndSave();
+                if (!IsInitialized)
+                    return;
 
-                if (_media[0].PreparedBitmap == null)
-                {
-                    var layoutParams = new RelativeLayout.LayoutParams(Style.ScreenWidth - margin * 2, Style.ScreenWidth - margin * 2);
-                    layoutParams.SetMargins(margin, 0, margin, margin);
-                    _previewContainer.LayoutParameters = layoutParams;
-
-                    _preview.SetImage(_media[0]);
-                    _ratioBtn.Click += RatioBtnOnClick;
-                    _rotateBtn.Click += RotateBtnOnClick;
-                }
-                else
-                {
-                    var previewSize = ViewUtils.CalculateImagePreviewSize(_media[0].PreparedBitmap.Width,
-                        _media[0].PreparedBitmap.Height, Style.ScreenWidth - margin * 2,
-                        int.MaxValue);
-                    var layoutParams = new RelativeLayout.LayoutParams(previewSize.Width, previewSize.Height);
-                    layoutParams.SetMargins(margin, 0, margin, margin);
-                    _previewContainer.LayoutParameters = layoutParams;
-
-                    _ratioBtn.Visibility = _rotateBtn.Visibility = ViewStates.Gone;
-                    _preview.SetImageBitmap(_media[0].PreparedBitmap);
-                }
+                var previewSize = BitmapUtils.CalculateImagePreviewSize(_media[0].Parameters, Style.ScreenWidth - Style.Margin15 * 2);
+                var layoutParams = new RelativeLayout.LayoutParams(previewSize.Width, previewSize.Height);
+                layoutParams.SetMargins(Style.Margin15, 0, Style.Margin15, Style.Margin15);
+                _previewContainer.LayoutParameters = layoutParams;
+                _preview.SetImageBitmap(_media[0].PreparedBitmap);
 
                 _preview.Touch += PreviewOnTouch;
             }
 
-            SearchTextChanged();
-            StartUploadMedia();
-        }
-
-        protected void PreviewOnTouch(object sender, View.TouchEventArgs touchEventArgs)
-        {
-            if (_media[0].PreparedBitmap != null)
-            {
-                _descriptionScrollContainer.OnTouchEvent(touchEventArgs.Event);
-                return;
-            }
-
-            _preview.OnTouchEvent(touchEventArgs.Event);
-            if (touchEventArgs.Event.Action == MotionEventActions.Down)
-                _descriptionScrollContainer.RequestDisallowInterceptTouchEvent(true);
-            else if (touchEventArgs.Event.Action == MotionEventActions.Up)
-                _descriptionScrollContainer.RequestDisallowInterceptTouchEvent(false);
-        }
-
-        private async void StartUploadMedia()
-        {
-            MediaUpload.Set();
-
             await CheckOnSpam(false);
+            if (!IsInitialized)
+                return;
+
             if (isSpammer)
                 return;
 
-            if (_media.Count == 1 && _media[0].PreparedBitmap == null)
-                _media[0].PreparedBitmap = _preview.Crop(_media[0].Path, _preview.DrawableImageParameters);
+            StartUploadMedia();
+        }
 
+        private void PreviewOnTouch(object sender, View.TouchEventArgs touchEventArgs)
+        {
+            //event interception
+            touchEventArgs.Handled = true;
+        }
 
-            if (_model.UploadMedia == null)
-                _model.UploadMedia = new UUIDModel[_media.Count];
+        protected async Task ConvertAndSave()
+        {
+            if (_media.All(m => m.UploadState != UploadState.ReadyToSave))
+                return;
 
-
-            await RepeatUpload();
-
-            for (var i = 0; i < _media.Count; i++)
+            await Task.Run(() =>
             {
+                foreach (var model in _media)
+                {
+                    if (model.UploadState == UploadState.ReadyToSave)
+                    {
+                        var croppedBitmap = BitmapUtils.Crop(Context, model.Path, model.Parameters);
+                        model.PreparedBitmap = croppedBitmap;
+                        model.TempPath = SaveFileTemp(model.PreparedBitmap, model.Path);
+                        model.UploadState = UploadState.Saved;
 
-            }
+                        if (_media.Count > 1)
+                            Activity.RunOnUiThread(() => GalleryAdapter.NotifyDataSetChanged());
+                    }
+                }
+                SaveGalleryTemp();
+            });
+        }
 
-            if (_model.Media == null)
-                _model.Media = new MediaModel[_media.Count];
+        private bool _isUploading = false;
+        private async Task StartUploadMedia()
+        {
+            _isUploading = true;
+            await RepeatUpload();
+            if (!IsInitialized)
+                return;
 
-            MediaUpload.Reset();
+            await RepeatVerifyUpload();
+            if (!IsInitialized)
+                return;
+
+            await GetMediaModel();
+            if (!IsInitialized)
+                return;
+
+            _isUploading = false;
         }
 
         private async Task RepeatUpload()
         {
+            var maxRepeat = 3;
+            var repeatCount = 0;
+
             do
             {
                 for (var i = 0; i < _media.Count; i++)
                 {
-                    if (_model.UploadMedia[i] != null)
+                    var media = _media[i];
+                    if (!(media.UploadState == UploadState.Saved || media.UploadState == UploadState.UploadError))
                         continue;
 
-                    var media = _media[i];
-                    var temp = SaveFileTemp(media.PreparedBitmap, media.Path);
-                    var operationResult = await UploadMedia(temp);
+                    var operationResult = await UploadMedia(media);
 
                     if (!IsInitialized)
                         return;
@@ -152,86 +172,176 @@ namespace Steepshot.Fragment
                     if (!operationResult.IsSuccess)
                         Activity.ShowAlert(operationResult.Exception, ToastLength.Short);
                     else
-                        _model.UploadMedia[i] = operationResult.Result;
+                    {
+                        media.UploadMediaUuid = operationResult.Result;
+                        SaveGalleryTemp();
+                    }
                 }
-            } while (_model.UploadMedia.Any(i => i == null));
+
+
+                if (_media.All(m => m.UploadState == UploadState.UploadEnd))
+                    break;
+
+                repeatCount++;
+
+            } while (repeatCount < maxRepeat);
         }
 
-        private async Task RepeatGet()
+        private async Task<OperationResult<UUIDModel>> UploadMedia(GalleryMediaModel model)
+        {
+            model.UploadState = UploadState.UploadStart;
+            System.IO.Stream stream = null;
+            FileInputStream fileInputStream = null;
+
+            try
+            {
+                var photo = new Java.IO.File(model.TempPath);
+                fileInputStream = new FileInputStream(photo);
+                stream = new StreamConverter(fileInputStream, null);
+
+                var request = new UploadMediaModel(AppSettings.User.UserInfo, stream, System.IO.Path.GetExtension(model.TempPath));
+                var serverResult = await Presenter.TryUploadMedia(request);
+                model.UploadState = UploadState.UploadEnd;
+                return serverResult;
+            }
+            catch (Exception ex)
+            {
+                model.UploadState = UploadState.UploadError;
+                await AppSettings.Logger.Error(ex);
+                return new OperationResult<UUIDModel>(new InternalException(LocalizationKeys.PhotoUploadError, ex));
+            }
+            finally
+            {
+                fileInputStream?.Close(); // ??? change order?
+                stream?.Flush();
+                fileInputStream?.Dispose();
+                stream?.Dispose();
+            }
+        }
+
+        private async Task RepeatVerifyUpload()
         {
             do
             {
-                for (var i = 0; i < _model.UploadMedia.Length; i++)
+                for (var i = 0; i < _media.Count; i++)
                 {
-                    var operationResult = await Presenter.TryGetMediaStatus(_model.UploadMedia[i]);
+                    var media = _media[i];
+                    if (media.UploadState != UploadState.UploadEnd)
+                        continue;
+
+                    var operationResult = await Presenter.TryGetMediaStatus(media.UploadMediaUuid);
+                    if (!IsInitialized)
+                        return;
 
                     if (operationResult.IsSuccess)
                     {
                         switch (operationResult.Result.Code)
                         {
                             case UploadMediaCode.Done:
-                               var mediaResult = await Presenter.TryGetMedia(_model.UploadMedia[i]);
-                                if (mediaResult.IsSuccess)
                                 {
-
+                                    media.UploadState = UploadState.UploadVerified;
+                                    SaveGalleryTemp();
                                 }
                                 break;
                             case UploadMediaCode.FailedToProcess:
                             case UploadMediaCode.FailedToUpload:
                             case UploadMediaCode.FailedToSave:
-                                _model.UploadMedia[i] = null;
+                                {
+                                    media.UploadState = UploadState.UploadError;
+                                    SaveGalleryTemp();
+                                }
                                 break;
                         }
                     }
-
-                    if (!IsInitialized)
-                        return;
-
-                    if (!operationResult.IsSuccess)
-                        Activity.ShowAlert(operationResult.Exception, ToastLength.Short);
-                    else
-                        _model.UploadMedia[i] = operationResult.Result;
                 }
-            } while (_model.UploadMedia.Any(i => i == null));
+
+                if (_media.All(m => m.UploadState != UploadState.UploadEnd))
+                    break;
+
+                await Task.Delay(3000);
+                if (!IsInitialized)
+                    return;
+
+            } while (true);
         }
 
+        private async Task GetMediaModel()
+        {
+            if (_model.Media == null)
+                _model.Media = new MediaModel[_media.Count];
+
+            for (var i = 0; i < _media.Count; i++)
+            {
+                var media = _media[i];
+                if (media.UploadState != UploadState.UploadVerified)
+                    continue;
+
+                var mediaResult = await Presenter.TryGetMediaResult(media.UploadMediaUuid);
+                if (!IsInitialized)
+                    return;
+
+                if (mediaResult.IsSuccess)
+                {
+                    _model.Media[i] = mediaResult.Result;
+                    media.UploadState = UploadState.Ready;
+                    SaveGalleryTemp();
+                }
+
+                if (!IsInitialized)
+                    return;
+            }
+        }
 
         protected override async Task OnPostAsync()
         {
-            await CheckOnSpam(true);
-            if (isSpammer)
-                return;
-
-            WaitHandle.WaitAll(new WaitHandle[] { MediaUpload });
-
-            _postButton.Text = string.Empty;
-            EnablePostAndEdit(false);
-
             _model.Title = _title.Text;
             _model.Description = _description.Text;
             _model.Tags = _localTagsAdapter.LocalTags.ToArray();
-            if (await TryCreateOrEditPost())
-                Activity.ShowAlert(LocalizationKeys.PostDelay, ToastLength.Long);
+
+            SavePreparePostTemp();
+
+            EnablePostAndEdit(false, true);
+
+            while (_isUploading)
+            {
+                await Task.Delay(300);
+                if (!IsInitialized)
+                    return;
+            }
+
+            if (_media.Any(m => m.UploadState != UploadState.Ready))
+            {
+                await CheckOnSpam(true);
+                if (isSpammer || !IsInitialized)
+                    return;
+
+                await StartUploadMedia();
+                if (!IsInitialized)
+                    return;
+            }
+
+            if (_media.Any(m => m.UploadState != UploadState.Ready))
+            {
+                Activity.ShowAlert(LocalizationKeys.PhotoUploadError, ToastLength.Long);
+            }
+            else
+            {
+                var isCreated = await TryCreateOrEditPost();
+                if (isCreated)
+                    Activity.ShowAlert(LocalizationKeys.PostDelay, ToastLength.Long);
+            }
 
             EnablePostAndEdit(true);
         }
 
-        private void RatioBtnOnClick(object sender, EventArgs eventArgs)
-        {
-            _preview.SwitchScale();
-        }
-
-        private void RotateBtnOnClick(object sender, EventArgs eventArgs)
-        {
-            _preview.Rotate(_preview.DrawableImageParameters.Rotation + 90f);
-        }
-
-        private async Task CheckOnSpam(bool disableEditing)
+        protected async Task CheckOnSpam(bool disableEditing)
         {
             EnablePostAndEdit(false, disableEditing);
             isSpammer = false;
 
             var spamCheck = await Presenter.TryCheckForSpam(AppSettings.User.Login);
+            if (!IsInitialized)
+                return;
 
             if (spamCheck.IsSuccess)
             {
@@ -268,13 +378,15 @@ namespace Steepshot.Fragment
 
             while (timepassed < PostingLimit)
             {
-                if (!IsInitialized)
-                    return;
                 var delay = PostingLimit - timepassed;
                 var timeFormat = delay.TotalHours >= 1 ? "hh\\:mm\\:ss" : "mm\\:ss";
                 _postButton.Text = delay.ToString(timeFormat);
                 _postButton.Enabled = false;
+
                 await Task.Delay(1000);
+                if (!IsInitialized)
+                    return;
+
                 timepassed = timepassed.Add(TimeSpan.FromSeconds(1));
             }
 
@@ -319,35 +431,6 @@ namespace Steepshot.Fragment
             return string.Empty;
         }
 
-        private async Task<OperationResult<UUIDModel>> UploadMedia(string path)
-        {
-            System.IO.Stream stream = null;
-            FileInputStream fileInputStream = null;
-
-            try
-            {
-                var photo = new Java.IO.File(path);
-                fileInputStream = new FileInputStream(photo);
-                stream = new StreamConverter(fileInputStream, null);
-
-                var request = new UploadMediaModel(AppSettings.User.UserInfo, stream, System.IO.Path.GetExtension(path));
-                var serverResult = await Presenter.TryUploadMedia(request);
-                return serverResult;
-            }
-            catch (Exception ex)
-            {
-                await AppSettings.Logger.Error(ex);
-                return new OperationResult<UUIDModel>(new InternalException(LocalizationKeys.PhotoUploadError, ex));
-            }
-            finally
-            {
-                fileInputStream?.Close(); // ??? change order?
-                stream?.Flush();
-                fileInputStream?.Dispose();
-                stream?.Dispose();
-            }
-        }
-
         public override void OnDetach()
         {
             CleanCash();
@@ -360,6 +443,47 @@ namespace Steepshot.Fragment
             foreach (var file in files)
                 if (file.Path.EndsWith(Constants.Steepshot))
                     file.Delete();
+        }
+
+        protected override void OnPostSuccess()
+        {
+            var isChanged = false;
+            if (AppSettings.Temp.ContainsKey(PostCreateGalleryTemp))
+            {
+                AppSettings.Temp.Remove(PostCreateGalleryTemp);
+                isChanged = true;
+            }
+
+            if (AppSettings.Temp.ContainsKey(PreparePostTemp))
+            {
+                AppSettings.Temp.Remove(PreparePostTemp);
+                isChanged = true;
+            }
+
+            if (isChanged)
+                AppSettings.SaveTemp();
+        }
+
+        private void SaveGalleryTemp()
+        {
+            //TODO: KOA UI not support Respo
+
+            //var json = JsonConvert.SerializeObject(_media);
+            //if (AppSettings.Temp.ContainsKey(PostCreateGalleryTemp))
+            //    AppSettings.Temp[PostCreateGalleryTemp] = json;
+            //else
+            //    AppSettings.Temp.Add(PostCreateGalleryTemp, json);
+            //AppSettings.SaveTemp();
+        }
+
+        private void SavePreparePostTemp()
+        {
+            //var json = JsonConvert.SerializeObject(_model);
+            //if (AppSettings.Temp.ContainsKey(PreparePostTemp))
+            //    AppSettings.Temp[PreparePostTemp] = json;
+            //else
+            //    AppSettings.Temp.Add(PreparePostTemp, json);
+            //AppSettings.SaveTemp();
         }
     }
 }

@@ -29,14 +29,14 @@ namespace Steepshot.Core.Presenters
             return await Api.GetMediaStatus(uuid, ct);
         }
 
-        public async Task<OperationResult<MediaModel>> TryGetMedia(UUIDModel uuid)
+        public async Task<OperationResult<MediaModel>> TryGetMediaResult(UUIDModel uuid)
         {
-            return await TryRunTask<UUIDModel, MediaModel>(GetMedia, OnDisposeCts.Token, uuid);
+            return await TryRunTask<UUIDModel, MediaModel>(GetMediaResult, OnDisposeCts.Token, uuid);
         }
 
-        private async Task<OperationResult<MediaModel>> GetMedia(UUIDModel uuid, CancellationToken ct)
+        private async Task<OperationResult<MediaModel>> GetMediaResult(UUIDModel uuid, CancellationToken ct)
         {
-            return await Api.GetMedia(uuid, ct);
+            return await Api.GetMediaResult(uuid, ct);
         }
 
         public async Task<OperationResult<PreparePostResponse>> TryCheckForPlagiarism(PreparePostModel model)

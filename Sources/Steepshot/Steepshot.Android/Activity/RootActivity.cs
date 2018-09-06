@@ -109,7 +109,7 @@ namespace Steepshot.Activity
                             case string commentUpvote when commentUpvote.Equals(PushSettings.UpvoteComment.GetEnumDescription()):
                             case string comment when comment.Equals(PushSettings.Comment.GetEnumDescription()):
                             case string userPost when userPost.Equals(PushSettings.User.GetEnumDescription()):
-                                OpenNewContentFragment(new SinglePostFragment(link));
+                                OpenNewContentFragment(new PostViewFragment(link));
                                 break;
                             case string follow when follow.Equals(PushSettings.Follow.GetEnumDescription()):
                             case string transfer when transfer.Equals(PushSettings.Transfer.GetEnumDescription()):
@@ -135,7 +135,7 @@ namespace Steepshot.Activity
                 {
                     Path = BitmapUtils.GetUriRealPath(this, uri)
                 };
-                OpenNewContentFragment(new PostCreateFragment(galleryModel));
+                OpenNewContentFragment(new PreviewPostCreateFragment(galleryModel));
             }
         }
 
@@ -205,7 +205,7 @@ namespace Steepshot.Activity
             {
                 SelectTab(e.Tab.Position);
                 _prevTab = e.Tab;
-                AppSettings.User.SelectedTab = e.Tab.Position;
+                AppSettings.SelectedTab = e.Tab.Position;
             }
         }
 
@@ -236,8 +236,8 @@ namespace Steepshot.Activity
                     SetProfileChart(TabLayout.LayoutParameters.Height);
                 tab.SetIcon(ContextCompat.GetDrawable(this, _adapter.TabIconsInactive[i]));
             }
-            SelectTab(AppSettings.User.SelectedTab);
-            _prevTab = TabLayout.GetTabAt(AppSettings.User.SelectedTab);
+            SelectTab(AppSettings.SelectedTab);
+            _prevTab = TabLayout.GetTabAt(AppSettings.SelectedTab);
             _viewPager.OffscreenPageLimit = _adapter.Count - 1;
         }
 
@@ -331,7 +331,7 @@ namespace Steepshot.Activity
 
                 //Action action = () =>
                 //{
-                //    var featureScreen = new FeatureDialog(this);
+                //  var featureScreen = new FeatureDialog(this);
                 //    featureScreen.Show();
                 //};
                 //handler.PostDelayed(action, 2000);

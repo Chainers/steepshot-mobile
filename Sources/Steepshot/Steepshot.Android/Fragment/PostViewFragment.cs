@@ -18,7 +18,7 @@ using Steepshot.Utils;
 
 namespace Steepshot.Fragment
 {
-    public class SinglePostFragment : BaseFragmentWithPresenter<SinglePostPresenter>
+    public class PostViewFragment : BaseFragmentWithPresenter<SinglePostPresenter>
     {
 #pragma warning disable 0649, 4014
         [BindView(Resource.Id.right_btns_layout)] private LinearLayout _rightButtons;
@@ -77,7 +77,7 @@ namespace Steepshot.Fragment
             PostViewHolder.UpdateData(Presenter.PostInfo, Activity);
         }
 
-        public SinglePostFragment(string url)
+        public PostViewFragment(string url)
         {
             _url = url;
         }

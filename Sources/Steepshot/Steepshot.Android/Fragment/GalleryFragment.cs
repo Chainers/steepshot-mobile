@@ -114,12 +114,14 @@ namespace Steepshot.Fragment
 
             if (_pickedItems.Count > 0)
             {
-                _pickedItems.Find(x => x.Selected).Parameters = _preview.DrawableImageParameters.Copy();
-                foreach (var galleryMediaModel in _pickedItems)
+                for (int i = 0; i < _pickedItems.Count; i++)
                 {
-                    var croppedBitmap = _preview.Crop(galleryMediaModel.Path, galleryMediaModel.Parameters);
-                    galleryMediaModel.PreparedBitmap = croppedBitmap;
+                    var itm = _pickedItems[i];
+                    if (itm.Selected)
+                        itm.Parameters = _preview.DrawableImageParameters.Copy();
+                    itm.UploadState = UploadState.ReadyToSave;
                 }
+
                 ((BaseActivity)Activity).OpenNewContentFragment(new PostCreateFragment(_pickedItems));
             }
             else

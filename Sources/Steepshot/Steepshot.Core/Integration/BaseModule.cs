@@ -91,7 +91,7 @@ namespace Steepshot.Core.Integration
                     }
                 } while (!done);
 
-                return await Client.GetMedia(uuidModel, token);
+                return await Client.GetMediaResult(uuidModel, token);
             }
             catch (Exception ex)
             {

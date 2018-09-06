@@ -217,11 +217,11 @@ namespace Steepshot.Core.Clients
             if (!EnableRead)
                 return null;
 
-            var endpoint = $"{BaseUrl}/{GatewayVersion.V1P1}/media/{uuid.Uuid}/result";
+            var endpoint = $"{BaseUrl}/{GatewayVersion.V1P1}/media/{uuid.Uuid}/status";
             return await HttpClient.Get<UploadMediaStatusModel>(endpoint, ct);
         }
 
-        public async Task<OperationResult<MediaModel>> GetMedia(UUIDModel model, CancellationToken ct)
+        public async Task<OperationResult<MediaModel>> GetMediaResult(UUIDModel model, CancellationToken ct)
         {
             if (!EnableRead)
                 return null;

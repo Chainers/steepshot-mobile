@@ -94,11 +94,6 @@ namespace Steepshot.Fragment
             _media = media;
         }
 
-        public PostPrepareBaseFragment(GalleryMediaModel media)
-        {
-            _media = new List<GalleryMediaModel> { media };
-        }
-
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
             if (!IsInitialized)
@@ -183,21 +178,20 @@ namespace Steepshot.Fragment
 
         private async void OnPost(object sender, EventArgs e)
         {
-            _postButton.Text = string.Empty;
             EnablePostAndEdit(false);
+
+            if (string.IsNullOrEmpty(_title.Text))
+            {
+                Activity.ShowAlert(LocalizationKeys.EmptyTitleField, ToastLength.Long);
+                EnabledPost();
+                return;
+            }
 
             var isConnected = AppSettings.ConnectionService.IsConnectionAvailable();
 
             if (!isConnected)
             {
                 Activity.ShowAlert(LocalizationKeys.InternetUnavailable);
-                EnabledPost();
-                return;
-            }
-
-            if (string.IsNullOrEmpty(_title.Text))
-            {
-                Activity.ShowAlert(LocalizationKeys.EmptyTitleField, ToastLength.Long);
                 EnabledPost();
                 return;
             }
@@ -273,6 +267,7 @@ namespace Steepshot.Fragment
                 AppSettings.User.UserInfo.LastPostTime = DateTime.Now;
                 EnabledPost();
                 AppSettings.ProfileUpdateType = ProfileUpdateType.Full;
+                OnPostSuccess();
                 if (Activity is SplashActivity || Activity is CameraActivity)
                     Activity.Finish();
                 else
@@ -282,6 +277,11 @@ namespace Steepshot.Fragment
 
             Activity.ShowInteractiveMessage(resp.Exception, TryAgainAction, ForgetAction);
             return false;
+        }
+
+        protected virtual void OnPostSuccess()
+        {
+            //todo nothing
         }
 
         private async Task CheckForPlagiarism()
