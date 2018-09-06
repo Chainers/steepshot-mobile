@@ -1,5 +1,6 @@
-﻿using System;
+using System;
 using System.Linq;
+using Android.App;
 using Android.Content;
 using Android.Graphics;
 using Android.Support.V7.Widget;
@@ -104,6 +105,7 @@ namespace Steepshot.Adapter
                 default:
                     var itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.lyt_feed_item, parent, false);
                     var vh = new FeedViewHolder(itemView, PostAction, AutoLinkAction, Style.ScreenWidth, Style.ScreenWidth);
+                    vh.presenter = Presenter;
                     return vh;
             }
         }
@@ -139,9 +141,10 @@ namespace Steepshot.Adapter
         private readonly TextView _likeScalePower;
         protected readonly Context Context;
         private CancellationSignal _isAnimationRuning;
-
+        
         protected Post Post;
         public const string ClipboardTitle = "Steepshot's post link";
+        public BasePostPresenter presenter;
 
         private const string TagFormat = " #{0}";
         private const string TagToExclude = "steepshot";
@@ -318,6 +321,15 @@ namespace Steepshot.Adapter
                 flag.Text = AppSettings.LocalizationManager.GetText(Post.Flag ? LocalizationKeys.UnFlagPost : LocalizationKeys.FlagPost);
                 flag.Typeface = Style.Semibold;
 
+                var title = dialogView.FindViewById<TextView>(Resource.Id.post_alert_title);
+                title.Text = "Action with post";
+                title.Typeface = Style.Semibold;
+
+                var promote = dialogView.FindViewById<Button>(Resource.Id.promote);
+                promote.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Promote);
+                promote.Typeface = Style.Semibold;
+                promote.Visibility = ViewStates.Visible;
+
                 var hide = dialogView.FindViewById<Button>(Resource.Id.hide);
                 hide.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.HidePost);
                 hide.Typeface = Style.Semibold;
@@ -351,6 +363,9 @@ namespace Steepshot.Adapter
                 cancel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Cancel);
                 cancel.Typeface = Style.Semibold;
 
+                promote.Click -= PromoteOnClick;
+                promote.Click += PromoteOnClick;
+
                 flag.Click -= DoFlagAction;
                 flag.Click += DoFlagAction;
 
@@ -373,9 +388,13 @@ namespace Steepshot.Adapter
                 cancel.Click += DoDialogCancelAction;
 
                 _moreActionsDialog.SetContentView(dialogView);
-                dialogView.SetBackgroundColor(Color.Transparent);
                 _moreActionsDialog.Window.FindViewById(Resource.Id.design_bottom_sheet).SetBackgroundColor(Color.Transparent);
+                var dialogPadding = (int)Android.Util.TypedValue.ApplyDimension(Android.Util.ComplexUnitType.Dip, 10, Context.Resources.DisplayMetrics);
+                _moreActionsDialog.Window.DecorView.SetPadding(dialogPadding, dialogPadding, dialogPadding, dialogPadding);
                 _moreActionsDialog.Show();
+
+                var bottomSheet = _moreActionsDialog.FindViewById<FrameLayout>(Resource.Id.design_bottom_sheet);
+                BottomSheetBehavior.From(bottomSheet).State = BottomSheetBehavior.StateExpanded;
             }
         }
 
@@ -383,6 +402,14 @@ namespace Steepshot.Adapter
         {
             _moreActionsDialog.Dismiss();
             _postAction?.Invoke(ActionType.Edit, Post);
+        }
+
+        private void PromoteOnClick(object sender, EventArgs eventArgs)
+        {
+            _moreActionsDialog.Dismiss();
+            var actionAlert = new PromoteAlertDialog(Context, presenter, Post);
+            actionAlert.Window.RequestFeature(WindowFeatures.NoTitle);
+            actionAlert.Show();
         }
 
         private void DeleteOnClick(object sender, EventArgs eventArgs)

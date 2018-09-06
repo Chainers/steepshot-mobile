@@ -51,6 +51,7 @@ namespace Steepshot.Adapter
                 default:
                     var itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.lyt_feed_item, parent, false);
                     var vh = new FeedViewHolder(itemView, PostAction, AutoLinkAction, Style.ScreenWidth, Style.ScreenWidth);
+                    vh.presenter = Presenter;
                     return vh;
             }
         }
