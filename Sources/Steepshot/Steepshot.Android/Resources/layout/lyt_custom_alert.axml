@@ -7,23 +7,23 @@
     android:layout_margin="30dp"
     android:background="@drawable/popup_background">
     <TextView
-        android:id="@+id/deletion_title"
+        android:id="@+id/alert_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="20sp"
         android:textColor="@color/black"
         android:textStyle="bold"
-		android:gravity="center_horizontal"
+        android:gravity="center_horizontal"
         android:layout_marginTop="22dp"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp" />
     <TextView
-        android:id="@+id/deletion_message"
+        android:id="@+id/alert_message"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="14sp"
         android:textColor="@color/black"
-		android:gravity="center_horizontal"
+        android:gravity="center_horizontal"
         android:layout_marginTop="14dp"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp" />
@@ -34,7 +34,8 @@
         android:layout_marginRight="20dp"
         android:layout_marginTop="20dp"
         android:background="@color/rgb244_244_246" />
-    <RelativeLayout
+    <LinearLayout
+        android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
@@ -43,18 +44,18 @@
         android:layout_marginRight="20dp">
         <Button
             android:id="@+id/cancel"
-            android:layout_width="wrap_content"
-            android:minWidth="130dp"
-            android:layout_height="40dp"
-            android:background="@drawable/transparent_rounded_border"
-            android:layout_alignParentLeft="true" />
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_weight="1"
+            android:layout_marginRight="7dp"
+            android:background="@drawable/grey_rounded_border" />
         <Button
-            android:id="@+id/delete"
-            android:layout_width="wrap_content"
-            android:minWidth="130dp"
-            android:layout_height="40dp"
+            android:id="@+id/alert_action_btn"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_weight="1"
+            android:layout_marginLeft="7dp"
             android:background="@drawable/orange_btn_style"
-            android:layout_alignParentRight="true"
             android:textColor="@color/white" />
-    </RelativeLayout>
+    </LinearLayout>
 </LinearLayout>
