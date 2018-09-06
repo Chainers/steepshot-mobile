@@ -12,17 +12,19 @@ namespace Steepshot.CustomViews
     public sealed class ActionAlertDialog : BottomSheetDialog
     {
         public Action AlertAction;
-        private readonly string _header;
-        private readonly string _message;
-        private readonly string _alertAct;
-        private readonly string _cancel;
+        private readonly string _headerText;
+        private readonly string _messageText;
+        private readonly string _alertActText;
+        private readonly string _cancelText;
+        private Orientation _orientation;
 
-        public ActionAlertDialog(Context context, string header, string message, string alertAct, string cancel) : base(context)
+        public ActionAlertDialog(Context context, string headerText, string messageText, string alertActText, string cancelText, Orientation orientation = Orientation.Horizontal) : base(context)
         {
-            _header = header;
-            _message = message;
-            _alertAct = alertAct;
-            _cancel = cancel;
+            _headerText = headerText;
+            _messageText = messageText;
+            _alertActText = alertActText;
+            _cancelText = cancelText;
+            _orientation = orientation;
         }
 
         public override void Show()
@@ -33,20 +35,29 @@ namespace Steepshot.CustomViews
                 dialogView.SetMinimumWidth((int)(Style.ScreenWidth * 0.8));
 
                 var alertTitle = dialogView.FindViewById<TextView>(Resource.Id.alert_title);
-                alertTitle.Text = _header;
+                alertTitle.Text = _headerText;
                 alertTitle.Typeface = Style.Semibold;
+                alertTitle.Visibility = string.IsNullOrEmpty(_headerText) ? ViewStates.Gone : ViewStates.Visible;
 
                 var alertMessage = dialogView.FindViewById<TextView>(Resource.Id.alert_message);
-                alertMessage.Text = _message;
+                alertMessage.Text = _messageText;
                 alertMessage.Typeface = Style.Light;
-                alertMessage.Visibility = string.IsNullOrEmpty(_message) ? ViewStates.Gone : ViewStates.Visible;
+                alertMessage.Visibility = string.IsNullOrEmpty(_messageText) ? ViewStates.Gone : ViewStates.Visible;
 
-                var alertCancel = dialogView.FindViewById<Button>(Resource.Id.cancel);
-                alertCancel.Text = _cancel;
+                var isHorizontal = _orientation.Equals(Orientation.Horizontal);
+
+                var layout = isHorizontal ? dialogView.FindViewById<LinearLayout>(Resource.Id.horizontal_lyt)
+                                          : dialogView.FindViewById<LinearLayout>(Resource.Id.vertical_lyt);
+                layout.Visibility = ViewStates.Visible;
+
+                var alertCancel = isHorizontal ? dialogView.FindViewById<Button>(Resource.Id.cancel_h) 
+                                               : dialogView.FindViewById<Button>(Resource.Id.cancel_v);
+                alertCancel.Text = _cancelText;
                 alertCancel.Click += (sender, e) => { Cancel(); };
 
-                var actionBtn = dialogView.FindViewById<Button>(Resource.Id.alert_action_btn);
-                actionBtn.Text = _alertAct;
+                var actionBtn = isHorizontal ? dialogView.FindViewById<Button>(Resource.Id.alert_action_btn_h)
+                                             : dialogView.FindViewById<Button>(Resource.Id.alert_action_btn_v);
+                actionBtn.Text = _alertActText;
                 actionBtn.Click += OnButtonAction;
 
                 SetContentView(dialogView);

@@ -250,35 +250,12 @@ namespace Steepshot.Adapter
 
         private void DeleteOnClick(object sender, EventArgs eventArgs)
         {
-            var alertBuilder = new AlertDialog.Builder(_context);
-            var alert = alertBuilder.Create();
-            var inflater = (LayoutInflater)_context.GetSystemService(Context.LayoutInflaterService);
-            var alertView = inflater.Inflate(Resource.Layout.lyt_deletion_alert, null);
-
-            var alertTitle = alertView.FindViewById<TextView>(Resource.Id.deletion_title);
-            alertTitle.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.DeleteAlertTitle);
-            alertTitle.Typeface = Style.Semibold;
-
-            var alertMessage = alertView.FindViewById<TextView>(Resource.Id.deletion_message);
-            alertMessage.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.DeleteAlertMessage);
-            alertMessage.Typeface = Style.Light;
-
-            var alertCancel = alertView.FindViewById<Button>(Resource.Id.cancel);
-            alertCancel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Cancel);
-            alertCancel.Click += (o, args) => alert.Cancel();
-
-            var alertDelete = alertView.FindViewById<Button>(Resource.Id.delete);
-            alertDelete.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Delete);
-            alertDelete.Click += (o, args) =>
-            {
-                _commentAction?.Invoke(ActionType.Delete, _post);
-                alert.Cancel();
-            };
-
-            alert.SetCancelable(true);
-            alert.SetView(alertView);
-            alert.Window.SetBackgroundDrawable(new ColorDrawable(Color.Transparent));
-            alert.Show();
+            var actionAlert = new ActionAlertDialog(_context, AppSettings.LocalizationManager.GetText(LocalizationKeys.DeleteAlertTitle),
+                AppSettings.LocalizationManager.GetText(LocalizationKeys.DeleteAlertMessage),
+                AppSettings.LocalizationManager.GetText(LocalizationKeys.Delete),
+                AppSettings.LocalizationManager.GetText(LocalizationKeys.Cancel));
+            actionAlert.AlertAction += () => _commentAction?.Invoke(ActionType.Delete, _post);
+            actionAlert.Show();
         }
 
         private void DoFlagAction(object sender, EventArgs e)
