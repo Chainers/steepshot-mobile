@@ -1,9 +1,12 @@
 ﻿using System;
 using Android.Graphics;
+using Newtonsoft.Json;
+using Steepshot.Core.Models.Common;
 using Steepshot.CustomViews;
 
 namespace Steepshot.Utils
 {
+    [JsonObject(MemberSerialization.OptIn)]
     public class GalleryMediaModel
     {
         private bool _selected;
@@ -46,5 +49,32 @@ namespace Steepshot.Utils
         public Bitmap PreparedBitmap { get; set; }
 
         public bool MultySelect { get; set; }
+        
+        [JsonProperty]
+        public UploadState UploadState { get; set; }
+        
+        [JsonProperty]
+        public string TempPath { get; set; }
+        
+        [JsonProperty]
+        public UUIDModel UploadMediaUuid { get; set; }
+    }
+
+
+    public enum UploadState
+    {
+        None,
+
+        Prepare,
+
+        ReadyToSave,
+        Saved,
+
+        UploadStart,
+        UploadEnd,
+        UploadError,
+
+        UploadVerified,
+        Ready,
     }
 }

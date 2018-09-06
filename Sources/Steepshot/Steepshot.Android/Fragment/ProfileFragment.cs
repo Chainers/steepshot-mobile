@@ -33,7 +33,7 @@ namespace Steepshot.Fragment
     {
         private bool _isActivated;
         private string _profileId;
-        private TabSettings _tabSettings;
+        private TabOptions _tabOptions;
 
         private ScrollListener _scrollListner;
         private LinearLayoutManager _linearLayoutManager;
@@ -198,11 +198,11 @@ namespace Steepshot.Fragment
 
                 _gridItemDecoration = new GridItemDecoration(true);
 
-                _tabSettings = AppSettings.User.Login.Equals(_profileId)
-                    ? AppSettings.User.GetTabSettings($"User_{nameof(ProfileFragment)}")
-                    : AppSettings.User.GetTabSettings(nameof(ProfileFragment));
+                _tabOptions = AppSettings.User.Login.Equals(_profileId)
+                    ? AppSettings.GetTabSettings($"User_{nameof(ProfileFragment)}")
+                    : AppSettings.GetTabSettings(nameof(ProfileFragment));
 
-                SwitchListAdapter(_tabSettings.IsGridView);
+                SwitchListAdapter(_tabOptions.IsGridView);
 
                 _postsList.AddOnScrollListener(_scrollListner);
 
@@ -474,9 +474,9 @@ namespace Steepshot.Fragment
 
         private void OnSwitcherClick(object sender, EventArgs e)
         {
-            _tabSettings.IsGridView = !(_postsList.GetLayoutManager() is GridLayoutManager);
-            AppSettings.User.Save();
-            SwitchListAdapter(_tabSettings.IsGridView);
+            _tabOptions.IsGridView = !(_postsList.GetLayoutManager() is GridLayoutManager);
+            AppSettings.SaveNavigation();
+            SwitchListAdapter(_tabOptions.IsGridView);
         }
 
         private void SwitchListAdapter(bool isGridView)

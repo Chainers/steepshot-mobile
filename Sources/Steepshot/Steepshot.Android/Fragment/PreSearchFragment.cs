@@ -36,7 +36,7 @@ namespace Steepshot.Fragment
         public const string IsGuestKey = "isGuest";
 
         private bool _isGuest;
-        private TabSettings _tabSettings;
+        private TabOptions _tabOptions;
 
         private ScrollListener _scrollListner;
         private LinearLayoutManager _linearLayoutManager;
@@ -231,8 +231,8 @@ namespace Steepshot.Fragment
 
                 _gridItemDecoration = new GridItemDecoration();
 
-                _tabSettings = AppSettings.User.GetTabSettings(nameof(PreSearchFragment));
-                SwitchListAdapter(_tabSettings.IsGridView);
+                _tabOptions = AppSettings.GetTabSettings(nameof(PreSearchFragment));
+                SwitchListAdapter(_tabOptions.IsGridView);
                 _postsList.AddOnScrollListener(_scrollListner);
 
                 _postPager.SetClipToPadding(false);
@@ -389,9 +389,9 @@ namespace Steepshot.Fragment
 
         private void OnSwitcherClick(object sender, EventArgs e)
         {
-            _tabSettings.IsGridView = !(_postsList.GetLayoutManager() is GridLayoutManager);
-            AppSettings.User.Save();
-            SwitchListAdapter(_tabSettings.IsGridView);
+            _tabOptions.IsGridView = !(_postsList.GetLayoutManager() is GridLayoutManager);
+            AppSettings.SaveNavigation();
+            SwitchListAdapter(_tabOptions.IsGridView);
         }
 
         private void SwitchListAdapter(bool isGridView)
