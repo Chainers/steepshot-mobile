@@ -1,5 +1,4 @@
 ﻿using System;
-using Android.Content;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Steepshot.CustomViews;
@@ -14,9 +13,9 @@ namespace Steepshot.Adapter
         private readonly int _cellSize;
         private GalleryMediaModel[] _media;
 
-        public GalleryGridAdapter(Context context)
+        public GalleryGridAdapter()
         {
-            _cellSize = context.Resources.DisplayMetrics.WidthPixels / 3 - 2;
+            _cellSize = Style.ScreenWidth / 3 - 2;
         }
 
         public void SetMedia(GalleryMediaModel[] media)

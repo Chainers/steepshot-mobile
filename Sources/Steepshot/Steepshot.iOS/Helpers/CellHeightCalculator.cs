@@ -2,6 +2,7 @@
 using System.Text.RegularExpressions;
 using CoreGraphics;
 using Foundation;
+using Steepshot.Core.Extensions;
 using Steepshot.Core.Models;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Utils;
@@ -27,8 +28,7 @@ namespace Steepshot.iOS.Helpers
 
         public static CellSizeHelper Calculate(Post post)
         {
-            var photoHeight = (int)(OptimalPhotoSize.Get(new Size() { Height = post.Media[0].Size.Height, Width = post.Media[0].Size.Width },
-                                                         (float)UIScreen.MainScreen.Bounds.Width, 180, (float)UIScreen.MainScreen.Bounds.Width + 50));
+            var photoHeight = post.Media[0].OptimalPhotoSize((float)UIScreen.MainScreen.Bounds.Width, 180, (float)UIScreen.MainScreen.Bounds.Width + 50);
 
             var attributedLabel = new TTTAttributedLabel();
             var at = new NSMutableAttributedString();

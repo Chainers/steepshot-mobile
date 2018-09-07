@@ -5,31 +5,31 @@
     android:layout_height="match_parent"
     android:minWidth="25dp"
     android:minHeight="25dp">
-    <RelativeLayout
+	 <LinearLayout
         android:id="@+id/toolbar"
+        android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:background="@color/color_primary"
-        android:minWidth="25px"
-        android:minHeight="25px">
-        <TextView
-            android:text="Tests"
-            android:layout_width="wrap_content"
-            android:textAllCaps="true"
-            android:textSize="@dimen/dp_head_text"
-            android:textStyle="bold"
-            android:textColor="@android:color/white"
-            android:layout_centerInParent="true"
-            android:layout_height="wrap_content"
-            android:id="@+id/Title" />
-        <ImageButton
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:clickable="true">
+		<ImageButton
             android:id="@+id/btn_back"
             android:layout_width="50dp"
-            android:layout_height="match_parent"
-            android:src="@drawable/ic_back"
+            android:layout_height="50dp"
+            android:src="@drawable/ic_back_arrow"
             android:scaleType="center"
+            android:layout_alignParentLeft="true"
             android:background="@android:color/transparent" />
-    </RelativeLayout>
+        <TextView
+            android:id="@+id/page_title"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="15dp"
+            android:gravity="center"
+            android:textSize="20sp"
+            android:text="Tests"
+            android:textColor="@color/rgb15_24_30" />
+    </LinearLayout>
     <Button
         android:id="@+id/run_api_tests"
         android:text="Run api tests"
@@ -37,7 +37,7 @@
         android:textSize="@dimen/dp_button_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/color_primary"
+        android:background="@drawable/orange_btn_style"
         android:layout_marginTop="61dp" />
     <TextView
         android:id="@+id/test_results"

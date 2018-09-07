@@ -80,7 +80,7 @@ namespace Steepshot.Core.Models.Common
         [JsonIgnore]
         public bool ShowMask { get; set; } = true;
         [JsonIgnore]
-        public bool IsComment { get; set; } = true;
+        public bool IsComment { get; set; }
         [JsonIgnore]
         public bool Editing { get; set; }
 

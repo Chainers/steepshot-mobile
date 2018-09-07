@@ -17,7 +17,7 @@
         android:layout_width="match_parent"
         android:layout_height="2px"
         android:background="@color/rgb244_244_246" />
-    <com.aigestudio.wheelpicker.WheelPicker
+    <Steepshot.CustomViews.WheelPicker
         android:id="@+id/coin_picker"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

@@ -115,7 +115,7 @@ namespace Steepshot.Base
                 var appLink = path.Substring(index, path.Length - index);
 
                 if (path.StartsWith("/post"))
-                    OpenNewContentFragment(new SinglePostFragment(appLink));
+                    OpenNewContentFragment(new PostViewFragment(appLink));
                 else if (path.StartsWith("/@"))
                     OpenNewContentFragment(new ProfileFragment(appLink));
             }

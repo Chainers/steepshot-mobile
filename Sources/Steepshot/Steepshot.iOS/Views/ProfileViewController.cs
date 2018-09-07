@@ -17,6 +17,7 @@ using Steepshot.iOS.Helpers;
 using Steepshot.iOS.ViewControllers;
 using Steepshot.iOS.ViewSources;
 using UIKit;
+using Steepshot.iOS.Popups;
 
 namespace Steepshot.iOS.Views
 {
@@ -182,7 +183,8 @@ namespace Steepshot.iOS.Views
                     ShowPowerPopup();
                     break;
                 case ActionType.Balance:
-                    TabBarController.NavigationController.PushViewController(new WalletViewController(), true);
+                    if(_userData.Username == AppSettings.User.Login && TabBarController != null)
+                        TabBarController.NavigationController.PushViewController(new WalletViewController(), true);
                     break;
                 default:
                     break;
@@ -264,6 +266,8 @@ namespace Steepshot.iOS.Views
             {
                 RefreshPage();
                 ShouldProfileUpdate = false;
+
+                PostCreatedPopup.Show(View);
             }
         }
 

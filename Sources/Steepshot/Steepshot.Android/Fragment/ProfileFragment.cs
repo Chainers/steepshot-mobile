@@ -16,7 +16,6 @@ using Steepshot.Activity;
 using Steepshot.Adapter;
 using Steepshot.Base;
 using Steepshot.Core;
-using Steepshot.Core.Authorization;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
@@ -26,6 +25,7 @@ using Steepshot.Core.Models.Enums;
 using Steepshot.Interfaces;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Utils;
+using Steepshot.CustomViews;
 
 namespace Steepshot.Fragment
 {
@@ -33,7 +33,7 @@ namespace Steepshot.Fragment
     {
         private bool _isActivated;
         private string _profileId;
-        private TabSettings _tabSettings;
+        private TabOptions _tabOptions;
 
         private ScrollListener _scrollListner;
         private LinearLayoutManager _linearLayoutManager;
@@ -198,11 +198,11 @@ namespace Steepshot.Fragment
 
                 _gridItemDecoration = new GridItemDecoration(true);
 
-                _tabSettings = AppSettings.User.Login.Equals(_profileId)
-                    ? AppSettings.User.GetTabSettings($"User_{nameof(ProfileFragment)}")
-                    : AppSettings.User.GetTabSettings(nameof(ProfileFragment));
+                _tabOptions = AppSettings.User.Login.Equals(_profileId)
+                    ? AppSettings.GetTabSettings($"User_{nameof(ProfileFragment)}")
+                    : AppSettings.GetTabSettings(nameof(ProfileFragment));
 
-                SwitchListAdapter(_tabSettings.IsGridView);
+                SwitchListAdapter(_tabOptions.IsGridView);
 
                 _postsList.AddOnScrollListener(_scrollListner);
 
@@ -238,11 +238,8 @@ namespace Steepshot.Fragment
                 }
                 else
                 {
-                    _settings.Enabled = false;
                     _more.Visibility = ViewStates.Gone;
                     _login.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.MyProfile);
-                    Presenter.SubscriptionsUpdated += _presenter_SubscriptionsUpdated;
-                    Presenter.CheckSubscriptions();
                 }
 
                 LoadProfile();
@@ -262,11 +259,6 @@ namespace Steepshot.Fragment
                     _adapter.NotifyDataSetChanged();
                 }
             }
-        }
-
-        private void _presenter_SubscriptionsUpdated()
-        {
-            _settings.Enabled = true;
         }
 
         private void PostPagerOnPageScrolled(object sender, ViewPager.PageScrolledEventArgs pageScrolledEventArgs)
@@ -403,7 +395,7 @@ namespace Steepshot.Fragment
                 var inflater = (LayoutInflater)Context.GetSystemService(Context.LayoutInflaterService);
                 using (var dialogView = inflater.Inflate(Resource.Layout.lyt_profile_popup, null))
                 {
-                    dialogView.SetMinimumWidth((int)(Resources.DisplayMetrics.WidthPixels * 0.8));
+                    dialogView.SetMinimumWidth((int)(Style.ScreenWidth * 0.8));
                     var pushes = dialogView.FindViewById<Button>(Resource.Id.pushes);
                     if (isSubscribed)
                     {
@@ -482,9 +474,9 @@ namespace Steepshot.Fragment
 
         private void OnSwitcherClick(object sender, EventArgs e)
         {
-            _tabSettings.IsGridView = !(_postsList.GetLayoutManager() is GridLayoutManager);
-            AppSettings.User.Save();
-            SwitchListAdapter(_tabSettings.IsGridView);
+            _tabOptions.IsGridView = !(_postsList.GetLayoutManager() is GridLayoutManager);
+            AppSettings.SaveNavigation();
+            SwitchListAdapter(_tabOptions.IsGridView);
         }
 
         private void SwitchListAdapter(bool isGridView)
@@ -668,10 +660,22 @@ namespace Steepshot.Fragment
                     }
                 case ActionType.Delete:
                     {
-                        var exception = await Presenter.TryDeletePost(post);
-                        if (!IsInitialized)
-                            return;
-                        Context.ShowAlert(exception);
+                        var actionAlert = new ActionAlertDialog(Context,
+                            AppSettings.LocalizationManager.GetText(LocalizationKeys.DeleteAlertTitle),
+                            AppSettings.LocalizationManager.GetText(LocalizationKeys.DeleteAlertMessage),
+                            AppSettings.LocalizationManager.GetText(LocalizationKeys.Delete),
+                            AppSettings.LocalizationManager.GetText(LocalizationKeys.Cancel), AutoLinkAction);
+
+                        actionAlert.AlertAction += async () =>
+                        {
+                            var exception = await Presenter.TryDeletePost(post);
+                            if (!IsInitialized)
+                                return;
+
+                            Context.ShowAlert(exception);
+                        };
+
+                        actionAlert.Show();
                         break;
                     }
                 case ActionType.Share:
@@ -686,6 +690,13 @@ namespace Steepshot.Fragment
                 case ActionType.Photo:
                     {
                         OpenPost(post);
+                        break;
+                    }
+                case ActionType.Promote:
+                    {
+                        var actionAlert = new PromoteAlertDialog(Context, post, AutoLinkAction);
+                        actionAlert.Window.RequestFeature(WindowFeatures.NoTitle);
+                        actionAlert.Show();
                         break;
                     }
             }

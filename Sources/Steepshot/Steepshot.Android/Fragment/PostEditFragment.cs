@@ -7,11 +7,11 @@ using Android.Views;
 using Android.Widget;
 using Square.Picasso;
 using Steepshot.Adapter;
+using Steepshot.Core.Extensions;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Utils;
 using Steepshot.Utils;
-using ViewUtils = Steepshot.Utils.ViewUtils;
 
 namespace Steepshot.Fragment
 {
@@ -48,13 +48,11 @@ namespace Steepshot.Fragment
                 _photos.Visibility = ViewStates.Gone;
                 _previewContainer.Visibility = ViewStates.Visible;
                 var margin = (int)BitmapUtils.DpToPixel(15, Resources);
-                var previewSize = ViewUtils.CalculateImagePreviewSize(_editPost.Media[0].Size.Width,
-                    _editPost.Media[0].Size.Height, Resources.DisplayMetrics.WidthPixels - margin * 2,
-                    int.MaxValue);
+                var previewSize = BitmapUtils.CalculateImagePreviewSize(_editPost.Media[0].Size.Width, _editPost.Media[0].Size.Height, Style.ScreenWidth - margin * 2, int.MaxValue);
                 var layoutParams = new RelativeLayout.LayoutParams(previewSize.Width, previewSize.Height);
                 layoutParams.SetMargins(margin, 0, margin, margin);
                 _previewContainer.LayoutParameters = layoutParams;
-                _preview.CornerRadius = BitmapUtils.DpToPixel(5, Resources);
+                _preview.CornerRadius = Style.CornerRadius5;
 
                 var url = _editPost.Media[0].Thumbnails.Mini;
                 Picasso.With(Activity).Load(url).CenterCrop()

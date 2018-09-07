@@ -25,7 +25,7 @@ namespace Steepshot.Core.Presenters
 
         public WalletPresenter()
         {
-            ConnectedUsers = AppSettings.DataProvider.Select().ToDictionary(x => x.Id, x => x);
+            ConnectedUsers = AppSettings.DataProvider.Select().OrderByDescending(x=>x.LoginTime).ToDictionary(x => x.Id, x => x);
             _logins = ConnectedUsers.Keys.ToArray();
             Balances = new List<BalanceModel>();
             HasNext = MoveNext();
@@ -149,6 +149,7 @@ namespace Steepshot.Core.Presenters
         public void Reset()
         {
             _current = -1;
+            HasNext = MoveNext();
         }
 
         public UserInfo Current => ConnectedUsers[_logins[_current]];

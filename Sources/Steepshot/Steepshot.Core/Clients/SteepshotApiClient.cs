@@ -187,35 +187,50 @@ namespace Steepshot.Core.Clients
             {
                 await Trace("post", model.Login, result.Exception, model.PostPermlink, ct);
             }
+
+            var infoModel = new NamedInfoModel($"@{model.Author}/{model.Permlink}")
+            {
+                Login = model.Login,
+                ShowLowRated = true,
+                ShowNsfw = true
+            };
+            var postInfo = await GetPostInfo(infoModel, ct);
+
             return result;
         }
 
-        public async Task<OperationResult<MediaModel>> UploadMedia(UploadMediaModel model, CancellationToken ct)
+        public async Task<OperationResult<UUIDModel>> UploadMedia(UploadMediaModel model, CancellationToken ct)
         {
             if (!EnableRead)
                 return null;
 
             var results = Validate(model);
             if (results != null)
-                return new OperationResult<MediaModel>(results);
+                return new OperationResult<UUIDModel>(results);
 
             var endpoint = $"https://media.steepshot.org/api/v1/upload";
-            var uuid = await HttpClient.UploadMedia(endpoint, model, ct);
-
-            if (!uuid.IsSuccess)
-                return new OperationResult<MediaModel>(uuid.Exception);
-
-            endpoint = $"{BaseUrl}/{GatewayVersion.V1P1}/media/{uuid?.Result.UUID}/result";
-
-            do
-            {
-                var result = await HttpClient.Get<MediaModel>(endpoint, ct);
-                if (result.IsSuccess)
-                    return result;
-
-                await Task.Delay(5000, ct);
-            } while (true);
+            return await HttpClient.UploadMedia(endpoint, model, ct);
         }
+
+        public async Task<OperationResult<UploadMediaStatusModel>> GetMediaStatus(UUIDModel uuid, CancellationToken ct)
+        {
+            if (!EnableRead)
+                return null;
+
+            var endpoint = $"{BaseUrl}/{GatewayVersion.V1P1}/media/{uuid.Uuid}/status";
+            return await HttpClient.Get<UploadMediaStatusModel>(endpoint, ct);
+        }
+
+        public async Task<OperationResult<MediaModel>> GetMediaResult(UUIDModel model, CancellationToken ct)
+        {
+            if (!EnableRead)
+                return null;
+
+            var endpoint = $"{BaseUrl}/{GatewayVersion.V1P1}/media/{model.Uuid}/result";
+            return await HttpClient.Get<MediaModel>(endpoint, ct);
+        }
+
+
 
         public async Task<OperationResult<VoidResponse>> DeletePostOrComment(DeleteModel model, CancellationToken ct)
         {

@@ -70,10 +70,9 @@ namespace Steepshot.Fragment
             base.OnViewCreated(view, savedInstanceState);
 
             var toolbarHeight = (int)BitmapUtils.DpToPixel(10, Resources);
-            _coordinator.LayoutParameters.Height = Resources.DisplayMetrics.WidthPixels + Resources.DisplayMetrics.HeightPixels - toolbarHeight;
-            _coordinator.SetTopViewParam(Resources.DisplayMetrics.WidthPixels, toolbarHeight);
-
-            _previewContainer.LayoutParameters = new LinearLayout.LayoutParams(Resources.DisplayMetrics.WidthPixels, Resources.DisplayMetrics.WidthPixels);
+            _coordinator.LayoutParameters.Height = Style.ScreenWidth + Resources.DisplayMetrics.HeightPixels - toolbarHeight;
+            _coordinator.SetTopViewParam(Style.ScreenWidth, toolbarHeight);
+            _previewContainer.LayoutParameters = new LinearLayout.LayoutParams(Style.ScreenWidth, Style.ScreenWidth);
 
             InitBucket();
             InitGalery();
@@ -83,7 +82,7 @@ namespace Steepshot.Fragment
             _folders.ItemSelected += FoldersOnItemSelected;
             _folders.SetSelection(0);
 
-            _gridAdapter = new GalleryGridAdapter(Activity);
+            _gridAdapter = new GalleryGridAdapter();
             _gridAdapter.OnItemSelected += OnItemSelected;
 
             var gridLayoutManager = new GridLayoutManager(Activity, 3) { SmoothScrollbarEnabled = true };
@@ -115,12 +114,14 @@ namespace Steepshot.Fragment
 
             if (_pickedItems.Count > 0)
             {
-                _pickedItems.Find(x => x.Selected).Parameters = _preview.DrawableImageParameters.Copy();
-                foreach (var galleryMediaModel in _pickedItems)
+                for (int i = 0; i < _pickedItems.Count; i++)
                 {
-                    var croppedBitmap = _preview.Crop(galleryMediaModel.Path, galleryMediaModel.Parameters);
-                    galleryMediaModel.PreparedBitmap = croppedBitmap;
+                    var itm = _pickedItems[i];
+                    if (itm.Selected)
+                        itm.Parameters = _preview.DrawableImageParameters.Copy();
+                    itm.UploadState = UploadState.ReadyToSave;
                 }
+
                 ((BaseActivity)Activity).OpenNewContentFragment(new PostCreateFragment(_pickedItems));
             }
             else
@@ -202,7 +203,7 @@ namespace Steepshot.Fragment
             if (_coordinator.SwitchToWhole())
             {
                 _gridView.ScrollToPosition(position);
-                _gridView.ScrollBy(0, Resources.DisplayMetrics.WidthPixels);
+                _gridView.ScrollBy(0, Style.ScreenWidth);
             }
 
             for (int i = 0; i < _pickedItems.Count; i++)
