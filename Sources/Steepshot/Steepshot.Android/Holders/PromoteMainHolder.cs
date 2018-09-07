@@ -5,22 +5,18 @@ using Android.Widget;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
-using Steepshot.Core.Presenters;
 using Steepshot.Core.Extensions;
 using Steepshot.Core.Utils;
 using Steepshot.Utils;
 using Android.Views;
 using Android.Text;
 using System.Globalization;
-using Steepshot.Core.Models.Enums;
-using Android.Content;
+using Steepshot.Core.Models.Responses;
 
 namespace Steepshot.Holders
 {
     public class PromoteMainHolder : RecyclerView.ViewHolder
     {
-        private readonly BasePostPresenter presenter;
-
         private EditText _amountTextField;
         private TextView _pickerLabel;
         private TextView _balanceLabel;
@@ -28,16 +24,26 @@ namespace Steepshot.Holders
         private Button _maxBtn;
         private ProgressBar _balanceLoader;
 
-        public List<BalanceModel> balances;
-        public Action PromoteAction;
-        public CurrencyType pickedCoin = CurrencyType.Steem;
+        public List<BalanceModel> Balances { get; private set; }
+        public CurrencyType PickedCoin { get; private set; } = CurrencyType.Steem;
+        public event Action CoinPickClick;
+
+        private AccountInfoResponse _accountInfo;
+        public AccountInfoResponse AccountInfo
+        {
+            get => _accountInfo;
+            set
+            {
+                _accountInfo = value;
+                SetBalance();
+            }
+        }
 
         public string AmountEdit => _amountTextField.Text;
 
 
-        public PromoteMainHolder(View itemView, BasePostPresenter presenter) : base(itemView)
+        public PromoteMainHolder(View itemView) : base(itemView)
         {
-            this.presenter = presenter;
             InitializeView();
         }
 
@@ -60,30 +66,37 @@ namespace Steepshot.Holders
             _errorMessage.Typeface = Style.Semibold;
 
             _pickerLabel = ItemView.FindViewById<TextView>(Resource.Id.promotecoin_name);
-            _pickerLabel.Text = "Steem";
+            _pickerLabel.Text = PickedCoin.ToString();
             _pickerLabel.Typeface = Style.Semibold;
 
             var promoteCoin = ItemView.FindViewById<LinearLayout>(Resource.Id.promote_coin);
-            promoteCoin.Click += (sender, e) => { PromoteAction?.Invoke(); };
+            promoteCoin.Click += PromoteCoinOnClick;
 
             _maxBtn = ItemView.FindViewById<Button>(Resource.Id.promote_max);
             _maxBtn.Typeface = Style.Semibold;
             _maxBtn.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Max);
-            _maxBtn.Click += (sender, e) =>
-            {
-                _amountTextField.Text = balances.Find(x => x.CurrencyType == pickedCoin).Value.ToBalanceValueString();
-                _amountTextField.SetSelection(_amountTextField.Text.Length);
-            };
+            _maxBtn.Click += MaxBtnOnClick;
 
-            GetBalance();
+            SetBalance();
+        }
+
+        private void MaxBtnOnClick(object sender, EventArgs e)
+        {
+            _amountTextField.Text = Balances.Find(x => x.CurrencyType == PickedCoin).Value.ToBalanceValueString();
+            _amountTextField.SetSelection(_amountTextField.Text.Length);
+        }
+
+        private void PromoteCoinOnClick(object sender, EventArgs e)
+        {
+            CoinPickClick?.Invoke();
         }
 
         public void UpdateTokenInfo(CurrencyType currencyType)
         {
-            pickedCoin = currencyType;
-            _pickerLabel.Text = pickedCoin.ToString();
+            PickedCoin = currencyType;
+            _pickerLabel.Text = PickedCoin.ToString();
 
-            GetBalance();
+            SetBalance();
         }
 
         public void ShowError(string mes)
@@ -92,31 +105,30 @@ namespace Steepshot.Holders
             _errorMessage.Text = mes;
         }
 
-        private async void GetBalance()
+        private void SetBalance()
         {
-            _balanceLabel.Visibility = ViewStates.Gone;
-            _balanceLoader.Visibility = ViewStates.Visible;
-            _maxBtn.Enabled = false;
-
-            var response = await presenter.TryGetAccountInfo(AppSettings.User.Login);
-
-            if (response.IsSuccess)
+            if (_accountInfo == null)
             {
-                balances = response.Result?.Balances;
-                var balance = balances?.Find(x => x.CurrencyType == pickedCoin);
-                _balanceLabel.Text = $"{AppSettings.LocalizationManager.GetText(LocalizationKeys.Balance)}: {balance.Value}";
+                _balanceLabel.Visibility = ViewStates.Gone;
+                _balanceLoader.Visibility = ViewStates.Visible;
+                _maxBtn.Enabled = false;
             }
+            else
+            {
+                Balances = _accountInfo.Balances;
+                var balance = Balances?.Find(x => x.CurrencyType == PickedCoin);
+                _balanceLabel.Text = $"{AppSettings.LocalizationManager.GetText(LocalizationKeys.Balance)}: {balance?.Value}";
 
-            _balanceLabel.Visibility = ViewStates.Visible;
-            _balanceLoader.Visibility = ViewStates.Gone;
-            _maxBtn.Enabled = true;
-
+                _balanceLabel.Visibility = ViewStates.Visible;
+                _balanceLoader.Visibility = ViewStates.Gone;
+                _maxBtn.Enabled = true;
+            }
             CoinSelected();
         }
-        
+
         private void CoinSelected()
-        { 
-            switch (pickedCoin)
+        {
+            switch (PickedCoin)
             {
                 case CurrencyType.Steem:
                 case CurrencyType.Golos:
@@ -127,7 +139,7 @@ namespace Steepshot.Holders
                     _amountTextField.SetFilters(new IInputFilter[] { new TransferAmountFilter(20, 6) });
                     break;
             }
-            _amountTextField.SetPadding(_amountTextField.PaddingLeft, _amountTextField.PaddingTop, ((View) _pickerLabel.Parent).Width, _amountTextField.PaddingBottom);
+            _amountTextField.SetPadding(_amountTextField.PaddingLeft, _amountTextField.PaddingTop, ((View)_pickerLabel.Parent).Width, _amountTextField.PaddingBottom);
         }
 
         private void IsEnoughBalance(object sender, TextChangedEventArgs e)
@@ -140,7 +152,7 @@ namespace Steepshot.Holders
             if (!double.TryParse(_amountTextField.Text, NumberStyles.Any, CultureInfo.InvariantCulture, out var amountEdit))
                 return;
 
-            if (amountEdit == 0)
+            if (amountEdit <= 0)
                 return;
 
             if (amountEdit < Core.Constants.MinBid)
@@ -153,14 +165,6 @@ namespace Steepshot.Holders
                 _errorMessage.Visibility = ViewStates.Visible;
                 _errorMessage.Text = $"{AppSettings.LocalizationManager.GetText(LocalizationKeys.MaxBid)} {Core.Constants.MaxBid}";
             }
-        }
-
-        private bool IsValidAmount()
-        {
-            if (!double.TryParse(_amountTextField.Text, NumberStyles.Any, CultureInfo.InvariantCulture, out var amountEdit))
-                return false;
-
-            return amountEdit >= Core.Constants.MinBid && amountEdit <= Core.Constants.MaxBid;
         }
     }
 }

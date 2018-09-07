@@ -1,5 +1,4 @@
-﻿using System;
-using Android.Support.V7.Widget;
+﻿using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
 using Steepshot.Utils;
@@ -8,8 +7,8 @@ namespace Steepshot.Holders
 {
     public class PromoteMessageHolder : RecyclerView.ViewHolder
     {
-        private TextView title;
-        private TextView message;
+        private TextView _title;
+        private TextView _message;
 
         public PromoteMessageHolder(View itemView) : base(itemView)
         {
@@ -18,21 +17,21 @@ namespace Steepshot.Holders
 
         private void InitializeView()
         {
-            title = ItemView.FindViewById<TextView>(Resource.Id.message_title);
-            title.Typeface = Style.Regular;
+            _title = ItemView.FindViewById<TextView>(Resource.Id.message_title);
+            _title.Typeface = Style.Regular;
 
-            message = ItemView.FindViewById<TextView>(Resource.Id.message_body);
-            message.Typeface = Style.Regular;
+            _message = ItemView.FindViewById<TextView>(Resource.Id.message_body);
+            _message.Typeface = Style.Regular;
         }
 
         public void SetupMessage(string titleText, string messageText)
         {
-            title.Text = titleText;
+            _title.Text = titleText;
 
             if (!string.IsNullOrEmpty(messageText))
-                message.Text = messageText;
+                _message.Text = messageText;
             else
-                message.Visibility = ViewStates.Gone;
+                _message.Visibility = ViewStates.Gone;
         }
     }
 }

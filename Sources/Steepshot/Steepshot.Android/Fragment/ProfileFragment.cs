@@ -26,6 +26,7 @@ using Steepshot.Core.Models.Enums;
 using Steepshot.Interfaces;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Utils;
+using Steepshot.CustomViews;
 
 namespace Steepshot.Fragment
 {
@@ -678,6 +679,13 @@ namespace Steepshot.Fragment
                 case ActionType.Photo:
                     {
                         OpenPost(post);
+                        break;
+                    }
+                case ActionType.Promote:
+                    {
+                        var actionAlert = new PromoteAlertDialog(Context, post);
+                        actionAlert.Window.RequestFeature(WindowFeatures.NoTitle);
+                        actionAlert.Show();
                         break;
                     }
             }

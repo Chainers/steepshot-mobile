@@ -8,68 +8,78 @@ using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 using Steepshot.Utils;
 using Android.Support.Design.Widget;
+using Android.Support.V4.View;
 using Steepshot.Adapter;
-using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Models.Common;
 using System.Threading.Tasks;
 using System.Globalization;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Activity;
+using Steepshot.Base;
+using Steepshot.Core;
 
 namespace Steepshot.CustomViews
 {
     public sealed class PromoteAlertDialog : BottomSheetDialog
     {
-        private const int PickerPage = 0;
-        private const int MainPage = 1;
-        private const int PromoterFoundPage = 2;
-        private const int MessagesPage = 3;
+        private enum Pages
+        {
+            CoinPick,
+            Main,
+            Promoter,
+            Messages
+        }
 
-        private readonly Context context;
-        private readonly Post post;
+        private readonly PromotePresenter _presenter;
+        private readonly Post _post;
 
         private PromotePagerAdapter _adapter;
-        private BasePostPresenter _presenter;
         private PromoteRequest _promoteRequest;
         private PromoteResponse _promoterResult;
 
         private TextView _promoteTitle;
         private Button _actionBtn;
         private ProgressBar _actionSpinner;
-        private Android.Support.V4.View.ViewPager _container;
+        private ViewPager _pager;
 
-        private Action _promoteAction;
         private string _actionButtonTitle;
-        private int _currentPage = MainPage;
 
         private PromoteAlertDialog(Context context) : base(context) { }
 
-        public PromoteAlertDialog(Context context, BasePostPresenter presenter, Post post) : this(context)
+        public PromoteAlertDialog(Context context, Post post) : this(context)
         {
-            this.context = context;
-            _presenter = presenter;
-            this.post = post;
+            _presenter = new PromotePresenter();
+            _presenter.SetClient(AppSettings.User.Chain == KnownChains.Steem ? App.SteemClient : App.GolosClient);
+            _post = post;
+            ShowEvent += OnShowEvent;
+        }
+
+        private async void OnShowEvent(object sender, EventArgs e)
+        {
+            var response = await _presenter.TryGetAccountInfo(AppSettings.User.Login);
+            if (response.IsSuccess)
+            {
+                _adapter.MainHolder.AccountInfo = response.Result;
+            }
         }
 
         public override void Show()
         {
-            using (var dialogView = LayoutInflater.From(context).Inflate(Resource.Layout.lyt_promote_popup, null))
+            using (var dialogView = LayoutInflater.From(Context).Inflate(Resource.Layout.lyt_promote_popup, null))
             {
-                dialogView.SetMinimumWidth((int)(context.Resources.DisplayMetrics.WidthPixels * 0.8));
-
-                _promoteAction += () => _container.SetCurrentItem(PickerPage, true);
+                dialogView.SetMinimumWidth((int)(Context.Resources.DisplayMetrics.WidthPixels * 0.8));
 
                 _promoteTitle = dialogView.FindViewById<TextView>(Resource.Id.promote_title);
                 _promoteTitle.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PromotePost);
                 _promoteTitle.Typeface = Style.Semibold;
 
-                _container = dialogView.FindViewById<Android.Support.V4.View.ViewPager>(Resource.Id.promote_container);
-                _adapter = new PromotePagerAdapter(context, _presenter, _promoteAction);
-                _container.OffscreenPageLimit = 2;
-                _container.Adapter = _adapter;
-                _container.SetCurrentItem(MainPage, false);
-                _container.PageSelected += PageSelected;
+                _pager = dialogView.FindViewById<ViewPager>(Resource.Id.promote_container);
+                _adapter = new PromotePagerAdapter(Context);
+                _pager.OffscreenPageLimit = 2;
+                _pager.Adapter = _adapter;
+                _pager.SetCurrentItem((int)Pages.Main, false);
+                _pager.PageSelected += PageSelected;
 
                 _actionBtn = dialogView.FindViewById<Button>(Resource.Id.findpromote_btn);
                 _actionBtn.Typeface = Style.Semibold;
@@ -83,7 +93,7 @@ namespace Steepshot.CustomViews
                 var close = dialogView.FindViewById<Button>(Resource.Id.close);
                 close.Typeface = Style.Semibold;
                 close.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Close);
-                close.Click += (sender, e) => { Cancel(); };
+                close.Click += CloseOnClick;
 
                 SetContentView(dialogView);
                 Window.FindViewById(Resource.Id.design_bottom_sheet).SetBackgroundColor(Color.Transparent);
@@ -96,45 +106,50 @@ namespace Steepshot.CustomViews
             }
         }
 
+        private void CloseOnClick(object sender, EventArgs e)
+        {
+            Cancel();
+        }
+
         private async void ActionButtonClick(object sender, EventArgs e)
         {
-            switch (_currentPage)
+            switch ((Pages)_pager.CurrentItem)
             {
-                case PickerPage:
-                    _container.SetCurrentItem(MainPage, true);
-                    var currencyType = _adapter.coins[_adapter.pickerHolder.selectedPosition];
-                    _adapter.mainHolder.UpdateTokenInfo(currencyType);
+                case Pages.CoinPick:
+                    _pager.SetCurrentItem((int)Pages.Main, true);
+                    var currencyType = _adapter.Coins[_adapter.PickerHolder.SelectedPosition];
+                    _adapter.MainHolder.UpdateTokenInfo(currencyType);
                     break;
-                case MainPage:
+                case Pages.Main:
                     EnableActionBtn(false);
                     await FindPromoter();
                     EnableActionBtn(true);
                     break;
-                case PromoterFoundPage:
+                case Pages.Promoter:
                     EnableActionBtn(false);
                     await LaunchPromoCampaign();
                     EnableActionBtn(true);
                     break;
-                case MessagesPage:
-                    _container.SetCurrentItem(MainPage, false);
+                case Pages.Messages:
+                    _pager.SetCurrentItem((int)Pages.Main, false);
                     break;
             }
         }
 
         private async Task FindPromoter()
         {
-            var mainHolder = _adapter.mainHolder;
+            var mainHolder = _adapter.MainHolder;
 
             if (string.IsNullOrEmpty(mainHolder.AmountEdit))
             {
-                _adapter.mainHolder.ShowError($"{AppSettings.LocalizationManager.GetText(LocalizationKeys.MinBid)} {Core.Constants.MinBid}");
+                _adapter.MainHolder.ShowError($"{AppSettings.LocalizationManager.GetText(LocalizationKeys.MinBid)} {Constants.MinBid}");
                 return;
             }
 
             if (!double.TryParse(mainHolder.AmountEdit, NumberStyles.Any, CultureInfo.InvariantCulture, out var amountEdit))
                 return;
 
-            if (amountEdit > mainHolder.balances?.Find(x => x.CurrencyType == mainHolder.pickedCoin).Value)
+            if (amountEdit > mainHolder.Balances?.Find(x => x.CurrencyType == mainHolder.PickedCoin).Value)
             {
                 mainHolder.ShowError(AppSettings.LocalizationManager.GetText(LocalizationKeys.NotEnoughBalance));
                 return;
@@ -146,8 +161,8 @@ namespace Steepshot.CustomViews
             _promoteRequest = new PromoteRequest
             {
                 Amount = amountEdit,
-                CurrencyType = mainHolder.pickedCoin,
-                PostToPromote = post
+                CurrencyType = mainHolder.PickedCoin,
+                PostToPromote = _post
             };
 
             var promoter = await _presenter.FindPromoteBot(_promoteRequest);
@@ -155,12 +170,12 @@ namespace Steepshot.CustomViews
             if (promoter.IsSuccess)
             {
                 _promoterResult = promoter.Result;
-                _adapter.foundHolder.UpdatePromoterInfo(_promoterResult);
-                _container.SetCurrentItem(PromoterFoundPage, true);
+                _adapter.FoundHolder.UpdatePromoterInfo(_promoterResult);
+                _pager.SetCurrentItem((int)Pages.Promoter, true);
             }
             else
             {
-                _adapter.messageHolder.SetupMessage(AppSettings.LocalizationManager.GetText(LocalizationKeys.PromoterNotFound), string.Empty);
+                _adapter.MessageHolder.SetupMessage(AppSettings.LocalizationManager.GetText(LocalizationKeys.PromoterNotFound), string.Empty);
                 ShowResultMessage(AppSettings.LocalizationManager.GetText(LocalizationKeys.PromoterSearchResult), AppSettings.LocalizationManager.GetText(LocalizationKeys.SearchAgain), false);
             }
         }
@@ -169,21 +184,22 @@ namespace Steepshot.CustomViews
         {
             if (!AppSettings.User.HasActivePermission)
             {
-                var intent = new Intent(context, typeof(ActiveSignInActivity));
+                var intent = new Intent(Context, typeof(ActiveSignInActivity));
                 intent.PutExtra(ActiveSignInActivity.ActiveSignInUserName, AppSettings.User.Login);
                 intent.PutExtra(ActiveSignInActivity.ActiveSignInChain, (int)AppSettings.User.Chain);
-                context.StartActivity(intent);
+                Context.StartActivity(intent);
                 return;
             }
 
             var transferResponse = await _presenter.TryTransfer(AppSettings.User.UserInfo, _promoterResult.Bot.Author,
-                                                                _promoteRequest.Amount.ToString(), _promoteRequest.CurrencyType,
-                                                                $"https://steemit.com{post.Url}");
+                                                                _promoteRequest.Amount.ToString(CultureInfo.InvariantCulture),
+                                                                _promoteRequest.CurrencyType,
+                                                                $"https://steemit.com{_post.Url}");
 
-            if (transferResponse.IsSuccess)
-                _adapter.messageHolder.SetupMessage(AppSettings.LocalizationManager.GetText(LocalizationKeys.SuccessPromote), string.Empty);
-            else
-                _adapter.messageHolder.SetupMessage(AppSettings.LocalizationManager.GetText(LocalizationKeys.TokenTransferError), string.Empty);
+            _adapter.MessageHolder.SetupMessage(
+                transferResponse.IsSuccess
+                    ? AppSettings.LocalizationManager.GetText(LocalizationKeys.SuccessPromote)
+                    : AppSettings.LocalizationManager.GetText(LocalizationKeys.TokenTransferError), string.Empty);
 
             ShowResultMessage(AppSettings.LocalizationManager.GetText(LocalizationKeys.PromoteComplete), AppSettings.LocalizationManager.GetText(LocalizationKeys.PromoteAgain), true);
         }
@@ -192,7 +208,7 @@ namespace Steepshot.CustomViews
         {
             _actionButtonTitle = btnTitle;
             _promoteTitle.Text = viewTitle;
-            _container.SetCurrentItem(MessagesPage, animate);
+            _pager.SetCurrentItem((int)Pages.Messages, animate);
         }
 
         private bool IsValidAmount(string amount)
@@ -200,7 +216,7 @@ namespace Steepshot.CustomViews
             if (!double.TryParse(amount, NumberStyles.Any, CultureInfo.InvariantCulture, out var amountEdit))
                 return false;
 
-            return amountEdit >= Core.Constants.MinBid && amountEdit <= Core.Constants.MaxBid;
+            return amountEdit >= Constants.MinBid && amountEdit <= Constants.MaxBid;
         }
 
         private void EnableActionBtn(bool enabled)
@@ -210,26 +226,25 @@ namespace Steepshot.CustomViews
             _actionSpinner.Visibility = enabled ? ViewStates.Gone : ViewStates.Visible;
         }
 
-        private void PageSelected(object sender, Android.Support.V4.View.ViewPager.PageSelectedEventArgs e)
+        private void PageSelected(object sender, ViewPager.PageSelectedEventArgs e)
         {
-            switch (e.Position)
-            { 
-                case PickerPage:
+            switch ((Pages)e.Position)
+            {
+                case Pages.CoinPick:
                     _actionButtonTitle = AppSettings.LocalizationManager.GetText(LocalizationKeys.Select);
                     _promoteTitle.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.SelectToken);
                     break;
-                case MainPage:
+                case Pages.Main:
                     _actionButtonTitle = AppSettings.LocalizationManager.GetText(LocalizationKeys.FindPromoter);
                     _promoteTitle.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PromotePost);
                     break;
-                case PromoterFoundPage:
+                case Pages.Promoter:
                     _actionButtonTitle = AppSettings.LocalizationManager.GetText(LocalizationKeys.Promote);
                     _promoteTitle.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PromoterFound);
                     break;
             }
 
             _actionBtn.Text = _actionButtonTitle;
-            _currentPage = e.Position;
         }
     }
 }

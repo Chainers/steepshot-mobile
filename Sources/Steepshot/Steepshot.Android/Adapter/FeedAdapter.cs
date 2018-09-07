@@ -1,6 +1,5 @@
 using System;
 using System.Linq;
-using Android.App;
 using Android.Content;
 using Android.Graphics;
 using Android.Support.V7.Widget;
@@ -17,19 +16,14 @@ using Refractored.Controls;
 using Steepshot.Core.Extensions;
 using Steepshot.Core.Models;
 using System.Threading.Tasks;
-using System.Collections.Generic;
-using Android.Graphics.Drawables;
 using Android.OS;
-using Android.Provider;
 using Android.Support.V4.View;
 using Steepshot.Base;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Enums;
 using Steepshot.CustomViews;
-using Object = Java.Lang.Object;
 using Steepshot.Activity;
 using Steepshot.Core;
-using Steepshot.Utils.Media;
 
 namespace Steepshot.Adapter
 {
@@ -105,7 +99,6 @@ namespace Steepshot.Adapter
                 default:
                     var itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.lyt_feed_item, parent, false);
                     var vh = new FeedViewHolder(itemView, PostAction, AutoLinkAction, Style.ScreenWidth, Style.ScreenWidth);
-                    vh.presenter = Presenter;
                     return vh;
             }
         }
@@ -141,10 +134,9 @@ namespace Steepshot.Adapter
         private readonly TextView _likeScalePower;
         protected readonly Context Context;
         private CancellationSignal _isAnimationRuning;
-        
+
         protected Post Post;
         public const string ClipboardTitle = "Steepshot's post link";
-        public BasePostPresenter presenter;
 
         private const string TagFormat = " #{0}";
         private const string TagToExclude = "steepshot";
@@ -200,7 +192,7 @@ namespace Steepshot.Adapter
             parameters.Width = width;
 
             PhotosViewPager.LayoutParameters = parameters;
-            PhotosViewPager.Adapter = new PostPhotosPagerAdapter(Context, PhotosViewPager.LayoutParameters, post =>
+            PhotosViewPager.Adapter = new PostPhotosPagerAdapter(Context, post =>
             {
                 HideScaleBar();
                 if (PhotoPagerType == PostPagerType.Feed)
@@ -407,9 +399,7 @@ namespace Steepshot.Adapter
         private void PromoteOnClick(object sender, EventArgs eventArgs)
         {
             _moreActionsDialog.Dismiss();
-            var actionAlert = new PromoteAlertDialog(Context, presenter, Post);
-            actionAlert.Window.RequestFeature(WindowFeatures.NoTitle);
-            actionAlert.Show();
+            _postAction?.Invoke(ActionType.Promote, Post);
         }
 
         private void DeleteOnClick(object sender, EventArgs eventArgs)
@@ -673,82 +663,6 @@ namespace Steepshot.Adapter
         {
             Feed,
             PostScreen
-        }
-
-        class PostPhotosPagerAdapter : Android.Support.V4.View.PagerAdapter
-        {
-            private const int CachedPagesCount = 5;
-            private readonly List<MediaView> _mediaViews;
-            private readonly Context _context;
-            private readonly ViewGroup.LayoutParams _layoutParams;
-            private readonly Action<Post> _photoAction;
-            private Post _post;
-
-            public PostPhotosPagerAdapter(Context context, ViewGroup.LayoutParams layoutParams, Action<Post> photoAction)
-            {
-                _context = context;
-                _layoutParams = layoutParams;
-                _photoAction = photoAction;
-                _mediaViews = new List<MediaView>(Enumerable.Repeat<MediaView>(null, CachedPagesCount));
-            }
-
-            public void UpdateData(Post post)
-            {
-                _post = post;
-                NotifyDataSetChanged();
-            }
-
-            private void LoadMedia(MediaModel mediaModel, MediaView mediaView)
-            {
-                if (mediaModel != null)
-                {
-                    var parent = (View)mediaView.Parent;
-                    mediaView.LayoutParameters.Height = parent.LayoutParameters.Height;
-                    mediaView.LayoutParameters.Width = parent.LayoutParameters.Width;
-                    mediaView.MediaSource = mediaModel;
-                }
-            }
-
-            public override Object InstantiateItem(ViewGroup container, int position)
-            {
-                var reusePosition = position % CachedPagesCount;
-                var mediaView = _mediaViews[reusePosition];
-
-                if (mediaView == null)
-                {
-                    mediaView = new MediaView(_context) { LayoutParameters = container.LayoutParameters };
-                    mediaView.OnClick += MediaClick;
-                    _mediaViews[reusePosition] = mediaView;
-                }
-
-                container.AddView(mediaView);
-                LoadMedia(_post.Media[position], mediaView);
-                return mediaView;
-            }
-
-            private void MediaClick(MediaType mediaType)
-            {
-                switch (mediaType)
-                {
-                    case MediaType.Image:
-                        _photoAction?.Invoke(_post);
-                        break;
-                }
-            }
-
-            public override int GetItemPosition(Object @object) => PositionNone;
-
-            public override void DestroyItem(ViewGroup container, int position, Object obj)
-            {
-                container.RemoveView((View)obj);
-            }
-
-            public override bool IsViewFromObject(View view, Object obj)
-            {
-                return view == obj;
-            }
-
-            public override int Count => _post?.Media.Length ?? 0;
         }
     }
 }
