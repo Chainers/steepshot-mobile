@@ -188,6 +188,7 @@ namespace Steepshot.Adapter
         private readonly ImageButton _edit;
         private readonly ImageButton _delete;
         private readonly Action<ActionType, Post> _commentAction;
+        private readonly Action<AutoLinkType, string> _autoLinkAction;
         private readonly Action _rootAction;
         private readonly Context _context;
         private readonly RelativeLayout _rootView;
@@ -217,6 +218,7 @@ namespace Steepshot.Adapter
             _comment.Typeface = _likes.Typeface = _cost.Typeface = _reply.Typeface = Style.Regular;
 
             _commentAction = commentAction;
+            _autoLinkAction = AutoLinkAction;
             _rootAction = rootClickAction;
 
             _likeOrFlag.Click += LikeOnClick;
@@ -253,7 +255,7 @@ namespace Steepshot.Adapter
             var actionAlert = new ActionAlertDialog(_context, AppSettings.LocalizationManager.GetText(LocalizationKeys.DeleteAlertTitle),
                 AppSettings.LocalizationManager.GetText(LocalizationKeys.DeleteAlertMessage),
                 AppSettings.LocalizationManager.GetText(LocalizationKeys.Delete),
-                AppSettings.LocalizationManager.GetText(LocalizationKeys.Cancel));
+                AppSettings.LocalizationManager.GetText(LocalizationKeys.Cancel), _autoLinkAction);
             actionAlert.AlertAction += () => _commentAction?.Invoke(ActionType.Delete, _post);
             actionAlert.Show();
         }

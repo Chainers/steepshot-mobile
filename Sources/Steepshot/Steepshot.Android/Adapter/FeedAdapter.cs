@@ -115,6 +115,7 @@ namespace Steepshot.Adapter
     {
         private static bool _isScalebarOpened;
         private readonly Action<ActionType, Post> _postAction;
+        private readonly Action<AutoLinkType, string> _autoLinkAction;
         protected readonly ViewPager PhotosViewPager;
         private readonly TabLayout _pagerTabLayout;
         private readonly ImageView _avatar;
@@ -221,6 +222,7 @@ namespace Steepshot.Adapter
             _title.SetHighlightColor(Color.Transparent);
 
             _postAction = postAction;
+            _autoLinkAction = autoLinkAction;
 
             _likeOrFlag.Click += DoLikeAction;
             _likeOrFlag.LongClick += DoLikeScaleAction;
@@ -407,7 +409,7 @@ namespace Steepshot.Adapter
         private void PromoteOnClick(object sender, EventArgs eventArgs)
         {
             _moreActionsDialog.Dismiss();
-            var actionAlert = new PromoteAlertDialog(Context, presenter, Post);
+            var actionAlert = new PromoteAlertDialog(Context, presenter, Post, _autoLinkAction);
             actionAlert.Window.RequestFeature(WindowFeatures.NoTitle);
             actionAlert.Show();
         }
@@ -418,7 +420,7 @@ namespace Steepshot.Adapter
             var actionAlert = new ActionAlertDialog(Context, AppSettings.LocalizationManager.GetText(LocalizationKeys.DeleteAlertTitle),
                 AppSettings.LocalizationManager.GetText(LocalizationKeys.DeleteAlertMessage),
                 AppSettings.LocalizationManager.GetText(LocalizationKeys.Delete),
-                AppSettings.LocalizationManager.GetText(LocalizationKeys.Cancel));
+                AppSettings.LocalizationManager.GetText(LocalizationKeys.Cancel), _autoLinkAction);
             actionAlert.AlertAction += () => _postAction?.Invoke(ActionType.Delete, Post);
             actionAlert.Show();
         }

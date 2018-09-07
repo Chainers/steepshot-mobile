@@ -213,7 +213,7 @@ namespace Steepshot.Fragment
             var actionAlert = new ActionAlertDialog(Context, doPowerConfirmation,
                                                     AppSettings.LocalizationManager.GetText(string.Empty),
                                                     AppSettings.LocalizationManager.GetText(LocalizationKeys.Yes),
-                                                    AppSettings.LocalizationManager.GetText(LocalizationKeys.No), Orientation.Vertical);
+                                                    AppSettings.LocalizationManager.GetText(LocalizationKeys.No), AutoLinkAction, Orientation.Vertical);
             actionAlert.AlertAction += DoPowerAction;
             actionAlert.Show();
         }

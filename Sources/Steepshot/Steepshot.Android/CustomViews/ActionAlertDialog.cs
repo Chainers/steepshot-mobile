@@ -5,6 +5,8 @@ using Android.Graphics;
 using Android.Support.Design.Widget;
 using Android.Views;
 using Android.Widget;
+using Steepshot.Base;
+using Steepshot.Fragment;
 using Steepshot.Utils;
 
 namespace Steepshot.CustomViews
@@ -17,14 +19,16 @@ namespace Steepshot.CustomViews
         private readonly string _alertActText;
         private readonly string _cancelText;
         private Orientation _orientation;
+        public Action<AutoLinkType, string> _autoLinkAction;
 
-        public ActionAlertDialog(Context context, string headerText, string messageText, string alertActText, string cancelText, Orientation orientation = Orientation.Horizontal) : base(context)
+        public ActionAlertDialog(Context context, string headerText, string messageText, string alertActText, string cancelText, Action<AutoLinkType, string> autoLinkAction, Orientation orientation = Orientation.Horizontal) : base(context)
         {
             _headerText = headerText;
             _messageText = messageText;
             _alertActText = alertActText;
             _cancelText = cancelText;
             _orientation = orientation;
+            _autoLinkAction = autoLinkAction;
         }
 
         public override void Show()
@@ -34,10 +38,11 @@ namespace Steepshot.CustomViews
             {
                 dialogView.SetMinimumWidth((int)(Style.ScreenWidth * 0.8));
 
-                var alertTitle = dialogView.FindViewById<TextView>(Resource.Id.alert_title);
-                alertTitle.Text = _headerText;
+                var alertTitle = dialogView.FindViewById<AutoLinkTextView>(Resource.Id.alert_title);
+                alertTitle.AutoLinkText = _headerText;
                 alertTitle.Typeface = string.IsNullOrEmpty(_messageText) ? Style.Regular : Style.Semibold;
                 alertTitle.Visibility = string.IsNullOrEmpty(_headerText) ? ViewStates.Gone : ViewStates.Visible;
+                alertTitle.LinkClick += LinkClick;
 
                 var alertMessage = dialogView.FindViewById<TextView>(Resource.Id.alert_message);
                 alertMessage.Text = _messageText;
@@ -75,6 +80,12 @@ namespace Steepshot.CustomViews
         {
             Cancel();
             AlertAction?.Invoke();
+        }
+
+        private void LinkClick(AutoLinkType type, string link)
+        {
+            Cancel();
+            _autoLinkAction?.Invoke(type, link);
         }
     }
 }

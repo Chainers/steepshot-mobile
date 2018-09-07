@@ -613,21 +613,13 @@ namespace Steepshot.Fragment
 
         private async void TransferBtnOnClick(object sender, EventArgs e)
         {
-            State = FragmentState.Transfer;
-
             if (!await Validate())
             {
                 State = FragmentState.TransferPrepare;
                 return;
             }
 
-            var transferConfirmation = AppSettings.LocalizationManager.GetText(LocalizationKeys.TransferConfirmation, _transferAmountEdit.Text, _pickedCoin, _transferFacade.Recipient.Author);
-            var actionAlert = new ActionAlertDialog(Context, transferConfirmation,
-                                                    AppSettings.LocalizationManager.GetText(string.Empty),
-                                                    AppSettings.LocalizationManager.GetText(LocalizationKeys.Yes),
-                                                    AppSettings.LocalizationManager.GetText(LocalizationKeys.No), Orientation.Vertical);
-            actionAlert.AlertAction += Transfer;
-            actionAlert.Show();
+            TransferConfirmation();
         }
 
         private void TransferBtnOnTouch(object sender, View.TouchEventArgs e)
@@ -638,8 +630,21 @@ namespace Steepshot.Fragment
             e.Handled = false;
         }
 
+        private void TransferConfirmation()
+        {
+            var transferConfirmation = AppSettings.LocalizationManager.GetText(LocalizationKeys.TransferConfirmation, _transferAmountEdit.Text, _pickedCoin, _transferFacade.Recipient.Author);
+            var actionAlert = new ActionAlertDialog(Context, transferConfirmation,
+                                                    AppSettings.LocalizationManager.GetText(string.Empty),
+                                                    AppSettings.LocalizationManager.GetText(LocalizationKeys.Yes),
+                                                    AppSettings.LocalizationManager.GetText(LocalizationKeys.No), AutoLinkAction, Orientation.Vertical);
+            actionAlert.AlertAction += Transfer;
+            actionAlert.Show();
+        }
+
         private async void Transfer()
         {
+            State = FragmentState.Transfer;
+
             if (_transferFacade.UserBalance == null)
                 return;
 
@@ -662,8 +667,7 @@ namespace Steepshot.Fragment
         {
             if (requestCode == ActiveSignInActivity.ActiveKeyRequestCode && resultCode == (int)Result.Ok)
             {
-                State = FragmentState.Transfer;
-                Transfer();
+                TransferConfirmation();
             }
 
             base.OnActivityResult(requestCode, resultCode, data);
