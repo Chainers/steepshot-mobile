@@ -545,7 +545,7 @@
     <AndroidResource Include="Resources\layout\lyt_coin_pick.axml" />
     <AndroidResource Include="Resources\layout\lyt_comment_item.axml" />
     <AndroidResource Include="Resources\layout\lyt_comments.axml" />
-    <AndroidResource Include="Resources\layout\lyt_deletion_alert.axml" />
+    <AndroidResource Include="Resources\layout\lyt_custom_alert.axml" />
     <AndroidResource Include="Resources\layout\lyt_description_item.axml" />
     <AndroidResource Include="Resources\layout\lyt_empty_feed.axml" />
     <AndroidResource Include="Resources\layout\lyt_feed.axml" />

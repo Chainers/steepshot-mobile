@@ -13,7 +13,6 @@ using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
 using System.Threading.Tasks;
-using Android.App;
 using Android.OS;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Enums;
@@ -57,7 +56,7 @@ namespace Steepshot.Adapter
             else
             {
                 MItemManager.BindView(holder.ItemView, position);
-                (holder.ItemView as SwipeLayout).SwipeEnabled = SwipeEnabled;
+                ((SwipeLayout)holder.ItemView).SwipeEnabled = SwipeEnabled;
                 (holder as CommentViewHolder)?.UpdateData(post, _context);
             }
         }
@@ -195,7 +194,7 @@ namespace Steepshot.Adapter
 
         private Post _post;
 
-        public CommentViewHolder(View itemView, Action<ActionType, Post> commentAction, Action<AutoLinkType, string> AutoLinkAction, Action rootClickAction) : base(itemView)
+        public CommentViewHolder(View itemView, Action<ActionType, Post> commentAction, Action<AutoLinkType, string> autoLinkAction, Action rootClickAction) : base(itemView)
         {
             _avatar = itemView.FindViewById<CircleImageView>(Resource.Id.avatar);
             _author = itemView.FindViewById<TextView>(Resource.Id.sender_name);
@@ -226,12 +225,12 @@ namespace Steepshot.Adapter
             _rootView.Click += Root_Click;
             _likes.Click += DoLikersAction;
             _flags.Click += DoFlagersAction;
-            _comment.LinkClick += AutoLinkAction;
+            _comment.LinkClick += autoLinkAction;
             _flag.Click += DoFlagAction;
             _edit.Click += EditOnClick;
             _delete.Click += DeleteOnClick;
 
-            _context = itemView.RootView.Context;
+            _context = itemView.Context;
 
             _reply.Visibility = AppSettings.User.HasPostingPermission ? ViewStates.Visible : ViewStates.Gone;
         }
@@ -250,35 +249,7 @@ namespace Steepshot.Adapter
 
         private void DeleteOnClick(object sender, EventArgs eventArgs)
         {
-            var alertBuilder = new AlertDialog.Builder(_context);
-            var alert = alertBuilder.Create();
-            var inflater = (LayoutInflater)_context.GetSystemService(Context.LayoutInflaterService);
-            var alertView = inflater.Inflate(Resource.Layout.lyt_deletion_alert, null);
-
-            var alertTitle = alertView.FindViewById<TextView>(Resource.Id.deletion_title);
-            alertTitle.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.DeleteAlertTitle);
-            alertTitle.Typeface = Style.Semibold;
-
-            var alertMessage = alertView.FindViewById<TextView>(Resource.Id.deletion_message);
-            alertMessage.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.DeleteAlertMessage);
-            alertMessage.Typeface = Style.Light;
-
-            var alertCancel = alertView.FindViewById<Button>(Resource.Id.cancel);
-            alertCancel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Cancel);
-            alertCancel.Click += (o, args) => alert.Cancel();
-
-            var alertDelete = alertView.FindViewById<Button>(Resource.Id.delete);
-            alertDelete.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Delete);
-            alertDelete.Click += (o, args) =>
-            {
-                _commentAction?.Invoke(ActionType.Delete, _post);
-                alert.Cancel();
-            };
-
-            alert.SetCancelable(true);
-            alert.SetView(alertView);
-            alert.Window.SetBackgroundDrawable(new ColorDrawable(Color.Transparent));
-            alert.Show();
+            _commentAction?.Invoke(ActionType.Delete, _post);
         }
 
         private void DoFlagAction(object sender, EventArgs e)
