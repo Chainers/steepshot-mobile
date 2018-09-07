@@ -13,7 +13,6 @@ using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
 using System.Threading.Tasks;
-using Android.App;
 using Android.OS;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Enums;
@@ -57,7 +56,7 @@ namespace Steepshot.Adapter
             else
             {
                 MItemManager.BindView(holder.ItemView, position);
-                (holder.ItemView as SwipeLayout).SwipeEnabled = SwipeEnabled;
+                ((SwipeLayout)holder.ItemView).SwipeEnabled = SwipeEnabled;
                 (holder as CommentViewHolder)?.UpdateData(post, _context);
             }
         }
@@ -188,7 +187,6 @@ namespace Steepshot.Adapter
         private readonly ImageButton _edit;
         private readonly ImageButton _delete;
         private readonly Action<ActionType, Post> _commentAction;
-        private readonly Action<AutoLinkType, string> _autoLinkAction;
         private readonly Action _rootAction;
         private readonly Context _context;
         private readonly RelativeLayout _rootView;
@@ -196,7 +194,7 @@ namespace Steepshot.Adapter
 
         private Post _post;
 
-        public CommentViewHolder(View itemView, Action<ActionType, Post> commentAction, Action<AutoLinkType, string> AutoLinkAction, Action rootClickAction) : base(itemView)
+        public CommentViewHolder(View itemView, Action<ActionType, Post> commentAction, Action<AutoLinkType, string> autoLinkAction, Action rootClickAction) : base(itemView)
         {
             _avatar = itemView.FindViewById<CircleImageView>(Resource.Id.avatar);
             _author = itemView.FindViewById<TextView>(Resource.Id.sender_name);
@@ -218,7 +216,6 @@ namespace Steepshot.Adapter
             _comment.Typeface = _likes.Typeface = _cost.Typeface = _reply.Typeface = Style.Regular;
 
             _commentAction = commentAction;
-            _autoLinkAction = AutoLinkAction;
             _rootAction = rootClickAction;
 
             _likeOrFlag.Click += LikeOnClick;
@@ -228,12 +225,12 @@ namespace Steepshot.Adapter
             _rootView.Click += Root_Click;
             _likes.Click += DoLikersAction;
             _flags.Click += DoFlagersAction;
-            _comment.LinkClick += AutoLinkAction;
+            _comment.LinkClick += autoLinkAction;
             _flag.Click += DoFlagAction;
             _edit.Click += EditOnClick;
             _delete.Click += DeleteOnClick;
 
-            _context = itemView.RootView.Context;
+            _context = itemView.Context;
 
             _reply.Visibility = AppSettings.User.HasPostingPermission ? ViewStates.Visible : ViewStates.Gone;
         }
@@ -252,12 +249,7 @@ namespace Steepshot.Adapter
 
         private void DeleteOnClick(object sender, EventArgs eventArgs)
         {
-            var actionAlert = new ActionAlertDialog(_context, AppSettings.LocalizationManager.GetText(LocalizationKeys.DeleteAlertTitle),
-                AppSettings.LocalizationManager.GetText(LocalizationKeys.DeleteAlertMessage),
-                AppSettings.LocalizationManager.GetText(LocalizationKeys.Delete),
-                AppSettings.LocalizationManager.GetText(LocalizationKeys.Cancel), _autoLinkAction);
-            actionAlert.AlertAction += () => _commentAction?.Invoke(ActionType.Delete, _post);
-            actionAlert.Show();
+            _commentAction?.Invoke(ActionType.Delete, _post);
         }
 
         private void DoFlagAction(object sender, EventArgs e)

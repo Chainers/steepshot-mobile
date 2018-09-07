@@ -3,7 +3,7 @@
               android:orientation="vertical" 
               android:layout_width="match_parent" 
               android:layout_height="142dp">
-    <com.aigestudio.wheelpicker.WheelPicker
+    <Steepshot.CustomViews.WheelPicker
         android:id="@+id/coin_picker"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

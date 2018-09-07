@@ -1,12 +1,9 @@
 ﻿using System;
-using Android.App;
 using Android.Content;
 using Android.Graphics;
 using Android.Support.Design.Widget;
 using Android.Views;
 using Android.Widget;
-using Steepshot.Base;
-using Steepshot.Fragment;
 using Steepshot.Utils;
 
 namespace Steepshot.CustomViews
@@ -18,8 +15,8 @@ namespace Steepshot.CustomViews
         private readonly string _messageText;
         private readonly string _alertActText;
         private readonly string _cancelText;
-        private Orientation _orientation;
-        public Action<AutoLinkType, string> _autoLinkAction;
+        private readonly Orientation _orientation;
+        private readonly Action<AutoLinkType, string> _autoLinkAction;
 
         public ActionAlertDialog(Context context, string headerText, string messageText, string alertActText, string cancelText, Action<AutoLinkType, string> autoLinkAction, Orientation orientation = Orientation.Horizontal) : base(context)
         {
@@ -55,7 +52,7 @@ namespace Steepshot.CustomViews
                                           : dialogView.FindViewById<LinearLayout>(Resource.Id.vertical_lyt);
                 layout.Visibility = ViewStates.Visible;
 
-                var alertCancel = isHorizontal ? dialogView.FindViewById<Button>(Resource.Id.cancel_h) 
+                var alertCancel = isHorizontal ? dialogView.FindViewById<Button>(Resource.Id.cancel_h)
                                                : dialogView.FindViewById<Button>(Resource.Id.cancel_v);
                 alertCancel.Text = _cancelText;
                 alertCancel.Click += (sender, e) => { Cancel(); };

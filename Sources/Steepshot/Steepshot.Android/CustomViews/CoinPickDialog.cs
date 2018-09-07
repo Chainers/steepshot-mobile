@@ -7,7 +7,6 @@ using Android.Support.Design.Widget;
 using Android.Util;
 using Android.Views;
 using Android.Widget;
-using Com.Aigestudio.Wheelpicker;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Utils;
@@ -49,16 +48,9 @@ namespace Steepshot.CustomViews
                 dialogTitle.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.SelectToken);
 
                 _wheelPicker = dialogView.FindViewById<WheelPicker>(Resource.Id.coin_picker);
-                _wheelPicker.Typeface = Style.Light;
-                _wheelPicker.VisibleItemCount = _coins.Count;
-                _wheelPicker.SetAtmospheric(true);
-                _wheelPicker.SelectedItemTextColor = Style.R255G34B5;
-                _wheelPicker.ItemTextColor = Color.Black;
-                _wheelPicker.ItemTextSize = (int)TypedValue.ApplyDimension(ComplexUnitType.Sp, 27, Context.Resources.DisplayMetrics);
-                _wheelPicker.ItemSpace = (int)TypedValue.ApplyDimension(ComplexUnitType.Dip, 20, Context.Resources.DisplayMetrics);
-                _wheelPicker.Data = _displayCoins;
-                _wheelPicker.SelectedItemPosition = _selectedPosition;
-                _wheelPicker.ItemSelected += WheelPickerOnItemSelected;
+                _wheelPicker.Items = _displayCoins;
+                _wheelPicker.ItemSelected += ItemSelected;
+                _wheelPicker.Select(_selectedPosition);
 
                 var selectBtn = dialogView.FindViewById<Button>(Resource.Id.select_btn);
                 var cancelBtn = dialogView.FindViewById<Button>(Resource.Id.cacncel_btn);
@@ -76,18 +68,20 @@ namespace Steepshot.CustomViews
                 base.Show();
 
                 var bottomSheet = FindViewById<FrameLayout>(Resource.Id.design_bottom_sheet);
-                BottomSheetBehavior.From(bottomSheet).State = BottomSheetBehavior.StateExpanded;
+                var behavior = BottomSheetBehavior.From(bottomSheet);
+                behavior.State = BottomSheetBehavior.StateExpanded;
+                behavior.SetBottomSheetCallback(new CustomBottomSheetCallback());
             }
         }
 
-        private void WheelPickerOnItemSelected(object sender, WheelPicker.ItemSelectedEventArgs e)
+        private void ItemSelected(int pos)
         {
-            _selectedPosition = e.P2;
+            _selectedPosition = pos;
         }
 
         private void CancelBtnOnClick(object sender, EventArgs e)
         {
-            _wheelPicker.ItemSelected -= WheelPickerOnItemSelected;
+            _wheelPicker.ItemSelected -= ItemSelected;
             Cancel();
         }
 
