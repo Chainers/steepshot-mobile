@@ -1,3 +1,5 @@
+//#define MediaViewMode
+
 using System;
 using System.Linq;
 using Android.App;
@@ -142,7 +144,7 @@ namespace Steepshot.Adapter
         private readonly TextView _likeScalePower;
         protected readonly Context Context;
         private CancellationSignal _isAnimationRuning;
-        
+
         protected Post Post;
         public const string ClipboardTitle = "Steepshot's post link";
         public BasePostPresenter presenter;
@@ -201,20 +203,8 @@ namespace Steepshot.Adapter
             parameters.Width = width;
 
             PhotosViewPager.LayoutParameters = parameters;
-            PhotosViewPager.Adapter = new PostPhotosPagerAdapter(Context, PhotosViewPager.LayoutParameters, post =>
-            {
-                HideScaleBar();
-                if (PhotoPagerType == PostPagerType.Feed)
-                {
-                    postAction.Invoke(ActionType.Photo, Post);
-                }
-                else
-                {
-                    var intent = new Intent(Context, typeof(PostPreviewActivity));
-                    intent.PutExtra(PostPreviewActivity.PhotoExtraPath, post.Media[PhotosViewPager.CurrentItem].Url);
-                    Context.StartActivity(intent);
-                }
-            });
+
+            PhotosViewPager.Adapter = new PostPhotosPagerAdapter(Context, PhotoAction);
 
             _moreActionsDialog = new BottomSheetDialog(Context);
             _moreActionsDialog.Window.RequestFeature(WindowFeatures.NoTitle);
@@ -240,6 +230,21 @@ namespace Steepshot.Adapter
             _more.Visibility = AppSettings.User.HasPostingPermission ? ViewStates.Visible : ViewStates.Invisible;
 
             _title.Click += OnTitleOnClick;
+        }
+
+        void PhotoAction(Post post)
+        {
+            HideScaleBar();
+            if (PhotoPagerType == PostPagerType.Feed)
+            {
+                _postAction.Invoke(ActionType.Photo, Post);
+            }
+            else
+            {
+                var intent = new Intent(Context, typeof(PostPreviewActivity));
+                intent.PutExtra(PostPreviewActivity.PhotoExtraPath, post.Media[PhotosViewPager.CurrentItem].Url);
+                Context.StartActivity(intent);
+            }
         }
 
         protected override void Dispose(bool disposing)
@@ -680,16 +685,16 @@ namespace Steepshot.Adapter
         class PostPhotosPagerAdapter : Android.Support.V4.View.PagerAdapter
         {
             private const int CachedPagesCount = 5;
-            private readonly List<MediaView> _mediaViews;
             private readonly Context _context;
-            private readonly ViewGroup.LayoutParams _layoutParams;
             private readonly Action<Post> _photoAction;
             private Post _post;
 
-            public PostPhotosPagerAdapter(Context context, ViewGroup.LayoutParams layoutParams, Action<Post> photoAction)
+#if MediaViewMode
+            private readonly List<MediaView> _mediaViews;
+
+            public PostPhotosPagerAdapter(Context context, Action<Post> photoAction)
             {
                 _context = context;
-                _layoutParams = layoutParams;
                 _photoAction = photoAction;
                 _mediaViews = new List<MediaView>(Enumerable.Repeat<MediaView>(null, CachedPagesCount));
             }
@@ -699,7 +704,7 @@ namespace Steepshot.Adapter
                 _post = post;
                 NotifyDataSetChanged();
             }
-
+            
             private void LoadMedia(MediaModel mediaModel, MediaView mediaView)
             {
                 if (mediaModel != null)
@@ -737,6 +742,66 @@ namespace Steepshot.Adapter
                         break;
                 }
             }
+#else
+
+            private readonly List<ImageView> _mediaViews;
+
+            public PostPhotosPagerAdapter(Context context, Action<Post> photoAction)
+            {
+                _context = context;
+                _photoAction = photoAction;
+                _mediaViews = new List<ImageView>(Enumerable.Repeat<ImageView>(null, CachedPagesCount));
+            }
+
+            public void UpdateData(Post post)
+            {
+                _post = post;
+                NotifyDataSetChanged();
+            }
+
+            private void LoadMedia(MediaModel mediaModel, ImageView mediaView)
+            {
+                if (mediaModel != null)
+                {
+                    var parent = (View)mediaView.Parent;
+                    mediaView.LayoutParameters.Height = parent.LayoutParameters.Height;
+                    mediaView.LayoutParameters.Width = parent.LayoutParameters.Width;
+
+                    Picasso.With(_context).Load(mediaModel.GetImageProxy(Style.ScreenWidth))
+                        .Placeholder(new ColorDrawable(Style.R245G245B245))
+                        .NoFade()
+                        .Priority(Picasso.Priority.High)
+                        .Into(mediaView, null, () =>
+                        {
+                            Picasso.With(_context).Load(mediaModel.Url).Placeholder(new ColorDrawable(Style.R245G245B245)).NoFade().Priority(Picasso.Priority.High).Into(mediaView);
+                        });
+                }
+            }
+
+            public override Object InstantiateItem(ViewGroup container, int position)
+            {
+                var reusePosition = position % CachedPagesCount;
+                var mediaView = _mediaViews[reusePosition];
+
+                if (mediaView == null)
+                {
+                    mediaView = new ImageView(_context) { LayoutParameters = container.LayoutParameters };
+                    mediaView.SetImageDrawable(null);
+                    mediaView.SetScaleType(ImageView.ScaleType.CenterCrop);
+                    mediaView.Click += MediaClick;
+                    _mediaViews[reusePosition] = mediaView;
+                }
+
+                container.AddView(mediaView);
+                LoadMedia(_post.Media[position], mediaView);
+                return mediaView;
+            }
+
+            private void MediaClick(object sender, EventArgs eventArgs)
+            {
+                _photoAction?.Invoke(_post);
+            }
+#endif
 
             public override int GetItemPosition(Object @object) => PositionNone;
 
