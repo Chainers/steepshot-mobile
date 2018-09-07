@@ -662,7 +662,7 @@ namespace Steepshot.Adapter
                 NsfwMask.Visibility = ViewStates.Visible;
                 _nsfwMaskCloseButton.Visibility = ViewStates.Visible;
                 _nsfwMaskMessage.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.FlagMessage);
-                NsfwMaskSubMessage.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.FlagSubMessage);
+                NsfwMaskSubMessage.Text = String.Empty;
                 _nsfwMaskActionButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.UnFlagPost);
             }
             else if (Post.ShowMask && (Post.IsLowRated || Post.IsNsfw) && Post.Author != AppSettings.User.Login)

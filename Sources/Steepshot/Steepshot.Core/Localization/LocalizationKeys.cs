@@ -70,7 +70,6 @@
         LowRatedContent,
         LowRatedContentExplanation,
         FlagMessage,
-        FlagSubMessage,
         DeleteAlertTitle,
         DeleteAlertMessage,
         PowerOfLike,
