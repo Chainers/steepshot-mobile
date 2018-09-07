@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources version="15">
+<resources version="16">
     <string obsolete="true" name="[&quot;ResponseContentContainsHtml&quot;]">Response content contains HTML: </string>
     <string obsolete="true" name="[&quot;UnexpectedUrlFormat&quot;]">Unexpected url format: </string>
     <string obsolete="true" name="[&quot;EnableConnectToServer&quot;]">Can not connect to the server, check for an Internet connection and try again.</string>
@@ -320,6 +320,7 @@ About 6 inches away</string>
     <string name="[&quot;CancelPowerDownAlert&quot;]">You are in the process of powering down the {0} Steem Power. Are you sure you want to cancel?</string>
     <string name="[&quot;Yes&quot;]">Yes</string>
     <string name="[&quot;No&quot;]">No</string>
+    <string name="[&quot;ActionWithPost&quot;]">Action with post</string>
     <string name="[&quot;PromotePost&quot;]">Promote post</string>
     <string name="[&quot;ExpectedVoteTime&quot;]">Expected vote time</string>
     <string name="[&quot;FindPromoter&quot;]">FIND PROMOTER</string>
@@ -338,4 +339,7 @@ About 6 inches away</string>
     <string name="[&quot;MinBid&quot;]">Min bid is</string>
     <string name="[&quot;MinSP&quot;]">The minimal amount of Steem Power in your account should be not less than 3 Steem</string>
     <string name="[&quot;NotificationWarning&quot;]">By including or disabling notifications here, you control both normal notifications and push notifications.</string>
+    <string name="[&quot;PromoteConfirmation&quot;]">Are you sure you want to send {0} {1} to @{2}?</string>
+    <string name="[&quot;TransferConfirmation&quot;]">Are you sure you want to transfer {0} {1} to @{2}?</string>
+    <string name="[&quot;PowerUpDownConfirmation&quot;]">Are you sure you want to {0} {1} {2}?</string>
 </resources>

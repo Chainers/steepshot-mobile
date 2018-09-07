@@ -220,7 +220,7 @@ namespace Steepshot.Fragment
                 case PowerAction.CancelPowerDown:
                     var alertAction = new ActionAlertDialog(Activity, string.Format(AppSettings.LocalizationManager.GetText(LocalizationKeys.CancelPowerDownAlert), Presenter.Balances[_walletPager.CurrentItem].ToWithdraw.ToBalanceValueString()),
                         string.Empty, AppSettings.LocalizationManager.GetText(LocalizationKeys.Yes),
-                        AppSettings.LocalizationManager.GetText(LocalizationKeys.No));
+                                      AppSettings.LocalizationManager.GetText(LocalizationKeys.No), AutoLinkAction);
                     alertAction.AlertAction += () =>
                     {
                         var userInfo = Presenter.Balances[_walletPager.CurrentItem].UserInfo;

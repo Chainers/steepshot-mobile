@@ -9,7 +9,6 @@ using Steepshot.Core.Utils;
 using Steepshot.Utils;
 using Android.Support.Design.Widget;
 using Steepshot.Adapter;
-using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Models.Common;
 using System.Threading.Tasks;
 using System.Globalization;
@@ -39,17 +38,19 @@ namespace Steepshot.CustomViews
         private ProgressBar _actionSpinner;
         private Android.Support.V4.View.ViewPager _container;
 
+        private Action<AutoLinkType, string> _autoLinkAction;
         private Action _promoteAction;
         private string _actionButtonTitle;
         private int _currentPage = MainPage;
 
         private PromoteAlertDialog(Context context) : base(context) { }
 
-        public PromoteAlertDialog(Context context, BasePostPresenter presenter, Post post) : this(context)
+        public PromoteAlertDialog(Context context, BasePostPresenter presenter, Post post, Action<AutoLinkType, string> autoLinkAction) : this(context)
         {
             this.context = context;
             _presenter = presenter;
             this.post = post;
+            _autoLinkAction = autoLinkAction;
         }
 
         public override void Show()
@@ -111,9 +112,26 @@ namespace Steepshot.CustomViews
                     EnableActionBtn(true);
                     break;
                 case PromoterFoundPage:
-                    EnableActionBtn(false);
-                    await LaunchPromoCampaign();
-                    EnableActionBtn(true);
+                    if (!AppSettings.User.HasActivePermission)
+                    {
+                        var intent = new Intent(context, typeof(ActiveSignInActivity));
+                        intent.PutExtra(ActiveSignInActivity.ActiveSignInUserName, AppSettings.User.Login);
+                        intent.PutExtra(ActiveSignInActivity.ActiveSignInChain, (int)AppSettings.User.Chain);
+                        context.StartActivity(intent);
+                        return;
+                    }
+                    var promoteConfirmation = AppSettings.LocalizationManager.GetText(LocalizationKeys.PromoteConfirmation, _promoteRequest.Amount, _promoteRequest.CurrencyType, _promoterResult.Bot.Author);
+                    var actionAlert = new ActionAlertDialog(Context, promoteConfirmation,
+                                                            AppSettings.LocalizationManager.GetText(string.Empty),
+                                                            AppSettings.LocalizationManager.GetText(LocalizationKeys.Yes),
+                                                            AppSettings.LocalizationManager.GetText(LocalizationKeys.No), _autoLinkAction, Orientation.Vertical);
+                    actionAlert.AlertAction += async () =>
+                    {
+                        EnableActionBtn(false);
+                        await LaunchPromoCampaign();
+                        EnableActionBtn(true);
+                    };
+                    actionAlert.Show();
                     break;
                 case MessagesPage:
                     _container.SetCurrentItem(MainPage, false);
@@ -167,15 +185,6 @@ namespace Steepshot.CustomViews
 
         private async Task LaunchPromoCampaign()
         {
-            if (!AppSettings.User.HasActivePermission)
-            {
-                var intent = new Intent(context, typeof(ActiveSignInActivity));
-                intent.PutExtra(ActiveSignInActivity.ActiveSignInUserName, AppSettings.User.Login);
-                intent.PutExtra(ActiveSignInActivity.ActiveSignInChain, (int)AppSettings.User.Chain);
-                context.StartActivity(intent);
-                return;
-            }
-
             var transferResponse = await _presenter.TryTransfer(AppSettings.User.UserInfo, _promoterResult.Bot.Author,
                                                                 _promoteRequest.Amount.ToString(), _promoteRequest.CurrencyType,
                                                                 $"https://steemit.com{post.Url}");
