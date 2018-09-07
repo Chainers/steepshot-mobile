@@ -60,7 +60,38 @@ namespace Steepshot.Core.Integration
                 stream = new MemoryStream(bytes);
                 var request = new UploadMediaModel(User.UserInfo, stream, Path.GetExtension(MimeTypeHelper.Jpg));
                 var serverResult = await Client.UploadMedia(request, token);
-                return serverResult;
+                if (!serverResult.IsSuccess)
+                    return new OperationResult<MediaModel>(serverResult.Exception);
+
+                var uuidModel = serverResult.Result;
+                var done = false;
+                do
+                {
+                    if (token.IsCancellationRequested)
+                        return new OperationResult<MediaModel>(new OperationCanceledException());
+
+                    var state = await Client.GetMediaStatus(uuidModel, token);
+                    if (state.IsSuccess)
+                    {
+                        switch (state.Result.Code)
+                        {
+                            case UploadMediaCode.Done:
+                                done = true;
+                                break;
+
+                            case UploadMediaCode.FailedToProcess:
+                            case UploadMediaCode.FailedToUpload:
+                            case UploadMediaCode.FailedToSave:
+                                return new OperationResult<MediaModel>(new Exception(state.Result.Message));
+
+                            default:
+                                await Task.Delay(5000);
+                                break;
+                        }
+                    }
+                } while (!done);
+
+                return await Client.GetMediaResult(uuidModel, token);
             }
             catch (Exception ex)
             {

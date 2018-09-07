@@ -13,6 +13,7 @@ using Android.Widget;
 using CheeseBind;
 using Steepshot.Base;
 using Steepshot.Core;
+using Steepshot.Core.Extensions;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
@@ -117,8 +118,7 @@ namespace Steepshot.Activity
 
                 if (media[0].PreparedBitmap != null)
                 {
-                    var previewSize = Utils.ViewUtils
-                        .CalculateImagePreviewSize(media[0].PreparedBitmap.Width, media[0].PreparedBitmap.Height, Style.ScreenWidth - margin * 2, int.MaxValue);
+                    var previewSize = BitmapUtils.CalculateImagePreviewSize(media[0].Parameters, Style.ScreenWidth - margin * 2);
                     var layoutParams = new RelativeLayout.LayoutParams(previewSize.Width, previewSize.Height);
                     layoutParams.SetMargins(margin, 0, margin, margin);
                     _previewContainer.LayoutParameters = layoutParams;
@@ -201,7 +201,7 @@ namespace Steepshot.Activity
         {
             var link = $"@{model.PlagiarismUsername}/{model.PlagiarismPermlink}";
 
-            ((BaseActivity)Activity).OpenNewContentFragment(new SinglePostFragment(link));
+            ((BaseActivity)Activity).OpenNewContentFragment(new PostViewFragment(link));
         }
 
         private void OpenProfile(View obj)

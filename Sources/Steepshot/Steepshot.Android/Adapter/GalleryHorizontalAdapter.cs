@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
 using Square.Picasso;
 using Steepshot.Core.Models.Common;
 using Steepshot.Utils;
-using ViewUtils = Steepshot.Utils.ViewUtils;
 
 namespace Steepshot.Adapter
 {
@@ -36,11 +34,13 @@ namespace Steepshot.Adapter
 
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
         {
-            var width = (int)Math.Round(((Android.App.Activity)parent.Context).WindowManager.DefaultDisplay.Width - BitmapUtils.DpToPixel(25, parent.Resources));
-            var height = (int)Math.Round(BitmapUtils.DpToPixel(160, parent.Resources));
+            var maxWidth = Style.GalleryHorizontalScreenWidth;
+            var maxHeight = Style.GalleryHorizontalHeight;
+
             var previewSize = _gallery == null ?
-                ViewUtils.CalculateImagePreviewSize(_postMedia[0].Size.Width, _postMedia[0].Size.Height, width, height) :
-                ViewUtils.CalculateImagePreviewSize(_gallery[0].PreparedBitmap.Width, _gallery[0].PreparedBitmap.Height, width, height);
+                BitmapUtils.CalculateImagePreviewSize(_postMedia[0].Size.Width, _postMedia[0].Size.Height, maxWidth, maxHeight) :
+                BitmapUtils.CalculateImagePreviewSize(_gallery[0].Parameters, maxWidth, maxHeight);
+
             var cardView = new CardView(parent.Context)
             {
                 LayoutParameters = new FrameLayout.LayoutParams(previewSize.Width, previewSize.Height),
@@ -69,7 +69,10 @@ namespace Steepshot.Adapter
 
         public void Update(GalleryMediaModel model)
         {
-            _image.SetImageBitmap(model.PreparedBitmap);
+            if (model.UploadState == UploadState.Saved)
+                _image.SetImageBitmap(model.PreparedBitmap);
+            else
+                _image.SetBackgroundColor(Style.R245G245B245);
         }
 
         public void Update(MediaModel model)

@@ -24,10 +24,18 @@ namespace Steepshot.Utils
         public static readonly Color R230G230B230;
 
         public static readonly int ScreenWidth;
+        public static readonly int ScreenHeight;
         public static readonly int PagerScreenWidth;
         public static readonly float MaxPostHeight;
         public static readonly float Density;
+        public static readonly float CornerRadius5;
         public static readonly int PostPagerMargin;
+
+        public static readonly int GalleryHorizontalScreenWidth;
+        public static readonly int GalleryHorizontalHeight;
+        public static readonly int KeyboardVisibilityThreshold;
+        public static readonly int Margin10;
+        public static readonly int Margin15;
 
         static Style()
         {
@@ -54,11 +62,23 @@ namespace Steepshot.Utils
             var feedItemHeaderHeight = Application.Context.Resources.GetDimension(Resource.Dimension.dp_feed_item_header_height);
             PostPagerMargin = (int)Application.Context.Resources.GetDimension(Resource.Dimension.dp_post_pager_margin);
 
-            var screenHeight = Application.Context.Resources.DisplayMetrics.HeightPixels;
+            ScreenHeight = Application.Context.Resources.DisplayMetrics.HeightPixels;
             ScreenWidth = Application.Context.Resources.DisplayMetrics.WidthPixels;
 
             PagerScreenWidth = ScreenWidth - PostPagerMargin * 4;
-            MaxPostHeight = screenHeight - topPanelHeight - feedItemHeaderHeight - tabBarHeight - 54 * Density;
+            MaxPostHeight = ScreenHeight - topPanelHeight - feedItemHeaderHeight - tabBarHeight - 54 * Density;
+
+            GalleryHorizontalScreenWidth = (int)(ScreenWidth - 25 * Density);
+            GalleryHorizontalHeight = (int)(160 * Density);
+            KeyboardVisibilityThreshold = (int)(128 * Density);
+            CornerRadius5 = 5 * Density;
+            Margin10 = (int)(10 * Density);
+            Margin15 = (int)(15 * Density);
+        }
+
+        public static int DpiToPixel(int dpi)
+        {
+            return (int)(dpi * Density);
         }
     }
 }

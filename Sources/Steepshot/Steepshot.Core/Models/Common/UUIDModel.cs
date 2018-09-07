@@ -1,5 +1,4 @@
-﻿using System;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 
 namespace Steepshot.Core.Models.Common
 {
@@ -7,6 +6,6 @@ namespace Steepshot.Core.Models.Common
     public class UUIDModel
     {
         [JsonProperty("uuid")]
-        public string UUID { get; set; }
+        public string Uuid { get; set; }
     }
 }

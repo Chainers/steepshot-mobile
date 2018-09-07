@@ -118,7 +118,7 @@ namespace Steepshot.Fragment
                 return heightDiff;
             }
         }
-        private bool IsKeyboardOpening => LytHeightDiff > ViewUtils.KeyboardVisibilityThreshold;
+        private bool IsKeyboardOpening => LytHeightDiff > Style.KeyboardVisibilityThreshold;
 
         public TransferFragment() : this(AppSettings.User.UserInfo)
         {
