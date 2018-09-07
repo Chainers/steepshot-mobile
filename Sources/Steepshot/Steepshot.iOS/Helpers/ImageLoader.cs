@@ -13,7 +13,7 @@ namespace Steepshot.iOS.Helpers
         {
             var width = (int)((size.Width == 0 ? view.Frame.Size.Width : size.Width) * UIScreen.MainScreen.Scale);
 
-            return ImageService.Instance.LoadUrl(url.GetProxy(width, width), TimeSpan.FromDays(5))
+            return ImageService.Instance.LoadUrl(url.GetImageProxy(width, width), TimeSpan.FromDays(5))
                          .Retry(retry)
                          .FadeAnimation(false)
                          .LoadingPlaceholder(placeHolder)
@@ -35,7 +35,7 @@ namespace Steepshot.iOS.Helpers
 
         public static void Preload(string url, CGSize gSize, string microUrl = null)
         {
-            ImageService.Instance.LoadUrl(url.GetProxy((int)(gSize.Width * UIScreen.MainScreen.Scale), (int)(gSize.Width * UIScreen.MainScreen.Scale)), TimeSpan.FromDays(5))
+            ImageService.Instance.LoadUrl(url.GetImageProxy((int)(gSize.Width * UIScreen.MainScreen.Scale), (int)(gSize.Width * UIScreen.MainScreen.Scale)), TimeSpan.FromDays(5))
                                  .WithCache(FFImageLoading.Cache.CacheType.All)
                                  .WithPriority(LoadingPriority.Low)
                                  .Error((error) =>

@@ -9,6 +9,8 @@ using Android.Provider;
 using Android.Views;
 using System.Collections.Generic;
 using System.Reflection;
+using Steepshot.Core.Models.Common;
+using Steepshot.CustomViews;
 using Environment = Android.OS.Environment;
 using File = Java.IO.File;
 using Uri = Android.Net.Uri;
@@ -17,6 +19,8 @@ namespace Steepshot.Utils
 {
     public static class BitmapUtils
     {
+        public const int MaxImageSize = 1600;
+
         public static Bitmap RotateImageIfRequired(Bitmap img, string url)
         {
             var ei = new ExifInterface(url);
@@ -307,6 +311,65 @@ namespace Steepshot.Utils
 
             }
             return dic;
+        }
+
+        public static void ReleaseBitmap(Bitmap bitmap)
+        {
+            if (bitmap == null || bitmap.Handle == IntPtr.Zero) return;
+            bitmap?.Recycle();
+            bitmap?.Dispose();
+            bitmap = null;
+        }
+
+        public static Bitmap Crop(Context context, string path, ImageParameters parameters)
+        {
+            var matrix = new Matrix();
+            matrix.PreRotate(parameters.Rotation);
+
+            var x = (int)Math.Max(Math.Round(-parameters.PreviewBounds.Left / parameters.Scale), 0);
+            var y = (int)Math.Max(Math.Round(-parameters.PreviewBounds.Top / parameters.Scale), 0);
+
+            var width = (int)Math.Round((parameters.CropBounds.Right - parameters.CropBounds.Left) / parameters.Scale);
+            var height = (int)Math.Round((parameters.CropBounds.Bottom - parameters.CropBounds.Top) / parameters.Scale);
+
+            using (var bitmap = BitmapFactory.DecodeFile(path))
+            {
+                if (parameters.Rotation % 180 > 0)
+                {
+                    var b = x; x = y; y = b;
+                    b = width; width = height; height = b;
+                }
+
+                if (x + width > bitmap.Width)
+                    width = bitmap.Width - x;
+                if (y + height > bitmap.Height)
+                    height = bitmap.Height - y;
+
+                return Bitmap.CreateBitmap(bitmap, x, y, width, height, matrix, true);
+            }
+        }
+
+        public static FrameSize CalculateImagePreviewSize(ImageParameters param, int maxWidth, int maxHeight = int.MaxValue)
+        {
+            var bounds = param.CropBounds;
+            var w = (int)Math.Max(Math.Round((bounds.Right - bounds.Left) / param.Scale), 0);
+            var h = (int)Math.Max(Math.Round((bounds.Bottom - bounds.Top) / param.Scale), 0);
+
+            return CalculateImagePreviewSize(w, h, maxWidth, maxHeight);
+        }
+
+        public static FrameSize CalculateImagePreviewSize(int width, int height, int maxWidth, int maxHeight)
+        {
+            var nh = (int)Math.Round(maxWidth * height / (float)width);
+
+            if (maxHeight == int.MaxValue)
+                return new FrameSize(nh, maxWidth);
+
+            var nw = (int)Math.Round(maxHeight * width / (float)height);
+
+            return nh > maxHeight
+                ? new FrameSize(maxHeight, nw)
+                : new FrameSize(nh, maxWidth);
         }
     }
 }

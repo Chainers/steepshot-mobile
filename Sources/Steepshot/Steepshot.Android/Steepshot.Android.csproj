@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="..\packages\Xamarin.Build.Download.0.4.11\build\Xamarin.Build.Download.props" Condition="Exists('..\packages\Xamarin.Build.Download.0.4.11\build\Xamarin.Build.Download.props')" />
   <Import Project="..\packages\Xamarin.Build.Download.0.4.2\build\Xamarin.Build.Download.props" Condition="Exists('..\packages\Xamarin.Build.Download.0.4.2\build\Xamarin.Build.Download.props')" />
@@ -86,6 +86,7 @@
     <Compile Include="CustomViews\TouchableSpan.cs" />
     <Compile Include="CustomViews\WalletExtraDialog.cs" />
     <Compile Include="CustomViews\WheelPicker.cs" />
+    <Compile Include="Fragment\PreviewPostCreateFragment.cs" />
     <Compile Include="Fragment\PostCreateFragment.cs" />
     <Compile Include="Fragment\PostPrepareBaseFragment.cs" />
     <Compile Include="Fragment\PowerUpDownFragment.cs" />
@@ -94,6 +95,11 @@
     <Compile Include="Integration\InstagramModule.cs" />
     <Compile Include="Resources\Resource.designer.cs" />
     <Compile Include="Utils\CustomBottomSheetCallback.cs" />
+    <Compile Include="Utils\Media\ImageProducer.cs" />
+    <Compile Include="Utils\Media\IMediaPerformer.cs" />
+    <Compile Include="Utils\Media\IMediaProducer.cs" />
+    <Compile Include="Utils\Media\MediaView.cs" />
+    <Compile Include="Utils\Media\VideoProducer.cs" />
     <Compile Include="Utils\TextInputFilter.cs" />
     <Compile Include="Utils\NotificationExtender.cs" />
     <Compile Include="Adapter\GalleryGridAdapter.cs" />
@@ -106,7 +112,7 @@
     <Compile Include="CustomViews\LikeScaleBar.cs" />
     <Compile Include="Fragment\GalleryFragment.cs" />
     <Compile Include="Fragment\PostEditFragment.cs" />
-    <Compile Include="Fragment\SinglePostFragment.cs" />
+    <Compile Include="Fragment\PostViewFragment.cs" />
     <Compile Include="Utils\GalleryMediaModel.cs" />
     <Compile Include="CustomViews\SelectableImageView.cs" />
     <Compile Include="CustomViews\VotingPowerFrame.cs" />
@@ -180,6 +186,12 @@
     <Compile Include="Activity\RegistrationActivity.cs" />
     <Compile Include="Fragment\PlagiarismCheckFragment.cs" />
     <Compile Include="CustomViews\FeatureDialog.cs" />
+    <Compile Include="CustomViews\PromoteAlertDialog.cs" />
+    <Compile Include="Adapter\PromotePagerAdapter.cs" />
+    <Compile Include="Holders\PromoteMainHolder.cs" />
+    <Compile Include="Holders\PromotePickerHolder.cs" />
+    <Compile Include="Holders\PromoterFoundHolder.cs" />
+    <Compile Include="Holders\PromoteMessageHolder.cs" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\values-v21\styles.xml">
@@ -199,6 +211,11 @@
     <AndroidResource Include="Resources\mipmap-xhdpi\ic_launcher.png" />
     <AndroidResource Include="Resources\mipmap-xxhdpi\ic_launcher.png" />
     <AndroidResource Include="Resources\mipmap-xxxhdpi\ic_launcher.png" />
+    <AndroidResource Include="Resources\layout\lyt_promote_popup.axml" />
+    <AndroidResource Include="Resources\layout\lyt_promote_main.axml" />
+    <AndroidResource Include="Resources\layout\lyt_promote_picker.axml" />
+    <AndroidResource Include="Resources\layout\lyt_promote_searching.axml" />
+    <AndroidResource Include="Resources\layout\lyt_promote_message.axml" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\values-v21\styles.xml" />
@@ -807,6 +824,9 @@
     <AndroidResource Include="Resources\layout\lyt_wallet_cards.axml">
       <SubType>Designer</SubType>
     </AndroidResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Holders\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <Import Project="..\packages\Xamarin.Build.Download.0.4.2\build\Xamarin.Build.Download.targets" Condition="Exists('..\packages\Xamarin.Build.Download.0.4.2\build\Xamarin.Build.Download.targets')" />

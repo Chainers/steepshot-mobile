@@ -84,9 +84,8 @@ namespace Steepshot.Fragment
                 _feedList.AddOnScrollListener(_scrollListner);
 
                 _postPager.SetClipToPadding(false);
-                var pagePadding = (int)BitmapUtils.DpToPixel(20, Resources);
-                _postPager.SetPadding(pagePadding, 0, pagePadding, 0);
-                _postPager.PageMargin = pagePadding / 2;
+                _postPager.SetPadding(Style.PostPagerMargin * 2, 0, Style.PostPagerMargin * 2, 0);
+                _postPager.PageMargin = Style.PostPagerMargin;
                 _postPager.PageScrollStateChanged += PostPagerOnPageScrollStateChanged;
                 _postPager.PageScrolled += PostPagerOnPageScrolled;
 

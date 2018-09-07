@@ -36,11 +36,34 @@ namespace Steepshot.Core
         public const string DeletedPostText = "*deleted*";
         public const string ProxyForAvatars = "https://steemitimages.com/{0}x{0}/";
 
-        public static readonly HashSet<string> SupportedListBots = new HashSet<string> 
-        { "promobot", "upme", "therising", "upmewhale", "rocky1", "boomerang","appreciator",
-        "postpromoter", "smartsteem", "spydo", "booster", "emperorofnaps", "jerrybanfield" };
+        public static readonly HashSet<string> SupportedListBots = new HashSet<string>
+        {
+            "promobot",
+            "upme",
+            "therising",
+            "upmewhale",
+            "rocky1",
+            "boomerang",
+            "appreciator",
+            "postpromoter",
+            "smartsteem",
+            "spydo",
+            "booster",
+            "emperorofnaps",
+            "jerrybanfield"
+        };
 
         public const double MinBid = 0.5;
         public const double MaxBid = 130;
+
+
+        public static int ImageMaxUploadSize = 10485760;  // 10 mb
+        public static int ImageMinWidth = 420;
+        public static int ImageMinHeight = 420;
+        public static int VideoMaxUploadSize = 20971520;  // 20 mb
+        public static int VideoMinWidth = 360;
+        public static int VideoMinHeight = 360;
+        public static int VideoMinDuration = 2;  // seconds
+        public static int VideoMaxDuration = 40; // seconds
     }
 }

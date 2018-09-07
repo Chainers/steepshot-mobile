@@ -81,14 +81,14 @@ namespace Steepshot.Adapter
             _profile = profile;
             if (!string.IsNullOrEmpty(profile.Avatar))
                 Picasso.With(ItemView.Context)
-                    .Load(profile.Avatar.GetProxy(_recipientAvatar.LayoutParameters.Width, _recipientAvatar.LayoutParameters.Height))
+                    .Load(profile.Avatar.GetImageProxy(_recipientAvatar.LayoutParameters.Width, _recipientAvatar.LayoutParameters.Height))
                     .Placeholder(Resource.Drawable.ic_holder)
                     .NoFade()
                     .Priority(Picasso.Priority.Normal)
                     .Into(_recipientAvatar, null, () =>
                          {
                              Picasso.With(ItemView.Context)
-                                 .Load(profile.Avatar.GetProxy(_recipientAvatar.LayoutParameters.Width, _recipientAvatar.LayoutParameters.Height))
+                                 .Load(profile.Avatar.GetImageProxy(_recipientAvatar.LayoutParameters.Width, _recipientAvatar.LayoutParameters.Height))
                                  .Placeholder(Resource.Drawable.ic_holder)
                                  .NoFade()
                                  .Priority(Picasso.Priority.Normal)

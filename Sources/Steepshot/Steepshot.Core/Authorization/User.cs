@@ -156,20 +156,9 @@ namespace Steepshot.Core.Authorization
         public bool HasPostingPermission => !string.IsNullOrEmpty(UserInfo?.PostingKey);
 
         public bool HasActivePermission => !string.IsNullOrEmpty(UserInfo?.ActiveKey);
-
-        public int SelectedTab
-        {
-            get => UserInfo.SelectedTab;
-            set
-            {
-                UserInfo.SelectedTab = value;
-                if (HasPostingPermission)
-                    _data.Update(UserInfo);
-            }
-        }
-
+        
         public Dictionary<string, string> Integration => UserInfo.Integration;
-
+        
 
         public User()
         {
@@ -258,22 +247,6 @@ namespace Steepshot.Core.Authorization
         public void Save()
         {
             _data.Update(UserInfo);
-        }
-
-        public void SetTabSettings(string tabKey, TabSettings value)
-        {
-            if (UserInfo.Navigation.TabSettings.ContainsKey(tabKey))
-                UserInfo.Navigation.TabSettings[tabKey] = value;
-            else
-                UserInfo.Navigation.TabSettings.Add(tabKey, value);
-        }
-
-        public TabSettings GetTabSettings(string tabKey)
-        {
-            if (!UserInfo.Navigation.TabSettings.ContainsKey(tabKey))
-                UserInfo.Navigation.TabSettings.Add(tabKey, new TabSettings());
-
-            return UserInfo.Navigation.TabSettings[tabKey];
         }
     }
 }

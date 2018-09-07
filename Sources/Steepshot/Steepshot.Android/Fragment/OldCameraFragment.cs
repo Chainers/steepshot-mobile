@@ -463,7 +463,7 @@ namespace Steepshot.Fragment
 
                 Activity.RunOnUiThread(() =>
                 {
-                    ((BaseActivity)Activity).OpenNewContentFragment(new PostCreateFragment(model));
+                    ((BaseActivity)Activity).OpenNewContentFragment(new PreviewPostCreateFragment(model));
                     if (_progressBar != null)
                     {
                         _progressBar.Visibility = ViewStates.Gone;
