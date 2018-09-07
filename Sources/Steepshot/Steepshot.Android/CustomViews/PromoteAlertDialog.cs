@@ -9,7 +9,6 @@ using Steepshot.Core.Utils;
 using Steepshot.Utils;
 using Android.Support.Design.Widget;
 using Steepshot.Adapter;
-using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Models.Common;
 using System.Threading.Tasks;
 using System.Globalization;
@@ -111,9 +110,18 @@ namespace Steepshot.CustomViews
                     EnableActionBtn(true);
                     break;
                 case PromoterFoundPage:
-                    EnableActionBtn(false);
-                    await LaunchPromoCampaign();
-                    EnableActionBtn(true);
+                    var promoteConfirmation = AppSettings.LocalizationManager.GetText(LocalizationKeys.PromoteConfirmation, _promoteRequest.Amount, _promoteRequest.CurrencyType, _promoterResult.Bot.Author);
+                    var actionAlert = new ActionAlertDialog(Context, promoteConfirmation,
+                                                            AppSettings.LocalizationManager.GetText(string.Empty),
+                                                            AppSettings.LocalizationManager.GetText(LocalizationKeys.Yes),
+                                                            AppSettings.LocalizationManager.GetText(LocalizationKeys.No), Orientation.Vertical);
+                    actionAlert.AlertAction += async () =>
+                    {
+                        EnableActionBtn(false);
+                        await LaunchPromoCampaign();
+                        EnableActionBtn(true);
+                    };
+                    actionAlert.Show();
                     break;
                 case MessagesPage:
                     _container.SetCurrentItem(MainPage, false);

@@ -215,6 +215,7 @@
         CancelPowerDownAlert,
         Yes,
         No,
+        ActionWithPost,
         PromotePost,
         ExpectedVoteTime,
         FindPromoter,
@@ -234,5 +235,8 @@
         MinSP,
         NotificationWarning,
         NotificationTransfers,
+        PromoteConfirmation, 
+        TransferConfirmation,
+        PowerUpDownConfirmation,
     }
 }

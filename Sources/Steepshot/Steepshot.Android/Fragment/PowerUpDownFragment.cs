@@ -18,6 +18,7 @@ using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
+using Steepshot.CustomViews;
 using Steepshot.Utils;
 
 namespace Steepshot.Fragment
@@ -42,6 +43,7 @@ namespace Steepshot.Fragment
         private readonly PowerAction _powerAction;
         private SpannableString _tokenValueOne;
         private SpannableString _tokenValueTwo;
+        private string _powerActionText;
         private double _powerAmount;
 
         public PowerUpDownFragment(BalanceModel balance, PowerAction action)
@@ -83,7 +85,7 @@ namespace Steepshot.Fragment
             _amountEdit.Typeface = Style.Semibold;
             _amountLimitMessage.Typeface = Style.Semibold;
 
-            _fragmentTitle.Text = AppSettings.LocalizationManager.GetText(_powerAction == PowerAction.PowerUp ? LocalizationKeys.PowerUp : LocalizationKeys.PowerDown);
+            _fragmentTitle.Text = _powerActionText = AppSettings.LocalizationManager.GetText(_powerAction == PowerAction.PowerUp ? LocalizationKeys.PowerUp : LocalizationKeys.PowerDown);
             _tokenOneTitle.Text = _balance.CurrencyType.ToString().ToUpper();
             _tokenName.Text = _balance.CurrencyType.ToString().ToUpper();
             _tokenTwoTitle.Text = $"{_balance.CurrencyType} power".ToUpper();
@@ -207,7 +209,13 @@ namespace Steepshot.Fragment
                 return;
             }
 
-            DoPowerAction();
+            var doPowerConfirmation = AppSettings.LocalizationManager.GetText(LocalizationKeys.PowerUpDownConfirmation, _powerActionText.ToLower() ,_powerAmount, _balance.CurrencyType);
+            var actionAlert = new ActionAlertDialog(Context, doPowerConfirmation,
+                                                    AppSettings.LocalizationManager.GetText(string.Empty),
+                                                    AppSettings.LocalizationManager.GetText(LocalizationKeys.Yes),
+                                                    AppSettings.LocalizationManager.GetText(LocalizationKeys.No), Orientation.Vertical);
+            actionAlert.AlertAction += DoPowerAction;
+            actionAlert.Show();
         }
 
         public override void OnActivityResult(int requestCode, int resultCode, Intent data)

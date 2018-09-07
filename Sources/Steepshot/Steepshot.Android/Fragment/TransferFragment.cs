@@ -621,7 +621,13 @@ namespace Steepshot.Fragment
                 return;
             }
 
-            Transfer();
+            var transferConfirmation = AppSettings.LocalizationManager.GetText(LocalizationKeys.TransferConfirmation, _transferAmountEdit.Text, _pickedCoin, _transferFacade.Recipient.Author);
+            var actionAlert = new ActionAlertDialog(Context, transferConfirmation,
+                                                    AppSettings.LocalizationManager.GetText(string.Empty),
+                                                    AppSettings.LocalizationManager.GetText(LocalizationKeys.Yes),
+                                                    AppSettings.LocalizationManager.GetText(LocalizationKeys.No), Orientation.Vertical);
+            actionAlert.AlertAction += Transfer;
+            actionAlert.Show();
         }
 
         private void TransferBtnOnTouch(object sender, View.TouchEventArgs e)

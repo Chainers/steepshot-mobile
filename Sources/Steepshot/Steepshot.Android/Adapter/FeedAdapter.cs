@@ -322,7 +322,7 @@ namespace Steepshot.Adapter
                 flag.Typeface = Style.Semibold;
 
                 var title = dialogView.FindViewById<TextView>(Resource.Id.post_alert_title);
-                title.Text = "Action with post";
+                title.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.ActionWithPost);
                 title.Typeface = Style.Semibold;
 
                 var promote = dialogView.FindViewById<Button>(Resource.Id.promote);

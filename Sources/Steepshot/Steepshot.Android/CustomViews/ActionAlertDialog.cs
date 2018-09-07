@@ -36,7 +36,7 @@ namespace Steepshot.CustomViews
 
                 var alertTitle = dialogView.FindViewById<TextView>(Resource.Id.alert_title);
                 alertTitle.Text = _headerText;
-                alertTitle.Typeface = Style.Semibold;
+                alertTitle.Typeface = string.IsNullOrEmpty(_messageText) ? Style.Regular : Style.Semibold;
                 alertTitle.Visibility = string.IsNullOrEmpty(_headerText) ? ViewStates.Gone : ViewStates.Visible;
 
                 var alertMessage = dialogView.FindViewById<TextView>(Resource.Id.alert_message);
