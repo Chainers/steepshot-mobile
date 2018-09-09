@@ -35,7 +35,6 @@ namespace Steepshot.CustomViews
         private const float DefaultRatio = 1f;
         private const float MaximumOverscrollMultiplier = 150f;
         private const float MaximumOverscale = 0.2f;
-        public const int MaxImageSize = 1600;
 
         private CropViewGrid _grid;
         private ImageParameters _drawableImageParameters;
@@ -272,6 +271,21 @@ namespace Steepshot.CustomViews
             Invalidate();
         }
 
+        public void SetImageBitmap(GalleryMediaModel model)
+        {
+            _reloadImage = false;
+            _drawable = Drawable.CreateFromPath(model.TempPath);
+
+            var options = new BitmapFactory.Options { InJustDecodeBounds = true };
+            BitmapFactory.DecodeFile(model.TempPath, options);
+
+            _imageRawWidth = options.OutWidth;
+            _imageRawHeight = options.OutHeight;
+
+            RequestLayout();
+            Invalidate();
+        }
+
         public void SetImageBitmap(Bitmap bitmap)
         {
             _reloadImage = false;
@@ -296,32 +310,6 @@ namespace Steepshot.CustomViews
         public void SwitchScale()
         {
             Reset(_currentScaleType == ScaleType.Square || _currentScaleType == ScaleType.Undefined ? ScaleType.Ratio : ScaleType.Square);
-        }
-
-        public Bitmap Crop(string path, ImageParameters parameters)
-        {
-            var matrix = new Matrix();
-            matrix.PreRotate(parameters.Rotation);
-            matrix.PreScale(parameters.Scale, parameters.Scale);
-
-            var cropParameters = new Rect(parameters.CropBounds);
-            cropParameters.Offset(-(int)Math.Round(parameters.PreviewBounds.Left), -(int)Math.Round(parameters.PreviewBounds.Top));
-            var left = Math.Max((int)Math.Round((double)cropParameters.Left), 0);
-            var top = Math.Max((int)Math.Round((double)cropParameters.Top), 0);
-
-            using (var bitmap = BitmapUtils.DecodeSampledBitmapFromFile(Context, Uri.Parse(path), MaxImageSize, MaxImageSize))
-            {
-                //TODO:KOA: CreateBitmap used twice о.О
-                using (var rotatedBitmap = Bitmap.CreateBitmap(bitmap, 0, 0, bitmap.Width, bitmap.Height, matrix, true))
-                {
-                    var width = Math.Min((int)Math.Round((double)cropParameters.Width()), rotatedBitmap.Width);
-                    var height = Math.Min((int)Math.Round((double)cropParameters.Height()), rotatedBitmap.Height);
-                    var croppedBitmap = Bitmap.CreateBitmap(rotatedBitmap, left, top, width, height).Copy(Bitmap.Config.Argb8888, true);
-                    bitmap.Recycle();
-                    rotatedBitmap.Recycle();
-                    return croppedBitmap;
-                }
-            }
         }
 
         public bool OnDown(MotionEvent e) => true;
@@ -483,7 +471,7 @@ namespace Steepshot.CustomViews
             {
                 IsBitmapReady = false;
 
-                var drawableRequest = await MakeDrawable(_cancellationSignal, MaxImageSize, MaxImageSize, _drawableImageParameters.Rotation);
+                var drawableRequest = await MakeDrawable(_cancellationSignal, BitmapUtils.MaxImageSize, BitmapUtils.MaxImageSize, _drawableImageParameters.Rotation);
 
                 if (drawableRequest == null)
                 {

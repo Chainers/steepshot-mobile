@@ -101,8 +101,11 @@ namespace Steepshot.Utils
 
         public static int CalculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight)
         {
-            var height = options.OutHeight;
-            var width = options.OutWidth;
+            return CalculateInSampleSize(options.OutWidth, options.OutHeight, reqWidth, reqHeight);
+        }
+
+        public static int CalculateInSampleSize(int width, int height, int reqWidth, int reqHeight)
+        {
             var inSampleSize = 1;
 
             var targetArea = reqWidth * reqHeight;
@@ -319,36 +322,9 @@ namespace Steepshot.Utils
             bitmap?.Recycle();
             bitmap?.Dispose();
             bitmap = null;
+            GC.Collect(0);
         }
-
-        public static Bitmap Crop(Context context, string path, ImageParameters parameters)
-        {
-            var matrix = new Matrix();
-            matrix.PreRotate(parameters.Rotation);
-
-            var x = (int)Math.Max(Math.Round(-parameters.PreviewBounds.Left / parameters.Scale), 0);
-            var y = (int)Math.Max(Math.Round(-parameters.PreviewBounds.Top / parameters.Scale), 0);
-
-            var width = (int)Math.Round((parameters.CropBounds.Right - parameters.CropBounds.Left) / parameters.Scale);
-            var height = (int)Math.Round((parameters.CropBounds.Bottom - parameters.CropBounds.Top) / parameters.Scale);
-
-            using (var bitmap = BitmapFactory.DecodeFile(path))
-            {
-                if (parameters.Rotation % 180 > 0)
-                {
-                    var b = x; x = y; y = b;
-                    b = width; width = height; height = b;
-                }
-
-                if (x + width > bitmap.Width)
-                    width = bitmap.Width - x;
-                if (y + height > bitmap.Height)
-                    height = bitmap.Height - y;
-
-                return Bitmap.CreateBitmap(bitmap, x, y, width, height, matrix, true);
-            }
-        }
-
+        
         public static FrameSize CalculateImagePreviewSize(ImageParameters param, int maxWidth, int maxHeight = int.MaxValue)
         {
             var bounds = param.CropBounds;

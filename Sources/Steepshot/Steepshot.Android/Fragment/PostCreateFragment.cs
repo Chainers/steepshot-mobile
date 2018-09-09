@@ -16,23 +16,26 @@ using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Utils;
+using Steepshot.CustomViews;
 using Steepshot.Utils;
 
 namespace Steepshot.Fragment
 {
     public class PostCreateFragment : PostPrepareBaseFragment
     {
+        private bool _isSingleMode = false;
         public static string PostCreateGalleryTemp = "PostCreateGalleryTemp" + AppSettings.User.Login;
         public static string PreparePostTemp = "PreparePostTemp" + AppSettings.User.Login;
         private readonly PreparePostModel _tepmPost;
 
-        public PostCreateFragment(List<GalleryMediaModel> media, PreparePostModel model) : base(media)
+        public PostCreateFragment(List<GalleryMediaModel> media, PreparePostModel model) : this(media)
         {
             _tepmPost = model;
         }
 
         public PostCreateFragment(List<GalleryMediaModel> media) : base(media)
         {
+            _isSingleMode = media.Count == 1;
         }
 
         public override void OnViewCreated(View view, Bundle savedInstanceState)
@@ -57,7 +60,21 @@ namespace Steepshot.Fragment
 
         protected virtual async void InitData()
         {
-            if (_media.Count > 1)
+            if (_isSingleMode)
+            {
+                _photos.Visibility = ViewStates.Gone;
+                _previewContainer.Visibility = ViewStates.Visible;
+                _preview.CornerRadius = Style.CornerRadius5;
+                _ratioBtn.Visibility = ViewStates.Gone;
+                _rotateBtn.Visibility = ViewStates.Gone;
+
+                var previewSize = BitmapUtils.CalculateImagePreviewSize(_media[0].Parameters, Style.ScreenWidth - Style.Margin15 * 2);
+                var layoutParams = new RelativeLayout.LayoutParams(previewSize.Width, previewSize.Height);
+                layoutParams.SetMargins(Style.Margin15, 0, Style.Margin15, Style.Margin15);
+                _previewContainer.LayoutParameters = layoutParams;
+                _preview.Touch += PreviewOnTouch;
+            }
+            else
             {
                 _photos.Visibility = ViewStates.Visible;
                 _previewContainer.Visibility = ViewStates.Gone;
@@ -66,31 +83,11 @@ namespace Steepshot.Fragment
                 _photos.LayoutParameters.Height = Style.GalleryHorizontalHeight;
 
                 _photos.SetAdapter(GalleryAdapter);
-
-                await ConvertAndSave();
-                if (!IsInitialized)
-                    return;
             }
-            else
-            {
-                _photos.Visibility = ViewStates.Gone;
-                _previewContainer.Visibility = ViewStates.Visible;
-                _preview.CornerRadius = Style.CornerRadius5;
-                _ratioBtn.Visibility = ViewStates.Gone;
-                _rotateBtn.Visibility = ViewStates.Gone;
 
-                await ConvertAndSave();
-                if (!IsInitialized)
-                    return;
-
-                var previewSize = BitmapUtils.CalculateImagePreviewSize(_media[0].Parameters, Style.ScreenWidth - Style.Margin15 * 2);
-                var layoutParams = new RelativeLayout.LayoutParams(previewSize.Width, previewSize.Height);
-                layoutParams.SetMargins(Style.Margin15, 0, Style.Margin15, Style.Margin15);
-                _previewContainer.LayoutParameters = layoutParams;
-                _preview.SetImageBitmap(_media[0].PreparedBitmap);
-
-                _preview.Touch += PreviewOnTouch;
-            }
+            await ConvertAndSave();
+            if (!IsInitialized)
+                return;
 
             await CheckOnSpam(false);
             if (!IsInitialized)
@@ -99,7 +96,7 @@ namespace Steepshot.Fragment
             if (isSpammer)
                 return;
 
-            StartUploadMedia();
+            StartUploadMedia(true);
         }
 
         private void PreviewOnTouch(object sender, View.TouchEventArgs touchEventArgs)
@@ -110,32 +107,138 @@ namespace Steepshot.Fragment
 
         protected async Task ConvertAndSave()
         {
-            if (_media.All(m => m.UploadState != UploadState.ReadyToSave))
-                return;
-
             await Task.Run(() =>
             {
-                foreach (var model in _media)
+                try
                 {
-                    if (model.UploadState == UploadState.ReadyToSave)
-                    {
-                        var croppedBitmap = BitmapUtils.Crop(Context, model.Path, model.Parameters);
-                        model.PreparedBitmap = croppedBitmap;
-                        model.TempPath = SaveFileTemp(model.PreparedBitmap, model.Path);
-                        model.UploadState = UploadState.Saved;
+                    if (_media.All(m => m.UploadState != UploadState.ReadyToSave))
+                        return;
 
-                        if (_media.Count > 1)
-                            Activity.RunOnUiThread(() => GalleryAdapter.NotifyDataSetChanged());
+                    for (var i = 0; i < _media.Count; i++)
+                    {
+                        var model = _media[i];
+                        if (model.UploadState == UploadState.ReadyToSave)
+                        {
+                            model.TempPath = CropAndSave(model.Path, model.Parameters);
+                            if (string.IsNullOrEmpty(model.TempPath))
+                                continue;
+                            model.UploadState = UploadState.Saved;
+
+                            if (!IsInitialized)
+                                break;
+
+                            var i1 = i;
+                            Activity.RunOnUiThread(() =>
+                            {
+                                if (_isSingleMode)
+                                    _preview.SetImageBitmap(_media[i1]);
+                                else
+                                    GalleryAdapter.NotifyItemChanged(i1);
+                            });
+                        }
                     }
+
+                    SaveGalleryTemp();
                 }
-                SaveGalleryTemp();
+                catch (Exception ex)
+                {
+                    var t = ex.Message;
+                }
+
             });
         }
 
+
+        public string CropAndSave(string path, ImageParameters parameters)
+        {
+            FileStream stream = null;
+            Bitmap sized = null;
+            Bitmap croped = null;
+            try
+            {
+                var isRotate = parameters.Rotation % 180 > 0;
+
+                var options = new BitmapFactory.Options { InJustDecodeBounds = true };
+                BitmapFactory.DecodeFile(path, options);
+
+                var pWidth = (int)Math.Round((parameters.PreviewBounds.Right - parameters.PreviewBounds.Left) / parameters.Scale);
+                var dZ = (isRotate ? options.OutHeight : options.OutWidth) / (float)pWidth;
+
+                var width = (int)Math.Round((parameters.CropBounds.Right - parameters.CropBounds.Left) * dZ / parameters.Scale);
+                var height = (int)Math.Round((parameters.CropBounds.Bottom - parameters.CropBounds.Top) * dZ / parameters.Scale);
+                var x = (int)Math.Max(Math.Round(-parameters.PreviewBounds.Left * dZ / parameters.Scale), 0);
+                var y = (int)Math.Max(Math.Round(-parameters.PreviewBounds.Top * dZ / parameters.Scale), 0);
+
+                var sampleSize = BitmapUtils.CalculateInSampleSize(width, height, BitmapUtils.MaxImageSize, BitmapUtils.MaxImageSize);
+
+                width = width / sampleSize;
+                height = height / sampleSize;
+                x = x / sampleSize;
+                y = y / sampleSize;
+
+                options.InSampleSize = sampleSize;
+                options.InJustDecodeBounds = false;
+                options.InPreferQualityOverSpeed = true;
+                sized = BitmapFactory.DecodeFile(path, options);
+
+                if (isRotate)
+                {
+                    var b = x; x = y; y = b;
+                    b = width; width = height; height = b;
+                }
+
+                if (x + width > sized.Width)
+                    width = sized.Width - x;
+                if (y + height > sized.Height)
+                    height = sized.Height - y;
+
+                var matrix = new Matrix();
+                matrix.PreRotate(parameters.Rotation);
+
+                croped = Bitmap.CreateBitmap(sized, x, y, width, height, matrix, true);
+
+                var directory = new Java.IO.File(Context.CacheDir, Constants.Steepshot);
+                if (!directory.Exists())
+                    directory.Mkdirs();
+
+                var outPath = $"{directory}/{Guid.NewGuid()}.jpeg";
+                stream = new FileStream(outPath, FileMode.Create);
+                croped.Compress(Bitmap.CompressFormat.Jpeg, 99, stream);
+
+                var args = new Dictionary<string, string>
+                {
+                    {ExifInterface.TagImageLength, croped.Height.ToString()},
+                    {ExifInterface.TagImageWidth, croped.Width.ToString()},
+                    {ExifInterface.TagOrientation, "1"},
+                };
+
+                BitmapUtils.CopyExif(path, outPath, args);
+
+                return outPath;
+            }
+            catch(Exception ex)
+            {
+                return string.Empty;
+            }
+            finally
+            {
+                stream?.Dispose();
+                BitmapUtils.ReleaseBitmap(sized);
+                BitmapUtils.ReleaseBitmap(croped);
+            }
+        }
+
         private bool _isUploading = false;
-        private async Task StartUploadMedia()
+        private async Task StartUploadMedia(bool delayStart = false)
         {
             _isUploading = true;
+
+            if (delayStart)
+                await Task.Delay(5000);
+
+            if (!IsInitialized)
+                return;
+
             await RepeatUpload();
             if (!IsInitialized)
                 return;
@@ -336,40 +439,47 @@ namespace Steepshot.Fragment
 
         protected async Task CheckOnSpam(bool disableEditing)
         {
-            EnablePostAndEdit(false, disableEditing);
-            isSpammer = false;
-
-            var spamCheck = await Presenter.TryCheckForSpam(AppSettings.User.Login);
-            if (!IsInitialized)
-                return;
-
-            if (spamCheck.IsSuccess)
+            try
             {
-                if (!spamCheck.Result.IsSpam)
+                EnablePostAndEdit(false, disableEditing);
+                isSpammer = false;
+
+                var spamCheck = await Presenter.TryCheckForSpam(AppSettings.User.Login);
+                if (!IsInitialized)
+                    return;
+
+                if (spamCheck.IsSuccess)
                 {
-                    if (spamCheck.Result.WaitingTime > 0)
+                    if (!spamCheck.Result.IsSpam)
                     {
-                        isSpammer = true;
-                        PostingLimit = TimeSpan.FromMinutes(5);
-                        StartPostTimer((int)spamCheck.Result.WaitingTime);
-                        Activity.ShowAlert(LocalizationKeys.Posts5minLimit, ToastLength.Long);
+                        if (spamCheck.Result.WaitingTime > 0)
+                        {
+                            isSpammer = true;
+                            PostingLimit = TimeSpan.FromMinutes(5);
+                            StartPostTimer((int)spamCheck.Result.WaitingTime);
+                            Activity.ShowAlert(LocalizationKeys.Posts5minLimit, ToastLength.Long);
+                        }
+                        else
+                        {
+                            EnabledPost();
+                        }
                     }
                     else
                     {
-                        EnabledPost();
+                        // more than 15 posts
+                        isSpammer = true;
+                        PostingLimit = TimeSpan.FromHours(24);
+                        StartPostTimer((int)spamCheck.Result.WaitingTime);
+                        Activity.ShowAlert(LocalizationKeys.PostsDayLimit, ToastLength.Long);
                     }
                 }
-                else
-                {
-                    // more than 15 posts
-                    isSpammer = true;
-                    PostingLimit = TimeSpan.FromHours(24);
-                    StartPostTimer((int)spamCheck.Result.WaitingTime);
-                    Activity.ShowAlert(LocalizationKeys.PostsDayLimit, ToastLength.Long);
-                }
-            }
 
-            EnablePostAndEdit(true);
+                EnablePostAndEdit(true);
+            }
+            catch (Exception ex)
+            {
+                var t = ex.Message;
+            }
         }
 
         private async void StartPostTimer(int startSeconds)
@@ -392,43 +502,6 @@ namespace Steepshot.Fragment
 
             isSpammer = false;
             EnabledPost();
-        }
-
-        private string SaveFileTemp(Bitmap btmp, string pathToExif)
-        {
-            FileStream stream = null;
-            try
-            {
-                var directory = new Java.IO.File(Context.CacheDir, Constants.Steepshot);
-                if (!directory.Exists())
-                    directory.Mkdirs();
-
-                var path = $"{directory}/{Guid.NewGuid()}.jpeg";
-                stream = new FileStream(path, FileMode.Create);
-                btmp.Compress(Bitmap.CompressFormat.Jpeg, 99, stream);
-
-                var options = new Dictionary<string, string>
-                {
-                    {ExifInterface.TagImageLength, btmp.Height.ToString()},
-                    {ExifInterface.TagImageWidth, btmp.Width.ToString()},
-                    {ExifInterface.TagOrientation, "1"},
-                };
-
-                BitmapUtils.CopyExif(pathToExif, path, options);
-
-                return path;
-            }
-            catch (Exception ex)
-            {
-                _postButton.Enabled = false;
-                AppSettings.Logger.Error(ex);
-                Context.ShowAlert(ex);
-            }
-            finally
-            {
-                stream?.Dispose();
-            }
-            return string.Empty;
         }
 
         public override void OnDetach()

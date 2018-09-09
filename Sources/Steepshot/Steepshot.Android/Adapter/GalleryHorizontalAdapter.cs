@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Android.Net;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
@@ -69,10 +70,14 @@ namespace Steepshot.Adapter
 
         public void Update(GalleryMediaModel model)
         {
+            _image.SetImageBitmap(null);
+            _image.SetImageResource(Style.R245G245B245);
+
             if (model.UploadState == UploadState.Saved)
-                _image.SetImageBitmap(model.PreparedBitmap);
-            else
-                _image.SetBackgroundColor(Style.R245G245B245);
+            {
+                var bitmap = BitmapUtils.DecodeSampledBitmapFromFile(ItemView.Context, Uri.Parse(model.TempPath), Style.GalleryHorizontalScreenWidth, Style.GalleryHorizontalHeight);
+                _image.SetImageBitmap(bitmap);
+            }
         }
 
         public void Update(MediaModel model)

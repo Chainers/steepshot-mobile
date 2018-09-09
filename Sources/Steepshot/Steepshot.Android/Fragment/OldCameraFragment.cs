@@ -32,7 +32,7 @@ namespace Steepshot.Fragment
     {
         private Location _currentLocation;
         private LocationManager _locationManager;
-        private bool isGpsEnable = false;
+        private bool _isGpsEnable;
 
         private const bool FullScreen = true;
         private const int GalleryRequestCode = 228;
@@ -104,8 +104,8 @@ namespace Steepshot.Fragment
 
             if (!((BaseActivity)Activity).RequestPermissions(BaseActivity.CommonPermissionsRequestCode, Manifest.Permission.AccessCoarseLocation, Manifest.Permission.AccessFineLocation))
             {
-                isGpsEnable = !isGpsEnable;
-                _gpsButton.SetImageResource(isGpsEnable ? Resource.Drawable.ic_gps : Resource.Drawable.ic_gps_n);
+                _isGpsEnable = !_isGpsEnable;
+                _gpsButton.SetImageResource(_isGpsEnable ? Resource.Drawable.ic_gps : Resource.Drawable.ic_gps_n);
             }
 
             _gpsButton.Enabled = true;
@@ -231,7 +231,7 @@ namespace Steepshot.Fragment
 
         private void AddGps(Camera.Parameters parameters)
         {
-            if (isGpsEnable && _currentLocation != null)
+            if (_isGpsEnable && _currentLocation != null)
             {
                 parameters.RemoveGpsData();
                 parameters.SetGpsLatitude(_currentLocation.Latitude);
@@ -357,7 +357,7 @@ namespace Steepshot.Fragment
                     var picCoeff = (double)pictureSize.Height / pictureSize.Width;
                     if (Math.Abs(picCoeff - previewCoeff) < 0.001)
                     {
-                        var t = Math.Abs(1600 - pictureSize.Width);
+                        var t = Math.Abs(BitmapUtils.MaxImageSize - pictureSize.Width);
                         if (t < difference)
                         {
                             difference = t;

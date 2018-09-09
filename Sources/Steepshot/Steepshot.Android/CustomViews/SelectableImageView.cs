@@ -89,6 +89,11 @@ namespace Steepshot.CustomViews
                     return;
 
                 var thumbnail = MediaStore.Images.Thumbnails.GetThumbnail(Context.ContentResolver, model.Id, ThumbnailKind.MiniKind, null);
+                if (model.Orientation == 0)
+                {
+                    _handler.Post(() => SetImageBitmap(thumbnail));
+                    return;
+                }
 
                 var matrix = new Matrix();
                 matrix.PostRotate(model.Orientation * 45);
