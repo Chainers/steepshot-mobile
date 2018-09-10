@@ -298,10 +298,10 @@ namespace Steepshot.CustomViews
             Invalidate();
         }
 
-        public void Rotate(float angle)
+        public void Rotate(int angle)
         {
             IsBitmapReady = false;
-            _drawableImageParameters.Rotation = angle;
+            _drawableImageParameters.Rotation = angle % 360;
             _currentScaleType = _useStrictBounds ? ScaleType.Bind : _currentScaleType;
             _reloadImage = true;
             RequestLayout();
@@ -750,7 +750,7 @@ namespace Steepshot.CustomViews
     public class ImageParameters
     {
         public float Scale { get; set; }
-        public float Rotation { get; set; }
+        public int Rotation { get; set; }
         public RectF PreviewBounds { get; private set; }
         public Rect CropBounds { get; set; }
 

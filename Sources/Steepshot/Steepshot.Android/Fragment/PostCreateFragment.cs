@@ -181,11 +181,39 @@ namespace Steepshot.Fragment
                 options.InPreferQualityOverSpeed = true;
                 sized = BitmapFactory.DecodeFile(path, options);
 
-                if (isRotate)
+
+                switch (parameters.Rotation)
                 {
-                    var b = x; x = y; y = b;
-                    b = width; width = height; height = b;
+                    case 90:
+                        {
+                            var b = x;
+                            x = y;
+                            y = sized.Height - b - width;
+                            b = width;
+                            width = height;
+                            height = b;
+                            break;
+                        }
+                    case 180:
+                        {
+                            x = sized.Width - width - x;
+                            y = sized.Height - height - y;
+                            break;
+                        }
+                    case 270:
+                        {
+                            var b = y;
+                            y = x;
+                            x = sized.Width - b - width;
+                            b = width;
+                            width = height;
+                            height = b;
+                            break;
+                        }
                 }
+
+                x = Math.Max(x, 0);
+                y = Math.Max(y, 0);
 
                 if (x + width > sized.Width)
                     width = sized.Width - x;
@@ -216,7 +244,7 @@ namespace Steepshot.Fragment
 
                 return outPath;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return string.Empty;
             }
