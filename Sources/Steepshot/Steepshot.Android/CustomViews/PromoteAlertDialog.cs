@@ -31,6 +31,7 @@ namespace Steepshot.CustomViews
             Messages
         }
 
+        private readonly Action<AutoLinkType, string> _autoLinkAction;
         private readonly PromotePresenter _presenter;
         private readonly Post _post;
 
@@ -43,7 +44,6 @@ namespace Steepshot.CustomViews
         private ProgressBar _actionSpinner;
         private ViewPager _pager;
 
-        private readonly Action<AutoLinkType, string> _autoLinkAction;
         private string _actionButtonTitle;
 
         private PromoteAlertDialog(Context context) : base(context) { }
@@ -84,7 +84,6 @@ namespace Steepshot.CustomViews
                 _pager.PageSelected += PageSelected;
 
                 _actionBtn = dialogView.FindViewById<Button>(Resource.Id.findpromote_btn);
-                _actionBtn.Typeface = Style.Semibold;
                 _actionBtn.Text = _actionButtonTitle = AppSettings.LocalizationManager.GetText(LocalizationKeys.FindPromoter);
                 _actionBtn.Typeface = Style.Semibold;
                 _actionBtn.Click += ActionButtonClick;
@@ -104,7 +103,9 @@ namespace Steepshot.CustomViews
                 base.Show();
 
                 var bottomSheet = FindViewById<FrameLayout>(Resource.Id.design_bottom_sheet);
-                BottomSheetBehavior.From(bottomSheet).State = BottomSheetBehavior.StateExpanded;
+                var behavior = BottomSheetBehavior.From(bottomSheet);
+                behavior.State = BottomSheetBehavior.StateExpanded;
+                behavior.SetBottomSheetCallback(new CustomBottomSheetCallback());
             }
         }
 
