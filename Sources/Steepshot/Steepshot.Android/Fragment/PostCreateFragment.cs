@@ -16,14 +16,13 @@ using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Utils;
-using Steepshot.CustomViews;
 using Steepshot.Utils;
 
 namespace Steepshot.Fragment
 {
     public class PostCreateFragment : PostPrepareBaseFragment
     {
-        private bool _isSingleMode = false;
+        private readonly bool _isSingleMode;
         public static string PostCreateGalleryTemp = "PostCreateGalleryTemp" + AppSettings.User.Login;
         public static string PreparePostTemp = "PreparePostTemp" + AppSettings.User.Login;
         private readonly PreparePostModel _tepmPost;
@@ -142,9 +141,8 @@ namespace Steepshot.Fragment
                 }
                 catch (Exception ex)
                 {
-                    var t = ex.Message;
+                    AppSettings.Logger.Error(ex);
                 }
-
             });
         }
 
@@ -156,20 +154,21 @@ namespace Steepshot.Fragment
             Bitmap croped = null;
             try
             {
-                var rotation = (model.Orientation + model.Parameters.Rotation) % 360;
                 var parameters = model.Parameters;
-                var isRotate = rotation % 180 > 0;
+                var rotation = parameters.Rotation;
+                var previewBounds = parameters.PreviewBounds;
+                var cropBounds = parameters.CropBounds;
 
                 var options = new BitmapFactory.Options { InJustDecodeBounds = true };
                 BitmapFactory.DecodeFile(model.Path, options);
 
-                var pWidth = (int)Math.Round((parameters.PreviewBounds.Right - parameters.PreviewBounds.Left) / parameters.Scale);
-                var dZ = (isRotate ? options.OutHeight : options.OutWidth) / (float)pWidth;
+                var pWidth = (int)Math.Round((previewBounds.Right - previewBounds.Left) / parameters.Scale);
+                var dZ = (rotation % 180 > 0 ? options.OutHeight : options.OutWidth) / (float)pWidth;
 
-                var width = (int)Math.Round((parameters.CropBounds.Right - parameters.CropBounds.Left) * dZ / parameters.Scale);
-                var height = (int)Math.Round((parameters.CropBounds.Bottom - parameters.CropBounds.Top) * dZ / parameters.Scale);
-                var x = (int)Math.Max(Math.Round(-parameters.PreviewBounds.Left * dZ / parameters.Scale), 0);
-                var y = (int)Math.Max(Math.Round(-parameters.PreviewBounds.Top * dZ / parameters.Scale), 0);
+                var width = (int)Math.Round((cropBounds.Right - cropBounds.Left) * dZ / parameters.Scale);
+                var height = (int)Math.Round((cropBounds.Bottom - cropBounds.Top) * dZ / parameters.Scale);
+                var x = (int)Math.Max(Math.Round(-previewBounds.Left * dZ / parameters.Scale), 0);
+                var y = (int)Math.Max(Math.Round(-previewBounds.Top * dZ / parameters.Scale), 0);
 
                 var sampleSize = BitmapUtils.CalculateInSampleSize(width, height, BitmapUtils.MaxImageSize, BitmapUtils.MaxImageSize);
 
@@ -248,6 +247,7 @@ namespace Steepshot.Fragment
             }
             catch (Exception ex)
             {
+                AppSettings.Logger.Error(ex);
                 return string.Empty;
             }
             finally
@@ -508,7 +508,7 @@ namespace Steepshot.Fragment
             }
             catch (Exception ex)
             {
-                var t = ex.Message;
+                AppSettings.Logger.Error(ex);
             }
         }
 
