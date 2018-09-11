@@ -65,13 +65,12 @@ namespace Steepshot.CustomViews
         {
             if (_model != null)
             {
-                _model.ModelChanged -= ModelChanged;
                 (Drawable as BitmapDrawable)?.Bitmap?.Recycle();
                 SetImageDrawable(new ColorDrawable(Style.R245G245B245));
             }
 
             _model = model;
-            _model.ModelChanged += ModelChanged;
+            _model.ModelChanged = Invalidate;
             LoadThumbnail(_model);
         }
 
@@ -108,11 +107,6 @@ namespace Steepshot.CustomViews
 
                 _handler.Post(() => SetImageBitmap(oriThumbnail));
             }, token);
-        }
-
-        private void ModelChanged()
-        {
-            Invalidate();
         }
     }
 }

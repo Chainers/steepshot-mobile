@@ -73,7 +73,7 @@ namespace Steepshot.Adapter
             _image.SetImageBitmap(null);
             _image.SetImageResource(Style.R245G245B245);
 
-            if (model.UploadState == UploadState.Saved)
+            if (model.UploadState > UploadState.ReadyToSave)
             {
                 var bitmap = BitmapUtils.DecodeSampledBitmapFromFile(ItemView.Context, Uri.Parse(model.TempPath), Style.GalleryHorizontalScreenWidth, Style.GalleryHorizontalHeight);
                 _image.SetImageBitmap(bitmap);

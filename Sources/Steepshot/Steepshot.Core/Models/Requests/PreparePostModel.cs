@@ -66,7 +66,7 @@ namespace Steepshot.Core.Models.Requests
         [JsonProperty]
         [Required(ErrorMessage = nameof(LocalizationKeys.EmptyDeviceField))]
         public string Device { get; set; }
-        
+
         public bool IsEditMode { get; }
 
         public string Category
@@ -80,6 +80,8 @@ namespace Steepshot.Core.Models.Requests
             }
         }
 
+
+        public PreparePostModel() { }
 
         public PreparePostModel(UserInfo user, string device) : base(user)
         {

@@ -37,6 +37,7 @@ namespace Steepshot.Activity
     {
         public const string NotificationData = "NotificationData";
         public const string SharingPhotoData = "SharingPhotoData";
+        public const string PostCreateResumeExtra = "PostCreateResumeExtra";
         protected override HostFragment CurrentHostFragment => CurrentHostFragment = _adapter.GetItem(_viewPager.CurrentItem) as HostFragment;
         private Adapter.PagerAdapter _adapter;
         private TabLayout.Tab _prevTab;
@@ -137,6 +138,31 @@ namespace Steepshot.Activity
                 };
                 OpenNewContentFragment(new PreviewPostCreateFragment(galleryModel));
             }
+        }
+
+        public void HandlePostCreateResume(Intent intent)
+        {
+            var isEnable = intent.GetBooleanExtra(PostCreateResumeExtra, false);
+            intent.RemoveExtra(PostCreateResumeExtra);
+
+            if (!isEnable || !AppSettings.Temp.ContainsKey(PostCreateFragment.PostCreateGalleryTemp))
+                return;
+
+            var json = AppSettings.Temp[PostCreateFragment.PostCreateGalleryTemp];
+            var media = JsonConvert.DeserializeObject<List<GalleryMediaModel>>(json);
+
+            PreparePostModel model = null;
+            if (AppSettings.Temp.ContainsKey(PostCreateFragment.PreparePostTemp))
+            {
+                json = AppSettings.Temp[PostCreateFragment.PreparePostTemp];
+                model = JsonConvert.DeserializeObject<PreparePostModel>(json);
+            }
+
+            AppSettings.Temp.Remove(PostCreateFragment.PostCreateGalleryTemp);
+            AppSettings.Temp.Remove(PostCreateFragment.PreparePostTemp);
+            AppSettings.SaveTemp();
+
+            OpenNewContentFragment(new PostCreateFragment(media, model));
         }
 
         protected override void OnNewIntent(Intent intent)

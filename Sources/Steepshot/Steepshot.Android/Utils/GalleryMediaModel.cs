@@ -44,6 +44,7 @@ namespace Steepshot.Utils
             }
         }
 
+        [JsonProperty]
         public ImageParameters Parameters { get; set; }
 
         public Bitmap PreparedBitmap { get; set; }

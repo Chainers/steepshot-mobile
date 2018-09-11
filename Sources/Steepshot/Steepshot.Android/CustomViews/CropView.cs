@@ -8,6 +8,7 @@ using Android.OS;
 using Android.Util;
 using Android.Views;
 using Android.Views.Animations;
+using Newtonsoft.Json;
 using Square.Picasso;
 using Steepshot.Core.Utils;
 using Steepshot.Utils;
@@ -751,8 +752,13 @@ namespace Steepshot.CustomViews
     public class ImageParameters
     {
         public float Scale { get; set; }
+
         public int Rotation { get; set; }
+
+        [JsonConverter(typeof(RectFConverter))]
         public RectF PreviewBounds { get; private set; }
+
+        [JsonConverter(typeof(RectFConverter))]
         public Rect CropBounds { get; set; }
 
         public ImageParameters()
@@ -767,5 +773,63 @@ namespace Steepshot.CustomViews
             PreviewBounds = new RectF(PreviewBounds),
             CropBounds = new Rect(CropBounds)
         };
+    }
+
+    public class RectFConverter : JsonConverter
+    {
+        public override void WriteJson(Newtonsoft.Json.JsonWriter writer, object value, JsonSerializer serializer)
+        {
+            writer.WriteStartObject();
+            
+            if (value is RectF)
+            {
+                var typed = (RectF)value;
+                writer.WritePropertyName(nameof(RectF.Left));
+                writer.WriteValue(typed.Left);
+                writer.WritePropertyName(nameof(RectF.Top));
+                writer.WriteValue(typed.Top);
+                writer.WritePropertyName(nameof(RectF.Right));
+                writer.WriteValue(typed.Right);
+                writer.WritePropertyName(nameof(RectF.Bottom));
+                writer.WriteValue(typed.Bottom);
+            }
+            else
+            {
+                var typed = (Rect)value;
+                writer.WritePropertyName(nameof(Rect.Left));
+                writer.WriteValue(typed.Left);
+                writer.WritePropertyName(nameof(Rect.Top));
+                writer.WriteValue(typed.Top);
+                writer.WritePropertyName(nameof(Rect.Right));
+                writer.WriteValue(typed.Right);
+                writer.WritePropertyName(nameof(Rect.Bottom));
+                writer.WriteValue(typed.Bottom);
+            }
+
+            writer.WriteEndObject();
+        }
+
+        public override object ReadJson(Newtonsoft.Json.JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        {
+            reader.Read();
+            var left = reader.ReadAsDouble();
+            reader.Read();
+            var top = reader.ReadAsDouble();
+            reader.Read();
+            var right = reader.ReadAsDouble();
+            reader.Read();
+            var bottom = reader.ReadAsDouble();
+            reader.Read();
+
+            if (objectType == typeof(RectF))
+                return new RectF((float)left, (float)top, (float)right, (float)bottom);
+
+            return new Rect((int)left, (int)top, (int)right, (int)bottom);
+        }
+
+        public override bool CanConvert(Type objectType)
+        {
+            return objectType == typeof(RectF) || objectType == typeof(Rect);
+        }
     }
 }
