@@ -109,8 +109,6 @@ namespace Steepshot.CustomViews
                 _displayDrawableLeft = 0;
                 _displayDrawableTop = 0;
                 _drawableImageParameters = new ImageParameters();
-                if (_media != null)
-                    Rotation = _media.Orientation * 45;
             }
             else
             {
@@ -118,6 +116,9 @@ namespace Steepshot.CustomViews
                 _displayDrawableLeft = parameters.PreviewBounds.Left;
                 _displayDrawableTop = parameters.PreviewBounds.Top;
             }
+
+            if (_media != null)
+                Rotation = _media.Orientation;
         }
         public bool IsBitmapReady { get; private set; }
         private float SquareScale

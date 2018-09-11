@@ -119,7 +119,7 @@ namespace Steepshot.Fragment
                         var model = _media[i];
                         if (model.UploadState == UploadState.ReadyToSave)
                         {
-                            model.TempPath = CropAndSave(model.Path, model.Parameters);
+                            model.TempPath = CropAndSave(model);
                             if (string.IsNullOrEmpty(model.TempPath))
                                 continue;
                             model.UploadState = UploadState.Saved;
@@ -149,17 +149,19 @@ namespace Steepshot.Fragment
         }
 
 
-        public string CropAndSave(string path, ImageParameters parameters)
+        public string CropAndSave(GalleryMediaModel model)
         {
             FileStream stream = null;
             Bitmap sized = null;
             Bitmap croped = null;
             try
             {
-                var isRotate = parameters.Rotation % 180 > 0;
+                var rotation = (model.Orientation + model.Parameters.Rotation) % 360;
+                var parameters = model.Parameters;
+                var isRotate = rotation % 180 > 0;
 
                 var options = new BitmapFactory.Options { InJustDecodeBounds = true };
-                BitmapFactory.DecodeFile(path, options);
+                BitmapFactory.DecodeFile(model.Path, options);
 
                 var pWidth = (int)Math.Round((parameters.PreviewBounds.Right - parameters.PreviewBounds.Left) / parameters.Scale);
                 var dZ = (isRotate ? options.OutHeight : options.OutWidth) / (float)pWidth;
@@ -179,10 +181,10 @@ namespace Steepshot.Fragment
                 options.InSampleSize = sampleSize;
                 options.InJustDecodeBounds = false;
                 options.InPreferQualityOverSpeed = true;
-                sized = BitmapFactory.DecodeFile(path, options);
+                sized = BitmapFactory.DecodeFile(model.Path, options);
 
 
-                switch (parameters.Rotation)
+                switch (rotation)
                 {
                     case 90:
                         {
@@ -221,7 +223,7 @@ namespace Steepshot.Fragment
                     height = sized.Height - y;
 
                 var matrix = new Matrix();
-                matrix.PreRotate(parameters.Rotation);
+                matrix.PreRotate(rotation);
 
                 croped = Bitmap.CreateBitmap(sized, x, y, width, height, matrix, true);
 
@@ -240,7 +242,7 @@ namespace Steepshot.Fragment
                     {ExifInterface.TagOrientation, "1"},
                 };
 
-                BitmapUtils.CopyExif(path, outPath, args);
+                BitmapUtils.CopyExif(model.Path, outPath, args);
 
                 return outPath;
             }
