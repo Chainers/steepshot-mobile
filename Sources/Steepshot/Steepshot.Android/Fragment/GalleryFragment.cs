@@ -145,7 +145,7 @@ namespace Steepshot.Fragment
             if (!_preview.IsBitmapReady)
                 return;
 
-            _preview.Rotate(_preview.DrawableImageParameters.Rotation + 90f);
+            _preview.Rotate(_preview.DrawableImageParameters.Rotation + 90);
         }
 
         private void MultiselectBtnOnClick(object sender, EventArgs eventArgs)

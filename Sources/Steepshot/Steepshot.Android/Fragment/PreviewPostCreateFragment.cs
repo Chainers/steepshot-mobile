@@ -70,7 +70,7 @@ namespace Steepshot.Fragment
 
         private void RotateBtnOnClick(object sender, EventArgs eventArgs)
         {
-            _preview.Rotate(_preview.DrawableImageParameters.Rotation + 90f);
+            _preview.Rotate(_preview.DrawableImageParameters.Rotation + 90);
         }
     }
 }

@@ -96,7 +96,7 @@ namespace Steepshot.CustomViews
                 }
 
                 var matrix = new Matrix();
-                matrix.PostRotate(model.Orientation * 45);
+                matrix.PostRotate(model.Orientation);
                 var oriThumbnail = Bitmap.CreateBitmap(thumbnail, 0, 0, thumbnail.Width, thumbnail.Height, matrix, true);
 
                 if (token.IsCancellationRequested)
