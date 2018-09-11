@@ -63,7 +63,7 @@ namespace Steepshot.iOS.Popups
                         warningView.Alpha = 0;
                         viewToAdd.LayoutIfNeeded();
                     }, () => {
-                        warningView.RemoveFromSuperview();
+                        warningView?.RemoveFromSuperview();
                         warningView = null;
                     });
                 });
