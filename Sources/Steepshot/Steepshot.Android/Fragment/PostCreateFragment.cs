@@ -51,9 +51,7 @@ namespace Steepshot.Fragment
                 Title.Text = _tepmPost.Title;
                 Description.Text = _tepmPost.Description;
                 for (var i = 0; i < _tepmPost.Tags.Length; i++)
-                {
-                    LocalTagsAdapter.LocalTags.Add(_tepmPost.Tags[i]);
-                }
+                    AddTag(_tepmPost.Tags[i]);
             }
 
             InitData();

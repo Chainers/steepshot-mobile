@@ -159,7 +159,6 @@ namespace Steepshot.Activity
             }
 
             AppSettings.Temp.Remove(PostCreateFragment.PostCreateGalleryTemp);
-            AppSettings.Temp.Remove(PostCreateFragment.PreparePostTemp);
             AppSettings.SaveTemp();
 
             OpenNewContentFragment(new PostCreateFragment(media, model));
