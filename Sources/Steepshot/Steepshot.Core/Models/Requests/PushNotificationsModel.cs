@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using Steepshot.Core.Localization;
 using System.ComponentModel.DataAnnotations;
 using Steepshot.Core.Authorization;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Models.Requests
 {
@@ -19,7 +20,7 @@ namespace Steepshot.Core.Models.Requests
 
         [JsonProperty]
         [Required]
-        public string AppId { get; } = "77fa644f-3280-4e87-9f14-1f0c7ddf8ca5";
+        public string AppId { get; } = AppSettings.User.Chain == KnownChains.Steem ? Constants.OneSignalSteemAppId : Constants.OneSignalGolosAppId;
 
         [JsonProperty]
         [Required]
@@ -34,13 +35,13 @@ namespace Steepshot.Core.Models.Requests
         [JsonIgnore]
         public bool Subscribe { get; }
 
-        public PushNotificationsModel(UserInfo user, string playerId, bool subscribe) 
+        public PushNotificationsModel(UserInfo user, string playerId, bool subscribe)
             : this(user, subscribe)
         {
             PlayerId = playerId;
         }
 
-        public PushNotificationsModel(UserInfo user, bool subscribe) 
+        public PushNotificationsModel(UserInfo user, bool subscribe)
             : base(user)
         {
             UserName = user.Login;

@@ -49,7 +49,7 @@ namespace Steepshot.Base
 
         private void InitPushes()
         {
-            OneSignal.Current.StartInit("77fa644f-3280-4e87-9f14-1f0c7ddf8ca5")
+            OneSignal.Current.StartInit(AppSettings.User.Chain == KnownChains.Steem ? Constants.OneSignalSteemAppId : Constants.OneSignalGolosAppId)
                 .InFocusDisplaying(OSInFocusDisplayOption.None)
                 .HandleNotificationOpened(OneSignalNotificationOpened)
                 .EndInit();

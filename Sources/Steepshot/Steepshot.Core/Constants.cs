@@ -32,6 +32,9 @@ namespace Steepshot.Core
         public const string VotedInASimilarWaySteem = "You have already voted in a similar way";
         public const string VotedInASimilarWayGolos = "You have already voted in a similar way";
 
+        public const string OneSignalSteemAppId = "77fa644f-3280-4e87-9f14-1f0c7ddf8ca5";
+        public const string OneSignalGolosAppId = "8a045ab9-04e1-4d3e-bb67-ddc1742ae385";
+
         public const int PhotoMaxSize = 1200;
         public const string DeletedPostText = "*deleted*";
         public const string ProxyForAvatars = "https://steemitimages.com/{0}x{0}/";
