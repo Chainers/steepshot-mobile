@@ -137,6 +137,9 @@ namespace Steepshot.Fragment
 
         private void RatioBtnOnClick(object sender, EventArgs eventArgs)
         {
+            if (!_preview.IsBitmapReady)
+                return;
+
             _preview.SwitchScale();
         }
 
@@ -150,6 +153,9 @@ namespace Steepshot.Fragment
 
         private void MultiselectBtnOnClick(object sender, EventArgs eventArgs)
         {
+            if (!_preview.IsBitmapReady)
+                return;
+
             _multiSelect = !_multiSelect;
             _ratioBtn.Visibility = _multiSelect ? ViewStates.Gone : ViewStates.Visible;
             _preview.UseStrictBounds = _multiSelect;
@@ -200,6 +206,9 @@ namespace Steepshot.Fragment
                 return;
             }
 
+            if (!_preview.IsBitmapReady)
+                return;
+
             if (_coordinator.SwitchToWhole())
             {
                 _gridView.ScrollToPosition(position);
@@ -219,7 +228,7 @@ namespace Steepshot.Fragment
             {
                 if (_prevSelected != null)
                     _prevSelected.Parameters = _preview.DrawableImageParameters.Copy();
-
+               
                 _prevSelected = model;
 
                 if (!_pickedItems.Contains(model))
