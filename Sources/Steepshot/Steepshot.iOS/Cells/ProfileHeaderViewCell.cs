@@ -359,7 +359,7 @@ namespace Steepshot.iOS.Cells
             {
                 var linkAttribute = new UIStringAttributes
                 {
-                    Link = new NSUrl(_userData.Website),
+                    Link = new NSUrl(_userData.Website.Replace(" ", string.Empty)),
                     Font = Helpers.Constants.Semibold14,
                     ForegroundColor = Helpers.Constants.R255G34B5
                 };
