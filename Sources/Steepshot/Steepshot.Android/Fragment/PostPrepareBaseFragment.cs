@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -33,9 +32,9 @@ namespace Steepshot.Fragment
     {
         #region Fields
 
-        private GalleryHorizontalAdapter _galleryAdapter;
         private SelectedTagsAdapter _localTagsAdapter;
-        private TagsAdapter _tagsAdapter;
+        private PostSearchTagsAdapter _postSearchTagsAdapter;
+        private TagPickerFacade _tagPickerFacade;
 
 #pragma warning disable 0649, 4014
         [BindView(Resource.Id.btn_back)] protected ImageButton BackButton;
@@ -71,29 +70,16 @@ namespace Steepshot.Fragment
         #endregion
 
         #region Properties
-        protected List<GalleryMediaModel> Media { get; }
+
         protected TimeSpan PostingLimit { get; set; }
         protected Timer Timer { get; set; }
         protected PreparePostModel Model { get; set; }
         protected string PreviousQuery { get; set; }
-        protected TagPickerFacade TagPickerFacade { get; set; }
         protected bool IsSpammer { get; set; }
-        protected bool IsPlagiarism { get; set; }
 
-        protected virtual GalleryHorizontalAdapter GalleryAdapter => _galleryAdapter ?? (_galleryAdapter = new GalleryHorizontalAdapter(Media));
-        protected TagsAdapter TagsAdapter => _tagsAdapter ?? (_tagsAdapter = new TagsAdapter(TagPickerFacade));
         protected SelectedTagsAdapter LocalTagsAdapter => _localTagsAdapter ?? (_localTagsAdapter = new SelectedTagsAdapter());
 
         #endregion
-
-        public PostPrepareBaseFragment()
-        {
-        }
-
-        public PostPrepareBaseFragment(List<GalleryMediaModel> media)
-        {
-            Media = media;
-        }
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
@@ -138,13 +124,15 @@ namespace Steepshot.Fragment
             LocalTagsList.AddItemDecoration(new ListItemDecoration((int)TypedValue.ApplyDimension(ComplexUnitType.Dip, 15, Resources.DisplayMetrics)));
 
             var client = App.MainChain == KnownChains.Steem ? App.SteemClient : App.GolosClient;
-            TagPickerFacade = new TagPickerFacade(_localTagsAdapter.LocalTags);
-            TagPickerFacade.SetClient(client);
-            TagPickerFacade.SourceChanged += TagPickerFacadeOnSourceChanged;
+            _tagPickerFacade = new TagPickerFacade(_localTagsAdapter.LocalTags);
+            _tagPickerFacade.SetClient(client);
+            _tagPickerFacade.SourceChanged += TagPickerFacadeOnSourceChanged;
+
+            _postSearchTagsAdapter = new PostSearchTagsAdapter(_tagPickerFacade);
 
             TagsList.SetLayoutManager(new LinearLayoutManager(Activity));
-            TagsAdapter.Click += OnTagsAdapterClick;
-            TagsList.SetAdapter(TagsAdapter);
+            _postSearchTagsAdapter.Click += OnTagsAdapterClick;
+            TagsList.SetAdapter(_postSearchTagsAdapter);
 
             TagLabel.Click += TagLabelOnClick;
             TagEdit.TextChanged += OnTagOnTextChanged;
@@ -173,13 +161,13 @@ namespace Steepshot.Fragment
 
             Activity.RunOnUiThread(() =>
             {
-                _tagsAdapter.NotifyDataSetChanged();
+                _postSearchTagsAdapter.NotifyDataSetChanged();
             });
         }
 
         private async void OnPost(object sender, EventArgs e)
         {
-            EnablePostAndEdit(false);
+            EnablePostAndEdit(false, true);
 
             if (string.IsNullOrEmpty(Title.Text))
             {
@@ -202,7 +190,7 @@ namespace Steepshot.Fragment
 
         protected abstract Task OnPostAsync();
 
-        protected void EnablePostAndEdit(bool enabled, bool enableFields = true)
+        protected void EnablePostAndEdit(bool enabled, bool enableFields)
         {
             if (enabled)
             {
@@ -229,7 +217,7 @@ namespace Steepshot.Fragment
         protected void EnabledPost()
         {
             PostButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PublishButtonText);
-            EnablePostAndEdit(true);
+            EnablePostAndEdit(true, true);
         }
 
         protected void ForgetAction(object o, DialogClickEventArgs dialogClickEventArgs)
@@ -242,20 +230,12 @@ namespace Steepshot.Fragment
             TryCreateOrEditPost();
         }
 
-        protected async Task<bool> TryCreateOrEditPost(bool checkForPlagiarism = true)
+        protected async Task<bool> TryCreateOrEditPost()
         {
             if (Model.Media == null)
             {
                 EnabledPost();
                 return false;
-            }
-
-            if (checkForPlagiarism)
-            {
-                await CheckForPlagiarism();
-
-                if (IsPlagiarism)
-                    return false;
             }
 
             var resp = await Presenter.TryCreateOrEditPost(Model);
@@ -285,37 +265,17 @@ namespace Steepshot.Fragment
             //todo nothing
         }
 
-        private async Task CheckForPlagiarism()
-        {
-            IsPlagiarism = false;
-            var plagiarismCheck = await Presenter.TryCheckForPlagiarism(Model);
-
-            if (plagiarismCheck.IsSuccess)
-            {
-                if (plagiarismCheck.Result.plagiarism.IsPlagiarism)
-                {
-                    IsPlagiarism = true;
-
-                    var fragment = new PlagiarismCheckFragment(Media, GalleryAdapter, plagiarismCheck.Result.plagiarism);
-                    fragment.SetTargetFragment(this, 0);
-                    ((BaseActivity)Activity).OpenNewContentFragment(fragment);
-
-                    PostButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PublishButtonText);
-                }
-            }
-        }
-
         public override void OnActivityResult(int requestCode, int resultCode, Intent data)
         {
             if (resultCode == (int)Result.Ok)
             {
-                EnablePostAndEdit(false);
-                TryCreateOrEditPost(false);
+                EnablePostAndEdit(false, true);
+                TryCreateOrEditPost();
             }
             else if (resultCode == (int)Result.Canceled)
             {
                 EnabledPost();
-                EnablePostAndEdit(true);
+                EnablePostAndEdit(true, true);
             }
         }
 
@@ -332,9 +292,9 @@ namespace Steepshot.Fragment
                 return;
 
             RemoveTag(tag);
-            var index = _tagsAdapter.IndexOfTag(tag);
+            var index = _postSearchTagsAdapter.IndexOfTag(tag);
             if (index != -1)
-                _tagsAdapter.NotifyItemInserted(index);
+                _postSearchTagsAdapter.NotifyItemInserted(index);
         }
 
         protected void OnTagOnTextChanged(object sender, TextChangedEventArgs e)
@@ -362,9 +322,9 @@ namespace Steepshot.Fragment
             if (string.IsNullOrWhiteSpace(tag))
                 return;
 
-            var index = _tagsAdapter.IndexOfTag(tag);
+            var index = _postSearchTagsAdapter.IndexOfTag(tag);
             if (AddTag(tag) && index != -1)
-                _tagsAdapter.NotifyItemRemoved(index);
+                _postSearchTagsAdapter.NotifyItemRemoved(index);
 
             TagEdit.Text = string.Empty;
         }
@@ -445,13 +405,13 @@ namespace Steepshot.Fragment
 
             PreviousQuery = text;
             TagsList.ScrollToPosition(0);
-            TagPickerFacade.Clear();
+            _tagPickerFacade.Clear();
 
             Exception exception = null;
             if (text.Length == 0)
-                exception = await TagPickerFacade.TryGetTopTags();
+                exception = await _tagPickerFacade.TryGetTopTags();
             else if (text.Length > 1)
-                exception = await TagPickerFacade.TryLoadNext(text);
+                exception = await _tagPickerFacade.TryLoadNext(text);
 
             if (IsInitialized)
                 return;

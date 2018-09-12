@@ -6,7 +6,6 @@ using Android.Util;
 using Android.Views;
 using Android.Widget;
 using Square.Picasso;
-using Steepshot.Adapter;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Utils;
@@ -17,9 +16,7 @@ namespace Steepshot.Fragment
     public class PostEditFragment : PostPrepareBaseFragment
     {
         private readonly Post _editPost;
-        private GalleryHorizontalAdapter _galleryAdapter;
-
-        protected override GalleryHorizontalAdapter GalleryAdapter => _galleryAdapter ?? (_galleryAdapter = new GalleryHorizontalAdapter(_editPost));
+        private MediaAdapter _galleryAdapter;
 
         public PostEditFragment(Post post)
         {
@@ -32,6 +29,7 @@ namespace Steepshot.Fragment
                 return;
 
             base.OnViewCreated(view, savedInstanceState);
+            _galleryAdapter = new MediaAdapter(_editPost);
 
             SetEditPost();
 
@@ -41,7 +39,7 @@ namespace Steepshot.Fragment
                 Photos.Visibility = ViewStates.Visible;
                 PreviewContainer.Visibility = ViewStates.Gone;
                 Photos.SetLayoutManager(new LinearLayoutManager(Activity, LinearLayoutManager.Horizontal, false));
-                Photos.SetAdapter(GalleryAdapter);
+                Photos.SetAdapter(_galleryAdapter);
                 Photos.AddItemDecoration(new ListItemDecoration((int)TypedValue.ApplyDimension(ComplexUnitType.Dip, 10, Resources.DisplayMetrics)));
             }
             else
@@ -73,7 +71,7 @@ namespace Steepshot.Fragment
             Model.Title = Title.Text;
             Model.Description = Description.Text;
             Model.Tags = LocalTagsAdapter.LocalTags.ToArray();
-            TryCreateOrEditPost(false);
+            TryCreateOrEditPost();
         }
 
         protected void PreviewOnTouch(object sender, View.TouchEventArgs touchEventArgs)
@@ -94,5 +92,65 @@ namespace Steepshot.Fragment
                 AddTag(editPostTag);
             }
         }
+
+        #region Adapter
+
+        private class MediaAdapter : RecyclerView.Adapter
+        {
+            private readonly MediaModel[] _postMedia;
+
+            public MediaAdapter(Post post)
+            {
+                _postMedia = post.Media;
+            }
+
+            public override void OnBindViewHolder(RecyclerView.ViewHolder holder, int position)
+            {
+                var galleryHolder = (MediaViewHolder)holder;
+                galleryHolder?.Update(_postMedia[position]);
+            }
+
+            public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
+            {
+                var maxWidth = Style.GalleryHorizontalScreenWidth;
+                var maxHeight = Style.GalleryHorizontalHeight;
+
+                var previewSize = BitmapUtils.CalculateImagePreviewSize(_postMedia[0].Size.Width, _postMedia[0].Size.Height, maxWidth, maxHeight);
+
+                var cardView = new CardView(parent.Context)
+                {
+                    LayoutParameters = new FrameLayout.LayoutParams(previewSize.Width, previewSize.Height),
+                    Radius = BitmapUtils.DpToPixel(5, parent.Resources)
+                };
+                var image = new ImageView(parent.Context)
+                {
+                    Id = Resource.Id.photo,
+                    LayoutParameters = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MatchParent, ViewGroup.LayoutParams.MatchParent)
+                };
+                image.SetScaleType(ImageView.ScaleType.FitXy);
+                cardView.AddView(image);
+                return new MediaViewHolder(cardView);
+            }
+
+            public override int ItemCount => _postMedia.Length;
+        }
+
+        private class MediaViewHolder : RecyclerView.ViewHolder
+        {
+            private readonly ImageView _image;
+            public MediaViewHolder(View itemView) : base(itemView)
+            {
+                _image = itemView.FindViewById<ImageView>(Resource.Id.photo);
+            }
+
+            public void Update(MediaModel model)
+            {
+                var url = model.Thumbnails.Micro;
+                Picasso.With(ItemView.Context).Load(url).Into(_image);
+            }
+        }        
+
+        #endregion
+
     }
 }

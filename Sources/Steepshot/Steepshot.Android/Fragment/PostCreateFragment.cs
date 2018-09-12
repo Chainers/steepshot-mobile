@@ -11,6 +11,8 @@ using Android.Views;
 using Android.Widget;
 using Java.IO;
 using Newtonsoft.Json;
+using Steepshot.Activity;
+using Steepshot.Base;
 using Steepshot.Core;
 using Steepshot.Core.Exceptions;
 using Steepshot.Core.Localization;
@@ -27,16 +29,25 @@ namespace Steepshot.Fragment
         public static string PostCreateGalleryTemp = "PostCreateGalleryTemp" + AppSettings.User.Login;
         public static string PreparePostTemp = "PreparePostTemp" + AppSettings.User.Login;
         private readonly PreparePostModel _tepmPost;
+        private GalleryMediaAdapter _galleryAdapter;
+        private bool _isUploading;
+
+
+        protected List<GalleryMediaModel> Media { get; }
+        protected bool IsPlagiarism { get; set; }
+
 
         public PostCreateFragment(List<GalleryMediaModel> media, PreparePostModel model) : this(media)
         {
             _tepmPost = model;
         }
 
-        public PostCreateFragment(List<GalleryMediaModel> media) : base(media)
+        public PostCreateFragment(List<GalleryMediaModel> media)
         {
+            Media = media;
             _isSingleMode = media.Count == 1;
         }
+
 
         public override void OnViewCreated(View view, Bundle savedInstanceState)
         {
@@ -44,6 +55,8 @@ namespace Steepshot.Fragment
                 return;
 
             base.OnViewCreated(view, savedInstanceState);
+
+            _galleryAdapter = new GalleryMediaAdapter(Media);
 
             if (_tepmPost != null)
             {
@@ -82,7 +95,7 @@ namespace Steepshot.Fragment
                 Photos.AddItemDecoration(new ListItemDecoration(Style.Margin10));
                 Photos.LayoutParameters.Height = Style.GalleryHorizontalHeight;
 
-                Photos.SetAdapter(GalleryAdapter);
+                Photos.SetAdapter(_galleryAdapter);
             }
 
             await ConvertAndSave();
@@ -133,7 +146,7 @@ namespace Steepshot.Fragment
                                 if (_isSingleMode)
                                     Preview.SetImageBitmap(Media[i1]);
                                 else
-                                    GalleryAdapter.NotifyItemChanged(i1);
+                                    _galleryAdapter.NotifyItemChanged(i1);
                             });
                         }
                     }
@@ -259,7 +272,6 @@ namespace Steepshot.Fragment
             }
         }
 
-        private bool _isUploading = false;
         private async Task StartUploadMedia(bool delayStart = false)
         {
             _isUploading = true;
@@ -460,12 +472,17 @@ namespace Steepshot.Fragment
             }
             else
             {
-                var isCreated = await TryCreateOrEditPost();
-                if (isCreated)
-                    Activity.ShowAlert(LocalizationKeys.PostDelay, ToastLength.Long);
+                await CheckForPlagiarism();
+
+                if (!IsPlagiarism)
+                {
+                    var isCreated = await TryCreateOrEditPost();
+                    if (isCreated)
+                        Activity.ShowAlert(LocalizationKeys.PostDelay, ToastLength.Long);
+                }
             }
 
-            EnablePostAndEdit(true);
+            EnablePostAndEdit(true, true);
         }
 
         protected async Task CheckOnSpam(bool disableEditing)
@@ -505,7 +522,7 @@ namespace Steepshot.Fragment
                     }
                 }
 
-                EnablePostAndEdit(true);
+                EnablePostAndEdit(true, true);
             }
             catch (Exception ex)
             {
@@ -588,5 +605,91 @@ namespace Steepshot.Fragment
 
             return isPressed;
         }
+
+        private async Task CheckForPlagiarism()
+        {
+            IsPlagiarism = false;
+            var plagiarismCheck = await Presenter.TryCheckForPlagiarism(Model);
+
+            if (plagiarismCheck.IsSuccess)
+            {
+                if (plagiarismCheck.Result.plagiarism.IsPlagiarism)
+                {
+                    IsPlagiarism = true;
+
+                    var fragment = new PlagiarismCheckFragment(Media, _galleryAdapter, plagiarismCheck.Result.plagiarism);
+                    fragment.SetTargetFragment(this, 0);
+                    ((BaseActivity)Activity).OpenNewContentFragment(fragment);
+
+                    PostButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PublishButtonText);
+                }
+            }
+        }
+
+
+        #region Adapter
+
+        private class GalleryMediaAdapter : RecyclerView.Adapter
+        {
+            private readonly List<GalleryMediaModel> _gallery;
+
+            public GalleryMediaAdapter(List<GalleryMediaModel> gallery)
+            {
+                _gallery = gallery;
+            }
+
+            public override void OnBindViewHolder(RecyclerView.ViewHolder holder, int position)
+            {
+                var galleryHolder = (GalleryMediaViewHolder)holder;
+                galleryHolder?.Update(_gallery[position]);
+            }
+
+            public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
+            {
+                var maxWidth = Style.GalleryHorizontalScreenWidth;
+                var maxHeight = Style.GalleryHorizontalHeight;
+
+                var previewSize = BitmapUtils.CalculateImagePreviewSize(_gallery[0].Parameters, maxWidth, maxHeight);
+
+                var cardView = new CardView(parent.Context)
+                {
+                    LayoutParameters = new FrameLayout.LayoutParams(previewSize.Width, previewSize.Height),
+                    Radius = BitmapUtils.DpToPixel(5, parent.Resources)
+                };
+                var image = new ImageView(parent.Context)
+                {
+                    Id = Resource.Id.photo,
+                    LayoutParameters = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MatchParent, ViewGroup.LayoutParams.MatchParent)
+                };
+                image.SetScaleType(ImageView.ScaleType.FitXy);
+                cardView.AddView(image);
+                return new GalleryMediaViewHolder(cardView);
+            }
+
+            public override int ItemCount => _gallery.Count;
+        }
+
+        private class GalleryMediaViewHolder : RecyclerView.ViewHolder
+        {
+            private readonly ImageView _image;
+            public GalleryMediaViewHolder(View itemView) : base(itemView)
+            {
+                _image = itemView.FindViewById<ImageView>(Resource.Id.photo);
+            }
+
+            public void Update(GalleryMediaModel model)
+            {
+                _image.SetImageBitmap(null);
+                _image.SetImageResource(Style.R245G245B245);
+
+                if (model.UploadState > UploadState.ReadyToSave)
+                {
+                    var bitmap = BitmapUtils.DecodeSampledBitmapFromFile(ItemView.Context, Android.Net.Uri.Parse(model.TempPath), Style.GalleryHorizontalScreenWidth, Style.GalleryHorizontalHeight);
+                    _image.SetImageBitmap(bitmap);
+                }
+            }
+        }
+
+        #endregion
     }
 }

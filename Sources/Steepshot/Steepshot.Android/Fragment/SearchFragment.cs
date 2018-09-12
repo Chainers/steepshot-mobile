@@ -34,7 +34,7 @@ namespace Steepshot.Fragment
         private Timer _timer;
         private SearchType _searchType = SearchType.Tags;
         private ScrollListener _scrollListner;
-        private TagsAdapter _categoriesAdapter;
+        private BrowseSearchTagsAdapter _categoriesAdapter;
         private FollowersAdapter _usersSearchAdapter;
         private SearchFacade _searchFacade;
 
@@ -96,7 +96,7 @@ namespace Steepshot.Fragment
 
             _searchFacade.UserFriendPresenter.SourceChanged += UserFriendPresenterSourceChanged;
             _searchFacade.TagsPresenter.SourceChanged += TagsPresenterSourceChanged;
-            _categoriesAdapter = new TagsAdapter(_searchFacade.TagsPresenter);
+            _categoriesAdapter = new BrowseSearchTagsAdapter(_searchFacade.TagsPresenter);
             _usersSearchAdapter = new FollowersAdapter(Activity, _searchFacade.UserFriendPresenter);
             _categories.SetAdapter(_categoriesAdapter);
             _users.SetAdapter(_usersSearchAdapter);
