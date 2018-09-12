@@ -176,7 +176,7 @@ namespace Steepshot.Activity
 
 
             Presenter.SubscriptionsUpdated += _presenter_SubscriptionsUpdated;
-            Presenter.CheckSubscriptions();
+            Presenter.TryCheckSubscriptions();
 
             PushSettings = _currentUser.PushSettings;
             EnableNotificationSwitch(false);
