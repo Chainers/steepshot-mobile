@@ -323,6 +323,7 @@ namespace Steepshot.Utils
             bitmap?.Dispose();
             bitmap = null;
             GC.Collect(0);
+            Java.Lang.JavaSystem.Gc();
         }
         
         public static FrameSize CalculateImagePreviewSize(ImageParameters param, int maxWidth, int maxHeight = int.MaxValue)

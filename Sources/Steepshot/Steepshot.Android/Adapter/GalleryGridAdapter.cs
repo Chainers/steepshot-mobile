@@ -9,13 +9,14 @@ namespace Steepshot.Adapter
     public class GalleryGridAdapter : RecyclerView.Adapter
     {
         public Action<GalleryMediaModel, int> OnItemSelected;
+        private const int ColumnCount = 3;
 
         private readonly int _cellSize;
         private GalleryMediaModel[] _media;
 
         public GalleryGridAdapter()
         {
-            _cellSize = Style.ScreenWidth / 3 - 2;
+            _cellSize = Style.ScreenWidth / ColumnCount - 2;
         }
 
         public void SetMedia(GalleryMediaModel[] media)

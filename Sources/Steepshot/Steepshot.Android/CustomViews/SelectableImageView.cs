@@ -17,6 +17,7 @@ namespace Steepshot.CustomViews
         private readonly Handler _handler = new Handler(Looper.MainLooper);
         private Paint _selectionPaint;
         private Paint _whitePaint;
+        private static readonly Drawable DefaultColor = new ColorDrawable(Style.R245G245B245);
 
         private Paint SelectionPaint => _selectionPaint ?? (_selectionPaint = new Paint(PaintFlags.AntiAlias) { Color = Style.R255G81B4, StrokeWidth = BitmapUtils.DpToPixel(6, Context.Resources) });
         private Paint WhitePaint => _whitePaint ?? (_whitePaint = new Paint(PaintFlags.AntiAlias) { Color = Color.White, StrokeWidth = BitmapUtils.DpToPixel(1, Context.Resources), TextSize = BitmapUtils.DpToPixel(16, Context.Resources), TextAlign = Paint.Align.Center });
@@ -63,10 +64,11 @@ namespace Steepshot.CustomViews
 
         public void Bind(GalleryMediaModel model)
         {
-            if (_model != null)
+            SetImageDrawable(DefaultColor);
+
+            if (Drawable is BitmapDrawable db)
             {
-                (Drawable as BitmapDrawable)?.Bitmap?.Recycle();
-                SetImageDrawable(new ColorDrawable(Style.R245G245B245));
+                BitmapUtils.ReleaseBitmap(db.Bitmap);
             }
 
             _model = model;
