@@ -37,7 +37,7 @@ namespace Steepshot.Fragment
 
         private void PreviewOnTouch(object sender, View.TouchEventArgs touchEventArgs)
         {
-            if (Media[0].UploadState == UploadState.None)
+            if (Media[0].UploadState < UploadState.ReadyToSave)
             {
                 Preview.OnTouchEvent(touchEventArgs.Event);
                 if (touchEventArgs.Event.Action == MotionEventActions.Down)
