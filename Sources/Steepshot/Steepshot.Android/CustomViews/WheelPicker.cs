@@ -91,7 +91,7 @@ namespace Steepshot.CustomViews
             {
                 var txtRow = new TextView(Context)
                 {
-                    Text = item.ToString(),
+                    Text = item.ToString().ToUpper(),
                     TextSize = (int)TypedValue.ApplyDimension(ComplexUnitType.Sp, 9, Context.Resources.DisplayMetrics),
                     Typeface = Style.Light,
                     Gravity = GravityFlags.Center
