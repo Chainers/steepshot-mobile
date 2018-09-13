@@ -63,15 +63,6 @@ namespace Steepshot.Base
 
         public override void OnTrimMemory(TrimMemory level)
         {
-            if (level == TrimMemory.Complete)
-            {
-                if (AppSettings.Container != null)
-                {
-                    AppSettings.Container.Dispose();
-                    AppSettings.Container = null;
-                }
-            }
-
             GC.Collect();
             JavaSystem.Gc();
             base.OnTrimMemory(level);
