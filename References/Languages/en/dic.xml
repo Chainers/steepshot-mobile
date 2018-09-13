@@ -241,7 +241,7 @@ About 6 inches away</string>
     <string name="Cannot find posts for user">Cannot find posts</string>
     <string name="InsufficientBalance">Insufficient balance. Current balance: {0}</string>
 
-    <string name="unknown key">unknown key</string>
+    <string name="unknown key">Post not found (deleted or not available)</string>
     <string name="The comment is archived">The comment is archived</string>
     <string name="bandwidth limit">Bandwidth limit exceeded. Please wait to transact or power up STEEM.</string>
     <string name="already submitted a custom json operation this block">Account already submitted a custom json operation this block.</string>

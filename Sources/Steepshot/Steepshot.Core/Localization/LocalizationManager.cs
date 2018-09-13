@@ -168,12 +168,13 @@ namespace Steepshot.Core.Localization
                 }
                 if (string.IsNullOrEmpty(result))
                 {
-                    var t = 0;
+                    var keyLength = 0;
                     foreach (var item in Model.Map)
                     {
-                        if (key.Contains(item.Key) && t < item.Key.Length)
+                        if (key.Contains(item.Key) && keyLength < item.Key.Length)
                         {
                             result = item.Value;
+                            keyLength = item.Key.Length;
                         }
                     }
                 }
