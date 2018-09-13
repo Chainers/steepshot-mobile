@@ -461,8 +461,10 @@ namespace Steepshot.Fragment
             if (updateType == ProfileUpdateType.Full)
             {
                 _listSpinner.Visibility = ViewStates.Visible;
-                GetUserPosts(true).ContinueWith(_ => Activity.RunOnUiThread(() =>
-                     _listSpinner.Visibility = ViewStates.Gone));
+                await GetUserPosts(true);
+                if (!IsInitialized)
+                    return;
+                _listSpinner.Visibility = ViewStates.Gone;
             }
             await LoadProfile();
         }
