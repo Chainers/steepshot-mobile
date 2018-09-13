@@ -10,6 +10,7 @@ using Android.Support.V4.Content;
 using Android.Support.V7.App;
 using Android.Views;
 using Android.Views.InputMethods;
+using Java.Lang;
 using Steepshot.Core.Utils;
 using Steepshot.Fragment;
 
@@ -72,7 +73,7 @@ namespace Steepshot.Base
             }
 
             GC.Collect();
-            GC.Collect(GC.MaxGeneration);
+            JavaSystem.Gc();
             base.OnTrimMemory(level);
         }
 

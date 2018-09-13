@@ -324,12 +324,6 @@ namespace Steepshot.Utils
             bitmap.Recycle();
             bitmap.Dispose();
             bitmap = null;
-            var runtime = Runtime.GetRuntime();
-            if (runtime.TotalMemory() - runtime.FreeMemory() > 200000000)
-            {
-                GC.Collect();
-                JavaSystem.Gc();
-            }
         }
 
         public static FrameSize CalculateImagePreviewSize(ImageParameters param, int maxWidth, int maxHeight = int.MaxValue)
