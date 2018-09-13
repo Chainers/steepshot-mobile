@@ -9,10 +9,12 @@ using Android.Provider;
 using Android.Views;
 using System.Collections.Generic;
 using System.Reflection;
+using Java.Lang;
 using Steepshot.Core.Models.Common;
 using Steepshot.CustomViews;
 using Environment = Android.OS.Environment;
 using File = Java.IO.File;
+using Math = System.Math;
 using Uri = Android.Net.Uri;
 
 namespace Steepshot.Utils
@@ -319,13 +321,17 @@ namespace Steepshot.Utils
         public static void ReleaseBitmap(Bitmap bitmap)
         {
             if (bitmap == null || bitmap.Handle == IntPtr.Zero) return;
-            bitmap?.Recycle();
-            bitmap?.Dispose();
+            bitmap.Recycle();
+            bitmap.Dispose();
             bitmap = null;
-            GC.Collect(0);
-            Java.Lang.JavaSystem.Gc();
+            var runtime = Runtime.GetRuntime();
+            if (runtime.TotalMemory() - runtime.FreeMemory() > 200000000)
+            {
+                GC.Collect();
+                JavaSystem.Gc();
+            }
         }
-        
+
         public static FrameSize CalculateImagePreviewSize(ImageParameters param, int maxWidth, int maxHeight = int.MaxValue)
         {
             var bounds = param.CropBounds;
