@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Text.RegularExpressions;
 using Ditch.Core;
 using Steepshot.Core.Localization;
+using Steepshot.Core.Models.Common;
 using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Extensions
@@ -81,9 +82,18 @@ namespace Steepshot.Core.Extensions
             return rez;
         }
 
-        public static string GetProxy(this string link, int width, int height)
+        public static string GetImageProxy(this string link, int width, int height)
         {
             return $"{string.Format(Constants.ProxyForAvatars, width, height)}{link}";
+        }
+
+        public static string GetImageProxy(this MediaModel mediaModel, int width)
+        {
+            var url = mediaModel.Url;
+            if (!string.IsNullOrEmpty(mediaModel.ContentType) && mediaModel.ContentType.StartsWith("video"))
+                url = mediaModel.Thumbnails.Mini;
+
+            return $"{string.Format(Constants.ProxyForAvatars, width)}{url}";
         }
 
         public static string ToBalanceValueString(this double value)

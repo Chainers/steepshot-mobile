@@ -118,7 +118,7 @@ namespace Steepshot.Fragment
                 return heightDiff;
             }
         }
-        private bool IsKeyboardOpening => LytHeightDiff > ViewUtils.KeyboardVisibilityThreshold;
+        private bool IsKeyboardOpening => LytHeightDiff > Style.KeyboardVisibilityThreshold;
 
         public TransferFragment() : this(AppSettings.User.UserInfo)
         {
@@ -364,14 +364,14 @@ namespace Steepshot.Fragment
             {
                 if (!string.IsNullOrEmpty(_transferFacade.Recipient.Avatar))
                     Picasso.With(Activity)
-                        .Load(_transferFacade.Recipient.Avatar.GetProxy(_recipientAvatar.LayoutParameters.Width, _recipientAvatar.LayoutParameters.Height))
+                        .Load(_transferFacade.Recipient.Avatar.GetImageProxy(_recipientAvatar.LayoutParameters.Width, _recipientAvatar.LayoutParameters.Height))
                         .Placeholder(Resource.Drawable.ic_holder)
                         .NoFade()
                         .Priority(Picasso.Priority.Normal)
                         .Into(_recipientAvatar, null, () =>
                         {
                             Picasso.With(Activity)
-                                .Load(_transferFacade.Recipient.Avatar.GetProxy(_recipientAvatar.LayoutParameters.Width, _recipientAvatar.LayoutParameters.Height))
+                                .Load(_transferFacade.Recipient.Avatar.GetImageProxy(_recipientAvatar.LayoutParameters.Width, _recipientAvatar.LayoutParameters.Height))
                                 .Placeholder(Resource.Drawable.ic_holder)
                                 .NoFade()
                                 .Priority(Picasso.Priority.Normal)
@@ -613,15 +613,13 @@ namespace Steepshot.Fragment
 
         private async void TransferBtnOnClick(object sender, EventArgs e)
         {
-            State = FragmentState.Transfer;
-
             if (!await Validate())
             {
                 State = FragmentState.TransferPrepare;
                 return;
             }
 
-            Transfer();
+            TransferConfirmation();
         }
 
         private void TransferBtnOnTouch(object sender, View.TouchEventArgs e)
@@ -632,8 +630,21 @@ namespace Steepshot.Fragment
             e.Handled = false;
         }
 
+        private void TransferConfirmation()
+        {
+            var transferConfirmation = AppSettings.LocalizationManager.GetText(LocalizationKeys.TransferConfirmation, _transferAmountEdit.Text, _pickedCoin, _transferFacade.Recipient.Author);
+            var actionAlert = new ActionAlertDialog(Context, transferConfirmation,
+                                                    AppSettings.LocalizationManager.GetText(string.Empty),
+                                                    AppSettings.LocalizationManager.GetText(LocalizationKeys.Yes),
+                                                    AppSettings.LocalizationManager.GetText(LocalizationKeys.No), AutoLinkAction, Orientation.Vertical);
+            actionAlert.AlertAction += Transfer;
+            actionAlert.Show();
+        }
+
         private async void Transfer()
         {
+            State = FragmentState.Transfer;
+
             if (_transferFacade.UserBalance == null)
                 return;
 
@@ -656,8 +667,7 @@ namespace Steepshot.Fragment
         {
             if (requestCode == ActiveSignInActivity.ActiveKeyRequestCode && resultCode == (int)Result.Ok)
             {
-                State = FragmentState.Transfer;
-                Transfer();
+                TransferConfirmation();
             }
 
             base.OnActivityResult(requestCode, resultCode, data);

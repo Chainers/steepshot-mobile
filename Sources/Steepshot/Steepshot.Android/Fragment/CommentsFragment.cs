@@ -18,6 +18,7 @@ using Android.Text;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Utils;
+using Steepshot.CustomViews;
 
 namespace Steepshot.Fragment
 {
@@ -34,7 +35,7 @@ namespace Steepshot.Fragment
         private CommentAdapter _adapter;
         private bool _openKeyboard;
         private LinearLayoutManager _manager;
-        private int _counter = 0;
+        private int _counter;
         private GradientDrawable _textInputShape;
 
 #pragma warning disable 0649, 4014
@@ -336,11 +337,19 @@ namespace Steepshot.Fragment
                     }
                 case ActionType.Delete:
                     {
-                        var exception = await Presenter.TryDeleteComment(post, _post);
-                        if (!IsInitialized)
-                            return;
+                        var actionAlert = new ActionAlertDialog(Activity, AppSettings.LocalizationManager.GetText(LocalizationKeys.DeleteAlertTitle),
+                            AppSettings.LocalizationManager.GetText(LocalizationKeys.DeleteAlertMessage),
+                            AppSettings.LocalizationManager.GetText(LocalizationKeys.Delete),
+                            AppSettings.LocalizationManager.GetText(LocalizationKeys.Cancel), AutoLinkAction);
+                        actionAlert.AlertAction += async () =>
+                        {
+                            var exception = await Presenter.TryDeleteComment(post, _post);
+                            if (!IsInitialized)
+                                return;
 
-                        Context.ShowAlert(exception);
+                            Context.ShowAlert(exception);
+                        };
+                        actionAlert.Show();
                         break;
                     }
             }

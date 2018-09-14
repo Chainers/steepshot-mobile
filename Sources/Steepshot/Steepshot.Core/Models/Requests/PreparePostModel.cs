@@ -57,7 +57,6 @@ namespace Steepshot.Core.Models.Requests
 
         [JsonProperty]
         [Required(ErrorMessage = nameof(LocalizationKeys.EmptyFileField))]
-
         public MediaModel[] Media { get; set; }
 
         [JsonProperty]
@@ -80,6 +79,9 @@ namespace Steepshot.Core.Models.Requests
                 return _category;
             }
         }
+
+
+        public PreparePostModel() { }
 
         public PreparePostModel(UserInfo user, string device) : base(user)
         {

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -33,71 +32,54 @@ namespace Steepshot.Fragment
     {
         #region Fields
 
-        protected GalleryHorizontalAdapter GalleryAdapter => _galleryAdapter ?? (_galleryAdapter = new GalleryHorizontalAdapter(_media));
-        protected readonly List<GalleryMediaModel> _media;
-        protected TimeSpan PostingLimit;
-        protected Timer _timer;
-        protected GalleryHorizontalAdapter _galleryAdapter;
-        protected SelectedTagsAdapter _localTagsAdapter;
-        protected TagsAdapter _tagsAdapter;
-        protected PreparePostModel _model;
-        protected string _previousQuery;
-        protected TagPickerFacade _tagPickerFacade;
-        protected bool isSpammer;
-        protected bool isPlagiarism;
+        private SelectedTagsAdapter _localTagsAdapter;
+        private PostSearchTagsAdapter _postSearchTagsAdapter;
+        private TagPickerFacade _tagPickerFacade;
 
 #pragma warning disable 0649, 4014
-        [BindView(Resource.Id.btn_back)] protected ImageButton _backButton;
-        [BindView(Resource.Id.root_layout)] protected RelativeLayout _rootLayout;
-        [BindView(Resource.Id.photos)] protected RecyclerView _photos;
-        [BindView(Resource.Id.ratio_switch)] protected ImageButton _ratioBtn;
-        [BindView(Resource.Id.rotate)] protected ImageButton _rotateBtn;
-        [BindView(Resource.Id.photo_preview)] protected CropView _preview;
-        [BindView(Resource.Id.photo_preview_container)] protected RelativeLayout _previewContainer;
-        [BindView(Resource.Id.photos_layout)] protected RelativeLayout _photosContainer;
-        [BindView(Resource.Id.title)] protected EditText _title;
-        [BindView(Resource.Id.title_layout)] protected RelativeLayout _titleContainer;
-        [BindView(Resource.Id.description)] protected EditText _description;
-        [BindView(Resource.Id.description_layout)] protected RelativeLayout _descriptionContainer;
-        [BindView(Resource.Id.scroll_container)] protected ScrollView _descriptionScrollContainer;
-        [BindView(Resource.Id.tag)] protected NewTextEdit _tag;
-        [BindView(Resource.Id.add_tag)] protected TextView _tagLabel;
-        [BindView(Resource.Id.clear_edit)] protected ImageView _clearEdit;
-        [BindView(Resource.Id.tag_label)] protected RelativeLayout _tagLabelContainer;
-        [BindView(Resource.Id.local_tags_list)] protected RecyclerView _localTagsList;
-        [BindView(Resource.Id.flow_tags)] protected FlowLayout _tagsFlow;
-        [BindView(Resource.Id.tags_layout)] protected LinearLayout _tagsContainer;
-        [BindView(Resource.Id.tags_list)] protected RecyclerView _tagsList;
-        [BindView(Resource.Id.tags_list_layout)] protected LinearLayout _tagsListContainer;
-        [BindView(Resource.Id.btn_post)] protected Button _postButton;
-        [BindView(Resource.Id.loading_spinner)] protected ProgressBar _loadingSpinner;
-        [BindView(Resource.Id.btn_post_layout)] protected RelativeLayout _postBtnContainer;
-        [BindView(Resource.Id.page_title)] protected TextView _pageTitle;
-        [BindView(Resource.Id.top_margin_tags_layout)] protected RelativeLayout _topMarginTagsLayout;
-        [BindView(Resource.Id.toolbar)] protected LinearLayout _topPanel;
+        [BindView(Resource.Id.btn_back)] protected ImageButton BackButton;
+        [BindView(Resource.Id.root_layout)] protected RelativeLayout RootLayout;
+        [BindView(Resource.Id.photos)] protected RecyclerView Photos;
+        [BindView(Resource.Id.ratio_switch)] protected ImageButton RatioBtn;
+        [BindView(Resource.Id.rotate)] protected ImageButton RotateBtn;
+        [BindView(Resource.Id.photo_preview)] protected CropView Preview;
+        [BindView(Resource.Id.photo_preview_container)] protected RelativeLayout PreviewContainer;
+        [BindView(Resource.Id.photos_layout)] protected RelativeLayout PhotosContainer;
+        [BindView(Resource.Id.title)] protected EditText Title;
+        [BindView(Resource.Id.title_layout)] protected RelativeLayout TitleContainer;
+        [BindView(Resource.Id.description)] protected EditText Description;
+        [BindView(Resource.Id.description_layout)] protected RelativeLayout DescriptionContainer;
+        [BindView(Resource.Id.scroll_container)] protected ScrollView DescriptionScrollContainer;
+        [BindView(Resource.Id.tag)] protected NewTextEdit TagEdit;
+        [BindView(Resource.Id.add_tag)] protected TextView TagLabel;
+        [BindView(Resource.Id.clear_edit)] protected ImageView ClearEdit;
+        [BindView(Resource.Id.tag_label)] protected RelativeLayout TagLabelContainer;
+        [BindView(Resource.Id.local_tags_list)] protected RecyclerView LocalTagsList;
+        [BindView(Resource.Id.flow_tags)] protected FlowLayout TagsFlow;
+        [BindView(Resource.Id.tags_list)] protected RecyclerView TagsList;
+        [BindView(Resource.Id.tags_list_layout)] protected LinearLayout TagsListContainer;
+        [BindView(Resource.Id.btn_post)] protected Button PostButton;
+        [BindView(Resource.Id.loading_spinner)] protected ProgressBar LoadingSpinner;
+        [BindView(Resource.Id.btn_post_layout)] protected RelativeLayout PostBtnContainer;
+        [BindView(Resource.Id.page_title)] protected TextView PageTitle;
+        [BindView(Resource.Id.toolbar)] protected LinearLayout TopPanel;
+
+        [BindView(Resource.Id.tags_layout)] protected LinearLayout TagsContainer;
+        [BindView(Resource.Id.top_margin_tags_layout)] protected RelativeLayout TopMarginTagsLayout;
 
         #endregion
 
         #region Properties
 
-        protected TagsAdapter TagsAdapter => _tagsAdapter ?? (_tagsAdapter = new TagsAdapter(_tagPickerFacade));
+        protected TimeSpan PostingLimit { get; set; }
+        protected Timer Timer { get; set; }
+        protected PreparePostModel Model { get; set; }
+        protected string PreviousQuery { get; set; }
+        protected bool IsSpammer { get; set; }
+
         protected SelectedTagsAdapter LocalTagsAdapter => _localTagsAdapter ?? (_localTagsAdapter = new SelectedTagsAdapter());
 
         #endregion
-
-        public PostPrepareBaseFragment()
-        {
-        }
-
-        public PostPrepareBaseFragment(List<GalleryMediaModel> media)
-        {
-            _media = media;
-        }
-
-        public PostPrepareBaseFragment(GalleryMediaModel media)
-        {
-            _media = new List<GalleryMediaModel> { media };
-        }
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
@@ -117,50 +99,52 @@ namespace Steepshot.Fragment
 
             base.OnViewCreated(view, savedInstanceState);
 
-            _tag.Hint = AppSettings.LocalizationManager.GetText(LocalizationKeys.Hashtag);
-            _tag.SetFilters(new IInputFilter[] { new TextInputFilter(TextInputFilter.TagFilter), new InputFilterLengthFilter(40) });
-            _tagLabel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Hashtag);
-            _title.Hint = AppSettings.LocalizationManager.GetText(LocalizationKeys.EnterPostTitle);
-            _description.Hint = AppSettings.LocalizationManager.GetText(LocalizationKeys.EnterPostDescription);
-            _postButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PublishButtonText);
-            _pageTitle.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PostSettings);
+            TagEdit.Hint = AppSettings.LocalizationManager.GetText(LocalizationKeys.Hashtag);
+            TagEdit.SetFilters(new IInputFilter[] { new TextInputFilter(TextInputFilter.TagFilter), new InputFilterLengthFilter(40) });
+            TagLabel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Hashtag);
+            Title.Hint = AppSettings.LocalizationManager.GetText(LocalizationKeys.EnterPostTitle);
+            Description.Hint = AppSettings.LocalizationManager.GetText(LocalizationKeys.EnterPostDescription);
+            PostButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PublishButtonText);
+            PageTitle.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PostSettings);
 
-            _pageTitle.Typeface = Style.Semibold;
-            _title.Typeface = Style.Regular;
-            _description.Typeface = Style.Regular;
-            _postButton.Typeface = Style.Semibold;
-            _tagLabel.Typeface = Style.Regular;
+            PageTitle.Typeface = Style.Semibold;
+            Title.Typeface = Style.Regular;
+            Description.Typeface = Style.Regular;
+            PostButton.Typeface = Style.Semibold;
+            TagLabel.Typeface = Style.Regular;
 
-            _postButton.Click += OnPost;
-            _postButton.Enabled = true;
+            PostButton.Click += OnPost;
+            PostButton.Enabled = true;
 
-            _topPanel.BringToFront();
+            TopPanel.BringToFront();
 
-            _localTagsList.SetLayoutManager(new LinearLayoutManager(Activity, LinearLayoutManager.Horizontal, false));
+            LocalTagsList.SetLayoutManager(new LinearLayoutManager(Activity, LinearLayoutManager.Horizontal, false));
             LocalTagsAdapter.Click += LocalTagsAdapterClick;
-            _localTagsList.SetAdapter(LocalTagsAdapter);
-            _localTagsList.AddItemDecoration(new ListItemDecoration((int)TypedValue.ApplyDimension(ComplexUnitType.Dip, 15, Resources.DisplayMetrics)));
+            LocalTagsList.SetAdapter(LocalTagsAdapter);
+            LocalTagsList.AddItemDecoration(new ListItemDecoration((int)TypedValue.ApplyDimension(ComplexUnitType.Dip, 15, Resources.DisplayMetrics)));
 
             var client = App.MainChain == KnownChains.Steem ? App.SteemClient : App.GolosClient;
             _tagPickerFacade = new TagPickerFacade(_localTagsAdapter.LocalTags);
             _tagPickerFacade.SetClient(client);
             _tagPickerFacade.SourceChanged += TagPickerFacadeOnSourceChanged;
 
-            _tagsList.SetLayoutManager(new LinearLayoutManager(Activity));
-            TagsAdapter.Click += OnTagsAdapterClick;
-            _tagsList.SetAdapter(TagsAdapter);
+            _postSearchTagsAdapter = new PostSearchTagsAdapter(_tagPickerFacade);
 
-            _tagLabel.Click += TagLabelOnClick;
-            _tag.TextChanged += OnTagOnTextChanged;
-            _tag.KeyboardDownEvent += HideTagsList;
-            _tag.OkKeyEvent += HideTagsList;
-            _clearEdit.Click += (sender, args) => _tag.Text = string.Empty;
+            TagsList.SetLayoutManager(new LinearLayoutManager(Activity));
+            _postSearchTagsAdapter.Click += OnTagsAdapterClick;
+            TagsList.SetAdapter(_postSearchTagsAdapter);
 
-            _backButton.Click += OnBack;
-            _rootLayout.Click += OnRootLayoutClick;
+            TagLabel.Click += TagLabelOnClick;
+            TagEdit.TextChanged += OnTagOnTextChanged;
+            TagEdit.KeyboardDownEvent += HideTagsList;
+            TagEdit.OkKeyEvent += HideTagsList;
+            ClearEdit.Click += (sender, args) => TagEdit.Text = string.Empty;
 
-            _timer = new Timer(OnTimer);
-            _model = new PreparePostModel(AppSettings.User.UserInfo, AppSettings.AppInfo.GetModel());
+            BackButton.Click += OnBack;
+            RootLayout.Click += OnRootLayoutClick;
+
+            Timer = new Timer(OnTimer);
+            Model = new PreparePostModel(AppSettings.User.UserInfo, AppSettings.AppInfo.GetModel());
         }
 
         public override void OnDetach()
@@ -177,14 +161,20 @@ namespace Steepshot.Fragment
 
             Activity.RunOnUiThread(() =>
             {
-                _tagsAdapter.NotifyDataSetChanged();
+                _postSearchTagsAdapter.NotifyDataSetChanged();
             });
         }
 
         private async void OnPost(object sender, EventArgs e)
         {
-            _postButton.Text = string.Empty;
-            EnablePostAndEdit(false);
+            EnablePostAndEdit(false, true);
+
+            if (string.IsNullOrEmpty(Title.Text))
+            {
+                Activity.ShowAlert(LocalizationKeys.EmptyTitleField, ToastLength.Long);
+                EnabledPost();
+                return;
+            }
 
             var isConnected = AppSettings.ConnectionService.IsConnectionAvailable();
 
@@ -195,46 +185,39 @@ namespace Steepshot.Fragment
                 return;
             }
 
-            if (string.IsNullOrEmpty(_title.Text))
-            {
-                Activity.ShowAlert(LocalizationKeys.EmptyTitleField, ToastLength.Long);
-                EnabledPost();
-                return;
-            }
-
             await OnPostAsync();
         }
 
         protected abstract Task OnPostAsync();
 
-        protected void EnablePostAndEdit(bool enabled, bool enableFields = true)
+        protected void EnablePostAndEdit(bool enabled, bool enableFields)
         {
             if (enabled)
             {
-                _loadingSpinner.Visibility = ViewStates.Gone;
+                LoadingSpinner.Visibility = ViewStates.Gone;
             }
             else
             {
-                _postButton.Text = string.Empty;
-                _loadingSpinner.Visibility = ViewStates.Visible;
+                PostButton.Text = string.Empty;
+                LoadingSpinner.Visibility = ViewStates.Visible;
             }
 
-            _postButton.Enabled = enabled;
+            PostButton.Enabled = enabled;
 
             if (enableFields)
             {
-                _title.Enabled = enabled;
-                _description.Enabled = enabled;
-                _tag.Enabled = enabled;
+                Title.Enabled = enabled;
+                Description.Enabled = enabled;
+                TagEdit.Enabled = enabled;
                 _localTagsAdapter.Enabled = enabled;
-                _tagLabel.Enabled = enabled;
+                TagLabel.Enabled = enabled;
             }
         }
 
         protected void EnabledPost()
         {
-            _postButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PublishButtonText);
-            EnablePostAndEdit(true);
+            PostButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PublishButtonText);
+            EnablePostAndEdit(true, true);
         }
 
         protected void ForgetAction(object o, DialogClickEventArgs dialogClickEventArgs)
@@ -247,23 +230,15 @@ namespace Steepshot.Fragment
             TryCreateOrEditPost();
         }
 
-        protected async Task<bool> TryCreateOrEditPost(bool checkForPlagiarism = true)
+        protected async Task<bool> TryCreateOrEditPost()
         {
-            if (_model.Media == null)
+            if (Model.Media == null)
             {
                 EnabledPost();
                 return false;
             }
 
-            if (checkForPlagiarism)
-            {
-                await CheckForPlagiarism();
-
-                if (isPlagiarism)
-                    return false;
-            }
-
-            var resp = await Presenter.TryCreateOrEditPost(_model);
+            var resp = await Presenter.TryCreateOrEditPost(Model);
 
             if (!IsInitialized)
                 return false;
@@ -273,6 +248,7 @@ namespace Steepshot.Fragment
                 AppSettings.User.UserInfo.LastPostTime = DateTime.Now;
                 EnabledPost();
                 AppSettings.ProfileUpdateType = ProfileUpdateType.Full;
+                OnPostSuccess();
                 if (Activity is SplashActivity || Activity is CameraActivity)
                     Activity.Finish();
                 else
@@ -284,45 +260,30 @@ namespace Steepshot.Fragment
             return false;
         }
 
-        private async Task CheckForPlagiarism()
+        protected virtual void OnPostSuccess()
         {
-            isPlagiarism = false;
-            var plagiarismCheck = await Presenter.TryCheckForPlagiarism(_model);
-
-            if (plagiarismCheck.IsSuccess)
-            {
-                if (plagiarismCheck.Result.plagiarism.IsPlagiarism)
-                {
-                    isPlagiarism = true;
-
-                    var fragment = new PlagiarismCheckFragment(_media, GalleryAdapter, plagiarismCheck.Result.plagiarism);
-                    fragment.SetTargetFragment(this, 0);
-                    ((BaseActivity)Activity).OpenNewContentFragment(fragment);
-
-                    _postButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PublishButtonText);
-                }
-            }
+            //todo nothing
         }
 
         public override void OnActivityResult(int requestCode, int resultCode, Intent data)
         {
             if (resultCode == (int)Result.Ok)
             {
-                EnablePostAndEdit(false);
-                TryCreateOrEditPost(false);
+                EnablePostAndEdit(false, true);
+                TryCreateOrEditPost();
             }
             else if (resultCode == (int)Result.Canceled)
             {
                 EnabledPost();
-                EnablePostAndEdit(true);
+                EnablePostAndEdit(true, true);
             }
         }
 
         private void TagLabelOnClick(object sender, EventArgs e)
         {
             AnimateTagsLayout(true);
-            _tag.RequestFocus();
-            ((BaseActivity)Activity).OpenKeyboard(_tag);
+            TagEdit.RequestFocus();
+            ((BaseActivity)Activity).OpenKeyboard(TagEdit);
         }
 
         protected void LocalTagsAdapterClick(string tag)
@@ -331,9 +292,9 @@ namespace Steepshot.Fragment
                 return;
 
             RemoveTag(tag);
-            var index = _tagsAdapter.IndexOfTag(tag);
+            var index = _postSearchTagsAdapter.IndexOfTag(tag);
             if (index != -1)
-                _tagsAdapter.NotifyItemInserted(index);
+                _postSearchTagsAdapter.NotifyItemInserted(index);
         }
 
         protected void OnTagOnTextChanged(object sender, TextChangedEventArgs e)
@@ -343,17 +304,17 @@ namespace Steepshot.Fragment
             {
                 if (txt.EndsWith(" "))
                 {
-                    _tag.Text = string.Empty;
+                    TagEdit.Text = string.Empty;
                     AddTag(txt);
                 }
 
-                _clearEdit.Visibility = ViewStates.Visible;
+                ClearEdit.Visibility = ViewStates.Visible;
             }
             else
             {
-                _clearEdit.Visibility = ViewStates.Invisible;
+                ClearEdit.Visibility = ViewStates.Invisible;
             }
-            _timer.Change(1300, Timeout.Infinite);
+            Timer.Change(1300, Timeout.Infinite);
         }
 
         protected void OnTagsAdapterClick(string tag)
@@ -361,23 +322,23 @@ namespace Steepshot.Fragment
             if (string.IsNullOrWhiteSpace(tag))
                 return;
 
-            var index = _tagsAdapter.IndexOfTag(tag);
+            var index = _postSearchTagsAdapter.IndexOfTag(tag);
             if (AddTag(tag) && index != -1)
-                _tagsAdapter.NotifyItemRemoved(index);
+                _postSearchTagsAdapter.NotifyItemRemoved(index);
 
-            _tag.Text = string.Empty;
+            TagEdit.Text = string.Empty;
         }
 
         protected void AnimateTagsLayout(bool openTags)
         {
-            _pageTitle.Text = AppSettings.LocalizationManager.GetText(openTags ? LocalizationKeys.AddHashtag : LocalizationKeys.PostSettings);
-            _tag.Visibility = _tagsListContainer.Visibility = openTags ? ViewStates.Visible : ViewStates.Gone;
-            _photosContainer.Visibility = _titleContainer.Visibility = _descriptionContainer.Visibility = _tagLabelContainer.Visibility = _tagsFlow.Visibility = _postBtnContainer.Visibility = openTags ? ViewStates.Gone : ViewStates.Visible;
-            _localTagsList.Visibility = openTags && _localTagsAdapter.LocalTags.Count > 0 ? ViewStates.Visible : ViewStates.Gone;
+            PageTitle.Text = AppSettings.LocalizationManager.GetText(openTags ? LocalizationKeys.AddHashtag : LocalizationKeys.PostSettings);
+            TagEdit.Visibility = TagsListContainer.Visibility = openTags ? ViewStates.Visible : ViewStates.Gone;
+            PhotosContainer.Visibility = TitleContainer.Visibility = DescriptionContainer.Visibility = TagLabelContainer.Visibility = TagsFlow.Visibility = PostBtnContainer.Visibility = openTags ? ViewStates.Gone : ViewStates.Visible;
+            LocalTagsList.Visibility = openTags && _localTagsAdapter.LocalTags.Count > 0 ? ViewStates.Visible : ViewStates.Gone;
             if (!openTags)
             {
-                _descriptionScrollContainer.Post(() =>
-                _descriptionScrollContainer.FullScroll(FocusSearchDirection.Down));
+                DescriptionScrollContainer.Post(() =>
+                DescriptionScrollContainer.FullScroll(FocusSearchDirection.Down));
             }
         }
 
@@ -390,9 +351,9 @@ namespace Steepshot.Fragment
             AddFlowTag(tag);
             _localTagsAdapter.LocalTags.Add(tag);
             _localTagsAdapter.NotifyDataSetChanged();
-            _localTagsList.MoveToPosition(_localTagsAdapter.LocalTags.Count - 1);
+            LocalTagsList.MoveToPosition(_localTagsAdapter.LocalTags.Count - 1);
             if (_localTagsAdapter.LocalTags.Count == 1)
-                _localTagsList.Visibility = ViewStates.Visible;
+                LocalTagsList.Visibility = ViewStates.Visible;
             return true;
         }
 
@@ -408,7 +369,7 @@ namespace Steepshot.Fragment
             var layoutParams = new FlowLayout.LayoutParams(ViewGroup.LayoutParams.WrapContent, ViewGroup.LayoutParams.WrapContent);
             layoutParams.SetMargins(0, margin, margin, margin);
             flowView.LayoutParameters = layoutParams;
-            _tagsFlow.AddView(flowView, layoutParams);
+            TagsFlow.AddView(flowView, layoutParams);
         }
 
         protected void RemoveTag(string tag)
@@ -417,14 +378,14 @@ namespace Steepshot.Fragment
             _localTagsAdapter.NotifyDataSetChanged();
             RemoveFlowTag(tag);
             if (_localTagsAdapter.LocalTags.Count == 0)
-                _localTagsList.Visibility = ViewStates.Gone;
+                LocalTagsList.Visibility = ViewStates.Gone;
         }
 
         protected void RemoveFlowTag(string tag)
         {
-            var flowView = _tagsFlow.FindViewWithTag(tag);
+            var flowView = TagsFlow.FindViewWithTag(tag);
             if (flowView != null)
-                _tagsFlow.RemoveView(flowView);
+                TagsFlow.RemoveView(flowView);
         }
 
         protected void OnTimer(object state)
@@ -437,13 +398,13 @@ namespace Steepshot.Fragment
 
         protected async Task SearchTextChanged()
         {
-            var text = _tag.Text;
+            var text = TagEdit.Text;
 
-            if (_previousQuery == text || text.Length == 1)
+            if (PreviousQuery == text || text.Length == 1)
                 return;
 
-            _previousQuery = text;
-            _tagsList.ScrollToPosition(0);
+            PreviousQuery = text;
+            TagsList.ScrollToPosition(0);
             _tagPickerFacade.Clear();
 
             Exception exception = null;
@@ -460,16 +421,16 @@ namespace Steepshot.Fragment
 
         protected void HideTagsList()
         {
-            var txt = _tag.Text = _tag.Text.Trim();
+            var txt = TagEdit.Text = TagEdit.Text.Trim();
             if (!string.IsNullOrEmpty(txt))
             {
-                _tag.Text = string.Empty;
+                TagEdit.Text = string.Empty;
                 AddTag(txt);
             }
 
             ((BaseActivity)Activity).HideKeyboard();
-            if (_tag.HasFocus)
-                _tagsList.RequestFocus();
+            if (TagEdit.HasFocus)
+                TagsList.RequestFocus();
             else
                 AnimateTagsLayout(false);
         }
@@ -487,7 +448,7 @@ namespace Steepshot.Fragment
 
         public override bool OnBackPressed()
         {
-            if (_tag.Visibility == ViewStates.Visible)
+            if (TagEdit.Visibility == ViewStates.Visible)
             {
                 HideTagsList();
                 return true;

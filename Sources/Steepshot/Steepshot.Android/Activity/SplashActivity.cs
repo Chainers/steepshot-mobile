@@ -9,6 +9,8 @@ using Steepshot.Utils;
 using Android.Content;
 using Android.Runtime;
 using Steepshot.Core.Localization;
+using Steepshot.Core.Utils;
+using Steepshot.Fragment;
 using Steepshot.Services;
 using static Steepshot.Core.Utils.AppSettings;
 
@@ -57,6 +59,18 @@ namespace Steepshot.Activity
                         intent.SetFlags(ActivityFlags.ReorderToFront | ActivityFlags.NewTask);
                         StartActivity(intent);
                         return;
+                    }
+                case Intent.ActionMain:
+                    {
+                        if (AppSettings.Temp.ContainsKey(PostCreateFragment.PostCreateGalleryTemp))
+                        {
+                            var intent = new Intent(this, typeof(RootActivity));
+                            intent.PutExtra(RootActivity.PostCreateResumeExtra, true);
+                            intent.SetFlags(ActivityFlags.ReorderToFront | ActivityFlags.NewTask);
+                            StartActivity(intent);
+                            return;
+                        }
+                        break;
                     }
             }
             StartActivity(User.HasPostingPermission ? typeof(RootActivity) : typeof(GuestActivity));

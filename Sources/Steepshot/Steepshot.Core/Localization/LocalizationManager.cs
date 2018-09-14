@@ -16,6 +16,7 @@ namespace Steepshot.Core.Localization
         public const string UpdateUrl = "https://raw.githubusercontent.com/Chainers/steepshot-mobile/master/References/Languages/{0}/dic.xml";
         public const string Localization = "Localization";
         public const string DefaultLang = "en";
+        private static readonly string[] Separator = { "&split;" };
 
         private readonly ISaverService _saverService;
         private readonly Dictionary<string, LocalizationModel> _localizationModel;
@@ -88,7 +89,13 @@ namespace Steepshot.Core.Localization
                     if (reader.NodeType == XmlNodeType.Element && reader.Name.Equals("string") && reader.HasAttributes)
                     {
                         var json = reader.GetAttribute("name");
-                        var names = JsonConvert.DeserializeObject<string[]>(json);
+                        if (json == null)
+                            continue;
+
+                        var names = json.StartsWith("[")
+                            ? JsonConvert.DeserializeObject<string[]>(json)
+                            : json.Split(Separator, StringSplitOptions.None);
+
                         reader.Read();
                         var value = reader.Value;
 
@@ -161,12 +168,13 @@ namespace Steepshot.Core.Localization
                 }
                 if (string.IsNullOrEmpty(result))
                 {
-                    var t = 0;
+                    var keyLength = 0;
                     foreach (var item in Model.Map)
                     {
-                        if (key.Contains(item.Key) && t < item.Key.Length)
+                        if (key.Contains(item.Key) && keyLength < item.Key.Length)
                         {
                             result = item.Value;
+                            keyLength = item.Key.Length;
                         }
                     }
                 }

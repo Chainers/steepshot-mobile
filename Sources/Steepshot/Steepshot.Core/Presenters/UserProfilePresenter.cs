@@ -131,7 +131,7 @@ namespace Steepshot.Core.Presenters
         }
 
         public async Task<Exception> TryUpdateUserPosts(string username)
-        { 
+        {
             return await TryRunTask(UpdateUserPosts, OnDisposeCts.Token, username);
         }
 
@@ -147,23 +147,24 @@ namespace Steepshot.Core.Presenters
             base.Clear(isNotify);
         }
 
-        public async void CheckSubscriptions()
+        public async void TryCheckSubscriptions()
         {
             OperationResult<SubscriptionsModel> response;
             do
             {
-                response = await Api.CheckSubscriptions(AppSettings.User, CancellationToken.None);
-
-                if (response.IsSuccess)
-                {
-                    AppSettings.User.PushSettings = response.Result.EnumSubscriptions;
-                    SubscriptionsUpdated?.Invoke();
-                }
-                else
-                {
+                response = await TryRunTask<SubscriptionsModel>(CheckSubscriptions, CancellationToken.None);
+                if (!response.IsSuccess)
                     await Task.Delay(5000);
-                }
             } while (!response.IsSuccess);
+
+            AppSettings.User.PushSettings = response.Result.EnumSubscriptions;
+            SubscriptionsUpdated?.Invoke();
+        }
+
+        private async Task<OperationResult<SubscriptionsModel>> CheckSubscriptions(CancellationToken ct)
+        {
+            var response = await Api.CheckSubscriptions(AppSettings.User, ct);
+            return response;
         }
 
         #region IDisposable Support

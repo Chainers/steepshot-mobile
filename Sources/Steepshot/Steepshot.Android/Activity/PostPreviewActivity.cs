@@ -6,6 +6,7 @@ using CheeseBind;
 using Square.Picasso;
 using Steepshot.Base;
 using Steepshot.CustomViews;
+using Steepshot.Utils;
 
 namespace Steepshot.Activity
 {
@@ -31,7 +32,7 @@ namespace Steepshot.Activity
                 Picasso.With(this)
                        .Load(path)
                        .NoFade()
-                       .Resize(Resources.DisplayMetrics.WidthPixels, 0)
+                       .Resize(Style.ScreenWidth, 0)
                        .Into(_photo, OnSuccess, OnError);
         }
 

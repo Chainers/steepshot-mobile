@@ -8,6 +8,7 @@ using Android.OS;
 using Android.Util;
 using Android.Views;
 using Android.Views.Animations;
+using Newtonsoft.Json;
 using Square.Picasso;
 using Steepshot.Core.Utils;
 using Steepshot.Utils;
@@ -35,7 +36,6 @@ namespace Steepshot.CustomViews
         private const float DefaultRatio = 1f;
         private const float MaximumOverscrollMultiplier = 150f;
         private const float MaximumOverscale = 0.2f;
-        public const int MaxImageSize = 1600;
 
         private CropViewGrid _grid;
         private ImageParameters _drawableImageParameters;
@@ -110,8 +110,9 @@ namespace Steepshot.CustomViews
                 _displayDrawableLeft = 0;
                 _displayDrawableTop = 0;
                 _drawableImageParameters = new ImageParameters();
+
                 if (_media != null)
-                    Rotation = _media.Orientation * 45;
+                    _drawableImageParameters.Rotation = _media.Orientation;
             }
             else
             {
@@ -272,6 +273,21 @@ namespace Steepshot.CustomViews
             Invalidate();
         }
 
+        public void SetImageBitmap(GalleryMediaModel model)
+        {
+            _reloadImage = false;
+            _drawable = Drawable.CreateFromPath(model.TempPath);
+
+            var options = new BitmapFactory.Options { InJustDecodeBounds = true };
+            BitmapFactory.DecodeFile(model.TempPath, options);
+
+            _imageRawWidth = options.OutWidth;
+            _imageRawHeight = options.OutHeight;
+
+            RequestLayout();
+            Invalidate();
+        }
+
         public void SetImageBitmap(Bitmap bitmap)
         {
             _reloadImage = false;
@@ -284,10 +300,10 @@ namespace Steepshot.CustomViews
             Invalidate();
         }
 
-        public void Rotate(float angle)
+        public void Rotate(int angle)
         {
             IsBitmapReady = false;
-            _drawableImageParameters.Rotation = angle;
+            _drawableImageParameters.Rotation = angle % 360;
             _currentScaleType = _useStrictBounds ? ScaleType.Bind : _currentScaleType;
             _reloadImage = true;
             RequestLayout();
@@ -296,32 +312,6 @@ namespace Steepshot.CustomViews
         public void SwitchScale()
         {
             Reset(_currentScaleType == ScaleType.Square || _currentScaleType == ScaleType.Undefined ? ScaleType.Ratio : ScaleType.Square);
-        }
-
-        public Bitmap Crop(string path, ImageParameters parameters)
-        {
-            var matrix = new Matrix();
-            matrix.PreRotate(parameters.Rotation);
-            matrix.PreScale(parameters.Scale, parameters.Scale);
-
-            var cropParameters = new Rect(parameters.CropBounds);
-            cropParameters.Offset(-(int)Math.Round(parameters.PreviewBounds.Left), -(int)Math.Round(parameters.PreviewBounds.Top));
-            var left = Math.Max((int)Math.Round((double)cropParameters.Left), 0);
-            var top = Math.Max((int)Math.Round((double)cropParameters.Top), 0);
-
-            using (var bitmap = BitmapUtils.DecodeSampledBitmapFromFile(Context, Uri.Parse(path), MaxImageSize, MaxImageSize))
-            {
-                //TODO:KOA: CreateBitmap used twice о.О
-                using (var rotatedBitmap = Bitmap.CreateBitmap(bitmap, 0, 0, bitmap.Width, bitmap.Height, matrix, true))
-                {
-                    var width = Math.Min((int)Math.Round((double)cropParameters.Width()), rotatedBitmap.Width);
-                    var height = Math.Min((int)Math.Round((double)cropParameters.Height()), rotatedBitmap.Height);
-                    var croppedBitmap = Bitmap.CreateBitmap(rotatedBitmap, left, top, width, height).Copy(Bitmap.Config.Argb8888, true);
-                    bitmap.Recycle();
-                    rotatedBitmap.Recycle();
-                    return croppedBitmap;
-                }
-            }
         }
 
         public bool OnDown(MotionEvent e) => true;
@@ -483,7 +473,7 @@ namespace Steepshot.CustomViews
             {
                 IsBitmapReady = false;
 
-                var drawableRequest = await MakeDrawable(_cancellationSignal, MaxImageSize, MaxImageSize, _drawableImageParameters.Rotation);
+                var drawableRequest = await MakeDrawable(_cancellationSignal, BitmapUtils.MaxImageSize, BitmapUtils.MaxImageSize, _drawableImageParameters.Rotation);
 
                 if (drawableRequest == null)
                 {
@@ -762,8 +752,13 @@ namespace Steepshot.CustomViews
     public class ImageParameters
     {
         public float Scale { get; set; }
-        public float Rotation { get; set; }
+
+        public int Rotation { get; set; }
+
+        [JsonConverter(typeof(RectFConverter))]
         public RectF PreviewBounds { get; private set; }
+
+        [JsonConverter(typeof(RectFConverter))]
         public Rect CropBounds { get; set; }
 
         public ImageParameters()
@@ -778,5 +773,63 @@ namespace Steepshot.CustomViews
             PreviewBounds = new RectF(PreviewBounds),
             CropBounds = new Rect(CropBounds)
         };
+    }
+
+    public class RectFConverter : JsonConverter
+    {
+        public override void WriteJson(Newtonsoft.Json.JsonWriter writer, object value, JsonSerializer serializer)
+        {
+            writer.WriteStartObject();
+            
+            if (value is RectF)
+            {
+                var typed = (RectF)value;
+                writer.WritePropertyName(nameof(RectF.Left));
+                writer.WriteValue(typed.Left);
+                writer.WritePropertyName(nameof(RectF.Top));
+                writer.WriteValue(typed.Top);
+                writer.WritePropertyName(nameof(RectF.Right));
+                writer.WriteValue(typed.Right);
+                writer.WritePropertyName(nameof(RectF.Bottom));
+                writer.WriteValue(typed.Bottom);
+            }
+            else
+            {
+                var typed = (Rect)value;
+                writer.WritePropertyName(nameof(Rect.Left));
+                writer.WriteValue(typed.Left);
+                writer.WritePropertyName(nameof(Rect.Top));
+                writer.WriteValue(typed.Top);
+                writer.WritePropertyName(nameof(Rect.Right));
+                writer.WriteValue(typed.Right);
+                writer.WritePropertyName(nameof(Rect.Bottom));
+                writer.WriteValue(typed.Bottom);
+            }
+
+            writer.WriteEndObject();
+        }
+
+        public override object ReadJson(Newtonsoft.Json.JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        {
+            reader.Read();
+            var left = reader.ReadAsDouble();
+            reader.Read();
+            var top = reader.ReadAsDouble();
+            reader.Read();
+            var right = reader.ReadAsDouble();
+            reader.Read();
+            var bottom = reader.ReadAsDouble();
+            reader.Read();
+
+            if (objectType == typeof(RectF))
+                return new RectF((float)left, (float)top, (float)right, (float)bottom);
+
+            return new Rect((int)left, (int)top, (int)right, (int)bottom);
+        }
+
+        public override bool CanConvert(Type objectType)
+        {
+            return objectType == typeof(RectF) || objectType == typeof(Rect);
+        }
     }
 }

@@ -1,7 +1,9 @@
-﻿using Autofac;
+﻿using System.Collections.Generic;
+using Autofac;
 using Steepshot.Core.Authorization;
 using Steepshot.Core.Clients;
 using Steepshot.Core.Localization;
+using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Services;
 
@@ -9,8 +11,6 @@ namespace Steepshot.Core.Utils
 {
     public static class AppSettings
     {
-        private const string AppSettingsKey = "AppSettings";
-
         public static ProfileUpdateType ProfileUpdateType = ProfileUpdateType.None;
 
         public static IContainer Container { get; set; }
@@ -53,6 +53,11 @@ namespace Steepshot.Core.Utils
             }
         }
 
+
+        #region Settings
+
+        private const string AppSettingsKey = "AppSettings";
+
         private static AppSettingsModel _appSettingsModel;
         public static AppSettingsModel Settings => _appSettingsModel ?? (_appSettingsModel = SaverService.Get<AppSettingsModel>(AppSettingsKey) ?? new AppSettingsModel());
 
@@ -60,5 +65,61 @@ namespace Steepshot.Core.Utils
         {
             SaverService.Save(AppSettingsKey, _appSettingsModel);
         }
+
+        #endregion
+
+        #region Temp
+
+        private const string AppTempKey = "AppTemp";
+
+        private static Dictionary<string, string> _temp;
+        public static Dictionary<string, string> Temp => _temp ?? (_temp = SaverService.Get<Dictionary<string, string>>(AppTempKey) ?? new Dictionary<string, string>());
+
+        public static void SaveTemp()
+        {
+            SaverService.Save(AppTempKey, _temp);
+        }
+
+        #endregion
+
+        #region Navigation
+
+        private const string NavigationKey = "Navigation";
+
+        private static Navigation _navigation;
+        public static Navigation Navigation => _navigation ?? (_navigation = SaverService.Get<Navigation>(NavigationKey) ?? new Navigation());
+
+        public static void SaveNavigation()
+        {
+            SaverService.Save(NavigationKey, _navigation);
+        }
+
+        public static void SetTabSettings(string tabKey, TabOptions value)
+        {
+            if (Navigation.TabSettings.ContainsKey(tabKey))
+                Navigation.TabSettings[tabKey] = value;
+            else
+                Navigation.TabSettings.Add(tabKey, value);
+        }
+
+        public static TabOptions GetTabSettings(string tabKey)
+        {
+            if (!Navigation.TabSettings.ContainsKey(tabKey))
+                Navigation.TabSettings.Add(tabKey, new TabOptions());
+
+            return Navigation.TabSettings[tabKey];
+        }
+
+        public static int SelectedTab
+        {
+            get => Navigation.SelectedTab;
+            set
+            {
+                Navigation.SelectedTab = value;
+                SaveNavigation();
+            }
+        }
+
+        #endregion
     }
 }
