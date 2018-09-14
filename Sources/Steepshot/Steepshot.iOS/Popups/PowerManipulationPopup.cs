@@ -128,12 +128,12 @@ namespace Steepshot.iOS.Popups
             powerUpButton.TouchDown += (s, ev) =>
             {
                 _alert.Close();
-                controller.PushViewController(new PowerManipulationViewController(_presenter.Balances[0], Core.Models.Enums.PowerAction.PowerUp), true);
+                controller.PushViewController(new PowerManipulationViewController(_presenter, Core.Models.Enums.PowerAction.PowerUp), true);
             };
             powerDownButton.TouchDown += (s, ev) =>
             {
                 _alert.Close();
-                controller.PushViewController(new PowerManipulationViewController(_presenter.Balances[0], Core.Models.Enums.PowerAction.PowerDown), true);
+                controller.PushViewController(new PowerManipulationViewController(_presenter, Core.Models.Enums.PowerAction.PowerDown), true);
             };
             cancelPowerDownButton.TouchDown += (s, ev) =>
             {

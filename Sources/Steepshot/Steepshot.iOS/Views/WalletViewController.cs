@@ -42,8 +42,31 @@ namespace Steepshot.iOS.Views
             _loader.AutoCenterInSuperview();
 
             _historyCollection.Add(_refreshControl);
-            _refreshControl.ValueChanged += OnRefresh;
-            _presenter.UpdateWallet += () => { OnRefresh(null, null); };
+        }
+
+        public override void ViewDidAppear(bool animated)
+        {
+            if (IsMovingToParentViewController)
+            {
+                _refreshControl.ValueChanged += OnRefresh;
+                _presenter.UpdateWallet += UpdateWallet;
+            }
+            base.ViewDidAppear(animated);
+        }
+
+        public override void ViewDidDisappear(bool animated)
+        {
+            base.ViewDidDisappear(animated);
+            if (IsMovingFromParentViewController)
+            {
+                _refreshControl.ValueChanged -= OnRefresh;
+                _presenter.UpdateWallet -= UpdateWallet;
+            }
+        }
+
+        private void UpdateWallet()
+        {
+            OnRefresh(null, null);
         }
 
         private async void OnRefresh(object sender, EventArgs e)

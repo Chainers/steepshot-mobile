@@ -28,10 +28,5 @@ namespace Steepshot.iOS.ViewControllers
                     break;
             }
         }
-
-        protected virtual void GoBack(object sender, EventArgs e)
-        {
-            NavigationController.PopViewController(true);
-        }
     }
 }

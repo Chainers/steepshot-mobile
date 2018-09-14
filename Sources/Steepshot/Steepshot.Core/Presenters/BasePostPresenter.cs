@@ -10,7 +10,6 @@ using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Services;
 using Steepshot.Core.Utils;
-using Ditch.Core.JsonRpc;
 
 namespace Steepshot.Core.Presenters
 {
@@ -94,33 +93,6 @@ namespace Steepshot.Core.Presenters
         public async Task<OperationResult<PromoteResponse>> FindPromoteBot(PromoteRequest request)
         {
             return await Api.FindPromoteBot(request);
-        }
-
-        //copypaste, need to remake architecture
-        public async Task<OperationResult<VoidResponse>> TryTransfer(UserInfo userInfo, string recipient, string amount, CurrencyType type, string memo = null)
-        {
-            var transferModel = new TransferModel(userInfo, recipient, amount, type);
-
-            if (!string.IsNullOrEmpty(memo))
-                transferModel.Memo = memo;
-
-            return await TryRunTask<TransferModel, VoidResponse>(Transfer, OnDisposeCts.Token, transferModel);
-        }
-        //copypaste, need to remake architecture
-        private Task<OperationResult<VoidResponse>> Transfer(TransferModel model, CancellationToken ct)
-        {
-            return Api.Transfer(model, ct);
-        }
-
-        //copypaste, need to remake architecture
-        public async Task<OperationResult<AccountInfoResponse>> TryGetAccountInfo(string login)
-        {
-            return await TryRunTask<string, AccountInfoResponse>(GetAccountInfo, OnDisposeCts.Token, login);
-        }
-        //copypaste, need to remake architecture
-        protected Task<OperationResult<AccountInfoResponse>> GetAccountInfo(string login, CancellationToken ct)
-        {
-            return Api.GetAccountInfo(login, ct);
         }
 
         public void HidePost(Post post)

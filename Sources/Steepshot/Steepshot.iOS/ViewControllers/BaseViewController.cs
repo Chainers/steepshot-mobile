@@ -335,6 +335,11 @@ namespace Steepshot.iOS.ViewControllers
             myViewController.CurrentPostCategory = tag;
             NavigationController.PushViewController(myViewController, true);
         }
+
+        protected virtual void GoBack(object sender, EventArgs e)
+        {
+            NavigationController.PopViewController(true);
+        }
     }
 
     public interface IWillEnterForeground

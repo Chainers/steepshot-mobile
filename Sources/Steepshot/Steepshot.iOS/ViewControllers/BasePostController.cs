@@ -70,7 +70,7 @@ namespace Steepshot.iOS.ViewControllers
                 actionSheetAlert.AddAction(UIAlertAction.Create(AppSettings.LocalizationManager.GetText(LocalizationKeys.FlagPhoto), UIAlertActionStyle.Default, obj => FlagPhoto(post)));
                 actionSheetAlert.AddAction(UIAlertAction.Create(AppSettings.LocalizationManager.GetText(LocalizationKeys.HidePhoto), UIAlertActionStyle.Default, obj => HidePhoto(post)));
             }
-            actionSheetAlert.AddAction(UIAlertAction.Create("Promote", UIAlertActionStyle.Default, obj => _alert = Popups.PromotePopup.Create(post, TabBarController.NavigationController, _presenter, View)));
+            actionSheetAlert.AddAction(UIAlertAction.Create("Promote", UIAlertActionStyle.Default, obj => ShowPromotePopup(post)));
             //Sharepost contain copylink function by default
             actionSheetAlert.AddAction(UIAlertAction.Create(AppSettings.LocalizationManager.GetText(LocalizationKeys.Sharepost), UIAlertActionStyle.Default, obj => SharePhoto(post)));
             actionSheetAlert.AddAction(UIAlertAction.Create("Cancel", UIAlertActionStyle.Cancel, null));
@@ -83,6 +83,12 @@ namespace Steepshot.iOS.ViewControllers
                 _alert.Hidden = false;
 
             base.ViewDidAppear(animated);
+        }
+
+        private void ShowPromotePopup(Post post)
+        {
+            var promotePopup = new Popups.PromotePopup();
+            _alert = promotePopup.Create(post, TabBarController.NavigationController, View);
         }
 
         protected void HidePhoto(Post post)

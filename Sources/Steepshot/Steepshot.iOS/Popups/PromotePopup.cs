@@ -18,18 +18,24 @@ using Constants = Steepshot.iOS.Helpers.Constants;
 
 namespace Steepshot.iOS.Popups
 {
-    public static class PromotePopup
+    public class PromotePopup
     {
-        private static List<CurrencyType> _coins;
-        private static CurrencyType _pickedCoin = CurrencyType.Steem;
-        private static SearchTextField _amountTextField;
-        private static UIActivityIndicatorView balanceLoader;
-        private static UILabel balanceLabel;
-        private static UILabel errorMessage;
-        private static List<BalanceModel> balances;
-        private static BasePostPresenter _presenter;
+        private List<CurrencyType> _coins;
+        private CurrencyType _pickedCoin = CurrencyType.Steem;
+        private SearchTextField _amountTextField;
+        private UIActivityIndicatorView balanceLoader;
+        private UILabel balanceLabel;
+        private UILabel errorMessage;
+        private List<BalanceModel> balances;
+        private readonly PromotePresenter _presenter;
 
-        private static async void GetBalance()
+        public PromotePopup()
+        {
+            _presenter = new PromotePresenter();
+            _presenter.SetClient(AppDelegate.SteemClient);
+        }
+
+        private async void GetBalance()
         {
             balanceLoader.StartAnimating();
             var response = await _presenter.TryGetAccountInfo(AppSettings.User.Login);
@@ -43,9 +49,8 @@ namespace Steepshot.iOS.Popups
             balanceLoader.StopAnimating();
         }
 
-        public static CustomAlertView Create(Post post, UINavigationController controller, BasePostPresenter presenter, UIView view)
+        public CustomAlertView Create(Post post, UINavigationController controller, UIView view)
         {
-            _presenter = presenter;
             _pickedCoin = CurrencyType.Steem;
             _coins = new List<CurrencyType>();
             switch (AppSettings.User.Chain)
@@ -527,7 +532,7 @@ namespace Steepshot.iOS.Popups
             return _alert;
         }
 
-        private static void IsEnoughBalance(object sender, EventArgs e)
+        private void IsEnoughBalance(object sender, EventArgs e)
         {
             errorMessage.Hidden = true;
             var transferAmount = _amountTextField.GetDoubleValue();
@@ -546,18 +551,18 @@ namespace Steepshot.iOS.Popups
             }
         }
 
-        private static bool IsValidAmount()
+        private bool IsValidAmount()
         {
             return _amountTextField.GetDoubleValue() >= 0.5 && _amountTextField.GetDoubleValue() <= 130;
         }
 
-        private static void MaxBtnOnClick(object sender, EventArgs e)
+        private void MaxBtnOnClick(object sender, EventArgs e)
         {
             _amountTextField.Text = balances?.Find(x => x.CurrencyType == _pickedCoin).Value.ToString();
             IsEnoughBalance(null, null);
         }
 
-        private static void CoinSelected(CurrencyType pickedCoin)
+        private void CoinSelected(CurrencyType pickedCoin)
         {
             _pickedCoin = pickedCoin;
         }
