@@ -200,33 +200,33 @@ namespace Steepshot.Fragment
                 switch (rotation)
                 {
                     case 90:
-                        {
-                            var b = width;
-                            width = height;
-                            height = b;
+                    {
+                        var b = width;
+                        width = height;
+                        height = b;
 
-                            b = y;
-                            y = x;
-                            x = sized.Width - b - width;
-                            break;
-                        }
-                    case 180:
+                        b = x;
+                        x = y;
+                        y = sized.Height - b - height;
+                        break;
+                    }
+                   case 180:
                         {
                             x = sized.Width - width - x;
                             y = sized.Height - height - y;
                             break;
                         }
                     case 270:
-                        {
-                            var b = width;
-                            width = height;
-                            height = b;
+                    {
+                        var b = width;
+                        width = height;
+                        height = b;
 
-                            b = x;
-                            x = y;
-                            y = sized.Height - b - height;
-                            break;
-                        }
+                        b = y;
+                        y = x;
+                        x = sized.Width - b - width;
+                        break;
+                    }
                 }
 
                 x = Math.Max(x, 0);
@@ -238,7 +238,7 @@ namespace Steepshot.Fragment
                     height = sized.Height - y;
 
                 var matrix = new Matrix();
-                matrix.PreRotate(rotation);
+                matrix.SetRotate(rotation);
 
                 croped = Bitmap.CreateBitmap(sized, x, y, width, height, matrix, true);
 
