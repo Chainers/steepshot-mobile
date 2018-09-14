@@ -305,6 +305,7 @@ namespace Steepshot.iOS.Views
             if (exception is OperationCanceledException)
                 return;
             ShowAlert(exception);
+            _commentsTable.ReloadData();
             _tableProgressBar.StopAnimating();
         }
 

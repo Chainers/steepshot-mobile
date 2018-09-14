@@ -25,10 +25,15 @@ namespace Steepshot.iOS.ViewSources
         {
             if (indexPath.Row == 0)
             {
-                var cell = (DescriptionTableViewCell)tableView.DequeueReusableCell(_descriptionCellIdentifier, indexPath);
-                cell.UpdateCell(post, TagAction);
+                if (_presenter.IsLastReaded)
+                {
+                    var cell = (DescriptionTableViewCell)tableView.DequeueReusableCell(_descriptionCellIdentifier, indexPath);
+                    cell.UpdateCell(post, TagAction);
 
-                return cell;
+                    return cell;
+                }
+                else
+                    return new UITableViewCell();
             }
             else
             {
