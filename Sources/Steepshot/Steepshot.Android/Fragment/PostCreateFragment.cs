@@ -201,12 +201,13 @@ namespace Steepshot.Fragment
                 {
                     case 90:
                         {
-                            var b = x;
-                            x = y;
-                            y = sized.Height - b - width;
-                            b = width;
+                            var b = width;
                             width = height;
                             height = b;
+
+                            b = y;
+                            y = x;
+                            x = sized.Width - b - width;
                             break;
                         }
                     case 180:
@@ -217,12 +218,13 @@ namespace Steepshot.Fragment
                         }
                     case 270:
                         {
-                            var b = y;
-                            y = x;
-                            x = sized.Width - b - width;
-                            b = width;
+                            var b = width;
                             width = height;
                             height = b;
+
+                            b = x;
+                            x = y;
+                            y = sized.Height - b - height;
                             break;
                         }
                 }
