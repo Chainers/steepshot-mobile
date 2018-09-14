@@ -242,9 +242,9 @@ namespace Steepshot.iOS.Cells
                 ProfileAction?.Invoke(ActionType.Balance);
             });
             balanceContainer.AddGestureRecognizer(balanceTap);
-#if DEBUG
+//#if DEBUG
             AddSubview(balanceContainer);
-#endif
+//#endif
             #endregion
 
             AddSubview(bottomSeparator);
@@ -272,7 +272,7 @@ namespace Steepshot.iOS.Cells
 
             followProgress.AutoAlignAxis(ALAxis.Horizontal, followButton);
             followProgress.AutoAlignAxis(ALAxis.Vertical, followButton);
-#if DEBUG
+//#if DEBUG
             balanceImage.AutoSetDimensionsToSize(new CGSize(10, 10));
             balanceImage.AutoPinEdgeToSuperviewEdge(ALEdge.Left, mainMargin);
             balanceImage.AutoAlignAxisToSuperviewAxis(ALAxis.Horizontal);
@@ -283,7 +283,7 @@ namespace Steepshot.iOS.Cells
             balanceArrow.AutoAlignAxisToSuperviewAxis(ALAxis.Horizontal);
             balance.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 55);
             balance.AutoAlignAxisToSuperviewAxis(ALAxis.Horizontal);
-#endif
+//#endif
             firstSpacing.AutoSetDimension(ALDimension.Width, 48);
             secondSpacing.AutoSetDimension(ALDimension.Width, 48);
 
@@ -384,17 +384,17 @@ namespace Steepshot.iOS.Cells
                                          new CGSize(UIScreen.MainScreen.Bounds.Width - mainMargin * 2, 45));
 
             SetupStats();
-#if DEBUG
+//#if DEBUG
             balanceContainer.Frame = new CGRect(new CGPoint(0, statsContainer.Frame.Bottom + verticalSpacing),
                                                 new CGSize(UIScreen.MainScreen.Bounds.Width, 70));
             balance.Text = $"$ {_userData.EstimatedBalance}";
 
             Frame = new CGRect(0, 0, UIScreen.MainScreen.Bounds.Width, balanceContainer.Frame.Bottom);
             return balanceContainer.Frame.Bottom;
-#else
-            Frame = new CGRect(0, 0, UIScreen.MainScreen.Bounds.Width, statsContainer.Frame.Bottom + verticalSpacing);
-            return statsContainer.Frame.Bottom + verticalSpacing;
-#endif
+//#else
+            //Frame = new CGRect(0, 0, UIScreen.MainScreen.Bounds.Width, statsContainer.Frame.Bottom + verticalSpacing);
+            //return statsContainer.Frame.Bottom + verticalSpacing;
+//#endif
         }
 
         private void SetupStats()
