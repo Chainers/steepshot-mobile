@@ -313,6 +313,7 @@ namespace Steepshot.iOS.Popups
 
             var tap = new UITapGestureRecognizer(() =>
             {
+                _amountTextField.ResignFirstResponder();
                 pickerHidden.Active = false;
                 pickerVisible.Active = true;
 
