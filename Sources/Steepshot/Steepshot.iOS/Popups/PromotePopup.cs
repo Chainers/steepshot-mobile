@@ -266,6 +266,20 @@ namespace Steepshot.iOS.Popups
             expectedTimeValue.AutoPinEdgeToSuperviewEdge(ALEdge.Right, DeviceHelper.IsSmallDevice ? 10 : 20);
             expectedTimeValue.AutoAlignAxisToSuperviewAxis(ALAxis.Horizontal);
 
+            var sureText = new UILabel();
+            sureText.BackgroundColor = Constants.R255G255B255;
+            sureText.Lines = 4;
+            sureText.TextAlignment = UITextAlignment.Center;
+            sureText.Font = Constants.Regular20;
+            popup.AddSubview(sureText);
+
+            sureText.AutoMatchDimension(ALDimension.Height, ALDimension.Height, container);
+            sureText.AutoMatchDimension(ALDimension.Width, ALDimension.Width, container);
+            sureText.AutoPinEdge(ALEdge.Top, ALEdge.Top, container);
+            var sureTextHidden = sureText.AutoPinEdge(ALEdge.Left, ALEdge.Right, container, 20);
+            var sureTextVisible = sureText.AutoPinEdge(ALEdge.Left, ALEdge.Left, container);
+            sureTextVisible.Active = false;
+
             var completeText = new UILabel();
             completeText.BackgroundColor = Constants.R255G255B255;
             completeText.Lines = 4;
@@ -313,6 +327,9 @@ namespace Steepshot.iOS.Popups
 
             var tap = new UITapGestureRecognizer(() =>
             {
+                if (balances == null)
+                    return;
+
                 _amountTextField.ResignFirstResponder();
                 pickerHidden.Active = false;
                 pickerVisible.Active = true;
@@ -363,7 +380,7 @@ namespace Steepshot.iOS.Popups
                     _pickerLabel.Text = _pickedCoin.ToString().ToUpper();
 
                     var balance = balances?.Find(x => x.CurrencyType == _pickedCoin);
-                    balanceLabel.Text = $"{AppSettings.LocalizationManager.GetText(LocalizationKeys.Balance)}: {balance.Value}";
+                    balanceLabel.Text = $"{AppSettings.LocalizationManager.GetText(LocalizationKeys.Balance)}: {balance?.Value}";
 
                     pickerHidden.Active = true;
                     pickerVisible.Active = false;
@@ -377,7 +394,7 @@ namespace Steepshot.iOS.Popups
                         _amountTextField.UpdateRightViewRect();
                     });
                 }
-                else if (promoteVisible.Active)
+                else if (sureTextVisible.Active)
                 {
                     if (!AppSettings.User.HasActivePermission)
                     {
@@ -389,6 +406,9 @@ namespace Steepshot.iOS.Popups
 
                     selectButton.Enabled = false;
                     loader.StartAnimating();
+
+                    sureTextHidden.Active = true;
+                    sureTextVisible.Active = false;
 
                     var transferResponse = await _presenter.TryTransfer(AppSettings.User.UserInfo, promoter.Result.Bot.Author, _amountTextField.GetDoubleValue().ToString(), _pickedCoin, $"https://steemit.com{post.Url}");
 
@@ -414,6 +434,25 @@ namespace Steepshot.iOS.Popups
                         promoteHidden.Active = true;
                         popup.LayoutIfNeeded();
                         timer?.Dispose();
+                    });
+                }
+                else if (promoteVisible.Active)
+                {
+                    var promoteConfirmation = AppSettings.LocalizationManager.GetText(LocalizationKeys.PromoteConfirmation,
+                                                                                      _amountTextField.GetDoubleValue().ToString(),
+                                                                                      _pickedCoin == CurrencyType.Sbd ? "SBD" : "Steem",
+                                                                                      promoter.Result.Bot.Author);
+
+                    sureText.Text = promoteConfirmation;
+                    sureTextHidden.Active = false;
+                    sureTextVisible.Active = true;
+
+                    UIView.Animate(0.2, 0, UIViewAnimationOptions.CurveEaseIn, () =>
+                    {
+                        popup.LayoutIfNeeded();
+                    }, () =>
+                    {
+                        selectButton.SetTitle("Yes", UIControlState.Normal);
                     });
                 }
                 else if (completeTextVisible.Active)
@@ -471,7 +510,6 @@ namespace Steepshot.iOS.Popups
                             });
 
                         }, null, DateTime.Now.Add(expectedUpvoteTime).Millisecond, (int)TimeSpan.FromSeconds(1).TotalMilliseconds);
-
 
                         promoterLogin.Text = $"@{promoter.Result.Bot.Author}";
 
