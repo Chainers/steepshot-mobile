@@ -177,7 +177,7 @@ namespace Steepshot.Utils.Media
                     matrix.PostScale(delta, delta);
 
                     ReleaseBuffer();
-                    _buffer = Bitmap.CreateBitmap(bitmap, x, y, newWidh, newHeight, matrix, true);
+                    _buffer = Bitmap.CreateBitmap(bitmap, x, y, newWidh, newHeight, matrix, false);
                     BitmapUtils.ReleaseBitmap(bitmap);
 
                     return true;

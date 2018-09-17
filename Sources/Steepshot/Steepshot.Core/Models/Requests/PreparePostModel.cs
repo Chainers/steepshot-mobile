@@ -24,7 +24,7 @@ namespace Steepshot.Core.Models.Requests
         {
             get
             {
-                if (string.IsNullOrEmpty(_permlink))
+                if (string.IsNullOrEmpty(_permlink) && !string.IsNullOrEmpty(Title))
                     _permlink = OperationHelper.TitleToPermlink(Title);
 
                 return _permlink;
