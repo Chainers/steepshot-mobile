@@ -32,6 +32,7 @@ namespace Steepshot.Fragment
         private readonly PreparePostModel _tepmPost;
         private GalleryMediaAdapter _galleryAdapter;
         private bool _isUploading;
+        private bool _isEnableSaveState = true;
 
 
         protected List<GalleryMediaModel> Media { get; }
@@ -83,8 +84,12 @@ namespace Steepshot.Fragment
 
         public override void OnPause()
         {
-            SaveGalleryTemp();
-            SavePreparePostTemp();
+            if (_isEnableSaveState)
+            {
+                SaveGalleryTemp();
+                SavePreparePostTemp();
+            }
+
             base.OnPause();
         }
 
@@ -639,6 +644,7 @@ namespace Steepshot.Fragment
                 AppSettings.Temp.Remove(PostCreateGalleryTemp);
                 AppSettings.Temp.Remove(PreparePostTemp);
                 AppSettings.SaveTemp();
+                _isEnableSaveState = false;
             }
 
             return isPressed;
