@@ -53,16 +53,16 @@ namespace Steepshot.CustomViews
                 case MotionEventActions.Down:
                     _prevY = ScrollY + e.Event.GetY();
                     break;
-                case MotionEventActions.Move:
-                    if (e.Event.GetY() > Height || e.Event.GetY() < 0)
-                    {
-                        if (!_flingAnimator.IsRunning)
-                            OnUpOrOutside(e);
-                        return;
-                    }
-                    var delta = (int)(_prevY - e.Event.GetY());
-                    ScrollY = delta;
-                    break;
+                //case MotionEventActions.Move:
+                //    if (e.Event.GetY() > Height || e.Event.GetY() < 0)
+                //    {
+                //        if (!_flingAnimator.IsRunning)
+                //            OnUpOrOutside(e);
+                //        return;
+                //    }
+                //    var delta = (int)(_prevY - e.Event.GetY());
+                //    ScrollY = delta;
+                //    break;
                 case MotionEventActions.Cancel:
                 case MotionEventActions.Up:
                     OnUpOrOutside(e);
@@ -112,10 +112,14 @@ namespace Steepshot.CustomViews
 
         protected override void OnMeasure(int widthMeasureSpec, int heightMeasureSpec)
         {
-            var initRow = GetChildAt(0);
-            var rowHeight = initRow.Height + ItemSpacing * 2;
-            var exactHeight = rowHeight * (Math.Min(Items.Count, VisibleItemsCount) + 1);
-            base.OnMeasure(widthMeasureSpec, MeasureSpec.MakeMeasureSpec(exactHeight, MeasureSpecMode.Exactly));
+            if (MeasureSpec.GetMode(heightMeasureSpec) == MeasureSpecMode.AtMost)
+            {
+                var child = (TextView)GetChildAt(0);
+                var height = ChildCount * (child.TextSize + ItemSpacing * 2) * 1.6;
+                base.OnMeasure(widthMeasureSpec, MeasureSpec.MakeMeasureSpec((int)height, MeasureSpecMode.Exactly));
+                return;
+            }
+            base.OnMeasure(widthMeasureSpec, heightMeasureSpec);
         }
 
         private void CalcCenterRowWithDeltaForScroll()
@@ -123,7 +127,6 @@ namespace Steepshot.CustomViews
             var viewCenter = Height / 2;
             var centerRow = (TextView)GetChildAt(0);
             var centerDelta = viewCenter - (centerRow.Top + centerRow.Bottom) / 2 + ScrollY;
-            int position = 0;
 
             for (int i = 0; i < ChildCount; i++)
             {
@@ -133,19 +136,18 @@ namespace Steepshot.CustomViews
                 {
                     centerRow = iRow;
                     centerDelta = iDelta;
-                    position = i;
+                    _selectedPos = i;
                 }
                 iRow.SetTextColor(Style.R151G155B158);
             }
             centerRow.SetTextColor(Style.R255G34B5);
-            ItemSelected?.Invoke(position);
+            ItemSelected?.Invoke(_selectedPos);
             _centerRowWithDelta = (centerRow, centerDelta);
         }
 
         private void CalcCenterRowWithDeltaForLocation(int y)
         {
             var viewCenter = Height / 2;
-            int position = 0;
 
             for (int i = 0; i < ChildCount; i++)
             {
@@ -156,11 +158,11 @@ namespace Steepshot.CustomViews
                     var iDelta = viewCenter - (iRow.Top + iRow.Bottom) / 2 + ScrollY;
                     iRow.SetTextColor(Style.R255G34B5);
                     _centerRowWithDelta = (iRow, iDelta);
-                    position = i;
+                    _selectedPos = i;
                 }
             }
 
-            ItemSelected?.Invoke(position);
+            ItemSelected?.Invoke(_selectedPos);
         }
 
         private void Fling()

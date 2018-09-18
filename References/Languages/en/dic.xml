@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources version="16">
+    <!--obsolete-->
     <string obsolete="true" name="ResponseContentContainsHtml">Response content contains HTML: </string>
     <string obsolete="true" name="UnexpectedUrlFormat">Unexpected url format: </string>
     <string obsolete="true" name="EnableConnectToServer">Can not connect to the server, check for an Internet connection and try again.</string>
@@ -38,6 +39,7 @@
     <string obsolete="true" name="GatewayTimeout">{statusCode} GatewayTimeout. (The server was acting as a gateway or proxy and did not receive a timely response from the upstream server. Try repeat request a little later.)</string>
     <string obsolete="true" name="HttpErrorCode">({statusCode}) Some error on server side.</string>
 
+    <!--UI text-->
     <string name="WrongPrivatePostingKey">The key you've entered is not a private posting key. If you're not able to sign in this [video] (https://www.youtube.com/watch?v=XAVapBwbS1U) might be helpful.</string>
     <string name="WrongPrivateActimeKey">It`s not a valid Private Active key! Check - Private key looks like 5********...</string>
     <string name="EmptyResponseContent">Empty response content</string>
@@ -205,9 +207,6 @@ About 6 inches away</string>
     <string name="Amount">Amount</string>
     <string name="Time">Time</string>
     <string name="Wallet">Wallet</string>
-    <string name="&lt;h1&gt;Server Error (500)&lt;/h1&gt;">(500) Server Error</string>
-    <string name="&lt;h1&gt;Not Found&lt;/h1&gt;">Not Found</string>
-    <string name="504 Gateway Time-out">(504) Gateway Time-out</string>
     <string name="Greeting">Hello! It's time to find the coolest content for you!</string>
     <string name="EmptyFeedHint">Click the button below to find interesting people and publications</string>
     <string name="GoToBrowse">Let's go</string>
@@ -225,9 +224,6 @@ About 6 inches away</string>
     <string name="Connect">Connect</string>
     <string name="Logout">Log out</string>
     <string name="SwitchTo">Switch to</string>
-    <string name="&lt;html&gt; &lt;head&gt;&lt;title&gt;502 Bad Gateway">(502) Bad Gateway</string>
-    <string name="&lt;html&gt; &lt;head&gt;&lt;title&gt;400 Bad Request">(400) Bad Request</string>
-    <string name="&lt;html&gt;&lt;head&gt;&lt;title&gt;413 Request Entity Too Large">(413) Request Entity Too Large</string>
     <string name="Query should have at least 3 characters">Query should have at least 3 characters</string>
     <string name="Username used for offset was not found">Username used for offset was not found</string>
     <string name="User not found">User not found</string>
@@ -241,6 +237,15 @@ About 6 inches away</string>
     <string name="Cannot find posts for user">Cannot find posts</string>
     <string name="InsufficientBalance">Insufficient balance. Current balance: {0}</string>
 
+    <!--Server errors-->
+    <string name="Bad Gateway">Server went to lunch, but will be back soon.</string>
+    <string name="Bad Request">Server did not understand what we want.</string>
+    <string name="Request Entity Too Large">Your request was too big and can not fit on Server, try to make it smaller.</string>
+    <string name="Server Error">Server made a mistake and sent the wrong answer. Try to changing or repeating your request.</string>
+    <string name="Not Found">Server tried, but did not find any data for your request.</string>
+    <string name="Gateway Time-out">Server is busy and forgot to respond to your request. Try to repeating your request.</string>
+
+    <!--Blockchain errors-->
     <string name="unknown key">Post not found (deleted or not available)</string>
     <string name="The comment is archived">The comment is archived</string>
     <string name="bandwidth limit">Bandwidth limit exceeded. Please wait to transact or power up STEEM.</string>

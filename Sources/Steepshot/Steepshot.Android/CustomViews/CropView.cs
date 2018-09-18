@@ -259,6 +259,8 @@ namespace Steepshot.CustomViews
             if (_reloadImage)
             {
                 _media = model;
+
+                BitmapUtils.ReleaseBitmap(_drawable);
                 _drawable = null;
             }
 
@@ -276,6 +278,7 @@ namespace Steepshot.CustomViews
         public void SetImageBitmap(GalleryMediaModel model)
         {
             _reloadImage = false;
+            BitmapUtils.ReleaseBitmap(_drawable);
             _drawable = Drawable.CreateFromPath(model.TempPath);
 
             var options = new BitmapFactory.Options { InJustDecodeBounds = true };
@@ -291,6 +294,8 @@ namespace Steepshot.CustomViews
         public void SetImageBitmap(Bitmap bitmap)
         {
             _reloadImage = false;
+
+            BitmapUtils.ReleaseBitmap(_drawable);
             _drawable = new BitmapDrawable(bitmap);
 
             _imageRawWidth = bitmap.Width;
@@ -482,6 +487,7 @@ namespace Steepshot.CustomViews
                     return;
                 }
 
+                BitmapUtils.ReleaseBitmap(_drawable);
                 _drawable = drawableRequest;
             }
 
@@ -520,12 +526,15 @@ namespace Steepshot.CustomViews
                     {
                         var matrix = new Matrix();
                         matrix.PostRotate(angle);
-                        var preparedBitmap = Bitmap.CreateBitmap(bitmap, 0, 0, bitmap.Width, bitmap.Height, matrix, true);
+                        var preparedBitmap = Bitmap.CreateBitmap(bitmap, 0, 0, bitmap.Width, bitmap.Height, matrix, false);
                         _imageRawWidth = preparedBitmap.Width;
                         _imageRawHeight = preparedBitmap.Height;
 
                         if (signal.IsCanceled)
+                        {
+                            BitmapUtils.ReleaseBitmap(preparedBitmap);
                             return null;
+                        }
 
                         return new BitmapDrawable(Context.Resources, preparedBitmap);
                     }
@@ -780,7 +789,7 @@ namespace Steepshot.CustomViews
         public override void WriteJson(Newtonsoft.Json.JsonWriter writer, object value, JsonSerializer serializer)
         {
             writer.WriteStartObject();
-            
+
             if (value is RectF)
             {
                 var typed = (RectF)value;

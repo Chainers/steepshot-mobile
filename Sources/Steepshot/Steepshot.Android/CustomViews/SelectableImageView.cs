@@ -68,11 +68,7 @@ namespace Steepshot.CustomViews
 
         public async Task Bind(GalleryMediaModel model)
         {
-            if (Drawable is BitmapDrawable db)
-            {
-                BitmapUtils.ReleaseBitmap(db.Bitmap);
-            }
-
+            BitmapUtils.ReleaseBitmap(Drawable);
             SetImageDrawable(DefaultColor);
 
             _model = model;
@@ -94,6 +90,8 @@ namespace Steepshot.CustomViews
                     {
                         if (_model == null || model.Id != _model.Id)
                             return;
+
+                        BitmapUtils.ReleaseBitmap(Drawable);
                         SetImageBitmap(thumbnail);
                     });
                     return;
@@ -101,7 +99,7 @@ namespace Steepshot.CustomViews
 
                 var matrix = new Matrix();
                 matrix.PostRotate(model.Orientation);
-                var oriThumbnail = Bitmap.CreateBitmap(thumbnail, 0, 0, thumbnail.Width, thumbnail.Height, matrix, true);
+                var oriThumbnail = Bitmap.CreateBitmap(thumbnail, 0, 0, thumbnail.Width, thumbnail.Height, matrix, false);
 
                 BitmapUtils.ReleaseBitmap(thumbnail);
 
@@ -109,6 +107,8 @@ namespace Steepshot.CustomViews
                 {
                     if (_model == null || model.Id != _model.Id)
                         return;
+
+                    BitmapUtils.ReleaseBitmap(Drawable);
                     SetImageBitmap(oriThumbnail);
                 });
             });

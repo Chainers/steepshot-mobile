@@ -23,65 +23,11 @@ namespace Steepshot.Utils
     {
         public const int MaxImageSize = 1600;
 
-        public static Bitmap RotateImageIfRequired(Bitmap img, string url)
-        {
-            var ei = new ExifInterface(url);
-            var orientation = ei.GetAttribute(ExifInterface.TagOrientation);
-            if (string.IsNullOrEmpty(orientation) || orientation == "0")
-                return img;
-
-            var matrix = GetMatrixOrientation(ei, 0);
-            var rotated = Bitmap.CreateBitmap(img, 0, 0, img.Width, img.Height, matrix, true);
-            img.Recycle();
-            img.Dispose();
-            return rotated;
-        }
-
-        private static Matrix GetMatrixOrientation(ExifInterface sourceExif, float degrees)
-        {
-            var matrix = new Matrix();
-
-            var orientation = sourceExif.GetAttribute(ExifInterface.TagOrientation);
-            switch (orientation)
-            {
-                case "1": //Horizontal(normal)
-                    matrix.PostRotate(degrees);
-                    break;
-                case "2": //Mirror horizontal
-                    matrix.SetScale(-1, 1);
-                    matrix.PostRotate(degrees);
-                    break;
-                case "3": //Rotate 180
-                    matrix.PostRotate(180 + degrees);
-                    break;
-                case "4": //Mirror vertical
-                    matrix.PostRotate(180 + degrees);
-                    matrix.SetScale(-1, 1);
-                    break;
-                case "5": //Mirror horizontal and rotate 270 CW
-                    matrix.PostScale(-1, 1);
-                    matrix.SetRotate(270 + degrees);
-                    break;
-                case "6": //Rotate 90 CW
-                    matrix.SetRotate(90 + degrees);
-                    break;
-                case "7": //Mirror horizontal and rotate 90 CW
-                    matrix.PostScale(-1, 1);
-                    matrix.SetRotate(90 + degrees);
-                    break;
-                case "8": //Rotate 270 CW
-                    matrix.SetRotate(270 + degrees);
-                    break;
-            }
-            return matrix;
-        }
-
-
         public static Bitmap RotateImage(Bitmap img, int degree)
         {
             var matrix = new Matrix();
             matrix.PostRotate(degree);
-            var rotatedImg = Bitmap.CreateBitmap(img, 0, 0, img.Width, img.Height, matrix, true);
+            var rotatedImg = Bitmap.CreateBitmap(img, 0, 0, img.Width, img.Height, matrix, false);
             return rotatedImg;
         }
 
@@ -318,6 +264,11 @@ namespace Steepshot.Utils
             return dic;
         }
 
+        public static void ReleaseBitmap(Drawable drawable)
+        {
+            if (drawable is BitmapDrawable bitmapDrawable)
+                ReleaseBitmap(bitmapDrawable.Bitmap);
+        }
         public static void ReleaseBitmap(Bitmap bitmap)
         {
             if (bitmap == null || bitmap.Handle == IntPtr.Zero) return;

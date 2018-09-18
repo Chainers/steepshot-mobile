@@ -26,6 +26,7 @@ namespace Steepshot.Holders
             var wheelPicker = ItemView.FindViewById<WheelPicker>(Resource.Id.coin_picker);
             wheelPicker.Items = _displayCoins;
             wheelPicker.ItemSelected += WheelPickerOnItemSelected;
+            wheelPicker.Select(SelectedPosition);
         }
 
         private void WheelPickerOnItemSelected(int pos)
