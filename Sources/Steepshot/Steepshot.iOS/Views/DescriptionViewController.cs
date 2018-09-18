@@ -605,7 +605,37 @@ namespace Steepshot.iOS.Views
                     stream = byteArray.AsStream();
 
                 var request = new UploadMediaModel(AppSettings.User.UserInfo, stream, ImageExtension);
-                return await _presenter.TryUploadMedia(request);
+                var serverResult = await _presenter.TryUploadMedia(request);
+                if (!serverResult.IsSuccess)
+                    return new OperationResult<MediaModel>(serverResult.Exception);
+
+                var uuidModel = serverResult.Result;
+                var done = false;
+                do
+                {
+
+                    var state = await _presenter.TryGetMediaStatus(uuidModel);
+                    if (state.IsSuccess)
+                    {
+                        switch (state.Result.Code)
+                        {
+                            case UploadMediaCode.Done:
+                                done = true;
+                                break;
+
+                            case UploadMediaCode.FailedToProcess:
+                            case UploadMediaCode.FailedToUpload:
+                            case UploadMediaCode.FailedToSave:
+                                return new OperationResult<MediaModel>(new Exception(state.Result.Message));
+
+                            default:
+                                await Task.Delay(3000);
+                                break;
+                        }
+                    }
+                } while (!done);
+
+                return await _presenter.TryGetMediaResult(uuidModel);
             }
             catch (Exception ex)
             {
@@ -814,7 +844,7 @@ namespace Steepshot.iOS.Views
             });
         }
 
-        protected async void CreateOrEditPost(bool skipPlagiarismCheck)
+        protected void CreateOrEditPost(bool skipPlagiarismCheck)
         {
             var pushToBlockchainRetry = false;
             do
@@ -948,7 +978,7 @@ namespace Steepshot.iOS.Views
             }
         }
 
-        private void GoBack(object sender, EventArgs e)
+        protected override void GoBack(object sender, EventArgs e)
         {
             _presenter.TasksCancel();
             NavigationController.PopViewController(true);

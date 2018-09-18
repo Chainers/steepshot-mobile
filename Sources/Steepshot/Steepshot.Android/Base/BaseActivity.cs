@@ -10,6 +10,7 @@ using Android.Support.V4.Content;
 using Android.Support.V7.App;
 using Android.Views;
 using Android.Views.InputMethods;
+using Java.Lang;
 using Steepshot.Core.Utils;
 using Steepshot.Fragment;
 
@@ -62,17 +63,8 @@ namespace Steepshot.Base
 
         public override void OnTrimMemory(TrimMemory level)
         {
-            if (level == TrimMemory.Complete)
-            {
-                if (AppSettings.Container != null)
-                {
-                    AppSettings.Container.Dispose();
-                    AppSettings.Container = null;
-                }
-            }
-
             GC.Collect();
-            GC.Collect(GC.MaxGeneration);
+            JavaSystem.Gc();
             base.OnTrimMemory(level);
         }
 
@@ -115,7 +107,7 @@ namespace Steepshot.Base
                 var appLink = path.Substring(index, path.Length - index);
 
                 if (path.StartsWith("/post"))
-                    OpenNewContentFragment(new SinglePostFragment(appLink));
+                    OpenNewContentFragment(new PostViewFragment(appLink));
                 else if (path.StartsWith("/@"))
                     OpenNewContentFragment(new ProfileFragment(appLink));
             }

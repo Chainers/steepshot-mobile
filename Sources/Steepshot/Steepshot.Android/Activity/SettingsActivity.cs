@@ -32,6 +32,7 @@ namespace Steepshot.Activity
         private BottomSheetDialog _propertiesActionsDialog;
         private bool _lowRatedChanged;
         private bool _nsfwChanged;
+        private UserInfo _currentUser;
 
 #pragma warning disable 0649, 4014
         [BindView(Resource.Id.dtn_terms_of_service)] private Button _termsButton;
@@ -91,6 +92,7 @@ namespace Steepshot.Activity
 
             var appInfoService = AppSettings.AppInfo;
             var accounts = AppSettings.User.GetAllAccounts();
+            _currentUser = AppSettings.User.UserInfo;
 
             _propertiesActionsDialog = new BottomSheetDialog(this);
             _propertiesActionsDialog.Window.RequestFeature(WindowFeatures.NoTitle);
@@ -168,11 +170,31 @@ namespace Steepshot.Activity
                 OpenAccountProperties(accounts.FirstOrDefault(p => p.Chain.Equals(KnownChains.Golos)));
             };
 
-            _nsfwSwitcher.Checked = AppSettings.User.IsNsfw;
-            _lowRatedSwitcher.Checked = AppSettings.User.IsLowRated;
-            _powerSwitch.Checked = AppSettings.User.ShowVotingSlider;
+            _nsfwSwitcher.Checked = _currentUser.IsNsfw;
+            _lowRatedSwitcher.Checked = _currentUser.IsLowRated;
+            _powerSwitch.Checked = _currentUser.ShowVotingSlider;
 
-            PushSettings = AppSettings.User.PushSettings;
+
+            Presenter.SubscriptionsUpdated += _presenter_SubscriptionsUpdated;
+            Presenter.TryCheckSubscriptions();
+
+            PushSettings = _currentUser.PushSettings;
+            EnableNotificationSwitch(false);
+
+            _nsfwSwitcher.CheckedChange += OnNsfwSwitcherOnCheckedChange;
+            _lowRatedSwitcher.CheckedChange += OnLowRatedSwitcherOnCheckedChange;
+            _powerSwitch.CheckedChange += PowerSwitchOnCheckedChange;
+
+            //for tests
+            if (_currentUser.IsDev || _currentUser.Login.Equals("joseph.kalu"))
+            {
+                _testsButton.Visibility = ViewStates.Visible;
+                _testsButton.Click += StartTestActivity;
+            }
+        }
+
+        private void _presenter_SubscriptionsUpdated()
+        {
             _notificationUpvotesSwitch.Checked = PushSettings.HasFlag(PushSettings.Upvote);
             _notificationCommentsUpvotesSwitch.Checked = PushSettings.HasFlag(PushSettings.UpvoteComment);
             _notificationFollowingSwitch.Checked = PushSettings.HasFlag(PushSettings.Follow);
@@ -180,9 +202,6 @@ namespace Steepshot.Activity
             _notificationPostingSwitch.Checked = PushSettings.HasFlag(PushSettings.User);
             _notificationTransferSwitch.Checked = PushSettings.HasFlag(PushSettings.Transfer);
 
-            _nsfwSwitcher.CheckedChange += OnNsfwSwitcherOnCheckedChange;
-            _lowRatedSwitcher.CheckedChange += OnLowRatedSwitcherOnCheckedChange;
-            _powerSwitch.CheckedChange += PowerSwitchOnCheckedChange;
             _notificationUpvotesSwitch.CheckedChange += NotificationChange;
             _notificationCommentsUpvotesSwitch.CheckedChange += NotificationChange;
             _notificationFollowingSwitch.CheckedChange += NotificationChange;
@@ -190,12 +209,17 @@ namespace Steepshot.Activity
             _notificationPostingSwitch.CheckedChange += NotificationChange;
             _notificationTransferSwitch.CheckedChange += NotificationChange;
 
-            //for tests
-            if (AppSettings.User.IsDev || AppSettings.User.Login.Equals("joseph.kalu"))
-            {
-                _testsButton.Visibility = ViewStates.Visible;
-                _testsButton.Click += StartTestActivity;
-            }
+            EnableNotificationSwitch(true);
+        }
+
+        private void EnableNotificationSwitch(bool isenabled)
+        {
+            _notificationUpvotesSwitch.Enabled = isenabled;
+            _notificationCommentsUpvotesSwitch.Enabled = isenabled;
+            _notificationFollowingSwitch.Enabled = isenabled;
+            _notificationCommentsSwitch.Enabled = isenabled;
+            _notificationPostingSwitch.Enabled = isenabled;
+            _notificationTransferSwitch.Enabled = isenabled;
         }
 
         private void PowerSwitchOnCheckedChange(object sender, CompoundButton.CheckedChangeEventArgs e)
@@ -267,17 +291,20 @@ namespace Steepshot.Activity
 
         private async Task SavePushSettings()
         {
-            if (AppSettings.User.PushSettings == PushSettings || !AppSettings.User.HasPostingPermission)
+            if (_currentUser.PushSettings == PushSettings)
                 return;
 
-            var model = new PushNotificationsModel(AppSettings.User.UserInfo, true)
+            var model = new PushNotificationsModel(_currentUser, true)
             {
                 Subscriptions = PushSettings.FlagToStringList()
             };
 
             var resp = await Presenter.TrySubscribeForPushes(model);
             if (resp.IsSuccess)
-                AppSettings.User.PushSettings = PushSettings;
+            {
+                _currentUser.PushSettings = PushSettings;
+                AppSettings.DataProvider.Update(_currentUser);
+            }
             else
                 this.ShowAlert(resp.Exception);
         }
@@ -462,7 +489,9 @@ namespace Steepshot.Activity
                             _steemState.SetImageResource(Resource.Drawable.ic_checked);
                         }
                         else
+                        {
                             _steemState.SetImageResource(Resource.Drawable.ic_unchecked);
+                        }
                         break;
                     case KnownChains.Golos:
                         _golosLyt.Enabled = true;
@@ -479,7 +508,9 @@ namespace Steepshot.Activity
                             _golosState.SetImageResource(Resource.Drawable.ic_checked);
                         }
                         else
+                        {
                             _golosState.SetImageResource(Resource.Drawable.ic_unchecked);
+                        }
                         break;
                 }
             }

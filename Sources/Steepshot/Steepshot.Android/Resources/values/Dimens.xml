@@ -5,4 +5,5 @@
   <dimen name="dp_top_panel_height">50dp</dimen>
   <dimen name="dp_tab_bar_height">50dp</dimen>
   <dimen name="dp_feed_item_header_height">70dp</dimen>
+  <dimen name="dp_post_pager_margin">10dp</dimen>
 </resources>

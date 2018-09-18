@@ -39,7 +39,7 @@ namespace Steepshot.CustomViews
         {
             using (var dialogView = (LinearLayout)LayoutInflater.From(Context).Inflate(Resource.Layout.lyt_claim_rewards, null))
             {
-                dialogView.SetMinimumWidth((int)(Context.Resources.DisplayMetrics.WidthPixels * 0.8));
+                dialogView.SetMinimumWidth((int)(Style.ScreenWidth * 0.8));
 
                 _title = dialogView.FindViewById<TextView>(Resource.Id.title);
                 _title.Typeface = Style.Light;

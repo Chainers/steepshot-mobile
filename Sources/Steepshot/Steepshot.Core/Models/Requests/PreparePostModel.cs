@@ -24,7 +24,7 @@ namespace Steepshot.Core.Models.Requests
         {
             get
             {
-                if (string.IsNullOrEmpty(_permlink))
+                if (string.IsNullOrEmpty(_permlink) && !string.IsNullOrEmpty(Title))
                     _permlink = OperationHelper.TitleToPermlink(Title);
 
                 return _permlink;
@@ -57,7 +57,6 @@ namespace Steepshot.Core.Models.Requests
 
         [JsonProperty]
         [Required(ErrorMessage = nameof(LocalizationKeys.EmptyFileField))]
-
         public MediaModel[] Media { get; set; }
 
         [JsonProperty]
@@ -80,6 +79,9 @@ namespace Steepshot.Core.Models.Requests
                 return _category;
             }
         }
+
+
+        public PreparePostModel() { }
 
         public PreparePostModel(UserInfo user, string device) : base(user)
         {

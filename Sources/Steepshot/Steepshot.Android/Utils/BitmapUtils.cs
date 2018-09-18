@@ -9,73 +9,25 @@ using Android.Provider;
 using Android.Views;
 using System.Collections.Generic;
 using System.Reflection;
+using Java.Lang;
+using Steepshot.Core.Models.Common;
+using Steepshot.CustomViews;
 using Environment = Android.OS.Environment;
 using File = Java.IO.File;
+using Math = System.Math;
 using Uri = Android.Net.Uri;
 
 namespace Steepshot.Utils
 {
     public static class BitmapUtils
     {
-        public static Bitmap RotateImageIfRequired(Bitmap img, string url)
-        {
-            var ei = new ExifInterface(url);
-            var orientation = ei.GetAttribute(ExifInterface.TagOrientation);
-            if (string.IsNullOrEmpty(orientation) || orientation == "0")
-                return img;
-
-            var matrix = GetMatrixOrientation(ei, 0);
-            var rotated = Bitmap.CreateBitmap(img, 0, 0, img.Width, img.Height, matrix, true);
-            img.Recycle();
-            img.Dispose();
-            return rotated;
-        }
-
-        private static Matrix GetMatrixOrientation(ExifInterface sourceExif, float degrees)
-        {
-            var matrix = new Matrix();
-
-            var orientation = sourceExif.GetAttribute(ExifInterface.TagOrientation);
-            switch (orientation)
-            {
-                case "1": //Horizontal(normal)
-                    matrix.PostRotate(degrees);
-                    break;
-                case "2": //Mirror horizontal
-                    matrix.SetScale(-1, 1);
-                    matrix.PostRotate(degrees);
-                    break;
-                case "3": //Rotate 180
-                    matrix.PostRotate(180 + degrees);
-                    break;
-                case "4": //Mirror vertical
-                    matrix.PostRotate(180 + degrees);
-                    matrix.SetScale(-1, 1);
-                    break;
-                case "5": //Mirror horizontal and rotate 270 CW
-                    matrix.PostScale(-1, 1);
-                    matrix.SetRotate(270 + degrees);
-                    break;
-                case "6": //Rotate 90 CW
-                    matrix.SetRotate(90 + degrees);
-                    break;
-                case "7": //Mirror horizontal and rotate 90 CW
-                    matrix.PostScale(-1, 1);
-                    matrix.SetRotate(90 + degrees);
-                    break;
-                case "8": //Rotate 270 CW
-                    matrix.SetRotate(270 + degrees);
-                    break;
-            }
-            return matrix;
-        }
-
+        public const int MaxImageSize = 1600;
 
         public static Bitmap RotateImage(Bitmap img, int degree)
         {
             var matrix = new Matrix();
             matrix.PostRotate(degree);
-            var rotatedImg = Bitmap.CreateBitmap(img, 0, 0, img.Width, img.Height, matrix, true);
+            var rotatedImg = Bitmap.CreateBitmap(img, 0, 0, img.Width, img.Height, matrix, false);
             return rotatedImg;
         }
 
@@ -97,8 +49,11 @@ namespace Steepshot.Utils
 
         public static int CalculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight)
         {
-            var height = options.OutHeight;
-            var width = options.OutWidth;
+            return CalculateInSampleSize(options.OutWidth, options.OutHeight, reqWidth, reqHeight);
+        }
+
+        public static int CalculateInSampleSize(int width, int height, int reqWidth, int reqHeight)
+        {
             var inSampleSize = 1;
 
             var targetArea = reqWidth * reqHeight;
@@ -307,6 +262,42 @@ namespace Steepshot.Utils
 
             }
             return dic;
+        }
+
+        public static void ReleaseBitmap(Drawable drawable)
+        {
+            if (drawable is BitmapDrawable bitmapDrawable)
+                ReleaseBitmap(bitmapDrawable.Bitmap);
+        }
+        public static void ReleaseBitmap(Bitmap bitmap)
+        {
+            if (bitmap == null || bitmap.Handle == IntPtr.Zero) return;
+            bitmap.Recycle();
+            bitmap.Dispose();
+            bitmap = null;
+        }
+
+        public static FrameSize CalculateImagePreviewSize(ImageParameters param, int maxWidth, int maxHeight = int.MaxValue)
+        {
+            var bounds = param.CropBounds;
+            var w = (int)Math.Max(Math.Round((bounds.Right - bounds.Left) / param.Scale), 0);
+            var h = (int)Math.Max(Math.Round((bounds.Bottom - bounds.Top) / param.Scale), 0);
+
+            return CalculateImagePreviewSize(w, h, maxWidth, maxHeight);
+        }
+
+        public static FrameSize CalculateImagePreviewSize(int width, int height, int maxWidth, int maxHeight)
+        {
+            var nh = (int)Math.Round(maxWidth * height / (float)width);
+
+            if (maxHeight == int.MaxValue)
+                return new FrameSize(nh, maxWidth);
+
+            var nw = (int)Math.Round(maxHeight * width / (float)height);
+
+            return nh > maxHeight
+                ? new FrameSize(maxHeight, nw)
+                : new FrameSize(nh, maxWidth);
         }
     }
 }

@@ -24,6 +24,8 @@ namespace Steepshot.iOS.Cells
         private UILabel _secondTokenLabel = new UILabel();
         private UILabel _secondTokenValue = new UILabel();
 
+        private UILabel _balanceLabel = new UILabel();
+
         protected CardCollectionViewCell(IntPtr handle) : base(handle)
         {
             _image.ClipsToBounds = true;
@@ -60,14 +62,12 @@ namespace Steepshot.iOS.Cells
             _login.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 20);
             _login.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 21);
 
-            var balanceLabel = new UILabel();
-            balanceLabel.Text = "Account balance";
-            balanceLabel.Font = Constants.Semibold14;
-            balanceLabel.TextColor = Constants.R255G255B255.ColorWithAlpha(0.5f);
-            _image.AddSubview(balanceLabel);
+            _balanceLabel.Font = Constants.Semibold14;
+            _balanceLabel.TextColor = Constants.R255G255B255.ColorWithAlpha(0.5f);
+            _image.AddSubview(_balanceLabel);
 
-            balanceLabel.AutoAlignAxis(ALAxis.Horizontal, loginBackground);
-            balanceLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 30);
+            _balanceLabel.AutoAlignAxis(ALAxis.Horizontal, loginBackground);
+            _balanceLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 30);
 
             _equivalentBalance.Font = Constants.Bold34;
             _equivalentBalance.TextColor = Constants.R255G255B255;
@@ -162,6 +162,7 @@ namespace Steepshot.iOS.Cells
                     }
             }
 
+            _balanceLabel.Text = $"{balance.CurrencyType.ToString()} balance";
             _equivalentBalance.Text = $"$ {usdBalance.ToBalanceValueString()}".ToUpper();
             _firstTokenLabel.Text = balance.CurrencyType.ToString().ToUpper();
             _firstTokenValue.Text = balance.Value.ToBalanceValueString();

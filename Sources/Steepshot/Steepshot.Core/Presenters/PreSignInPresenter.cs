@@ -16,15 +16,5 @@ namespace Steepshot.Core.Presenters
         {
             return Api.GetAccountInfo(login, ct);
         }
-
-        public async Task<OperationResult<AccountHistoryResponse[]>> TryGetAccountHistory(string login)
-        {
-            return await TryRunTask<string, AccountHistoryResponse[]>(GetAccountHistory, OnDisposeCts.Token, login);
-        }
-
-        private Task<OperationResult<AccountHistoryResponse[]>> GetAccountHistory(string login, CancellationToken ct)
-        {
-            return Api.GetAccountHistory(login, ct);
-        }
     }
 }

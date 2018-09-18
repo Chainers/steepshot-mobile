@@ -1,84 +1,99 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
-    android:layout_height="wrap_content"
     android:layout_width="match_parent"
-    android:padding="10dp">
-    <LinearLayout
-        android:orientation="vertical"
+    android:maxWidth="355dp"
+    android:layout_height="wrap_content"
+    android:layout_margin="30dp"
+    android:paddingLeft="20dp"
+    android:paddingRight="20dp"
+    android:background="@drawable/popup_background">
+    <TextView
+        android:id="@+id/post_alert_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/popup_background"
-        android:divider="@drawable/popup_separator"
-        android:showDividers="middle">
-        <Button
-            android:id="@+id/flag"
-            android:layout_width="fill_parent"
-            android:layout_height="65dp"
-            android:text="Flag post"
-            android:gravity="center"
-            android:textSize="20sp"
-            android:textAllCaps="false"
-            android:background="@drawable/popup_background" />
-        <Button
-            android:id="@+id/hide"
-            android:layout_width="fill_parent"
-            android:layout_height="65dp"
-            android:text="Hide post"
-            android:gravity="center"
-            android:textSize="20sp"
-            android:textAllCaps="false"
-            android:visibility="gone"
-            android:background="@drawable/popup_background" />
-        <Button
-            android:id="@+id/editpost"
-            android:layout_width="fill_parent"
-            android:layout_height="65dp"
-            android:text="Edit post"
-            android:gravity="center"
-            android:textSize="20sp"
-            android:textAllCaps="false"
-            android:visibility="gone"
-            android:background="@drawable/popup_background" />
-        <Button
-            android:id="@+id/deletepost"
-            android:layout_width="fill_parent"
-            android:layout_height="65dp"
-            android:text="Delete post"
-            android:gravity="center"
-            android:textSize="20sp"
-            android:textAllCaps="false"
-            android:visibility="gone"
-            android:background="@drawable/popup_background" />
-        <Button
-            android:id="@+id/sharepost"
-            android:layout_width="fill_parent"
-            android:layout_height="65dp"
-            android:text="Copy link"
-            android:gravity="center"
-            android:textSize="20sp"
-            android:textAllCaps="false"
-            android:visibility="gone"
-            android:background="@drawable/popup_background" />
-        <Button
-            android:id="@+id/copylink"
-            android:layout_width="fill_parent"
-            android:layout_height="65dp"
-            android:text="Copy link"
-            android:gravity="center"
-            android:textSize="20sp"
-            android:textAllCaps="false"
-            android:visibility="gone"
-            android:background="@drawable/popup_background" />
-    </LinearLayout>
+        android:textSize="14sp"
+        android:textColor="@color/black"
+        android:includeFontPadding="false"
+        android:layout_marginTop="25dp"
+        android:gravity="center_horizontal" />
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2px"
+        android:layout_marginTop="26dp"
+        android:background="@color/rgb244_244_246" />
+    <Button
+        android:id="@+id/promote"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginTop="20dp"
+        android:textAllCaps="true"
+        android:textSize="14dp"
+        android:textColor="@color/white"
+        android:background="@drawable/orange_btn_style" />
+    <Button
+        android:id="@+id/flag"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginTop="10dp"
+        android:textAllCaps="true"
+        android:background="@drawable/grey_rounded_border" />
+    <Button
+        android:id="@+id/hide"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginTop="10dp"
+        android:textAllCaps="true"
+        android:visibility="gone"
+        android:background="@drawable/grey_rounded_border" />
+    <Button
+        android:id="@+id/editpost"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginTop="10dp"
+        android:textAllCaps="true"
+        android:textSize="14dp"
+        android:visibility="gone"
+        android:background="@drawable/grey_rounded_border" />
+    <Button
+        android:id="@+id/deletepost"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginTop="10dp"
+        android:textAllCaps="true"
+        android:textSize="14dp"
+        android:visibility="gone"
+        android:background="@drawable/grey_rounded_border" />
+    <Button
+        android:id="@+id/sharepost"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginTop="10dp"
+        android:textAllCaps="true"
+        android:textSize="14dp"
+        android:visibility="gone"
+        android:background="@drawable/grey_rounded_border" />
+    <Button
+        android:id="@+id/copylink"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginTop="10dp"
+        android:textAllCaps="true"
+        android:textSize="14dp"
+        android:visibility="gone"
+        android:background="@drawable/grey_rounded_border" />
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2px"
+        android:layout_marginTop="20dp"
+        android:background="@color/rgb244_244_246" />
     <Button
         android:id="@+id/cancel"
-        android:layout_width="fill_parent"
-        android:layout_height="65dp"
-        android:text="Cancel"
-        android:gravity="center"
-        android:layout_marginTop="10dp"
-        android:textSize="20sp"
-        android:textAllCaps="false"
-        android:background="@drawable/popup_background" />
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="20dp"
+        android:textAllCaps="true"
+        android:textSize="14dp"
+        android:background="@drawable/grey_rounded_border" />
 </LinearLayout>

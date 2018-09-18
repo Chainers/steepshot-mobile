@@ -21,6 +21,7 @@ using Steepshot.Core.Models;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Interfaces;
 using Steepshot.Core.Utils;
+using Steepshot.CustomViews;
 
 namespace Steepshot.Fragment
 {
@@ -84,9 +85,8 @@ namespace Steepshot.Fragment
                 _feedList.AddOnScrollListener(_scrollListner);
 
                 _postPager.SetClipToPadding(false);
-                var pagePadding = (int)BitmapUtils.DpToPixel(20, Resources);
-                _postPager.SetPadding(pagePadding, 0, pagePadding, 0);
-                _postPager.PageMargin = pagePadding / 2;
+                _postPager.SetPadding(Style.PostPagerMargin * 2, 0, Style.PostPagerMargin * 2, 0);
+                _postPager.PageMargin = Style.PostPagerMargin;
                 _postPager.PageScrollStateChanged += PostPagerOnPageScrollStateChanged;
                 _postPager.PageScrolled += PostPagerOnPageScrolled;
 
@@ -302,11 +302,22 @@ namespace Steepshot.Fragment
                     }
                 case ActionType.Delete:
                     {
-                        var exception = await Presenter.TryDeletePost(post);
-                        if (!IsInitialized)
-                            return;
+                        var actionAlert = new ActionAlertDialog(Context,
+                            AppSettings.LocalizationManager.GetText(LocalizationKeys.DeleteAlertTitle),
+                            AppSettings.LocalizationManager.GetText(LocalizationKeys.DeleteAlertMessage),
+                            AppSettings.LocalizationManager.GetText(LocalizationKeys.Delete),
+                            AppSettings.LocalizationManager.GetText(LocalizationKeys.Cancel), AutoLinkAction);
 
-                        Context.ShowAlert(exception);
+                        actionAlert.AlertAction += async () =>
+                        {
+                            var exception = await Presenter.TryDeletePost(post);
+                            if (!IsInitialized)
+                                return;
+
+                            Context.ShowAlert(exception);
+                        };
+
+                        actionAlert.Show();
                         break;
                     }
                 case ActionType.Share:
@@ -321,6 +332,13 @@ namespace Steepshot.Fragment
                 case ActionType.Photo:
                     {
                         OpenPost(post);
+                        break;
+                    }
+                case ActionType.Promote:
+                    {
+                        var actionAlert = new PromoteAlertDialog(Context, post, AutoLinkAction);
+                        actionAlert.Window.RequestFeature(WindowFeatures.NoTitle);
+                        actionAlert.Show();
                         break;
                     }
             }

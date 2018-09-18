@@ -70,7 +70,6 @@
         LowRatedContent,
         LowRatedContentExplanation,
         FlagMessage,
-        FlagSubMessage,
         DeleteAlertTitle,
         DeleteAlertMessage,
         PowerOfLike,
@@ -215,6 +214,7 @@
         CancelPowerDownAlert,
         Yes,
         No,
+        ActionWithPost,
         PromotePost,
         ExpectedVoteTime,
         FindPromoter,
@@ -231,5 +231,11 @@
         SearchAgain,
         MinBid,
         MaxBid,
+        MinSP,
+        NotificationWarning,
+        NotificationTransfers,
+        PromoteConfirmation, 
+        TransferConfirmation,
+        PowerUpDownConfirmation,
     }
 }

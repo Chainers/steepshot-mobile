@@ -152,9 +152,8 @@ namespace Steepshot.iOS.Popups
 
             rightView.LayoutIfNeeded();
 
-            var amountTextFieldDelegate = new AmountFieldDelegate();
             _amountTextField = new SearchTextField(AppSettings.LocalizationManager.GetText(LocalizationKeys.TransferAmountHint),
-                                                   new UIEdgeInsets(0, 20, 0, 0), amountTextFieldDelegate, false, rightView);
+                                                   new UIEdgeInsets(0, 20, 0, 0), new AmountFieldDelegate(), false, rightView);
             _amountTextField.KeyboardType = UIKeyboardType.DecimalPad;
             _amountTextField.Layer.CornerRadius = 25;
             container.AddSubview(_amountTextField);
