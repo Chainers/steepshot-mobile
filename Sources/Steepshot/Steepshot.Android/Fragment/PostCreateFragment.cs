@@ -144,13 +144,13 @@ namespace Steepshot.Fragment
             if (!IsInitialized)
                 return;
 
-            await CheckOnSpam(false);
+            await CheckOnSpam();
             if (!IsInitialized)
                 return;
 
-            if (IsSpammer)
+            if (IsSpammer == true)
                 return;
-
+            
             StartUploadMedia(true);
         }
 
@@ -490,8 +490,6 @@ namespace Steepshot.Fragment
 
             SavePreparePostTemp();
 
-            EnablePostAndEdit(false, true);
-
             while (_isUploading)
             {
                 await Task.Delay(300);
@@ -501,8 +499,8 @@ namespace Steepshot.Fragment
 
             if (Media.Any(m => m.UploadState != UploadState.Ready))
             {
-                await CheckOnSpam(true);
-                if (IsSpammer || !IsInitialized)
+                await CheckOnSpam();
+                if (IsSpammer == true || !IsInitialized)
                     return;
 
                 await StartUploadMedia();
@@ -525,48 +523,43 @@ namespace Steepshot.Fragment
                         Activity.ShowAlert(LocalizationKeys.PostDelay, ToastLength.Long);
                 }
             }
-
-            EnablePostAndEdit(true, true);
         }
 
-        protected async Task CheckOnSpam(bool disableEditing)
+        protected async Task CheckOnSpam()
         {
             try
             {
-                EnablePostAndEdit(false, disableEditing);
-                IsSpammer = false;
+                IsSpammer = null;
 
                 var spamCheck = await Presenter.TryCheckForSpam(AppSettings.User.Login);
                 if (!IsInitialized)
                     return;
 
-                if (spamCheck.IsSuccess)
+                if (!spamCheck.IsSuccess)
+                    return;
+
+                if (spamCheck.Result.IsSpam)
                 {
-                    if (!spamCheck.Result.IsSpam)
+                    // more than 15 posts
+                    IsSpammer = true;
+                    PostingLimit = TimeSpan.FromHours(24);
+                    StartPostTimer((int)spamCheck.Result.WaitingTime);
+                    Activity.ShowAlert(LocalizationKeys.PostsDayLimit, ToastLength.Long);
+                }
+                else
+                {
+                    if (spamCheck.Result.WaitingTime > 0)
                     {
-                        if (spamCheck.Result.WaitingTime > 0)
-                        {
-                            IsSpammer = true;
-                            PostingLimit = TimeSpan.FromMinutes(5);
-                            StartPostTimer((int)spamCheck.Result.WaitingTime);
-                            Activity.ShowAlert(LocalizationKeys.Posts5minLimit, ToastLength.Long);
-                        }
-                        else
-                        {
-                            EnabledPost();
-                        }
+                        IsSpammer = true;
+                        PostingLimit = TimeSpan.FromMinutes(5);
+                        StartPostTimer((int)spamCheck.Result.WaitingTime);
+                        Activity.ShowAlert(LocalizationKeys.Posts5minLimit, ToastLength.Long);
                     }
                     else
                     {
-                        // more than 15 posts
-                        IsSpammer = true;
-                        PostingLimit = TimeSpan.FromHours(24);
-                        StartPostTimer((int)spamCheck.Result.WaitingTime);
-                        Activity.ShowAlert(LocalizationKeys.PostsDayLimit, ToastLength.Long);
+                        IsSpammer = false;
                     }
                 }
-
-                EnablePostAndEdit(true, true);
             }
             catch (Exception ex)
             {
@@ -577,6 +570,7 @@ namespace Steepshot.Fragment
         private async void StartPostTimer(int startSeconds)
         {
             var timepassed = PostingLimit - TimeSpan.FromSeconds(startSeconds);
+            LoadingSpinner.Visibility = ViewStates.Gone;
 
             while (timepassed < PostingLimit)
             {
@@ -592,7 +586,7 @@ namespace Steepshot.Fragment
                 timepassed = timepassed.Add(TimeSpan.FromSeconds(1));
             }
 
-            IsSpammer = false;
+            IsSpammer = null;
             EnabledPost();
         }
 

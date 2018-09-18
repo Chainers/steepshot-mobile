@@ -75,7 +75,7 @@ namespace Steepshot.Fragment
         protected Timer Timer { get; set; }
         protected PreparePostModel Model { get; set; }
         protected string PreviousQuery { get; set; }
-        protected bool IsSpammer { get; set; }
+        protected bool? IsSpammer { get; set; }
 
         protected SelectedTagsAdapter LocalTagsAdapter => _localTagsAdapter ?? (_localTagsAdapter = new SelectedTagsAdapter());
 
@@ -167,7 +167,7 @@ namespace Steepshot.Fragment
 
         private async void OnPost(object sender, EventArgs e)
         {
-            EnablePostAndEdit(false, true);
+            EnablePostAndEdit(false, false);
 
             if (string.IsNullOrEmpty(Title.Text))
             {
@@ -186,6 +186,9 @@ namespace Steepshot.Fragment
             }
 
             await OnPostAsync();
+
+            if (IsSpammer != true)
+                EnablePostAndEdit(true, true);
         }
 
         protected abstract Task OnPostAsync();
@@ -233,10 +236,7 @@ namespace Steepshot.Fragment
         protected async Task<bool> TryCreateOrEditPost()
         {
             if (Model.Media == null)
-            {
-                EnabledPost();
                 return false;
-            }
 
             var resp = await Presenter.TryCreateOrEditPost(Model);
 

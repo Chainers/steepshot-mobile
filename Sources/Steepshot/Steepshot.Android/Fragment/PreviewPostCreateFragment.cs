@@ -32,7 +32,7 @@ namespace Steepshot.Fragment
 
             Media[0].UploadState = UploadState.Prepare;
 
-            CheckOnSpam(false);
+            CheckOnSpam();
         }
 
         private void PreviewOnTouch(object sender, View.TouchEventArgs touchEventArgs)
