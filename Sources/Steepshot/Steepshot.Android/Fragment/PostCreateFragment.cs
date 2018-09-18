@@ -150,7 +150,7 @@ namespace Steepshot.Fragment
 
             if (IsSpammer == true)
                 return;
-            
+
             StartUploadMedia(true);
         }
 
@@ -282,7 +282,7 @@ namespace Steepshot.Fragment
                 var matrix = new Matrix();
                 matrix.SetRotate(rotation);
 
-                croped = Bitmap.CreateBitmap(sized, x, y, width, height, matrix, false);
+                croped = Bitmap.CreateBitmap(sized, x, y, width, height, matrix, true);
 
                 var directory = new Java.IO.File(Context.CacheDir, Constants.Steepshot);
                 if (!directory.Exists())
