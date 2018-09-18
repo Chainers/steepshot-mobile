@@ -88,6 +88,7 @@ namespace Steepshot.Holders
 
         private void PromoteCoinOnClick(object sender, EventArgs e)
         {
+            HideKeyboard();
             CoinPickClick?.Invoke();
         }
 
@@ -103,6 +104,12 @@ namespace Steepshot.Holders
         {
             _errorMessage.Visibility = ViewStates.Visible;
             _errorMessage.Text = mes;
+        }
+
+        private void HideKeyboard()
+        {
+            var imm = (InputMethodManager)ItemView.Context.GetSystemService(Context.InputMethodService);
+            imm?.HideSoftInputFromWindow(_amountTextField.WindowToken, 0);
         }
 
         private void SetBalance()
