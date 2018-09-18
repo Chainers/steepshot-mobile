@@ -55,6 +55,7 @@ namespace Steepshot.Fragment
                 RotateBtn.Click -= RotateBtnOnClick;
                 RatioBtn.Visibility = ViewStates.Gone;
                 RotateBtn.Visibility = ViewStates.Gone;
+                Media[0].Parameters = Preview.DrawableImageParameters.Copy();
                 Media[0].UploadState = UploadState.ReadyToSave;
 
                 await ConvertAndSave();
