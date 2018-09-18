@@ -13,5 +13,5 @@
 		"url": "https://steemd.steepshot.org",
 		"is_enabled": "false",
 		"order":30
-	}
+    }
 ]

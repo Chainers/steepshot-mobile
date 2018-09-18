@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -61,14 +62,52 @@ namespace Steepshot.Fragment
             if (_tepmPost != null)
             {
                 Model.Media = _tepmPost.Media;
-                Title.Text = _tepmPost.Title;
-                Description.Text = _tepmPost.Description;
+                Model.Title = Title.Text = _tepmPost.Title;
+                Model.Description = Description.Text = _tepmPost.Description;
+                Model.Tags = _tepmPost.Tags;
+
                 for (var i = 0; i < _tepmPost.Tags.Length; i++)
                     AddTag(_tepmPost.Tags[i]);
             }
 
+
+            Title.TextChanged += TitleChanged;
+            Title.FocusChange += TitleOnFocusChange;
+            Description.TextChanged += DescriptionChanged;
+            Description.FocusChange += TitleOnFocusChange;
+            LocalTagsAdapter.LocalTags.CollectionChanged += LocalTagsChanged;
+
             InitData();
             SearchTextChanged();
+        }
+
+        public override void OnPause()
+        {
+            SaveGalleryTemp();
+            SavePreparePostTemp();
+            base.OnPause();
+        }
+
+        private void TitleOnFocusChange(object sender, View.FocusChangeEventArgs e)
+        {
+            if (!e.HasFocus)
+                SavePreparePostTemp();
+        }
+
+        private void LocalTagsChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            Model.Tags = LocalTagsAdapter.LocalTags.ToArray();
+            SavePreparePostTemp();
+        }
+
+        private void TitleChanged(object sender, Android.Text.TextChangedEventArgs e)
+        {
+            Model.Title = Title.Text;
+        }
+
+        private void DescriptionChanged(object sender, Android.Text.TextChangedEventArgs e)
+        {
+            Model.Description = Description.Text;
         }
 
         protected virtual async void InitData()
@@ -86,6 +125,9 @@ namespace Steepshot.Fragment
                 layoutParams.SetMargins(Style.Margin15, 0, Style.Margin15, Style.Margin15);
                 PreviewContainer.LayoutParameters = layoutParams;
                 Preview.Touch += PreviewOnTouch;
+
+                if (Media[0].UploadState >= UploadState.Saved)
+                    Preview.SetImageBitmap(Media[0]);
             }
             else
             {
@@ -201,12 +243,13 @@ namespace Steepshot.Fragment
                 {
                     case 90:
                         {
-                            var b = x;
-                            x = y;
-                            y = sized.Height - b - width;
-                            b = width;
+                            var b = width;
                             width = height;
                             height = b;
+
+                            b = x;
+                            x = y;
+                            y = sized.Height - b - height;
                             break;
                         }
                     case 180:
@@ -217,12 +260,13 @@ namespace Steepshot.Fragment
                         }
                     case 270:
                         {
-                            var b = y;
-                            y = x;
-                            x = sized.Width - b - width;
-                            b = width;
+                            var b = width;
                             width = height;
                             height = b;
+
+                            b = y;
+                            y = x;
+                            x = sized.Width - b - width;
                             break;
                         }
                 }
@@ -236,9 +280,9 @@ namespace Steepshot.Fragment
                     height = sized.Height - y;
 
                 var matrix = new Matrix();
-                matrix.PreRotate(rotation);
+                matrix.SetRotate(rotation);
 
-                croped = Bitmap.CreateBitmap(sized, x, y, width, height, matrix, true);
+                croped = Bitmap.CreateBitmap(sized, x, y, width, height, matrix, false);
 
                 var directory = new Java.IO.File(Context.CacheDir, Constants.Steepshot);
                 if (!directory.Exists())
@@ -679,6 +723,8 @@ namespace Steepshot.Fragment
 
             public void Update(GalleryMediaModel model)
             {
+                BitmapUtils.ReleaseBitmap(_image.Drawable);
+
                 _image.SetImageBitmap(null);
                 _image.SetImageResource(Style.R245G245B245);
 
