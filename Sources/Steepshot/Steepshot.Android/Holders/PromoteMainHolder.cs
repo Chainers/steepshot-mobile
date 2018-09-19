@@ -11,6 +11,8 @@ using Steepshot.Utils;
 using Android.Views;
 using Android.Text;
 using System.Globalization;
+using Android.Content;
+using Android.Views.InputMethods;
 using Steepshot.Core.Models.Responses;
 
 namespace Steepshot.Holders
