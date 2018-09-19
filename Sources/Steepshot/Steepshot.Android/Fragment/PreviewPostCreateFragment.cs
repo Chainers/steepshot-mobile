@@ -74,19 +74,19 @@ namespace Steepshot.Fragment
             Preview.Rotate(Preview.DrawableImageParameters.Rotation + 90);
         }
 
-        public override async void OnPause()
-        {
-            if (Media[0].UploadState <= UploadState.ReadyToSave)
-            {
-                var state = Media[0].UploadState;
-                Media[0].Parameters = Preview.DrawableImageParameters.Copy();
-                Media[0].UploadState = UploadState.ReadyToSave;
+        //public override async void OnPause()
+        //{
+        //    if (Media[0].UploadState <= UploadState.ReadyToSave)
+        //    {
+        //        var state = Media[0].UploadState;
+        //        Media[0].Parameters = Preview.DrawableImageParameters.Copy();
+        //        Media[0].UploadState = UploadState.ReadyToSave;
 
-                await ConvertAndSave();
-                Media[0].UploadState = state;
-            }
+        //        await ConvertAndSave();
+        //        Media[0].UploadState = state;
+        //    }
 
-            base.OnPause();
-        }
+        //    base.OnPause();
+        //}
     }
 }

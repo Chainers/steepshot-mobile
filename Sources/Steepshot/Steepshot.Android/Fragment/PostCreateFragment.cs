@@ -72,48 +72,48 @@ namespace Steepshot.Fragment
             }
 
 
-            Title.TextChanged += TitleChanged;
-            Title.FocusChange += TitleOnFocusChange;
-            Description.TextChanged += DescriptionChanged;
-            Description.FocusChange += TitleOnFocusChange;
-            LocalTagsAdapter.LocalTags.CollectionChanged += LocalTagsChanged;
+            //Title.TextChanged += TitleChanged;
+            //Title.FocusChange += TitleOnFocusChange;
+            //Description.TextChanged += DescriptionChanged;
+            //Description.FocusChange += TitleOnFocusChange;
+            //LocalTagsAdapter.LocalTags.CollectionChanged += LocalTagsChanged;
 
             InitData();
             SearchTextChanged();
         }
 
-        public override void OnPause()
-        {
-            if (_isEnableSaveState)
-            {
-                SaveGalleryTemp();
-                SavePreparePostTemp();
-            }
+        //public override void OnPause()
+        //{
+        //    if (_isEnableSaveState)
+        //    {
+        //        SaveGalleryTemp();
+        //        SavePreparePostTemp();
+        //    }
 
-            base.OnPause();
-        }
+        //    base.OnPause();
+        //}
 
-        private void TitleOnFocusChange(object sender, View.FocusChangeEventArgs e)
-        {
-            if (!e.HasFocus)
-                SavePreparePostTemp();
-        }
+        //private void TitleOnFocusChange(object sender, View.FocusChangeEventArgs e)
+        //{
+        //    if (!e.HasFocus)
+        //        SavePreparePostTemp();
+        //}
 
-        private void LocalTagsChanged(object sender, NotifyCollectionChangedEventArgs e)
-        {
-            Model.Tags = LocalTagsAdapter.LocalTags.ToArray();
-            SavePreparePostTemp();
-        }
+        //private void LocalTagsChanged(object sender, NotifyCollectionChangedEventArgs e)
+        //{
+        //    Model.Tags = LocalTagsAdapter.LocalTags.ToArray();
+        //    SavePreparePostTemp();
+        //}
 
-        private void TitleChanged(object sender, Android.Text.TextChangedEventArgs e)
-        {
-            Model.Title = Title.Text;
-        }
+        //private void TitleChanged(object sender, Android.Text.TextChangedEventArgs e)
+        //{
+        //    Model.Title = Title.Text;
+        //}
 
-        private void DescriptionChanged(object sender, Android.Text.TextChangedEventArgs e)
-        {
-            Model.Description = Description.Text;
-        }
+        //private void DescriptionChanged(object sender, Android.Text.TextChangedEventArgs e)
+        //{
+        //    Model.Description = Description.Text;
+        //}
 
         protected virtual async void InitData()
         {
@@ -198,7 +198,7 @@ namespace Steepshot.Fragment
                         }
                     }
 
-                    SaveGalleryTemp();
+                    //SaveGalleryTemp();
                 }
                 catch (Exception ex)
                 {
@@ -369,7 +369,7 @@ namespace Steepshot.Fragment
                     else
                     {
                         media.UploadMediaUuid = operationResult.Result;
-                        SaveGalleryTemp();
+                        //SaveGalleryTemp();
                     }
                 }
 
@@ -435,7 +435,7 @@ namespace Steepshot.Fragment
                             case UploadMediaCode.Done:
                                 {
                                     media.UploadState = UploadState.UploadVerified;
-                                    SaveGalleryTemp();
+                                    //SaveGalleryTemp();
                                 }
                                 break;
                             case UploadMediaCode.FailedToProcess:
@@ -443,7 +443,7 @@ namespace Steepshot.Fragment
                             case UploadMediaCode.FailedToSave:
                                 {
                                     media.UploadState = UploadState.UploadError;
-                                    SaveGalleryTemp();
+                                    //SaveGalleryTemp();
                                 }
                                 break;
                         }
@@ -479,7 +479,7 @@ namespace Steepshot.Fragment
                 {
                     Model.Media[i] = mediaResult.Result;
                     media.UploadState = UploadState.Ready;
-                    SaveGalleryTemp();
+                    //SaveGalleryTemp();
                 }
 
                 if (!IsInitialized)
@@ -493,7 +493,7 @@ namespace Steepshot.Fragment
             Model.Description = Description.Text;
             Model.Tags = LocalTagsAdapter.LocalTags.ToArray();
 
-            SavePreparePostTemp();
+            //SavePreparePostTemp();
 
             while (_isUploading)
             {
@@ -609,47 +609,47 @@ namespace Steepshot.Fragment
                     file.Delete();
         }
 
-        protected override void OnPostSuccess()
-        {
-            AppSettings.Temp.Remove(PostCreateGalleryTemp);
-            AppSettings.Temp.Remove(PreparePostTemp);
-            _isEnableSaveState = false;
-            AppSettings.SaveTemp();
-        }
+        //protected override void OnPostSuccess()
+        //{
+        //    AppSettings.Temp.Remove(PostCreateGalleryTemp);
+        //    AppSettings.Temp.Remove(PreparePostTemp);
+        //    _isEnableSaveState = false;
+        //    AppSettings.SaveTemp();
+        //}
 
-        private void SaveGalleryTemp()
-        {
-            var json = JsonConvert.SerializeObject(Media);
-            if (AppSettings.Temp.ContainsKey(PostCreateGalleryTemp))
-                AppSettings.Temp[PostCreateGalleryTemp] = json;
-            else
-                AppSettings.Temp.Add(PostCreateGalleryTemp, json);
-            AppSettings.SaveTemp();
-        }
+        //private void SaveGalleryTemp()
+        //{
+        //    var json = JsonConvert.SerializeObject(Media);
+        //    if (AppSettings.Temp.ContainsKey(PostCreateGalleryTemp))
+        //        AppSettings.Temp[PostCreateGalleryTemp] = json;
+        //    else
+        //        AppSettings.Temp.Add(PostCreateGalleryTemp, json);
+        //    AppSettings.SaveTemp();
+        //}
 
-        private void SavePreparePostTemp()
-        {
-            var json = JsonConvert.SerializeObject(Model);
-            if (AppSettings.Temp.ContainsKey(PreparePostTemp))
-                AppSettings.Temp[PreparePostTemp] = json;
-            else
-                AppSettings.Temp.Add(PreparePostTemp, json);
-            AppSettings.SaveTemp();
-        }
+        //private void SavePreparePostTemp()
+        //{
+        //    var json = JsonConvert.SerializeObject(Model);
+        //    if (AppSettings.Temp.ContainsKey(PreparePostTemp))
+        //        AppSettings.Temp[PreparePostTemp] = json;
+        //    else
+        //        AppSettings.Temp.Add(PreparePostTemp, json);
+        //    AppSettings.SaveTemp();
+        //}
 
-        public override bool OnBackPressed()
-        {
-            var isPressed = base.OnBackPressed();
-            if (!isPressed)
-            {
-                AppSettings.Temp.Remove(PostCreateGalleryTemp);
-                AppSettings.Temp.Remove(PreparePostTemp);
-                _isEnableSaveState = false;
-                AppSettings.SaveTemp();
-            }
+        //public override bool OnBackPressed()
+        //{
+        //    var isPressed = base.OnBackPressed();
+        //    if (!isPressed)
+        //    {
+        //        AppSettings.Temp.Remove(PostCreateGalleryTemp);
+        //        AppSettings.Temp.Remove(PreparePostTemp);
+        //        _isEnableSaveState = false;
+        //        AppSettings.SaveTemp();
+        //    }
 
-            return isPressed;
-        }
+        //    return isPressed;
+        //}
 
         private async Task CheckForPlagiarism()
         {
