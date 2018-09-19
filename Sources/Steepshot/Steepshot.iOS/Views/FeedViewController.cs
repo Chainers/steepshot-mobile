@@ -154,7 +154,7 @@ namespace Steepshot.iOS.Views
                     break;
                 case ActionType.Preview:
                     if (feedCollection.Hidden)
-                        NavigationController.PushViewController(new ImagePreviewViewController(post.Body) { HidesBottomBarWhenPushed = true }, true);
+                        NavigationController.PushViewController(new ImagePreviewViewController(post.Media[post.PageIndex].Url) { HidesBottomBarWhenPushed = true }, true);
                     else
                         OpenPost(post);
                     break;
