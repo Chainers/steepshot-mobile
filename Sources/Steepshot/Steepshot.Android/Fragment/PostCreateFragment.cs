@@ -613,6 +613,7 @@ namespace Steepshot.Fragment
         {
             AppSettings.Temp.Remove(PostCreateGalleryTemp);
             AppSettings.Temp.Remove(PreparePostTemp);
+            _isEnableSaveState = false;
             AppSettings.SaveTemp();
         }
 
@@ -643,8 +644,8 @@ namespace Steepshot.Fragment
             {
                 AppSettings.Temp.Remove(PostCreateGalleryTemp);
                 AppSettings.Temp.Remove(PreparePostTemp);
-                AppSettings.SaveTemp();
                 _isEnableSaveState = false;
+                AppSettings.SaveTemp();
             }
 
             return isPressed;
