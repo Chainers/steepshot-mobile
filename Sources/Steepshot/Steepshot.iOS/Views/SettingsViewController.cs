@@ -79,14 +79,14 @@ namespace Steepshot.iOS.Views
             lowRatedSwitch.ValueChanged += SwitchLowRated;
             nsfwSwitch.ValueChanged += SwitchNSFW;
             SetBackButton();
-            _presenter.SubscriptionsUpdated += _presenter_SubscriptionsUpdated;
+            _presenter.SubscriptionsUpdated += OnSubscriptionsUpdated;
             _presenter.TryCheckSubscriptions();
 #if !DEBUG
             lowRatedLabel.Hidden = nsfwLabel.Hidden = nsfwSwitch.Hidden = lowRatedSwitch.Hidden = true;
 #endif
         }
 
-        private void _presenter_SubscriptionsUpdated()
+        private void OnSubscriptionsUpdated()
         {
             notificationSettings.Enabled = true;
         }
