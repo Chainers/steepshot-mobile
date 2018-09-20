@@ -526,7 +526,7 @@ namespace Steepshot.CustomViews
                     {
                         var matrix = new Matrix();
                         matrix.PostRotate(angle);
-                        var preparedBitmap = Bitmap.CreateBitmap(bitmap, 0, 0, bitmap.Width, bitmap.Height, matrix, false);
+                        var preparedBitmap = Bitmap.CreateBitmap(bitmap, 0, 0, bitmap.Width, bitmap.Height, matrix, true);
                         _imageRawWidth = preparedBitmap.Width;
                         _imageRawHeight = preparedBitmap.Height;
 

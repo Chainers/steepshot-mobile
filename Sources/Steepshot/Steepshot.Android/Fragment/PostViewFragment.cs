@@ -14,6 +14,7 @@ using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
+using Steepshot.CustomViews;
 using Steepshot.Utils;
 
 namespace Steepshot.Fragment
@@ -176,6 +177,13 @@ namespace Steepshot.Fragment
                         var intent = new Intent(Context, typeof(PostPreviewActivity));
                         intent.PutExtra(PostPreviewActivity.PhotoExtraPath, post.Media[0].Url);
                         StartActivity(intent);
+                        break;
+                    }
+                case ActionType.Promote:
+                    {
+                        var actionAlert = new PromoteAlertDialog(Context, post, AutoLinkAction);
+                        actionAlert.Window.RequestFeature(WindowFeatures.NoTitle);
+                        actionAlert.Show();
                         break;
                     }
             }

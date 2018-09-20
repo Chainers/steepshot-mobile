@@ -244,6 +244,7 @@ About 6 inches away</string>
     <string name="Server Error">Server made a mistake and sent the wrong answer. Try to changing or repeating your request.</string>
     <string name="Not Found">Server tried, but did not find any data for your request.</string>
     <string name="Gateway Time-out">Server is busy and forgot to respond to your request. Try to repeating your request.</string>
+    <string name="Height is too small. Minimum height: 420.">You can publish only photos that are larger than 420px</string>
 
     <!--Blockchain errors-->
     <string name="unknown key">Post not found (deleted or not available)</string>
