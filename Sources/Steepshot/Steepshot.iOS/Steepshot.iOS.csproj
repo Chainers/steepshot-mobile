@@ -445,6 +445,7 @@
     <Compile Include="CustomViews\CustomView.cs" />
     <Compile Include="Cells\TransactionShimmerCollectionViewCell.cs" />
     <Compile Include="Cells\CardShimmerCollectionView.cs" />
+    <Compile Include="CustomViews\VideoView.cs" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\ic_photo_holder.png" />

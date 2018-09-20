@@ -49,7 +49,22 @@ namespace Steepshot.iOS.Helpers
 
         public override void Scrolled(UIScrollView scrollView)
         {
-            if (_collection.IndexPathsForVisibleItems.Length > 0)
+            List<UICollectionViewLayoutAttributes> f = new List<UICollectionViewLayoutAttributes>();
+
+            foreach (var item in _collection.IndexPathsForVisibleItems)
+            {
+                f.Add(_collection.GetLayoutAttributesForItem(item));
+            }
+
+            var center = scrollView.ContentOffset.Y + scrollView.Frame.Height / 2;
+
+            var t = f.Aggregate(
+                (UICollectionViewLayoutAttributes arg1, UICollectionViewLayoutAttributes arg2) =>
+                Math.Abs(arg1.Center.Y - center) < Math.Abs(arg2.Center.Y - center) ? arg1 : arg2);
+
+
+
+           if (_collection.IndexPathsForVisibleItems.Length > 0)
             {
                 var pos = _collection.IndexPathsForVisibleItems.Max(c => c.Row);
                 //TopCurrentPosition = _collection.IndexPathsForVisibleItems.Min();

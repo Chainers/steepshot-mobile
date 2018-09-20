@@ -16,6 +16,8 @@ using Steepshot.Core.Utils;
 using Steepshot.iOS.CustomViews;
 using Steepshot.iOS.ViewControllers;
 using Steepshot.iOS.Helpers;
+using AVFoundation;
+using CoreMedia;
 
 namespace Steepshot.iOS.Cells
 {
@@ -60,6 +62,9 @@ namespace Steepshot.iOS.Cells
         private TTTAttributedLabel _attributedLabel;
         private UILabel _comments;
         private UIView _bottomSeparator;
+
+        private VideoView _videoView;
+        private AVPlayerLooper _AVPlayerLooper;
 
         private IScheduledWork _scheduledWorkAvatar;
         private IScheduledWork[] _scheduledWorkBody = new IScheduledWork[0];
@@ -288,7 +293,7 @@ namespace Steepshot.iOS.Cells
             _moreButton.TouchDown += FlagButton_TouchDown;
         }
 
-        public nfloat UpdateCell(Post post, CellSizeHelper variables)
+        public nfloat UpdateCell(Post post, CellSizeHelper variables, int ii = 0)
         {
             _currentPost = post;
             likesMargin = leftMargin;
@@ -311,41 +316,96 @@ namespace Steepshot.iOS.Cells
             _timestamp.Text = _currentPost.Created.ToPostTime();
 
             _photoScroll.Frame = new CGRect(0, _avatarImage.Frame.Bottom + 15, UIScreen.MainScreen.Bounds.Width, variables.PhotoHeight);
-            _photoScroll.ContentSize = new CGSize(UIScreen.MainScreen.Bounds.Width * _currentPost.Media.Length, variables.PhotoHeight);
 
-            foreach (var subview in _photoScroll.Subviews)
-                subview.RemoveFromSuperview();
-
-            for (int i = 0; i < _scheduledWorkBody.Length; i++)
+            if (true)
             {
-                _scheduledWorkBody[i]?.Cancel();
-            }
-            _scheduledWorkBody = new IScheduledWork[_currentPost.Media.Length];
+                if (_videoView != null)
+                {
+                    _videoView.PlayerLayer.Player.Pause();
+                    _videoView.RemoveFromSuperview();
+                }
 
-            _bodyImage = new UIImageView[_currentPost.Media.Length];
-            for (int i = 0; i < _currentPost.Media.Length; i++)
-            {
-                _bodyImage[i] = new UIImageView();
-                _bodyImage[i].ClipsToBounds = true;
-                _bodyImage[i].UserInteractionEnabled = true;
-                _bodyImage[i].ContentMode = UIViewContentMode.ScaleAspectFill;
-                _bodyImage[i].Frame = new CGRect(UIScreen.MainScreen.Bounds.Width * i, 0, UIScreen.MainScreen.Bounds.Width, variables.PhotoHeight);
-                _photoScroll.AddSubview(_bodyImage[i]);
+                _videoView = new VideoView();
+                var avPlayer = new AVQueuePlayer();
+                _videoView.PlayerLayer.Player = avPlayer;
+                _photoScroll.AddSubview(_videoView);
 
-                _scheduledWorkBody[i] = ImageLoader.Load(_currentPost.Media[i].Url,
-                                                         _bodyImage[i],
-                                                         2, LoadingPriority.Highest);
-            }
-            if (_currentPost.Media.Length > 1)
-            {
-                _pageControl.Hidden = false;
-                _pageControl.Pages = _currentPost.Media.Length;
-                _pageControl.SizeToFit();
-                _pageControl.Frame = new CGRect(new CGPoint(0, _photoScroll.Frame.Bottom - 30), _pageControl.Frame.Size);
+                _videoView.Frame = new CGRect(new CGPoint(0, 0), _photoScroll.Frame.Size);
+                _videoView.PlayerLayer.Frame = new CGRect(new CGPoint(0, 0), _photoScroll.Frame.Size);
+
+                _photoScroll.ContentSize = new CGSize(UIScreen.MainScreen.Bounds.Width, variables.PhotoHeight);
+                AVPlayerItem item;
+
+                switch (ii)
+                {
+                    case 0:
+                        item = new AVPlayerItem(NSUrl.FromString("https://steepshot.org/api/v1/image/dd57081c-0224-4bce-b3de-6fcf955d0d7f.m3u8"));
+                        break;
+                    case 1:
+                        item = new AVPlayerItem(NSUrl.FromString("https://steepshot.org/api/v1/image/3fa554bd-812b-4ef0-a1ee-0dac3154f276.m3u8"));
+                        break;
+                    case 2:
+                        item = new AVPlayerItem(NSUrl.FromString("https://steepshot.org/api/v1/image/324515aa-8d52-4f34-8981-92575593ae14.m3u8"));
+                        break;
+                    case 3:
+                        item = new AVPlayerItem(NSUrl.FromString("https://steepshot.org/api/v1/image/dd57081c-0224-4bce-b3de-6fcf955d0d7f.m3u8"));
+                        break;
+                    case 4:
+                        item = new AVPlayerItem(NSUrl.FromString("https://steepshot.org/api/v1/image/3fa554bd-812b-4ef0-a1ee-0dac3154f276.m3u8"));
+                        break;
+                    case 5:
+                        item = new AVPlayerItem(NSUrl.FromString("https://steepshot.org/api/v1/image/324515aa-8d52-4f34-8981-92575593ae14.m3u8"));
+                        break;
+                    default:
+                        item = new AVPlayerItem(NSUrl.FromString("https://steepshot.org/api/v1/image/dd57081c-0224-4bce-b3de-6fcf955d0d7f.m3u8"));
+                        break;
+                }
+                if (_AVPlayerLooper != null)
+                {
+                    _AVPlayerLooper.Dispose();
+                    _AVPlayerLooper = null;
+                }
+
+                _AVPlayerLooper = new AVPlayerLooper(avPlayer, item, CMTimeRange.InvalidRange);
+                _videoView.PlayerLayer.Player.Play();
             }
             else
-                _pageControl.Hidden = true;
+            {
+                _photoScroll.ContentSize = new CGSize(UIScreen.MainScreen.Bounds.Width * _currentPost.Media.Length, variables.PhotoHeight);
 
+                foreach (var subview in _photoScroll.Subviews)
+                    subview.RemoveFromSuperview();
+
+                for (int i = 0; i < _scheduledWorkBody.Length; i++)
+                {
+                    _scheduledWorkBody[i]?.Cancel();
+                }
+                _scheduledWorkBody = new IScheduledWork[_currentPost.Media.Length];
+
+                _bodyImage = new UIImageView[_currentPost.Media.Length];
+                for (int i = 0; i < _currentPost.Media.Length; i++)
+                {
+                    _bodyImage[i] = new UIImageView();
+                    _bodyImage[i].ClipsToBounds = true;
+                    _bodyImage[i].UserInteractionEnabled = true;
+                    _bodyImage[i].ContentMode = UIViewContentMode.ScaleAspectFill;
+                    _bodyImage[i].Frame = new CGRect(UIScreen.MainScreen.Bounds.Width * i, 0, UIScreen.MainScreen.Bounds.Width, variables.PhotoHeight);
+                    _photoScroll.AddSubview(_bodyImage[i]);
+
+                    _scheduledWorkBody[i] = ImageLoader.Load(_currentPost.Media[i].Url,
+                                                             _bodyImage[i],
+                                                             2, LoadingPriority.Highest);
+                }
+                if (_currentPost.Media.Length > 1)
+                {
+                    _pageControl.Hidden = false;
+                    _pageControl.Pages = _currentPost.Media.Length;
+                    _pageControl.SizeToFit();
+                    _pageControl.Frame = new CGRect(new CGPoint(0, _photoScroll.Frame.Bottom - 30), _pageControl.Frame.Size);
+                }
+                else
+                    _pageControl.Hidden = true;
+            }
             if (_currentPost.TopLikersAvatars.Any() && !string.IsNullOrEmpty(_currentPost.TopLikersAvatars[0]))
             {
                 _firstLikerImage?.RemoveFromSuperview();
