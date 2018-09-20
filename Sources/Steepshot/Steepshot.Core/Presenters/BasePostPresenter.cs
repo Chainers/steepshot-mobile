@@ -22,20 +22,20 @@ namespace Steepshot.Core.Presenters
             IsEnableVote = true;
         }
 
-        public async Task<Exception> TryDeletePost(Post post)
+        public async Task<Exception> TryDeletePostAsync(Post post)
         {
             if (post == null)
                 return null;
 
-            var exception = await TryRunTask(DeletePost, OnDisposeCts.Token, post);
-            NotifySourceChanged(nameof(TryDeletePost), true);
+            var exception = await TryRunTaskAsync(DeletePostAsync, OnDisposeCts.Token, post).ConfigureAwait(false);
+            NotifySourceChanged(nameof(TryDeletePostAsync), true);
             return exception;
         }
 
-        private async Task<Exception> DeletePost(Post post, CancellationToken ct)
+        private async Task<Exception> DeletePostAsync(Post post, CancellationToken ct)
         {
             var request = new DeleteModel(AppSettings.User.UserInfo, post);
-            var response = await Api.DeletePostOrComment(request, ct);
+            var response = await Api.DeletePostOrCommentAsync(request, ct).ConfigureAwait(false);
             if (response.IsSuccess)
             {
                 lock (Items)
@@ -47,20 +47,20 @@ namespace Steepshot.Core.Presenters
             return response.Exception;
         }
 
-        public async Task<Exception> TryDeleteComment(Post post, Post parentPost)
+        public async Task<Exception> TryDeleteCommentAsync(Post post, Post parentPost)
         {
             if (post == null || parentPost == null)
                 return null;
 
-            var exception = await TryRunTask(DeleteComment, OnDisposeCts.Token, post, parentPost);
-            NotifySourceChanged(nameof(TryDeletePost), true);
+            var exception = await TryRunTaskAsync(DeleteCommentAsync, OnDisposeCts.Token, post, parentPost).ConfigureAwait(false);
+            NotifySourceChanged(nameof(TryDeletePostAsync), true);
             return exception;
         }
 
-        private async Task<Exception> DeleteComment(Post post, Post parentPost, CancellationToken ct)
+        private async Task<Exception> DeleteCommentAsync(Post post, Post parentPost, CancellationToken ct)
         {
             var request = new DeleteModel(AppSettings.User.UserInfo, post, parentPost);
-            var response = await Api.DeletePostOrComment(request, ct);
+            var response = await Api.DeletePostOrCommentAsync(request, ct).ConfigureAwait(false);
             if (response.IsSuccess)
             {
                 lock (Items)
@@ -71,28 +71,28 @@ namespace Steepshot.Core.Presenters
             return response.Exception;
         }
 
-        public async Task<Exception> TryEditComment(UserInfo userInfo, Post parentPost, Post post, string body, IAppInfo appInfo)
+        public async Task<Exception> TryEditCommentAsync(UserInfo userInfo, Post parentPost, Post post, string body, IAppInfo appInfo)
         {
             if (string.IsNullOrEmpty(body) || parentPost == null || post == null)
                 return null;
 
             var model = new CreateOrEditCommentModel(userInfo, parentPost, post, body, appInfo);
-            var exception = await TryRunTask(EditComment, OnDisposeCts.Token, model, post);
-            NotifySourceChanged(nameof(TryEditComment), true);
+            var exception = await TryRunTaskAsync(EditCommentAsync, OnDisposeCts.Token, model, post).ConfigureAwait(false);
+            NotifySourceChanged(nameof(TryEditCommentAsync), true);
             return exception;
         }
 
-        private async Task<Exception> EditComment(CreateOrEditCommentModel model, Post post, CancellationToken ct)
+        private async Task<Exception> EditCommentAsync(CreateOrEditCommentModel model, Post post, CancellationToken ct)
         {
-            var response = await Api.CreateOrEditComment(model, ct);
+            var response = await Api.CreateOrEditCommentAsync(model, ct).ConfigureAwait(false);
             if (response.IsSuccess)
                 post.Body = model.Body;
             return response.Exception;
         }
 
-        public async Task<OperationResult<PromoteResponse>> FindPromoteBot(PromoteRequest request)
+        public async Task<OperationResult<PromoteResponse>> FindPromoteBotAsync(PromoteRequest request)
         {
-            return await Api.FindPromoteBot(request);
+            return await Api.FindPromoteBotAsync(request).ConfigureAwait(false);
         }
 
         public void HidePost(Post post)
@@ -185,29 +185,29 @@ namespace Steepshot.Core.Presenters
             return true;
         }
 
-        public async Task<Exception> TryVote(Post post)
+        public async Task<Exception> TryVoteAsync(Post post)
         {
             if (post == null || post.VoteChanging || post.FlagChanging)
                 return null;
 
             post.VoteChanging = true;
             IsEnableVote = false;
-            NotifySourceChanged(nameof(TryVote), true);
+            NotifySourceChanged(nameof(TryVoteAsync), true);
 
-            var exception = await TryRunTask(Vote, OnDisposeCts.Token, post);
+            var exception = await TryRunTaskAsync(VoteAsync, OnDisposeCts.Token, post).ConfigureAwait(false);
 
             post.VoteChanging = false;
             IsEnableVote = true;
-            NotifySourceChanged(nameof(TryVote), true);
+            NotifySourceChanged(nameof(TryVoteAsync), true);
 
             return exception;
         }
 
-        private async Task<Exception> Vote(Post post, CancellationToken ct)
+        private async Task<Exception> VoteAsync(Post post, CancellationToken ct)
         {
             var wasFlaged = post.Flag;
             var request = new VoteModel(AppSettings.User.UserInfo, post, post.Vote ? VoteType.Down : VoteType.Up);
-            var response = await Api.Vote(request, ct);
+            var response = await Api.VoteAsync(request, ct).ConfigureAwait(false);
 
             if (response.IsSuccess)
             {
@@ -243,7 +243,7 @@ namespace Steepshot.Core.Presenters
                 post.NetFlags--;
         }
 
-        public async Task<Exception> TryFlag(Post post)
+        public async Task<Exception> TryFlagAsync(Post post)
         {
             if (post == null || post.VoteChanging || post.FlagChanging)
                 return null;
@@ -251,22 +251,22 @@ namespace Steepshot.Core.Presenters
             post.FlagNotificationWasShown = post.Flag;
             post.FlagChanging = true;
             IsEnableVote = false;
-            NotifySourceChanged(nameof(TryFlag), true);
+            NotifySourceChanged(nameof(TryFlagAsync), true);
 
-            var exception = await TryRunTask(Flag, OnDisposeCts.Token, post);
+            var exception = await TryRunTaskAsync(FlagAsync, OnDisposeCts.Token, post).ConfigureAwait(false);
 
             post.FlagChanging = false;
             IsEnableVote = true;
-            NotifySourceChanged(nameof(TryFlag), true);
+            NotifySourceChanged(nameof(TryFlagAsync), true);
 
             return exception;
         }
 
-        private async Task<Exception> Flag(Post post, CancellationToken ct)
+        private async Task<Exception> FlagAsync(Post post, CancellationToken ct)
         {
             var wasVote = post.Vote;
             var request = new VoteModel(AppSettings.User.UserInfo, post, post.Flag ? VoteType.Down : VoteType.Flag);
-            var response = await Api.Vote(request, ct);
+            var response = await Api.VoteAsync(request, ct).ConfigureAwait(false);
 
             if (response.IsSuccess)
             {
@@ -311,9 +311,9 @@ namespace Steepshot.Core.Presenters
             base.Clear(isNotify);
         }
 
-        public async Task<OperationResult<string>> CheckServiceStatus()
+        public async Task<OperationResult<string>> CheckServiceStatusAsync()
         {
-            return await Api.CheckRegistrationServiceStatus(CancellationToken.None);
+            return await Api.CheckRegistrationServiceStatusAsync(CancellationToken.None).ConfigureAwait(false);
         }
 
         #region IDisposable Support

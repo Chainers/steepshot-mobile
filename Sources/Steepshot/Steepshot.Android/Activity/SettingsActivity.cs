@@ -299,7 +299,7 @@ namespace Steepshot.Activity
                 Subscriptions = PushSettings.FlagToStringList()
             };
 
-            var resp = await Presenter.TrySubscribeForPushes(model);
+            var resp = await Presenter.TrySubscribeForPushesAsync(model);
             if (resp.IsSuccess)
             {
                 _currentUser.PushSettings = PushSettings;

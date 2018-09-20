@@ -129,7 +129,7 @@ namespace Steepshot.iOS.Views
                     UserInfo = _walletPresenter.Balances[0].UserInfo
                 };
 
-                var response = await _walletPresenter.TryPowerUpOrDown(model, _powerAction);
+                var response = await _walletPresenter.TryPowerUpOrDownAsync(model, _powerAction);
 
                 _loader.StopAnimating();
                 _actionButton.Enabled = true;

@@ -224,7 +224,7 @@ namespace Steepshot.iOS.Views
 
             _loader.StartAnimating();
 
-            var exception = await _presenter.TryGetAccountInfo(_username.Text);
+            var exception = await _presenter.TryGetAccountInfoAsync(_username.Text);
 
             if (exception is OperationCanceledException)
             {
@@ -269,7 +269,7 @@ namespace Steepshot.iOS.Views
 
             var model = new CreateAccountModel(_username.Text, _email.Text);
 
-            var exception = await _presenter.TryCreateAccount(model);
+            var exception = await _presenter.TryCreateAccountAsync(model);
 
             if (exception == null)
             {

@@ -300,7 +300,7 @@ namespace Steepshot.Fragment
 
         private void ScrollListenerOnScrolledToBottom()
         {
-            _transferFacade.TryLoadNextSearchUser(_prevQuery);
+            _transferFacade.TryLoadNextSearchUserAsync(_prevQuery);
         }
 
         private void PresenterOnSourceChanged(Status obj)
@@ -428,7 +428,7 @@ namespace Steepshot.Fragment
                 _transferFacade.UserFriendPresenter.Clear();
                 _recipientSearchLoader.Visibility = ViewStates.Visible;
                 _emptyQueryLabel.Visibility = ViewStates.Gone;
-                var searchResult = await _transferFacade.TryLoadNextSearchUser(_recipientSearch.Text);
+                var searchResult = await _transferFacade.TryLoadNextSearchUserAsync(_recipientSearch.Text);
                 if (searchResult == null)
                 {
                     _prevQuery = _recipientSearch.Text;
@@ -492,7 +492,7 @@ namespace Steepshot.Fragment
         {
             _balance.Visibility = ViewStates.Gone;
             _balanceLoader.Visibility = ViewStates.Visible;
-            var response = await _transferFacade.TryGetAccountInfo(_userInfo.Login);
+            var response = await _transferFacade.TryGetAccountInfoAsync(_userInfo.Login);
 
             if (!IsInitialized || IsDetached)
                 return;
@@ -587,7 +587,7 @@ namespace Steepshot.Fragment
 
             if (_transferFacade.UserBalance == null)
             {
-                await _transferFacade.TryGetAccountInfo(_userInfo.Login);
+                await _transferFacade.TryGetAccountInfoAsync(_userInfo.Login);
                 return await Validate();
             }
 
@@ -648,7 +648,7 @@ namespace Steepshot.Fragment
             if (_transferFacade.UserBalance == null)
                 return;
 
-            var transferResponse = await _transferFacade.TransferPresenter.TryTransfer(_userInfo, _transferFacade.Recipient.Author, _transferAmountEdit.Text, _pickedCoin, _transferCommentEdit.Text);
+            var transferResponse = await _transferFacade.TransferPresenter.TryTransferAsync(_userInfo, _transferFacade.Recipient.Author, _transferAmountEdit.Text, _pickedCoin, _transferCommentEdit.Text);
             if (transferResponse.IsSuccess)
             {
                 var success = new SuccessfullTrxDialog(Activity, _transferFacade.Recipient.Author, $"{_transferAmountEdit.Text} {_pickedCoin.ToString().ToUpper()}");

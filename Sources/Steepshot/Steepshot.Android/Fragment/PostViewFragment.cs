@@ -58,7 +58,7 @@ namespace Steepshot.Fragment
             if (!string.IsNullOrEmpty(_url))
             {
                 Presenter.SourceChanged += PresenterOnSourceChanged;
-                Presenter.TryLoadPostInfo(_url);
+                Presenter.TryLoadPostInfoAsync(_url);
             }
         }
 
@@ -93,7 +93,7 @@ namespace Steepshot.Fragment
                         if (!AppSettings.User.HasPostingPermission)
                             return;
 
-                        var exception = await Presenter.TryVote(post);
+                        var exception = await Presenter.TryVoteAsync(post);
                         if (!IsInitialized)
                             return;
 
@@ -131,7 +131,7 @@ namespace Steepshot.Fragment
                         if (!AppSettings.User.HasPostingPermission)
                             return;
 
-                        var exception = await Presenter.TryFlag(post);
+                        var exception = await Presenter.TryFlagAsync(post);
                         if (!IsInitialized)
                             return;
 
@@ -146,7 +146,7 @@ namespace Steepshot.Fragment
                     }
                 case ActionType.Delete:
                     {
-                        var exception = await Presenter.TryDeletePost(post);
+                        var exception = await Presenter.TryDeletePostAsync(post);
                         if (!IsInitialized)
                             return;
 

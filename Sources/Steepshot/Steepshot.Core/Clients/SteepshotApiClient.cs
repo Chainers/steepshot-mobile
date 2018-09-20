@@ -60,37 +60,37 @@ namespace Steepshot.Core.Clients
             }
         }
 
-        public async Task<OperationResult<AccountInfoResponse>> GetAccountInfo(string userName, CancellationToken ct)
+        public async Task<OperationResult<AccountInfoResponse>> GetAccountInfoAsync(string userName, CancellationToken ct)
         {
-            return await _ditchClient.GetAccountInfo(userName, ct);
+            return await _ditchClient.GetAccountInfoAsync(userName, ct).ConfigureAwait(false);
         }
 
-        public async Task<OperationResult<AccountHistoryResponse[]>> GetAccountHistory(string userName, CancellationToken ct)
+        public async Task<OperationResult<AccountHistoryResponse[]>> GetAccountHistoryAsync(string userName, CancellationToken ct)
         {
-            return await _ditchClient.GetAccountHistory(userName, ct);
+            return await _ditchClient.GetAccountHistoryAsync(userName, ct).ConfigureAwait(false);
         }
 
-        public async Task<OperationResult<VoidResponse>> ValidatePrivateKey(ValidatePrivateKeyModel model, CancellationToken ct)
+        public async Task<OperationResult<VoidResponse>> ValidatePrivateKeyAsync(ValidatePrivateKeyModel model, CancellationToken ct)
         {
             var results = Validate(model);
             if (results != null)
                 return new OperationResult<VoidResponse>(results);
 
-            var result = await _ditchClient.ValidatePrivateKey(model, ct);
+            var result = await _ditchClient.ValidatePrivateKeyAsync(model, ct).ConfigureAwait(false);
             return result;
         }
 
-        public async Task<OperationResult<Post>> Vote(VoteModel model, CancellationToken ct)
+        public async Task<OperationResult<Post>> VoteAsync(VoteModel model, CancellationToken ct)
         {
             var results = Validate(model);
             if (results != null)
                 return new OperationResult<Post>(results);
 
-            var result = await _ditchClient.Vote(model, ct);
+            var result = await _ditchClient.VoteAsync(model, ct).ConfigureAwait(false);
 
             var startDelay = DateTime.Now;
 
-            await Trace($"post/@{model.Author}/{model.Permlink}/{model.Type.GetDescription()}", model.Login, result.Exception, $"@{model.Author}/{model.Permlink}", ct);
+            await TraceAsync($"post/@{model.Author}/{model.Permlink}/{model.Type.GetDescription()}", model.Login, result.Exception, $"@{model.Author}/{model.Permlink}", ct).ConfigureAwait(false);
             if (!result.IsSuccess)
                 return new OperationResult<Post>(result.Exception);
 
@@ -107,28 +107,28 @@ namespace Steepshot.Core.Clients
                     ShowLowRated = true,
                     ShowNsfw = true
                 };
-                postInfo = await GetPostInfo(infoModel, ct);
+                postInfo = await GetPostInfoAsync(infoModel, ct).ConfigureAwait(false);
             }
 
             var delay = (int)(model.VoteDelay - (DateTime.Now - startDelay).TotalMilliseconds);
             if (delay > 100)
-                await Task.Delay(delay, ct);
+                await Task.Delay(delay, ct).ConfigureAwait(false);
 
             return postInfo;
         }
 
-        public async Task<OperationResult<VoidResponse>> Follow(FollowModel model, CancellationToken ct)
+        public async Task<OperationResult<VoidResponse>> FollowAsync(FollowModel model, CancellationToken ct)
         {
             var results = Validate(model);
             if (results != null)
                 return new OperationResult<VoidResponse>(results);
 
-            var result = await _ditchClient.Follow(model, ct);
-            await Trace($"user/{model.Username}/{model.Type.ToString().ToLowerInvariant()}", model.Login, result.Exception, model.Username, ct);
+            var result = await _ditchClient.FollowAsync(model, ct).ConfigureAwait(false);
+            await TraceAsync($"user/{model.Username}/{model.Type.ToString().ToLowerInvariant()}", model.Login, result.Exception, model.Username, ct).ConfigureAwait(false);
             return result;
         }
 
-        public async Task<OperationResult<VoidResponse>> CreateOrEditComment(CreateOrEditCommentModel model, CancellationToken ct)
+        public async Task<OperationResult<VoidResponse>> CreateOrEditCommentAsync(CreateOrEditCommentModel model, CancellationToken ct)
         {
             var results = Validate(model);
             if (results != null)
@@ -143,21 +143,21 @@ namespace Steepshot.Core.Clients
                 }
                 else
                 {
-                    var beneficiaries = await GetBeneficiaries(ct);
+                    var beneficiaries = await GetBeneficiariesAsync(ct).ConfigureAwait(false);
                     if (beneficiaries.IsSuccess)
                         _beneficiariesCash[bKey] = model.Beneficiaries = beneficiaries.Result.Beneficiaries;
                 }
             }
 
-            var result = await _ditchClient.CreateOrEdit(model, ct);
+            var result = await _ditchClient.CreateOrEditAsync(model, ct).ConfigureAwait(false);
             //log parent post to perform update
-            await Trace($"post/@{model.ParentAuthor}/{model.ParentPermlink}/comment", model.Login, result.Exception, $"@{model.ParentAuthor}/{model.ParentPermlink}", ct);
+            await TraceAsync($"post/@{model.ParentAuthor}/{model.ParentPermlink}/comment", model.Login, result.Exception, $"@{model.ParentAuthor}/{model.ParentPermlink}", ct).ConfigureAwait(false);
             return result;
         }
 
-        public async Task<OperationResult<PreparePostResponse>> CheckPostForPlagiarism(PreparePostModel model, CancellationToken ct)
+        public async Task<OperationResult<PreparePostResponse>> CheckPostForPlagiarismAsync(PreparePostModel model, CancellationToken ct)
         {
-            var result = await PreparePost(model, ct);
+            var result = await PreparePostAsync(model, ct).ConfigureAwait(false);
 
             if (!result.IsSuccess)
                 return new OperationResult<PreparePostResponse>(result.Exception);
@@ -165,9 +165,9 @@ namespace Steepshot.Core.Clients
             return result;
         }
 
-        public async Task<OperationResult<VoidResponse>> CreateOrEditPost(PreparePostModel model, CancellationToken ct)
+        public async Task<OperationResult<VoidResponse>> CreateOrEditPostAsync(PreparePostModel model, CancellationToken ct)
         {
-            var operationResult = await PreparePost(model, ct);
+            var operationResult = await PreparePostAsync(model, ct).ConfigureAwait(false);
 
             if (!operationResult.IsSuccess)
                 return new OperationResult<VoidResponse>(operationResult.Exception);
@@ -178,14 +178,14 @@ namespace Steepshot.Core.Clients
             if (!model.IsEditMode)
                 commentModel.Beneficiaries = preparedData.Beneficiaries;
 
-            var result = await _ditchClient.CreateOrEdit(commentModel, ct);
+            var result = await _ditchClient.CreateOrEditAsync(commentModel, ct).ConfigureAwait(false);
             if (model.IsEditMode)
             {
-                await Trace($"post/{model.PostPermlink}/edit", model.Login, result.Exception, model.PostPermlink, ct);
+                await TraceAsync($"post/{model.PostPermlink}/edit", model.Login, result.Exception, model.PostPermlink, ct).ConfigureAwait(false);
             }
             else
             {
-                await Trace("post", model.Login, result.Exception, model.PostPermlink, ct);
+                await TraceAsync("post", model.Login, result.Exception, model.PostPermlink, ct).ConfigureAwait(false);
             }
 
             var infoModel = new NamedInfoModel($"@{model.Author}/{model.Permlink}")
@@ -194,12 +194,12 @@ namespace Steepshot.Core.Clients
                 ShowLowRated = true,
                 ShowNsfw = true
             };
-            var postInfo = await GetPostInfo(infoModel, ct);
+            var postInfo = await GetPostInfoAsync(infoModel, ct).ConfigureAwait(false);
 
             return result;
         }
 
-        public async Task<OperationResult<UUIDModel>> UploadMedia(UploadMediaModel model, CancellationToken ct)
+        public async Task<OperationResult<UUIDModel>> UploadMediaAsync(UploadMediaModel model, CancellationToken ct)
         {
             if (!EnableRead)
                 return null;
@@ -209,30 +209,30 @@ namespace Steepshot.Core.Clients
                 return new OperationResult<UUIDModel>(results);
 
             var endpoint = $"https://media.steepshot.org/api/v1/upload";
-            return await HttpClient.UploadMedia(endpoint, model, ct);
+            return await HttpClient.UploadMediaAsync(endpoint, model, ct).ConfigureAwait(false);
         }
 
-        public async Task<OperationResult<UploadMediaStatusModel>> GetMediaStatus(UUIDModel uuid, CancellationToken ct)
+        public async Task<OperationResult<UploadMediaStatusModel>> GetMediaStatusAsync(UUIDModel uuid, CancellationToken ct)
         {
             if (!EnableRead)
                 return null;
 
             var endpoint = $"{BaseUrl}/{GatewayVersion.V1P1}/media/{uuid.Uuid}/status";
-            return await HttpClient.Get<UploadMediaStatusModel>(endpoint, ct);
+            return await HttpClient.GetAsync<UploadMediaStatusModel>(endpoint, ct).ConfigureAwait(false);
         }
 
-        public async Task<OperationResult<MediaModel>> GetMediaResult(UUIDModel model, CancellationToken ct)
+        public async Task<OperationResult<MediaModel>> GetMediaResultAsync(UUIDModel model, CancellationToken ct)
         {
             if (!EnableRead)
                 return null;
 
             var endpoint = $"{BaseUrl}/{GatewayVersion.V1P1}/media/{model.Uuid}/result";
-            return await HttpClient.Get<MediaModel>(endpoint, ct);
+            return await HttpClient.GetAsync<MediaModel>(endpoint, ct).ConfigureAwait(false);
         }
 
 
 
-        public async Task<OperationResult<VoidResponse>> DeletePostOrComment(DeleteModel model, CancellationToken ct)
+        public async Task<OperationResult<VoidResponse>> DeletePostOrCommentAsync(DeleteModel model, CancellationToken ct)
         {
             var results = Validate(model);
             if (results != null)
@@ -240,49 +240,49 @@ namespace Steepshot.Core.Clients
 
             if (model.IsEnableToDelete)
             {
-                var operationResult = await _ditchClient.Delete(model, ct);
+                var operationResult = await _ditchClient.DeleteAsync(model, ct).ConfigureAwait(false);
                 if (operationResult.IsSuccess)
                 {
                     //log parent post to perform update
                     if (model.IsPost)
-                        await Trace($"post/@{model.Author}/{model.Permlink}/delete", model.Login, operationResult.Exception, $"@{model.Author}/{model.Permlink}", ct);
+                        await TraceAsync($"post/@{model.Author}/{model.Permlink}/delete", model.Login, operationResult.Exception, $"@{model.Author}/{model.Permlink}", ct).ConfigureAwait(false);
                     else
-                        await Trace($"post/@{model.ParentAuthor}/{model.ParentPermlink}/comment", model.Login, operationResult.Exception, $"@{model.ParentAuthor}/{model.ParentPermlink}", ct);
+                        await TraceAsync($"post/@{model.ParentAuthor}/{model.ParentPermlink}/comment", model.Login, operationResult.Exception, $"@{model.ParentAuthor}/{model.ParentPermlink}", ct).ConfigureAwait(false);
 
                     return operationResult;
                 }
             }
 
-            var result = await _ditchClient.CreateOrEdit(model, ct);
+            var result = await _ditchClient.CreateOrEditAsync(model, ct).ConfigureAwait(false);
 
             //log parent post to perform update
             if (model.IsPost)
-                await Trace($"post/@{model.Author}/{model.Permlink}/edit", model.Login, result.Exception, $"@{model.Author}/{model.Permlink}", ct);
+                await TraceAsync($"post/@{model.Author}/{model.Permlink}/edit", model.Login, result.Exception, $"@{model.Author}/{model.Permlink}", ct).ConfigureAwait(false);
             else
-                await Trace($"post/@{model.ParentAuthor}/{model.ParentPermlink}/comment", model.Login, result.Exception, $"@{model.ParentAuthor}/{model.ParentPermlink}", ct);
+                await TraceAsync($"post/@{model.ParentAuthor}/{model.ParentPermlink}/comment", model.Login, result.Exception, $"@{model.ParentAuthor}/{model.ParentPermlink}", ct).ConfigureAwait(false);
 
             return result;
         }
 
-        public async Task<OperationResult<VoidResponse>> UpdateUserProfile(UpdateUserProfileModel model, CancellationToken ct)
+        public async Task<OperationResult<VoidResponse>> UpdateUserProfileAsync(UpdateUserProfileModel model, CancellationToken ct)
         {
             var results = Validate(model);
             if (results != null)
                 return new OperationResult<VoidResponse>(results);
 
-            return await _ditchClient.UpdateUserProfile(model, ct);
+            return await _ditchClient.UpdateUserProfileAsync(model, ct).ConfigureAwait(false);
         }
 
-        public async Task<OperationResult<VoidResponse>> UpdateUserPosts(string username, CancellationToken ct)
+        public async Task<OperationResult<VoidResponse>> UpdateUserPostsAsync(string username, CancellationToken ct)
         {
             var endpoint = $"{BaseUrl}/{GatewayVersion.V1P1}/user/{username}/update";
-            var result = await HttpClient.Get<VoidResponse>(endpoint, ct);
+            var result = await HttpClient.GetAsync<VoidResponse>(endpoint, ct).ConfigureAwait(false);
             return result;
         }
 
-        public async Task<OperationResult<object>> SubscribeForPushes(PushNotificationsModel model, CancellationToken ct)
+        public async Task<OperationResult<object>> SubscribeForPushesAsync(PushNotificationsModel model, CancellationToken ct)
         {
-            var trxResp = await _ditchClient.GetVerifyTransaction(model, ct);
+            var trxResp = await _ditchClient.GetVerifyTransactionAsync(model, ct).ConfigureAwait(false);
 
             if (!trxResp.IsSuccess)
                 return new OperationResult<object>(trxResp.Exception);
@@ -295,34 +295,34 @@ namespace Steepshot.Core.Clients
 
             var endpoint = $"{BaseUrl}/{GatewayVersion.V1P1}/{(model.Subscribe ? "subscribe" : "unsubscribe")}";
 
-            return await HttpClient.Put<object, PushNotificationsModel>(endpoint, model, ct);
+            return await HttpClient.PutAsync<object, PushNotificationsModel>(endpoint, model, ct).ConfigureAwait(false);
         }
 
-        public async Task<OperationResult<VoidResponse>> Transfer(TransferModel model, CancellationToken ct)
+        public async Task<OperationResult<VoidResponse>> TransferAsync(TransferModel model, CancellationToken ct)
         {
             var results = Validate(model);
             if (results != null)
                 return new OperationResult<VoidResponse>(results);
 
-            return await _ditchClient.Transfer(model, ct);
+            return await _ditchClient.TransferAsync(model, ct).ConfigureAwait(false);
         }
 
-        public async Task<OperationResult<VoidResponse>> PowerUpOrDown(PowerUpDownModel model, CancellationToken ct)
+        public async Task<OperationResult<VoidResponse>> PowerUpOrDownAsync(PowerUpDownModel model, CancellationToken ct)
         {
             var results = Validate(model);
             if (results != null)
                 return new OperationResult<VoidResponse>(results);
 
-            return await _ditchClient.PowerUpOrDown(model, ct);
+            return await _ditchClient.PowerUpOrDownAsync(model, ct).ConfigureAwait(false);
         }
 
-        public async Task<OperationResult<VoidResponse>> ClaimRewards(ClaimRewardsModel model, CancellationToken ct)
+        public async Task<OperationResult<VoidResponse>> ClaimRewardsAsync(ClaimRewardsModel model, CancellationToken ct)
         {
             var results = Validate(model);
             if (results != null)
                 return new OperationResult<VoidResponse>(results);
 
-            return await _ditchClient.ClaimRewards(model, ct);
+            return await _ditchClient.ClaimRewardsAsync(model, ct).ConfigureAwait(false);
         }
     }
 }

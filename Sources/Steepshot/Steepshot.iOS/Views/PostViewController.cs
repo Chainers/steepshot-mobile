@@ -49,7 +49,7 @@ namespace Steepshot.iOS.Views
         {
             if (!string.IsNullOrEmpty(_url))
             {
-                var exception = await _presenter.TryLoadPostInfo(_url);
+                var exception = await _presenter.TryLoadPostInfoAsync(_url);
                 loader.StopAnimating();
                 ShowAlert(exception, (UIAlertAction obj) =>
                  {

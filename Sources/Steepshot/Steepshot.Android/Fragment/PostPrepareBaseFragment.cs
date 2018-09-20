@@ -238,7 +238,7 @@ namespace Steepshot.Fragment
             if (Model.Media == null)
                 return false;
 
-            var resp = await Presenter.TryCreateOrEditPost(Model);
+            var resp = await Presenter.TryCreateOrEditPostAsync(Model);
 
             if (!IsInitialized)
                 return false;
@@ -409,9 +409,9 @@ namespace Steepshot.Fragment
 
             Exception exception = null;
             if (text.Length == 0)
-                exception = await _tagPickerFacade.TryGetTopTags();
+                exception = await _tagPickerFacade.TryGetTopTagsAsync();
             else if (text.Length > 1)
-                exception = await _tagPickerFacade.TryLoadNext(text);
+                exception = await _tagPickerFacade.TryLoadNextAsync(text);
 
             if (IsInitialized)
                 return;

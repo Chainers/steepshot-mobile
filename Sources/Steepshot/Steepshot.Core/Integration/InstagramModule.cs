@@ -42,7 +42,7 @@ namespace Steepshot.Core.Integration
                 {"access_token", acc.AccessToken},
             };
 
-            var rezult = await Client.HttpClient.Get<ModuleRecentMediaResult>("https://api.instagram.com/v1/users/self/media/recent/", args, token);
+            var rezult = await Client.HttpClient.GetAsync<ModuleRecentMediaResult>("https://api.instagram.com/v1/users/self/media/recent/", args, token).ConfigureAwait(false);
 
             if (!rezult.IsSuccess)
                 return;
@@ -95,7 +95,7 @@ namespace Steepshot.Core.Integration
                     .ToArray();
             }
 
-            var result = await CreatePost(model, token);
+            var result = await CreatePostAsync(model, token).ConfigureAwait(false);
 
             if (result.IsSuccess)
             {

@@ -133,7 +133,7 @@ namespace Steepshot.iOS.Views
             signInLoader.StartAnimating();
             loginButton.Enabled = false;
 
-            var response = await _presenter.CheckServiceStatus();
+            var response = await _presenter.CheckServiceStatusAsync();
 
             loginButton.Enabled = true;
             signInLoader.StopAnimating();
@@ -336,11 +336,11 @@ namespace Steepshot.iOS.Views
                 }
 
                 if (CurrentPostCategory == null)
-                    exception = await _presenter.TryLoadNextTopPosts();
+                    exception = await _presenter.TryLoadNextTopPostsAsync();
                 else
                 {
                     _presenter.Tag = CurrentPostCategory;
-                    exception = await _presenter.TryGetSearchedPosts();
+                    exception = await _presenter.TryGetSearchedPostsAsync();
                 }
 
                 if (exception is OperationCanceledException)

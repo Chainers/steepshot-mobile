@@ -32,22 +32,22 @@ namespace Steepshot.Core.Integration
         public abstract void TryCreateNewPost(CancellationToken token);
 
 
-        protected async Task<OperationResult<VoidResponse>> CreatePost(PreparePostModel model, CancellationToken token)
+        protected async Task<OperationResult<VoidResponse>> CreatePostAsync(PreparePostModel model, CancellationToken token)
         {
             for (var i = 0; i < model.Media.Length; i++)
             {
                 var media = model.Media[i];
-                var uploadResult = await UploadPhoto(media.Url, token);
+                var uploadResult = await UploadPhotoAsync(media.Url, token).ConfigureAwait(false);
                 if (!uploadResult.IsSuccess)
                     return new OperationResult<VoidResponse>(uploadResult.Exception);
 
                 model.Media[i] = uploadResult.Result;
             }
 
-            return await Client.CreateOrEditPost(model, token);
+            return await Client.CreateOrEditPostAsync(model, token).ConfigureAwait(false);
         }
 
-        private async Task<OperationResult<MediaModel>> UploadPhoto(string url, CancellationToken token)
+        private async Task<OperationResult<MediaModel>> UploadPhotoAsync(string url, CancellationToken token)
         {
             MemoryStream stream = null;
             WebClient client = null;
@@ -59,7 +59,7 @@ namespace Steepshot.Core.Integration
 
                 stream = new MemoryStream(bytes);
                 var request = new UploadMediaModel(User.UserInfo, stream, Path.GetExtension(MimeTypeHelper.Jpg));
-                var serverResult = await Client.UploadMedia(request, token);
+                var serverResult = await Client.UploadMediaAsync(request, token).ConfigureAwait(false);
                 if (!serverResult.IsSuccess)
                     return new OperationResult<MediaModel>(serverResult.Exception);
 
@@ -70,7 +70,7 @@ namespace Steepshot.Core.Integration
                     if (token.IsCancellationRequested)
                         return new OperationResult<MediaModel>(new OperationCanceledException());
 
-                    var state = await Client.GetMediaStatus(uuidModel, token);
+                    var state = await Client.GetMediaStatusAsync(uuidModel, token).ConfigureAwait(false);
                     if (state.IsSuccess)
                     {
                         switch (state.Result.Code)
@@ -85,13 +85,13 @@ namespace Steepshot.Core.Integration
                                 return new OperationResult<MediaModel>(new Exception(state.Result.Message));
 
                             default:
-                                await Task.Delay(5000);
+                                await Task.Delay(5000, token).ConfigureAwait(false);
                                 break;
                         }
                     }
                 } while (!done);
 
-                return await Client.GetMediaResult(uuidModel, token);
+                return await Client.GetMediaResultAsync(uuidModel, token).ConfigureAwait(false);
             }
             catch (Exception ex)
             {

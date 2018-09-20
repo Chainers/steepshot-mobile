@@ -62,7 +62,7 @@ namespace Steepshot.iOS.Views
 
             Activeview = searchText;
 
-            var exception = await _presenter.TryGetTopTags();
+            var exception = await _presenter.TryGetTopTagsAsync();
 
             if (exception == null)
                 tagsTable.ReloadData();
@@ -98,11 +98,11 @@ namespace Steepshot.iOS.Views
             Exception exception;
             if (string.IsNullOrEmpty(query))
             {
-                exception = await _presenter.TryGetTopTags();
+                exception = await _presenter.TryGetTopTagsAsync();
             }
             else
             {
-                exception = await _presenter.TryLoadNext(query);
+                exception = await _presenter.TryLoadNextAsync(query);
             }
 
             if (exception == null)

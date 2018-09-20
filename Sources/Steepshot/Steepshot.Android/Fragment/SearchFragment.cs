@@ -213,7 +213,7 @@ namespace Steepshot.Fragment
             if (userFriend == null)
                 return;
 
-            var exception = await _searchFacade.UserFriendPresenter.TryFollow(userFriend);
+            var exception = await _searchFacade.UserFriendPresenter.TryFollowAsync(userFriend);
             if (!IsInitialized)
                 return;
 
@@ -266,7 +266,7 @@ namespace Steepshot.Fragment
                     _tagSpinner.Visibility = ViewStates.Visible;
             }
 
-            var exception = await _searchFacade.TrySearchCategories(_searchView.Text, _searchType);
+            var exception = await _searchFacade.TrySearchCategoriesAsync(_searchView.Text, _searchType);
             if (!IsInitialized)
                 return;
             CheckQueryIsEmpty();

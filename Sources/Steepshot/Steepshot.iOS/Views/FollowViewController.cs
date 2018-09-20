@@ -92,7 +92,7 @@ namespace Steepshot.iOS.Views
 
         public async void GetItems()
         {
-            var exception = await _presenter.TryLoadNextUserFriends(_user.Username);
+            var exception = await _presenter.TryLoadNextUserFriendsAsync(_user.Username);
             ShowAlert(exception);
             progressBar.StopAnimating();
         }
@@ -101,7 +101,7 @@ namespace Steepshot.iOS.Views
         {
             if (user != null)
             {
-                var exception = await _presenter.TryFollow(user);
+                var exception = await _presenter.TryFollowAsync(user);
                 ShowAlert(exception);
             }
         }

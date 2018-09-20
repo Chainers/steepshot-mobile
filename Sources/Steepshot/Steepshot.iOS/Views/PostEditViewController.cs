@@ -117,7 +117,7 @@ namespace Steepshot.iOS.Views
                 }
                 catch (Exception ex)
                 {
-                    AppSettings.Logger.Warning(ex);
+                    AppSettings.Logger.WarningAsync(ex);
                 }
                 finally
                 { 

@@ -60,7 +60,7 @@ namespace Steepshot.Fragment
         public override async void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
-            await Presenter.TryGetCurrencyRates();
+            await Presenter.TryGetCurrencyRatesAsync();
         }
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -187,7 +187,7 @@ namespace Steepshot.Fragment
         {
             var currAcc = Presenter.Current;
             Presenter.SetClient(currAcc?.Chain == Core.KnownChains.Steem ? App.SteemClient : App.GolosClient);
-            var exception = await Presenter.TryLoadNextAccountInfo();
+            var exception = await Presenter.TryLoadNextAccountInfoAsync();
             if (exception == null && IsInitialized && !IsDetached)
                 Activity.RunOnUiThread(() =>
                 {
@@ -248,7 +248,7 @@ namespace Steepshot.Fragment
                 UserInfo = balance.UserInfo
             };
 
-            await Presenter.TryPowerUpOrDown(model, PowerAction.CancelPowerDown);
+            await Presenter.TryPowerUpOrDownAsync(model, PowerAction.CancelPowerDown);
             TryUpdateBalance(balance);
         }
 
@@ -271,7 +271,7 @@ namespace Steepshot.Fragment
 
         private async void TryUpdateBalance(BalanceModel balance)
         {
-            var exception = await Presenter.TryUpdateAccountInfo(balance.UserInfo);
+            var exception = await Presenter.TryUpdateAccountInfoAsync(balance.UserInfo);
             if (exception == null)
             {
                 WalletPagerAdapter.NotifyItemChanged(_walletPager.CurrentItem);
@@ -297,7 +297,7 @@ namespace Steepshot.Fragment
 
         private async Task<Exception> Claim(BalanceModel balance)
         {
-            var error = await Presenter.TryClaimRewards(balance);
+            var error = await Presenter.TryClaimRewardsAsync(balance);
             if (error == null)
                 _claimBtn.Visibility = ViewStates.Gone;
             return error;

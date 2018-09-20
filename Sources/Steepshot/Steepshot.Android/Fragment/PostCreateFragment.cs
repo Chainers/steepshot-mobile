@@ -202,7 +202,7 @@ namespace Steepshot.Fragment
                 }
                 catch (Exception ex)
                 {
-                    AppSettings.Logger.Error(ex);
+                    AppSettings.Logger.ErrorAsync(ex);
                 }
             });
         }
@@ -310,7 +310,7 @@ namespace Steepshot.Fragment
             }
             catch (Exception ex)
             {
-                AppSettings.Logger.Error(ex);
+                AppSettings.Logger.ErrorAsync(ex);
                 return string.Empty;
             }
             finally
@@ -395,14 +395,14 @@ namespace Steepshot.Fragment
                 stream = new StreamConverter(fileInputStream, null);
 
                 var request = new UploadMediaModel(AppSettings.User.UserInfo, stream, System.IO.Path.GetExtension(model.TempPath));
-                var serverResult = await Presenter.TryUploadMedia(request);
+                var serverResult = await Presenter.TryUploadMediaAsync(request);
                 model.UploadState = UploadState.UploadEnd;
                 return serverResult;
             }
             catch (Exception ex)
             {
                 model.UploadState = UploadState.UploadError;
-                await AppSettings.Logger.Error(ex);
+                await AppSettings.Logger.ErrorAsync(ex);
                 return new OperationResult<UUIDModel>(new InternalException(LocalizationKeys.PhotoUploadError, ex));
             }
             finally
@@ -424,7 +424,7 @@ namespace Steepshot.Fragment
                     if (media.UploadState != UploadState.UploadEnd)
                         continue;
 
-                    var operationResult = await Presenter.TryGetMediaStatus(media.UploadMediaUuid);
+                    var operationResult = await Presenter.TryGetMediaStatusAsync(media.UploadMediaUuid);
                     if (!IsInitialized)
                         return;
 
@@ -471,7 +471,7 @@ namespace Steepshot.Fragment
                 if (media.UploadState != UploadState.UploadVerified)
                     continue;
 
-                var mediaResult = await Presenter.TryGetMediaResult(media.UploadMediaUuid);
+                var mediaResult = await Presenter.TryGetMediaResultAsync(media.UploadMediaUuid);
                 if (!IsInitialized)
                     return;
 
@@ -536,7 +536,7 @@ namespace Steepshot.Fragment
             {
                 IsSpammer = null;
 
-                var spamCheck = await Presenter.TryCheckForSpam(AppSettings.User.Login);
+                var spamCheck = await Presenter.TryCheckForSpamAsync(AppSettings.User.Login);
                 if (!IsInitialized)
                     return;
 
@@ -568,7 +568,7 @@ namespace Steepshot.Fragment
             }
             catch (Exception ex)
             {
-                AppSettings.Logger.Error(ex);
+                AppSettings.Logger.ErrorAsync(ex);
             }
         }
 
@@ -654,7 +654,7 @@ namespace Steepshot.Fragment
         private async Task CheckForPlagiarism()
         {
             IsPlagiarism = false;
-            var plagiarismCheck = await Presenter.TryCheckForPlagiarism(Model);
+            var plagiarismCheck = await Presenter.TryCheckForPlagiarismAsync(Model);
 
             if (plagiarismCheck.IsSuccess)
             {

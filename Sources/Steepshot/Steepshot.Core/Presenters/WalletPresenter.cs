@@ -32,12 +32,12 @@ namespace Steepshot.Core.Presenters
             HasNext = MoveNext();
         }
 
-        public async Task<Exception> TryLoadNextAccountInfo()
+        public async Task<Exception> TryLoadNextAccountInfoAsync()
         {
             if (!HasNext || Current == null)
                 return new ValidationException(string.Empty);
 
-            var exception = await TryUpdateAccountInfo(Current);
+            var exception = await TryUpdateAccountInfoAsync(Current).ConfigureAwait(false);
             if (exception == null)
             {
                 HasNext = MoveNext();
@@ -46,12 +46,12 @@ namespace Steepshot.Core.Presenters
             return exception;
         }
 
-        public async Task<Exception> TryUpdateAccountInfo(UserInfo userInfo)
+        public async Task<Exception> TryUpdateAccountInfoAsync(UserInfo userInfo)
         {
             if (!ConnectedUsers.ContainsKey(userInfo.Id))
                 return new ValidationException(string.Empty);
 
-            var response = await TryRunTask<string, AccountInfoResponse>(GetAccountInfo, OnDisposeCts.Token, userInfo.Login);
+            var response = await TryRunTaskAsync<string, AccountInfoResponse>(GetAccountInfoAsync, OnDisposeCts.Token, userInfo.Login).ConfigureAwait(false);
             if (response.IsSuccess)
             {
                 ConnectedUsers[userInfo.Id].AccountInfo = response.Result;
@@ -74,7 +74,7 @@ namespace Steepshot.Core.Presenters
                 return response.Exception;
             }
 
-            var historyResp = await TryRunTask<string, AccountHistoryResponse[]>(GetAccountHistory, OnDisposeCts.Token, userInfo.Login);
+            var historyResp = await TryRunTaskAsync<string, AccountHistoryResponse[]>(GetAccountHistoryAsync, OnDisposeCts.Token, userInfo.Login).ConfigureAwait(false);
             if (historyResp.IsSuccess)
             {
                 ConnectedUsers[userInfo.Id].AccountHistory = historyResp.Result;
@@ -84,15 +84,15 @@ namespace Steepshot.Core.Presenters
             return historyResp.Exception;
         }
 
-        private Task<OperationResult<AccountHistoryResponse[]>> GetAccountHistory(string login, CancellationToken ct)
+        private Task<OperationResult<AccountHistoryResponse[]>> GetAccountHistoryAsync(string login, CancellationToken ct)
         {
-            return Api.GetAccountHistory(login, ct);
+            return Api.GetAccountHistoryAsync(login, ct);
         }
 
-        public async Task<Exception> TryClaimRewards(BalanceModel balance)
+        public async Task<Exception> TryClaimRewardsAsync(BalanceModel balance)
         {
             var claimRewardsModel = new ClaimRewardsModel(balance.UserInfo, balance.RewardSteem, balance.RewardSp, balance.RewardSbd);
-            var response = await TryRunTask<ClaimRewardsModel, VoidResponse>(ClaimRewards, CancellationToken.None, claimRewardsModel);
+            var response = await TryRunTaskAsync<ClaimRewardsModel, VoidResponse>(ClaimRewardsAsync, CancellationToken.None, claimRewardsModel).ConfigureAwait(false);
             if (response.IsSuccess)
             {
                 Balances.ForEach(x =>
@@ -103,20 +103,20 @@ namespace Steepshot.Core.Presenters
                         x.RewardSteem = x.RewardSbd = x.RewardSp = 0;
                     }
                 });
-                await TryUpdateAccountInfo(balance.UserInfo);
+                await TryUpdateAccountInfoAsync(balance.UserInfo).ConfigureAwait(false);
             }
 
             return response.Exception;
         }
 
-        private Task<OperationResult<VoidResponse>> ClaimRewards(ClaimRewardsModel claimRewardsModel, CancellationToken ct)
+        private Task<OperationResult<VoidResponse>> ClaimRewardsAsync(ClaimRewardsModel claimRewardsModel, CancellationToken ct)
         {
-            return Api.ClaimRewards(claimRewardsModel, ct);
+            return Api.ClaimRewardsAsync(claimRewardsModel, ct);
         }
 
-        public async Task<Exception> TryGetCurrencyRates()
+        public async Task<Exception> TryGetCurrencyRatesAsync()
         {
-            var response = await TryRunTask<CurrencyRate[]>(GetCurrencyRates, OnDisposeCts.Token);
+            var response = await TryRunTaskAsync<CurrencyRate[]>(GetCurrencyRatesAsync, OnDisposeCts.Token).ConfigureAwait(false);
             if (response.IsSuccess)
             {
                 CurrencyRates = response.Result;
@@ -124,9 +124,9 @@ namespace Steepshot.Core.Presenters
             return response.Exception;
         }
 
-        private Task<OperationResult<CurrencyRate[]>> GetCurrencyRates(CancellationToken ct)
+        private Task<OperationResult<CurrencyRate[]>> GetCurrencyRatesAsync(CancellationToken ct)
         {
-            return Api.GetCurrencyRates(ct);
+            return Api.GetCurrencyRatesAsync(ct);
         }
 
         public CurrencyRate GetCurrencyRate(CurrencyType currency)

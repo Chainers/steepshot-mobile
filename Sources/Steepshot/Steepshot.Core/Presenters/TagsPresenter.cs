@@ -12,12 +12,12 @@ namespace Steepshot.Core.Presenters
     {
         private const int ItemsLimit = 40;
 
-        public async Task<Exception> TryLoadNext(string s, bool shouldClear = true, bool showUnknownTag = false)
+        public async Task<Exception> TryLoadNextAsync(string s, bool shouldClear = true, bool showUnknownTag = false)
         {
-            return await RunAsSingleTask(LoadNext, new Tuple<string, bool, bool>(s, shouldClear, showUnknownTag));
+            return await RunAsSingleTaskAsync(LoadNextAsync, new Tuple<string, bool, bool>(s, shouldClear, showUnknownTag)).ConfigureAwait(false);
         }
 
-        private async Task<Exception> LoadNext(Tuple<string, bool, bool> queryParams, CancellationToken ct)
+        private async Task<Exception> LoadNextAsync(Tuple<string, bool, bool> queryParams, CancellationToken ct)
         {
             if (queryParams.Item2)
                 Clear();
@@ -28,7 +28,7 @@ namespace Steepshot.Core.Presenters
                 Limit = ItemsLimit
             };
 
-            var response = await Api.SearchCategories(request, ct);
+            var response = await Api.SearchCategoriesAsync(request, ct).ConfigureAwait(false);
 
             if (response.IsSuccess)
             {
@@ -49,17 +49,17 @@ namespace Steepshot.Core.Presenters
 
                 if (tags.Count < Math.Min(ServerMaxCount, ItemsLimit))
                     IsLastReaded = true;
-                NotifySourceChanged(nameof(TryLoadNext), true);
+                NotifySourceChanged(nameof(TryLoadNextAsync), true);
             }
             return response.Exception;
         }
 
-        public async Task<Exception> TryGetTopTags()
+        public async Task<Exception> TryGetTopTagsAsync()
         {
-            return await RunAsSingleTask(GetTopTags);
+            return await RunAsSingleTaskAsync(GetTopTagsAsync).ConfigureAwait(false);
         }
 
-        private async Task<Exception> GetTopTags(CancellationToken ct)
+        private async Task<Exception> GetTopTagsAsync(CancellationToken ct)
         {
             Clear();
             var request = new OffsetLimitModel()
@@ -68,7 +68,7 @@ namespace Steepshot.Core.Presenters
                 Limit = ItemsLimit
             };
 
-            var response = await Api.GetCategories(request, ct);
+            var response = await Api.GetCategoriesAsync(request, ct).ConfigureAwait(false);
 
             if (response.IsSuccess)
             {
@@ -84,7 +84,7 @@ namespace Steepshot.Core.Presenters
 
                 if (tags.Count < Math.Min(ServerMaxCount, ItemsLimit))
                     IsLastReaded = true;
-                NotifySourceChanged(nameof(TryGetTopTags), true);
+                NotifySourceChanged(nameof(TryGetTopTagsAsync), true);
             }
             return response.Exception;
         }

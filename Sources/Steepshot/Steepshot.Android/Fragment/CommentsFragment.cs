@@ -186,7 +186,7 @@ namespace Steepshot.Fragment
 
             if (_editControls.Visibility == ViewStates.Visible)
             {
-                var exception = await Presenter.TryEditComment(AppSettings.User.UserInfo, _post, _editComment, _textInput.Text, AppSettings.AppInfo);
+                var exception = await Presenter.TryEditCommentAsync(AppSettings.User.UserInfo, _post, _editComment, _textInput.Text, AppSettings.AppInfo);
 
                 if (!IsInitialized)
                     return;
@@ -196,7 +196,7 @@ namespace Steepshot.Fragment
             }
             else
             {
-                var resp = await Presenter.TryCreateComment(_post, _textInput.Text);
+                var resp = await Presenter.TryCreateCommentAsync(_post, _textInput.Text);
 
                 if (!IsInitialized)
                     return;
@@ -206,7 +206,7 @@ namespace Steepshot.Fragment
                     _textInput.Text = string.Empty;
                     _textInput.ClearFocus();
 
-                    var exception = await Presenter.TryLoadNextComments(_post);
+                    var exception = await Presenter.TryLoadNextCommentsAsync(_post);
 
                     if (!IsInitialized)
                         return;
@@ -234,7 +234,7 @@ namespace Steepshot.Fragment
         {
             _spinner.Visibility = ViewStates.Visible;
 
-            var exception = await Presenter.TryLoadNextComments(post);
+            var exception = await Presenter.TryLoadNextCommentsAsync(post);
 
             if (!IsInitialized)
                 return;
@@ -252,7 +252,7 @@ namespace Steepshot.Fragment
                     {
                         if (AppSettings.User.HasPostingPermission)
                         {
-                            var exception = await Presenter.TryVote(post);
+                            var exception = await Presenter.TryVoteAsync(post);
 
                             if (!IsInitialized)
                                 return;
@@ -291,7 +291,7 @@ namespace Steepshot.Fragment
                     {
                         if (AppSettings.User.HasPostingPermission)
                         {
-                            var exception = await Presenter.TryFlag(post);
+                            var exception = await Presenter.TryFlagAsync(post);
 
                             if (!IsInitialized)
                                 return;
@@ -343,7 +343,7 @@ namespace Steepshot.Fragment
                             AppSettings.LocalizationManager.GetText(LocalizationKeys.Cancel), AutoLinkAction);
                         actionAlert.AlertAction += async () =>
                         {
-                            var exception = await Presenter.TryDeleteComment(post, _post);
+                            var exception = await Presenter.TryDeleteCommentAsync(post, _post);
                             if (!IsInitialized)
                                 return;
 

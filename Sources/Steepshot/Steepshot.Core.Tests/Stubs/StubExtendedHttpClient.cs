@@ -16,7 +16,7 @@ namespace Steepshot.Core.Tests.Stubs
 {
     public class StubExtendedHttpClient : ExtendedHttpClient
     {
-        protected override async Task<OperationResult<T>> CreateResult<T>(HttpResponseMessage response, CancellationToken token)
+        protected override async Task<OperationResult<T>> CreateResultAsync<T>(HttpResponseMessage response, CancellationToken token)
         {
             if (response.IsSuccessStatusCode)
             {
@@ -61,7 +61,7 @@ namespace Steepshot.Core.Tests.Stubs
 
                 Assert.IsFalse(msg.Any(), $"Some properties ({msg.Count}) was missed! {Environment.NewLine} {string.Join(Environment.NewLine, msg)}");
             }
-            return await base.CreateResult<T>(response, token);
+            return await base.CreateResultAsync<T>(response, token);
         }
 
         private HashSet<string> GetPropertyNames(Type type)

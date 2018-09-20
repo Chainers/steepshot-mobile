@@ -38,7 +38,7 @@ namespace Steepshot.iOS.Popups
         private async void GetBalance()
         {
             balanceLoader.StartAnimating();
-            var response = await _presenter.TryGetAccountInfo(AppSettings.User.Login);
+            var response = await _presenter.TryGetAccountInfoAsync(AppSettings.User.Login);
 
             if (response.IsSuccess)
             {
@@ -410,7 +410,7 @@ namespace Steepshot.iOS.Popups
                     sureTextHidden.Active = true;
                     sureTextVisible.Active = false;
 
-                    var transferResponse = await _presenter.TryTransfer(AppSettings.User.UserInfo, promoter.Result.Bot.Author, _amountTextField.GetDoubleValue().ToString(), _pickedCoin, $"https://steemit.com{post.Url}");
+                    var transferResponse = await _presenter.TryTransferAsync(AppSettings.User.UserInfo, promoter.Result.Bot.Author, _amountTextField.GetDoubleValue().ToString(), _pickedCoin, $"https://steemit.com{post.Url}");
 
                     if (transferResponse.IsSuccess)
                         completeText.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.SuccessPromote);
@@ -491,7 +491,7 @@ namespace Steepshot.iOS.Popups
                         PostToPromote = post,
                     };
 
-                    promoter = await _presenter.FindPromoteBot(pr);
+                    promoter = await _presenter.FindPromoteBotAsync(pr);
 
                     if (promoter.IsSuccess)
                     {

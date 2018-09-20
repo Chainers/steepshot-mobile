@@ -155,7 +155,7 @@ namespace Steepshot.iOS.Cells
                             UserInfo = balance.UserInfo
                         };
 
-                        await _presenter.TryPowerUpOrDown(model, PowerAction.CancelPowerDown);
+                        await _presenter.TryPowerUpOrDownAsync(model, PowerAction.CancelPowerDown);
                         _presenter.UpdateWallet?.Invoke();
                     }
                 });

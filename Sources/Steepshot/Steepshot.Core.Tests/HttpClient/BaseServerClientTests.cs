@@ -23,7 +23,7 @@ namespace Steepshot.Core.Tests
             request.ShowNsfw = true;
             request.ShowLowRated = true;
             // Act
-            var response = await Api[apiName].GetUserPosts(request, CancellationToken.None);
+            var response = await Api[apiName].GetUserPostsAsync(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -59,7 +59,7 @@ namespace Steepshot.Core.Tests
             var request = new UserPostsModel(user.Login + "x");
 
             // Act
-            var response = await Api[apiName].GetUserPosts(request, CancellationToken.None);
+            var response = await Api[apiName].GetUserPostsAsync(request, CancellationToken.None);
 
             // Assert
             Assert.That(response.Exception.Message.Contains("Cannot get posts for this username"));
@@ -78,12 +78,12 @@ namespace Steepshot.Core.Tests
                 ShowNsfw = true
             };
 
-            var response = await Api[apiName].GetUserPosts(request, CancellationToken.None);
+            var response = await Api[apiName].GetUserPostsAsync(request, CancellationToken.None);
             AssertResult(response);
             Assert.IsTrue(response.Result.Count == request.Limit);
             request.Offset = response.Result.Results[5].Url;
 
-            response = await Api[apiName].GetUserPosts(request, CancellationToken.None);
+            response = await Api[apiName].GetUserPostsAsync(request, CancellationToken.None);
 
             Assert.IsTrue(response.Result.Results != null);
             var url = response.Result.Results.First().Url;
@@ -105,7 +105,7 @@ namespace Steepshot.Core.Tests
             for (var i = 0; i < 10; i++)
             {
 
-                var response = await Api[apiName].GetUserPosts(request, CancellationToken.None);
+                var response = await Api[apiName].GetUserPostsAsync(request, CancellationToken.None);
                 AssertResult(response);
                 voded = response.Result.Results.Any(x => x.Vote);
                 if (voded)
@@ -126,7 +126,7 @@ namespace Steepshot.Core.Tests
             var request = new UserPostsModel(user.Login);
 
             // Act
-            var response = await Api[apiName].GetUserPosts(request, CancellationToken.None);
+            var response = await Api[apiName].GetUserPostsAsync(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -146,7 +146,7 @@ namespace Steepshot.Core.Tests
             };
 
             // Act
-            var response = await Api[apiName].GetUserRecentPosts(request, CancellationToken.None);
+            var response = await Api[apiName].GetUserRecentPostsAsync(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -166,12 +166,12 @@ namespace Steepshot.Core.Tests
             {
                 Login = user.Login
             };
-            var posts = await Api[apiName].GetUserRecentPosts(request, CancellationToken.None);
+            var posts = await Api[apiName].GetUserRecentPostsAsync(request, CancellationToken.None);
             request.Offset = posts.Result.Results.First().Url;
             request.Limit = 3;
 
             // Act
-            var response = await Api[apiName].GetUserRecentPosts(request, CancellationToken.None);
+            var response = await Api[apiName].GetUserRecentPostsAsync(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -191,7 +191,7 @@ namespace Steepshot.Core.Tests
             var request = new PostsModel(PostType.Top);
 
             // Act
-            var response = await Api[apiName].GetPosts(request, CancellationToken.None);
+            var response = await Api[apiName].GetPostsAsync(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -207,7 +207,7 @@ namespace Steepshot.Core.Tests
             var request = new PostsModel(PostType.Top);
 
             // Act
-            var response = await Api[apiName].GetPosts(request, CancellationToken.None);
+            var response = await Api[apiName].GetPostsAsync(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -220,12 +220,12 @@ namespace Steepshot.Core.Tests
         {
             // Arrange
             var request = new PostsModel(PostType.Hot);
-            var posts = await Api[apiName].GetPosts(request, CancellationToken.None);
+            var posts = await Api[apiName].GetPostsAsync(request, CancellationToken.None);
             request.Offset = posts.Result.Results.First().Url;
             request.Limit = 3;
 
             // Act
-            var response = await Api[apiName].GetPosts(request, CancellationToken.None);
+            var response = await Api[apiName].GetPostsAsync(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -243,7 +243,7 @@ namespace Steepshot.Core.Tests
             var request = new PostsModel(PostType.Top) { Login = user.Login };
 
             // Act
-            var response = await Api[apiName].GetPosts(request, CancellationToken.None);
+            var response = await Api[apiName].GetPostsAsync(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -259,7 +259,7 @@ namespace Steepshot.Core.Tests
             var request = new PostsModel(PostType.Hot);
 
             // Act
-            var response = await Api[apiName].GetPosts(request, CancellationToken.None);
+            var response = await Api[apiName].GetPostsAsync(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -275,7 +275,7 @@ namespace Steepshot.Core.Tests
             var request = new PostsModel(PostType.New);
 
             // Act
-            var response = await Api[apiName].GetPosts(request, CancellationToken.None);
+            var response = await Api[apiName].GetPostsAsync(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -292,7 +292,7 @@ namespace Steepshot.Core.Tests
             var request = new PostsByCategoryModel(PostType.Top, category);
 
             // Act
-            var response = await Api[apiName].GetPostsByCategory(request, CancellationToken.None);
+            var response = await Api[apiName].GetPostsByCategoryAsync(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -309,7 +309,7 @@ namespace Steepshot.Core.Tests
         {
             var request = new PostsByCategoryModel(PostType.Top, "asdas&^@dsad__sa@@d sd222f_f");
 
-            var response = await Api[apiName].GetPostsByCategory(request, CancellationToken.None);
+            var response = await Api[apiName].GetPostsByCategoryAsync(request, CancellationToken.None);
 
             Assert.IsTrue(response.Exception.Message.StartsWith("<h1>Not Found</h1>"));
         }
@@ -321,7 +321,7 @@ namespace Steepshot.Core.Tests
         {
             var request = new PostsByCategoryModel(PostType.Top, "qweqweqweqewqwqweqe");
 
-            var response = await Api[apiName].GetPostsByCategory(request, CancellationToken.None);
+            var response = await Api[apiName].GetPostsByCategoryAsync(request, CancellationToken.None);
 
             AssertResult(response);
             Assert.That(response.Result.Results, Is.Empty);
@@ -334,7 +334,7 @@ namespace Steepshot.Core.Tests
         {
             var request = new PostsByCategoryModel(PostType.Top, string.Empty);
 
-            var response = await Api[apiName].GetPostsByCategory(request, CancellationToken.None);
+            var response = await Api[apiName].GetPostsByCategoryAsync(request, CancellationToken.None);
 
             Assert.That(response.Exception.Message.StartsWith(nameof(LocalizationKeys.EmptyCategory)));
         }
@@ -349,7 +349,7 @@ namespace Steepshot.Core.Tests
             var request = new PostsByCategoryModel(PostType.Hot, category);
 
             // Act
-            var response = await Api[apiName].GetPostsByCategory(request, CancellationToken.None);
+            var response = await Api[apiName].GetPostsByCategoryAsync(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -369,7 +369,7 @@ namespace Steepshot.Core.Tests
             var request = new PostsByCategoryModel(PostType.New, category);
 
             // Act
-            var response = await Api[apiName].GetPostsByCategory(request, CancellationToken.None);
+            var response = await Api[apiName].GetPostsByCategoryAsync(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -387,12 +387,12 @@ namespace Steepshot.Core.Tests
             var category = "steepshot";
             // Arrange
             var request = new PostsByCategoryModel(PostType.Top, category);
-            var posts = await Api[apiName].GetPostsByCategory(request, CancellationToken.None);
+            var posts = await Api[apiName].GetPostsByCategoryAsync(request, CancellationToken.None);
             request.Offset = posts.Result.Results.First().Url;
             request.Limit = 5;
 
             // Act
-            var response = await Api[apiName].GetPostsByCategory(request, CancellationToken.None);
+            var response = await Api[apiName].GetPostsByCategoryAsync(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -414,7 +414,7 @@ namespace Steepshot.Core.Tests
             request.ShowNsfw = true;
             request.ShowLowRated = true;
             // Act
-            var response = await Api[apiName].GetPostsByCategory(request, CancellationToken.None);
+            var response = await Api[apiName].GetPostsByCategoryAsync(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -430,7 +430,7 @@ namespace Steepshot.Core.Tests
             var request = new NamedInfoModel(url);
 
             // Act
-            var response = await Api[apiName].GetComments(request, CancellationToken.None);
+            var response = await Api[apiName].GetCommentsAsync(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -463,14 +463,14 @@ namespace Steepshot.Core.Tests
         public async Task Comments_With_User_Check_True_Votes(KnownChains apiName)
         {
             var request = new PostsModel(PostType.Hot);
-            var posts = await Api[apiName].GetPosts(request, CancellationToken.None);
+            var posts = await Api[apiName].GetPostsAsync(request, CancellationToken.None);
             var isVoted = false;
             var user = Users[apiName];
             foreach (var post in posts.Result.Results.Where(i => i.Children > 0))
             {
                 var infoModel = new NamedInfoModel(post.Url) { Login = user.Login };
 
-                var response = await Api[apiName].GetComments(infoModel, CancellationToken.None);
+                var response = await Api[apiName].GetCommentsAsync(infoModel, CancellationToken.None);
                 AssertResult(response);
                 isVoted = response.Result.Results.Any(x => x.Vote);
                 if (isVoted)
@@ -485,12 +485,12 @@ namespace Steepshot.Core.Tests
         public async Task Comments_Without_User_Check_False_Votes(KnownChains apiName)
         {
             var request = new PostsModel(PostType.Hot);
-            var posts = await Api[apiName].GetPosts(request, CancellationToken.None);
+            var posts = await Api[apiName].GetPostsAsync(request, CancellationToken.None);
 
 
             var infoModel = new NamedInfoModel(posts.Result.Results.First(i => i.Children > 0).Url);
 
-            var response = await Api[apiName].GetComments(infoModel, CancellationToken.None);
+            var response = await Api[apiName].GetCommentsAsync(infoModel, CancellationToken.None);
 
             AssertResult(response);
             Assert.That(response.Result.Results.Where(x => x.Vote).Any, Is.False);
@@ -503,7 +503,7 @@ namespace Steepshot.Core.Tests
         {
             var request = new NamedInfoModel("qwe");
 
-            var response = await Api[apiName].GetComments(request, CancellationToken.None);
+            var response = await Api[apiName].GetCommentsAsync(request, CancellationToken.None);
 
             Assert.That(response.Exception.Message.Contains("Wrong identifier."));
         }
@@ -515,7 +515,7 @@ namespace Steepshot.Core.Tests
         {
             var request = new NamedInfoModel("@asduj/qweqweqweqw");
 
-            var response = await Api[apiName].GetComments(request, CancellationToken.None);
+            var response = await Api[apiName].GetCommentsAsync(request, CancellationToken.None);
 
             Assert.That(response.Exception.Message.Contains("Wrong identifier."));
         }
@@ -529,7 +529,7 @@ namespace Steepshot.Core.Tests
             var request = new OffsetLimitModel();
 
             // Act
-            var response = await Api[apiName].GetCategories(request, CancellationToken.None);
+            var response = await Api[apiName].GetCategoriesAsync(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -552,7 +552,7 @@ namespace Steepshot.Core.Tests
             };
 
             // Act
-            var response = await Api[apiName].GetCategories(request, CancellationToken.None);
+            var response = await Api[apiName].GetCategoriesAsync(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -571,7 +571,7 @@ namespace Steepshot.Core.Tests
             var request = new OffsetLimitModel() { Offset = "qweqweqwe" };
 
             // Act
-            var response = await Api[apiName].GetCategories(request, CancellationToken.None);
+            var response = await Api[apiName].GetCategoriesAsync(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -589,7 +589,7 @@ namespace Steepshot.Core.Tests
             var request = new SearchWithQueryModel("ru");
 
             // Act
-            var response = await Api[apiName].SearchCategories(request, CancellationToken.None);
+            var response = await Api[apiName].SearchCategoriesAsync(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -607,7 +607,7 @@ namespace Steepshot.Core.Tests
             var request = new SearchWithQueryModel("qwerqwerqwerqwerqwerqwerqwerqwer");
 
             // Act
-            var response = await Api[apiName].SearchCategories(request, CancellationToken.None);
+            var response = await Api[apiName].SearchCategoriesAsync(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -623,7 +623,7 @@ namespace Steepshot.Core.Tests
             var request = new SearchWithQueryModel("f");
 
             // Act
-            var response = await Api[apiName].SearchCategories(request, CancellationToken.None);
+            var response = await Api[apiName].SearchCategoriesAsync(request, CancellationToken.None);
 
             // Assert
             Assert.IsTrue(response.Exception.Message.StartsWith(nameof(LocalizationKeys.QueryMinLength)));
@@ -636,7 +636,7 @@ namespace Steepshot.Core.Tests
         {
             var request = new SearchWithQueryModel(" ");
 
-            var response = await Api[apiName].SearchCategories(request, CancellationToken.None);
+            var response = await Api[apiName].SearchCategoriesAsync(request, CancellationToken.None);
 
             Assert.IsTrue(response.Exception.Message.StartsWith(nameof(LocalizationKeys.EmptyCategory)));
         }
@@ -655,7 +655,7 @@ namespace Steepshot.Core.Tests
             };
 
             // Act
-            var response = await Api[apiName].SearchCategories(request, CancellationToken.None);
+            var response = await Api[apiName].SearchCategoriesAsync(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -673,7 +673,7 @@ namespace Steepshot.Core.Tests
             var request = new SearchWithQueryModel("life") { Offset = "qweqweqwe" };
 
             // Act
-            var response = await Api[apiName].SearchCategories(request, CancellationToken.None);
+            var response = await Api[apiName].SearchCategoriesAsync(request, CancellationToken.None);
 
             // Assert
             Assert.That(response.Exception.Message.Contains("Category used for offset was not found"));
@@ -686,7 +686,7 @@ namespace Steepshot.Core.Tests
         {
             var request = new SearchWithQueryModel("lif");
             
-            var response = await Api[apiName].SearchCategories(request, CancellationToken.None);
+            var response = await Api[apiName].SearchCategoriesAsync(request, CancellationToken.None);
             
             AssertResult(response);
             Assert.That(response.Result.Results.Any());
@@ -703,7 +703,7 @@ namespace Steepshot.Core.Tests
             var request = new UserProfileModel(user);
 
             // Act
-            var response = await Api[apiName].GetUserProfile(request, CancellationToken.None);
+            var response = await Api[apiName].GetUserProfileAsync(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -737,7 +737,7 @@ namespace Steepshot.Core.Tests
             var request = new UserProfileModel("qweqweqwe");
 
             // Act
-            var response = await Api[apiName].GetUserProfile(request, CancellationToken.None);
+            var response = await Api[apiName].GetUserProfileAsync(request, CancellationToken.None);
 
             // Assert
             Assert.That(response.Exception.Message.Equals("User not found"));
@@ -752,7 +752,7 @@ namespace Steepshot.Core.Tests
             var request = new UserProfileModel(user) { Login = user };
 
             // Act
-            var response = await Api[apiName].GetUserProfile(request, CancellationToken.None);
+            var response = await Api[apiName].GetUserProfileAsync(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -787,7 +787,7 @@ namespace Steepshot.Core.Tests
             var request = new UserFriendsModel(user.Login, FriendsType.Following);
 
             // Act
-            var response = await Api[apiName].GetUserFriends(request, CancellationToken.None);
+            var response = await Api[apiName].GetUserFriendsAsync(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -810,7 +810,7 @@ namespace Steepshot.Core.Tests
             var request = new UserFriendsModel(user.Login, FriendsType.Followers);
 
             // Act
-            var response = await Api[apiName].GetUserFriends(request, CancellationToken.None);
+            var response = await Api[apiName].GetUserFriendsAsync(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -833,7 +833,7 @@ namespace Steepshot.Core.Tests
             var request = new UserFriendsModel(user.Login + "x", FriendsType.Followers);
 
             // Act
-            var response = await Api[apiName].GetUserFriends(request, CancellationToken.None);
+            var response = await Api[apiName].GetUserFriendsAsync(request, CancellationToken.None);
 
             // Assert
             Assert.IsTrue(response.Exception.Message.Equals("Account does not exist"));
@@ -851,7 +851,7 @@ namespace Steepshot.Core.Tests
             request.Limit = 1;
 
             // Act
-            var response = await Api[apiName].GetUserFriends(request, CancellationToken.None);
+            var response = await Api[apiName].GetUserFriendsAsync(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -871,7 +871,7 @@ namespace Steepshot.Core.Tests
             for (var i = 0; i < 10; i++)
             {
                 var request = new UserFriendsModel(user.Login, FriendsType.Followers) { Login = user.Login, Offset = offset };
-                var response = await Api[apiName].GetUserFriends(request, CancellationToken.None);
+                var response = await Api[apiName].GetUserFriendsAsync(request, CancellationToken.None);
 
                 AssertResult(response);
                 Assert.IsTrue(response.Result.Results != null);
@@ -895,7 +895,7 @@ namespace Steepshot.Core.Tests
             request.ShowNsfw = true;
             request.ShowLowRated = true;
             // Act
-            var response = await Api[apiName].GetPostInfo(request, CancellationToken.None);
+            var response = await Api[apiName].GetPostInfoAsync(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -931,7 +931,7 @@ namespace Steepshot.Core.Tests
             request.ShowNsfw = true;
             request.ShowLowRated = true;
             // Act
-            var response = await Api[apiName].GetPostInfo(request, CancellationToken.None);
+            var response = await Api[apiName].GetPostInfoAsync(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -963,7 +963,7 @@ namespace Steepshot.Core.Tests
         {
             var request = new NamedInfoModel("spam/@joseph.kalu/qweqeqwqweqweqwe");
 
-            var response = await Api[apiName].GetPostInfo(request, CancellationToken.None);
+            var response = await Api[apiName].GetPostInfoAsync(request, CancellationToken.None);
 
             Assert.That(response.Exception.Message.Contains("Wrong identifier."));
         }
@@ -977,7 +977,7 @@ namespace Steepshot.Core.Tests
             var request = new SearchWithQueryModel("aar");
 
             // Act
-            var response = await Api[apiName].SearchUser(request, CancellationToken.None);
+            var response = await Api[apiName].SearchUserAsync(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -995,7 +995,7 @@ namespace Steepshot.Core.Tests
             var request = new SearchWithQueryModel("qwerqwerqwerqwerqwerqwerqwerqwer");
 
             // Act
-            var response = await Api[apiName].SearchUser(request, CancellationToken.None);
+            var response = await Api[apiName].SearchUserAsync(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -1011,7 +1011,7 @@ namespace Steepshot.Core.Tests
             var request = new SearchWithQueryModel("fo");
 
             // Act
-            var response = await Api[apiName].SearchUser(request, CancellationToken.None);
+            var response = await Api[apiName].SearchUserAsync(request, CancellationToken.None);
 
             // Assert
             Assert.IsTrue(response.Exception.Message.Equals("Query should have at least 3 characters"));
@@ -1026,7 +1026,7 @@ namespace Steepshot.Core.Tests
             var request = new SearchWithQueryModel(" ");
 
             // Act
-            var response = await Api[apiName].SearchUser(request, CancellationToken.None);
+            var response = await Api[apiName].SearchUserAsync(request, CancellationToken.None);
 
             // Assert
             Assert.IsTrue(response.Exception.Message.Equals(nameof(LocalizationKeys.EmptyCategory)));
@@ -1046,7 +1046,7 @@ namespace Steepshot.Core.Tests
             };
 
             // Act
-            var response = await Api[apiName].SearchUser(request, CancellationToken.None);
+            var response = await Api[apiName].SearchUserAsync(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -1061,7 +1061,7 @@ namespace Steepshot.Core.Tests
         public async Task User_Search_Offset_Not_Exisiting(KnownChains apiName)
         {
             var request = new SearchWithQueryModel("aar") { Offset = "qweqweqwe" };
-            var response = await Api[apiName].SearchUser(request, CancellationToken.None);
+            var response = await Api[apiName].SearchUserAsync(request, CancellationToken.None);
 
             Assert.IsTrue(response.Exception.Message.Equals("Username used for offset was not found"));
         }
@@ -1075,7 +1075,7 @@ namespace Steepshot.Core.Tests
             var request = new UserExistsModel("pmartynov");
 
             // Act
-            var response = await Api[apiName].UserExistsCheck(request, CancellationToken.None);
+            var response = await Api[apiName].UserExistsCheckAsync(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -1091,7 +1091,7 @@ namespace Steepshot.Core.Tests
             var request = new UserExistsModel("pmartynov123");
 
             // Act
-            var response = await Api[apiName].UserExistsCheck(request, CancellationToken.None);
+            var response = await Api[apiName].UserExistsCheckAsync(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -1107,7 +1107,7 @@ namespace Steepshot.Core.Tests
             {
                 var request = new SearchWithQueryModel("aar");
                 var cts = new CancellationTokenSource(TimeSpan.FromMilliseconds(100));
-                var operationResult = Api[KnownChains.Steem].SearchUser(request, cts.Token).Result;
+                var operationResult = Api[KnownChains.Steem].SearchUserAsync(request, cts.Token).Result;
             });
 
             // Assert

@@ -117,7 +117,7 @@ namespace Steepshot.Base
             }
             catch (Exception ex)
             {
-                await AppSettings.Logger.Error(ex);
+                await AppSettings.Logger.ErrorAsync(ex);
                 this.ShowAlert(ex, ToastLength.Short);
             }
         }

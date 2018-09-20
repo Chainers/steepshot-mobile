@@ -541,7 +541,7 @@ namespace Steepshot.CustomViews
                 }
                 catch (Exception ex)
                 {
-                    AppSettings.Logger.Warning(ex);
+                    AppSettings.Logger.WarningAsync(ex);
                     return null;
                 }
             });
