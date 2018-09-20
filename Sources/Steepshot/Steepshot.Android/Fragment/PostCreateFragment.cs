@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -11,7 +10,6 @@ using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
 using Java.IO;
-using Newtonsoft.Json;
 using Steepshot.Activity;
 using Steepshot.Base;
 using Steepshot.Core;
@@ -19,6 +17,7 @@ using Steepshot.Core.Exceptions;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
+using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Utils;
 using Steepshot.Utils;
 
@@ -543,27 +542,12 @@ namespace Steepshot.Fragment
                 if (!spamCheck.IsSuccess)
                     return;
 
-                if (spamCheck.Result.IsSpam)
+                IsSpammer = spamCheck.Result.IsSpam | spamCheck.Result.WaitingTime > 0;
+
+                if (spamCheck.Result.WaitingTime > 0)
                 {
-                    // more than 15 posts
-                    IsSpammer = true;
-                    PostingLimit = TimeSpan.FromHours(24);
-                    StartPostTimer((int)spamCheck.Result.WaitingTime);
-                    Activity.ShowAlert(LocalizationKeys.PostsDayLimit, ToastLength.Long);
-                }
-                else
-                {
-                    if (spamCheck.Result.WaitingTime > 0)
-                    {
-                        IsSpammer = true;
-                        PostingLimit = TimeSpan.FromMinutes(5);
-                        StartPostTimer((int)spamCheck.Result.WaitingTime);
-                        Activity.ShowAlert(LocalizationKeys.Posts5minLimit, ToastLength.Long);
-                    }
-                    else
-                    {
-                        IsSpammer = false;
-                    }
+                    StartPostTimer(spamCheck.Result);
+                    Activity.ShowAlert(LocalizationKeys.Posts5minLimit, ToastLength.Long);
                 }
             }
             catch (Exception ex)
@@ -572,23 +556,21 @@ namespace Steepshot.Fragment
             }
         }
 
-        private async void StartPostTimer(int startSeconds)
+        private async void StartPostTimer(SpamResponse spamResponse)
         {
-            var timepassed = PostingLimit - TimeSpan.FromSeconds(startSeconds);
+            var delay = DateTime.Now.AddSeconds(spamResponse.WaitingTime);
             LoadingSpinner.Visibility = ViewStates.Gone;
 
-            while (timepassed < PostingLimit)
+            while (delay > DateTime.Now)
             {
-                var delay = PostingLimit - timepassed;
-                var timeFormat = delay.TotalHours >= 1 ? "hh\\:mm\\:ss" : "mm\\:ss";
-                PostButton.Text = delay.ToString(timeFormat);
+                var rest = DateTime.Now - delay;
+                var timeFormat = rest.TotalHours >= 1 ? "hh\\:mm\\:ss" : "mm\\:ss";
+                PostButton.Text = rest.ToString(timeFormat);
                 PostButton.Enabled = false;
 
                 await Task.Delay(1000);
                 if (!IsInitialized)
                     return;
-
-                timepassed = timepassed.Add(TimeSpan.FromSeconds(1));
             }
 
             IsSpammer = null;

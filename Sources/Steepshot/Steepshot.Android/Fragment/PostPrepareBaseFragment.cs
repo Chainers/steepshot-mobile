@@ -70,8 +70,7 @@ namespace Steepshot.Fragment
         #endregion
 
         #region Properties
-
-        protected TimeSpan PostingLimit { get; set; }
+        
         protected Timer Timer { get; set; }
         protected PreparePostModel Model { get; set; }
         protected string PreviousQuery { get; set; }
