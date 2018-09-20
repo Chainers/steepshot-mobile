@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14109" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14113" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
     <device id="retina5_5" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
@@ -52,24 +52,24 @@
                     <state key="normal" image="ic_white_close.png"/>
                 </button>
                 <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="ic_gallery.png" translatesAutoresizingMaskIntoConstraints="NO" id="hT2-FI-jcS">
-                    <rect key="frame" x="15" y="675" width="40" height="40"/>
+                    <rect key="frame" x="15" y="642" width="40" height="40"/>
                     <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     <constraints>
                         <constraint firstAttribute="height" constant="40" id="Ons-bX-1wh"/>
                         <constraint firstAttribute="width" constant="40" id="jrR-w4-lHJ"/>
                     </constraints>
                 </imageView>
-                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="bottom" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="obZ-CS-DFE">
-                    <rect key="frame" x="172.66666666666666" y="645" width="70" height="70"/>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="obZ-CS-DFE">
+                    <rect key="frame" x="177" y="602" width="60" height="60"/>
                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                     <constraints>
-                        <constraint firstAttribute="height" constant="70" id="2w5-HJ-Um7"/>
-                        <constraint firstAttribute="width" constant="70" id="LrU-qu-jdt"/>
+                        <constraint firstAttribute="height" constant="60" id="2w5-HJ-Um7"/>
+                        <constraint firstAttribute="width" constant="60" id="LrU-qu-jdt"/>
                     </constraints>
                     <state key="normal" image="ic_сamera_shot.png"/>
                 </button>
                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="bottom" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="gM4-Oo-cms">
-                    <rect key="frame" x="359" y="675" width="40" height="40"/>
+                    <rect key="frame" x="359" y="642" width="40" height="40"/>
                     <constraints>
                         <constraint firstAttribute="width" constant="40" id="Lc3-fb-22u"/>
                         <constraint firstAttribute="height" constant="40" id="QSD-FA-0Ou"/>
@@ -84,16 +84,16 @@
                 <constraint firstAttribute="trailing" secondItem="gM4-Oo-cms" secondAttribute="trailing" constant="15" id="HCE-q0-OZz"/>
                 <constraint firstItem="R2x-Io-yoi" firstAttribute="top" secondItem="k75-MS-fV5" secondAttribute="top" constant="15" id="I9i-5r-hjE"/>
                 <constraint firstItem="R2x-Io-yoi" firstAttribute="leading" secondItem="k75-MS-fV5" secondAttribute="leading" constant="15" id="JlR-mL-mzR"/>
-                <constraint firstItem="gM4-Oo-cms" firstAttribute="bottom" secondItem="obZ-CS-DFE" secondAttribute="bottom" id="Knb-FI-LJh"/>
-                <constraint firstItem="obZ-CS-DFE" firstAttribute="bottom" secondItem="hT2-FI-jcS" secondAttribute="bottom" id="NWb-x8-fPM"/>
                 <constraint firstItem="8P0-hY-qAM" firstAttribute="top" secondItem="k75-MS-fV5" secondAttribute="top" id="RMV-U0-rEb"/>
                 <constraint firstItem="8P0-hY-qAM" firstAttribute="leading" secondItem="k75-MS-fV5" secondAttribute="leading" id="RZ8-Hb-YJC"/>
                 <constraint firstAttribute="trailing" secondItem="Pzd-O0-Qtn" secondAttribute="trailing" constant="15" id="Rbs-hk-h3o"/>
                 <constraint firstAttribute="trailing" secondItem="8P0-hY-qAM" secondAttribute="trailing" id="SH4-9s-rn6"/>
+                <constraint firstAttribute="bottom" secondItem="hT2-FI-jcS" secondAttribute="bottom" constant="54" id="UGC-7h-Wyd"/>
                 <constraint firstItem="Tmr-yi-g89" firstAttribute="centerY" secondItem="k75-MS-fV5" secondAttribute="centerY" id="V69-Jv-Og9"/>
+                <constraint firstAttribute="bottom" secondItem="gM4-Oo-cms" secondAttribute="bottom" constant="54" id="W6y-6Y-iOf"/>
                 <constraint firstItem="obZ-CS-DFE" firstAttribute="centerX" secondItem="k75-MS-fV5" secondAttribute="centerX" id="dT4-UX-OeZ"/>
                 <constraint firstItem="Pzd-O0-Qtn" firstAttribute="top" secondItem="k75-MS-fV5" secondAttribute="top" constant="15" id="oMo-xz-nHy"/>
-                <constraint firstAttribute="bottom" secondItem="obZ-CS-DFE" secondAttribute="bottom" constant="21" id="qIp-Wf-920"/>
+                <constraint firstAttribute="bottom" secondItem="obZ-CS-DFE" secondAttribute="bottom" constant="74" id="qIp-Wf-920"/>
                 <constraint firstAttribute="bottom" secondItem="8P0-hY-qAM" secondAttribute="bottom" id="vHq-T9-WTo"/>
             </constraints>
         </view>

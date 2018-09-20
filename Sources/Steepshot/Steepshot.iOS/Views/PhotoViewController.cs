@@ -8,7 +8,12 @@ using Photos;
 using Steepshot.Core.Exceptions;
 using Steepshot.iOS.Helpers;
 using Steepshot.iOS.ViewControllers;
+using PureLayout.Net;
 using UIKit;
+using System.Threading.Tasks;
+using CoreAnimation;
+using System.Timers;
+using System.Linq;
 
 namespace Steepshot.iOS.Views
 {
@@ -23,13 +28,24 @@ namespace Steepshot.iOS.Views
         private UIDeviceOrientation orientationOnPhoto;
         private NSObject _orientationChangeEventToken;
 
+        private CAShapeLayer _sl;
+        private CABasicAnimation _animation;
+        private UIBezierPath _bezierPath;
+        private bool _initialized;
+        private bool test;
+
         public override void ViewDidLoad()
         {
             base.ViewDidLoad();
 
             galleryButton.Layer.CornerRadius = galleryButton.Frame.Height / 2;
 
-            photoButton.TouchDown += CapturePhoto;
+            var photoTap = new UITapGestureRecognizer(CapturePhoto);
+            var photoLongPress = new UILongPressGestureRecognizer(PhotoButtonLongPress);
+            photoButton.AddGestureRecognizer(photoTap);
+            photoButton.AddGestureRecognizer(photoLongPress);
+            photoButton.ClipsToBounds = false;
+
             closeButton.TouchDown += GoBack;
             flashButton.TouchDown += OnFlashTouch;
             swapCameraButton.TouchDown += SwitchCameraButtonTapped;
@@ -37,6 +53,56 @@ namespace Steepshot.iOS.Views
 
             var galleryTap = new UITapGestureRecognizer(GalleryTap);
             galleryButton.AddGestureRecognizer(galleryTap);
+        }
+
+        public override void ViewDidLayoutSubviews()
+        {
+            if (!_initialized)
+            {
+                _bezierPath = new UIBezierPath();
+                _bezierPath.AddArc(photoButton.Center, 70, 3f * (float)Math.PI / 2f, 4.712327f, true);
+
+                _sl = new CAShapeLayer();
+                _sl.LineWidth = 3;
+                _sl.StrokeColor = UIColor.FromRGB(255, 17, 0).CGColor;
+                _sl.FillColor = UIColor.Black.ColorWithAlpha(0.5f).CGColor;
+                _sl.LineCap = CAShapeLayer.CapRound;
+                _sl.LineJoin = CAShapeLayer.CapRound;
+                _sl.StrokeStart = 0.0f;
+                _sl.StrokeEnd = 0.0f;
+                _sl.Hidden = true;
+                _sl.Path = _bezierPath.CGPath;
+
+                photoButton.Layer.AddSublayer(_sl);
+
+                _initialized = true;
+            }
+        }
+
+        private void PhotoButtonLongPress()
+        {
+            if (!test)
+            {
+                StartAnimation();
+            }
+            else
+            {
+                _sl.RemoveAllAnimations();
+                _sl.Hidden = true;
+            }
+            test = !test;
+        }
+
+        private void StartAnimation()
+        {
+            _sl.Hidden = false;
+            _animation = CABasicAnimation.FromKeyPath("strokeEnd");
+            _animation.From = NSNumber.FromDouble(0.0);
+            _animation.To = NSNumber.FromDouble(1.0);
+            _animation.Duration = 30;
+            _animation.FillMode = CAFillMode.Forwards;
+            _animation.RemovedOnCompletion = false;
+            _sl.AddAnimation(_animation, "drawLineAnimation");
         }
 
         private void EnableCameraAccess(object sender, EventArgs e)
@@ -166,7 +232,7 @@ namespace Steepshot.iOS.Views
             }
         }
 
-        private void CapturePhoto(object sender, EventArgs e)
+        private void CapturePhoto()
         {
             ToogleButtons(false);
             var settingKeys = new object[]
@@ -211,6 +277,16 @@ namespace Steepshot.iOS.Views
             {
                 ShowAlert(new InternalException(Core.Localization.LocalizationKeys.PhotoProcessingError, ex));
             }
+        }
+
+        private void StartShootingVideo()
+        {
+
+        }
+
+        private NSUrl ApplicationDocumentDirectory()
+        {
+            return NSFileManager.DefaultManager.GetUrls(NSSearchPathDirectory.DocumentDirectory, NSSearchPathDomain.User).Last();
         }
 
         public override void ViewWillDisappear(bool animated)
