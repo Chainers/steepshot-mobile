@@ -62,7 +62,7 @@ namespace Steepshot.Core.Clients
                             if (token.IsCancellationRequested)
                                 break;
 
-                            var isConnected = _operationManager.ConnectTo(url, token).Result;
+                            var isConnected = _operationManager.ConnectToAsync(url, token).Result;
                             if (isConnected)
                             {
                                 EnableWrite = true;
@@ -89,7 +89,7 @@ namespace Steepshot.Core.Clients
 
         private async Task<OperationResult<VoidResponse>> Broadcast(List<byte[]> keys, BaseOperation[] ops, CancellationToken ct)
         {
-            var resp = await _operationManager.BroadcastOperationsSynchronousLikeSteemit(keys, ops, ct);
+            var resp = await _operationManager.BroadcastOperationsSynchronousLikeSteemitAsync(keys, ops, ct);
 
             var result = new OperationResult<VoidResponse>();
             if (resp.IsError)
@@ -197,7 +197,7 @@ namespace Steepshot.Core.Clients
             {
                 Accounts = new[] { model.Login }
             };
-            var resp = await _operationManager.FindAccounts(args, CancellationToken.None);
+            var resp = await _operationManager.FindAccountsAsync(args, CancellationToken.None);
             var result = new OperationResult<VoidResponse>();
             if (resp.IsError)
             {
@@ -327,7 +327,7 @@ namespace Steepshot.Core.Clients
                 Time = DateTime.Now,
                 HeadBlockNumber = 0
             };
-            var tr = await _operationManager.CreateTransaction(properties, keys, op, ct);
+            var tr = await _operationManager.CreateTransactionAsync(properties, keys, op, ct);
 
             var conv = JsonConvert.SerializeObject(tr, _operationManager.CondenserJsonSerializerSettings);
             return new OperationResult<string> { Result = conv };
@@ -360,7 +360,7 @@ namespace Steepshot.Core.Clients
             {
                 Accounts = new[] { model.Login }
             };
-            var resp = await _operationManager.FindAccounts(args, CancellationToken.None);
+            var resp = await _operationManager.FindAccountsAsync(args, CancellationToken.None);
             if (resp.IsError)
             {
                 result.Exception = new RequestException(resp);
@@ -414,7 +414,7 @@ namespace Steepshot.Core.Clients
             {
                 Accounts = new[] { userName }
             };
-            var resp = await _operationManager.FindAccounts(args, CancellationToken.None);
+            var resp = await _operationManager.FindAccountsAsync(args, CancellationToken.None);
             if (resp.IsError)
             {
                 result.Exception = new RequestException(resp);
@@ -489,7 +489,7 @@ namespace Steepshot.Core.Clients
                 Start = ulong.MaxValue,
                 Limit = 1000
             };
-            var resp = await _operationManager.CondenserGetAccountHistory(args, CancellationToken.None);
+            var resp = await _operationManager.CondenserGetAccountHistoryAsync(args, CancellationToken.None);
             if (resp.IsError)
             {
                 result.Exception = new RequestException(resp);
@@ -509,7 +509,7 @@ namespace Steepshot.Core.Clients
             if (_vestsExchangeRatio.HasValue)
                 return new OperationResult<double>(_vestsExchangeRatio.Value);
 
-            var properties = await _operationManager.GetDynamicGlobalProperties(token);
+            var properties = await _operationManager.GetDynamicGlobalPropertiesAsync(token);
             if (properties.IsError)
                 return new OperationResult<double>(properties.Exception);
 

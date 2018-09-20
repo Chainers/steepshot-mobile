@@ -62,7 +62,7 @@ namespace Steepshot.Core.Clients
                             if (token.IsCancellationRequested)
                                 break;
 
-                            var isConnected = _operationManager.ConnectTo(url, token).Result;
+                            var isConnected = _operationManager.ConnectToAsync(url, token).Result;
                             if (isConnected)
                             {
                                 EnableWrite = true;
@@ -103,7 +103,7 @@ namespace Steepshot.Core.Clients
                 weigth = -10000;
 
             var op = new VoteOperation(model.Login, model.Author, model.Permlink, weigth);
-            var resp = await _operationManager.BroadcastOperationsSynchronous(keys, ct, op);
+            var resp = await _operationManager.BroadcastOperationsSynchronousAsync(keys, ct, op);
 
             var result = new OperationResult<VoidResponse>();
             if (resp.IsError)
@@ -127,7 +127,7 @@ namespace Steepshot.Core.Clients
             var op = model.Type == Models.Enums.FollowType.Follow
                 ? new FollowOperation(model.Login, model.Username, Ditch.Golos.Models.FollowType.Blog, model.Login)
                 : new UnfollowOperation(model.Login, model.Username, model.Login);
-            var resp = await _operationManager.BroadcastOperationsSynchronous(keys, ct, op);
+            var resp = await _operationManager.BroadcastOperationsSynchronousAsync(keys, ct, op);
 
             var result = new OperationResult<VoidResponse>();
 
@@ -168,7 +168,7 @@ namespace Steepshot.Core.Clients
                 ops = new BaseOperation[] { op };
             }
 
-            var resp = await _operationManager.BroadcastOperationsSynchronous(keys, ct, ops);
+            var resp = await _operationManager.BroadcastOperationsSynchronousAsync(keys, ct, ops);
 
             var result = new OperationResult<VoidResponse>();
             if (resp.IsError)
@@ -190,7 +190,7 @@ namespace Steepshot.Core.Clients
                 return new OperationResult<VoidResponse>(new ValidationException(LocalizationKeys.WrongPrivatePostingKey));
 
             var op = new DeleteCommentOperation(model.Author, model.Permlink);
-            var resp = await _operationManager.BroadcastOperationsSynchronous(keys, ct, op);
+            var resp = await _operationManager.BroadcastOperationsSynchronousAsync(keys, ct, op);
 
             var result = new OperationResult<VoidResponse>();
             if (resp.IsError)
@@ -210,7 +210,7 @@ namespace Steepshot.Core.Clients
             if (keys == null)
                 return new OperationResult<VoidResponse>(new ValidationException(LocalizationKeys.WrongPrivateActimeKey));
 
-            var resp = await _operationManager.LookupAccountNames(new[] { model.Login }, CancellationToken.None);
+            var resp = await _operationManager.LookupAccountNamesAsync(new[] { model.Login }, CancellationToken.None);
             var result = new OperationResult<VoidResponse>();
             if (resp.IsError)
             {
@@ -228,7 +228,7 @@ namespace Steepshot.Core.Clients
             var editedMeta = UpdateProfileJson(profile.JsonMetadata, model);
 
             var op = new AccountUpdateOperation(model.Login, profile.MemoKey, editedMeta);
-            var resp2 = await _operationManager.BroadcastOperationsSynchronous(keys, ct, op);
+            var resp2 = await _operationManager.BroadcastOperationsSynchronousAsync(keys, ct, op);
             if (resp2.IsError)
                 result.Exception = new RequestException(resp2);
             else
@@ -269,7 +269,7 @@ namespace Steepshot.Core.Clients
             }
 
             var op = new TransferOperation(model.Login, model.Recipient, asset, model.Memo);
-            var resp = await _operationManager.BroadcastOperationsSynchronous(keys, ct, op);
+            var resp = await _operationManager.BroadcastOperationsSynchronousAsync(keys, ct, op);
             if (resp.IsError)
                 result.Exception = new RequestException(resp);
             else
@@ -307,7 +307,7 @@ namespace Steepshot.Core.Clients
                 op = new WithdrawVestingOperation(model.From, asset);
             }
 
-            var resp = await _operationManager.BroadcastOperationsSynchronous(keys, ct, op);
+            var resp = await _operationManager.BroadcastOperationsSynchronousAsync(keys, ct, op);
             if (resp.IsError)
                 result.Exception = new RequestException(resp);
             else
@@ -341,7 +341,7 @@ namespace Steepshot.Core.Clients
                 Time = DateTime.Now,
                 HeadBlockNumber = 0
             };
-            var tr = await _operationManager.CreateTransaction(properties, keys, op, ct);
+            var tr = await _operationManager.CreateTransactionAsync(properties, keys, op, ct);
             return new OperationResult<string> { Result = JsonConvert.SerializeObject(tr) };
         }
 
@@ -367,7 +367,7 @@ namespace Steepshot.Core.Clients
 
             var result = new OperationResult<VoidResponse>();
 
-            var resp = await _operationManager.LookupAccountNames(new[] { model.Login }, CancellationToken.None);
+            var resp = await _operationManager.LookupAccountNamesAsync(new[] { model.Login }, CancellationToken.None);
             if (resp.IsError)
             {
                 result.Exception = new RequestException(resp);
@@ -415,7 +415,7 @@ namespace Steepshot.Core.Clients
 
             var result = new OperationResult<AccountInfoResponse>();
 
-            var resp = await _operationManager.LookupAccountNames(new[] { userName }, CancellationToken.None);
+            var resp = await _operationManager.LookupAccountNamesAsync(new[] { userName }, CancellationToken.None);
             if (resp.IsError)
             {
                 result.Exception = new RequestException(resp);
@@ -462,7 +462,7 @@ namespace Steepshot.Core.Clients
             if (_vestsExchangeRatio.HasValue)
                 return new OperationResult<double>(_vestsExchangeRatio.Value);
 
-            var properties = await _operationManager.GetDynamicGlobalProperties(token);
+            var properties = await _operationManager.GetDynamicGlobalPropertiesAsync(token);
             if (properties.IsError)
                 return new OperationResult<double>(properties.Exception);
 
@@ -487,7 +487,7 @@ namespace Steepshot.Core.Clients
 
             var result = new OperationResult<AccountHistoryResponse[]>();
 
-            var resp = await _operationManager.GetAccountHistory(userName, ulong.MaxValue, 1000, CancellationToken.None);
+            var resp = await _operationManager.GetAccountHistoryAsync(userName, ulong.MaxValue, 1000, CancellationToken.None);
             if (resp.IsError)
             {
                 result.Exception = new RequestException(resp);
