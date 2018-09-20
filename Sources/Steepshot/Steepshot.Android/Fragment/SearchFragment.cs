@@ -141,6 +141,7 @@ namespace Steepshot.Fragment
         private void OnClearClick(object sender, EventArgs e)
         {
             _searchView.Text = string.Empty;
+            _emptyQueryLabel.Visibility = ViewStates.Invisible;
         }
 
         private void TagsClick(object sender, EventArgs e)
