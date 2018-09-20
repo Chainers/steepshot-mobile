@@ -99,7 +99,7 @@ namespace Steepshot.iOS.Views
                     NavigationController.PushViewController(myViewController, true);
                     break;
                 case ActionType.Preview:
-                    NavigationController.PushViewController(new ImagePreviewViewController(post.Body, _cell.PostImage) { HidesBottomBarWhenPushed = true }, true);
+                    NavigationController.PushViewController(new ImagePreviewViewController(post.Media[post.PageIndex].Url, _cell.PostImage) { HidesBottomBarWhenPushed = true }, true);
                     break;
                 case ActionType.Voters:
                     NavigationController.PushViewController(new VotersViewController(post, VotersType.Likes), true);

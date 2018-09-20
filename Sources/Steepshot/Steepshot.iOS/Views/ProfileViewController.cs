@@ -285,7 +285,7 @@ namespace Steepshot.iOS.Views
                 case ActionType.Preview:
                     if (collectionView.Hidden)
                         //NavigationController.PushViewController(new PostViewController(post, _gridDelegate.Variables[_presenter.IndexOf(post)], _presenter), false);
-                        NavigationController.PushViewController(new ImagePreviewViewController(post.Body) { HidesBottomBarWhenPushed = true }, true);
+                        NavigationController.PushViewController(new ImagePreviewViewController(post.Media[post.PageIndex].Url) { HidesBottomBarWhenPushed = true }, true);
                     else
                         OpenPost(post);
                     break;
@@ -500,11 +500,11 @@ namespace Steepshot.iOS.Views
                 var visiblePoint = new CGPoint(visibleRect.GetMidX(), visibleRect.GetMidY());
                 var index = sliderCollection.IndexPathForItemAtPoint(visiblePoint);
 
-                collectionView.ScrollToItem(NSIndexPath.FromRowSection(index.Row + 1, index.Section), UICollectionViewScrollPosition.Top, false);
-                collectionView.Hidden = false;
                 sliderCollection.Hidden = true;
                 _gridDelegate.GenerateVariables();
+                collectionView.Hidden = false;
                 collectionView.ReloadData();
+                collectionView.ScrollToItem(NSIndexPath.FromRowSection(index.Row + 1, index.Section), UICollectionViewScrollPosition.Top, false);
                 return true;
             }
             return false;
