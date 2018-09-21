@@ -8,22 +8,26 @@ using Photos;
 using Steepshot.Core.Exceptions;
 using Steepshot.iOS.Helpers;
 using Steepshot.iOS.ViewControllers;
-using PureLayout.Net;
 using UIKit;
-using System.Threading.Tasks;
 using CoreAnimation;
-using System.Timers;
 using System.Linq;
+using CoreVideo;
+using CoreFoundation;
+using System.IO;
 
 namespace Steepshot.iOS.Views
 {
-    public partial class PhotoViewController : BaseViewController, IAVCapturePhotoCaptureDelegate
+    public partial class PhotoViewController : BaseViewController, IAVCapturePhotoCaptureDelegate, IAVCaptureFileOutputRecordingDelegate
     {
         private AVCaptureSession _captureSession;
+        private AVCaptureDevice _backCamera;
+        private AVCaptureDevice _frontCamera;
+        private AVCaptureDevice _currentCamera;
         private AVCaptureDeviceInput _captureDeviceInput;
         private AVCapturePhotoOutput _capturePhotoOutput;
         private AVCaptureVideoPreviewLayer _videoPreviewLayer;
         private AVCaptureFlashMode _flashMode = AVCaptureFlashMode.Auto;
+        private AVCaptureMovieFileOutput _videoFileOutput;
         private UIDeviceOrientation currentOrientation;
         private UIDeviceOrientation orientationOnPhoto;
         private NSObject _orientationChangeEventToken;
@@ -32,7 +36,7 @@ namespace Steepshot.iOS.Views
         private CABasicAnimation _animation;
         private UIBezierPath _bezierPath;
         private bool _initialized;
-        private bool test;
+        private bool _isRecording;
 
         public override void ViewDidLoad()
         {
@@ -44,7 +48,6 @@ namespace Steepshot.iOS.Views
             var photoLongPress = new UILongPressGestureRecognizer(PhotoButtonLongPress);
             photoButton.AddGestureRecognizer(photoTap);
             photoButton.AddGestureRecognizer(photoLongPress);
-            photoButton.ClipsToBounds = false;
 
             closeButton.TouchDown += GoBack;
             flashButton.TouchDown += OnFlashTouch;
@@ -53,6 +56,22 @@ namespace Steepshot.iOS.Views
 
             var galleryTap = new UITapGestureRecognizer(GalleryTap);
             galleryButton.AddGestureRecognizer(galleryTap);
+        }
+
+        private void SetupDevice()
+        {
+            var deviceDiscoverySession = AVCaptureDeviceDiscoverySession.Create(new AVCaptureDeviceType[] { AVCaptureDeviceType.BuiltInWideAngleCamera }, AVMediaType.Video, AVCaptureDevicePosition.Front);
+
+            var devices = deviceDiscoverySession.Devices;
+            foreach (var device in devices)
+            {
+                if (device.Position == AVCaptureDevicePosition.Back)
+                    _backCamera = device;
+                else if (device.Position == AVCaptureDevicePosition.Front)
+                    _frontCamera = device;
+            }
+
+            _currentCamera = _backCamera;
         }
 
         public override void ViewDidLayoutSubviews()
@@ -73,7 +92,7 @@ namespace Steepshot.iOS.Views
                 _sl.Hidden = true;
                 _sl.Path = _bezierPath.CGPath;
 
-                photoButton.Layer.AddSublayer(_sl);
+                View.Layer.AddSublayer(_sl);
 
                 _initialized = true;
             }
@@ -81,16 +100,24 @@ namespace Steepshot.iOS.Views
 
         private void PhotoButtonLongPress()
         {
-            if (!test)
+            if (!_isRecording)
             {
                 StartAnimation();
+
+                var outputFileName = new NSUuid().AsString();
+                var outputFilePath = Path.Combine(Path.GetTempPath(), Path.ChangeExtension(outputFileName, "mov"));
+
+                _videoFileOutput?.StartRecordingToOutputFile(NSUrl.FromFilename(outputFilePath), this);
             }
             else
             {
                 _sl.RemoveAllAnimations();
                 _sl.Hidden = true;
+
+                _videoFileOutput?.StopRecording();
             }
-            test = !test;
+
+            _isRecording = !_isRecording;
         }
 
         private void StartAnimation()
@@ -279,16 +306,6 @@ namespace Steepshot.iOS.Views
             }
         }
 
-        private void StartShootingVideo()
-        {
-
-        }
-
-        private NSUrl ApplicationDocumentDirectory()
-        {
-            return NSFileManager.DefaultManager.GetUrls(NSSearchPathDirectory.DocumentDirectory, NSSearchPathDomain.User).Last();
-        }
-
         public override void ViewWillDisappear(bool animated)
         {
             if (_captureSession != null && _captureSession.Running)
@@ -314,21 +331,91 @@ namespace Steepshot.iOS.Views
                     return;
                 }
             }
-            SetupLiveCameraStream();
+
+            //SetupSession();
+            //SetupLiveCameraStream();
+            SetupTest();
+        }
+
+        // TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+        // VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
+        // TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+
+        private void SetupTest()
+        {
+            _captureSession = new AVCaptureSession();
+
+            _captureSession.SessionPreset = AVCaptureSession.PresetHigh;
+
+            // device
+            var deviceDiscoverySession = AVCaptureDeviceDiscoverySession.Create(new AVCaptureDeviceType[] { AVCaptureDeviceType.BuiltInWideAngleCamera }, AVMediaType.Video, AVCaptureDevicePosition.Unspecified);
+            var devices = deviceDiscoverySession.Devices;
+            foreach (var device in devices)
+            {
+                if (device.Position == AVCaptureDevicePosition.Back)
+                    _backCamera = device;
+                else if (device.Position == AVCaptureDevicePosition.Front)
+                    _frontCamera = device;
+            }
+            _currentCamera = _backCamera;
+            //ConfigureCameraForDevice(_currentCamera);
+
+            try
+            {
+                var captureDeviceInput = AVCaptureDeviceInput.FromDevice(_currentCamera);
+                _captureSession.AddInput(captureDeviceInput);
+                _videoFileOutput = new AVCaptureMovieFileOutput();
+                _captureSession.AddOutput(_videoFileOutput);
+            }
+            catch (Exception ex)
+            { }
+
+            // setup preview
+            _videoPreviewLayer = new AVCaptureVideoPreviewLayer(_captureSession)
+            {
+                VideoGravity = AVLayerVideoGravity.ResizeAspect,
+                Orientation = AVCaptureVideoOrientation.Portrait,
+                Frame = liveCameraStream.Frame
+            };
+
+            liveCameraStream.Layer.AddSublayer(_videoPreviewLayer);
+            _captureSession.StartRunning();
+        }
+
+        private void SetupSession()
+        {
+            _captureSession = new AVCaptureSession();
+
+            var deviceDiscoverySession = AVCaptureDeviceDiscoverySession.Create(new AVCaptureDeviceType[] { AVCaptureDeviceType.BuiltInWideAngleCamera }, AVMediaType.Video, AVCaptureDevicePosition.Unspecified);
+            var devices = deviceDiscoverySession.Devices;
+            foreach (var device in devices)
+            {
+                if (device.Position == AVCaptureDevicePosition.Back)
+                    _backCamera = device;
+                else if (device.Position == AVCaptureDevicePosition.Front)
+                    _frontCamera = device;
+            }
+            _currentCamera = _backCamera;
+            _captureDeviceInput = AVCaptureDeviceInput.FromDevice(_currentCamera);
         }
 
         private void SetupLiveCameraStream()
         {
             _captureSession = new AVCaptureSession();
 
-            AVCaptureDevice captureDevice;
-            captureDevice = AVCaptureDevice.GetDefaultDevice(AVCaptureDeviceType.BuiltInDualCamera, AVMediaType.Video, AVCaptureDevicePosition.Back);
+            var deviceDiscoverySession = AVCaptureDeviceDiscoverySession.Create(new AVCaptureDeviceType[] { AVCaptureDeviceType.BuiltInWideAngleCamera }, AVMediaType.Video, AVCaptureDevicePosition.Unspecified);
+            var devices = deviceDiscoverySession.Devices;
+            foreach (var device in devices)
+            {
+                if (device.Position == AVCaptureDevicePosition.Back)
+                    _backCamera = device;
+                else if (device.Position == AVCaptureDevicePosition.Front)
+                    _frontCamera = device;
+            }
+            _currentCamera = _backCamera;
 
-            if (captureDevice == null)
-                captureDevice = AVCaptureDevice.GetDefaultDevice(AVMediaType.Video);
-
-            ConfigureCameraForDevice(captureDevice);
-            _captureDeviceInput = AVCaptureDeviceInput.FromDevice(captureDevice);
+            ConfigureCameraForDevice(_currentCamera);
+            _captureDeviceInput = AVCaptureDeviceInput.FromDevice(_currentCamera);
             if (!_captureSession.CanAddInput(_captureDeviceInput))
                 return;
 
@@ -339,24 +426,30 @@ namespace Steepshot.iOS.Views
             if (!_captureSession.CanAddOutput(_capturePhotoOutput))
                 return;
 
-            _captureSession.BeginConfiguration();
-
-            _captureSession.SessionPreset = AVCaptureSession.PresetPhoto;
-            _captureSession.AddInput(_captureDeviceInput);
-            _captureSession.AddOutput(_capturePhotoOutput);
-
-            _captureSession.CommitConfiguration();
+            SetupSessionInputOutput(_capturePhotoOutput);
 
             _videoPreviewLayer = new AVCaptureVideoPreviewLayer(_captureSession)
             {
                 Frame = liveCameraStream.Frame,
-                VideoGravity = AVLayerVideoGravity.ResizeAspectFill,
+                VideoGravity = AVLayerVideoGravity.ResizeAspectFill
             };
 
             liveCameraStream.Layer.AddSublayer(_videoPreviewLayer);
-
             _captureSession.StartRunning();
         }
+
+        private void SetupSessionInputOutput(AVCaptureOutput output)
+        {
+            _captureSession.BeginConfiguration();
+            _captureSession.SessionPreset = AVCaptureSession.PresetPhoto;
+            _captureSession.AddInput(_captureDeviceInput);
+            _captureSession.AddOutput(output);
+            _captureSession.CommitConfiguration();
+        }
+
+        // TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+        // TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+        // TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
 
         private void ConfigureCameraForDevice(AVCaptureDevice device)
         {
@@ -415,6 +508,60 @@ namespace Steepshot.iOS.Views
         {
             var descriptionViewController = new DescriptionViewController(new List<Tuple<NSDictionary, UIImage>>() { new Tuple<NSDictionary, UIImage>(null, image) }, "jpg", orientation);
             NavigationController.PushViewController(descriptionViewController, true);
+        }
+
+        public void FinishedRecording(AVCaptureFileOutput captureOutput, NSUrl outputFileUrl, NSObject[] connections, NSError error)
+        {
+            Action cleanup = () =>
+            {
+                var path = outputFileUrl.Path;
+                if (NSFileManager.DefaultManager.FileExists(path))
+                {
+                    if (!NSFileManager.DefaultManager.Remove(path, out var err))
+                    {
+                        // Could not remove file at url: {outputFileUrl}
+                    }
+                }
+            };
+
+            bool success = true;
+
+            if (error != null)
+            {
+                // Movie file finishing error: {error.LocalizedDescription}
+                success = ((NSNumber)error.UserInfo[AVErrorKeys.RecordingSuccessfullyFinished]).BoolValue;
+            }
+
+            if (success)
+            {
+                // Check authorization status
+                PHPhotoLibrary.RequestAuthorization(status =>
+                {
+                    if (status == PHAuthorizationStatus.Authorized)
+                    {
+                        PHPhotoLibrary.SharedPhotoLibrary.PerformChanges(() =>
+                        {
+                            var options = new PHAssetResourceCreationOptions
+                            {
+                                ShouldMoveFile = true
+                            };
+                            var creationRequest = PHAssetCreationRequest.CreationRequestForAsset();
+                            creationRequest.AddResource(PHAssetResourceType.Video, outputFileUrl, options);
+                        }, (success2, error2) =>
+                        {
+                            if (!success2)
+                            {
+                                // Could not save movie to photo library: {error2}
+                            }
+                            cleanup();
+                        });
+                    }
+                    else
+                        cleanup();
+                });
+            }
+            else
+                cleanup();
         }
     }
 }
