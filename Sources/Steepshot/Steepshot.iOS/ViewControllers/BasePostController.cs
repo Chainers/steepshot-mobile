@@ -33,7 +33,7 @@ namespace Steepshot.iOS.ViewControllers
             if (post == null)
                 return;
 
-            var exception = await _presenter.TryVote(post);
+            var exception = await _presenter.TryVoteAsync(post);
             if (exception is OperationCanceledException)
                 return;
 
@@ -44,7 +44,7 @@ namespace Steepshot.iOS.ViewControllers
 
         protected virtual async void LoginTapped(object sender, EventArgs e)
         {
-            var response = await _presenter.CheckServiceStatus();
+            var response = await _presenter.CheckServiceStatusAsync();
 
             var myViewController = new WelcomeViewController(response.IsSuccess);
             NavigationController.PushViewController(myViewController, true);
@@ -110,7 +110,7 @@ namespace Steepshot.iOS.ViewControllers
             if (post == null)
                 return;
 
-            var exception = await _presenter.TryFlag(post);
+            var exception = await _presenter.TryFlagAsync(post);
             ShowAlert(exception);
             if (exception == null)
                 ((MainTabBarController)TabBarController)?.UpdateProfile();
@@ -243,7 +243,7 @@ namespace Steepshot.iOS.ViewControllers
         {
             action.Invoke();
 
-            var exception = await _presenter.TryDeletePost(post);
+            var exception = await _presenter.TryDeletePostAsync(post);
 
             if (exception != null)
                 ShowAlert(exception);

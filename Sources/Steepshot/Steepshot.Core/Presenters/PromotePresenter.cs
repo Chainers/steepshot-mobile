@@ -7,9 +7,9 @@ namespace Steepshot.Core.Presenters
 {
     public class PromotePresenter : TransferPresenter
     {
-        public async Task<OperationResult<PromoteResponse>> FindPromoteBot(PromoteRequest request)
+        public async Task<OperationResult<PromoteResponse>> FindPromoteBotAsync(PromoteRequest request)
         {
-            return await Api.FindPromoteBot(request);
+            return await Api.FindPromoteBotAsync(request).ConfigureAwait(false);
         }
     }
 }

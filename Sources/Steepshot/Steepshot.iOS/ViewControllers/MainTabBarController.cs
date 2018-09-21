@@ -104,7 +104,7 @@ namespace Steepshot.iOS.ViewControllers
                 {
                     Subscriptions = PushSettings.All.FlagToStringList()
                 };
-                var response = await _presenter.TrySubscribeForPushes(model);
+                var response = await _presenter.TrySubscribeForPushesAsync(model);
                 if (response.IsSuccess)
                     AppSettings.User.PushesPlayerId = playerId;
             }
@@ -119,7 +119,7 @@ namespace Steepshot.iOS.ViewControllers
         {
             do
             {
-                var exception = await _presenter.TryGetUserInfo(AppSettings.User.Login);
+                var exception = await _presenter.TryGetUserInfoAsync(AppSettings.User.Login);
                 if (exception == null || exception is OperationCanceledException)
                 {
                     _powerFrame.ChangePercents((int)_presenter.UserProfileResponse.VotingPower);

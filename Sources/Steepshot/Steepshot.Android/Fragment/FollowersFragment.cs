@@ -119,7 +119,7 @@ namespace Steepshot.Fragment
                 return;
             if (AppSettings.User.HasPostingPermission)
             {
-                var exception = await Presenter.TryFollow(userFriend);
+                var exception = await Presenter.TryFollowAsync(userFriend);
                 if (!IsInitialized)
                     return;
 
@@ -134,7 +134,7 @@ namespace Steepshot.Fragment
 
         private async void LoadItems()
         {
-            var exception = await Presenter.TryLoadNextUserFriends(_username);
+            var exception = await Presenter.TryLoadNextUserFriendsAsync(_username);
             if (!IsInitialized)
                 return;
 

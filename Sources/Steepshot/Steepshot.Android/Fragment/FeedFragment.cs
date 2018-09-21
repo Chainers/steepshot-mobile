@@ -189,7 +189,7 @@ namespace Steepshot.Fragment
 
         private async void LoadPosts()
         {
-            var exception = await Presenter.TryLoadNextTopPosts();
+            var exception = await Presenter.TryLoadNextTopPostsAsync();
             if (!IsInitialized)
                 return;
 
@@ -241,7 +241,7 @@ namespace Steepshot.Fragment
                         if (!AppSettings.User.HasPostingPermission)
                             return;
 
-                        var exception = await Presenter.TryVote(post);
+                        var exception = await Presenter.TryVoteAsync(post);
                         if (!IsInitialized)
                             return;
 
@@ -285,7 +285,7 @@ namespace Steepshot.Fragment
                         if (!AppSettings.User.HasPostingPermission)
                             return;
 
-                        var exception = await Presenter.TryFlag(post);
+                        var exception = await Presenter.TryFlagAsync(post);
                         if (!IsInitialized)
                             return;
 
@@ -310,7 +310,7 @@ namespace Steepshot.Fragment
 
                         actionAlert.AlertAction += async () =>
                         {
-                            var exception = await Presenter.TryDeletePost(post);
+                            var exception = await Presenter.TryDeletePostAsync(post);
                             if (!IsInitialized)
                                 return;
 

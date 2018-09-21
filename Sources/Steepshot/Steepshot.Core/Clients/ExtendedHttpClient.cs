@@ -27,37 +27,24 @@ namespace Steepshot.Core.Clients
             MaxResponseContentBufferSize = 2560000;
         }
 
-        public async Task<OperationResult<T>> Get<T>(string endpoint, Dictionary<string, object> parameters, CancellationToken token)
+        public async Task<OperationResult<T>> GetAsync<T>(string endpoint, Dictionary<string, object> parameters, CancellationToken token)
         {
             var param = string.Empty;
             if (parameters != null && parameters.Count > 0)
                 param = "?" + string.Join("&", parameters.Select(i => $"{i.Key}={i.Value}"));
 
             var url = $"{endpoint}{param}";
-            var response = await GetAsync(url, token);
-            return await CreateResult<T>(response, token);
+            var response = await GetAsync(url, token).ConfigureAwait(false);
+            return await CreateResultAsync<T>(response, token).ConfigureAwait(false);
         }
 
-        public async Task<OperationResult<T>> Get<T>(string url, CancellationToken token)
+        public async Task<OperationResult<T>> GetAsync<T>(string url, CancellationToken token)
         {
-            var response = await GetAsync(url, token);
-            return await CreateResult<T>(response, token);
+            var response = await GetAsync(url, token).ConfigureAwait(false);
+            return await CreateResultAsync<T>(response, token).ConfigureAwait(false);
         }
 
-        public async Task<OperationResult<T>> Post<T, TData>(string url, TData data, CancellationToken token)
-        {
-            HttpContent content = null;
-            if (data != null)
-            {
-                var param = JsonNetConverter.Serialize(data);
-                content = new StringContent(param, Encoding.UTF8, "application/json");
-            }
-
-            var response = await PostAsync(url, content, token);
-            return await CreateResult<T>(response, token);
-        }
-
-        public async Task<OperationResult<T>> Put<T, TData>(string url, TData data, CancellationToken token)
+        public async Task<OperationResult<T>> PostAsync<T, TData>(string url, TData data, CancellationToken token)
         {
             HttpContent content = null;
             if (data != null)
@@ -66,12 +53,25 @@ namespace Steepshot.Core.Clients
                 content = new StringContent(param, Encoding.UTF8, "application/json");
             }
 
-            var response = await PostAsync(url, content, token);
-            //var response = await PutAsync(url, content, token);
-            return await CreateResult<T>(response, token);
+            var response = await PostAsync(url, content, token).ConfigureAwait(false);
+            return await CreateResultAsync<T>(response, token).ConfigureAwait(false);
         }
 
-        public async Task<OperationResult<UUIDModel>> UploadMedia(string url, UploadMediaModel model, CancellationToken token)
+        public async Task<OperationResult<T>> PutAsync<T, TData>(string url, TData data, CancellationToken token)
+        {
+            HttpContent content = null;
+            if (data != null)
+            {
+                var param = JsonNetConverter.Serialize(data);
+                content = new StringContent(param, Encoding.UTF8, "application/json");
+            }
+
+            var response = await PostAsync(url, content, token).ConfigureAwait(false);
+            //var response = await PutAsync(url, content, token).ConfigureAwait(false);
+            return await CreateResultAsync<T>(response, token).ConfigureAwait(false);
+        }
+
+        public async Task<OperationResult<UUIDModel>> UploadMediaAsync(string url, UploadMediaModel model, CancellationToken token)
         {
             var fTitle = Guid.NewGuid().ToString();
 
@@ -85,8 +85,8 @@ namespace Steepshot.Core.Clients
                 {new StringContent(model.IPFS.ToString()), "ipfs"}
             };
 
-            var response = await PostAsync(url, multiContent, token);
-            var result = await CreateResult<UUIDModel>(response, token);
+            var response = await PostAsync(url, multiContent, token).ConfigureAwait(false);
+            var result = await CreateResultAsync<UUIDModel>(response, token).ConfigureAwait(false);
 
             if (result.IsSuccess && result.Result == null)
                 result.Exception = new ValidationException(LocalizationKeys.ServeUnexpectedError);
@@ -94,13 +94,13 @@ namespace Steepshot.Core.Clients
             return result;
         }
 
-        protected virtual async Task<OperationResult<T>> CreateResult<T>(HttpResponseMessage response, CancellationToken ct)
+        protected virtual async Task<OperationResult<T>> CreateResultAsync<T>(HttpResponseMessage response, CancellationToken ct)
         {
             var result = new OperationResult<T>();
 
             if (!response.IsSuccessStatusCode)
             {
-                var rawResponse = await response.Content.ReadAsStringAsync();
+                var rawResponse = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                 result.Exception = new RequestException(response.RequestMessage.ToString(), rawResponse);
                 return result;
             }
@@ -118,7 +118,7 @@ namespace Steepshot.Core.Clients
                     case "application/json":
                     case "text/html":
                         {
-                            var content = await response.Content.ReadAsStringAsync();
+                            var content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                             if (string.IsNullOrEmpty(content))
                                 result.Result = default(T);
                             else

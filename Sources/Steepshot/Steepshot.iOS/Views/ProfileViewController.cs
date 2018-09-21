@@ -206,7 +206,7 @@ namespace Steepshot.iOS.Views
 
         async void RefreshControl_ValueChanged(object sender, EventArgs e)
         {
-            await _presenter.TryUpdateUserPosts(AppSettings.User.Login);
+            await _presenter.TryUpdateUserPostsAsync(AppSettings.User.Login);
 
             await RefreshPage();
             _refreshControl.EndRefreshing();
@@ -329,7 +329,7 @@ namespace Steepshot.iOS.Views
             errorMessage.Hidden = true;
             try
             {
-                var exception = await _presenter.TryGetUserInfo(Username);
+                var exception = await _presenter.TryGetUserInfoAsync(Username);
                 _refreshControl.EndRefreshing();
 
                 if (exception == null)
@@ -363,7 +363,7 @@ namespace Steepshot.iOS.Views
             catch (Exception ex)
             {
                 errorMessage.Hidden = false;
-                AppSettings.Logger.Error(ex);
+                AppSettings.Logger.ErrorAsync(ex);
             }
             finally
             {
@@ -404,7 +404,7 @@ namespace Steepshot.iOS.Views
             {
                 WatchedUser = Username
             };
-            var response = await _presenter.TrySubscribeForPushes(model);
+            var response = await _presenter.TrySubscribeForPushesAsync(model);
             if (response.IsSuccess)
             {
                 if (UserIsWatched)
@@ -452,7 +452,7 @@ namespace Steepshot.iOS.Views
                 _sliderGridDelegate.ClearPosition();
             }
 
-            var exception = await _presenter.TryLoadNextPosts();
+            var exception = await _presenter.TryLoadNextPostsAsync();
 
             if (exception == null)
             {
@@ -473,7 +473,7 @@ namespace Steepshot.iOS.Views
         private async Task Follow()
         {
             _gridDelegate.profileCell.DecorateFollowButton();
-            var exception = await _presenter.TryFollow();
+            var exception = await _presenter.TryFollowAsync();
 
             if (exception == null)
                 _gridDelegate.profileCell.DecorateFollowButton();

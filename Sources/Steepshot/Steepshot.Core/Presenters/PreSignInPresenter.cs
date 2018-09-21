@@ -7,14 +7,14 @@ namespace Steepshot.Core.Presenters
 {
     public class PreSignInPresenter : BasePresenter
     {
-        public async Task<OperationResult<AccountInfoResponse>> TryGetAccountInfo(string login)
+        public async Task<OperationResult<AccountInfoResponse>> TryGetAccountInfoAsync(string login)
         {
-            return await TryRunTask<string, AccountInfoResponse>(GetAccountInfo, OnDisposeCts.Token, login);
+            return await TryRunTaskAsync<string, AccountInfoResponse>(GetAccountInfoAsync, OnDisposeCts.Token, login).ConfigureAwait(false);
         }
 
-        protected Task<OperationResult<AccountInfoResponse>> GetAccountInfo(string login, CancellationToken ct)
+        protected Task<OperationResult<AccountInfoResponse>> GetAccountInfoAsync(string login, CancellationToken ct)
         {
-            return Api.GetAccountInfo(login, ct);
+            return Api.GetAccountInfoAsync(login, ct);
         }
     }
 }

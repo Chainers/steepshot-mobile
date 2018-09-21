@@ -47,8 +47,8 @@ namespace Steepshot.Activity
                 return;
             }
             module.AuthToInstagram(this);
-            //await _testContainer.RunServerTests();
-            //await _testContainer.RunDitchApiTests();
+            //await _testContainer.RunServerTestsAsync();
+            //await _testContainer.RunDitchApiTestsAsync();
         }
 
         [OnClick(Resource.Id.btn_back)]

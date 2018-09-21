@@ -16,7 +16,7 @@ namespace Steepshot.Core.Tests.Presenters
             var presenter = new UserFriendPresenter() { VotersType = VotersType.All };
             presenter.SetClient(Api[apiName]);
             Assert.IsTrue(presenter.Count == 0);
-            var exception = await presenter.TryLoadNextPostVoters(url);
+            var exception = await presenter.TryLoadNextPostVotersAsync(url);
             Assert.IsTrue(exception == null);
             Assert.IsTrue(presenter.Count > 0);
         }

@@ -72,7 +72,7 @@ namespace Steepshot.iOS.Views
             _tableSource.ScrolledToBottom += async () =>
             {
                 _tagField.Loader.StartAnimating();
-                var exception = await _presenter.TryLoadNext(_tagField.Text, false);
+                var exception = await _presenter.TryLoadNextAsync(_tagField.Text, false);
                 _tagField.Loader.StopAnimating();
                 ShowAlert(exception);
             };
@@ -174,9 +174,9 @@ namespace Steepshot.iOS.Views
 
             Exception exception = null;
             if (_tagField.Text.Length == 0)
-                exception = await _presenter.TryGetTopTags();
+                exception = await _presenter.TryGetTopTagsAsync();
             else if (_tagField.Text.Length > 1)
-                exception = await _presenter.TryLoadNext(_tagField.Text, showUnknownTag : true);
+                exception = await _presenter.TryLoadNextAsync(_tagField.Text, showUnknownTag : true);
 
             if(!(exception is OperationCanceledException))
                 _tagField.Loader.StopAnimating();

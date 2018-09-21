@@ -66,12 +66,12 @@ namespace Steepshot.iOS
 
         private void OnUnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs e)
         {
-            AppSettings.Logger.Error(e.Exception);
+            AppSettings.Logger.ErrorAsync(e.Exception);
         }
 
         private void OnUnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
-            AppSettings.Logger.Error((Exception)e.ExceptionObject);
+            AppSettings.Logger.ErrorAsync((Exception)e.ExceptionObject);
         }
 
         private void InitIoC()

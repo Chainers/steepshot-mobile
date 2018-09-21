@@ -50,10 +50,10 @@ namespace Steepshot.Core.Facades
 
 
 
-        public async Task<Exception> TryLoadNextSearchUser(string query) => await UserFriendPresenter.TryLoadNextSearchUser(query);
-        public async Task<OperationResult<AccountInfoResponse>> TryGetAccountInfo(string login)
+        public async Task<Exception> TryLoadNextSearchUserAsync(string query) => await UserFriendPresenter.TryLoadNextSearchUserAsync(query).ConfigureAwait(false);
+        public async Task<OperationResult<AccountInfoResponse>> TryGetAccountInfoAsync(string login)
         {
-            return await TransferPresenter.TryGetAccountInfo(login);
+            return await TransferPresenter.TryGetAccountInfoAsync(login).ConfigureAwait(false);
         }
 
         public void TasksCancel()

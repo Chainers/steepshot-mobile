@@ -285,7 +285,7 @@ namespace Steepshot.iOS.ViewControllers
                 return lm.GetText(validationException);
 
 
-            AppSettings.Logger.Error(exception);
+            AppSettings.Logger.ErrorAsync(exception);
             var msg = string.Empty;
 
             if (exception is InternalException internalException)

@@ -24,28 +24,28 @@ namespace Steepshot.Core.Sentry
         }
 
 
-        public async Task Fatal(Exception ex)
+        public async Task FatalAsync(Exception ex)
         {
-            await Send(ex, "fatal");
+            await SendAsync(ex, "fatal").ConfigureAwait(false);
         }
 
-        public async Task Error(Exception ex)
+        public async Task ErrorAsync(Exception ex)
         {
-            await Send(ex, "error");
+            await SendAsync(ex, "error").ConfigureAwait(false);
         }
 
-        public async Task Warning(Exception ex)
+        public async Task WarningAsync(Exception ex)
         {
-            await Send(ex, "warning");
+            await SendAsync(ex, "warning").ConfigureAwait(false);
         }
 
-        public async Task Info(Exception ex)
+        public async Task InfoAsync(Exception ex)
         {
-            await Send(ex, "info");
+            await SendAsync(ex, "info").ConfigureAwait(false);
         }
 
 
-        private async Task Send(Exception ex, string level)
+        private async Task SendAsync(Exception ex, string level)
         {
             try
             {
@@ -59,7 +59,7 @@ namespace Steepshot.Core.Sentry
                 packet.Level = level;
                 packet.Extra = new ExceptionData(ex);
                 packet.Exceptions = SentryException.GetList(ex);
-                await Send(packet, _dsn);
+                await SendAsync(packet, _dsn).ConfigureAwait(false);
             }
             catch
             {
@@ -91,7 +91,7 @@ namespace Steepshot.Core.Sentry
             };
         }
 
-        private async Task Send(JsonPacket packet, Dsn dsn)
+        private async Task SendAsync(JsonPacket packet, Dsn dsn)
         {
             try
             {
@@ -99,7 +99,7 @@ namespace Steepshot.Core.Sentry
                 var json = JsonConvert.SerializeObject(packet, Formatting.Indented);
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
                 content.Headers.Add("X-Sentry-Auth", $"Sentry sentry_version={7},sentry_client=steepshot/1, sentry_timestamp={ts}, sentry_key={dsn.PublicKey}, sentry_secret={dsn.PrivateKey}");
-                await HttpClient.PostAsync(dsn.SentryUri, content);
+                await HttpClient.PostAsync(dsn.SentryUri, content).ConfigureAwait(false);
             }
             catch
             {

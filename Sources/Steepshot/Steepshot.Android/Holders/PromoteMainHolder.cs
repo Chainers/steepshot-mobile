@@ -11,6 +11,8 @@ using Steepshot.Utils;
 using Android.Views;
 using Android.Text;
 using System.Globalization;
+using Android.Content;
+using Android.Views.InputMethods;
 using Steepshot.Core.Models.Responses;
 
 namespace Steepshot.Holders
@@ -88,6 +90,7 @@ namespace Steepshot.Holders
 
         private void PromoteCoinOnClick(object sender, EventArgs e)
         {
+            HideKeyboard();
             CoinPickClick?.Invoke();
         }
 
@@ -103,6 +106,12 @@ namespace Steepshot.Holders
         {
             _errorMessage.Visibility = ViewStates.Visible;
             _errorMessage.Text = mes;
+        }
+
+        private void HideKeyboard()
+        {
+            var imm = (InputMethodManager)ItemView.Context.GetSystemService(Context.InputMethodService);
+            imm?.HideSoftInputFromWindow(_amountTextField.WindowToken, 0);
         }
 
         private void SetBalance()

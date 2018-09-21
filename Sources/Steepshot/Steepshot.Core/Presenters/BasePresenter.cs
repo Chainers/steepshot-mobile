@@ -24,15 +24,15 @@ namespace Steepshot.Core.Presenters
         }
 
 
-        public async Task<OperationResult<object>> TrySubscribeForPushes(PushNotificationsModel model)
+        public async Task<OperationResult<object>> TrySubscribeForPushesAsync(PushNotificationsModel model)
         {
-            return await TryRunTask<PushNotificationsModel, object>(Api.SubscribeForPushes, CancellationToken.None, model);
+            return await TryRunTaskAsync<PushNotificationsModel, object>(Api.SubscribeForPushesAsync, CancellationToken.None, model).ConfigureAwait(false);
         }
 
 
-        #region TryRunTask
+        #region TryRunTaskAsync
 
-        protected static async Task<OperationResult<TResult>> TryRunTask<TResult>(Func<CancellationToken, Task<OperationResult<TResult>>> func, CancellationToken ct)
+        protected static async Task<OperationResult<TResult>> TryRunTaskAsync<TResult>(Func<CancellationToken, Task<OperationResult<TResult>>> func, CancellationToken ct)
         {
             try
             {
@@ -40,7 +40,7 @@ namespace Steepshot.Core.Presenters
                 if (!available)
                     return new OperationResult<TResult>(new ValidationException(LocalizationKeys.InternetUnavailable));
 
-                return await func(ct);
+                return await func(ct).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -51,13 +51,13 @@ namespace Steepshot.Core.Presenters
                 if (!available)
                     return new OperationResult<TResult>(new ValidationException(LocalizationKeys.InternetUnavailable));
 
-                await AppSettings.Logger.Error(ex);
+                await AppSettings.Logger.ErrorAsync(ex).ConfigureAwait(false);
 
                 return new OperationResult<TResult>(ex);
             }
         }
 
-        protected static async Task<OperationResult<TResult>> TryRunTask<T1, TResult>(Func<T1, CancellationToken, Task<OperationResult<TResult>>> func, CancellationToken ct, T1 param1)
+        protected static async Task<OperationResult<TResult>> TryRunTaskAsync<T1, TResult>(Func<T1, CancellationToken, Task<OperationResult<TResult>>> func, CancellationToken ct, T1 param1)
         {
             try
             {
@@ -65,32 +65,7 @@ namespace Steepshot.Core.Presenters
                 if (!available)
                     return new OperationResult<TResult>(new ValidationException(LocalizationKeys.InternetUnavailable));
 
-                return await func(param1, ct);
-            }
-            catch (Exception ex)
-            {
-                if (ct.IsCancellationRequested)
-                    return new OperationResult<TResult>(new OperationCanceledException());
-
-                var available = AppSettings.ConnectionService.IsConnectionAvailable();
-                if (!available)
-                    return new OperationResult<TResult>(new ValidationException(LocalizationKeys.InternetUnavailable));
-                
-                await AppSettings.Logger.Error(ex);
-
-                return new OperationResult<TResult>(ex);
-            }
-        }
-
-        protected static async Task<OperationResult<TResult>> TryRunTask<T1, T2, TResult>(Func<T1, T2, CancellationToken, Task<OperationResult<TResult>>> func, CancellationToken ct, T1 param1, T2 param2)
-        {
-            try
-            {
-                var available = AppSettings.ConnectionService.IsConnectionAvailable();
-                if (!available)
-                    return new OperationResult<TResult>(new ValidationException(LocalizationKeys.InternetUnavailable));
-
-                return await func(param1, param2, ct);
+                return await func(param1, ct).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -101,14 +76,39 @@ namespace Steepshot.Core.Presenters
                 if (!available)
                     return new OperationResult<TResult>(new ValidationException(LocalizationKeys.InternetUnavailable));
 
-                await AppSettings.Logger.Error(ex);
+                await AppSettings.Logger.ErrorAsync(ex).ConfigureAwait(false);
+
+                return new OperationResult<TResult>(ex);
+            }
+        }
+
+        protected static async Task<OperationResult<TResult>> TryRunTaskAsync<T1, T2, TResult>(Func<T1, T2, CancellationToken, Task<OperationResult<TResult>>> func, CancellationToken ct, T1 param1, T2 param2)
+        {
+            try
+            {
+                var available = AppSettings.ConnectionService.IsConnectionAvailable();
+                if (!available)
+                    return new OperationResult<TResult>(new ValidationException(LocalizationKeys.InternetUnavailable));
+
+                return await func(param1, param2, ct).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                if (ct.IsCancellationRequested)
+                    return new OperationResult<TResult>(new OperationCanceledException());
+
+                var available = AppSettings.ConnectionService.IsConnectionAvailable();
+                if (!available)
+                    return new OperationResult<TResult>(new ValidationException(LocalizationKeys.InternetUnavailable));
+
+                await AppSettings.Logger.ErrorAsync(ex).ConfigureAwait(false);
 
                 return new OperationResult<TResult>(ex);
             }
         }
 
 
-        protected static async Task<Exception> TryRunTask(Func<CancellationToken, Task<Exception>> func, CancellationToken ct)
+        protected static async Task<Exception> TryRunTaskAsync(Func<CancellationToken, Task<Exception>> func, CancellationToken ct)
         {
             try
             {
@@ -116,7 +116,7 @@ namespace Steepshot.Core.Presenters
                 if (!available)
                     return new ValidationException(LocalizationKeys.InternetUnavailable);
 
-                return await func(ct);
+                return await func(ct).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -127,13 +127,13 @@ namespace Steepshot.Core.Presenters
                 if (!available)
                     return new ValidationException(LocalizationKeys.InternetUnavailable);
 
-                await AppSettings.Logger.Error(ex);
+                await AppSettings.Logger.ErrorAsync(ex).ConfigureAwait(false);
 
                 return ex;
             }
         }
 
-        protected static async Task<Exception> TryRunTask<T1>(Func<T1, CancellationToken, Task<Exception>> func, CancellationToken ct, T1 param1)
+        protected static async Task<Exception> TryRunTaskAsync<T1>(Func<T1, CancellationToken, Task<Exception>> func, CancellationToken ct, T1 param1)
         {
             try
             {
@@ -141,7 +141,7 @@ namespace Steepshot.Core.Presenters
                 if (!available)
                     return new ValidationException(LocalizationKeys.InternetUnavailable);
 
-                return await func(param1, ct);
+                return await func(param1, ct).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -152,13 +152,13 @@ namespace Steepshot.Core.Presenters
                 if (!available)
                     return new ValidationException(LocalizationKeys.InternetUnavailable);
 
-                await AppSettings.Logger.Error(ex);
+                await AppSettings.Logger.ErrorAsync(ex).ConfigureAwait(false);
 
                 return ex;
             }
         }
 
-        protected static async Task<Exception> TryRunTask<T1, T2>(Func<T1, T2, CancellationToken, Task<Exception>> func, CancellationToken ct, T1 param1, T2 param2)
+        protected static async Task<Exception> TryRunTaskAsync<T1, T2>(Func<T1, T2, CancellationToken, Task<Exception>> func, CancellationToken ct, T1 param1, T2 param2)
         {
             try
             {
@@ -166,7 +166,7 @@ namespace Steepshot.Core.Presenters
                 if (!available)
                     return new ValidationException(LocalizationKeys.InternetUnavailable);
 
-                return await func(param1, param2, ct);
+                return await func(param1, param2, ct).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -177,7 +177,7 @@ namespace Steepshot.Core.Presenters
                 if (!available)
                     return new ValidationException(LocalizationKeys.InternetUnavailable);
 
-                await AppSettings.Logger.Error(ex);
+                await AppSettings.Logger.ErrorAsync(ex).ConfigureAwait(false);
 
                 return ex;
             }

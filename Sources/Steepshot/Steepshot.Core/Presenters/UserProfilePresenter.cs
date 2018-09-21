@@ -19,15 +19,15 @@ namespace Steepshot.Core.Presenters
 
         public Action SubscriptionsUpdated;
 
-        public async Task<Exception> TryLoadNextPosts()
+        public async Task<Exception> TryLoadNextPostsAsync()
         {
             if (IsLastReaded)
                 return null;
 
-            return await RunAsSingleTask(LoadNextPosts);
+            return await RunAsSingleTaskAsync(LoadNextPostsAsync).ConfigureAwait(false);
         }
 
-        private async Task<Exception> LoadNextPosts(CancellationToken ct)
+        private async Task<Exception> LoadNextPostsAsync(CancellationToken ct)
         {
             var request = new UserPostsModel(UserName)
             {
@@ -42,20 +42,20 @@ namespace Steepshot.Core.Presenters
             bool isNeedRepeat;
             do
             {
-                var response = await Api.GetUserPosts(request, ct);
-                isNeedRepeat = ResponseProcessing(response, ItemsLimit, out exception, nameof(TryLoadNextPosts));
+                var response = await Api.GetUserPostsAsync(request, ct).ConfigureAwait(false);
+                isNeedRepeat = ResponseProcessing(response, ItemsLimit, out exception, nameof(TryLoadNextPostsAsync));
             } while (isNeedRepeat);
 
             return exception;
         }
 
 
-        public async Task<Exception> TryGetUserInfo(string user)
+        public async Task<Exception> TryGetUserInfoAsync(string user)
         {
-            return await TryRunTask(GetUserInfo, OnDisposeCts.Token, user);
+            return await TryRunTaskAsync(GetUserInfoAsync, OnDisposeCts.Token, user).ConfigureAwait(false);
         }
 
-        private async Task<Exception> GetUserInfo(string user, CancellationToken ct)
+        private async Task<Exception> GetUserInfoAsync(string user, CancellationToken ct)
         {
             var req = new UserProfileModel(user)
             {
@@ -63,38 +63,38 @@ namespace Steepshot.Core.Presenters
                 ShowNsfw = AppSettings.User.IsNsfw,
                 ShowLowRated = AppSettings.User.IsLowRated
             };
-            var response = await Api.GetUserProfile(req, ct);
+            var response = await Api.GetUserProfileAsync(req, ct).ConfigureAwait(false);
 
             if (response.IsSuccess)
             {
                 UserProfileResponse = response.Result;
                 CashPresenterManager.Add(UserProfileResponse);
-                NotifySourceChanged(nameof(TryGetUserInfo), true);
+                NotifySourceChanged(nameof(TryGetUserInfoAsync), true);
             }
             return response.Exception;
         }
 
 
-        public async Task<Exception> TryFollow()
+        public async Task<Exception> TryFollowAsync()
         {
             if (UserProfileResponse.FollowedChanging)
                 return null;
 
             UserProfileResponse.FollowedChanging = true;
-            NotifySourceChanged(nameof(TryFollow), true);
+            NotifySourceChanged(nameof(TryFollowAsync), true);
 
-            var exception = await TryRunTask(Follow, OnDisposeCts.Token, UserProfileResponse);
+            var exception = await TryRunTaskAsync(FollowAsync, OnDisposeCts.Token, UserProfileResponse).ConfigureAwait(false);
             UserProfileResponse.FollowedChanging = false;
             CashPresenterManager.Update(UserProfileResponse);
-            NotifySourceChanged(nameof(TryFollow), true);
+            NotifySourceChanged(nameof(TryFollowAsync), true);
             return exception;
         }
 
-        private async Task<Exception> Follow(UserProfileResponse userProfileResponse, CancellationToken ct)
+        private async Task<Exception> FollowAsync(UserProfileResponse userProfileResponse, CancellationToken ct)
         {
             var hasFollowed = userProfileResponse.HasFollowed;
             var request = new FollowModel(AppSettings.User.UserInfo, hasFollowed ? FollowType.UnFollow : FollowType.Follow, UserName);
-            var response = await Api.Follow(request, ct);
+            var response = await Api.FollowAsync(request, ct).ConfigureAwait(false);
 
             if (response.IsSuccess)
                 userProfileResponse.HasFollowed = !hasFollowed;
@@ -103,12 +103,12 @@ namespace Steepshot.Core.Presenters
         }
 
 
-        public async Task<Exception> TryUpdateUserProfile(UpdateUserProfileModel model, UserProfileResponse currentProfile)
+        public async Task<Exception> TryUpdateUserProfileAsync(UpdateUserProfileModel model, UserProfileResponse currentProfile)
         {
-            var exception = await TryRunTask(UpdateUserProfile, OnDisposeCts.Token, model);
+            var exception = await TryRunTaskAsync(UpdateUserProfileAsync, OnDisposeCts.Token, model).ConfigureAwait(false);
             if (exception != null)
             {
-                NotifySourceChanged(nameof(TryUpdateUserProfile), false);
+                NotifySourceChanged(nameof(TryUpdateUserProfileAsync), false);
             }
             else
             {
@@ -118,26 +118,26 @@ namespace Steepshot.Core.Presenters
                 currentProfile.Location = model.Location;
                 currentProfile.Website = model.Website;
                 currentProfile.ProfileImage = model.ProfileImage;
-                NotifySourceChanged(nameof(TryUpdateUserProfile), false);
+                NotifySourceChanged(nameof(TryUpdateUserProfileAsync), false);
             }
 
             return exception;
         }
 
-        private async Task<Exception> UpdateUserProfile(UpdateUserProfileModel model, CancellationToken ct)
+        private async Task<Exception> UpdateUserProfileAsync(UpdateUserProfileModel model, CancellationToken ct)
         {
-            var response = await Api.UpdateUserProfile(model, ct);
+            var response = await Api.UpdateUserProfileAsync(model, ct).ConfigureAwait(false);
             return response.Exception;
         }
 
-        public async Task<Exception> TryUpdateUserPosts(string username)
+        public async Task<Exception> TryUpdateUserPostsAsync(string username)
         {
-            return await TryRunTask(UpdateUserPosts, OnDisposeCts.Token, username);
+            return await TryRunTaskAsync(UpdateUserPostsAsync, OnDisposeCts.Token, username).ConfigureAwait(false);
         }
 
-        private async Task<Exception> UpdateUserPosts(string username, CancellationToken ct)
+        private async Task<Exception> UpdateUserPostsAsync(string username, CancellationToken ct)
         {
-            var response = await Api.UpdateUserPosts(username, ct);
+            var response = await Api.UpdateUserPostsAsync(username, ct).ConfigureAwait(false);
             return response.Exception;
         }
 
@@ -152,18 +152,18 @@ namespace Steepshot.Core.Presenters
             OperationResult<SubscriptionsModel> response;
             do
             {
-                response = await TryRunTask<SubscriptionsModel>(CheckSubscriptions, CancellationToken.None);
+                response = await TryRunTaskAsync<SubscriptionsModel>(CheckSubscriptionsAsync, CancellationToken.None).ConfigureAwait(false);
                 if (!response.IsSuccess)
-                    await Task.Delay(5000);
+                    await Task.Delay(5000).ConfigureAwait(false);
             } while (!response.IsSuccess);
 
             AppSettings.User.PushSettings = response.Result.EnumSubscriptions;
             SubscriptionsUpdated?.Invoke();
         }
 
-        private async Task<OperationResult<SubscriptionsModel>> CheckSubscriptions(CancellationToken ct)
+        private async Task<OperationResult<SubscriptionsModel>> CheckSubscriptionsAsync(CancellationToken ct)
         {
-            var response = await Api.CheckSubscriptions(AppSettings.User, ct);
+            var response = await Api.CheckSubscriptionsAsync(AppSettings.User, ct).ConfigureAwait(false);
             return response;
         }
 

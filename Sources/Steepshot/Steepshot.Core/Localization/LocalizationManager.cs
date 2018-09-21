@@ -48,7 +48,7 @@ namespace Steepshot.Core.Localization
             if (!available)
                 return;
 
-            var rez = await httpClient.Get<string>(string.Format(UpdateUrl, Model.Lang), CancellationToken.None);
+            var rez = await httpClient.GetAsync<string>(string.Format(UpdateUrl, Model.Lang), CancellationToken.None).ConfigureAwait(false);
             if (!rez.IsSuccess)
                 return;
 
@@ -113,7 +113,7 @@ namespace Steepshot.Core.Localization
             }
             catch (Exception ex)
             {
-                AppSettings.Logger.Warning(ex);
+                AppSettings.Logger.WarningAsync(ex);
             }
             finally
             {
@@ -183,7 +183,7 @@ namespace Steepshot.Core.Localization
             if (string.IsNullOrEmpty(result))
             {
                 var ex = new Exception($"Key not found: {key}");
-                AppSettings.Logger.Info(ex);
+                AppSettings.Logger.InfoAsync(ex);
             }
 
             return result;

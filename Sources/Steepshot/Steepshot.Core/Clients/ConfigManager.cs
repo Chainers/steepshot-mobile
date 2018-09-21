@@ -30,13 +30,13 @@ namespace Steepshot.Core.Clients
                 GolosNodeConfigs = assetHelper.GolosNodesConfig();
         }
         
-        public async Task Update(ExtendedHttpClient httpClient, KnownChains chains, CancellationToken token)
+        public async Task UpdateAsync(ExtendedHttpClient httpClient, KnownChains chains, CancellationToken token)
         {
             switch (chains)
             {
                 case KnownChains.Golos:
                     {
-                        var conf = await httpClient.Get<List<NodeConfig>>(GolosUpdateUrl, token);
+                        var conf = await httpClient.GetAsync<List<NodeConfig>>(GolosUpdateUrl, token).ConfigureAwait(false);
                         if (conf.IsSuccess)
                         {
                             GolosNodeConfigs = conf.Result;
@@ -46,7 +46,7 @@ namespace Steepshot.Core.Clients
                     }
                 case KnownChains.Steem:
                     {
-                        var conf = await httpClient.Get<List<NodeConfig>>(SteemUpdateUrl, token);
+                        var conf = await httpClient.GetAsync<List<NodeConfig>>(SteemUpdateUrl, token).ConfigureAwait(false);
                         if (conf.IsSuccess)
                         {
                             SteemNodeConfigs = conf.Result;

@@ -225,7 +225,7 @@ namespace Steepshot.Fragment
             catch (Exception ex)
             {
                 _shotButton.Enabled = true;
-                AppSettings.Logger.Warning(ex);
+                AppSettings.Logger.WarningAsync(ex);
             }
         }
 
@@ -293,7 +293,7 @@ namespace Steepshot.Fragment
             }
             catch (Exception ex)
             {
-                await AppSettings.Logger.Error(ex);
+                await AppSettings.Logger.ErrorAsync(ex);
                 Activity.ShowAlert(new InternalException(LocalizationKeys.CameraSettingError, ex), ToastLength.Short);
             }
         }
@@ -524,7 +524,7 @@ namespace Steepshot.Fragment
                 }
                 else
                 {
-                    await AppSettings.Logger.Error(ex);
+                    await AppSettings.Logger.ErrorAsync(ex);
                     Activity.ShowAlert(new InternalException(LocalizationKeys.CameraSettingError, ex), ToastLength.Short);
                 }
             }

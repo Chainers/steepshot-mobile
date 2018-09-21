@@ -32,6 +32,7 @@ namespace Steepshot.Fragment
         private readonly PreparePostModel _tepmPost;
         private GalleryMediaAdapter _galleryAdapter;
         private bool _isUploading;
+        private bool _isEnableSaveState = true;
 
 
         protected List<GalleryMediaModel> Media { get; }
@@ -71,44 +72,48 @@ namespace Steepshot.Fragment
             }
 
 
-            Title.TextChanged += TitleChanged;
-            Title.FocusChange += TitleOnFocusChange;
-            Description.TextChanged += DescriptionChanged;
-            Description.FocusChange += TitleOnFocusChange;
-            LocalTagsAdapter.LocalTags.CollectionChanged += LocalTagsChanged;
+            //Title.TextChanged += TitleChanged;
+            //Title.FocusChange += TitleOnFocusChange;
+            //Description.TextChanged += DescriptionChanged;
+            //Description.FocusChange += TitleOnFocusChange;
+            //LocalTagsAdapter.LocalTags.CollectionChanged += LocalTagsChanged;
 
             InitData();
             SearchTextChanged();
         }
 
-        public override void OnPause()
-        {
-            SaveGalleryTemp();
-            SavePreparePostTemp();
-            base.OnPause();
-        }
+        //public override void OnPause()
+        //{
+        //    if (_isEnableSaveState)
+        //    {
+        //        SaveGalleryTemp();
+        //        SavePreparePostTemp();
+        //    }
 
-        private void TitleOnFocusChange(object sender, View.FocusChangeEventArgs e)
-        {
-            if (!e.HasFocus)
-                SavePreparePostTemp();
-        }
+        //    base.OnPause();
+        //}
 
-        private void LocalTagsChanged(object sender, NotifyCollectionChangedEventArgs e)
-        {
-            Model.Tags = LocalTagsAdapter.LocalTags.ToArray();
-            SavePreparePostTemp();
-        }
+        //private void TitleOnFocusChange(object sender, View.FocusChangeEventArgs e)
+        //{
+        //    if (!e.HasFocus)
+        //        SavePreparePostTemp();
+        //}
 
-        private void TitleChanged(object sender, Android.Text.TextChangedEventArgs e)
-        {
-            Model.Title = Title.Text;
-        }
+        //private void LocalTagsChanged(object sender, NotifyCollectionChangedEventArgs e)
+        //{
+        //    Model.Tags = LocalTagsAdapter.LocalTags.ToArray();
+        //    SavePreparePostTemp();
+        //}
 
-        private void DescriptionChanged(object sender, Android.Text.TextChangedEventArgs e)
-        {
-            Model.Description = Description.Text;
-        }
+        //private void TitleChanged(object sender, Android.Text.TextChangedEventArgs e)
+        //{
+        //    Model.Title = Title.Text;
+        //}
+
+        //private void DescriptionChanged(object sender, Android.Text.TextChangedEventArgs e)
+        //{
+        //    Model.Description = Description.Text;
+        //}
 
         protected virtual async void InitData()
         {
@@ -144,11 +149,11 @@ namespace Steepshot.Fragment
             if (!IsInitialized)
                 return;
 
-            await CheckOnSpam(false);
+            await CheckOnSpam();
             if (!IsInitialized)
                 return;
 
-            if (IsSpammer)
+            if (IsSpammer == true)
                 return;
 
             StartUploadMedia(true);
@@ -193,11 +198,11 @@ namespace Steepshot.Fragment
                         }
                     }
 
-                    SaveGalleryTemp();
+                    //SaveGalleryTemp();
                 }
                 catch (Exception ex)
                 {
-                    AppSettings.Logger.Error(ex);
+                    AppSettings.Logger.ErrorAsync(ex);
                 }
             });
         }
@@ -282,7 +287,7 @@ namespace Steepshot.Fragment
                 var matrix = new Matrix();
                 matrix.SetRotate(rotation);
 
-                croped = Bitmap.CreateBitmap(sized, x, y, width, height, matrix, false);
+                croped = Bitmap.CreateBitmap(sized, x, y, width, height, matrix, true);
 
                 var directory = new Java.IO.File(Context.CacheDir, Constants.Steepshot);
                 if (!directory.Exists())
@@ -305,7 +310,7 @@ namespace Steepshot.Fragment
             }
             catch (Exception ex)
             {
-                AppSettings.Logger.Error(ex);
+                AppSettings.Logger.ErrorAsync(ex);
                 return string.Empty;
             }
             finally
@@ -364,7 +369,7 @@ namespace Steepshot.Fragment
                     else
                     {
                         media.UploadMediaUuid = operationResult.Result;
-                        SaveGalleryTemp();
+                        //SaveGalleryTemp();
                     }
                 }
 
@@ -390,14 +395,14 @@ namespace Steepshot.Fragment
                 stream = new StreamConverter(fileInputStream, null);
 
                 var request = new UploadMediaModel(AppSettings.User.UserInfo, stream, System.IO.Path.GetExtension(model.TempPath));
-                var serverResult = await Presenter.TryUploadMedia(request);
+                var serverResult = await Presenter.TryUploadMediaAsync(request);
                 model.UploadState = UploadState.UploadEnd;
                 return serverResult;
             }
             catch (Exception ex)
             {
                 model.UploadState = UploadState.UploadError;
-                await AppSettings.Logger.Error(ex);
+                await AppSettings.Logger.ErrorAsync(ex);
                 return new OperationResult<UUIDModel>(new InternalException(LocalizationKeys.PhotoUploadError, ex));
             }
             finally
@@ -419,7 +424,7 @@ namespace Steepshot.Fragment
                     if (media.UploadState != UploadState.UploadEnd)
                         continue;
 
-                    var operationResult = await Presenter.TryGetMediaStatus(media.UploadMediaUuid);
+                    var operationResult = await Presenter.TryGetMediaStatusAsync(media.UploadMediaUuid);
                     if (!IsInitialized)
                         return;
 
@@ -430,7 +435,7 @@ namespace Steepshot.Fragment
                             case UploadMediaCode.Done:
                                 {
                                     media.UploadState = UploadState.UploadVerified;
-                                    SaveGalleryTemp();
+                                    //SaveGalleryTemp();
                                 }
                                 break;
                             case UploadMediaCode.FailedToProcess:
@@ -438,7 +443,7 @@ namespace Steepshot.Fragment
                             case UploadMediaCode.FailedToSave:
                                 {
                                     media.UploadState = UploadState.UploadError;
-                                    SaveGalleryTemp();
+                                    //SaveGalleryTemp();
                                 }
                                 break;
                         }
@@ -466,7 +471,7 @@ namespace Steepshot.Fragment
                 if (media.UploadState != UploadState.UploadVerified)
                     continue;
 
-                var mediaResult = await Presenter.TryGetMediaResult(media.UploadMediaUuid);
+                var mediaResult = await Presenter.TryGetMediaResultAsync(media.UploadMediaUuid);
                 if (!IsInitialized)
                     return;
 
@@ -474,7 +479,7 @@ namespace Steepshot.Fragment
                 {
                     Model.Media[i] = mediaResult.Result;
                     media.UploadState = UploadState.Ready;
-                    SaveGalleryTemp();
+                    //SaveGalleryTemp();
                 }
 
                 if (!IsInitialized)
@@ -488,9 +493,7 @@ namespace Steepshot.Fragment
             Model.Description = Description.Text;
             Model.Tags = LocalTagsAdapter.LocalTags.ToArray();
 
-            SavePreparePostTemp();
-
-            EnablePostAndEdit(false, true);
+            //SavePreparePostTemp();
 
             while (_isUploading)
             {
@@ -501,8 +504,8 @@ namespace Steepshot.Fragment
 
             if (Media.Any(m => m.UploadState != UploadState.Ready))
             {
-                await CheckOnSpam(true);
-                if (IsSpammer || !IsInitialized)
+                await CheckOnSpam();
+                if (IsSpammer == true || !IsInitialized)
                     return;
 
                 await StartUploadMedia();
@@ -525,58 +528,54 @@ namespace Steepshot.Fragment
                         Activity.ShowAlert(LocalizationKeys.PostDelay, ToastLength.Long);
                 }
             }
-
-            EnablePostAndEdit(true, true);
         }
 
-        protected async Task CheckOnSpam(bool disableEditing)
+        protected async Task CheckOnSpam()
         {
             try
             {
-                EnablePostAndEdit(false, disableEditing);
-                IsSpammer = false;
+                IsSpammer = null;
 
-                var spamCheck = await Presenter.TryCheckForSpam(AppSettings.User.Login);
+                var spamCheck = await Presenter.TryCheckForSpamAsync(AppSettings.User.Login);
                 if (!IsInitialized)
                     return;
 
-                if (spamCheck.IsSuccess)
+                if (!spamCheck.IsSuccess)
+                    return;
+
+                if (spamCheck.Result.IsSpam)
                 {
-                    if (!spamCheck.Result.IsSpam)
+                    // more than 15 posts
+                    IsSpammer = true;
+                    PostingLimit = TimeSpan.FromHours(24);
+                    StartPostTimer((int)spamCheck.Result.WaitingTime);
+                    Activity.ShowAlert(LocalizationKeys.PostsDayLimit, ToastLength.Long);
+                }
+                else
+                {
+                    if (spamCheck.Result.WaitingTime > 0)
                     {
-                        if (spamCheck.Result.WaitingTime > 0)
-                        {
-                            IsSpammer = true;
-                            PostingLimit = TimeSpan.FromMinutes(5);
-                            StartPostTimer((int)spamCheck.Result.WaitingTime);
-                            Activity.ShowAlert(LocalizationKeys.Posts5minLimit, ToastLength.Long);
-                        }
-                        else
-                        {
-                            EnabledPost();
-                        }
+                        IsSpammer = true;
+                        PostingLimit = TimeSpan.FromMinutes(5);
+                        StartPostTimer((int)spamCheck.Result.WaitingTime);
+                        Activity.ShowAlert(LocalizationKeys.Posts5minLimit, ToastLength.Long);
                     }
                     else
                     {
-                        // more than 15 posts
-                        IsSpammer = true;
-                        PostingLimit = TimeSpan.FromHours(24);
-                        StartPostTimer((int)spamCheck.Result.WaitingTime);
-                        Activity.ShowAlert(LocalizationKeys.PostsDayLimit, ToastLength.Long);
+                        IsSpammer = false;
                     }
                 }
-
-                EnablePostAndEdit(true, true);
             }
             catch (Exception ex)
             {
-                AppSettings.Logger.Error(ex);
+                AppSettings.Logger.ErrorAsync(ex);
             }
         }
 
         private async void StartPostTimer(int startSeconds)
         {
             var timepassed = PostingLimit - TimeSpan.FromSeconds(startSeconds);
+            LoadingSpinner.Visibility = ViewStates.Gone;
 
             while (timepassed < PostingLimit)
             {
@@ -592,7 +591,7 @@ namespace Steepshot.Fragment
                 timepassed = timepassed.Add(TimeSpan.FromSeconds(1));
             }
 
-            IsSpammer = false;
+            IsSpammer = null;
             EnabledPost();
         }
 
@@ -610,50 +609,52 @@ namespace Steepshot.Fragment
                     file.Delete();
         }
 
-        protected override void OnPostSuccess()
-        {
-            AppSettings.Temp.Remove(PostCreateGalleryTemp);
-            AppSettings.Temp.Remove(PreparePostTemp);
-            AppSettings.SaveTemp();
-        }
+        //protected override void OnPostSuccess()
+        //{
+        //    AppSettings.Temp.Remove(PostCreateGalleryTemp);
+        //    AppSettings.Temp.Remove(PreparePostTemp);
+        //    _isEnableSaveState = false;
+        //    AppSettings.SaveTemp();
+        //}
 
-        private void SaveGalleryTemp()
-        {
-            var json = JsonConvert.SerializeObject(Media);
-            if (AppSettings.Temp.ContainsKey(PostCreateGalleryTemp))
-                AppSettings.Temp[PostCreateGalleryTemp] = json;
-            else
-                AppSettings.Temp.Add(PostCreateGalleryTemp, json);
-            AppSettings.SaveTemp();
-        }
+        //private void SaveGalleryTemp()
+        //{
+        //    var json = JsonConvert.SerializeObject(Media);
+        //    if (AppSettings.Temp.ContainsKey(PostCreateGalleryTemp))
+        //        AppSettings.Temp[PostCreateGalleryTemp] = json;
+        //    else
+        //        AppSettings.Temp.Add(PostCreateGalleryTemp, json);
+        //    AppSettings.SaveTemp();
+        //}
 
-        private void SavePreparePostTemp()
-        {
-            var json = JsonConvert.SerializeObject(Model);
-            if (AppSettings.Temp.ContainsKey(PreparePostTemp))
-                AppSettings.Temp[PreparePostTemp] = json;
-            else
-                AppSettings.Temp.Add(PreparePostTemp, json);
-            AppSettings.SaveTemp();
-        }
+        //private void SavePreparePostTemp()
+        //{
+        //    var json = JsonConvert.SerializeObject(Model);
+        //    if (AppSettings.Temp.ContainsKey(PreparePostTemp))
+        //        AppSettings.Temp[PreparePostTemp] = json;
+        //    else
+        //        AppSettings.Temp.Add(PreparePostTemp, json);
+        //    AppSettings.SaveTemp();
+        //}
 
-        public override bool OnBackPressed()
-        {
-            var isPressed = base.OnBackPressed();
-            if (!isPressed)
-            {
-                AppSettings.Temp.Remove(PostCreateGalleryTemp);
-                AppSettings.Temp.Remove(PreparePostTemp);
-                AppSettings.SaveTemp();
-            }
+        //public override bool OnBackPressed()
+        //{
+        //    var isPressed = base.OnBackPressed();
+        //    if (!isPressed)
+        //    {
+        //        AppSettings.Temp.Remove(PostCreateGalleryTemp);
+        //        AppSettings.Temp.Remove(PreparePostTemp);
+        //        _isEnableSaveState = false;
+        //        AppSettings.SaveTemp();
+        //    }
 
-            return isPressed;
-        }
+        //    return isPressed;
+        //}
 
         private async Task CheckForPlagiarism()
         {
             IsPlagiarism = false;
-            var plagiarismCheck = await Presenter.TryCheckForPlagiarism(Model);
+            var plagiarismCheck = await Presenter.TryCheckForPlagiarismAsync(Model);
 
             if (plagiarismCheck.IsSuccess)
             {

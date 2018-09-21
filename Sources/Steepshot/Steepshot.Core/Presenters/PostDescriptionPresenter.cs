@@ -9,64 +9,64 @@ namespace Steepshot.Core.Presenters
 {
     public sealed class PostDescriptionPresenter : BasePresenter
     {
-        public async Task<OperationResult<UUIDModel>> TryUploadMedia(UploadMediaModel model)
+        public async Task<OperationResult<UUIDModel>> TryUploadMediaAsync(UploadMediaModel model)
         {
-            return await TryRunTask<UploadMediaModel, UUIDModel>(UploadMedia, OnDisposeCts.Token, model);
+            return await TryRunTaskAsync<UploadMediaModel, UUIDModel>(UploadMediaAsync, OnDisposeCts.Token, model).ConfigureAwait(false);
         }
 
-        private async Task<OperationResult<UUIDModel>> UploadMedia(UploadMediaModel model, CancellationToken ct)
+        private async Task<OperationResult<UUIDModel>> UploadMediaAsync(UploadMediaModel model, CancellationToken ct)
         {
-            return await Api.UploadMedia(model, ct);
+            return await Api.UploadMediaAsync(model, ct).ConfigureAwait(false);
         }
 
-        public async Task<OperationResult<UploadMediaStatusModel>> TryGetMediaStatus(UUIDModel uuid)
+        public async Task<OperationResult<UploadMediaStatusModel>> TryGetMediaStatusAsync(UUIDModel uuid)
         {
-            return await TryRunTask<UUIDModel, UploadMediaStatusModel>(GetMediaStatus, OnDisposeCts.Token, uuid);
+            return await TryRunTaskAsync<UUIDModel, UploadMediaStatusModel>(GetMediaStatusAsync, OnDisposeCts.Token, uuid).ConfigureAwait(false);
         }
 
-        private async Task<OperationResult<UploadMediaStatusModel>> GetMediaStatus(UUIDModel uuid, CancellationToken ct)
+        private async Task<OperationResult<UploadMediaStatusModel>> GetMediaStatusAsync(UUIDModel uuid, CancellationToken ct)
         {
-            return await Api.GetMediaStatus(uuid, ct);
+            return await Api.GetMediaStatusAsync(uuid, ct).ConfigureAwait(false);
         }
 
-        public async Task<OperationResult<MediaModel>> TryGetMediaResult(UUIDModel uuid)
+        public async Task<OperationResult<MediaModel>> TryGetMediaResultAsync(UUIDModel uuid)
         {
-            return await TryRunTask<UUIDModel, MediaModel>(GetMediaResult, OnDisposeCts.Token, uuid);
+            return await TryRunTaskAsync<UUIDModel, MediaModel>(GetMediaResultAsync, OnDisposeCts.Token, uuid).ConfigureAwait(false);
         }
 
-        private async Task<OperationResult<MediaModel>> GetMediaResult(UUIDModel uuid, CancellationToken ct)
+        private async Task<OperationResult<MediaModel>> GetMediaResultAsync(UUIDModel uuid, CancellationToken ct)
         {
-            return await Api.GetMediaResult(uuid, ct);
+            return await Api.GetMediaResultAsync(uuid, ct).ConfigureAwait(false);
         }
 
-        public async Task<OperationResult<PreparePostResponse>> TryCheckForPlagiarism(PreparePostModel model)
+        public async Task<OperationResult<PreparePostResponse>> TryCheckForPlagiarismAsync(PreparePostModel model)
         {
-            return await TryRunTask<PreparePostModel, PreparePostResponse>(CheckForPlagiarism, OnDisposeCts.Token, model);
+            return await TryRunTaskAsync<PreparePostModel, PreparePostResponse>(CheckForPlagiarismAsync, OnDisposeCts.Token, model).ConfigureAwait(false);
         }
 
-        private async Task<OperationResult<PreparePostResponse>> CheckForPlagiarism(PreparePostModel model, CancellationToken ct)
+        private async Task<OperationResult<PreparePostResponse>> CheckForPlagiarismAsync(PreparePostModel model, CancellationToken ct)
         {
-            return await Api.CheckPostForPlagiarism(model, ct);
+            return await Api.CheckPostForPlagiarismAsync(model, ct).ConfigureAwait(false);
         }
 
-        public async Task<OperationResult<VoidResponse>> TryCreateOrEditPost(PreparePostModel model)
+        public async Task<OperationResult<VoidResponse>> TryCreateOrEditPostAsync(PreparePostModel model)
         {
-            return await TryRunTask<PreparePostModel, VoidResponse>(CreateOrEditPost, OnDisposeCts.Token, model);
+            return await TryRunTaskAsync<PreparePostModel, VoidResponse>(CreateOrEditPostAsync, OnDisposeCts.Token, model).ConfigureAwait(false);
         }
 
-        private async Task<OperationResult<VoidResponse>> CreateOrEditPost(PreparePostModel model, CancellationToken ct)
+        private async Task<OperationResult<VoidResponse>> CreateOrEditPostAsync(PreparePostModel model, CancellationToken ct)
         {
-            return await Api.CreateOrEditPost(model, ct);
+            return await Api.CreateOrEditPostAsync(model, ct).ConfigureAwait(false);
         }
 
-        public async Task<OperationResult<SpamResponse>> TryCheckForSpam(string username)
+        public async Task<OperationResult<SpamResponse>> TryCheckForSpamAsync(string username)
         {
-            return await TryRunTask<string, SpamResponse>(CheckForSpam, OnDisposeCts.Token, username);
+            return await TryRunTaskAsync<string, SpamResponse>(CheckForSpamAsync, OnDisposeCts.Token, username).ConfigureAwait(false);
         }
 
-        private async Task<OperationResult<SpamResponse>> CheckForSpam(string username, CancellationToken token)
+        private async Task<OperationResult<SpamResponse>> CheckForSpamAsync(string username, CancellationToken token)
         {
-            return await Api.CheckForSpam(username, token);
+            return await Api.CheckForSpamAsync(username, token).ConfigureAwait(false);
         }
     }
 }

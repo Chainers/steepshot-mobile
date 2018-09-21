@@ -187,7 +187,7 @@ namespace Steepshot.iOS.Views
                 _tranfserLoader.StartAnimating();
                 RemoveFocus();
 
-                var transferResponse = await _presenter.TryTransfer(AppSettings.User.UserInfo, _transferFacade.Recipient.Author, _amountTextField.GetDoubleValue().ToString(CultureInfo.InvariantCulture), _pickedCoin, _memoTextView.Text);
+                var transferResponse = await _presenter.TryTransferAsync(AppSettings.User.UserInfo, _transferFacade.Recipient.Author, _amountTextField.GetDoubleValue().ToString(CultureInfo.InvariantCulture), _pickedCoin, _memoTextView.Text);
 
                 _tranfserLoader.StopAnimating();
                 TogglButtons(true);
@@ -211,7 +211,7 @@ namespace Steepshot.iOS.Views
         {
             _balanceLabel.TextColor = UIColor.Clear;
             _balanceLoader.StartAnimating();
-            var response = await _transferFacade.TryGetAccountInfo(AppSettings.User.Login);
+            var response = await _transferFacade.TryGetAccountInfoAsync(AppSettings.User.Login);
             if (response.IsSuccess)
             {
                 AppSettings.User.AccountInfo = response.Result;
@@ -238,7 +238,7 @@ namespace Steepshot.iOS.Views
                 _noResultViewTags.Hidden = true;
                 _usersLoader.StartAnimating();
             }
-            var searchResult = await _transferFacade.TryLoadNextSearchUser(_recepientTextField.Text);
+            var searchResult = await _transferFacade.TryLoadNextSearchUserAsync(_recepientTextField.Text);
 
             if (!(searchResult is OperationCanceledException))
             {

@@ -10,15 +10,15 @@ namespace Steepshot.Core.Presenters
     {
         private const int ItemsLimit = 20;
 
-        public async Task<Exception> TryLoadNextTopPosts()
+        public async Task<Exception> TryLoadNextTopPostsAsync()
         {
             if (IsLastReaded)
                 return null;
 
-            return await RunAsSingleTask(LoadNextTopPosts);
+            return await RunAsSingleTaskAsync(LoadNextTopPostsAsync).ConfigureAwait(false);
         }
 
-        private async Task<Exception> LoadNextTopPosts(CancellationToken ct)
+        private async Task<Exception> LoadNextTopPostsAsync(CancellationToken ct)
         {
             var request = new CensoredNamedRequestWithOffsetLimitModel
             {
@@ -33,8 +33,8 @@ namespace Steepshot.Core.Presenters
             bool isNeedRepeat;
             do
             {
-                var response = await Api.GetUserRecentPosts(request, ct);
-                isNeedRepeat = ResponseProcessing(response, ItemsLimit, out exception, nameof(TryLoadNextTopPosts));
+                var response = await Api.GetUserRecentPostsAsync(request, ct).ConfigureAwait(false);
+                isNeedRepeat = ResponseProcessing(response, ItemsLimit, out exception, nameof(TryLoadNextTopPostsAsync));
             } while (isNeedRepeat);
 
             return exception;

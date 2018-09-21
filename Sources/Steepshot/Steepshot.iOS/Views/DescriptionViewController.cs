@@ -605,7 +605,7 @@ namespace Steepshot.iOS.Views
                     stream = byteArray.AsStream();
 
                 var request = new UploadMediaModel(AppSettings.User.UserInfo, stream, ImageExtension);
-                var serverResult = await _presenter.TryUploadMedia(request);
+                var serverResult = await _presenter.TryUploadMediaAsync(request);
                 if (!serverResult.IsSuccess)
                     return new OperationResult<MediaModel>(serverResult.Exception);
 
@@ -614,7 +614,7 @@ namespace Steepshot.iOS.Views
                 do
                 {
 
-                    var state = await _presenter.TryGetMediaStatus(uuidModel);
+                    var state = await _presenter.TryGetMediaStatusAsync(uuidModel);
                     if (state.IsSuccess)
                     {
                         switch (state.Result.Code)
@@ -635,7 +635,7 @@ namespace Steepshot.iOS.Views
                     }
                 } while (!done);
 
-                return await _presenter.TryGetMediaResult(uuidModel);
+                return await _presenter.TryGetMediaResultAsync(uuidModel);
             }
             catch (Exception ex)
             {
@@ -683,7 +683,7 @@ namespace Steepshot.iOS.Views
             EnablePostAndEdit(false, disableEditing);
             _isSpammer = false;
 
-            var spamCheck = await _presenter.TryCheckForSpam(AppSettings.User.Login);
+            var spamCheck = await _presenter.TryCheckForSpamAsync(AppSettings.User.Login);
             EnablePostAndEdit(true);
 
             if (spamCheck.IsSuccess)
@@ -835,7 +835,7 @@ namespace Steepshot.iOS.Views
                 }
                 catch (Exception ex)
                 {
-                    AppSettings.Logger.Warning(ex);
+                    AppSettings.Logger.WarningAsync(ex);
                 }
                 finally
                 {
@@ -851,7 +851,7 @@ namespace Steepshot.iOS.Views
             {
                 if (!skipPlagiarismCheck)
                 {
-                    var plagiarismCheck = _presenter.TryCheckForPlagiarism(model).Result;
+                    var plagiarismCheck = _presenter.TryCheckForPlagiarismAsync(model).Result;
                     if (plagiarismCheck.IsSuccess)
                     {
                         if (plagiarismCheck.Result.plagiarism.IsPlagiarism)
@@ -869,7 +869,7 @@ namespace Steepshot.iOS.Views
                 }
 
                 pushToBlockchainRetry = false;
-                var response = _presenter.TryCreateOrEditPost(model).Result;
+                var response = _presenter.TryCreateOrEditPostAsync(model).Result;
                 if (!(response != null && response.IsSuccess))
                 {
                     InvokeOnMainThread(() =>

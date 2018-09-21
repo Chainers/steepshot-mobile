@@ -30,7 +30,7 @@ namespace Steepshot.Core
             _appInfo = appInfo;
         }
 
-        public Task RunDitchApiTests()
+        public Task RunDitchApiTestsAsync()
         {
             return Task.Run(() =>
             {
@@ -52,7 +52,7 @@ namespace Steepshot.Core
                 }
             });
         }
-        public Task RunServerTests()
+        public Task RunServerTestsAsync()
         {
             return Task.Run(() =>
             {
@@ -96,7 +96,7 @@ namespace Steepshot.Core
             Post testPost;
             do
             {
-                var postsResp = _api.GetPosts(getPosts, CancellationToken.None)
+                var postsResp = _api.GetPostsAsync(getPosts, CancellationToken.None)
                     .Result;
 
                 if (!postsResp.IsSuccess)
@@ -117,7 +117,7 @@ namespace Steepshot.Core
             } while (testPost == null);
 
             var votereq = new VoteModel(_user, testPost, VoteType.Up);
-            var rez = _api.Vote(votereq, CancellationToken.None)
+            var rez = _api.VoteAsync(votereq, CancellationToken.None)
                 .Result;
 
             if (!rez.IsSuccess)
@@ -130,7 +130,7 @@ namespace Steepshot.Core
             getPosts.Offset = testPost.Url;
             getPosts.Limit = 1;
 
-            var verifyPostresp = _api.GetPosts(getPosts, CancellationToken.None)
+            var verifyPostresp = _api.GetPostsAsync(getPosts, CancellationToken.None)
                 .Result;
 
             if (!verifyPostresp.IsSuccess)
@@ -159,7 +159,7 @@ namespace Steepshot.Core
             // Load last created post
             var getPosts = new PostsModel(PostType.New) { Login = _user.Login };
 
-            var postsResp = _api.GetPosts(getPosts, CancellationToken.None)
+            var postsResp = _api.GetPostsAsync(getPosts, CancellationToken.None)
                 .Result;
 
             if (!postsResp.IsSuccess)
@@ -176,7 +176,7 @@ namespace Steepshot.Core
             var testPost = postsResp.Result.Results.First();
 
             var votereq = new FollowModel(_user, FollowType.Follow, testPost.Author);
-            var rez = _api.Follow(votereq, CancellationToken.None)
+            var rez = _api.FollowAsync(votereq, CancellationToken.None)
                 .Result;
 
             if (!rez.IsSuccess)
@@ -188,7 +188,7 @@ namespace Steepshot.Core
             Task.Delay(10000);
 
             var userFriendsReq = new UserFriendsModel(_user.Login, FriendsType.Followers) { Login = _user.Login, Offset = testPost.Author, Limit = 1 };
-            var verifyResp = _api.GetUserFriends(userFriendsReq, CancellationToken.None).Result;
+            var verifyResp = _api.GetUserFriendsAsync(userFriendsReq, CancellationToken.None).Result;
             if (!verifyResp.IsSuccess)
             {
                 sb.AppendLine($"fail. Reason:{Environment.NewLine} {verifyResp.Exception.Message}");
@@ -208,7 +208,7 @@ namespace Steepshot.Core
             StepFinished?.Invoke(sb.ToString());
 
             var request = new ValidatePrivateKeyModel(_user.Login, _user.PostingKey, KeyRoleType.Posting);
-            var response = _api.ValidatePrivateKey(request, CancellationToken.None).Result;
+            var response = _api.ValidatePrivateKeyAsync(request, CancellationToken.None).Result;
             if (!response.IsSuccess)
             {
                 sb.AppendLine($"fail. Reason:{Environment.NewLine} {response.Exception.Message}");
@@ -225,7 +225,7 @@ namespace Steepshot.Core
             // Load last created post
             var getPosts = new PostsModel(PostType.New) { Login = _user.Login };
 
-            var postsResp = _api.GetPosts(getPosts, CancellationToken.None)
+            var postsResp = _api.GetPostsAsync(getPosts, CancellationToken.None)
                 .Result;
 
             if (!postsResp.IsSuccess)
@@ -241,7 +241,7 @@ namespace Steepshot.Core
 
             var testPost = postsResp.Result.Results.First();
             var req = new CreateOrEditCommentModel(_user, testPost, "Hi, I am a bot for testing Ditch api, please ignore this comment.", _appInfo);
-            var rez = _api.CreateOrEditComment(req, CancellationToken.None)
+            var rez = _api.CreateOrEditCommentAsync(req, CancellationToken.None)
                 .Result;
 
             if (!UrlHelper.TryCastUrlToAuthorAndPermlink(testPost.Url, out var parentAuthor, out var parentPermlink))
@@ -261,7 +261,7 @@ namespace Steepshot.Core
             Task.Delay(10000);
 
             var getComm = new NamedInfoModel(testPost.Url) { Offset = permlink, Limit = 1 };
-            var verifyPostresp = _api.GetComments(getComm, CancellationToken.None)
+            var verifyPostresp = _api.GetCommentsAsync(getComm, CancellationToken.None)
                 .Result;
 
             if (!verifyPostresp.IsSuccess)
@@ -323,13 +323,13 @@ namespace Steepshot.Core
 
             var limit = 3;
             var request = new UserPostsModel(_user.Login) { ShowNsfw = _user.IsNsfw, ShowLowRated = _user.IsLowRated, Limit = limit };
-            var response = _api.GetUserPosts(request, CancellationToken.None).Result;
+            var response = _api.GetUserPostsAsync(request, CancellationToken.None).Result;
 
             if (IsError1(sb, limit, response, response.Result.Results.Count))
                 return;
 
             request.Offset = response.Result.Results.Last().Url;
-            response = _api.GetUserPosts(request, CancellationToken.None).Result;
+            response = _api.GetUserPostsAsync(request, CancellationToken.None).Result;
 
             if (IsError2(sb, limit, response, request.Offset))
                 return;
@@ -350,13 +350,13 @@ namespace Steepshot.Core
                 ShowNsfw = _user.IsNsfw,
                 ShowLowRated = _user.IsLowRated
             };
-            var response = _api.GetUserRecentPosts(request, CancellationToken.None).Result;
+            var response = _api.GetUserRecentPostsAsync(request, CancellationToken.None).Result;
 
             if (IsError1(sb, limit, response, response.Result.Results.Count))
                 return;
 
             request.Offset = response.Result.Results.Last().Url;
-            response = _api.GetUserRecentPosts(request, CancellationToken.None).Result;
+            response = _api.GetUserRecentPostsAsync(request, CancellationToken.None).Result;
 
             if (IsError2(sb, limit, response, request.Offset))
                 return;
@@ -371,13 +371,13 @@ namespace Steepshot.Core
 
             var limit = 3;
             var request = new PostsModel(PostType.New) { ShowNsfw = _user.IsNsfw, ShowLowRated = _user.IsLowRated, Limit = limit };
-            var response = _api.GetPosts(request, CancellationToken.None).Result;
+            var response = _api.GetPostsAsync(request, CancellationToken.None).Result;
 
             if (IsError1(sb, limit, response, response.Result.Results.Count))
                 return;
 
             request.Offset = response.Result.Results.Last().Url;
-            response = _api.GetPosts(request, CancellationToken.None).Result;
+            response = _api.GetPostsAsync(request, CancellationToken.None).Result;
 
             if (IsError2(sb, limit, response, request.Offset))
                 return;
@@ -392,13 +392,13 @@ namespace Steepshot.Core
 
             var limit = 3;
             var request = new PostsByCategoryModel(PostType.New, "steepshot") { ShowNsfw = _user.IsNsfw, ShowLowRated = _user.IsLowRated, Limit = limit };
-            var response = _api.GetPostsByCategory(request, CancellationToken.None).Result;
+            var response = _api.GetPostsByCategoryAsync(request, CancellationToken.None).Result;
 
             if (IsError1(sb, limit, response, response.Result.Results.Count))
                 return;
 
             request.Offset = response.Result.Results.Last().Url;
-            response = _api.GetPostsByCategory(request, CancellationToken.None).Result;
+            response = _api.GetPostsByCategoryAsync(request, CancellationToken.None).Result;
 
             if (IsError2(sb, limit, response, request.Offset))
                 return;
@@ -418,13 +418,13 @@ namespace Steepshot.Core
                 return;
 
             var request = new VotersModel(testPost.Url, VotersType.All) { Limit = limit, Login = _user.Login };
-            var response = _api.GetPostVoters(request, CancellationToken.None).Result;
+            var response = _api.GetPostVotersAsync(request, CancellationToken.None).Result;
 
             if (IsError1(sb, limit, response, response.Result.Results.Count))
                 return;
 
             request.Offset = response.Result.Results.Last().Author;
-            response = _api.GetPostVoters(request, CancellationToken.None).Result;
+            response = _api.GetPostVotersAsync(request, CancellationToken.None).Result;
 
             if (IsError2(sb, limit, response, request.Offset))
                 return;
@@ -444,13 +444,13 @@ namespace Steepshot.Core
                 return;
 
             var request = new NamedInfoModel(testPost.Url) { Limit = limit };
-            var response = _api.GetComments(request, CancellationToken.None).Result;
+            var response = _api.GetCommentsAsync(request, CancellationToken.None).Result;
 
             if (IsError1(sb, limit, response, response.Result.Results.Count))
                 return;
 
             request.Offset = response.Result.Results.Last().Url;
-            response = _api.GetComments(request, CancellationToken.None).Result;
+            response = _api.GetCommentsAsync(request, CancellationToken.None).Result;
 
             if (IsError2(sb, limit, response, request.Offset))
                 return;
@@ -464,7 +464,7 @@ namespace Steepshot.Core
             StepFinished?.Invoke(sb.ToString());
 
             var request = new UserProfileModel(_user.Login);
-            var response = _api.GetUserProfile(request, CancellationToken.None).Result;
+            var response = _api.GetUserProfileAsync(request, CancellationToken.None).Result;
             if (!response.IsSuccess)
             {
                 sb.AppendLine($"fail. Reason:{Environment.NewLine} {response.Exception.Message}");
@@ -482,13 +482,13 @@ namespace Steepshot.Core
             var limit = 3;
 
             var request = new UserFriendsModel(_user.Login, FriendsType.Followers) { Limit = limit };
-            var response = _api.GetUserFriends(request, CancellationToken.None).Result;
+            var response = _api.GetUserFriendsAsync(request, CancellationToken.None).Result;
 
             if (IsError1(sb, limit, response, response.Result.Results.Count))
                 return;
 
             request.Offset = response.Result.Results.Last().Author;
-            response = _api.GetUserFriends(request, CancellationToken.None).Result;
+            response = _api.GetUserFriendsAsync(request, CancellationToken.None).Result;
 
             if (IsError2(sb, limit, response, request.Offset))
                 return;
@@ -496,13 +496,13 @@ namespace Steepshot.Core
             //---
 
             request = new UserFriendsModel(_user.Login, FriendsType.Following) { Limit = limit };
-            response = _api.GetUserFriends(request, CancellationToken.None).Result;
+            response = _api.GetUserFriendsAsync(request, CancellationToken.None).Result;
 
             if (IsError1(sb, limit, response, response.Result.Results.Count))
                 return;
 
             request.Offset = response.Result.Results.Last().Author;
-            response = _api.GetUserFriends(request, CancellationToken.None).Result;
+            response = _api.GetUserFriendsAsync(request, CancellationToken.None).Result;
 
             if (IsError2(sb, limit, response, request.Offset))
                 return;
@@ -517,7 +517,7 @@ namespace Steepshot.Core
 
             var getPosts = new PostsModel(PostType.Top);
 
-            var postsResp = _api.GetPosts(getPosts, CancellationToken.None)
+            var postsResp = _api.GetPostsAsync(getPosts, CancellationToken.None)
                 .Result;
 
             if (!postsResp.IsSuccess)
@@ -535,7 +535,7 @@ namespace Steepshot.Core
 
 
             var request = new NamedInfoModel(testPost.Url);
-            var response = _api.GetPostInfo(request, CancellationToken.None).Result;
+            var response = _api.GetPostInfoAsync(request, CancellationToken.None).Result;
             if (!response.IsSuccess)
             {
                 sb.AppendLine($"fail. Reason:{Environment.NewLine} {postsResp.Exception.Message}");
@@ -553,13 +553,13 @@ namespace Steepshot.Core
             var limit = 3;
 
             var request = new SearchWithQueryModel(_user.Login) { Limit = limit };
-            var response = _api.SearchUser(request, CancellationToken.None).Result;
+            var response = _api.SearchUserAsync(request, CancellationToken.None).Result;
 
             if (IsError1(sb, limit, response, response.Result.Results.Count))
                 return;
 
             request.Offset = response.Result.Results.Last().Author;
-            response = _api.SearchUser(request, CancellationToken.None).Result;
+            response = _api.SearchUserAsync(request, CancellationToken.None).Result;
 
             if (IsError2(sb, limit, response, request.Offset))
                 return;
@@ -573,7 +573,7 @@ namespace Steepshot.Core
             StepFinished?.Invoke(sb.ToString());
 
             var request = new UserExistsModel(_user.Login);
-            var response = _api.UserExistsCheck(request, CancellationToken.None).Result;
+            var response = _api.UserExistsCheckAsync(request, CancellationToken.None).Result;
             if (!response.IsSuccess)
             {
                 sb.AppendLine($"fail. Reason:{Environment.NewLine} {response.Exception.Message}");
@@ -597,13 +597,13 @@ namespace Steepshot.Core
             var limit = 3;
 
             var request = new OffsetLimitModel { Limit = limit };
-            var response = _api.GetCategories(request, CancellationToken.None).Result;
+            var response = _api.GetCategoriesAsync(request, CancellationToken.None).Result;
 
             if (IsError1(sb, limit, response, response.Result.Results.Count))
                 return;
 
             request.Offset = response.Result.Results.Last().Name;
-            response = _api.GetCategories(request, CancellationToken.None).Result;
+            response = _api.GetCategoriesAsync(request, CancellationToken.None).Result;
 
             if (IsError2(sb, limit, response, request.Offset))
                 return;
@@ -619,13 +619,13 @@ namespace Steepshot.Core
             var limit = 3;
 
             var request = new SearchWithQueryModel("go") { Limit = limit };
-            var response = _api.SearchCategories(request, CancellationToken.None).Result;
+            var response = _api.SearchCategoriesAsync(request, CancellationToken.None).Result;
 
             if (IsError1(sb, limit, response, response.Result.Results.Count))
                 return;
 
             request.Offset = response.Result.Results.Last().Name;
-            response = _api.SearchCategories(request, CancellationToken.None).Result;
+            response = _api.SearchCategoriesAsync(request, CancellationToken.None).Result;
 
             if (IsError2(sb, limit, response, request.Offset))
                 return;
@@ -707,7 +707,7 @@ namespace Steepshot.Core
             Post testPost;
             do
             {
-                var postsResp = _api.GetPosts(getPosts, CancellationToken.None)
+                var postsResp = _api.GetPostsAsync(getPosts, CancellationToken.None)
                     .Result;
 
                 if (!postsResp.IsSuccess)

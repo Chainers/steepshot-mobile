@@ -27,7 +27,7 @@ namespace Steepshot.Utils
         {
             var matrix = new Matrix();
             matrix.PostRotate(degree);
-            var rotatedImg = Bitmap.CreateBitmap(img, 0, 0, img.Width, img.Height, matrix, false);
+            var rotatedImg = Bitmap.CreateBitmap(img, 0, 0, img.Width, img.Height, matrix, true);
             return rotatedImg;
         }
 

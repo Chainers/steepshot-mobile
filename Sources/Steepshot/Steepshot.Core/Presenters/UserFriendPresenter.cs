@@ -28,14 +28,14 @@ namespace Steepshot.Core.Presenters
                 return Items.FindAll(match);
         }
 
-        public async Task<Exception> TryLoadNextPostVoters(string url)
+        public async Task<Exception> TryLoadNextPostVotersAsync(string url)
         {
             if (IsLastReaded)
                 return null;
-            return await RunAsSingleTask(LoadNextPostVoters, url);
+            return await RunAsSingleTaskAsync(LoadNextPostVotersAsync, url).ConfigureAwait(false);
         }
 
-        private async Task<Exception> LoadNextPostVoters(string url, CancellationToken ct)
+        private async Task<Exception> LoadNextPostVotersAsync(string url, CancellationToken ct)
         {
             if (!VotersType.HasValue)
                 return null;
@@ -47,7 +47,7 @@ namespace Steepshot.Core.Presenters
                 Login = AppSettings.User.Login
             };
 
-            var response = await Api.GetPostVoters(request, ct);
+            var response = await Api.GetPostVotersAsync(request, ct).ConfigureAwait(false);
 
             if (response.IsSuccess)
             {
@@ -65,20 +65,20 @@ namespace Steepshot.Core.Presenters
 
                 if (voters.Count < Math.Min(ServerMaxCount, ItemsLimit))
                     IsLastReaded = true;
-                NotifySourceChanged(nameof(TryLoadNextPostVoters), true);
+                NotifySourceChanged(nameof(TryLoadNextPostVotersAsync), true);
             }
             return response.Exception;
         }
 
 
-        public async Task<Exception> TryLoadNextUserFriends(string username)
+        public async Task<Exception> TryLoadNextUserFriendsAsync(string username)
         {
             if (IsLastReaded)
                 return null;
-            return await RunAsSingleTask(LoadNextUserFriends, username);
+            return await RunAsSingleTaskAsync(LoadNextUserFriendsAsync, username).ConfigureAwait(false);
         }
 
-        private async Task<Exception> LoadNextUserFriends(string username, CancellationToken ct)
+        private async Task<Exception> LoadNextUserFriendsAsync(string username, CancellationToken ct)
         {
             if (!FollowType.HasValue)
                 return null;
@@ -90,7 +90,7 @@ namespace Steepshot.Core.Presenters
                 Limit = ItemsLimit
             };
 
-            var response = await Api.GetUserFriends(request, ct);
+            var response = await Api.GetUserFriendsAsync(request, ct).ConfigureAwait(false);
 
             if (response.IsSuccess)
             {
@@ -108,19 +108,19 @@ namespace Steepshot.Core.Presenters
 
                 if (result.Count < Math.Min(ServerMaxCount, ItemsLimit))
                     IsLastReaded = true;
-                NotifySourceChanged(nameof(TryLoadNextUserFriends), true);
+                NotifySourceChanged(nameof(TryLoadNextUserFriendsAsync), true);
             }
 
             return response.Exception;
         }
 
 
-        public async Task<Exception> TryLoadNextSearchUser(string query)
+        public async Task<Exception> TryLoadNextSearchUserAsync(string query)
         {
-            return await RunAsSingleTask(LoadNextSearchUser, query);
+            return await RunAsSingleTaskAsync(LoadNextSearchUserAsync, query).ConfigureAwait(false);
         }
 
-        private async Task<Exception> LoadNextSearchUser(string query, CancellationToken ct)
+        private async Task<Exception> LoadNextSearchUserAsync(string query, CancellationToken ct)
         {
             if (string.IsNullOrEmpty(query) || query.Length <= 2)
                 return new OperationCanceledException();
@@ -132,7 +132,7 @@ namespace Steepshot.Core.Presenters
                 Login = AppSettings.User.Login
             };
 
-            var response = await Api.SearchUser(request, ct);
+            var response = await Api.SearchUserAsync(request, ct).ConfigureAwait(false);
 
             if (response.IsSuccess)
             {
@@ -150,26 +150,26 @@ namespace Steepshot.Core.Presenters
 
                 if (result.Count < Math.Min(ServerMaxCount, ItemsLimit))
                     IsLastReaded = true;
-                NotifySourceChanged(nameof(TryLoadNextSearchUser), true);
+                NotifySourceChanged(nameof(TryLoadNextSearchUserAsync), true);
             }
             return response.Exception;
         }
 
-        public async Task<Exception> TryFollow(UserFriend item)
+        public async Task<Exception> TryFollowAsync(UserFriend item)
         {
             item.FollowedChanging = true;
-            NotifySourceChanged(nameof(TryFollow), true);
-            var exception = await TryRunTask(Follow, OnDisposeCts.Token, item);
+            NotifySourceChanged(nameof(TryFollowAsync), true);
+            var exception = await TryRunTaskAsync(FollowAsync, OnDisposeCts.Token, item).ConfigureAwait(false);
             item.FollowedChanging = false;
-            NotifySourceChanged(nameof(TryFollow), true);
+            NotifySourceChanged(nameof(TryFollowAsync), true);
             return exception;
         }
 
-        private async Task<Exception> Follow(UserFriend item, CancellationToken ct)
+        private async Task<Exception> FollowAsync(UserFriend item, CancellationToken ct)
         {
             var hasFollowed = item.HasFollowed;
             var request = new FollowModel(AppSettings.User.UserInfo, item.HasFollowed ? Models.Enums.FollowType.UnFollow : Models.Enums.FollowType.Follow, item.Author);
-            var response = await Api.Follow(request, ct);
+            var response = await Api.FollowAsync(request, ct).ConfigureAwait(false);
 
             if (response.IsSuccess)
                 item.HasFollowed = !hasFollowed;

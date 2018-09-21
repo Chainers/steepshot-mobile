@@ -227,7 +227,7 @@ namespace Steepshot.iOS.Views
                     _presenter.Clear();
                     _gridDelegate.ClearPosition();
                 }
-                exception = await _presenter.TryLoadNextTopPosts();
+                exception = await _presenter.TryLoadNextTopPostsAsync();
 
                 if (_refreshControl.Refreshing)
                 {
