@@ -332,14 +332,9 @@ namespace Steepshot.iOS.Views
                 }
             }
 
-            //SetupSession();
-            //SetupLiveCameraStream();
-            SetupTest();
+            SetupLiveCameraStream();
+            //SetupTest();
         }
-
-        // TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
-        // VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
-        // TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
 
         private void SetupTest()
         {
@@ -380,23 +375,6 @@ namespace Steepshot.iOS.Views
 
             liveCameraStream.Layer.AddSublayer(_videoPreviewLayer);
             _captureSession.StartRunning();
-        }
-
-        private void SetupSession()
-        {
-            _captureSession = new AVCaptureSession();
-
-            var deviceDiscoverySession = AVCaptureDeviceDiscoverySession.Create(new AVCaptureDeviceType[] { AVCaptureDeviceType.BuiltInWideAngleCamera }, AVMediaType.Video, AVCaptureDevicePosition.Unspecified);
-            var devices = deviceDiscoverySession.Devices;
-            foreach (var device in devices)
-            {
-                if (device.Position == AVCaptureDevicePosition.Back)
-                    _backCamera = device;
-                else if (device.Position == AVCaptureDevicePosition.Front)
-                    _frontCamera = device;
-            }
-            _currentCamera = _backCamera;
-            _captureDeviceInput = AVCaptureDeviceInput.FromDevice(_currentCamera);
         }
 
         private void SetupLiveCameraStream()
@@ -446,10 +424,6 @@ namespace Steepshot.iOS.Views
             _captureSession.AddOutput(output);
             _captureSession.CommitConfiguration();
         }
-
-        // TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
-        // TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
-        // TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
 
         private void ConfigureCameraForDevice(AVCaptureDevice device)
         {
