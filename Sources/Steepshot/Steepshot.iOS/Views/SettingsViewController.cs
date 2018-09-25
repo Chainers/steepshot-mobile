@@ -88,6 +88,11 @@ namespace Steepshot.iOS.Views
 
         private void _presenter_SubscriptionsUpdated()
         {
+            InvokeOnMainThread(HandleAction);
+        }
+
+        private void HandleAction()
+        {
             notificationSettings.Enabled = true;
         }
 

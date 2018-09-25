@@ -133,6 +133,11 @@ namespace Steepshot.iOS.Views
 
         protected override void SourceChanged(Status status)
         {
+            InvokeOnMainThread(HandleAction);
+        }
+
+        void HandleAction()
+        {
             scrollView.Hidden = false;
             loader.StopAnimating();
             var size = Helpers.CellHeightCalculator.Calculate(_presenter.PostInfo);
