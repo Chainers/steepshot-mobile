@@ -4,6 +4,7 @@ using FFImageLoading.Work;
 using Photos;
 using PureLayout.Net;
 using Steepshot.Core.Models.Common;
+using Steepshot.Core.Utils;
 using Steepshot.iOS.Helpers;
 using UIKit;
 
@@ -116,7 +117,7 @@ namespace Steepshot.iOS.Cells
             CreateImageView();
 
             _scheduledWork?.Cancel();
-            if (_currentPost.Media[0].ContentType == "video/mp4")
+            if (_currentPost.Media[0].ContentType == MimeTypeHelper.GetMimeType(MimeTypeHelper.Mp4))
             {
                 _scheduledWork = ImageLoader.Load(_currentPost.Media[0].Thumbnails.Micro,
                                                      _bodyImage, 2,

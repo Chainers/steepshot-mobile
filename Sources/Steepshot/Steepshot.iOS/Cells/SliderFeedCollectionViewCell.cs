@@ -349,18 +349,6 @@ namespace Steepshot.iOS.Cells
 
             _contentScroll.SetContentOffset(new CGPoint(0, 0), false);
 
-            //_photoScroll.Frame = new CGRect(0, 0, _contentScroll.Frame.Width, variables.PhotoHeight);
-            /*
-            if (_currentPost.Media.Length > 1)
-            {
-                _pageControl.Hidden = false;
-                _pageControl.Pages = _currentPost.Media.Length;
-                _pageControl.SizeToFit();
-                _pageControl.Frame = new CGRect(new CGPoint(0, _photoScroll.Frame.Bottom - 30), _pageControl.Frame.Size);
-            }
-            else
-                _pageControl.Hidden = true;
-                */
             foreach (var subview in _photoScroll.Subviews)
                 subview.RemoveFromSuperview();
 
@@ -368,7 +356,7 @@ namespace Steepshot.iOS.Cells
             {
                 _scheduledWorkBody[i]?.Cancel();
             }
-            if (_currentPost.Media[0].ContentType == "video/mp4")
+            if (_currentPost.Media[0].ContentType == MimeTypeHelper.GetMimeType(MimeTypeHelper.Mp4))
             {
                 _photoScroll.Frame = new CGRect(0, 0, _contentScroll.Frame.Width, _contentScroll.Frame.Width);
                 _photoScroll.ContentSize = new CGSize(_contentScroll.Frame.Width, _contentScroll.Frame.Width);
