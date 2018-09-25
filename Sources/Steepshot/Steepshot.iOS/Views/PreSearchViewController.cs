@@ -265,10 +265,21 @@ namespace Steepshot.iOS.Views
             _sliderGridDelegate.GenerateVariables();
             sliderCollection.ReloadData();
             sliderCollection.ScrollToItem(NSIndexPath.FromRowSection(_presenter.IndexOf(post), 0), UICollectionViewScrollPosition.CenteredHorizontally, false);
+
+            foreach (var item in collectionView.IndexPathsForVisibleItems)
+            {
+                if (collectionView.CellForItem(item) is NewFeedCollectionViewCell cell)
+                    cell.Cell.Playback(false);
+            }
         }
 
         public bool ClosePost()
         {
+            foreach (var item in sliderCollection.IndexPathsForVisibleItems)
+            {
+                if (sliderCollection.CellForItem(item) is SliderFeedCollectionViewCell cell)
+                    cell.Playback(false);
+            }
             if (!sliderCollection.Hidden)
             {
                 var visibleRect = new CGRect();
@@ -298,6 +309,12 @@ namespace Steepshot.iOS.Views
                     MinimumLineSpacing = 1,
                     MinimumInteritemSpacing = 1,
                 }, false);
+
+                foreach (var item in collectionView.IndexPathsForVisibleItems)
+                {
+                    if (collectionView.CellForItem(item) is NewFeedCollectionViewCell cell)
+                        cell.Cell.Playback(false);
+                }
             }
             else
             {
@@ -369,16 +386,21 @@ namespace Steepshot.iOS.Views
 
         protected override void SourceChanged(Status status)
         {
+            InvokeOnMainThread(HandleAction);
+        }
+
+        void HandleAction()
+        {
             if (!collectionView.Hidden)
             {
                 foreach (var item in _presenter)
                 {
-                    foreach (var url in item.Media)
+                    foreach (var mediaModel in item.Media)
                     {
                         if (_gridDelegate.IsGrid)
-                            ImageLoader.Preload(item.Media[0].Url, Constants.CellSize);
+                            ImageLoader.Preload(item.Media[0], Constants.CellSize.Width);
                         else
-                            ImageLoader.Preload(url.Url, new CGSize(UIScreen.MainScreen.Bounds.Size.Width, UIScreen.MainScreen.Bounds.Size.Width));
+                            ImageLoader.Preload(mediaModel, Constants.ScreenWidth);
                     }
                 }
 
@@ -389,19 +411,18 @@ namespace Steepshot.iOS.Views
             {
                 foreach (var item in _presenter)
                 {
-                    foreach (var url in item.Media)
+                    foreach (var mediaModel in item.Media)
                     {
                         if (_gridDelegate.IsGrid)
-                            ImageLoader.Preload(item.Media[0].Url, Constants.CellSize);
+                            ImageLoader.Preload(item.Media[0], Constants.CellSize.Width);
                         else
-                            ImageLoader.Preload(url.Url, new CGSize(UIScreen.MainScreen.Bounds.Size.Width, UIScreen.MainScreen.Bounds.Size.Width));
+                            ImageLoader.Preload(mediaModel, Constants.ScreenWidth);
                     }
                 }
 
-
                 foreach (var item in _presenter)
                 {
-                    ImageLoader.Preload(item.Media[0].Url, new CGSize(UIScreen.MainScreen.Bounds.Width, UIScreen.MainScreen.Bounds.Width));
+                    ImageLoader.Preload(item.Media[0], Constants.ScreenWidth);
                 }
 
                 _sliderGridDelegate.GenerateVariables();
