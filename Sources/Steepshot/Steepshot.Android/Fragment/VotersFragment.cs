@@ -116,7 +116,7 @@ namespace Steepshot.Fragment
 
         private async void LoadNext()
         {
-            var exception = await Presenter.TryLoadNextPostVoters(_url);
+            var exception = await Presenter.TryLoadNextPostVotersAsync(_url);
             if (!IsInitialized)
                 return;
 
@@ -144,7 +144,7 @@ namespace Steepshot.Fragment
 
             if (AppSettings.User.HasPostingPermission)
             {
-                var exception = await Presenter.TryFollow(userFriend);
+                var exception = await Presenter.TryFollowAsync(userFriend);
                 if (!IsInitialized)
                     return;
 

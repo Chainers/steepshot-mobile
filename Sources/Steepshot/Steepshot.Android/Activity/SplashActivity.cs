@@ -78,7 +78,7 @@ namespace Steepshot.Activity
 
         private async void OnTaskSchedulerOnUnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs e)
         {
-            await Logger.Error(e.Exception);
+            await Logger.ErrorAsync(e.Exception);
 
             this.ShowAlert(LocalizationKeys.UnexpectedError, Android.Widget.ToastLength.Short);
         }
@@ -90,16 +90,16 @@ namespace Steepshot.Activity
                 ex = new Exception(e.ExceptionObject.ToString());
 
             if (e.IsTerminating)
-                await Logger.Fatal(ex);
+                await Logger.FatalAsync(ex);
             else
-                await Logger.Error(ex);
+                await Logger.ErrorAsync(ex);
 
             this.ShowAlert(ex, Android.Widget.ToastLength.Short);
         }
 
         private async void OnUnhandledExceptionRaiser(object sender, RaiseThrowableEventArgs e)
         {
-            await Logger.Error(e.Exception);
+            await Logger.ErrorAsync(e.Exception);
 
             this.ShowAlert(e.Exception, Android.Widget.ToastLength.Short);
         }

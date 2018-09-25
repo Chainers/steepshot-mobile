@@ -341,7 +341,7 @@ namespace Steepshot.Fragment
 
             Activity.RunOnUiThread(() =>
             {
-                if (status.Sender == nameof(UserProfilePresenter.TryFollow) || status.Sender == nameof(UserProfilePresenter.TryGetUserInfo))
+                if (status.Sender == nameof(UserProfilePresenter.TryFollowAsync) || status.Sender == nameof(UserProfilePresenter.TryGetUserInfoAsync))
                 {
                     _firstPostButton.Visibility =
                         _profileId == AppSettings.User.Login && Presenter.UserProfileResponse.PostCount == 0 && Presenter.UserProfileResponse.HiddenPostCount == 0
@@ -357,7 +357,7 @@ namespace Steepshot.Fragment
 
         private async void RefresherRefresh(object sender, EventArgs e)
         {
-            await Presenter.TryUpdateUserPosts(AppSettings.User.Login);
+            await Presenter.TryUpdateUserPostsAsync(AppSettings.User.Login);
             await UpdatePage(ProfileUpdateType.Full);
             if (!IsInitialized)
                 return;
@@ -374,7 +374,7 @@ namespace Steepshot.Fragment
             if (isRefresh)
                 Presenter.Clear();
 
-            var exception = await Presenter.TryLoadNextPosts();
+            var exception = await Presenter.TryLoadNextPostsAsync();
             if (!IsInitialized)
                 return;
 
@@ -436,7 +436,7 @@ namespace Steepshot.Fragment
 
             isSubscription = true;
 
-            var result = await Presenter.TrySubscribeForPushes(model);
+            var result = await Presenter.TrySubscribeForPushesAsync(model);
             if (result.IsSuccess)
             {
                 isSubscribed = !isSubscribed;
@@ -509,7 +509,7 @@ namespace Steepshot.Fragment
         {
             do
             {
-                var exception = await Presenter.TryGetUserInfo(_profileId);
+                var exception = await Presenter.TryGetUserInfoAsync(_profileId);
                 if (!IsInitialized)
                     return;
 
@@ -560,7 +560,7 @@ namespace Steepshot.Fragment
                 case ActionType.Follow:
                     if (AppSettings.User.HasPostingPermission)
                     {
-                        var exception = await Presenter.TryFollow();
+                        var exception = await Presenter.TryFollowAsync();
                         if (!IsInitialized)
                             return;
 
@@ -592,7 +592,7 @@ namespace Steepshot.Fragment
                     {
                         if (AppSettings.User.HasPostingPermission)
                         {
-                            var exception = await Presenter.TryVote(post);
+                            var exception = await Presenter.TryVoteAsync(post);
                             if (!IsInitialized)
                                 return;
 
@@ -642,7 +642,7 @@ namespace Steepshot.Fragment
                         if (!AppSettings.User.HasPostingPermission)
                             return;
 
-                        var exception = await Presenter.TryFlag(post);
+                        var exception = await Presenter.TryFlagAsync(post);
                         if (!IsInitialized)
                             return;
 
@@ -670,7 +670,7 @@ namespace Steepshot.Fragment
 
                         actionAlert.AlertAction += async () =>
                         {
-                            var exception = await Presenter.TryDeletePost(post);
+                            var exception = await Presenter.TryDeletePostAsync(post);
                             if (!IsInitialized)
                                 return;
 

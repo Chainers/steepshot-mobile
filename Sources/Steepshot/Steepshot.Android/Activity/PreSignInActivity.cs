@@ -89,7 +89,7 @@ namespace Steepshot.Activity
             _preSignInBtn.Text = string.Empty;
             _spinner.Visibility = ViewStates.Visible;
 
-            var response = await Presenter.TryGetAccountInfo(login);
+            var response = await Presenter.TryGetAccountInfoAsync(login);
             if (IsFinishing || IsDestroyed)
                 return;
 

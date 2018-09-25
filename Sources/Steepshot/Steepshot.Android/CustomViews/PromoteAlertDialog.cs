@@ -59,7 +59,7 @@ namespace Steepshot.CustomViews
 
         private async void OnShowEvent(object sender, EventArgs e)
         {
-            var response = await _presenter.TryGetAccountInfo(AppSettings.User.Login);
+            var response = await _presenter.TryGetAccountInfoAsync(AppSettings.User.Login);
             if (response.IsSuccess)
             {
                 _adapter.MainHolder.AccountInfo = response.Result;
@@ -185,7 +185,7 @@ namespace Steepshot.CustomViews
                 PostToPromote = _post
             };
 
-            var promoter = await _presenter.FindPromoteBot(_promoteRequest);
+            var promoter = await _presenter.FindPromoteBotAsync(_promoteRequest);
 
             if (promoter.IsSuccess)
             {
@@ -202,7 +202,7 @@ namespace Steepshot.CustomViews
 
         private async Task LaunchPromoCampaign()
         {
-            var transferResponse = await _presenter.TryTransfer(AppSettings.User.UserInfo, _promoterResult.Bot.Author,
+            var transferResponse = await _presenter.TryTransferAsync(AppSettings.User.UserInfo, _promoterResult.Bot.Author,
                                                                 _promoteRequest.Amount.ToString(CultureInfo.InvariantCulture),
                                                                 _promoteRequest.CurrencyType,
                                                                 $"https://steemit.com{_post.Url}");

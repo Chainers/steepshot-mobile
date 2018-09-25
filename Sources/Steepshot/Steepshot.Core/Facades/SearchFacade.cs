@@ -25,7 +25,7 @@ namespace Steepshot.Core.Facades
             TagsPresenter.SetClient(client);
         }
 
-        public async Task<Exception> TrySearchCategories(string query, SearchType searchType)
+        public async Task<Exception> TrySearchCategoriesAsync(string query, SearchType searchType)
         {
             try
             {
@@ -33,12 +33,12 @@ namespace Steepshot.Core.Facades
                 {
                     if (searchType == SearchType.Tags)
                     {
-                        TagsPresenter.NotifySourceChanged(nameof(TrySearchCategories), true);
+                        TagsPresenter.NotifySourceChanged(nameof(TrySearchCategoriesAsync), true);
                         TagsPresenter.TasksCancel();
                     }
                     else
                     {
-                        UserFriendPresenter.NotifySourceChanged(nameof(TrySearchCategories), true);
+                        UserFriendPresenter.NotifySourceChanged(nameof(TrySearchCategoriesAsync), true);
                         UserFriendPresenter.TasksCancel();
                     }
 
@@ -46,12 +46,12 @@ namespace Steepshot.Core.Facades
                 }
 
                 if (string.IsNullOrEmpty(query))
-                    return await TagsPresenter.TryGetTopTags();
+                    return await TagsPresenter.TryGetTopTagsAsync().ConfigureAwait(false);
 
                 if (searchType == SearchType.Tags)
-                    return await TagsPresenter.TryLoadNext(query);
+                    return await TagsPresenter.TryLoadNextAsync(query).ConfigureAwait(false);
 
-                return await UserFriendPresenter.TryLoadNextSearchUser(query);
+                return await UserFriendPresenter.TryLoadNextSearchUserAsync(query).ConfigureAwait(false);
             }
             catch (Exception ex)
             {

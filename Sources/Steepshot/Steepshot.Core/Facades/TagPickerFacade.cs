@@ -63,13 +63,13 @@ namespace Steepshot.Core.Facades
             NotifySourceChanged(nameof(Clear), isEmpty);
         }
 
-        public async Task<Exception> TryGetTopTags()
+        public async Task<Exception> TryGetTopTagsAsync()
         {
             var isAdded = false;
 
             do
             {
-                var result = await _tagsPresenter.TryGetTopTags();
+                var result = await _tagsPresenter.TryGetTopTagsAsync().ConfigureAwait(false);
 
                 if (result != null)
                     return result;
@@ -85,18 +85,18 @@ namespace Steepshot.Core.Facades
 
             } while (!(isAdded || _tagsPresenter.IsLastReaded));
 
-            NotifySourceChanged(nameof(TryGetTopTags), isAdded);
+            NotifySourceChanged(nameof(TryGetTopTagsAsync), isAdded);
 
             return null;
         }
 
-        public async Task<Exception> TryLoadNext(string tagFieldText)
+        public async Task<Exception> TryLoadNextAsync(string tagFieldText)
         {
             var isAdded = false;
 
             do
             {
-                var result = await _tagsPresenter.TryLoadNext(tagFieldText);
+                var result = await _tagsPresenter.TryLoadNextAsync(tagFieldText).ConfigureAwait(false);
 
                 if (result != null)
                     return result;
@@ -112,7 +112,7 @@ namespace Steepshot.Core.Facades
 
             } while (!(isAdded || _tagsPresenter.IsLastReaded));
 
-            NotifySourceChanged(nameof(TryLoadNext), isAdded);
+            NotifySourceChanged(nameof(TryLoadNextAsync), isAdded);
 
             return null;
         }

@@ -11,9 +11,12 @@ namespace Steepshot.Core.Presenters
     {
         public Post PostInfo { get; private set; }
 
-        public async Task<Exception> TryLoadPostInfo(string url) => await TryRunTask(LoadPostInfo, OnDisposeCts.Token, url);
+        public async Task<Exception> TryLoadPostInfoAsync(string url)
+        {
+            return await TryRunTaskAsync(LoadPostInfoAsync, OnDisposeCts.Token, url).ConfigureAwait(false);
+        }
 
-        private async Task<Exception> LoadPostInfo(string url, CancellationToken ct)
+        private async Task<Exception> LoadPostInfoAsync(string url, CancellationToken ct)
         {
             var request = new NamedInfoModel(url)
             {
@@ -22,8 +25,8 @@ namespace Steepshot.Core.Presenters
                 Login = AppSettings.User.Login
             };
 
-            var response = await Api.GetPostInfo(request, ct);
-            var exception = ResponseProcessing(response, nameof(TryLoadPostInfo));
+            var response = await Api.GetPostInfoAsync(request, ct).ConfigureAwait(false);
+            var exception = ResponseProcessing(response, nameof(TryLoadPostInfoAsync));
 
             return exception;
         }

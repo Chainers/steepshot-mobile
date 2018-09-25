@@ -278,6 +278,7 @@ namespace Steepshot.iOS.Cells
 
             UITapGestureRecognizer tap = new UITapGestureRecognizer(() =>
             {
+                _currentPost.PageIndex = (int)(_photoScroll.ContentOffset.X / _photoScroll.Frame.Size.Width);
                 CellAction?.Invoke(ActionType.Preview, _currentPost);
             });
             _photoScroll.AddGestureRecognizer(tap);

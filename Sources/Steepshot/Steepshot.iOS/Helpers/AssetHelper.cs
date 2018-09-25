@@ -52,7 +52,7 @@ namespace Steepshot.iOS.Helpers
             }
             catch (System.Exception ex)
             {
-                AppSettings.Logger.Warning(ex);
+                AppSettings.Logger.WarningAsync(ex);
             }
             return new LocalizationModel();
         }
@@ -75,7 +75,7 @@ namespace Steepshot.iOS.Helpers
             }
             catch (Exception ex)
             {
-                AppSettings.Logger.Warning(ex);
+                AppSettings.Logger.WarningAsync(ex);
             }
             return hs;
         }
@@ -96,7 +96,7 @@ namespace Steepshot.iOS.Helpers
             }
             catch (Exception ex)
             {
-                AppSettings.Logger.Warning(ex);
+                AppSettings.Logger.WarningAsync(ex);
             }
             return new T();
         }

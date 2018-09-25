@@ -128,7 +128,7 @@ namespace Steepshot.iOS.Views
         {
             if (user != null)
             {
-                var exception = await _searchFacade.UserFriendPresenter.TryFollow(user);
+                var exception = await _searchFacade.UserFriendPresenter.TryFollowAsync(user);
                 ShowAlert(exception);
             }
         }
@@ -205,7 +205,7 @@ namespace Steepshot.iOS.Views
                 }
             }
 
-            var exception = await _searchFacade.TrySearchCategories(searchTextField.Text, _searchType);
+            var exception = await _searchFacade.TrySearchCategoriesAsync(searchTextField.Text, _searchType);
             if (exception is OperationCanceledException)
                 return false;
 

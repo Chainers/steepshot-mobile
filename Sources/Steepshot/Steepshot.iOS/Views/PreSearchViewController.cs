@@ -133,7 +133,7 @@ namespace Steepshot.iOS.Views
             signInLoader.StartAnimating();
             loginButton.Enabled = false;
 
-            var response = await _presenter.CheckServiceStatus();
+            var response = await _presenter.CheckServiceStatusAsync();
 
             loginButton.Enabled = true;
             signInLoader.StopAnimating();
@@ -228,7 +228,7 @@ namespace Steepshot.iOS.Views
                 case ActionType.Preview:
                     if (collectionView.Hidden)
                         //NavigationController.PushViewController(new PostViewController(post, _gridDelegate.Variables[_presenter.IndexOf(post)], _presenter), false);
-                        NavigationController.PushViewController(new ImagePreviewViewController(post.Body) { HidesBottomBarWhenPushed = true }, true);
+                        NavigationController.PushViewController(new ImagePreviewViewController(post.Media[post.PageIndex].Url) { HidesBottomBarWhenPushed = true }, true);
                     else
                         OpenPost(post);
                     break;
@@ -353,11 +353,11 @@ namespace Steepshot.iOS.Views
                 }
 
                 if (CurrentPostCategory == null)
-                    exception = await _presenter.TryLoadNextTopPosts();
+                    exception = await _presenter.TryLoadNextTopPostsAsync();
                 else
                 {
                     _presenter.Tag = CurrentPostCategory;
-                    exception = await _presenter.TryGetSearchedPosts();
+                    exception = await _presenter.TryGetSearchedPostsAsync();
                 }
 
                 if (exception is OperationCanceledException)
@@ -386,16 +386,21 @@ namespace Steepshot.iOS.Views
 
         protected override void SourceChanged(Status status)
         {
+            InvokeOnMainThread(HandleAction);
+        }
+
+        void HandleAction()
+        {
             if (!collectionView.Hidden)
             {
                 foreach (var item in _presenter)
                 {
-                    foreach (var url in item.Media)
+                    foreach (var mediaModel in item.Media)
                     {
                         if (_gridDelegate.IsGrid)
-                            ImageLoader.Preload(item.Media[0].Url, Constants.CellSize);
+                            ImageLoader.Preload(item.Media[0], Constants.CellSize.Width);
                         else
-                            ImageLoader.Preload(url.Url, new CGSize(UIScreen.MainScreen.Bounds.Size.Width, UIScreen.MainScreen.Bounds.Size.Width));
+                            ImageLoader.Preload(mediaModel, Constants.ScreenWidth);
                     }
                 }
 
@@ -406,19 +411,18 @@ namespace Steepshot.iOS.Views
             {
                 foreach (var item in _presenter)
                 {
-                    foreach (var url in item.Media)
+                    foreach (var mediaModel in item.Media)
                     {
                         if (_gridDelegate.IsGrid)
-                            ImageLoader.Preload(item.Media[0].Url, Constants.CellSize);
+                            ImageLoader.Preload(item.Media[0], Constants.CellSize.Width);
                         else
-                            ImageLoader.Preload(url.Url, new CGSize(UIScreen.MainScreen.Bounds.Size.Width, UIScreen.MainScreen.Bounds.Size.Width));
+                            ImageLoader.Preload(mediaModel, Constants.ScreenWidth);
                     }
                 }
 
-
                 foreach (var item in _presenter)
                 {
-                    ImageLoader.Preload(item.Media[0].Url, new CGSize(UIScreen.MainScreen.Bounds.Width, UIScreen.MainScreen.Bounds.Width));
+                    ImageLoader.Preload(item.Media[0], Constants.ScreenWidth);
                 }
 
                 _sliderGridDelegate.GenerateVariables();

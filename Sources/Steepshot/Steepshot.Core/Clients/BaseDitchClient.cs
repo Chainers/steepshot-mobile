@@ -30,31 +30,31 @@ namespace Steepshot.Core.Clients
         }
 
 
-        public abstract Task<OperationResult<VoidResponse>> Vote(VoteModel model, CancellationToken ct);
+        public abstract Task<OperationResult<VoidResponse>> VoteAsync(VoteModel model, CancellationToken ct);
 
-        public abstract Task<OperationResult<VoidResponse>> Follow(FollowModel model, CancellationToken ct);
+        public abstract Task<OperationResult<VoidResponse>> FollowAsync(FollowModel model, CancellationToken ct);
 
-        public abstract Task<OperationResult<VoidResponse>> ValidatePrivateKey(ValidatePrivateKeyModel model, CancellationToken ct);
+        public abstract Task<OperationResult<VoidResponse>> ValidatePrivateKeyAsync(ValidatePrivateKeyModel model, CancellationToken ct);
 
-        public abstract Task<OperationResult<VoidResponse>> CreateOrEdit(CommentModel model, CancellationToken ct);
+        public abstract Task<OperationResult<VoidResponse>> CreateOrEditAsync(CommentModel model, CancellationToken ct);
 
-        public abstract Task<OperationResult<string>> GetVerifyTransaction(AuthorizedPostingModel model, CancellationToken ct);
+        public abstract Task<OperationResult<string>> GetVerifyTransactionAsync(AuthorizedPostingModel model, CancellationToken ct);
 
-        public abstract Task<OperationResult<VoidResponse>> Delete(DeleteModel model, CancellationToken ct);
+        public abstract Task<OperationResult<VoidResponse>> DeleteAsync(DeleteModel model, CancellationToken ct);
 
-        public abstract Task<OperationResult<VoidResponse>> UpdateUserProfile(UpdateUserProfileModel model, CancellationToken ct);
+        public abstract Task<OperationResult<VoidResponse>> UpdateUserProfileAsync(UpdateUserProfileModel model, CancellationToken ct);
 
-        public abstract Task<OperationResult<VoidResponse>> Transfer(TransferModel model, CancellationToken ct);
+        public abstract Task<OperationResult<VoidResponse>> TransferAsync(TransferModel model, CancellationToken ct);
 
-        public abstract Task<OperationResult<VoidResponse>> PowerUpOrDown(PowerUpDownModel model, CancellationToken ct);
+        public abstract Task<OperationResult<VoidResponse>> PowerUpOrDownAsync(PowerUpDownModel model, CancellationToken ct);
 
-        public abstract Task<OperationResult<VoidResponse>> ClaimRewards(ClaimRewardsModel model, CancellationToken ct);
+        public abstract Task<OperationResult<VoidResponse>> ClaimRewardsAsync(ClaimRewardsModel model, CancellationToken ct);
 
-        public abstract Task<OperationResult<AccountInfoResponse>> GetAccountInfo(string userName, CancellationToken ct);
+        public abstract Task<OperationResult<AccountInfoResponse>> GetAccountInfoAsync(string userName, CancellationToken ct);
         
-        public abstract Task<OperationResult<AccountHistoryResponse[]>> GetAccountHistory(string userName, CancellationToken ct);
+        public abstract Task<OperationResult<AccountHistoryResponse[]>> GetAccountHistoryAsync(string userName, CancellationToken ct);
 
-        public abstract Task<bool> TryReconnectChain(CancellationToken token);
+        public abstract Task<bool> TryReconnectChainAsync(CancellationToken token);
 
 
         protected List<byte[]> ToKeyArr(string postingKey)
@@ -77,7 +77,7 @@ namespace Steepshot.Core.Clients
             }
             catch (System.Exception ex)
             {
-                AppSettings.Logger.Warning(ex);
+                AppSettings.Logger.WarningAsync(ex);
             }
             return null;
         }

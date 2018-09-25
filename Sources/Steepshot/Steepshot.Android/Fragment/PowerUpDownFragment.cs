@@ -238,7 +238,7 @@ namespace Steepshot.Fragment
                 UserInfo = _balance.UserInfo
             };
 
-            var response = await Presenter.TryPowerUpOrDown(model, _powerAction);
+            var response = await Presenter.TryPowerUpOrDownAsync(model, _powerAction);
 
             if (!IsInitialized || IsDetached)
                 return;

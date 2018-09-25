@@ -70,7 +70,7 @@ namespace Steepshot.Base
                 }
                 catch (Exception e)
                 {
-                    AppSettings.Logger.Error(e);
+                    AppSettings.Logger.ErrorAsync(e);
                 }
             }
         }

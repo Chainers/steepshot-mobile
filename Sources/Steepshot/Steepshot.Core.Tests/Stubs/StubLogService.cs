@@ -7,22 +7,22 @@ namespace Steepshot.Core.Tests.Stubs
 {
     public class StubLogService : ILogService
     {
-        public async Task Fatal(Exception ex)
+        public async Task FatalAsync(Exception ex)
         {
             await Task.Run(() => Console.WriteLine($"{ex.Message}{Environment.NewLine}{ex.StackTrace}"));
         }
 
-        public async Task Error(Exception ex)
+        public async Task ErrorAsync(Exception ex)
         {
             await Task.Run(() => Console.WriteLine($"{ex.Message}{Environment.NewLine}{ex.StackTrace}"));
         }
 
-        public async Task Warning(Exception ex)
+        public async Task WarningAsync(Exception ex)
         {
             await Task.Run(() => Console.WriteLine($"{ex.Message}{Environment.NewLine}{ex.StackTrace}"));
         }
 
-        public async Task Info(Exception ex)
+        public async Task InfoAsync(Exception ex)
         {
             await Task.Run(() => Console.WriteLine($"{ex.Message}{Environment.NewLine}{ex.StackTrace}"));
         }

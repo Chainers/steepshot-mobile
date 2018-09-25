@@ -78,7 +78,7 @@ namespace Steepshot.iOS.Views
         private async Task LoadData()
         {
             _presenter.Reset();
-            var exception = await _presenter.TryLoadNextAccountInfo();
+            var exception = await _presenter.TryLoadNextAccountInfoAsync();
             if (exception == null)
             {
                 _historySource.GroupHistory();
@@ -318,7 +318,7 @@ namespace Steepshot.iOS.Views
             {
                 selectButton.Enabled = false;
                 loader.StartAnimating();
-                var exception = await _presenter.TryClaimRewards(_presenter.Balances[0]);
+                var exception = await _presenter.TryClaimRewardsAsync(_presenter.Balances[0]);
                 loader.StopAnimating();
                 selectButton.Enabled = true;
 

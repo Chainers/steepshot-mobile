@@ -53,7 +53,7 @@ namespace Steepshot.Core.Presenters
             }
         }
 
-        protected async Task<Exception> RunAsSingleTask(Func<CancellationToken, Task<Exception>> func, bool cancelPrevTask = true)
+        protected async Task<Exception> RunAsSingleTaskAsync(Func<CancellationToken, Task<Exception>> func, bool cancelPrevTask = true)
         {
             var available = AppSettings.ConnectionService.IsConnectionAvailable();
             if (!available)
@@ -75,11 +75,11 @@ namespace Steepshot.Core.Presenters
 
             try
             {
-                return await func(ts);
+                return await func(ts).ConfigureAwait(false);
             }
             catch (WebException ex)
             {
-                await AppSettings.Logger.Error(ex);
+                await AppSettings.Logger.ErrorAsync(ex).ConfigureAwait(false);
                 return new RequestException(ex);
             }
             catch (Exception ex)
@@ -91,7 +91,7 @@ namespace Steepshot.Core.Presenters
                 if (!available)
                     return new ValidationException(LocalizationKeys.InternetUnavailable);
 
-                await AppSettings.Logger.Error(ex);
+                await AppSettings.Logger.ErrorAsync(ex).ConfigureAwait(false);
                 return ex;
             }
             finally
@@ -107,7 +107,7 @@ namespace Steepshot.Core.Presenters
             }
         }
 
-        protected async Task<Exception> RunAsSingleTask<T1>(Func<T1, CancellationToken, Task<Exception>> func, T1 param1, bool cancelPrevTask = true)
+        protected async Task<Exception> RunAsSingleTaskAsync<T1>(Func<T1, CancellationToken, Task<Exception>> func, T1 param1, bool cancelPrevTask = true)
         {
             var available = AppSettings.ConnectionService.IsConnectionAvailable();
             if (!available)
@@ -129,11 +129,11 @@ namespace Steepshot.Core.Presenters
 
             try
             {
-                return await func(param1, ts);
+                return await func(param1, ts).ConfigureAwait(false);
             }
             catch (WebException ex)
             {
-                await AppSettings.Logger.Error(ex);
+                await AppSettings.Logger.ErrorAsync(ex).ConfigureAwait(false);
                 return new RequestException(ex);
             }
             catch (Exception ex)
@@ -145,7 +145,7 @@ namespace Steepshot.Core.Presenters
                 if (!available)
                     return new ValidationException(LocalizationKeys.InternetUnavailable);
 
-                await AppSettings.Logger.Error(ex);
+                await AppSettings.Logger.ErrorAsync(ex).ConfigureAwait(false);
                 return ex;
             }
             finally

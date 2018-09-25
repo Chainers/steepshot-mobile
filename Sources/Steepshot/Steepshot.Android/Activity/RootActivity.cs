@@ -82,7 +82,7 @@ namespace Steepshot.Activity
                     Subscriptions = PushSettings.All.FlagToStringList()
                 };
 
-                var response = await Presenter.TrySubscribeForPushes(model);
+                var response = await Presenter.TrySubscribeForPushesAsync(model);
                 if (response.IsSuccess)
                 {
                     AppSettings.User.PushesPlayerId = playerId;
@@ -121,7 +121,7 @@ namespace Steepshot.Activity
                 }
                 catch (Exception e)
                 {
-                    AppSettings.Logger.Error(e);
+                    AppSettings.Logger.ErrorAsync(e);
                 }
             }
         }
@@ -299,7 +299,7 @@ namespace Steepshot.Activity
         {
             do
             {
-                var exception = await Presenter.TryGetUserInfo(AppSettings.User.Login);
+                var exception = await Presenter.TryGetUserInfoAsync(AppSettings.User.Login);
                 if (IsDestroyed)
                     return;
 

@@ -5,12 +5,12 @@ namespace Steepshot.Core.Services
 {
     public interface ILogService
     {
-        Task Fatal(Exception ex);
+        Task FatalAsync(Exception ex);
 
-        Task Error(Exception ex);
+        Task ErrorAsync(Exception ex);
 
-        Task Warning(Exception ex);
+        Task WarningAsync(Exception ex);
 
-        Task Info(Exception ex);
+        Task InfoAsync(Exception ex);
     }
 }

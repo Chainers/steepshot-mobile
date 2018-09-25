@@ -28,6 +28,11 @@ namespace Steepshot.iOS.Views
 
         protected override void SourceChanged(Status status)
         {
+            InvokeOnMainThread(HandleAction);
+        }
+
+        private void HandleAction()
+        {
             if (!feedCollection.Hidden)
             {
                 _gridDelegate.GenerateVariables();
@@ -154,7 +159,7 @@ namespace Steepshot.iOS.Views
                     break;
                 case ActionType.Preview:
                     if (feedCollection.Hidden)
-                        NavigationController.PushViewController(new ImagePreviewViewController(post.Body) { HidesBottomBarWhenPushed = true }, true);
+                        NavigationController.PushViewController(new ImagePreviewViewController(post.Media[post.PageIndex].Url) { HidesBottomBarWhenPushed = true }, true);
                     else
                         OpenPost(post);
                     break;
@@ -227,7 +232,7 @@ namespace Steepshot.iOS.Views
                     _presenter.Clear();
                     _gridDelegate.ClearPosition();
                 }
-                exception = await _presenter.TryLoadNextTopPosts();
+                exception = await _presenter.TryLoadNextTopPostsAsync();
 
                 if (_refreshControl.Refreshing)
                 {

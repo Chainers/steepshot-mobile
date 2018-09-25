@@ -79,7 +79,7 @@ namespace Steepshot.iOS.Views
             loginButton.Enabled = false;
             do
             {
-                var response = await _presenter.TryGetAccountInfo(Username);
+                var response = await _presenter.TryGetAccountInfoAsync(Username);
                 if (response.IsSuccess)
                 {
                     AccountInfoResponse = response.Result;

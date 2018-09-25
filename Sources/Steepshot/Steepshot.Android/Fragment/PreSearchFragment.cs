@@ -471,7 +471,7 @@ namespace Steepshot.Fragment
                     {
                         if (AppSettings.User.HasPostingPermission)
                         {
-                            var exception = await Presenter.TryVote(post);
+                            var exception = await Presenter.TryVoteAsync(post);
                             if (!IsInitialized)
                                 return;
 
@@ -526,7 +526,7 @@ namespace Steepshot.Fragment
                         if (!AppSettings.User.HasPostingPermission)
                             return;
 
-                        var exception = await Presenter.TryFlag(post);
+                        var exception = await Presenter.TryFlagAsync(post);
                         if (!IsInitialized)
                             return;
 
@@ -557,7 +557,7 @@ namespace Steepshot.Fragment
 
                         actionAlert.AlertAction += async () =>
                         {
-                            var exception = await Presenter.TryDeletePost(post);
+                            var exception = await Presenter.TryDeletePostAsync(post);
                             if (!IsInitialized)
                                 return;
 
@@ -606,9 +606,9 @@ namespace Steepshot.Fragment
 
             Exception exception;
             if (string.IsNullOrEmpty(tag))
-                exception = await Presenter.TryLoadNextTopPosts();
+                exception = await Presenter.TryLoadNextTopPostsAsync();
             else
-                exception = await Presenter.TryGetSearchedPosts();
+                exception = await Presenter.TryGetSearchedPostsAsync();
 
             if (!IsInitialized)
                 return;

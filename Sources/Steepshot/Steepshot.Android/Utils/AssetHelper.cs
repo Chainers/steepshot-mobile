@@ -47,7 +47,7 @@ namespace Steepshot.Utils
             }
             catch (System.Exception ex)
             {
-                AppSettings.Logger.Warning(ex);
+                AppSettings.Logger.WarningAsync(ex);
             }
             return new LocalizationModel();
         }
@@ -71,7 +71,7 @@ namespace Steepshot.Utils
             }
             catch (System.Exception ex)
             {
-                AppSettings.Logger.Warning(ex);
+                AppSettings.Logger.WarningAsync(ex);
             }
             return hs;
         }
@@ -111,7 +111,7 @@ namespace Steepshot.Utils
             }
             catch (System.Exception ex)
             {
-                AppSettings.Logger.Warning(ex);
+                AppSettings.Logger.WarningAsync(ex);
             }
             return new T();
         }

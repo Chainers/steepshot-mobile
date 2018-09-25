@@ -301,7 +301,7 @@ namespace Steepshot.iOS.Views
         {
             _tableProgressBar.StartAnimating();
             _presenter.Clear();
-            var exception = await _presenter.TryLoadNextComments(Post);
+            var exception = await _presenter.TryLoadNextCommentsAsync(Post);
             if (exception is OperationCanceledException)
                 return;
             ShowAlert(exception);
@@ -317,7 +317,7 @@ namespace Steepshot.iOS.Views
                 return;
             }
 
-            var exception = await _presenter.TryVote(post);
+            var exception = await _presenter.TryVoteAsync(post);
             ShowAlert(exception);
             if (exception == null)
                 ((MainTabBarController)TabBarController)?.UpdateProfile();
@@ -331,7 +331,7 @@ namespace Steepshot.iOS.Views
                 return;
             }
 
-            var exception = await _presenter.TryFlag(post);
+            var exception = await _presenter.TryFlagAsync(post);
             ShowAlert(exception);
             if (exception == null)
                 ((MainTabBarController)TabBarController)?.UpdateProfile();
@@ -359,7 +359,7 @@ namespace Steepshot.iOS.Views
             _sendButton.Hidden = true;
             _sendProgressBar.StartAnimating();
 
-            var response = await _presenter.TryCreateComment(Post, textToSend);
+            var response = await _presenter.TryCreateCommentAsync(Post, textToSend);
 
             _sendProgressBar.StopAnimating();
             _commentTextView.UserInteractionEnabled = true;
@@ -369,7 +369,7 @@ namespace Steepshot.iOS.Views
             {
                 CancelTap(null, null);
 
-                var exception = await _presenter.TryLoadNextComments(Post);
+                var exception = await _presenter.TryLoadNextCommentsAsync(Post);
 
                 ShowAlert(exception);
                 //if (_presenter.Count > 0)
@@ -391,7 +391,7 @@ namespace Steepshot.iOS.Views
                 return;
             }
 
-            var exception = await _presenter.TryDeleteComment(post, Post);
+            var exception = await _presenter.TryDeleteCommentAsync(post, Post);
 
             if (exception == null)
                 Post.Children--;
@@ -472,7 +472,7 @@ namespace Steepshot.iOS.Views
             _saveButton.Hidden = true;
             _commentTextView.UserInteractionEnabled = false;
 
-            var exception = await _presenter.TryEditComment(AppSettings.User.UserInfo, Post, _postToEdit, textToSend, AppSettings.AppInfo);
+            var exception = await _presenter.TryEditCommentAsync(AppSettings.User.UserInfo, Post, _postToEdit, textToSend, AppSettings.AppInfo);
 
             if (exception == null)
                 CancelTap(null, null);

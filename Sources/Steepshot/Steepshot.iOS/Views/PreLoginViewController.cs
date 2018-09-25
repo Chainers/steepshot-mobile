@@ -64,7 +64,7 @@ namespace Steepshot.iOS.Views
             activityIndicator.StartAnimating();
             loginButton.Enabled = false;
 
-            var response = await _presenter.TryGetAccountInfo(loginText.Text);
+            var response = await _presenter.TryGetAccountInfoAsync(loginText.Text);
             if (response.IsSuccess)
             {
                 var myViewController = new LoginViewController

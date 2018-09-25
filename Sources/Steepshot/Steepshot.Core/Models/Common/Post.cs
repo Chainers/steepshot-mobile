@@ -83,6 +83,8 @@ namespace Steepshot.Core.Models.Common
         public bool IsComment { get; set; }
         [JsonIgnore]
         public bool Editing { get; set; }
+        [JsonIgnore]
+        public int PageIndex { get; set; }
 
 
         public string Permlink

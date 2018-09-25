@@ -37,11 +37,11 @@ namespace Steepshot.Core.Utils
             catch (ArgumentException ex)
             {
                 invalid = true;
-                AppSettings.Logger.Warning(ex);
+                AppSettings.Logger.WarningAsync(ex);
             }
             catch (Exception ex)
             {
-                AppSettings.Logger.Warning(ex);
+                AppSettings.Logger.WarningAsync(ex);
             }
             return match.Groups[1].Value + domainName;
         }

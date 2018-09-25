@@ -108,12 +108,12 @@ namespace Steepshot.iOS.ViewSources
             foreach (var item in _presenter)
             {
                 if (IsGrid)
-                    ImageLoader.Preload(item.Media[0].Url, Constants.CellSize);
+                    ImageLoader.Preload(item.Media[0], Constants.CellSize.Width);
                 else
                 {
-                    foreach (var url in item.Media)
+                    foreach (var mediaModel in item.Media)
                     {
-                        ImageLoader.Preload(url.Url, new CGSize(UIScreen.MainScreen.Bounds.Size.Width, UIScreen.MainScreen.Bounds.Size.Width));
+                        ImageLoader.Preload(mediaModel, Constants.ScreenWidth);
                     }
                 }
             }
@@ -172,9 +172,9 @@ namespace Steepshot.iOS.ViewSources
         {
             foreach (var item in _presenter)
             {
-                foreach (var url in item.Media)
+                foreach (var mediaModel in item.Media)
                 {
-                    ImageLoader.Preload(url.Url, new CGSize(UIScreen.MainScreen.Bounds.Size.Width, UIScreen.MainScreen.Bounds.Size.Width));
+                    ImageLoader.Preload(mediaModel, Constants.ScreenWidth);
                 }
             }
         }
