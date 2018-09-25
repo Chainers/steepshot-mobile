@@ -34,6 +34,7 @@
     </CodesignProvision>
     <LangVersion>Default</LangVersion>
     <MtouchExtraArgs>--registrar:static</MtouchExtraArgs>
+    <MtouchEnableSGenConc>true</MtouchEnableSGenConc>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhone' ">
     <DebugType>pdbonly</DebugType>
