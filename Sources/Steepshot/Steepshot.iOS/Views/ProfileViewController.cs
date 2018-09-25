@@ -425,6 +425,12 @@ namespace Steepshot.iOS.Views
                     MinimumLineSpacing = 1,
                     MinimumInteritemSpacing = 1,
                 }, false);
+
+                foreach (var item in collectionView.IndexPathsForVisibleItems)
+                {
+                    if (collectionView.CellForItem(item) is NewFeedCollectionViewCell cell)
+                        cell.Cell.Playback(false);
+                }
             }
             else
             {
@@ -488,10 +494,21 @@ namespace Steepshot.iOS.Views
             _sliderGridDelegate.GenerateVariables();
             sliderCollection.ReloadData();
             sliderCollection.ScrollToItem(NSIndexPath.FromRowSection(_presenter.IndexOf(post), 0), UICollectionViewScrollPosition.CenteredHorizontally, false);
+
+            foreach (var item in collectionView.IndexPathsForVisibleItems)
+            {
+                if (collectionView.CellForItem(item) is NewFeedCollectionViewCell cell)
+                    cell.Cell.Playback(false);
+            }
         }
 
         public bool ClosePost()
         {
+            foreach (var item in sliderCollection.IndexPathsForVisibleItems)
+            {
+                if (sliderCollection.CellForItem(item) is SliderFeedCollectionViewCell cell)
+                    cell.Playback(false);
+            }
             if (!sliderCollection.Hidden)
             {
                 var visibleRect = new CGRect();
@@ -505,8 +522,9 @@ namespace Steepshot.iOS.Views
                 sliderCollection.Hidden = true;
                 _gridDelegate.GenerateVariables();
                 collectionView.ReloadData();
+
                 return true;
-            }
+            } 
             return false;
         }
     }

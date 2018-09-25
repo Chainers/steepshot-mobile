@@ -89,7 +89,7 @@ namespace Steepshot.iOS.ViewSources
                         cell = (NewFeedCollectionViewCell)collectionView.DequeueReusableCell(nameof(NewFeedCollectionViewCell), indexPath);
 
                         if (post != null)
-                            ((NewFeedCollectionViewCell)cell).Cell.UpdateCell(post, _flowDelegate.Variables[_flowDelegate.IsProfile ? (int)indexPath.Item - 1 : (int)indexPath.Item], (int)indexPath.Item);
+                            ((NewFeedCollectionViewCell)cell).Cell.UpdateCell(post, _flowDelegate.Variables[_flowDelegate.IsProfile ? (int)indexPath.Item - 1 : (int)indexPath.Item]);
 
                         if (!((NewFeedCollectionViewCell)cell).Cell.IsCellActionSet)
                         {
