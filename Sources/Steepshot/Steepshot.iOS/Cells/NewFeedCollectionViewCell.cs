@@ -336,7 +336,7 @@ namespace Steepshot.iOS.Cells
             foreach (var subview in _photoScroll.Subviews)
                 subview.RemoveFromSuperview();
 
-            if (_currentPost.Media[0].ContentType == MimeTypeHelper.GetMimeType(MimeTypeHelper.Mp4))
+            if (MimeTypeHelper.IsVideo(_currentPost.Media[0].ContentType))
             {
                 _photoScroll.ContentSize = new CGSize(UIScreen.MainScreen.Bounds.Width, UIScreen.MainScreen.Bounds.Width);
                 _photoScroll.AddSubview(_videoView);

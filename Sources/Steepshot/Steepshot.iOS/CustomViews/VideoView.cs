@@ -107,14 +107,7 @@ namespace Steepshot.iOS.CustomViews
         {
             NSNotificationCenter.DefaultCenter.RemoveObserver(notificationToken);
             notificationToken?.Dispose();
-
-            Console.WriteLine("Video view disposed");
             base.Dispose(disposing);
-        }
-
-        ~VideoView()
-        {
-            Console.WriteLine("Video view finalized");
         }
     }
 }

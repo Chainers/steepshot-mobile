@@ -357,7 +357,7 @@ namespace Steepshot.iOS.Cells
             {
                 _scheduledWorkBody[i]?.Cancel();
             }
-            if (_currentPost.Media[0].ContentType == MimeTypeHelper.GetMimeType(MimeTypeHelper.Mp4))
+            if (MimeTypeHelper.IsVideo(_currentPost.Media[0].ContentType))
             {
                 _photoScroll.Frame = new CGRect(0, 0, _contentScroll.Frame.Width, _contentScroll.Frame.Width);
                 _photoScroll.ContentSize = new CGSize(_contentScroll.Frame.Width, _contentScroll.Frame.Width);

@@ -592,5 +592,12 @@ namespace Steepshot.Core.Utils
 
             return Mappings.TryGetValue(extension, out var mime) ? mime : "application/octet-stream";
         }
+
+        public static bool IsVideo(string mimeType)
+        {
+            if (string.IsNullOrEmpty(mimeType))
+                return false;
+            return mimeType.StartsWith("video", StringComparison.InvariantCulture);
+        }
     }
 }
