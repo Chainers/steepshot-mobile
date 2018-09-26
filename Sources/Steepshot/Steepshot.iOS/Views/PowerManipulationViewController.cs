@@ -103,7 +103,7 @@ namespace Steepshot.iOS.Views
 
             if (string.IsNullOrEmpty(_walletPresenter.Balances[0].UserInfo.ActiveKey))
             {
-                NavigationController.PushViewController(new LoginViewController(false), true);
+                NavigationController.PushViewController(new LoginViewController(), true);
                 return;
             }
 

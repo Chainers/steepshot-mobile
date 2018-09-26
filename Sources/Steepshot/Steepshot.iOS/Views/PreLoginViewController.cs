@@ -67,11 +67,7 @@ namespace Steepshot.iOS.Views
             var response = await _presenter.TryGetAccountInfoAsync(loginText.Text);
             if (response.IsSuccess)
             {
-                var myViewController = new LoginViewController
-                {
-                    AccountInfoResponse = response.Result,
-                    Username = loginText.Text
-                };
+                var myViewController = new LoginViewController(loginText.Text, response.Result);
                 NavigationController.PushViewController(myViewController, true);
             }
             else

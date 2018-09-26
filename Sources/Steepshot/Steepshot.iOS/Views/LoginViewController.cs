@@ -14,13 +14,20 @@ namespace Steepshot.iOS.Views
 {
     public partial class LoginViewController : BaseViewControllerWithPresenter<PreSignInPresenter>
     {
-        public string Username { get; set; }
-        public AccountInfoResponse AccountInfoResponse { get; set; }
+        private readonly UIBarButtonItem leftBarButton = new UIBarButtonItem();
+        private string _username;
+        private AccountInfoResponse _accountInfoResponse;
         private bool _isPostingMode;
+        private UIButton _eyeButton;
 
-        public LoginViewController(bool isPostingMode = true)
+        public LoginViewController(string username = null, AccountInfoResponse accountInfoResponse = null)
         {
-            _isPostingMode = isPostingMode;
+            if (username == null)
+                _username = AppSettings.User.Login;
+            else
+                _username = username;
+            _accountInfoResponse = accountInfoResponse;
+            _isPostingMode = _accountInfoResponse != null;
         }
 
         public override void ViewDidLoad()
@@ -30,9 +37,9 @@ namespace Steepshot.iOS.Views
             Constants.CreateShadow(loginButton, Constants.R231G72B0, 0.5f, 25, 10, 12);
             avatar.Layer.CornerRadius = avatar.Frame.Height / 2;
 
-            var eyeButton = new UIButton(new CGRect(0, 0, 25, password.Frame.Height));
-            eyeButton.SetImage(UIImage.FromBundle("eye"), UIControlState.Normal);
-            password.RightView = eyeButton;
+            _eyeButton = new UIButton(new CGRect(0, 0, 25, password.Frame.Height));
+            _eyeButton.SetImage(UIImage.FromBundle("eye"), UIControlState.Normal);
+            password.RightView = _eyeButton;
             password.RightViewMode = UITextFieldViewMode.Always;
 
             qrButton.Layer.CornerRadius = 25;
@@ -41,7 +48,7 @@ namespace Steepshot.iOS.Views
 
             if (_isPostingMode)
             {
-                var avatarLink = AccountInfoResponse.Metadata?.Profile?.ProfileImage;
+                var avatarLink = _accountInfoResponse.Metadata?.Profile?.ProfileImage;
                 if (!string.IsNullOrEmpty(avatarLink))
                     ImageLoader.Load(avatarLink, avatar, size: new CGSize(300, 300));
                 else
@@ -49,7 +56,6 @@ namespace Steepshot.iOS.Views
             }
             else
             {
-                Username = AppSettings.User.Login;
                 password.Placeholder = "Private active key";
                 avatar.Image = ((MainTabBarController)NavigationController.ViewControllers[0])._avatar.Image;
                 GetAccountInfo();
@@ -65,13 +71,35 @@ namespace Steepshot.iOS.Views
             else
                 password.Text = di.GolosTestWif;
 #endif
-            loginButton.TouchDown += Login;
-            eyeButton.TouchDown += EyeButtonTouch;
-            password.ShouldReturn += PasswordShouldReturn;
-            password.ShouldChangeCharacters += ShouldCharactersChange;
-            qrButton.TouchDown += QrTouch;
-
             SetBackButton();
+        }
+
+        public override void ViewWillAppear(bool animated)
+        {
+            if (IsMovingToParentViewController)
+            {
+                loginButton.TouchDown += Login;
+                _eyeButton.TouchDown += EyeButtonTouch;
+                password.ShouldReturn += PasswordShouldReturn;
+                password.ShouldChangeCharacters += ShouldCharactersChange;
+                qrButton.TouchDown += QrTouch;
+                leftBarButton.Clicked += GoBack;
+            }
+            base.ViewWillAppear(animated);
+        }
+
+        public override void ViewWillDisappear(bool animated)
+        {
+            if (IsMovingFromParentViewController)
+            {
+                loginButton.TouchDown -= Login;
+                _eyeButton.TouchDown -= EyeButtonTouch;
+                password.ShouldReturn -= PasswordShouldReturn;
+                password.ShouldChangeCharacters -= ShouldCharactersChange;
+                qrButton.TouchDown -= QrTouch;
+                leftBarButton.Clicked -= GoBack;
+            }
+            base.ViewWillDisappear(animated);
         }
 
         private async void GetAccountInfo()
@@ -79,10 +107,10 @@ namespace Steepshot.iOS.Views
             loginButton.Enabled = false;
             do
             {
-                var response = await _presenter.TryGetAccountInfoAsync(Username);
+                var response = await _presenter.TryGetAccountInfoAsync(_username);
                 if (response.IsSuccess)
                 {
-                    AccountInfoResponse = response.Result;
+                    _accountInfoResponse = response.Result;
                     loginButton.Enabled = true;
                     break;
                 }
@@ -97,19 +125,14 @@ namespace Steepshot.iOS.Views
 
         private void SetBackButton()
         {
-            var leftBarButton = new UIBarButtonItem(UIImage.FromBundle("ic_back_arrow"), UIBarButtonItemStyle.Plain, GoBack);
-            NavigationItem.SetLeftBarButtonItem(leftBarButton, true);
+            leftBarButton.Image = UIImage.FromBundle("ic_back_arrow");
+            NavigationItem.LeftBarButtonItem = leftBarButton;
             NavigationController.NavigationBar.TintColor = Constants.R15G24B30;
 
             if (_isPostingMode)
                 NavigationItem.Title = AppSettings.LocalizationManager.GetText(LocalizationKeys.PasswordViewTitleText);
             else
-                NavigationItem.Title = "Account active key";
-        }
-
-        protected void GoBack(object sender, EventArgs e)
-        {
-            NavigationController.PopViewController(true);
+                NavigationItem.Title = AppSettings.LocalizationManager.GetText(LocalizationKeys.ActivePasswordViewTitleText);
         }
 
         private void EyeButtonTouch(object sender, EventArgs e)
@@ -160,7 +183,7 @@ namespace Steepshot.iOS.Views
             loginButton.SetTitleColor(UIColor.Clear, UIControlState.Disabled);
             try
             {
-                if (!KeyHelper.ValidatePrivateKey(password.Text, _isPostingMode ? AccountInfoResponse.PublicPostingKeys : AccountInfoResponse.PublicActiveKeys))
+                if (!KeyHelper.ValidatePrivateKey(password.Text, _isPostingMode ? _accountInfoResponse.PublicPostingKeys : _accountInfoResponse.PublicActiveKeys))
                 {
                     ShowCustomAlert(LocalizationKeys.WrongPrivatePostingKey, password);
                     return;
@@ -168,10 +191,9 @@ namespace Steepshot.iOS.Views
 
                 if (_isPostingMode)
                 {
-                    AppSettings.User.AddAndSwitchUser(Username, password.Text, AccountInfoResponse);
+                    AppSettings.User.AddAndSwitchUser(_username, password.Text, _accountInfoResponse);
 
                     var myViewController = new MainTabBarController();
-                    AppDelegate.InitialViewController = myViewController;
                     NavigationController.ViewControllers = new UIViewController[] { myViewController, this };
                     NavigationController.PopViewController(true);
                 }
