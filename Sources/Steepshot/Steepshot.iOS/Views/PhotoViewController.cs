@@ -14,11 +14,19 @@ using System.Linq;
 using CoreVideo;
 using CoreFoundation;
 using System.IO;
+using System.Diagnostics.Contracts;
+using PureLayout.Net;
 
 namespace Steepshot.iOS.Views
 {
     public partial class PhotoViewController : BaseViewController, IAVCapturePhotoCaptureDelegate, IAVCaptureFileOutputRecordingDelegate
     {
+        enum CameraMode
+        { 
+            Photo,
+            Video
+        }
+
         private AVCaptureSession _captureSession;
         private AVCaptureDevice _backCamera;
         private AVCaptureDevice _frontCamera;
@@ -31,6 +39,9 @@ namespace Steepshot.iOS.Views
         private UIDeviceOrientation currentOrientation;
         private UIDeviceOrientation orientationOnPhoto;
         private NSObject _orientationChangeEventToken;
+
+        private UIButton _testSwitchModeBtn;
+        private CameraMode _currentMode = CameraMode.Photo;
 
         private CAShapeLayer _sl;
         private CABasicAnimation _animation;
@@ -45,9 +56,7 @@ namespace Steepshot.iOS.Views
             galleryButton.Layer.CornerRadius = galleryButton.Frame.Height / 2;
 
             var photoTap = new UITapGestureRecognizer(CapturePhoto);
-            var photoLongPress = new UILongPressGestureRecognizer(PhotoButtonLongPress);
             photoButton.AddGestureRecognizer(photoTap);
-            photoButton.AddGestureRecognizer(photoLongPress);
 
             closeButton.TouchDown += GoBack;
             flashButton.TouchDown += OnFlashTouch;
@@ -56,22 +65,93 @@ namespace Steepshot.iOS.Views
 
             var galleryTap = new UITapGestureRecognizer(GalleryTap);
             galleryButton.AddGestureRecognizer(galleryTap);
+
+            _testSwitchModeBtn = new UIButton();
+            _testSwitchModeBtn.BackgroundColor = UIColor.White;
+            _testSwitchModeBtn.Layer.CornerRadius = 20;
+            _testSwitchModeBtn.SetTitleColor(UIColor.Black, UIControlState.Normal);
+            _testSwitchModeBtn.SetTitle("P", UIControlState.Normal);
+            _testSwitchModeBtn.TouchDown += SwitchCameraMode;
+            View.AddSubview(_testSwitchModeBtn);
+
+            _testSwitchModeBtn.AutoPinEdge(ALEdge.Bottom, ALEdge.Top, swapCameraButton, -100);
+            _testSwitchModeBtn.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 20);
+            _testSwitchModeBtn.AutoSetDimensionsToSize(new CGSize(40, 40));
         }
 
-        private void SetupDevice()
+        private void CapturePhoto()
         {
-            var deviceDiscoverySession = AVCaptureDeviceDiscoverySession.Create(new AVCaptureDeviceType[] { AVCaptureDeviceType.BuiltInWideAngleCamera }, AVMediaType.Video, AVCaptureDevicePosition.Front);
-
-            var devices = deviceDiscoverySession.Devices;
-            foreach (var device in devices)
+            switch (_currentMode)
             {
-                if (device.Position == AVCaptureDevicePosition.Back)
-                    _backCamera = device;
-                else if (device.Position == AVCaptureDevicePosition.Front)
-                    _frontCamera = device;
+                case CameraMode.Photo:
+                    ToogleButtons(false);
+                    var settingKeys = new object[]
+                    {
+                        AVVideo.CodecKey,
+                        AVVideo.CompressionPropertiesKey,
+                    };
+
+                    var settingObjects = new object[]
+                    {
+                        new NSString("jpeg"),
+                        new NSDictionary(AVVideo.QualityKey, 1),
+                    };
+
+                    var settingsDictionary = NSDictionary<NSString, NSObject>.FromObjectsAndKeys(settingObjects, settingKeys);
+
+                    var settings = AVCapturePhotoSettings.FromFormat(settingsDictionary);
+
+                    if (_capturePhotoOutput.SupportedFlashModes.Length > 0 && _captureDeviceInput.Device.Position == AVCaptureDevicePosition.Back)
+                        settings.FlashMode = _flashMode;
+
+                    orientationOnPhoto = currentOrientation;
+                    _capturePhotoOutput.CapturePhoto(settings, this);
+                    break;
+                case CameraMode.Video:
+                    if (!_isRecording)
+                    {
+                        _testSwitchModeBtn.Enabled = false;
+                        StartAnimation();
+
+                        var outputFileName = new NSUuid().AsString();
+                        var outputFilePath = Path.Combine(Path.GetTempPath(), Path.ChangeExtension(outputFileName, "mov"));
+
+                        _videoFileOutput?.StartRecordingToOutputFile(NSUrl.FromFilename(outputFilePath), this);
+                    }
+                    else
+                    {
+                        _testSwitchModeBtn.Enabled = true;
+                        _sl.RemoveAllAnimations();
+                        _sl.Hidden = true;
+
+                        _videoFileOutput?.StopRecording();
+                    }
+
+                    _isRecording = !_isRecording;
+                    break;
+            }
+        }
+
+        private void SwitchCameraMode(object sender, EventArgs e)
+        {
+            if (_captureSession != null)
+                _captureSession.StopRunning();
+
+            switch (_currentMode)
+            { 
+                case CameraMode.Photo:
+                    _currentMode = CameraMode.Video;
+                    _testSwitchModeBtn.SetTitle("V", UIControlState.Normal);
+                    SetupVideoTest();
+                    break;
+                case CameraMode.Video:
+                    _currentMode = CameraMode.Photo;
+                    AuthorizeCameraUse();
+                    _testSwitchModeBtn.SetTitle("P", UIControlState.Normal);
+                    break;
             }
 
-            _currentCamera = _backCamera;
+            _captureSession?.StartRunning();
         }
 
         public override void ViewDidLayoutSubviews()
@@ -259,32 +339,6 @@ namespace Steepshot.iOS.Views
             }
         }
 
-        private void CapturePhoto()
-        {
-            ToogleButtons(false);
-            var settingKeys = new object[]
-            {
-                    AVVideo.CodecKey,
-                    AVVideo.CompressionPropertiesKey,
-            };
-
-            var settingObjects = new object[]
-            {
-                    new NSString("jpeg"),
-                    new NSDictionary(AVVideo.QualityKey, 1),
-            };
-
-            var settingsDictionary = NSDictionary<NSString, NSObject>.FromObjectsAndKeys(settingObjects, settingKeys);
-
-            var settings = AVCapturePhotoSettings.FromFormat(settingsDictionary);
-
-            if (_capturePhotoOutput.SupportedFlashModes.Length > 0 && _captureDeviceInput.Device.Position == AVCaptureDevicePosition.Back)
-                settings.FlashMode = _flashMode;
-
-            orientationOnPhoto = currentOrientation;
-            _capturePhotoOutput.CapturePhoto(settings, this);
-        }
-
         [Export("captureOutput:didFinishProcessingPhotoSampleBuffer:previewPhotoSampleBuffer:resolvedSettings:bracketSettings:error:")]
         public void DidFinishProcessingPhoto(AVCapturePhotoOutput captureOutput, CMSampleBuffer photoSampleBuffer, CMSampleBuffer previewPhotoSampleBuffer, AVCaptureResolvedPhotoSettings resolvedSettings, AVCaptureBracketedStillImageSettings bracketSettings, NSError error)
         {
@@ -333,10 +387,9 @@ namespace Steepshot.iOS.Views
             }
 
             SetupLiveCameraStream();
-            //SetupTest();
         }
 
-        private void SetupTest()
+        private void SetupVideoTest()
         {
             _captureSession = new AVCaptureSession();
 
@@ -353,7 +406,6 @@ namespace Steepshot.iOS.Views
                     _frontCamera = device;
             }
             _currentCamera = _backCamera;
-            //ConfigureCameraForDevice(_currentCamera);
 
             try
             {
@@ -368,13 +420,25 @@ namespace Steepshot.iOS.Views
             // setup preview
             _videoPreviewLayer = new AVCaptureVideoPreviewLayer(_captureSession)
             {
-                VideoGravity = AVLayerVideoGravity.ResizeAspect,
+                VideoGravity = AVLayerVideoGravity.ResizeAspectFill,
                 Orientation = AVCaptureVideoOrientation.Portrait,
-                Frame = liveCameraStream.Frame
+                Frame = new CGRect(new CGPoint(0, 0), new CGSize(liveCameraStream.Frame.Width, liveCameraStream.Frame.Width))
             };
 
+            ClearCameraStreamSublayers();
             liveCameraStream.Layer.AddSublayer(_videoPreviewLayer);
             _captureSession.StartRunning();
+        }
+
+        private void ClearCameraStreamSublayers()
+        {
+            if (liveCameraStream.Layer.Sublayers == null)
+                return;
+
+            foreach (var layer in liveCameraStream.Layer.Sublayers)
+            {
+                layer.RemoveFromSuperLayer();
+            }
         }
 
         private void SetupLiveCameraStream()
@@ -412,6 +476,7 @@ namespace Steepshot.iOS.Views
                 VideoGravity = AVLayerVideoGravity.ResizeAspectFill
             };
 
+            ClearCameraStreamSublayers();
             liveCameraStream.Layer.AddSublayer(_videoPreviewLayer);
             _captureSession.StartRunning();
         }
