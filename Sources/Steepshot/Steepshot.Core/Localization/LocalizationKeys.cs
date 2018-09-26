@@ -237,5 +237,6 @@
         PromoteConfirmation, 
         TransferConfirmation,
         PowerUpDownConfirmation,
+        Video,
     }
 }

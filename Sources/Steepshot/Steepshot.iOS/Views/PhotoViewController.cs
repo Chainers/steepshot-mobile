@@ -10,19 +10,17 @@ using Steepshot.iOS.Helpers;
 using Steepshot.iOS.ViewControllers;
 using UIKit;
 using CoreAnimation;
-using System.Linq;
-using CoreVideo;
-using CoreFoundation;
 using System.IO;
-using System.Diagnostics.Contracts;
 using PureLayout.Net;
+using Steepshot.Core.Utils;
+using Steepshot.Core.Localization;
 
 namespace Steepshot.iOS.Views
 {
     public partial class PhotoViewController : BaseViewController, IAVCapturePhotoCaptureDelegate, IAVCaptureFileOutputRecordingDelegate
     {
         enum CameraMode
-        { 
+        {
             Photo,
             Video
         }
@@ -41,6 +39,10 @@ namespace Steepshot.iOS.Views
         private NSObject _orientationChangeEventToken;
 
         private UIButton _testSwitchModeBtn;
+        private UIButton _swapCameraButton;
+        private UIButton _photoButton;
+        private UIImageView _galleryButton;
+        private UIView _pointerView;
         private CameraMode _currentMode = CameraMode.Photo;
 
         private CAShapeLayer _sl;
@@ -53,30 +55,123 @@ namespace Steepshot.iOS.Views
         {
             base.ViewDidLoad();
 
-            galleryButton.Layer.CornerRadius = galleryButton.Frame.Height / 2;
-
-            var photoTap = new UITapGestureRecognizer(CapturePhoto);
-            photoButton.AddGestureRecognizer(photoTap);
-
             closeButton.TouchDown += GoBack;
             flashButton.TouchDown += OnFlashTouch;
-            swapCameraButton.TouchDown += SwitchCameraButtonTapped;
             enableCameraAccess.TouchDown += EnableCameraAccess;
 
-            var galleryTap = new UITapGestureRecognizer(GalleryTap);
-            galleryButton.AddGestureRecognizer(galleryTap);
+            SetupCameraControlls();
+        }
 
+        private void SetupCameraControlls()
+        {
             _testSwitchModeBtn = new UIButton();
             _testSwitchModeBtn.BackgroundColor = UIColor.White;
             _testSwitchModeBtn.Layer.CornerRadius = 20;
             _testSwitchModeBtn.SetTitleColor(UIColor.Black, UIControlState.Normal);
             _testSwitchModeBtn.SetTitle("P", UIControlState.Normal);
             _testSwitchModeBtn.TouchDown += SwitchCameraMode;
-            View.AddSubview(_testSwitchModeBtn);
 
-            _testSwitchModeBtn.AutoPinEdge(ALEdge.Bottom, ALEdge.Top, swapCameraButton, -100);
-            _testSwitchModeBtn.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 20);
-            _testSwitchModeBtn.AutoSetDimensionsToSize(new CGSize(40, 40));
+            var bottomSeparator = new UIView();
+            bottomSeparator.BackgroundColor = Constants.R255G255B255.ColorWithAlpha(0.2f);
+
+            var photoTabButton = new UIButton();
+            photoTabButton.TitleLabel.Font = Constants.Semibold14;
+            photoTabButton.SetTitle(AppSettings.LocalizationManager.GetText(LocalizationKeys.Photo), UIControlState.Normal);
+            photoTabButton.SetTitleColor(UIColor.White, UIControlState.Normal);
+
+            var videoTabButton = new UIButton();
+            videoTabButton.TitleLabel.Font = Constants.Semibold14;
+            videoTabButton.SetTitle(AppSettings.LocalizationManager.GetText(LocalizationKeys.Video), UIControlState.Normal);
+            videoTabButton.SetTitleColor(UIColor.White, UIControlState.Normal);
+
+            View.AddSubview(bottomSeparator);
+            View.AddSubview(photoTabButton);
+            View.AddSubview(videoTabButton);
+
+            _pointerView = new UIView();
+            View.AddSubview(_pointerView);
+
+            var galleryTap = new UITapGestureRecognizer(GalleryTap);
+            _galleryButton = new UIImageView();
+            _galleryButton.Image = UIImage.FromBundle("ic_gallery.png");
+            _galleryButton.ContentMode = UIViewContentMode.ScaleAspectFill;
+            _galleryButton.Layer.CornerRadius = 20;
+            _galleryButton.ClipsToBounds = true;
+            _galleryButton.UserInteractionEnabled = true;
+            _galleryButton.AddGestureRecognizer(galleryTap);
+            View.AddSubview(_galleryButton);
+
+            var swapTap = new UITapGestureRecognizer(SwitchCameraButtonTapped);
+            _swapCameraButton = new UIButton();
+            _swapCameraButton.UserInteractionEnabled = true;
+            _swapCameraButton.SetImage(UIImage.FromBundle("ic_revert.png"), UIControlState.Normal);
+            _swapCameraButton.ContentMode = UIViewContentMode.ScaleAspectFill;
+            _swapCameraButton.Layer.CornerRadius = 20;
+            _swapCameraButton.AddGestureRecognizer(swapTap);
+            View.AddSubview(_swapCameraButton);
+
+            var photoTap = new UITapGestureRecognizer(CapturePhoto);
+            var image = CircleBorder(50, Constants.R255G255B255);
+            _photoButton = new UIButton();
+            _photoButton.UserInteractionEnabled = true;
+            _photoButton.SetImage(image, UIControlState.Normal);
+            _photoButton.BackgroundColor = Constants.R217G217B217;
+            _photoButton.Layer.CornerRadius = 30;
+            _photoButton.Layer.BorderWidth = 2;
+            _photoButton.Layer.BorderColor = Constants.R255G255B255.CGColor;
+            _photoButton.AddGestureRecognizer(photoTap);
+            View.AddSubview(_photoButton);
+
+            bottomSeparator.AutoSetDimension(ALDimension.Height, 1);
+            bottomSeparator.AutoPinEdgeToSuperviewEdge(ALEdge.Left);
+            bottomSeparator.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom, DeviceHelper.GetVersion() == DeviceHelper.HardwareVersion.iPhoneX ? 34 : 0);
+            bottomSeparator.AutoPinEdgeToSuperviewEdge(ALEdge.Right);
+
+            photoTabButton.AutoSetDimension(ALDimension.Height, 60);
+            photoTabButton.AutoSetDimension(ALDimension.Width, View.Frame.Width / 2);
+            photoTabButton.AutoPinEdgeToSuperviewEdge(ALEdge.Left);
+            photoTabButton.AutoPinEdge(ALEdge.Bottom, ALEdge.Top, bottomSeparator);
+
+            videoTabButton.AutoSetDimension(ALDimension.Height, 60);
+            videoTabButton.AutoMatchDimension(ALDimension.Width, ALDimension.Width, photoTabButton);
+            videoTabButton.AutoPinEdgeToSuperviewEdge(ALEdge.Right);
+            videoTabButton.AutoPinEdge(ALEdge.Bottom, ALEdge.Top, bottomSeparator);
+            videoTabButton.AutoPinEdge(ALEdge.Left, ALEdge.Right, photoTabButton);
+
+            _pointerView.AutoSetDimension(ALDimension.Height, 2);
+            _pointerView.AutoMatchDimension(ALDimension.Width, ALDimension.Width, photoTabButton);
+            _pointerView.AutoPinEdge(ALEdge.Bottom, ALEdge.Top, bottomSeparator);
+            _pointerView.AutoAlignAxis(ALAxis.Vertical, photoTabButton);
+
+            _galleryButton.AutoSetDimensionsToSize(new CGSize(40, 40));
+            _galleryButton.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 30);
+            _galleryButton.AutoPinEdge(ALEdge.Bottom, ALEdge.Top, bottomSeparator, -71);
+
+            _swapCameraButton.AutoSetDimensionsToSize(new CGSize(40, 40));
+            _swapCameraButton.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 30);
+            _swapCameraButton.AutoPinEdge(ALEdge.Bottom, ALEdge.Top, bottomSeparator, -71);
+
+            _photoButton.AutoSetDimensionsToSize(new CGSize(60, 60));
+            _photoButton.AutoAlignAxisToSuperviewAxis(ALAxis.Vertical);
+            _photoButton.AutoPinEdge(ALEdge.Bottom, ALEdge.Top, bottomSeparator, -135);
+        }
+
+        private UIImage CircleBorder(nfloat diameter, UIColor color, bool opaque = false)
+        {
+            var rect = new CGRect(0, 0, diameter, diameter);
+
+            UIGraphics.BeginImageContextWithOptions(rect.Size, opaque, 0);
+            var ctx = UIGraphics.GetCurrentContext();
+            ctx.SaveState();
+
+            ctx.SetFillColor(color.CGColor);
+            ctx.FillEllipseInRect(rect);
+
+            ctx.RestoreState();
+            var img = UIGraphics.GetImageFromCurrentImageContext();
+            UIGraphics.EndImageContext();
+
+            return img;
         }
 
         private void CapturePhoto()
@@ -159,7 +254,7 @@ namespace Steepshot.iOS.Views
             if (!_initialized)
             {
                 _bezierPath = new UIBezierPath();
-                _bezierPath.AddArc(photoButton.Center, 70, 3f * (float)Math.PI / 2f, 4.712327f, true);
+                _bezierPath.AddArc(_photoButton.Center, 70, 3f * (float)Math.PI / 2f, 4.712327f, true);
 
                 _sl = new CAShapeLayer();
                 _sl.LineWidth = 3;
@@ -173,6 +268,8 @@ namespace Steepshot.iOS.Views
                 _sl.Path = _bezierPath.CGPath;
 
                 View.Layer.AddSublayer(_sl);
+
+                Constants.CreateGradient(_pointerView, 0, GradientType.Orange);
 
                 _initialized = true;
             }
@@ -243,9 +340,9 @@ namespace Steepshot.iOS.Views
 
         private void ToogleButtons(bool isEnabled)
         {
-            photoButton.Enabled = isEnabled;
+            _photoButton.Enabled = isEnabled;
             closeButton.Enabled = isEnabled;
-            swapCameraButton.Enabled = isEnabled;
+            _swapCameraButton.Enabled = isEnabled;
         }
 
         public override void ViewDidAppear(bool animated)
@@ -296,7 +393,7 @@ namespace Steepshot.iOS.Views
                 var lastGalleryPhoto = fetchedAssets.LastObject as PHAsset;
                 if (lastGalleryPhoto != null)
                 {
-                    galleryButton.UserInteractionEnabled = true;
+                    _galleryButton.UserInteractionEnabled = true;
                     var PHImageManager = new PHImageManager();
                     PHImageManager.RequestImageForAsset(lastGalleryPhoto, new CGSize(300, 300),
                                                         PHImageContentMode.AspectFill, new PHImageRequestOptions()
@@ -305,14 +402,14 @@ namespace Steepshot.iOS.Views
                                                             ResizeMode = PHImageRequestOptionsResizeMode.Exact
                                                         }, (img, info) =>
                           {
-                              galleryButton.Image = img;
+                              _galleryButton.Image = img;
                           });
                 }
                 else
-                    galleryButton.UserInteractionEnabled = false;
+                    _galleryButton.UserInteractionEnabled = false;
             }
             else
-                galleryButton.UserInteractionEnabled = true;
+                _galleryButton.UserInteractionEnabled = true;
         }
 
         private void GoBack(object sender, EventArgs e)
@@ -379,9 +476,9 @@ namespace Steepshot.iOS.Views
                 {
                     enableCameraAccess.Hidden = false;
 
-                    photoButton.Hidden = true;
+                    _photoButton.Hidden = true;
                     flashButton.Hidden = true;
-                    swapCameraButton.Hidden = true;
+                    _swapCameraButton.Hidden = true;
                     return;
                 }
             }
@@ -513,7 +610,7 @@ namespace Steepshot.iOS.Views
             }
         }
 
-        private void SwitchCameraButtonTapped(object sender, EventArgs e)
+        private void SwitchCameraButtonTapped()
         {
             var devicePosition = _captureDeviceInput.Device.Position;
             if (devicePosition == AVCaptureDevicePosition.Front)

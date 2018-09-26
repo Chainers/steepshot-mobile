@@ -22,16 +22,7 @@ namespace Steepshot.iOS.Views
 		UIKit.UIButton flashButton { get; set; }
 
 		[Outlet]
-		UIKit.UIImageView galleryButton { get; set; }
-
-		[Outlet]
 		UIKit.UIView liveCameraStream { get; set; }
-
-		[Outlet]
-		UIKit.UIButton photoButton { get; set; }
-
-		[Outlet]
-		UIKit.UIButton swapCameraButton { get; set; }
 		
 		void ReleaseDesignerOutlets ()
 		{
@@ -45,24 +36,9 @@ namespace Steepshot.iOS.Views
 				flashButton = null;
 			}
 
-			if (galleryButton != null) {
-				galleryButton.Dispose ();
-				galleryButton = null;
-			}
-
 			if (liveCameraStream != null) {
 				liveCameraStream.Dispose ();
 				liveCameraStream = null;
-			}
-
-			if (photoButton != null) {
-				photoButton.Dispose ();
-				photoButton = null;
-			}
-
-			if (swapCameraButton != null) {
-				swapCameraButton.Dispose ();
-				swapCameraButton = null;
 			}
 
 			if (enableCameraAccess != null) {

@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14113" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14313.18" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
     <device id="retina5_5" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14088"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14283.14"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -14,10 +14,7 @@
                 <outlet property="closeButton" destination="R2x-Io-yoi" id="BCd-lH-qgQ"/>
                 <outlet property="enableCameraAccess" destination="Tmr-yi-g89" id="4nt-HL-mf3"/>
                 <outlet property="flashButton" destination="Pzd-O0-Qtn" id="ALH-je-gaq"/>
-                <outlet property="galleryButton" destination="hT2-FI-jcS" id="lz7-2X-f5q"/>
                 <outlet property="liveCameraStream" destination="8P0-hY-qAM" id="ECR-NT-Zef"/>
-                <outlet property="photoButton" destination="obZ-CS-DFE" id="j7i-4Z-Rn9"/>
-                <outlet property="swapCameraButton" destination="gM4-Oo-cms" id="cf9-bP-q0D"/>
                 <outlet property="view" destination="k75-MS-fV5" id="BTi-QI-egH"/>
             </connections>
         </placeholder>
@@ -51,58 +48,24 @@
                     </constraints>
                     <state key="normal" image="ic_white_close.png"/>
                 </button>
-                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="ic_gallery.png" translatesAutoresizingMaskIntoConstraints="NO" id="hT2-FI-jcS">
-                    <rect key="frame" x="15" y="642" width="40" height="40"/>
-                    <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                    <constraints>
-                        <constraint firstAttribute="height" constant="40" id="Ons-bX-1wh"/>
-                        <constraint firstAttribute="width" constant="40" id="jrR-w4-lHJ"/>
-                    </constraints>
-                </imageView>
-                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="obZ-CS-DFE">
-                    <rect key="frame" x="177" y="602" width="60" height="60"/>
-                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
-                    <constraints>
-                        <constraint firstAttribute="height" constant="60" id="2w5-HJ-Um7"/>
-                        <constraint firstAttribute="width" constant="60" id="LrU-qu-jdt"/>
-                    </constraints>
-                    <state key="normal" image="ic_сamera_shot.png"/>
-                </button>
-                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="bottom" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="gM4-Oo-cms">
-                    <rect key="frame" x="359" y="642" width="40" height="40"/>
-                    <constraints>
-                        <constraint firstAttribute="width" constant="40" id="Lc3-fb-22u"/>
-                        <constraint firstAttribute="height" constant="40" id="QSD-FA-0Ou"/>
-                    </constraints>
-                    <state key="normal" image="ic_revert.png"/>
-                </button>
             </subviews>
             <color key="backgroundColor" red="0.90972399709999996" green="0.90985494850000004" blue="0.9096954465" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
             <constraints>
                 <constraint firstItem="Tmr-yi-g89" firstAttribute="centerX" secondItem="k75-MS-fV5" secondAttribute="centerX" id="1ac-9b-xvM"/>
-                <constraint firstItem="hT2-FI-jcS" firstAttribute="leading" secondItem="k75-MS-fV5" secondAttribute="leading" constant="15" id="5fc-56-tiw"/>
-                <constraint firstAttribute="trailing" secondItem="gM4-Oo-cms" secondAttribute="trailing" constant="15" id="HCE-q0-OZz"/>
                 <constraint firstItem="R2x-Io-yoi" firstAttribute="top" secondItem="k75-MS-fV5" secondAttribute="top" constant="15" id="I9i-5r-hjE"/>
                 <constraint firstItem="R2x-Io-yoi" firstAttribute="leading" secondItem="k75-MS-fV5" secondAttribute="leading" constant="15" id="JlR-mL-mzR"/>
                 <constraint firstItem="8P0-hY-qAM" firstAttribute="top" secondItem="k75-MS-fV5" secondAttribute="top" id="RMV-U0-rEb"/>
                 <constraint firstItem="8P0-hY-qAM" firstAttribute="leading" secondItem="k75-MS-fV5" secondAttribute="leading" id="RZ8-Hb-YJC"/>
                 <constraint firstAttribute="trailing" secondItem="Pzd-O0-Qtn" secondAttribute="trailing" constant="15" id="Rbs-hk-h3o"/>
                 <constraint firstAttribute="trailing" secondItem="8P0-hY-qAM" secondAttribute="trailing" id="SH4-9s-rn6"/>
-                <constraint firstAttribute="bottom" secondItem="hT2-FI-jcS" secondAttribute="bottom" constant="54" id="UGC-7h-Wyd"/>
                 <constraint firstItem="Tmr-yi-g89" firstAttribute="centerY" secondItem="k75-MS-fV5" secondAttribute="centerY" id="V69-Jv-Og9"/>
-                <constraint firstAttribute="bottom" secondItem="gM4-Oo-cms" secondAttribute="bottom" constant="54" id="W6y-6Y-iOf"/>
-                <constraint firstItem="obZ-CS-DFE" firstAttribute="centerX" secondItem="k75-MS-fV5" secondAttribute="centerX" id="dT4-UX-OeZ"/>
                 <constraint firstItem="Pzd-O0-Qtn" firstAttribute="top" secondItem="k75-MS-fV5" secondAttribute="top" constant="15" id="oMo-xz-nHy"/>
-                <constraint firstAttribute="bottom" secondItem="obZ-CS-DFE" secondAttribute="bottom" constant="74" id="qIp-Wf-920"/>
                 <constraint firstAttribute="bottom" secondItem="8P0-hY-qAM" secondAttribute="bottom" id="vHq-T9-WTo"/>
             </constraints>
         </view>
     </objects>
     <resources>
         <image name="ic_flash.png" width="24" height="23"/>
-        <image name="ic_gallery.png" width="40" height="40"/>
-        <image name="ic_revert.png" width="42" height="42"/>
         <image name="ic_white_close.png" width="18" height="18"/>
-        <image name="ic_сamera_shot.png" width="62" height="62"/>
     </resources>
 </document>
