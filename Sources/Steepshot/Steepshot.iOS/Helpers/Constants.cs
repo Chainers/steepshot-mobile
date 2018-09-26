@@ -54,6 +54,9 @@ namespace Steepshot.iOS.Helpers
 
         public static readonly TimeSpan ImageCacheDuration = TimeSpan.FromDays(2);
 
+        public static readonly nfloat ScreenScale = UIScreen.MainScreen.Scale;
+        public static readonly nfloat ScreenWidth = UIScreen.MainScreen.Bounds.Width;
+
         public static readonly UIStringAttributes PowerManipulationTextStyle = new UIStringAttributes
         {
             Font = Regular24,

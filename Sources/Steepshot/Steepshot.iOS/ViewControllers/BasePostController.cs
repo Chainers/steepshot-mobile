@@ -88,7 +88,7 @@ namespace Steepshot.iOS.ViewControllers
         private void ShowPromotePopup(Post post)
         {
             var promotePopup = new Popups.PromotePopup();
-            _alert = promotePopup.Create(post, TabBarController.NavigationController, View);
+            _alert = promotePopup.Create(post, TabBarController != null ? TabBarController.NavigationController : NavigationController, View);
         }
 
         protected void HidePhoto(Post post)
@@ -272,13 +272,6 @@ namespace Steepshot.iOS.ViewControllers
         protected async void ScrolledToBottom()
         {
             await GetPosts(false, false);
-        }
-
-        protected void TagAction(string tag)
-        {
-            var myViewController = new PreSearchViewController();
-            myViewController.CurrentPostCategory = tag;
-            NavigationController.PushViewController(myViewController, true);
         }
 
         protected sealed override void CreatePresenter()

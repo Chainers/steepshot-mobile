@@ -28,6 +28,11 @@ namespace Steepshot.iOS.Views
 
         protected override void SourceChanged(Status status)
         {
+            InvokeOnMainThread(HandleAction);
+        }
+
+        private void HandleAction()
+        {
             if (!feedCollection.Hidden)
             {
                 _gridDelegate.GenerateVariables();
