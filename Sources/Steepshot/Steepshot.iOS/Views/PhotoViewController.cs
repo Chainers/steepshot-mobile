@@ -473,9 +473,10 @@ namespace Steepshot.iOS.Views
 
         private async void AuthorizeCameraUse()
         {
-            var authorizationStatus = AVCaptureDevice.GetAuthorizationStatus(AVMediaType.Video);
+            var authorizationVideoStatus = AVCaptureDevice.GetAuthorizationStatus(AVMediaType.Video);
+            var authorizationAudioStatus = AVCaptureDevice.GetAuthorizationStatus(AVMediaType.Audio);
 
-            if (authorizationStatus != AVAuthorizationStatus.Authorized)
+            if (authorizationVideoStatus != AVAuthorizationStatus.Authorized)
             {
                 if (!await AVCaptureDevice.RequestAccessForMediaTypeAsync(AVMediaType.Video))
                 {
@@ -488,48 +489,10 @@ namespace Steepshot.iOS.Views
                 }
             }
 
+            if (authorizationAudioStatus != AVAuthorizationStatus.Authorized)
+                await AVCaptureDevice.RequestAccessForMediaTypeAsync(AVMediaType.Audio);
+
             SetupPhotoCameraStream();
-        }
-
-        private void SetupVideoCameraStream()
-        {
-            _captureSession = new AVCaptureSession();
-
-            _captureSession.SessionPreset = AVCaptureSession.PresetHigh;
-
-            // device
-            var deviceDiscoverySession = AVCaptureDeviceDiscoverySession.Create(new AVCaptureDeviceType[] { AVCaptureDeviceType.BuiltInWideAngleCamera }, AVMediaType.Video, AVCaptureDevicePosition.Unspecified);
-            var devices = deviceDiscoverySession.Devices;
-            foreach (var device in devices)
-            {
-                if (device.Position == AVCaptureDevicePosition.Back)
-                    _backCamera = device;
-                else if (device.Position == AVCaptureDevicePosition.Front)
-                    _frontCamera = device;
-            }
-            _currentCamera = _backCamera;
-
-            try
-            {
-                var captureDeviceInput = AVCaptureDeviceInput.FromDevice(_currentCamera);
-                _captureSession.AddInput(captureDeviceInput);
-                _videoFileOutput = new AVCaptureMovieFileOutput();
-                _captureSession.AddOutput(_videoFileOutput);
-            }
-            catch (Exception ex)
-            { }
-
-            // setup preview
-            _videoPreviewLayer = new AVCaptureVideoPreviewLayer(_captureSession)
-            {
-                VideoGravity = AVLayerVideoGravity.Resize,//.ResizeAspectFill,
-                Orientation = AVCaptureVideoOrientation.Portrait,
-                Frame = new CGRect(new CGPoint(0, 0), new CGSize(liveCameraStream.Frame.Width, liveCameraStream.Frame.Width))
-            };
-
-            ClearCameraStreamSublayers();
-            liveCameraStream.Layer.AddSublayer(_videoPreviewLayer);
-            _captureSession.StartRunning();
         }
 
         private void SetupPhotoCameraStream()
@@ -570,6 +533,62 @@ namespace Steepshot.iOS.Views
             ClearCameraStreamSublayers();
             liveCameraStream.Layer.AddSublayer(_videoPreviewLayer);
             _captureSession.StartRunning();
+        }
+
+        private void SetupVideoCameraStream()
+        {
+            _captureSession = new AVCaptureSession();
+
+            _captureSession.SessionPreset = AVCaptureSession.PresetHigh;
+
+            // device
+            var deviceDiscoverySession = AVCaptureDeviceDiscoverySession.Create(new AVCaptureDeviceType[] { AVCaptureDeviceType.BuiltInWideAngleCamera }, AVMediaType.Video, AVCaptureDevicePosition.Unspecified);
+            var devices = deviceDiscoverySession.Devices;
+            foreach (var device in devices)
+            {
+                if (device.Position == AVCaptureDevicePosition.Back)
+                    _backCamera = device;
+                else if (device.Position == AVCaptureDevicePosition.Front)
+                    _frontCamera = device;
+            }
+            _currentCamera = _backCamera;
+
+            try
+            {
+                var captureDeviceInput = AVCaptureDeviceInput.FromDevice(_currentCamera);
+                _captureSession.AddInput(captureDeviceInput);
+
+                var authorizationAudioStatus = AVCaptureDevice.GetAuthorizationStatus(AVMediaType.Audio);
+                if (authorizationAudioStatus == AVAuthorizationStatus.Authorized)
+                {
+                    var audioInputDevice = AVCaptureDevice.GetDefaultDevice(AVMediaType.Audio);
+                    var audioInput = AVCaptureDeviceInput.FromDevice(audioInputDevice);
+
+                    if (_captureSession.CanAddInput(audioInput))
+                        _captureSession.AddInput(audioInput);
+                }
+                
+                _videoFileOutput = new AVCaptureMovieFileOutput();
+                var maxDuration = CMTime.FromSeconds(20, 30);
+                _videoFileOutput.MaxRecordedDuration = maxDuration;
+
+                if (_captureSession.CanAddOutput(_videoFileOutput))
+                    _captureSession.AddOutput(_videoFileOutput);
+
+                // setup preview
+                _videoPreviewLayer = new AVCaptureVideoPreviewLayer(_captureSession)
+                {
+                    VideoGravity = AVLayerVideoGravity.ResizeAspectFill,
+                    Orientation = AVCaptureVideoOrientation.Portrait,
+                    Frame = new CGRect(new CGPoint(0, 0), new CGSize(liveCameraStream.Frame.Width, liveCameraStream.Frame.Width))
+                };
+
+                ClearCameraStreamSublayers();
+                liveCameraStream.Layer.AddSublayer(_videoPreviewLayer);
+                _captureSession.StartRunning();
+            }
+            catch (Exception ex)
+            { }
         }
 
         private void ClearCameraStreamSublayers()
