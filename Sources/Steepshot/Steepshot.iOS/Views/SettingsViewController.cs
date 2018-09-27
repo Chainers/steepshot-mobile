@@ -159,11 +159,6 @@ namespace Steepshot.iOS.Views
             NavigationItem.Title = AppSettings.LocalizationManager.GetText(LocalizationKeys.AppSettingsTitle);
         }
 
-        private void GoBack(object sender, EventArgs e)
-        {
-            NavigationController.PopViewController(true);
-        }
-
         private void CellAction(ActionType type, UserInfo account)
         {
             switch (type)
