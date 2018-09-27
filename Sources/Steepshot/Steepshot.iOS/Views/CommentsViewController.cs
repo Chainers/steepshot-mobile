@@ -284,6 +284,11 @@ namespace Steepshot.iOS.Views
 
         private void SourceChanged(Status status)
         {
+            InvokeOnMainThread(HandleAction);
+        }
+
+        void HandleAction()
+        {
             _commentsTable.ReloadData();
         }
 

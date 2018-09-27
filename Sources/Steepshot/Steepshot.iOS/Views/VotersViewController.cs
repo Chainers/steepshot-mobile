@@ -19,6 +19,8 @@ namespace Steepshot.iOS.Views
         private readonly Post _post;
         private readonly VotersType _votersType;
         private readonly bool _isComment;
+        private readonly UIBarButtonItem _leftBarButton = new UIBarButtonItem();
+        private FollowTableViewSource _tableSource;
 
         public VotersViewController(Post post, VotersType votersType, bool isComment = false)
         {
@@ -32,22 +34,43 @@ namespace Steepshot.iOS.Views
             base.ViewDidLoad();
 
             _presenter.VotersType = _votersType;
-            _presenter.SourceChanged += SourceChanged;
-
-            var tableSource = new FollowTableViewSource(_presenter, votersTable);
-            votersTable.Source = tableSource;
+            _tableSource = new FollowTableViewSource(_presenter, votersTable);
+            votersTable.Source = _tableSource;
             votersTable.SeparatorStyle = UITableViewCellSeparatorStyle.None;
             votersTable.LayoutMargins = UIEdgeInsets.Zero;
             votersTable.RegisterClassForCellReuse(typeof(FollowViewCell), nameof(FollowViewCell));
             votersTable.RegisterNibForCellReuse(UINib.FromName(nameof(FollowViewCell), NSBundle.MainBundle), nameof(FollowViewCell));
             votersTable.RegisterClassForCellReuse(typeof(LoaderCell), nameof(LoaderCell));
 
-            tableSource.ScrolledToBottom += GetItems;
-            tableSource.CellAction += CellAction;
-
             SetBackButton();
             progressBar.StartAnimating();
             GetItems();
+        }
+
+        public override void ViewWillAppear(bool animated)
+        {
+            if (IsMovingToParentViewController)
+            {
+                _presenter.SourceChanged += SourceChanged;
+                _tableSource.ScrolledToBottom = GetItems;
+                _tableSource.CellAction = CellAction;
+                _leftBarButton.Clicked += GoBack;
+            }
+            base.ViewWillAppear(animated);
+        }
+
+        public override void ViewWillDisappear(bool animated)
+        {
+            if (IsMovingFromParentViewController)
+            {
+                _presenter.SourceChanged -= SourceChanged;
+                _tableSource.ScrolledToBottom = null;
+                _tableSource.CellAction = null;
+                _leftBarButton.Clicked -= GoBack;
+                _presenter.LoadCancel();
+                _tableSource.FreeAllCells();
+            }
+            base.ViewWillDisappear(animated);
         }
 
         private void SetBackButton()
@@ -61,9 +84,9 @@ namespace Steepshot.iOS.Views
             };
             peopleLabel.SizeToFit();
 
-            var leftBarButton = new UIBarButtonItem(UIImage.FromBundle("ic_back_arrow"), UIBarButtonItemStyle.Plain, GoBack);
+            _leftBarButton.Image = UIImage.FromBundle("ic_back_arrow");
             var rightBarButton = new UIBarButtonItem(peopleLabel);
-            NavigationItem.LeftBarButtonItem = leftBarButton;
+            NavigationItem.LeftBarButtonItem = _leftBarButton;
             NavigationItem.RightBarButtonItem = rightBarButton;
             NavigationController.NavigationBar.TintColor = Helpers.Constants.R15G24B30;
             NavigationItem.Title = _presenter.VotersType.GetDescription();
@@ -90,6 +113,11 @@ namespace Steepshot.iOS.Views
 
         private void SourceChanged(Status status)
         {
+            InvokeOnMainThread(HandleAction);
+        }
+
+        private void HandleAction()
+        {
             votersTable.ReloadData();
         }
 
@@ -107,12 +135,6 @@ namespace Steepshot.iOS.Views
                 var exception = await _presenter.TryFollowAsync(user);
                 ShowAlert(exception);
             }
-        }
-
-        public override void ViewDidUnload()
-        {
-            _presenter.LoadCancel();
-            base.ViewDidUnload();
         }
     }
 }
