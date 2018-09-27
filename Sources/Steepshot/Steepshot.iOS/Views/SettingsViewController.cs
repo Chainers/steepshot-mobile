@@ -229,11 +229,8 @@ namespace Steepshot.iOS.Views
 
             if (_tableSource.Accounts.Count == 0)
             {
-                var myViewController = new PreSearchViewController();
-                AppDelegate.InitialViewController = myViewController;
-                NavigationController.ViewControllers = new UIViewController[] { myViewController, this };
-                //_isTabBarNeedResfresh = true;
-                NavigationController.PopViewController(false);
+                ((AppDelegate)UIApplication.SharedApplication.Delegate).Window.RootViewController = new InteractivePopNavigationController(new PreSearchViewController());
+                ((AppDelegate)UIApplication.SharedApplication.Delegate).Window.MakeKeyAndVisible();
             }
             else
             {

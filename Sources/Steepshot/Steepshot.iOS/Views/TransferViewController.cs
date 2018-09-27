@@ -164,7 +164,7 @@ namespace Steepshot.iOS.Views
 
             if (!AppSettings.User.HasActivePermission)
             {
-                NavigationController.PushViewController(new LoginViewController(false), true);
+                NavigationController.PushViewController(new LoginViewController(), true);
                 return;
             }
 

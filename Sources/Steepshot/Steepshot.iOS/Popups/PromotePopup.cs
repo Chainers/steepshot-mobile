@@ -399,8 +399,7 @@ namespace Steepshot.iOS.Popups
                     if (!AppSettings.User.HasActivePermission)
                     {
                         _alert.Hidden = true;
-
-                        controller.PushViewController(new LoginViewController(false), true);
+                        controller.PushViewController(new LoginViewController(), true);
                         return;
                     }
 

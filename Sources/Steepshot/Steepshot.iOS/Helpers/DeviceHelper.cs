@@ -91,6 +91,15 @@ namespace Steepshot.iOS.Helpers
                 case "iPhone10,6":
                     ret = HardwareVersion.iPhoneX;
                     break;
+                case "iPhone11,8":
+                    ret = HardwareVersion.iPhoneXR;
+                    break;
+                case "iPhone11,2":
+                    ret = HardwareVersion.iPhoneXS;
+                    break;
+                case "iPhone11,4":
+                    ret = HardwareVersion.iPhoneXSMax;
+                    break;
                 case "iPad1,1":
                     ret = HardwareVersion.iPad;
                     break;
@@ -210,6 +219,9 @@ namespace Steepshot.iOS.Helpers
             iPhone8,
             iPhone8Plus,
             iPhoneX,
+            iPhoneXR,
+            iPhoneXS,
+            iPhoneXSMax,
             iPod1G,
             iPod2G,
             iPod3G,
