@@ -498,65 +498,53 @@ namespace Steepshot.iOS.Views
         private void SetupPhotoCameraStream()
         {
             _captureSession = new AVCaptureSession();
+            ConnectCamera();
 
-            var deviceDiscoverySession = AVCaptureDeviceDiscoverySession.Create(new AVCaptureDeviceType[] { AVCaptureDeviceType.BuiltInWideAngleCamera }, AVMediaType.Video, AVCaptureDevicePosition.Unspecified);
-            var devices = deviceDiscoverySession.Devices;
-            foreach (var device in devices)
+            try
             {
-                if (device.Position == AVCaptureDevicePosition.Back)
-                    _backCamera = device;
-                else if (device.Position == AVCaptureDevicePosition.Front)
-                    _frontCamera = device;
+                ConfigureCameraForDevice(_currentCamera);
+
+                _captureDeviceInput = AVCaptureDeviceInput.FromDevice(_currentCamera);
+
+                _capturePhotoOutput = new AVCapturePhotoOutput();
+                _capturePhotoOutput.IsHighResolutionCaptureEnabled = true;
+                _capturePhotoOutput.IsLivePhotoCaptureEnabled = false;
+
+                _captureSession.BeginConfiguration();
+                _captureSession.SessionPreset = AVCaptureSession.PresetPhoto;
+
+                if (_captureSession.CanAddInput(_captureDeviceInput))
+                    _captureSession.AddInput(_captureDeviceInput);
+
+                if (_captureSession.CanAddOutput(_capturePhotoOutput))
+                    _captureSession.AddOutput(_capturePhotoOutput);
+
+                _captureSession.CommitConfiguration();
+
+                _videoPreviewLayer = new AVCaptureVideoPreviewLayer(_captureSession)
+                {
+                    Frame = liveCameraStream.Frame,
+                    VideoGravity = AVLayerVideoGravity.ResizeAspectFill
+                };
+
+                ClearCameraStreamSublayers();
+                liveCameraStream.Layer.AddSublayer(_videoPreviewLayer);
+                _captureSession.StartRunning();
             }
-            _currentCamera = _backCamera;
-
-            ConfigureCameraForDevice(_currentCamera);
-            _captureDeviceInput = AVCaptureDeviceInput.FromDevice(_currentCamera);
-            if (!_captureSession.CanAddInput(_captureDeviceInput))
-                return;
-
-            _capturePhotoOutput = new AVCapturePhotoOutput();
-            _capturePhotoOutput.IsHighResolutionCaptureEnabled = true;
-            _capturePhotoOutput.IsLivePhotoCaptureEnabled = false;
-
-            if (!_captureSession.CanAddOutput(_capturePhotoOutput))
-                return;
-
-            SetupSessionInputOutput(_capturePhotoOutput);
-
-            _videoPreviewLayer = new AVCaptureVideoPreviewLayer(_captureSession)
-            {
-                Frame = liveCameraStream.Frame,
-                VideoGravity = AVLayerVideoGravity.ResizeAspectFill
-            };
-
-            ClearCameraStreamSublayers();
-            liveCameraStream.Layer.AddSublayer(_videoPreviewLayer);
-            _captureSession.StartRunning();
+            catch (Exception ex)
+            { }
         }
 
         private void SetupVideoCameraStream()
         {
             _captureSession = new AVCaptureSession();
-
             _captureSession.SessionPreset = AVCaptureSession.PresetHigh;
-
-            // device
-            var deviceDiscoverySession = AVCaptureDeviceDiscoverySession.Create(new AVCaptureDeviceType[] { AVCaptureDeviceType.BuiltInWideAngleCamera }, AVMediaType.Video, AVCaptureDevicePosition.Unspecified);
-            var devices = deviceDiscoverySession.Devices;
-            foreach (var device in devices)
-            {
-                if (device.Position == AVCaptureDevicePosition.Back)
-                    _backCamera = device;
-                else if (device.Position == AVCaptureDevicePosition.Front)
-                    _frontCamera = device;
-            }
-            _currentCamera = _backCamera;
+            ConnectCamera();
 
             try
             {
-                var captureDeviceInput = AVCaptureDeviceInput.FromDevice(_currentCamera);
-                _captureSession.AddInput(captureDeviceInput);
+                _captureDeviceInput = AVCaptureDeviceInput.FromDevice(_currentCamera);
+                _captureSession.AddInput(_captureDeviceInput);
 
                 var authorizationAudioStatus = AVCaptureDevice.GetAuthorizationStatus(AVMediaType.Audio);
                 if (authorizationAudioStatus == AVAuthorizationStatus.Authorized)
@@ -591,6 +579,20 @@ namespace Steepshot.iOS.Views
             { }
         }
 
+        private void ConnectCamera()
+        {
+            var deviceDiscoverySession = AVCaptureDeviceDiscoverySession.Create(new AVCaptureDeviceType[] { AVCaptureDeviceType.BuiltInWideAngleCamera }, AVMediaType.Video, AVCaptureDevicePosition.Unspecified);
+            var devices = deviceDiscoverySession.Devices;
+            foreach (var device in devices)
+            {
+                if (device.Position == AVCaptureDevicePosition.Back)
+                    _backCamera = device;
+                else if (device.Position == AVCaptureDevicePosition.Front)
+                    _frontCamera = device;
+            }
+            _currentCamera = _backCamera;
+        }
+
         private void ClearCameraStreamSublayers()
         {
             if (liveCameraStream.Layer.Sublayers == null)
@@ -600,15 +602,6 @@ namespace Steepshot.iOS.Views
             {
                 layer.RemoveFromSuperLayer();
             }
-        }
-
-        private void SetupSessionInputOutput(AVCaptureOutput output)
-        {
-            _captureSession.BeginConfiguration();
-            _captureSession.SessionPreset = AVCaptureSession.PresetPhoto;
-            _captureSession.AddInput(_captureDeviceInput);
-            _captureSession.AddOutput(output);
-            _captureSession.CommitConfiguration();
         }
 
         private void ConfigureCameraForDevice(AVCaptureDevice device)
@@ -643,7 +636,9 @@ namespace Steepshot.iOS.Views
                 devicePosition = AVCaptureDevicePosition.Front;
 
             var device = GetCameraForOrientation(devicePosition);
-            ConfigureCameraForDevice(device);
+
+            if (_currentMode == CameraMode.Photo)
+                ConfigureCameraForDevice(device);
 
             _captureSession.BeginConfiguration();
             _captureSession.RemoveInput(_captureDeviceInput);
@@ -678,7 +673,7 @@ namespace Steepshot.iOS.Views
             _sl.Hidden = true;
 
             TogglePhotoButton(false);
-
+            
             if (captureOutput.RecordedDuration.Seconds < Core.Constants.VideoMinDuration)
                 return;
 
