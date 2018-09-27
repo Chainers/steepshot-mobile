@@ -176,7 +176,7 @@ namespace Steepshot.iOS.Views
         private void SetVideoMode()
         {
             SwitchMode(CameraMode.Video);
-            SetupVideoTest();
+            SetupVideoCameraStream();
         }
 
         private void SwitchMode(CameraMode targetMode)
@@ -281,25 +281,6 @@ namespace Steepshot.iOS.Views
 
                 _initialized = true;
             }
-        }
-
-        private void PhotoButtonLongPress()
-        {
-            if (!_isRecording)
-            {
-                StartAnimation();
-
-                var outputFileName = new NSUuid().AsString();
-                var outputFilePath = Path.Combine(Path.GetTempPath(), Path.ChangeExtension(outputFileName, "mov"));
-
-                _videoFileOutput?.StartRecordingToOutputFile(NSUrl.FromFilename(outputFilePath), this);
-                _isRecording = true;
-            }
-            else
-            {
-                _videoFileOutput?.StopRecording();
-            }
-
         }
 
         private void StartAnimation()
@@ -507,10 +488,10 @@ namespace Steepshot.iOS.Views
                 }
             }
 
-            SetupLiveCameraStream();
+            SetupPhotoCameraStream();
         }
 
-        private void SetupVideoTest()
+        private void SetupVideoCameraStream()
         {
             _captureSession = new AVCaptureSession();
 
@@ -541,7 +522,7 @@ namespace Steepshot.iOS.Views
             // setup preview
             _videoPreviewLayer = new AVCaptureVideoPreviewLayer(_captureSession)
             {
-                VideoGravity = AVLayerVideoGravity.ResizeAspectFill,
+                VideoGravity = AVLayerVideoGravity.Resize,//.ResizeAspectFill,
                 Orientation = AVCaptureVideoOrientation.Portrait,
                 Frame = new CGRect(new CGPoint(0, 0), new CGSize(liveCameraStream.Frame.Width, liveCameraStream.Frame.Width))
             };
@@ -551,18 +532,7 @@ namespace Steepshot.iOS.Views
             _captureSession.StartRunning();
         }
 
-        private void ClearCameraStreamSublayers()
-        {
-            if (liveCameraStream.Layer.Sublayers == null)
-                return;
-
-            foreach (var layer in liveCameraStream.Layer.Sublayers)
-            {
-                layer.RemoveFromSuperLayer();
-            }
-        }
-
-        private void SetupLiveCameraStream()
+        private void SetupPhotoCameraStream()
         {
             _captureSession = new AVCaptureSession();
 
@@ -600,6 +570,17 @@ namespace Steepshot.iOS.Views
             ClearCameraStreamSublayers();
             liveCameraStream.Layer.AddSublayer(_videoPreviewLayer);
             _captureSession.StartRunning();
+        }
+
+        private void ClearCameraStreamSublayers()
+        {
+            if (liveCameraStream.Layer.Sublayers == null)
+                return;
+
+            foreach (var layer in liveCameraStream.Layer.Sublayers)
+            {
+                layer.RemoveFromSuperLayer();
+            }
         }
 
         private void SetupSessionInputOutput(AVCaptureOutput output)
