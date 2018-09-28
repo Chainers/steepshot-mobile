@@ -153,15 +153,17 @@ namespace Steepshot.iOS.Views
 
         private void SourceChanged(Status obj)
         {
+            InvokeOnMainThread(HandleAction);
+        }
+
+        private void HandleAction()
+        {
             tagsTableView.ReloadData();
         }
 
         private void OnTimer(object state)
         {
-            InvokeOnMainThread(() =>
-            {
-                SearchTextChanged();
-            });
+            InvokeOnMainThread(SearchTextChanged);
         }
 
         private async void SearchTextChanged()
