@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using CoreGraphics;
 using Foundation;
 using Photos;
@@ -14,6 +15,7 @@ namespace Steepshot.iOS.ViewSources
     {
         private readonly List<Tuple<string, PHFetchResult>> _albums;
         public event Action<ActionType, Tuple<string, PHFetchResult>> CellAction;
+        private readonly List<AlbumTableViewCell> _cellsList = new List<AlbumTableViewCell>();
 
         public FolderTableViewSource(List<Tuple<string, PHFetchResult>> albums)
         {
@@ -26,12 +28,22 @@ namespace Steepshot.iOS.ViewSources
             if (!cell.IsCellActionSet)
                 cell.CellAction += CellAction;
             cell.UpdateCell(_albums[indexPath.Row]);
+            if (!_cellsList.Any(c => c.Handle == cell.Handle))
+                _cellsList.Add(cell);
             return cell;
         }
 
         public override nint RowsInSection(UITableView tableview, nint section)
         {
             return _albums.Count;
+        }
+
+        public void FreeAllCells()
+        {
+            foreach (var item in _cellsList)
+            {
+                item.CellAction = null;
+            }
         }
     }
 

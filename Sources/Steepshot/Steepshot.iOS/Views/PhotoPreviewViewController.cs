@@ -28,26 +28,26 @@ namespace Steepshot.iOS.Views
         private UILabel _titleLabel;
         private UIView _modalFolderView = new UIView();
         private UIImageView _arrowImage;
-        private UIBarButtonItem leftBarButton;
-        private UIBarButtonItem rightBarButton;
+        private readonly UIBarButtonItem leftBarButton = new UIBarButtonItem();
+        private readonly UIBarButtonItem rightBarButton = new UIBarButtonItem();
+        private readonly CustomTitle titleView = new CustomTitle();
+        private UITapGestureRecognizer titleTapGesture;
+        private FolderTableViewSource folderSource;
+        private readonly UITapGestureRecognizer rotateTap;
+        private readonly UITapGestureRecognizer zoomTap;
+        private readonly UITapGestureRecognizer multiselectTap;
 
         public PhotoPreviewViewController()
         {
             _m = new PHImageManager();
+            rotateTap = new UITapGestureRecognizer(RotateTap);
+            zoomTap = new UITapGestureRecognizer(ZoomTap);
+            multiselectTap = new UITapGestureRecognizer(MultiSelectTap);
         }
 
         public override void ViewDidLoad()
         {
             base.ViewDidLoad();
-
-            var rotateTap = new UITapGestureRecognizer(RotateTap);
-            rotate.AddGestureRecognizer(rotateTap);
-
-            var zoomTap = new UITapGestureRecognizer(ZoomTap);
-            resize.AddGestureRecognizer(zoomTap);
-
-            var multiselectTap = new UITapGestureRecognizer(MultiSelectTap);
-            multiSelect.AddGestureRecognizer(multiselectTap);
 
             bottomArrow.Transform = CGAffineTransform.MakeRotation((float)(Math.PI));
 
@@ -65,19 +65,7 @@ namespace Steepshot.iOS.Views
             delegateP = new PhotoCollectionViewFlowDelegate(source);
             photoCollection.Delegate = delegateP;
 
-            delegateP.CellClicked += CellAction;
-
             _cropView = new CropView(new CGRect(0, 0, UIScreen.MainScreen.Bounds.Width, UIScreen.MainScreen.Bounds.Width));
-
-            _cropView.ZoomingStarted += (object sender, UIScrollViewZoomingEventArgs e) => 
-            {
-                NavigationItem.RightBarButtonItem.Enabled = false;
-            };
-
-            _cropView.ZoomingEnded+= (object sender, ZoomingEndedEventArgs e) => 
-            {
-                NavigationItem.RightBarButtonItem.Enabled = true;
-            };
 
             var albums = new List<PHAssetCollection>();
             var sortedAlbums = new List<Tuple<string, PHFetchResult>>();
@@ -102,22 +90,14 @@ namespace Steepshot.iOS.Views
 
             _modalFolderView.BackgroundColor = UIColor.White;
 
-            var folderTable = new UITableView();
-            folderTable.Bounces = false;
-            folderTable.AllowsSelection = false;
-            folderTable.RowHeight = 90;
-            folderTable.SeparatorStyle = UITableViewCellSeparatorStyle.None;
-            var folderSource = new FolderTableViewSource(sortedAlbums);
-            folderSource.CellAction += (ActionType arg1, Tuple<string, PHFetchResult> arg2) => 
+            var folderTable = new UITableView
             {
-                TitleTapped();
-                _titleLabel.Text = arg2.Item1;
-                source.UpdateFetchResult(arg2.Item2);
-                photoCollection.SetContentOffset(new CGPoint(0, 0), false);
-                photoCollection.ReloadData();
-                if(!source.MultiPickMode)
-                    delegateP.ItemSelected(photoCollection, NSIndexPath.FromItemSection(0, 0));
+                Bounces = false,
+                AllowsSelection = false,
+                RowHeight = 90,
+                SeparatorStyle = UITableViewCellSeparatorStyle.None
             };
+            folderSource = new FolderTableViewSource(sortedAlbums);
             folderTable.Source = folderSource;
             _modalFolderView.AddSubview(folderTable);
             folderTable.RegisterClassForCellReuse(typeof(AlbumTableViewCell), nameof(AlbumTableViewCell));
@@ -133,10 +113,69 @@ namespace Steepshot.iOS.Views
             source.UpdateFetchResult(sortedAlbums.FirstOrDefault()?.Item2);
         }
 
+        public override void ViewWillAppear(bool animated)
+        {
+            if (IsMovingToParentViewController)
+            {
+                delegateP.CellClicked = CellAction;
+                folderSource.CellAction += FolderSource_CellAction;
+                _cropView.ZoomingStarted += _cropView_ZoomingStarted;
+                _cropView.ZoomingEnded += _cropView_ZoomingEnded;
+                leftBarButton.Clicked += GoBack;
+                rightBarButton.Clicked += GoForward;
+                titleView.AddGestureRecognizer(titleTapGesture);
+                rotate.AddGestureRecognizer(rotateTap);
+                resize.AddGestureRecognizer(zoomTap);
+                multiSelect.AddGestureRecognizer(multiselectTap);
+            }
+            base.ViewWillAppear(animated);
+        }
+
+        public override void ViewWillDisappear(bool animated)
+        {
+            if (IsMovingFromParentViewController)
+            {
+                delegateP.CellClicked = null;
+                folderSource.CellAction -= FolderSource_CellAction;
+                folderSource.FreeAllCells();
+                _cropView.ZoomingStarted -= _cropView_ZoomingStarted;
+                _cropView.ZoomingEnded -= _cropView_ZoomingEnded;
+                leftBarButton.Clicked -= GoBack;
+                rightBarButton.Clicked -= GoForward;
+                titleView.RemoveGestureRecognizer(titleTapGesture);
+                rotate.RemoveGestureRecognizer(rotateTap);
+                resize.RemoveGestureRecognizer(zoomTap);
+                multiSelect.RemoveGestureRecognizer(multiselectTap);
+
+            }
+            base.ViewWillDisappear(animated);
+        }
+
         public override void ViewDidLayoutSubviews()
         {
             _modalFolderView.Frame = new CGRect(0, View.Frame.Height, View.Frame.Height, View.Frame.Width);
             View.AddSubview(_modalFolderView);
+        }
+
+        private void FolderSource_CellAction(ActionType arg1, Tuple<string, PHFetchResult> arg2)
+        {
+            TitleTapped();
+            _titleLabel.Text = arg2.Item1;
+            source.UpdateFetchResult(arg2.Item2);
+            photoCollection.SetContentOffset(new CGPoint(0, 0), false);
+            photoCollection.ReloadData();
+            if (!source.MultiPickMode)
+                delegateP.ItemSelected(photoCollection, NSIndexPath.FromItemSection(0, 0));
+        }
+
+        private void _cropView_ZoomingStarted(object sender, UIScrollViewZoomingEventArgs e)
+        {
+            NavigationItem.RightBarButtonItem.Enabled = false;
+        }
+
+        private void _cropView_ZoomingEnded(object sender, ZoomingEndedEventArgs e)
+        {
+            NavigationItem.RightBarButtonItem.Enabled = true;
         }
 
         private void CellAction(ActionType type, Tuple<NSIndexPath, PHAsset> photo)
@@ -275,18 +314,16 @@ namespace Steepshot.iOS.Views
 
         private void SetBackButton()
         {
-            leftBarButton = new UIBarButtonItem(UIImage.FromBundle("ic_back_arrow"), UIBarButtonItemStyle.Plain, GoBack);
-            var rotatedButton = new UIImage(leftBarButton.Image.CGImage, leftBarButton.Image.CurrentScale, UIImageOrientation.UpMirrored);
-            rightBarButton = new UIBarButtonItem(rotatedButton, UIBarButtonItemStyle.Plain, GoForward);
+            leftBarButton.Image = UIImage.FromBundle("ic_back_arrow");
+            rightBarButton.Image = new UIImage(leftBarButton.Image.CGImage, leftBarButton.Image.CurrentScale, UIImageOrientation.UpMirrored);
             rightBarButton.Enabled = false;
             NavigationItem.LeftBarButtonItem = leftBarButton;
             NavigationItem.RightBarButtonItem = rightBarButton;
             NavigationController.NavigationBar.TintColor = Constants.R15G24B30;
 
-            var titleView = new CustomTitle();
             NavigationItem.TitleView = titleView;
             titleView.UserInteractionEnabled = true;
-            var titleTapGesture = new UITapGestureRecognizer(TitleTapped);
+            titleTapGesture = new UITapGestureRecognizer(TitleTapped);
             titleView.AddGestureRecognizer(titleTapGesture);
             _titleLabel = new UILabel();
             titleView.AddSubview(_titleLabel);
@@ -325,11 +362,6 @@ namespace Steepshot.iOS.Views
                     _arrowImage.Transform = CGAffineTransform.MakeRotation(-(nfloat)(Math.PI * 2));
                 }, null);
             }
-        }
-
-        private void GoBack(object sender, EventArgs e)
-        {
-            NavigationController.PopViewController(true);
         }
 
         private void GoForward(object sender, EventArgs e)
@@ -395,6 +427,16 @@ namespace Steepshot.iOS.Views
                 source.ImageAssets[0].Image = _cropView.imageView.Image;
                 _cropView.ApplyCriticalScale();
             }
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+        }
+
+        ~PhotoPreviewViewController()
+        {
+
         }
     }
 
