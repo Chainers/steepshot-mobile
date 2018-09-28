@@ -79,18 +79,17 @@ namespace Steepshot.iOS.Helpers
                     if (_collection.CellForItem(item) is NewFeedCollectionViewCell cell)
                         cell.Cell.Playback(item.Item == closestToCenterCell.IndexPath.Item);
                 }
+            }
 
-                if (_collection.IndexPathsForVisibleItems.Length > 0)
+            if (_collection.IndexPathsForVisibleItems.Length > 0)
+            {
+                var pos = _collection.IndexPathsForVisibleItems.Max(c => c.Row);
+                if (pos > prevPos)
                 {
-                    var pos = _collection.IndexPathsForVisibleItems.Max(c => c.Row);
-                    //TopCurrentPosition = _collection.IndexPathsForVisibleItems.Min();
-                    if (pos > prevPos)
+                    if (pos == (IsProfile ? _presenter.Count : _presenter.Count - 1))
                     {
-                        if (pos == (IsProfile ? _presenter.Count : _presenter.Count - 1))
-                        {
-                            prevPos = pos;
-                            ScrolledToBottom?.Invoke();
-                        }
+                        prevPos = pos;
+                        ScrolledToBottom?.Invoke();
                     }
                 }
             }
@@ -188,7 +187,6 @@ namespace Steepshot.iOS.Helpers
                     if (_collection.CellForItem(item) is SliderFeedCollectionViewCell cell)
                         cell.Playback(item.Item == closestToCenterCell.IndexPath.Item);
                 }
-
             }
             base.Scrolled(scrollView);
         }

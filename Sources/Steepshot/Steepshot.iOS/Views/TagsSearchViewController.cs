@@ -103,12 +103,13 @@ namespace Steepshot.iOS.Views
 
         private void TagsPresenterSourceChanged(Status obj)
         {
-            tagsTable.ReloadData();
+            InvokeOnMainThread(tagsTable.ReloadData);
+            
         }
 
         private void UserFriendPresenterSourceChanged(Status obj)
         {
-            usersTable.ReloadData();
+            InvokeOnMainThread(usersTable.ReloadData);
         }
 
         private void SetBackButton()
