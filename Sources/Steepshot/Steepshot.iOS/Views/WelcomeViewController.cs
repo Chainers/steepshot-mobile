@@ -15,13 +15,16 @@ namespace Steepshot.iOS.Views
     {
         private readonly bool _showRegistration;
         private readonly TTTAttributedLabel _attributedLabel = new TTTAttributedLabel();
-        private readonly UIBarButtonItem leftBarButton = new UIBarButtonItem();
-
-        UITapGestureRecognizer devTap;
+        private readonly UIBarButtonItem _leftBarButton = new UIBarButtonItem();
+        private readonly UITapGestureRecognizer _devTap;
 
         public WelcomeViewController(bool showRegistration)
         {
             _showRegistration = showRegistration;
+            _devTap = new UITapGestureRecognizer(ToggleDevSwitchVisibility)
+            {
+                NumberOfTapsRequired = 5
+            };
         }
 
         public override void ViewDidLoad()
@@ -34,9 +37,6 @@ namespace Steepshot.iOS.Views
             devSwitch.On = AppSettings.Settings.IsDev;
             Constants.CreateShadow(steemLogin, Constants.R231G72B0, 0.5f, 25, 10, 12);
             Constants.CreateShadow(newAccount, Constants.R204G204B204, 0.7f, 25, 10, 12);
-
-            devTap = new UITapGestureRecognizer(ToggleDevSwitchVisibility);
-            devTap.NumberOfTapsRequired = 5;
 
             newAccount.Hidden = !_showRegistration;
 
@@ -57,8 +57,8 @@ namespace Steepshot.iOS.Views
                 steemLogin.TouchDown += GoToPreLogin;
                 newAccount.TouchDown += CreateAccount;
                 devSwitch.ValueChanged += SwitchEnvironment;
-                leftBarButton.Clicked += GoBack;
-                logo.AddGestureRecognizer(devTap);
+                _leftBarButton.Clicked += GoBack;
+                logo.AddGestureRecognizer(_devTap);
             }
             base.ViewWillAppear(animated);
         }
@@ -70,16 +70,16 @@ namespace Steepshot.iOS.Views
                 steemLogin.TouchDown -= GoToPreLogin;
                 newAccount.TouchDown -= CreateAccount;
                 devSwitch.ValueChanged -= SwitchEnvironment;
-                leftBarButton.Clicked -= GoBack;
-                logo.RemoveGestureRecognizer(devTap);
+                _leftBarButton.Clicked -= GoBack;
+                logo.RemoveGestureRecognizer(_devTap);
             }
             base.ViewWillDisappear(animated);
         }
 
         private void SetBackButton()
         {
-            leftBarButton.Image = UIImage.FromBundle("ic_back_arrow");
-            NavigationItem.LeftBarButtonItem = leftBarButton;
+            _leftBarButton.Image = UIImage.FromBundle("ic_back_arrow");
+            NavigationItem.LeftBarButtonItem = _leftBarButton;
             NavigationController.NavigationBar.TintColor = Constants.R15G24B30;
         }
 
@@ -165,7 +165,7 @@ namespace Steepshot.iOS.Views
             at.Append(new NSAttributedString("Privacy Policy", ppAttribute));
 
             _attributedLabel.SetText(at);
-            _attributedLabel.AutoAlignAxis(axis: ALAxis.Horizontal, otherView: termsSwitcher);
+            _attributedLabel.AutoAlignAxis(ALAxis.Horizontal, termsSwitcher);
             _attributedLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 15f);
             termsSwitcher.AutoPinEdge(ALEdge.Left, ALEdge.Right, _attributedLabel, 5f);
             termsSwitcher.Layer.CornerRadius = 16;
