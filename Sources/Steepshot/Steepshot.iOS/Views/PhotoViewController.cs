@@ -14,6 +14,7 @@ using System.IO;
 using PureLayout.Net;
 using Steepshot.Core.Utils;
 using Steepshot.Core.Localization;
+using System.Drawing;
 
 namespace Steepshot.iOS.Views
 {
@@ -555,7 +556,7 @@ namespace Steepshot.iOS.Views
                     if (_captureSession.CanAddInput(audioInput))
                         _captureSession.AddInput(audioInput);
                 }
-                
+
                 _videoFileOutput = new AVCaptureMovieFileOutput();
                 var maxDuration = CMTime.FromSeconds(20, 30);
                 _videoFileOutput.MaxRecordedDuration = maxDuration;
@@ -677,56 +678,139 @@ namespace Steepshot.iOS.Views
             if (captureOutput.RecordedDuration.Seconds < Core.Constants.VideoMinDuration)
                 return;
 
-            Action cleanup = () =>
-            {
-                var path = outputFileUrl.Path;
-                if (NSFileManager.DefaultManager.FileExists(path))
-                {
-                    if (!NSFileManager.DefaultManager.Remove(path, out var err))
-                    {
-                        // Could not remove file at url: {outputFileUrl}
-                    }
-                }
-            };
+            var composition = AVMutableComposition.Create();
+            var compositionTrackVideo = composition.AddMutableTrack(AVMediaType.Video, 0);
+            var compositionTrackAudio = composition.AddMutableTrack(AVMediaType.Audio, 0);
+            var videoCompositionInstructions = new AVVideoCompositionInstruction[1];
+            var index = 0;
+            var startTime = CMTime.Zero;
 
-            bool success = true;
+            var asset = new AVUrlAsset(outputFileUrl, new AVUrlAssetOptions());
 
-            if (error != null)
+            var videoTrack = asset.TracksWithMediaType(AVMediaType.Video)[0];
+            var audioTrack = asset.TracksWithMediaType(AVMediaType.Audio)[0];
+
+            NSError nsError;
+            var renderSize = new SizeF((float)videoTrack.NaturalSize.Height, (float)videoTrack.NaturalSize.Height);
+
+            var assetTimeRange = new CMTimeRange { Start = CMTime.Zero, Duration = asset.Duration };
+
+            compositionTrackAudio.InsertTimeRange(new CMTimeRange
             {
-                // Movie file finishing error: {error.LocalizedDescription}
-                success = ((NSNumber)error.UserInfo[AVErrorKeys.RecordingSuccessfullyFinished]).BoolValue;
+                Start = CMTime.Zero,
+                Duration = asset.Duration
+            }, audioTrack, startTime, out nsError);
+
+            if (nsError != null)
+            {
+                var errMessage = nsError.Description;
             }
 
-            if (success)
+            compositionTrackVideo.InsertTimeRange(assetTimeRange, videoTrack, startTime, out nsError);
+
+            // create video instruction
+
+            var transformer = new AVMutableVideoCompositionLayerInstruction
             {
-                // Check authorization status
-                PHPhotoLibrary.RequestAuthorization(status =>
+                TrackID = videoTrack.TrackID
+            };
+
+            var audioMix = AVMutableAudioMix.Create();
+            var mixParameters = new AVMutableAudioMixInputParameters
+            {
+                TrackID = audioTrack.TrackID
+            };
+
+            mixParameters.SetVolumeRamp(1.0f, 1.0f, new CMTimeRange
+            {
+                Start = CMTime.Zero,
+                Duration = asset.Duration
+            });
+
+            audioMix.InputParameters = new[] { mixParameters };
+            var instruction = new AVMutableVideoCompositionInstruction
+            {
+                TimeRange = assetTimeRange,
+                LayerInstructions = new[] { transformer }
+            };
+
+            videoCompositionInstructions[index] = instruction;
+            index++;
+            startTime = CMTime.Add(startTime, asset.Duration);
+
+            var videoComposition = new AVMutableVideoComposition();
+            videoComposition.FrameDuration = new CMTime(1, (int)videoTrack.NominalFrameRate);
+            videoComposition.RenderScale = 1;
+            videoComposition.Instructions = videoCompositionInstructions;
+            videoComposition.RenderSize = renderSize;
+
+            var exportSession = new AVAssetExportSession(composition, AVAssetExportSession.PresetHighestQuality);
+
+            var outputFileName = new NSUuid().AsString();
+            var outputFilePath = Path.Combine(Path.GetTempPath(), Path.ChangeExtension(outputFileName, "mov"));
+            var exportLocation = NSUrl.CreateFileUrl(outputFilePath, false, null);
+
+            exportSession.OutputUrl = exportLocation;
+            exportSession.OutputFileType = AVFileType.QuickTimeMovie;
+            exportSession.VideoComposition = videoComposition;
+            exportSession.AudioMix = audioMix;
+            exportSession.ShouldOptimizeForNetworkUse = true;
+            exportSession.ExportAsynchronously(() =>
+            {
+                if (exportSession.Status == AVAssetExportSessionStatus.Completed)
                 {
-                    if (status == PHAuthorizationStatus.Authorized)
+                    Action cleanup = () =>
                     {
-                        PHPhotoLibrary.SharedPhotoLibrary.PerformChanges(() =>
+                        var path = outputFileUrl.Path;
+                        if (NSFileManager.DefaultManager.FileExists(path))
                         {
-                            var options = new PHAssetResourceCreationOptions
+                            if (!NSFileManager.DefaultManager.Remove(path, out var err))
                             {
-                                ShouldMoveFile = true
-                            };
-                            var creationRequest = PHAssetCreationRequest.CreationRequestForAsset();
-                            creationRequest.AddResource(PHAssetResourceType.Video, outputFileUrl, options);
-                        }, (success2, error2) =>
-                        {
-                            if (!success2)
-                            {
-                                // Could not save movie to photo library: {error2}
+                                // Could not remove file at url: {outputFileUrl}
                             }
-                            cleanup();
+                        }
+                    };
+
+                    bool success = true;
+
+                    if (error != null)
+                    {
+                        // Movie file finishing error: {error.LocalizedDescription}
+                        success = ((NSNumber)error.UserInfo[AVErrorKeys.RecordingSuccessfullyFinished]).BoolValue;
+                    }
+
+                    if (success)
+                    {
+                        // Check authorization status
+                        PHPhotoLibrary.RequestAuthorization(status =>
+                        {
+                            if (status == PHAuthorizationStatus.Authorized)
+                            {
+                                PHPhotoLibrary.SharedPhotoLibrary.PerformChanges(() =>
+                                {
+                                    var options = new PHAssetResourceCreationOptions
+                                    {
+                                        ShouldMoveFile = true
+                                    };
+                                    var creationRequest = PHAssetCreationRequest.CreationRequestForAsset();
+                                    creationRequest.AddResource(PHAssetResourceType.Video, exportLocation, options);
+                                }, (success2, error2) =>
+                                {
+                                    if (!success2)
+                                    {
+                                        // Could not save movie to photo library: {error2}
+                                    }
+                                    cleanup();
+                                });
+                            }
+                            else
+                                cleanup();
                         });
                     }
                     else
                         cleanup();
-                });
-            }
-            else
-                cleanup();
+                }
+            });
         }
     }
 }
