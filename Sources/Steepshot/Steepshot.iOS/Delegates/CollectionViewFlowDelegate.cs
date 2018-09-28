@@ -269,22 +269,24 @@ namespace Steepshot.iOS.Helpers
         public override void ItemSelected(UICollectionView collectionView, NSIndexPath indexPath)
         {
             var pa = _vs.GetPHAsset((int)indexPath.Item);
-
-            if (_vs.ImageAssets.Count >= postLimit && !_vs.ImageAssets.Any(a => a.Asset.LocalIdentifier == pa.LocalIdentifier))
+            if (pa != null)
             {
-                CellClicked?.Invoke(ActionType.Close, new Tuple<NSIndexPath, PHAsset>(indexPath, null));
-                return;
+                if (_vs.ImageAssets.Count >= postLimit && !_vs.ImageAssets.Any(a => a.Asset.LocalIdentifier == pa.LocalIdentifier))
+                {
+                    CellClicked?.Invoke(ActionType.Close, new Tuple<NSIndexPath, PHAsset>(indexPath, null));
+                    return;
+                }
+
+                CellClicked?.Invoke(ActionType.Preview, new Tuple<NSIndexPath, PHAsset>(indexPath, pa));
+
+                var index = _vs.ImageAssets.FindIndex(a => a.Asset.LocalIdentifier == pa.LocalIdentifier);
+
+                if (_vs.CurrentlySelectedItem.Item1 != null)
+                    ((PhotoCollectionViewCell)collectionView.CellForItem(_vs.CurrentlySelectedItem.Item1))?.ToggleCell(false);
+                ((PhotoCollectionViewCell)collectionView.CellForItem(indexPath))?.ToggleCell(true);
+
+                _vs.CurrentlySelectedItem = new Tuple<NSIndexPath, PHAsset>(indexPath, pa);
             }
-
-            CellClicked?.Invoke(ActionType.Preview, new Tuple<NSIndexPath, PHAsset>(indexPath, pa));
-
-            var index = _vs.ImageAssets.FindIndex(a => a.Asset.LocalIdentifier == pa.LocalIdentifier);
-
-            if (_vs.CurrentlySelectedItem.Item1 != null)
-                ((PhotoCollectionViewCell)collectionView.CellForItem(_vs.CurrentlySelectedItem.Item1))?.ToggleCell(false);
-            ((PhotoCollectionViewCell)collectionView.CellForItem(indexPath))?.ToggleCell(true);
-
-            _vs.CurrentlySelectedItem = new Tuple<NSIndexPath, PHAsset>(indexPath, pa);
         }
     }
 }

@@ -50,7 +50,6 @@ namespace Steepshot.iOS.Views
             base.ViewDidLoad();
 
             bottomArrow.Transform = CGAffineTransform.MakeRotation((float)(Math.PI));
-
             source = new PhotoCollectionViewSource(_m);
             photoCollection.Source = source;
             photoCollection.RegisterClassForCell(typeof(PhotoCollectionViewCell), nameof(PhotoCollectionViewCell));
@@ -82,7 +81,7 @@ namespace Steepshot.iOS.Views
             foreach (var item in albums)
             {
                 var firstAsset = PHAsset.FetchAssets(item, fetchOptions);
-                if(firstAsset.Count > 0)
+                if (firstAsset?.Count > 0)
                     sortedAlbums.Add(new Tuple<string, PHFetchResult>(item.LocalizedTitle, firstAsset));
             }
 
@@ -427,16 +426,6 @@ namespace Steepshot.iOS.Views
                 source.ImageAssets[0].Image = _cropView.imageView.Image;
                 _cropView.ApplyCriticalScale();
             }
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            base.Dispose(disposing);
-        }
-
-        ~PhotoPreviewViewController()
-        {
-
         }
     }
 
