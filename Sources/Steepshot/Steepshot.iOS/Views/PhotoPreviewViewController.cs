@@ -184,10 +184,15 @@ namespace Steepshot.iOS.Views
                 ShowAlert(Core.Localization.LocalizationKeys.PickedPhotosLimit);
                 return;
             }
+
+
+            photoCollection.UserInteractionEnabled = false;
+
+           
             NavigationItem.RightBarButtonItem.Enabled = false;
             pickedPhoto = photo;
             previousPhotoLocalIdentifier = source.CurrentlySelectedItem?.Item2?.LocalIdentifier;
-            var pickOptions = new PHImageRequestOptions() { ResizeMode = PHImageRequestOptionsResizeMode.Exact, DeliveryMode = PHImageRequestOptionsDeliveryMode.HighQualityFormat };
+            var pickOptions = new PHImageRequestOptions() { ResizeMode = PHImageRequestOptionsResizeMode.Exact, DeliveryMode = PHImageRequestOptionsDeliveryMode.HighQualityFormat, NetworkAccessAllowed = true };
             var imageSize = ImageHelper.CalculateInSampleSize(new CGSize(photo.Item2.PixelWidth, photo.Item2.PixelHeight), Core.Constants.PhotoMaxSize, Core.Constants.PhotoMaxSize);
             _m.RequestImageForAsset(photo.Item2, imageSize, PHImageContentMode.Default, pickOptions, PickImage);
         }
@@ -260,6 +265,7 @@ namespace Steepshot.iOS.Views
                 _cropView.SetScrollViewInsets();
             }
             NavigationItem.RightBarButtonItem.Enabled = true;
+            photoCollection.UserInteractionEnabled = true;
         }
 
         private void ZoomTap()
