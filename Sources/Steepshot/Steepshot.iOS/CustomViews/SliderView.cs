@@ -54,14 +54,14 @@ namespace Steepshot.iOS.CustomViews
             };
             AddSubview(Slider);
 
-            UITapGestureRecognizer likeslidertap = new UITapGestureRecognizer(() =>
+            UITapGestureRecognizer likeSliderTap = new UITapGestureRecognizer(() =>
             {
                 AppSettings.User.VotePower = (short)Slider.Value;
                 LikeTap?.Invoke();
                 Close();
             });
 
-            sliderImage.AddGestureRecognizer(likeslidertap);
+            sliderImage.AddGestureRecognizer(likeSliderTap);
         }
 
         public void Show(UIView parentView)

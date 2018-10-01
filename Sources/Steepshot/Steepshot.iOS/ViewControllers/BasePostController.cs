@@ -277,7 +277,6 @@ namespace Steepshot.iOS.ViewControllers
         protected sealed override void CreatePresenter()
         {
             base.CreatePresenter();
-            _presenter.SourceChanged += SourceChanged;
         }
     }
 }

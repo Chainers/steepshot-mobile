@@ -48,13 +48,14 @@
     <MtouchFloat32>true</MtouchFloat32>
     <CodesignEntitlements>Entitlements.plist</CodesignEntitlements>
     <MtouchLink>SdkOnly</MtouchLink>
-    <MtouchArch>ARMv7, ARM64</MtouchArch>
+    <MtouchArch>ARM64</MtouchArch>
     <MtouchHttpClientHandler>NSUrlSessionHandler</MtouchHttpClientHandler>
     <MtouchTlsProvider>Default</MtouchTlsProvider>
     <LangVersion>Default</LangVersion>
     <CodesignProvision>
     </CodesignProvision>
     <MtouchUseLlvm>true</MtouchUseLlvm>
+    <MtouchEnableSGenConc>true</MtouchEnableSGenConc>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhoneSimulator' ">
     <DebugType>pdbonly</DebugType>
@@ -443,6 +444,8 @@
     <Compile Include="Cells\CardShimmerCollectionView.cs" />
     <Compile Include="CustomViews\VideoView.cs" />
     <Compile Include="Models\EmptyLogger.cs" />
+    <Compile Include="ViewSources\SliderCollectionViewSource.cs" />
+    <Compile Include="ViewSources\ProfileCollectionViewSource.cs" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\ic_photo_holder.png" />

@@ -49,6 +49,10 @@ namespace Steepshot.iOS.Views
         {
             if (!IsMovingToParentViewController)
                 feedCollection.ReloadData();
+            else
+            {
+                _presenter.SourceChanged += SourceChanged;
+            }
 
             ((MainTabBarController)TabBarController).SameTabTapped += SameTabTapped;
 
@@ -126,6 +130,11 @@ namespace Steepshot.iOS.Views
 
         public override void ViewWillDisappear(bool animated)
         {
+            if (IsMovingFromParentViewController)
+            {
+                _presenter.SourceChanged -= SourceChanged;
+            }
+
             ((MainTabBarController) TabBarController).SameTabTapped -= SameTabTapped;
 
             base.ViewWillDisappear(animated);

@@ -128,6 +128,7 @@ namespace Steepshot.iOS.Views
                 _gridDelegate.ScrolledToBottom += ScrolledToBottom;
                 _gridDelegate.CellClicked += CellAction;
                 _leftBarButton.Clicked += GoBack;
+                _presenter.SourceChanged += SourceChanged;
                 searchButton.AddGestureRecognizer(_searchTap);
             }
 
@@ -148,7 +149,7 @@ namespace Steepshot.iOS.Views
         {
             NavigationController.SetNavigationBarHidden(false, false);
 
-            if (IsMovingToParentViewController)
+            if (IsMovingFromParentViewController)
             {
                 loginButton.TouchDown -= LoginTapped;
                 hotButton.TouchDown -= HotButton_TouchDown;
@@ -164,7 +165,10 @@ namespace Steepshot.iOS.Views
                 _gridDelegate.ScrolledToBottom = null;
                 _gridDelegate.CellClicked = null;
                 _leftBarButton.Clicked -= GoBack;
+                _presenter.SourceChanged -= SourceChanged;
                 searchButton.RemoveGestureRecognizer(_searchTap);
+                _collectionViewSource.FreeAllCells();
+                _sliderCollectionViewSource.FreeAllCells();
             }
 
             SliderAction -= PreSearchViewController_SliderAction;
@@ -175,19 +179,19 @@ namespace Steepshot.iOS.Views
             base.ViewWillDisappear(animated);
         }
 
-        private void NewButton_TouchDown(object sender, EventArgs e)
+        private async void NewButton_TouchDown(object sender, EventArgs e)
         {
-            SwitchSearchType(PostType.New);
+            await SwitchSearchType(PostType.New);
         }
 
-        private void TopButton_TouchDown(object sender, EventArgs e)
+        private async void TopButton_TouchDown(object sender, EventArgs e)
         {
-            SwitchSearchType(PostType.Top);
+            await SwitchSearchType(PostType.Top);
         }
 
-        private void HotButton_TouchDown(object sender, EventArgs e)
+        private async void HotButton_TouchDown(object sender, EventArgs e)
         {
-            SwitchSearchType(PostType.Hot);
+            await SwitchSearchType(PostType.Hot);
         }
 
         private void PreSearchViewController_SliderAction(bool isOpening)
@@ -221,7 +225,7 @@ namespace Steepshot.iOS.Views
                 collectionView.SetContentOffset(new CGPoint(0, 0), true);
         }
 
-        private void SwitchSearchType(PostType postType)
+        private async Task SwitchSearchType(PostType postType)
         {
             if (postType == _presenter.PostType)
                 return;
@@ -242,7 +246,7 @@ namespace Steepshot.iOS.Views
                     break;
             }
             UIView.Animate(0.2, 0, UIViewAnimationOptions.CurveEaseOut, View.LayoutIfNeeded, null);
-            GetPosts(true, true);
+            await GetPosts(true, true);
         }
 
         private void CellAction(ActionType type, Post post)
@@ -459,16 +463,6 @@ namespace Steepshot.iOS.Views
                 _sliderGridDelegate.GenerateVariables();
                 sliderCollection.ReloadData();
             }
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            base.Dispose(disposing);
-        }
-
-        ~PreSearchViewController()
-        {
-
         }
     }
 }
