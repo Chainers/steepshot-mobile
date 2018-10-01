@@ -33,7 +33,7 @@
                     </state>
                 </button>
                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Pzd-O0-Qtn">
-                    <rect key="frame" x="359" y="15" width="40" height="40"/>
+                    <rect key="frame" x="344" y="20" width="40" height="40"/>
                     <constraints>
                         <constraint firstAttribute="height" constant="40" id="BW2-gc-VzH"/>
                         <constraint firstAttribute="width" constant="40" id="oPj-ai-Cn3"/>
@@ -41,7 +41,7 @@
                     <state key="normal" image="ic_flash.png"/>
                 </button>
                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="R2x-Io-yoi">
-                    <rect key="frame" x="15" y="15" width="40" height="40"/>
+                    <rect key="frame" x="30" y="20" width="40" height="40"/>
                     <constraints>
                         <constraint firstAttribute="width" constant="40" id="2Sx-8c-kYG"/>
                         <constraint firstAttribute="height" constant="40" id="KJp-Pe-Gcl"/>
@@ -52,14 +52,14 @@
             <color key="backgroundColor" red="0.90972399709999996" green="0.90985494850000004" blue="0.9096954465" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
             <constraints>
                 <constraint firstItem="Tmr-yi-g89" firstAttribute="centerX" secondItem="k75-MS-fV5" secondAttribute="centerX" id="1ac-9b-xvM"/>
-                <constraint firstItem="R2x-Io-yoi" firstAttribute="top" secondItem="k75-MS-fV5" secondAttribute="top" constant="15" id="I9i-5r-hjE"/>
-                <constraint firstItem="R2x-Io-yoi" firstAttribute="leading" secondItem="k75-MS-fV5" secondAttribute="leading" constant="15" id="JlR-mL-mzR"/>
+                <constraint firstItem="R2x-Io-yoi" firstAttribute="top" secondItem="k75-MS-fV5" secondAttribute="top" constant="20" identifier="topCloseBtnConstraint" id="I9i-5r-hjE"/>
+                <constraint firstItem="R2x-Io-yoi" firstAttribute="leading" secondItem="k75-MS-fV5" secondAttribute="leading" constant="30" id="JlR-mL-mzR"/>
                 <constraint firstItem="8P0-hY-qAM" firstAttribute="top" secondItem="k75-MS-fV5" secondAttribute="top" id="RMV-U0-rEb"/>
                 <constraint firstItem="8P0-hY-qAM" firstAttribute="leading" secondItem="k75-MS-fV5" secondAttribute="leading" id="RZ8-Hb-YJC"/>
-                <constraint firstAttribute="trailing" secondItem="Pzd-O0-Qtn" secondAttribute="trailing" constant="15" id="Rbs-hk-h3o"/>
+                <constraint firstAttribute="trailing" secondItem="Pzd-O0-Qtn" secondAttribute="trailing" constant="30" id="Rbs-hk-h3o"/>
                 <constraint firstAttribute="trailing" secondItem="8P0-hY-qAM" secondAttribute="trailing" id="SH4-9s-rn6"/>
                 <constraint firstItem="Tmr-yi-g89" firstAttribute="centerY" secondItem="k75-MS-fV5" secondAttribute="centerY" id="V69-Jv-Og9"/>
-                <constraint firstItem="Pzd-O0-Qtn" firstAttribute="top" secondItem="k75-MS-fV5" secondAttribute="top" constant="15" id="oMo-xz-nHy"/>
+                <constraint firstItem="Pzd-O0-Qtn" firstAttribute="top" secondItem="k75-MS-fV5" secondAttribute="top" constant="20" identifier="topFlashBtnConstraint" id="oMo-xz-nHy"/>
                 <constraint firstAttribute="bottom" secondItem="8P0-hY-qAM" secondAttribute="bottom" id="vHq-T9-WTo"/>
             </constraints>
         </view>

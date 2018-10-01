@@ -199,6 +199,18 @@ namespace Steepshot.iOS.Helpers
             }
         }
 
+        public static bool IsXDevice
+        {
+            get
+            {
+                var currentVersion = GetVersion();
+                return currentVersion == HardwareVersion.iPhoneX ||
+                       currentVersion == HardwareVersion.iPhoneXR ||
+                       currentVersion == HardwareVersion.iPhoneXS ||
+                       currentVersion == HardwareVersion.iPhoneXSMax;
+            }
+        }
+
         public enum HardwareVersion
         {
             iPhone,

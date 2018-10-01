@@ -27,6 +27,12 @@ namespace Steepshot.iOS.Views
             Video
         }
 
+        enum Theme
+        { 
+            Light,
+            Dark
+        }
+
         private AVCaptureSession _captureSession;
         private AVCaptureDevice _backCamera;
         private AVCaptureDevice _frontCamera;
@@ -61,6 +67,7 @@ namespace Steepshot.iOS.Views
         {
             base.ViewDidLoad();
             SetupCameraControlls();
+            SwitchTheme(Theme.Dark);
         }
 
         private void SetupCameraControlls()
@@ -108,11 +115,13 @@ namespace Steepshot.iOS.Views
 
             _swapCameraButton = new UIButton();
             _swapCameraButton.UserInteractionEnabled = true;
-            _swapCameraButton.SetImage(UIImage.FromBundle("ic_revert.png"), UIControlState.Normal);
             _swapCameraButton.ContentMode = UIViewContentMode.ScaleAspectFill;
             _swapCameraButton.Layer.CornerRadius = 20;
-            _swapCameraButton.BackgroundColor = UIColor.Black.ColorWithAlpha(0.8f);
             View.AddSubview(_swapCameraButton);
+
+            closeButton.Layer.CornerRadius = 20;
+            flashButton.Layer.CornerRadius = 20;
+            flashButton.BackgroundColor = UIColor.Black.ColorWithAlpha(0.8f);
 
             _photoButton = new UIButton();
             _photoButton.UserInteractionEnabled = true;
@@ -124,7 +133,7 @@ namespace Steepshot.iOS.Views
 
             bottomSeparator.AutoSetDimension(ALDimension.Height, 1);
             bottomSeparator.AutoPinEdgeToSuperviewEdge(ALEdge.Left);
-            bottomSeparator.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom, DeviceHelper.GetVersion() == DeviceHelper.HardwareVersion.iPhoneX ? 34 : 0);
+            bottomSeparator.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom, DeviceHelper.IsXDevice ? 34 : 0);
             bottomSeparator.AutoPinEdgeToSuperviewEdge(ALEdge.Right);
 
             _photoTabButton.AutoSetDimension(ALDimension.Height, 60);
@@ -162,6 +171,8 @@ namespace Steepshot.iOS.Views
             _photoButton.AutoSetDimensionsToSize(new CGSize(60, 60));
             _photoButton.AutoAlignAxisToSuperviewAxis(ALAxis.Vertical);
             _photoButton.AutoPinEdge(ALEdge.Bottom, ALEdge.Top, bottomSeparator, -bottomPanelHeight / 2);
+
+            
         }
 
         private UIImage CircleBorder(nfloat diameter, UIColor color, bool opaque = false)
@@ -189,6 +200,9 @@ namespace Steepshot.iOS.Views
             _photoTabButton.SetTitleColor(UIColor.White, UIControlState.Normal);
             _videoTabButton.SetTitleColor(UIColor.White, UIControlState.Normal);
             _bottomPanel.Hidden = true;
+            flashButton.Hidden = false;
+
+            SwitchTheme(Theme.Dark);
 
             SwitchMode(CameraMode.Photo);
             SetupPhotoCameraStream();
@@ -199,9 +213,21 @@ namespace Steepshot.iOS.Views
             _photoTabButton.SetTitleColor(UIColor.Black, UIControlState.Normal);
             _videoTabButton.SetTitleColor(UIColor.Black, UIControlState.Normal);
             _bottomPanel.Hidden = false;
+            flashButton.Hidden = true;
+
+            SwitchTheme(Theme.Light);
 
             SwitchMode(CameraMode.Video);
             SetupVideoCameraStream();
+        }
+
+        private void SwitchTheme(Theme theme)
+        {
+            var buttonBGColor = theme.Equals(Theme.Dark) ? UIColor.Black.ColorWithAlpha(0.8f) : UIColor.Black.ColorWithAlpha(0.05f);
+            _swapCameraButton.SetImage(theme.Equals(Theme.Dark) ? UIImage.FromBundle("ic_revert") : UIImage.FromBundle("ic_revert_dark"), UIControlState.Normal);
+            _swapCameraButton.BackgroundColor = buttonBGColor;
+            closeButton.SetImage(theme.Equals(Theme.Dark) ? UIImage.FromBundle("ic_white_close") : UIImage.FromBundle("ic_close_black"), UIControlState.Normal);
+            closeButton.BackgroundColor = buttonBGColor;
         }
 
         private void SwitchMode(CameraMode targetMode)
@@ -593,7 +619,7 @@ namespace Steepshot.iOS.Views
                 {
                     VideoGravity = AVLayerVideoGravity.ResizeAspectFill,
                     Orientation = AVCaptureVideoOrientation.Portrait,
-                    Frame = new CGRect(new CGPoint(0, 80), new CGSize(liveCameraStream.Frame.Width, liveCameraStream.Frame.Height))
+                    Frame = new CGRect(new CGPoint(0, DeviceHelper.IsXDevice ? 124 : 80), new CGSize(liveCameraStream.Frame.Width, liveCameraStream.Frame.Height))
                 };
 
                 ClearCameraStreamSublayers();

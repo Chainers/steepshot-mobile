@@ -606,6 +606,8 @@
     <BundleResource Include="..\Steepshot.Android\Assets\IntegrationModuleConfig.txt">
       <Link>Resources\Assets\IntegrationModuleConfig.txt</Link>
     </BundleResource>
+    <BundleResource Include="Resources\ic_revert_dark%402x.png" />
+    <BundleResource Include="Resources\ic_revert_dark%403x.png" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="..\..\..\References\Languages\en\dic.xml">
