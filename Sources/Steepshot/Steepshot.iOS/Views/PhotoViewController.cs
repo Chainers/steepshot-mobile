@@ -33,6 +33,9 @@ namespace Steepshot.iOS.Views
             Dark
         }
 
+        private const int maxLineWidth = 20;
+        private const int maxProgressRadius = 44;
+
         private AVCaptureSession _captureSession;
         private AVCaptureDevice _backCamera;
         private AVCaptureDevice _frontCamera;
@@ -62,6 +65,7 @@ namespace Steepshot.iOS.Views
         private UIBezierPath _bezierPath;
         private bool _initialized;
         private bool _isRecording;
+        private float _activePanelHeight;
 
         public override void ViewDidLoad()
         {
@@ -162,7 +166,7 @@ namespace Steepshot.iOS.Views
             _swapCameraButton.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 30);
             _swapCameraButton.AutoPinEdge(ALEdge.Bottom, ALEdge.Top, bottomSeparator, -71);
 
-            var bottomPanelHeight = UIScreen.MainScreen.Bounds.Size.Height - 80 - UIScreen.MainScreen.Bounds.Width;
+            var bottomPanelHeight = UIScreen.MainScreen.Bounds.Size.Height - (DeviceHelper.IsXDevice ? 124 : 80) - UIScreen.MainScreen.Bounds.Width;
             _bottomPanel.AutoPinEdgeToSuperviewEdge(ALEdge.Left);
             _bottomPanel.AutoPinEdgeToSuperviewEdge(ALEdge.Right);
             _bottomPanel.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom);
@@ -171,8 +175,10 @@ namespace Steepshot.iOS.Views
             _photoButton.AutoSetDimensionsToSize(new CGSize(60, 60));
             _photoButton.AutoAlignAxisToSuperviewAxis(ALAxis.Vertical);
             _photoButton.AutoPinEdge(ALEdge.Bottom, ALEdge.Top, bottomSeparator, -bottomPanelHeight / 2);
+            _activePanelHeight = (float)bottomPanelHeight - 60;
 
-            
+            topCloseBtnConstraint.Constant = DeviceHelper.IsXDevice ? 64 : 20; 
+            topFlashBtnConstraint.Constant = DeviceHelper.IsXDevice ? 64 : 20;
         }
 
         private UIImage CircleBorder(nfloat diameter, UIColor color, bool opaque = false)
@@ -312,11 +318,20 @@ namespace Steepshot.iOS.Views
         {
             if (!_initialized)
             {
+                var lineWidth = (_activePanelHeight / 2 - 39);
+                var radius = lineWidth / 2 + 33;
+
+                if (radius > maxProgressRadius)
+                {
+                    radius = maxProgressRadius;
+                    lineWidth = maxLineWidth;
+                }
+
                 _bezierPath = new UIBezierPath();
-                _bezierPath.AddArc(_photoButton.Center, 47, 3f * (float)Math.PI / 2f, 4.712327f, true);
+                _bezierPath.AddArc(_photoButton.Center, radius, 3f * (float)Math.PI / 2f, 4.712327f, true);
 
                 _sl = new CAShapeLayer();
-                _sl.LineWidth = 26;
+                _sl.LineWidth = lineWidth;
                 _sl.StrokeColor = UIColor.FromRGB(255, 17, 0).CGColor;
                 _sl.FillColor = UIColor.Clear.CGColor;
                 _sl.LineCap = CAShapeLayer.CapButt;
@@ -340,7 +355,7 @@ namespace Steepshot.iOS.Views
             _animation = CABasicAnimation.FromKeyPath("strokeEnd");
             _animation.From = NSNumber.FromDouble(0.0);
             _animation.To = NSNumber.FromDouble(1.0);
-            _animation.Duration = 20; // max video duration
+            _animation.Duration = 20;
             _animation.FillMode = CAFillMode.Forwards;
             _animation.RemovedOnCompletion = false;
             _sl.AddAnimation(_animation, "drawLineAnimation");
@@ -583,7 +598,7 @@ namespace Steepshot.iOS.Views
                 _captureSession.StartRunning();
             }
             catch (Exception ex)
-            { }
+            { } 
         }
 
         private void SetupVideoCameraStream()
