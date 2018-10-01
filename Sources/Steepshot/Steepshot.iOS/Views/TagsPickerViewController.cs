@@ -20,21 +20,25 @@ namespace Steepshot.iOS.Views
         private readonly LocalTagsCollectionViewFlowDelegate _flowDelegate;
         private readonly Timer _timer;
         private string _previousQuery;
-        private SearchTextField _tagField;
+        private readonly SearchTextField _tagField = new SearchTextField("Hashtag");
         private TagsTableViewSource _tableSource;
+        private readonly UIBarButtonItem _leftBarButton = new UIBarButtonItem();
+        private readonly UITapGestureRecognizer _viewTap;
 
         public TagsPickerViewController(LocalTagsCollectionViewSource viewSource, LocalTagsCollectionViewFlowDelegate flowDelegate)
         {
             _viewSource = viewSource;
             _flowDelegate = flowDelegate;
             _timer = new Timer(OnTimer);
+            _viewTap = new UITapGestureRecognizer(() =>
+            {
+                _tagField.ResignFirstResponder();
+            });
         }
 
         public override void ViewDidLoad()
         {
             base.ViewDidLoad();
-
-            _presenter.SourceChanged += SourceChanged;
 
             NavigationController.NavigationBar.SetBackgroundImage(new UIImage(), UIBarMetrics.Default);
             NavigationController.NavigationBar.ShadowImage = new UIImage();
@@ -51,38 +55,20 @@ namespace Steepshot.iOS.Views
             tagsCollectionView.Delegate = _flowDelegate;
             tagsCollectionView.BackgroundColor = UIColor.White;
 
-            _tagField = new SearchTextField("Hashtag");
-            _tagField.ReturnButtonTapped += () => { AddLocalTag(_tagField.Text); };
             View.AddSubview(_tagField);
-
-            _tagField.ClearButtonTapped += () => { OnTimer(null); };
             _tagField.AutoPinEdgeToSuperviewEdge(ALEdge.Top, 10f);
             _tagField.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 15f);
             _tagField.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 15f);
             tagsCollectionView.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, _tagField, 20f);
             _tagField.AutoSetDimension(ALDimension.Height, 40f);
 
-            var tap = new UITapGestureRecognizer(() =>
-            {
-                _tagField.ResignFirstResponder();
-            });
-            View.AddGestureRecognizer(tap);
-
             _tableSource = new TagsTableViewSource(_presenter, tagsTableView);
-            _tableSource.ScrolledToBottom += async () =>
-            {
-                _tagField.Loader.StartAnimating();
-                var exception = await _presenter.TryLoadNextAsync(_tagField.Text, false);
-                _tagField.Loader.StopAnimating();
-                ShowAlert(exception);
-            };
 
             tagsTableView.Source = _tableSource;
             tagsTableView.LayoutMargins = UIEdgeInsets.Zero;
             tagsTableView.RegisterClassForCellReuse(typeof(TagTableViewCell), nameof(TagTableViewCell));
             tagsTableView.RegisterNibForCellReuse(UINib.FromName(nameof(TagTableViewCell), NSBundle.MainBundle), nameof(TagTableViewCell));
             tagsTableView.RowHeight = 70f;
-            _tagField.EditingChanged += EditingDidChange;
 
             SetBackButton();
             SetCollectionHeight();
@@ -97,15 +83,56 @@ namespace Steepshot.iOS.Views
 
         public override void ViewWillAppear(bool animated)
         {
-            _tableSource.CellAction += TableCellAction;
-            _viewSource.CellAction += CollectionCellAction;
+            if (IsMovingToParentViewController)
+            {
+                _tableSource.CellAction += TableCellAction;
+                _viewSource.CellAction += CollectionCellAction;
+                _leftBarButton.Clicked += GoBack;
+                _tagField.ReturnButtonTapped += TagField_ReturnButtonTapped;
+                _tagField.EditingChanged += EditingDidChange;
+                _tableSource.ScrolledToBottom += TableSource_ScrolledToBottom;
+                View.AddGestureRecognizer(_viewTap);
+                _tagField.ClearButtonTapped += TagField_ClearButtonTapped;
+                _presenter.SourceChanged += SourceChanged;
+            }
+
             base.ViewWillAppear(animated);
         }
 
         public override void ViewWillDisappear(bool animated)
         {
-            _tableSource.CellAction -= TableCellAction;
-            _viewSource.CellAction -= CollectionCellAction;
+            if (IsMovingFromParentViewController)
+            {
+                _tableSource.CellAction = null;
+                _viewSource.CellAction = null;
+                _leftBarButton.Clicked -= GoBack;
+                _tagField.ReturnButtonTapped -= TagField_ReturnButtonTapped;
+                _tagField.EditingChanged -= EditingDidChange;
+                _tableSource.ScrolledToBottom = null;
+                View.RemoveGestureRecognizer(_viewTap);
+                _tagField.ClearButtonTapped = null;
+                _presenter.SourceChanged -= SourceChanged;
+                _tableSource.FreeAllCells();
+            }
+            base.ViewWillDisappear(animated);
+        }
+
+        private void TagField_ReturnButtonTapped()
+        {
+            AddLocalTag(_tagField.Text);
+        }
+
+        private void TagField_ClearButtonTapped()
+        {
+            OnTimer(null);
+        }
+
+        private async void TableSource_ScrolledToBottom()
+        {
+            _tagField.Loader.StartAnimating();
+            var exception = await _presenter.TryLoadNextAsync(_tagField.Text, false);
+            _tagField.Loader.StopAnimating();
+            ShowAlert(exception);
         }
 
         protected override void KeyBoardUpNotification(NSNotification notification)
@@ -133,8 +160,8 @@ namespace Steepshot.iOS.Views
 
         private void SetBackButton()
         {
-            var leftBarButton = new UIBarButtonItem(UIImage.FromBundle("ic_back_arrow"), UIBarButtonItemStyle.Plain, GoBack);
-            NavigationItem.LeftBarButtonItem = leftBarButton;
+            _leftBarButton.Image = UIImage.FromBundle("ic_back_arrow");
+            NavigationItem.LeftBarButtonItem = _leftBarButton;
             NavigationController.NavigationBar.TintColor = Constants.R15G24B30;
 
             NavigationItem.Title = "Add hashtags";
@@ -153,15 +180,17 @@ namespace Steepshot.iOS.Views
 
         private void SourceChanged(Status obj)
         {
+            InvokeOnMainThread(HandleAction);
+        }
+
+        private void HandleAction()
+        {
             tagsTableView.ReloadData();
         }
 
         private void OnTimer(object state)
         {
-            InvokeOnMainThread(() =>
-            {
-                SearchTextChanged();
-            });
+            InvokeOnMainThread(SearchTextChanged);
         }
 
         private async void SearchTextChanged()

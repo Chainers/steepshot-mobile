@@ -192,10 +192,9 @@ namespace Steepshot.iOS.Views
                 if (_isPostingMode)
                 {
                     AppSettings.User.AddAndSwitchUser(_username, password.Text, _accountInfoResponse);
-
                     var myViewController = new MainTabBarController();
-                    NavigationController.ViewControllers = new UIViewController[] { myViewController, this };
-                    NavigationController.PopViewController(true);
+                    NavigationController.SetViewControllers(new UIViewController[] { myViewController }, true);
+                   //After that only top controller will finalized, don't know why other controllers won't
                 }
                 else
                 {

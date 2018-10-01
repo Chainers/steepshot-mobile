@@ -238,7 +238,6 @@
     <InterfaceDefinition Include="Views\LoginViewController.xib" />
     <InterfaceDefinition Include="Views\PhotoViewController.xib" />
     <InterfaceDefinition Include="Views\ProfileViewController.xib" />
-    <InterfaceDefinition Include="Views\WebPageViewController.xib" />
     <InterfaceDefinition Include="Views\ImagePreviewViewController.xib" />
     <InterfaceDefinition Include="Views\FollowViewController.xib" />
     <InterfaceDefinition Include="Views\SettingsViewController.xib" />
@@ -319,10 +318,6 @@
       <DependentUpon>ProfileViewController.cs</DependentUpon>
     </Compile>
     <Compile Include="Views\CommentsViewController.cs" />
-    <Compile Include="Views\WebPageViewController.cs" />
-    <Compile Include="Views\WebPageViewController.designer.cs">
-      <DependentUpon>WebPageViewController.cs</DependentUpon>
-    </Compile>
     <Compile Include="Views\ImagePreviewViewController.cs" />
     <Compile Include="Views\ImagePreviewViewController.designer.cs">
       <DependentUpon>ImagePreviewViewController.cs</DependentUpon>

@@ -50,6 +50,8 @@ namespace Steepshot.iOS.ViewControllers
         public override void ViewDidAppear(bool animated)
         {
             base.ViewDidAppear(animated);
+
+            // Observe keyboard actions when its needed!!
             ShowKeyboardToken = NSNotificationCenter.DefaultCenter.AddObserver
             (UIKeyboard.DidShowNotification, KeyBoardUpNotification);
             ForegroundToken = NSNotificationCenter.DefaultCenter.AddObserver
@@ -62,13 +64,18 @@ namespace Steepshot.iOS.ViewControllers
             CloseKeyboardToken = NSNotificationCenter.DefaultCenter.AddObserver
             (UIKeyboard.WillHideNotification, KeyBoardDownNotification);
 
+            Services.GAService.Instance.TrackAppPage(GetType().Name);
+        }
+
+        public override void ViewWillAppear(bool animated)
+        {
+            //Maybe need to move in baseviewcontrollerwithpresenter
             if (TabBarController != null)
             {
                 ((MainTabBarController)TabBarController).WillEnterForegroundAction += WillEnterForeground;
                 ((MainTabBarController)TabBarController).SameTabTapped += SameTabTapped;
             }
-
-            Services.GAService.Instance.TrackAppPage(GetType().Name);
+            base.ViewWillAppear(animated);
         }
 
         public void WillEnterForeground()
@@ -86,14 +93,18 @@ namespace Steepshot.iOS.ViewControllers
                 controller.ClosePost();
         }
 
-        public override void ViewDidDisappear(bool animated)
+        public override void ViewWillDisappear(bool animated)
         {
             if (TabBarController != null)
             {
                 ((MainTabBarController)TabBarController).WillEnterForegroundAction -= WillEnterForeground;
                 ((MainTabBarController)TabBarController).SameTabTapped -= SameTabTapped;
             }
+            base.ViewWillDisappear(animated);
+        }
 
+        public override void ViewDidDisappear(bool animated)
+        {
             if (ShowKeyboardToken != null)
             {
                 NSNotificationCenter.DefaultCenter.RemoveObservers(new[] { CloseKeyboardToken, ShowKeyboardToken, ForegroundToken });
@@ -101,6 +112,7 @@ namespace Steepshot.iOS.ViewControllers
                 CloseKeyboardToken.Dispose();
                 ForegroundToken.Dispose();
             }
+
             base.ViewDidDisappear(animated);
         }
 

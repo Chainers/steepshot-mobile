@@ -9,22 +9,24 @@ using Steepshot.Core.Utils;
 using Steepshot.iOS.Delegates;
 using Steepshot.iOS.Helpers;
 using UIKit;
+using Xamarin.TTTAttributedLabel;
+using Constants = Steepshot.iOS.Helpers.Constants;
 
 namespace Steepshot.iOS.Views
 {
     public class PlagiarismViewController : DescriptionViewController, ISFSafariViewControllerDelegate
     {
         private readonly Plagiarism _model;
-        private Xamarin.TTTAttributedLabel.TTTAttributedLabel _plagiarismAttributedLabel;
+        private TTTAttributedLabel _plagiarismAttributedLabel;
         private UIButton _cancelButton;
         private UIButton _continueButton;
-        private PlagiarismResult plagiarismResult;
+        private PlagiarismResult _plagiarismResult;
 
         public PlagiarismViewController(List<Tuple<NSDictionary, UIImage>> assets, Plagiarism model, PlagiarismResult plagiarismResult = null)
         {
             ImageAssets = assets;
             _model = model;
-            this.plagiarismResult = plagiarismResult;
+            _plagiarismResult = plagiarismResult;
         }
 
         public override void ViewDidLoad()
@@ -36,10 +38,12 @@ namespace Steepshot.iOS.Views
 
         public override void ViewWillAppear(bool animated)
         {
+
         }
 
         public override void ViewWillDisappear(bool animated)
         {
+
         }
 
         public override void ViewDidLayoutSubviews()
@@ -106,7 +110,7 @@ namespace Steepshot.iOS.Views
             photoTitleSeparator.BackgroundColor = Constants.R245G245B245;
 
             var noLinkTitleAttribute = new UIStringAttributes
-            { 
+            {
                 Font = Constants.Semibold20,
                 ForegroundColor = Constants.R15G24B30,
             };
@@ -156,13 +160,13 @@ namespace Steepshot.iOS.Views
 
             _cancelButton.TouchDown += (sender, e) =>
             {
-                plagiarismResult.Continue = false;
+                _plagiarismResult.Continue = false;
                 NavigationController.PopViewController(true);
             };
 
             _continueButton.TouchDown += (sender, e) =>
             {
-                plagiarismResult.Continue = true;
+                _plagiarismResult.Continue = true;
                 NavigationController.PopViewController(true);
             };
 
@@ -200,29 +204,29 @@ namespace Steepshot.iOS.Views
             else
                 photoTitleSeparator.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, photoCollection, 24f);
 
-            photoTitleSeparator.AutoPinEdgeToSuperviewEdge(ALEdge.Left, _separatorMargin);
-            photoTitleSeparator.AutoPinEdgeToSuperviewEdge(ALEdge.Right, _separatorMargin);
+            photoTitleSeparator.AutoPinEdgeToSuperviewEdge(ALEdge.Left, SeparatorMargin);
+            photoTitleSeparator.AutoPinEdgeToSuperviewEdge(ALEdge.Right, SeparatorMargin);
             photoTitleSeparator.AutoSetDimension(ALDimension.Height, 1f);
-            photoTitleSeparator.AutoSetDimension(ALDimension.Width, UIScreen.MainScreen.Bounds.Width - _separatorMargin * 2);
+            photoTitleSeparator.AutoSetDimension(ALDimension.Width, UIScreen.MainScreen.Bounds.Width - SeparatorMargin * 2);
 
-            _plagiarismAttributedLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Left, _separatorMargin);
-            _plagiarismAttributedLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Right, _separatorMargin);
+            _plagiarismAttributedLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Left, SeparatorMargin);
+            _plagiarismAttributedLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Right, SeparatorMargin);
             _plagiarismAttributedLabel.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, photoTitleSeparator, 24);
 
-            _cancelButton.AutoPinEdgeToSuperviewEdge(ALEdge.Left, _separatorMargin);
-            _cancelButton.AutoPinEdgeToSuperviewEdge(ALEdge.Right, _separatorMargin);
+            _cancelButton.AutoPinEdgeToSuperviewEdge(ALEdge.Left, SeparatorMargin);
+            _cancelButton.AutoPinEdgeToSuperviewEdge(ALEdge.Right, SeparatorMargin);
             _cancelButton.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, _plagiarismAttributedLabel, 34);
             _cancelButton.AutoSetDimension(ALDimension.Height, 50);
 
-            _continueButton.AutoPinEdgeToSuperviewEdge(ALEdge.Left, _separatorMargin);
-            _continueButton.AutoPinEdgeToSuperviewEdge(ALEdge.Right, _separatorMargin);
+            _continueButton.AutoPinEdgeToSuperviewEdge(ALEdge.Left, SeparatorMargin);
+            _continueButton.AutoPinEdgeToSuperviewEdge(ALEdge.Right, SeparatorMargin);
             _continueButton.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom, 34);
             _continueButton.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, _cancelButton, 10);
             _continueButton.AutoSetDimension(ALDimension.Height, 50);
         }
 
         private void OpenGuidelines(object sender, EventArgs e)
-        { 
+        {
             var sv = new SFSafariViewController(new Uri(Core.Constants.Guide));
             sv.Delegate = this;
 
@@ -236,11 +240,11 @@ namespace Steepshot.iOS.Views
             NavigationController.SetNavigationBarHidden(false, false);
             NavigationController.PopViewController(false);
         }
-        
+
         private void TextLinkAction(PlagiarismLinkType type)
         {
             switch (type)
-            { 
+            {
                 case PlagiarismLinkType.Similar:
                     var link = $"@{_model.PlagiarismUsername}/{_model.PlagiarismPermlink}";
                     NavigationController.PushViewController(new PostViewController(link), true);
@@ -258,7 +262,7 @@ namespace Steepshot.iOS.Views
     }
 
     public enum PlagiarismLinkType
-    { 
+    {
         Similar,
         Author
     }

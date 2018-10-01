@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Foundation;
 using Steepshot.Core.Facades;
 using Steepshot.Core.Models.Enums;
@@ -13,7 +15,8 @@ namespace Steepshot.iOS.ViewSources
         private readonly string _cellIdentifier = nameof(TagTableViewCell);
         private readonly TagPickerFacade _tagPickerFacade; // need to call SetClient() after initializing
         public Action<ActionType, string> CellAction;
-        private bool _hidePlus;
+        private readonly bool _hidePlus;
+        private readonly List<TagTableViewCell> _cellsList = new List<TagTableViewCell>();
 
         public TagsTableViewSource(TagsPresenter presenter, UITableView tableView, bool hidePlus = false) : base(presenter, tableView)
         {
@@ -22,19 +25,22 @@ namespace Steepshot.iOS.ViewSources
 
         public override UITableViewCell GetCell(UITableView tableView, NSIndexPath indexPath)
         {
-            var cell = tableView.DequeueReusableCell(_cellIdentifier, indexPath);
+            var cell = (TagTableViewCell)tableView.DequeueReusableCell(_cellIdentifier, indexPath);
 
-            if (!((TagTableViewCell)cell).IsCellActionSet)
+            if (!cell.IsCellActionSet)
             {
-                ((TagTableViewCell)cell).CellAction += CellAction;
-                ((TagTableViewCell)cell).HidePlus = _hidePlus;
+                cell.CellAction += CellAction;
+                cell.HidePlus = _hidePlus;
             }
 
             var tag = Presenter != null
                 ? ((TagsPresenter)Presenter)[indexPath.Row].Name
                 : _tagPickerFacade[indexPath.Row];
 
-            ((TagTableViewCell)cell).UpdateCell(tag);
+            cell.UpdateCell(tag);
+
+            if (!_cellsList.Any(c => c.Handle == cell.Handle))
+                _cellsList.Add(cell);
             return cell;
         }
 
@@ -51,6 +57,15 @@ namespace Steepshot.iOS.ViewSources
             if (index == -1)
                 return null;
             return NSIndexPath.FromItemSection(index, 0);
+        }
+
+        public void FreeAllCells()
+        {
+            foreach (var item in _cellsList)
+            {
+                item.CellAction = null;
+                item.RemoveEvents();
+            }
         }
     }
 }

@@ -79,18 +79,17 @@ namespace Steepshot.iOS.Helpers
                     if (_collection.CellForItem(item) is NewFeedCollectionViewCell cell)
                         cell.Cell.Playback(item.Item == closestToCenterCell.IndexPath.Item);
                 }
+            }
 
-                if (_collection.IndexPathsForVisibleItems.Length > 0)
+            if (_collection.IndexPathsForVisibleItems.Length > 0)
+            {
+                var pos = _collection.IndexPathsForVisibleItems.Max(c => c.Row);
+                if (pos > prevPos)
                 {
-                    var pos = _collection.IndexPathsForVisibleItems.Max(c => c.Row);
-                    //TopCurrentPosition = _collection.IndexPathsForVisibleItems.Min();
-                    if (pos > prevPos)
+                    if (pos == (IsProfile ? _presenter.Count : _presenter.Count - 1))
                     {
-                        if (pos == (IsProfile ? _presenter.Count : _presenter.Count - 1))
-                        {
-                            prevPos = pos;
-                            ScrolledToBottom?.Invoke();
-                        }
+                        prevPos = pos;
+                        ScrolledToBottom?.Invoke();
                     }
                 }
             }
@@ -188,7 +187,6 @@ namespace Steepshot.iOS.Helpers
                     if (_collection.CellForItem(item) is SliderFeedCollectionViewCell cell)
                         cell.Playback(item.Item == closestToCenterCell.IndexPath.Item);
                 }
-
             }
             base.Scrolled(scrollView);
         }
@@ -269,22 +267,24 @@ namespace Steepshot.iOS.Helpers
         public override void ItemSelected(UICollectionView collectionView, NSIndexPath indexPath)
         {
             var pa = _vs.GetPHAsset((int)indexPath.Item);
-
-            if (_vs.ImageAssets.Count >= postLimit && !_vs.ImageAssets.Any(a => a.Asset.LocalIdentifier == pa.LocalIdentifier))
+            if (pa != null)
             {
-                CellClicked?.Invoke(ActionType.Close, new Tuple<NSIndexPath, PHAsset>(indexPath, null));
-                return;
+                if (_vs.ImageAssets.Count >= postLimit && !_vs.ImageAssets.Any(a => a.Asset.LocalIdentifier == pa.LocalIdentifier))
+                {
+                    CellClicked?.Invoke(ActionType.Close, new Tuple<NSIndexPath, PHAsset>(indexPath, null));
+                    return;
+                }
+
+                CellClicked?.Invoke(ActionType.Preview, new Tuple<NSIndexPath, PHAsset>(indexPath, pa));
+
+                var index = _vs.ImageAssets.FindIndex(a => a.Asset.LocalIdentifier == pa.LocalIdentifier);
+
+                if (_vs.CurrentlySelectedItem.Item1 != null)
+                    ((PhotoCollectionViewCell)collectionView.CellForItem(_vs.CurrentlySelectedItem.Item1))?.ToggleCell(false);
+                ((PhotoCollectionViewCell)collectionView.CellForItem(indexPath))?.ToggleCell(true);
+
+                _vs.CurrentlySelectedItem = new Tuple<NSIndexPath, PHAsset>(indexPath, pa);
             }
-
-            CellClicked?.Invoke(ActionType.Preview, new Tuple<NSIndexPath, PHAsset>(indexPath, pa));
-
-            var index = _vs.ImageAssets.FindIndex(a => a.Asset.LocalIdentifier == pa.LocalIdentifier);
-
-            if (_vs.CurrentlySelectedItem.Item1 != null)
-                ((PhotoCollectionViewCell)collectionView.CellForItem(_vs.CurrentlySelectedItem.Item1))?.ToggleCell(false);
-            ((PhotoCollectionViewCell)collectionView.CellForItem(indexPath))?.ToggleCell(true);
-
-            _vs.CurrentlySelectedItem = new Tuple<NSIndexPath, PHAsset>(indexPath, pa);
         }
     }
 }
