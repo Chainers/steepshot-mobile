@@ -15,6 +15,7 @@ using PureLayout.Net;
 using Steepshot.Core.Utils;
 using Steepshot.Core.Localization;
 using System.Drawing;
+using System.Linq;
 
 namespace Steepshot.iOS.Views
 {
@@ -39,6 +40,7 @@ namespace Steepshot.iOS.Views
         private UIDeviceOrientation orientationOnPhoto;
         private NSObject _orientationChangeEventToken;
 
+        private UIView _bottomPanel;
         private UIButton _photoTabButton;
         private UIButton _videoTabButton;
         private UIButton _swapCameraButton;
@@ -63,6 +65,12 @@ namespace Steepshot.iOS.Views
 
         private void SetupCameraControlls()
         {
+            View.BackgroundColor = Constants.R255G255B255;
+
+            _bottomPanel = new UIView();
+            _bottomPanel.BackgroundColor = UIColor.White;
+            _bottomPanel.Hidden = true;
+
             var bottomSeparator = new UIView();
             bottomSeparator.BackgroundColor = Constants.R255G255B255.ColorWithAlpha(0.2f);
 
@@ -80,6 +88,7 @@ namespace Steepshot.iOS.Views
             _videoTabButton.SetTitleColor(UIColor.White, UIControlState.Normal);
             _videoTabButton.AddGestureRecognizer(videoTabTap);
 
+            View.AddSubview(_bottomPanel);
             View.AddSubview(bottomSeparator);
             View.AddSubview(_photoTabButton);
             View.AddSubview(_videoTabButton);
@@ -102,6 +111,7 @@ namespace Steepshot.iOS.Views
             _swapCameraButton.SetImage(UIImage.FromBundle("ic_revert.png"), UIControlState.Normal);
             _swapCameraButton.ContentMode = UIViewContentMode.ScaleAspectFill;
             _swapCameraButton.Layer.CornerRadius = 20;
+            _swapCameraButton.BackgroundColor = UIColor.Black.ColorWithAlpha(0.8f);
             View.AddSubview(_swapCameraButton);
 
             _photoButton = new UIButton();
@@ -143,9 +153,15 @@ namespace Steepshot.iOS.Views
             _swapCameraButton.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 30);
             _swapCameraButton.AutoPinEdge(ALEdge.Bottom, ALEdge.Top, bottomSeparator, -71);
 
+            var bottomPanelHeight = UIScreen.MainScreen.Bounds.Size.Height - 80 - UIScreen.MainScreen.Bounds.Width;
+            _bottomPanel.AutoPinEdgeToSuperviewEdge(ALEdge.Left);
+            _bottomPanel.AutoPinEdgeToSuperviewEdge(ALEdge.Right);
+            _bottomPanel.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom);
+            _bottomPanel.AutoSetDimension(ALDimension.Height, bottomPanelHeight);
+
             _photoButton.AutoSetDimensionsToSize(new CGSize(60, 60));
             _photoButton.AutoAlignAxisToSuperviewAxis(ALAxis.Vertical);
-            _photoButton.AutoPinEdge(ALEdge.Bottom, ALEdge.Top, bottomSeparator, -135);
+            _photoButton.AutoPinEdge(ALEdge.Bottom, ALEdge.Top, bottomSeparator, -bottomPanelHeight / 2);
         }
 
         private UIImage CircleBorder(nfloat diameter, UIColor color, bool opaque = false)
@@ -170,12 +186,20 @@ namespace Steepshot.iOS.Views
 
         private void SetPhotoMode()
         {
+            _photoTabButton.SetTitleColor(UIColor.White, UIControlState.Normal);
+            _videoTabButton.SetTitleColor(UIColor.White, UIControlState.Normal);
+            _bottomPanel.Hidden = true;
+
             SwitchMode(CameraMode.Photo);
-            AuthorizeCameraUse();
+            SetupPhotoCameraStream();
         }
 
         private void SetVideoMode()
         {
+            _photoTabButton.SetTitleColor(UIColor.Black, UIControlState.Normal);
+            _videoTabButton.SetTitleColor(UIColor.Black, UIControlState.Normal);
+            _bottomPanel.Hidden = false;
+
             SwitchMode(CameraMode.Video);
             SetupVideoCameraStream();
         }
@@ -569,7 +593,7 @@ namespace Steepshot.iOS.Views
                 {
                     VideoGravity = AVLayerVideoGravity.ResizeAspectFill,
                     Orientation = AVCaptureVideoOrientation.Portrait,
-                    Frame = new CGRect(new CGPoint(0, 0), new CGSize(liveCameraStream.Frame.Width, liveCameraStream.Frame.Width))
+                    Frame = new CGRect(new CGPoint(0, 80), new CGSize(liveCameraStream.Frame.Width, liveCameraStream.Frame.Height))
                 };
 
                 ClearCameraStreamSublayers();
@@ -715,6 +739,11 @@ namespace Steepshot.iOS.Views
                 TrackID = videoTrack.TrackID
             };
 
+            var t1 = CGAffineTransform.MakeTranslation(videoTrack.NaturalSize.Height, 0);
+            var t2 = CGAffineTransform.Rotate(t1, (nfloat)Math.PI / 2);
+            var finalTransform = t2;
+            transformer.SetTransform(t2, CMTime.Zero);
+
             var audioMix = AVMutableAudioMix.Create();
             var mixParameters = new AVMutableAudioMixInputParameters
             {
@@ -747,11 +776,12 @@ namespace Steepshot.iOS.Views
             var exportSession = new AVAssetExportSession(composition, AVAssetExportSession.PresetHighestQuality);
 
             var outputFileName = new NSUuid().AsString();
-            var outputFilePath = Path.Combine(Path.GetTempPath(), Path.ChangeExtension(outputFileName, "mov"));
+            var documentsPath = NSSearchPath.GetDirectories(NSSearchPathDirectory.DocumentDirectory, NSSearchPathDomain.User, true).First();
+            var outputFilePath = Path.Combine(documentsPath, Path.ChangeExtension(outputFileName, "mp4"));
             var exportLocation = NSUrl.CreateFileUrl(outputFilePath, false, null);
 
             exportSession.OutputUrl = exportLocation;
-            exportSession.OutputFileType = AVFileType.QuickTimeMovie;
+            exportSession.OutputFileType = AVFileType.Mpeg4;
             exportSession.VideoComposition = videoComposition;
             exportSession.AudioMix = audioMix;
             exportSession.ShouldOptimizeForNetworkUse = true;
@@ -761,7 +791,7 @@ namespace Steepshot.iOS.Views
                 {
                     Action cleanup = () =>
                     {
-                        var path = outputFileUrl.Path;
+                        var path = exportLocation.Path;
                         if (NSFileManager.DefaultManager.FileExists(path))
                         {
                             if (!NSFileManager.DefaultManager.Remove(path, out var err))
