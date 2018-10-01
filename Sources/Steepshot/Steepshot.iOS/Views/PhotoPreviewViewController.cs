@@ -185,10 +185,7 @@ namespace Steepshot.iOS.Views
                 return;
             }
 
-
             photoCollection.UserInteractionEnabled = false;
-
-           
             NavigationItem.RightBarButtonItem.Enabled = false;
             pickedPhoto = photo;
             previousPhotoLocalIdentifier = source.CurrentlySelectedItem?.Item2?.LocalIdentifier;
@@ -388,8 +385,11 @@ namespace Steepshot.iOS.Views
                 var croppedPhoto = _cropView.CropImage(item);
                 _m.RequestImageData(item.Asset, new PHImageRequestOptions() { Synchronous = true }, (data, dataUti, orientation, info) =>
                 {
-                    var dataSource = CGImageSource.FromData(data);
-                    metadata = dataSource.GetProperties(0).Dictionary;
+                    if (data != null)
+                    {
+                        var dataSource = CGImageSource.FromData(data);
+                        metadata = dataSource?.GetProperties(0)?.Dictionary;
+                    }
                 });
 
                 croppedPhotos.Add(new Tuple<NSDictionary, UIImage>(metadata, croppedPhoto));
