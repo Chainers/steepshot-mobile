@@ -24,11 +24,6 @@ namespace Steepshot.iOS.Views
         private readonly UIBarButtonItem _leftBarButton = new UIBarButtonItem();
         private MFMailComposeViewController _mailController;
 
-        protected override void Dispose(bool disposing)
-        {
-            base.Dispose(disposing);
-        }
-
         public async override void ViewDidLoad()
         {
             base.ViewDidLoad();
