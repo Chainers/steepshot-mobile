@@ -13,7 +13,7 @@ namespace Steepshot.iOS.ViewSources
 
         IDictionary<NSIndexPath, nfloat> cellHeights = new Dictionary<NSIndexPath, nfloat>();
 
-        public BaseTableSource(BasePostPresenter presenter)
+        protected BaseTableSource(BasePostPresenter presenter)
         {
             _presenter = presenter;
         }

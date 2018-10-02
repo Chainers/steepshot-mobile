@@ -251,7 +251,6 @@
     <InterfaceDefinition Include="Views\PhotoPreviewViewController.xib" />
     <InterfaceDefinition Include="Views\PostViewController.xib" />
     <InterfaceDefinition Include="Views\TagsPickerViewController.xib" />
-    <InterfaceDefinition Include="Cells\DescriptionTableViewCell.xib" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
@@ -291,8 +290,6 @@
     <Compile Include="Cells\UsersSearchViewCell.designer.cs">
       <DependentUpon>UsersSearchViewCell.cs</DependentUpon>
     </Compile>
-    <Compile Include="ViewSources\UserSearchTableViewSource.cs" />
-    <Compile Include="ViewSources\VotersTableViewSource.cs" />
     <Compile Include="Views\FeedViewController.cs" />
     <Compile Include="Views\FeedViewController.designer.cs">
       <DependentUpon>FeedViewController.cs</DependentUpon>
@@ -397,9 +394,6 @@
     <Compile Include="Views\NotificationSettingsController.cs" />
     <Compile Include="Views\PostEditViewController.cs" />
     <Compile Include="Cells\DescriptionTableViewCell.cs" />
-    <Compile Include="Cells\DescriptionTableViewCell.designer.cs">
-      <DependentUpon>DescriptionTableViewCell.cs</DependentUpon>
-    </Compile>
     <Compile Include="Views\TagsSearchViewControllerDesign.cs" />
     <Compile Include="ViewSources\FolderTableViewSource.cs" />
     <Compile Include="Helpers\Logger.cs" />
