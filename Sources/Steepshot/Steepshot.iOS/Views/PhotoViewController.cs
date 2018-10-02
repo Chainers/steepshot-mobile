@@ -85,14 +85,14 @@ namespace Steepshot.iOS.Views
             var bottomSeparator = new UIView();
             bottomSeparator.BackgroundColor = Constants.R255G255B255.ColorWithAlpha(0.2f);
 
-            var photoTabTap = new UITapGestureRecognizer(SetPhotoMode);
+            var photoTabTap = new UITapGestureRecognizer(SwitchToPhotoMode);
             _photoTabButton = new UIButton();
             _photoTabButton.TitleLabel.Font = Constants.Semibold14;
             _photoTabButton.SetTitle(AppSettings.LocalizationManager.GetText(LocalizationKeys.Photo), UIControlState.Normal);
             _photoTabButton.SetTitleColor(UIColor.White, UIControlState.Normal);
             _photoTabButton.AddGestureRecognizer(photoTabTap);
 
-            var videoTabTap = new UITapGestureRecognizer(SetVideoMode);
+            var videoTabTap = new UITapGestureRecognizer(SwitchToVideoMode);
             _videoTabButton = new UIButton();
             _videoTabButton.TitleLabel.Font = Constants.Semibold14;
             _videoTabButton.SetTitle(AppSettings.LocalizationManager.GetText(LocalizationKeys.Video), UIControlState.Normal);
@@ -131,8 +131,7 @@ namespace Steepshot.iOS.Views
             _photoButton.UserInteractionEnabled = true;
             _photoButton.Layer.CornerRadius = 30;
             _photoButton.Layer.BorderWidth = 2;
-            _photoButton.BackgroundColor = Constants.R217G217B217;
-            TogglePhotoButton(false);
+            TogglePhotoButton(CameraMode.Photo);
             View.AddSubview(_photoButton);
 
             bottomSeparator.AutoSetDimension(ALDimension.Height, 1);
@@ -181,48 +180,16 @@ namespace Steepshot.iOS.Views
             topFlashBtnConstraint.Constant = DeviceHelper.IsXDevice ? 64 : 20;
         }
 
-        private UIImage CircleBorder(nfloat diameter, UIColor color, bool opaque = false)
+        private void SwitchToPhotoMode()
         {
-            var rect = new CGRect(0, 0, diameter, diameter);
-
-            UIGraphics.BeginImageContextWithOptions(rect.Size, opaque, 0);
-            var ctx = UIGraphics.GetCurrentContext();
-            ctx.SaveState();
-
-            ctx.SetLineWidth(3);
-            ctx.SetStrokeColor(UIColor.Black.CGColor);
-            ctx.SetFillColor(color.CGColor);
-            ctx.FillEllipseInRect(rect);
-
-            ctx.RestoreState();
-            var img = UIGraphics.GetImageFromCurrentImageContext();
-            UIGraphics.EndImageContext();
-
-            return img;
-        }
-
-        private void SetPhotoMode()
-        {
-            _photoTabButton.SetTitleColor(UIColor.White, UIControlState.Normal);
-            _videoTabButton.SetTitleColor(UIColor.White, UIControlState.Normal);
-            _bottomPanel.Hidden = true;
-            flashButton.Hidden = false;
-
             SwitchTheme(Theme.Dark);
-
             SwitchMode(CameraMode.Photo);
             SetupPhotoCameraStream();
         }
 
-        private void SetVideoMode()
+        private void SwitchToVideoMode()
         {
-            _photoTabButton.SetTitleColor(UIColor.Black, UIControlState.Normal);
-            _videoTabButton.SetTitleColor(UIColor.Black, UIControlState.Normal);
-            _bottomPanel.Hidden = false;
-            flashButton.Hidden = true;
-
             SwitchTheme(Theme.Light);
-
             SwitchMode(CameraMode.Video);
             SetupVideoCameraStream();
         }
@@ -230,10 +197,18 @@ namespace Steepshot.iOS.Views
         private void SwitchTheme(Theme theme)
         {
             var buttonBGColor = theme.Equals(Theme.Dark) ? UIColor.Black.ColorWithAlpha(0.8f) : UIColor.Black.ColorWithAlpha(0.05f);
+
             _swapCameraButton.SetImage(theme.Equals(Theme.Dark) ? UIImage.FromBundle("ic_revert") : UIImage.FromBundle("ic_revert_dark"), UIControlState.Normal);
             _swapCameraButton.BackgroundColor = buttonBGColor;
+
             closeButton.SetImage(theme.Equals(Theme.Dark) ? UIImage.FromBundle("ic_white_close") : UIImage.FromBundle("ic_close_black"), UIControlState.Normal);
             closeButton.BackgroundColor = buttonBGColor;
+
+            _photoTabButton.SetTitleColor(theme.Equals(Theme.Dark) ? UIColor.White : UIColor.Black, UIControlState.Normal);
+            _videoTabButton.SetTitleColor(theme.Equals(Theme.Dark) ? UIColor.White : UIColor.Black, UIControlState.Normal);
+
+            _bottomPanel.Hidden = theme.Equals(Theme.Dark);
+            flashButton.Hidden = !theme.Equals(Theme.Dark);
         }
 
         private void SwitchMode(CameraMode targetMode)
@@ -242,6 +217,8 @@ namespace Steepshot.iOS.Views
             _videoTabButton.Enabled = targetMode != CameraMode.Video;
             _photoConstraint.Active = targetMode != CameraMode.Video;
             _videoConstraint.Active = targetMode != CameraMode.Photo;
+
+            TogglePhotoButton(targetMode);
 
             UIView.Animate(0.2, 0, UIViewAnimationOptions.CurveEaseOut, () =>
             {
@@ -252,6 +229,33 @@ namespace Steepshot.iOS.Views
                 _captureSession.StopRunning();
 
             _currentMode = targetMode;
+        }
+
+        private void TogglePhotoButton(CameraMode cameraMode)
+        {
+            var color = cameraMode.Equals(CameraMode.Photo) ? Constants.R255G255B255 : Constants.R255G28B5;
+            var circle = CircleBorder(50, color);
+
+            _photoButton.BackgroundColor = cameraMode.Equals(CameraMode.Photo) ? Constants.R217G217B217 : UIColor.White;
+            _photoButton.SetImage(circle, UIControlState.Normal);
+            _photoButton.Layer.BorderColor = color.CGColor;
+        }
+
+        private UIImage CircleBorder(nfloat diameter, UIColor color, bool opaque = false)
+        {
+            var rect = new CGRect(0, 0, diameter, diameter);
+
+            UIGraphics.BeginImageContextWithOptions(rect.Size, opaque, 0);
+            var ctx = UIGraphics.GetCurrentContext();
+            ctx.SaveState();
+            ctx.SetLineWidth(3);
+            ctx.SetFillColor(color.CGColor);
+            ctx.FillEllipseInRect(rect);
+            ctx.RestoreState();
+            var img = UIGraphics.GetImageFromCurrentImageContext();
+            UIGraphics.EndImageContext();
+
+            return img;
         }
 
         private void CaptureContent(object sender, EventArgs e)
@@ -286,32 +290,26 @@ namespace Steepshot.iOS.Views
                     if (!_isRecording)
                     {
                         StartAnimation();
-                        TogglePhotoButton(true);
+                        ToogleButtons(false);
 
                         var outputFileName = new NSUuid().AsString();
                         var outputFilePath = Path.Combine(Path.GetTempPath(), Path.ChangeExtension(outputFileName, "mov"));
 
                         _videoFileOutput?.StartRecordingToOutputFile(NSUrl.FromFilename(outputFilePath), this);
+                        _isRecording = !_isRecording;
                     }
-                    else
-                    {
-                        _sl.RemoveAllAnimations();
-                        _sl.Hidden = true;
-
-                        _videoFileOutput?.StopRecording();
-                    }
-
-                    _isRecording = !_isRecording;
                     break;
             }
         }
 
-        private void TogglePhotoButton(bool isVideoProcessing)
+        private void EndCapturing(object sender, EventArgs e)
         {
-            var color = isVideoProcessing ? Constants.R255G28B5 : Constants.R255G255B255;
-            var circle = CircleBorder(50, color);
-            _photoButton.SetImage(circle, UIControlState.Normal);
-            _photoButton.Layer.BorderColor = color.CGColor;
+            if (_currentMode == CameraMode.Video && _isRecording)
+            {
+                ToogleButtons(true);
+                _videoFileOutput?.StopRecording();
+                _isRecording = !_isRecording;
+            }
         }
 
         public override void ViewDidLayoutSubviews()
@@ -395,6 +393,8 @@ namespace Steepshot.iOS.Views
                 flashButton.TouchDown += OnFlashTouch;
                 enableCameraAccess.TouchDown += EnableCameraAccess;
                 _photoButton.TouchDown += CaptureContent;
+                _photoButton.TouchUpInside += EndCapturing;
+                _photoButton.TouchUpOutside += EndCapturing;
                 _swapCameraButton.TouchDown += SwitchCameraButtonTapped;
             }
         }
@@ -404,6 +404,7 @@ namespace Steepshot.iOS.Views
             _photoButton.Enabled = isEnabled;
             closeButton.Enabled = isEnabled;
             _swapCameraButton.Enabled = isEnabled;
+            _galleryButton.UserInteractionEnabled = isEnabled;
         }
 
         public override void ViewDidAppear(bool animated)
@@ -531,6 +532,8 @@ namespace Steepshot.iOS.Views
                 flashButton.TouchDown -= OnFlashTouch;
                 enableCameraAccess.TouchDown -= EnableCameraAccess;
                 _photoButton.TouchDown -= CaptureContent;
+                _photoButton.TouchUpInside -= EndCapturing;
+                _photoButton.TouchUpOutside -= EndCapturing;
                 _swapCameraButton.TouchDown -= SwitchCameraButtonTapped;
             }
 
@@ -733,12 +736,12 @@ namespace Steepshot.iOS.Views
 
         public void FinishedRecording(AVCaptureFileOutput captureOutput, NSUrl outputFileUrl, NSObject[] connections, NSError error)
         {
+            ToogleButtons(true);
+
             _isRecording = false;
 
             _sl.RemoveAllAnimations();
             _sl.Hidden = true;
-
-            TogglePhotoButton(false);
             
             if (captureOutput.RecordedDuration.Seconds < Core.Constants.VideoMinDuration)
                 return;
