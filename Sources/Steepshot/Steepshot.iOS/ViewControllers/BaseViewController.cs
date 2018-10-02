@@ -11,6 +11,7 @@ using Steepshot.Core.Exceptions;
 using Steepshot.Core.Interfaces;
 using Steepshot.iOS.Helpers;
 using Steepshot.iOS.Views;
+using FFImageLoading;
 
 namespace Steepshot.iOS.ViewControllers
 {
@@ -351,6 +352,11 @@ namespace Steepshot.iOS.ViewControllers
         protected virtual void GoBack(object sender, EventArgs e)
         {
             NavigationController.PopViewController(true);
+        }
+
+        public override void DidReceiveMemoryWarning()
+        {
+            ImageService.Instance.InvalidateMemoryCache();
         }
     }
 

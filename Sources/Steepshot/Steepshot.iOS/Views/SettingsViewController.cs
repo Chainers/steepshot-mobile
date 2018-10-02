@@ -21,8 +21,15 @@ namespace Steepshot.iOS.Views
     public partial class SettingsViewController : BaseViewControllerWithPresenter<UserProfilePresenter>
     {
         private AccountsTableViewSource _tableSource;
+        private readonly UIBarButtonItem _leftBarButton = new UIBarButtonItem();
+        private MFMailComposeViewController _mailController;
 
-        public override void ViewDidLoad()
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+        }
+
+        public async override void ViewDidLoad()
         {
             base.ViewDidLoad();
             nsfwSwitch.On = AppSettings.User.IsNsfw;
@@ -34,7 +41,6 @@ namespace Steepshot.iOS.Views
 
             _tableSource = new AccountsTableViewSource();
             _tableSource.Accounts = AppSettings.User.GetAllAccounts();
-            _tableSource.CellAction += CellAction;
 
             accountsTable.Source = _tableSource;
             accountsTable.LayoutMargins = UIEdgeInsets.Zero;
@@ -69,21 +75,57 @@ namespace Steepshot.iOS.Views
             var appInfoService = AppSettings.Container.Resolve<IAppInfo>();
             versionLabel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.AppVersion, appInfoService.GetAppVersion(), appInfoService.GetBuildVersion());
 
-            reportButton.TouchDown += SendReport;
-            termsButton.TouchDown += ShowTos;
-            guideButton.TouchDown += ShowGuide;
-            notificationSettings.TouchDown += (object sender, EventArgs e) =>
-            {
-                NavigationController.PushViewController(new NotificationSettingsController(), true);
-            };
-            lowRatedSwitch.ValueChanged += SwitchLowRated;
-            nsfwSwitch.ValueChanged += SwitchNSFW;
             SetBackButton();
-            _presenter.SubscriptionsUpdated += _presenter_SubscriptionsUpdated;
-            _presenter.TryCheckSubscriptions();
 #if !DEBUG
             lowRatedLabel.Hidden = nsfwLabel.Hidden = nsfwSwitch.Hidden = lowRatedSwitch.Hidden = true;
 #endif
+            if (!AppSettings.AppInfo.GetModel().Contains("Simulator"))
+            {
+                await _presenter.TryCheckSubscriptions();
+            }
+        }
+
+        public override void ViewWillAppear(bool animated)
+        {
+            if (IsMovingToParentViewController)
+            {
+                reportButton.TouchDown += SendReport;
+                termsButton.TouchDown += ShowTos;
+                guideButton.TouchDown += ShowGuide;
+                notificationSettings.TouchDown += NotificationSettings_TouchDown;
+                lowRatedSwitch.ValueChanged += SwitchLowRated;
+                nsfwSwitch.ValueChanged += SwitchNSFW;
+                _presenter.SubscriptionsUpdated += _presenter_SubscriptionsUpdated;
+                _leftBarButton.Clicked += GoBack;
+                _tableSource.CellAction += CellAction;
+            }
+            base.ViewWillAppear(animated);
+        }
+
+        public override void ViewWillDisappear(bool animated)
+        {
+            if (IsMovingFromParentViewController)
+            {
+                reportButton.TouchDown -= SendReport;
+                termsButton.TouchDown -= ShowTos;
+                guideButton.TouchDown -= ShowGuide;
+                notificationSettings.TouchDown -= NotificationSettings_TouchDown;
+                lowRatedSwitch.ValueChanged -= SwitchLowRated;
+                nsfwSwitch.ValueChanged -= SwitchNSFW;
+                _presenter.SubscriptionsUpdated = null;
+                _leftBarButton.Clicked -= GoBack;
+                _tableSource.CellAction = null;
+                _tableSource.FreeAllCells();
+                if (_mailController != null)
+                    _mailController.Finished -= MailController_Finished;
+                _presenter.TasksCancel();
+            }
+            base.ViewWillDisappear(animated);
+        }
+
+        private void NotificationSettings_TouchDown(object sender, EventArgs e)
+        {
+            NavigationController.PushViewController(new NotificationSettingsController(), true);
         }
 
         private void _presenter_SubscriptionsUpdated()
@@ -100,17 +142,19 @@ namespace Steepshot.iOS.Views
         {
             if (MFMailComposeViewController.CanSendMail)
             {
-                var mailController = new MFMailComposeViewController();
-                mailController.SetToRecipients(new[] { "steepshot.org@gmail.com" });
-                mailController.SetSubject("User report");
-                mailController.Finished += (object s, MFComposeResultEventArgs args) =>
-                {
-                    args.Controller.DismissViewController(true, null);
-                };
-                PresentViewController(mailController, true, null);
+                _mailController = new MFMailComposeViewController();
+                _mailController.SetToRecipients(new[] { "steepshot.org@gmail.com" });
+                _mailController.SetSubject("User report");
+                _mailController.Finished += MailController_Finished;
+                PresentViewController(_mailController, true, null);
             }
             else
                 ShowAlert(LocalizationKeys.SetupMail);
+        }
+
+        void MailController_Finished(object sender, MFComposeResultEventArgs args)
+        {
+            args.Controller.DismissViewController(true, null);
         }
 
         private void SwitchNSFW(object sender, EventArgs e)
@@ -122,14 +166,7 @@ namespace Steepshot.iOS.Views
         {
             AppSettings.User.IsLowRated = lowRatedSwitch.On;
         }
-        /*
-                private void AddAccount()
-                {
-                    var myViewController = new PreLoginViewController();
-                    myViewController.NewAccountNetwork = BasePresenter.Chain == KnownChains.Steem ? KnownChains.Golos : KnownChains.Steem;
-                    NavigationController.PushViewController(myViewController, true);
-                }
-        */
+
         private void RemoveAccount(UserInfo account)
         {
             AppSettings.User.Delete(account);
@@ -138,23 +175,18 @@ namespace Steepshot.iOS.Views
 
         private void ShowTos(object sender, EventArgs e)
         {
-            UIApplication.SharedApplication.OpenUrl(new Uri(Core.Constants.Tos));
+            UIApplication.SharedApplication.OpenUrl(new Uri(Core.Constants.Tos), new NSDictionary(), null);
         }
 
         private void ShowGuide(object sender, EventArgs e)
         {
-            UIApplication.SharedApplication.OpenUrl(new Uri(Core.Constants.Guide));
-        }
-
-        private void SwitchAccount()
-        {
-
+            UIApplication.SharedApplication.OpenUrl(new Uri(Core.Constants.Guide), new NSDictionary(), null);
         }
 
         private void SetBackButton()
         {
-            var leftBarButton = new UIBarButtonItem(UIImage.FromBundle("ic_back_arrow"), UIBarButtonItemStyle.Plain, GoBack);
-            NavigationItem.LeftBarButtonItem = leftBarButton;
+            _leftBarButton.Image = UIImage.FromBundle("ic_back_arrow");
+            NavigationItem.LeftBarButtonItem = _leftBarButton;
             NavigationController.NavigationBar.TintColor = Constants.R15G24B30;
             NavigationItem.Title = AppSettings.LocalizationManager.GetText(LocalizationKeys.AppSettingsTitle);
         }
@@ -186,30 +218,19 @@ namespace Steepshot.iOS.Views
             tableHeight.Constant = tableContentSize.Height;
             rootScrollView.LayoutIfNeeded();
         }
-        /*
-        public override void ViewWillDisappear(bool animated)
-        {
-            //ShouldProfileUpdate = _previousNetwork != BasePresenter.Chain;
 
-            //if (IsMovingFromParentViewController && !_isTabBarNeedResfresh)
-                //NavigationController.SetNavigationBarHidden(true, true);
-            base.ViewWillDisappear(animated);
-        }
-*/
         private void SwitchNetwork(UserInfo user)
         {
             if (AppDelegate.MainChain == user.Chain)
                 return;
 
             AppSettings.User.SwitchUser(user);
-            //HighlightView(user.Chain);
             AppDelegate.MainChain = user.Chain;
 
             SetAddButton();
 
             var myViewController = new MainTabBarController();
             NavigationController.ViewControllers = new UIViewController[] { myViewController, this };
-            //_isTabBarNeedResfresh = true;
             NavigationController.PopViewController(false);
         }
 
@@ -233,10 +254,6 @@ namespace Steepshot.iOS.Views
                 {
                     SetAddButton();
                 }
-                else
-                {
-                    //BasePresenter.SwitchChain(BasePresenter.Chain == KnownChains.Steem ? _golosAcc : _steemAcc);
-                }
             }
             AppSettings.User.Save();
         }
@@ -244,9 +261,6 @@ namespace Steepshot.iOS.Views
         private void SetAddButton()
         {
             addAccountButton.Hidden = AppSettings.User.GetAllAccounts().Count == 2;
-            //#if !DEBUG
-            //addAccountButton.Hidden = true;
-            //#endif
         }
     }
 }
