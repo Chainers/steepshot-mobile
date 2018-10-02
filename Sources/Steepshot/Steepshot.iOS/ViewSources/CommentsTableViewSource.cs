@@ -65,7 +65,7 @@ namespace Steepshot.iOS.ViewSources
                 item.ReleaseCell();
             }
             TagAction = null;
-            _descriptionCell.ReleaseCell();
+            _descriptionCell?.ReleaseCell();
         }
     }
 }

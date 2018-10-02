@@ -87,7 +87,7 @@ namespace Steepshot.iOS.Views
 
         private void SourceChanged(Status status)
         {
-            followTableView.ReloadData();
+            InvokeOnMainThread(followTableView.ReloadData);
         }
 
         public async void GetItems()
