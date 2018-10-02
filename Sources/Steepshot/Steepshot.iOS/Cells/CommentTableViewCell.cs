@@ -42,6 +42,14 @@ namespace Steepshot.iOS.Cells
         private UILabel _costLabel;
         private UIStackView _bottomView;
 
+        private readonly UILongPressGestureRecognizer _likelongtap;
+        private readonly UITapGestureRecognizer _tap;
+        private readonly UITapGestureRecognizer _costTap;
+        private readonly UITapGestureRecognizer _replyTap;
+        private readonly UITapGestureRecognizer _likersTap;
+        private readonly UITapGestureRecognizer _flagersTap;
+        private readonly UITapGestureRecognizer _liketap;
+
         protected CommentTableViewCell(IntPtr handle) : base(handle)
         {
             _avatar = new UIImageView();
@@ -143,55 +151,45 @@ namespace Steepshot.iOS.Cells
             _bottomView.AddArrangedSubview(hugView);
             hugView.SetContentHuggingPriority(250, UILayoutConstraintAxis.Horizontal);
 
-            var tap = new UITapGestureRecognizer(() =>
+            _tap = new UITapGestureRecognizer(() =>
             {
                 if (SwipeState == MGSwipeState.None)
                     CellAction?.Invoke(ActionType.Profile, _currentPost);
             });
-            var costTap = new UITapGestureRecognizer(() =>
+            _costTap = new UITapGestureRecognizer(() =>
             {
                 if (SwipeState == MGSwipeState.None)
                     CellAction?.Invoke(ActionType.Profile, _currentPost);
             });
-            var replyTap = new UITapGestureRecognizer(() =>
+            _replyTap = new UITapGestureRecognizer(() =>
             {
                 if (SwipeState == MGSwipeState.None)
                     CellAction?.Invoke(ActionType.Reply, _currentPost);
             });
-            var likersTap = new UITapGestureRecognizer(() =>
+            _likersTap = new UITapGestureRecognizer(() =>
             {
                 if (SwipeState == MGSwipeState.None)
                     CellAction?.Invoke(ActionType.Voters, _currentPost);
             });
-            var flagersTap = new UITapGestureRecognizer(() =>
+            _flagersTap = new UITapGestureRecognizer(() =>
             {
                 if (SwipeState == MGSwipeState.None)
                     CellAction?.Invoke(ActionType.Flagers, _currentPost);
             });
-            _replyLabel.AddGestureRecognizer(replyTap);
-            _profileTapView.AddGestureRecognizer(tap);
-            _costLabel.AddGestureRecognizer(costTap);
-            _likesLabel.AddGestureRecognizer(likersTap);
-            _flagsLabel.AddGestureRecognizer(flagersTap);
-
-            var liketap = new UITapGestureRecognizer(LikeTap);
-            _like.AddGestureRecognizer(liketap);
+            _liketap = new UITapGestureRecognizer(LikeTap);
+            _replyLabel.AddGestureRecognizer(_replyTap);
+            _profileTapView.AddGestureRecognizer(_tap);
+            _costLabel.AddGestureRecognizer(_costTap);
+            _likesLabel.AddGestureRecognizer(_likersTap);
+            _flagsLabel.AddGestureRecognizer(_flagersTap);
+            _like.AddGestureRecognizer(_liketap);
 
             _sliderView = new SliderView(UIScreen.MainScreen.Bounds.Width);
-            _sliderView.LikeTap += () =>
-            {
-                LikeTap();
-            };
-            BaseViewController.SliderAction += (isSliderOpening) =>
-            {
-                if (_sliderView.Superview != null && !isSliderOpening)
-                {
-                    RightButtons = rigthButtons;
-                    _sliderView.Close();
-                }
-            };
+            _sliderView.LikeTap += LikeTap;
 
-            var likelongtap = new UILongPressGestureRecognizer((UILongPressGestureRecognizer obj) =>
+            BaseViewController.SliderAction += BaseViewController_SliderAction;
+
+            _likelongtap = new UILongPressGestureRecognizer((UILongPressGestureRecognizer obj) =>
             {
                 if (AppSettings.User.HasPostingPermission && !_currentPost.Vote)
                 {
@@ -209,7 +207,7 @@ namespace Steepshot.iOS.Cells
                     }
                 }
             });
-            _like.AddGestureRecognizer(likelongtap);
+            _like.AddGestureRecognizer(_likelongtap);
 
             RightSwipeSettings.Transition = MGSwipeTransition.Border;
 
@@ -236,6 +234,7 @@ namespace Steepshot.iOS.Cells
 
         public void UpdateCell(Post post)
         {
+            
             _currentPost = post;
 
             _scheduledWorkAvatar?.Cancel();
@@ -292,6 +291,15 @@ namespace Steepshot.iOS.Cells
                 RightButtons = new UIView[0];
         }
 
+        private void BaseViewController_SliderAction(bool isSliderOpening)
+        {
+            if (_sliderView.Superview != null && !isSliderOpening)
+            {
+                RightButtons = rigthButtons;
+                _sliderView.Close();
+            }
+        }
+
         private void Animate()
         {
             _like.Image = UIImage.FromBundle("ic_comment_like_active");
@@ -306,6 +314,26 @@ namespace Steepshot.iOS.Cells
             if (!BasePostPresenter.IsEnableVote)
                 return;
             CellAction?.Invoke(ActionType.Like, _currentPost);
+        }
+
+        public void ReleaseCell()
+        {
+
+            CellAction = null;
+
+            _replyLabel.RemoveGestureRecognizer(_replyTap);
+            _profileTapView.RemoveGestureRecognizer(_tap);
+            _costLabel.RemoveGestureRecognizer(_costTap);
+            _likesLabel.RemoveGestureRecognizer(_likersTap);
+            _flagsLabel.RemoveGestureRecognizer(_flagersTap);
+            _like.RemoveGestureRecognizer(_liketap);
+            _like.RemoveGestureRecognizer(_likelongtap);
+            _sliderView.LikeTap -= LikeTap;
+            BaseViewController.SliderAction -= BaseViewController_SliderAction;
+
+            deleteButton.Callback = null;
+            flagButton.Callback = null;
+            editButton.Callback = null;
         }
     }
 }

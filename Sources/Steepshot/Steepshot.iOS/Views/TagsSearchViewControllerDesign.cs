@@ -35,16 +35,16 @@ namespace Steepshot.iOS.Views
         private bool _isWarningOpen;
         private UIView warningView;
 
+        private UITapGestureRecognizer _tap;
+
         private void CreateView()
         {
             View.BackgroundColor = UIColor.White;
             searchTextField = new SearchTextField("Tap to search");
-            searchTextField.ReturnButtonTapped += ShouldReturn;
+
             searchTextField.BecomeFirstResponder();
-            //searchTextField.Font = Constants.Regular14;
             View.AddSubview(searchTextField);
 
-            searchTextField.ClearButtonTapped += () => { OnTimer(null); };
             searchTextField.AutoPinEdgeToSuperviewEdge(ALEdge.Top, 10f);
             searchTextField.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 15f);
             searchTextField.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 15f);
@@ -177,11 +177,10 @@ namespace Steepshot.iOS.Views
             warningLabel.AutoAlignAxisToSuperviewAxis(ALAxis.Horizontal);
             warningLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 20);
 
-            var tap = new UITapGestureRecognizer(() =>
+            _tap = new UITapGestureRecognizer(() =>
             {
                 searchTextField.ResignFirstResponder();
             });
-            View.AddGestureRecognizer(tap);
         }
 
         private void CreateNoResultView(UILabel label, UITableView tableToBind)
@@ -198,8 +197,6 @@ namespace Steepshot.iOS.Views
         private void SetupTables()
         {
             _userTableSource = new FollowTableViewSource(_searchFacade.UserFriendPresenter, usersTable);
-            _userTableSource.ScrolledToBottom += GetItems;
-            _userTableSource.CellAction += CellAction;
             usersTable.Source = _userTableSource;
             usersTable.AllowsSelection = false;
             usersTable.SeparatorStyle = UITableViewCellSeparatorStyle.None;
@@ -210,8 +207,7 @@ namespace Steepshot.iOS.Views
             usersTable.RowHeight = 70f;
             usersTable.ShowsVerticalScrollIndicator = false;
 
-            var _tagsSource = new TagsTableViewSource(_searchFacade.TagsPresenter, tagsTable, true);
-            _tagsSource.CellAction += CellAction;
+            _tagsSource = new TagsTableViewSource(_searchFacade.TagsPresenter, tagsTable, true);
             tagsTable.Source = _tagsSource;
             tagsTable.AllowsSelection = false;
             tagsTable.SeparatorStyle = UITableViewCellSeparatorStyle.None;

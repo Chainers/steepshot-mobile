@@ -108,10 +108,7 @@ namespace Steepshot.iOS.Views
                     NavigationController.PushViewController(new VotersViewController(post, VotersType.Flags), true);
                     break;
                 case ActionType.Comments:
-                    var myViewController4 = new CommentsViewController();
-                    myViewController4.HidesBottomBarWhenPushed = true;
-                    myViewController4.Post = post;
-                    NavigationController.PushViewController(myViewController4, true);
+                    NavigationController.PushViewController(new CommentsViewController(post) { HidesBottomBarWhenPushed = true }, true);
                     break;
                 case ActionType.Like:
                     Vote(post);

@@ -9,44 +9,41 @@ namespace Steepshot.iOS.Cells
 {
     public partial class DescriptionTableViewCell : UITableViewCell
     {
-        protected DescriptionTableViewCell(IntPtr handle) : base(handle) { }
-        public static readonly NSString Key = new NSString(nameof(DescriptionTableViewCell));
-        public static readonly UINib Nib;
-        private TTTAttributedLabel attributedLabel;
+        private readonly TTTAttributedLabel _attributedLabel = new TTTAttributedLabel();
+        private bool _isInitialized;
 
-        static DescriptionTableViewCell()
-        {
-            Nib = UINib.FromName(nameof(DescriptionTableViewCell), NSBundle.MainBundle);
-        }
-
-        public void UpdateCell(Post post, Action<string> TagAction)
-        {
-            attributedLabel = new TTTAttributedLabel();
-            attributedLabel.EnabledTextCheckingTypes = NSTextCheckingType.Link;
+        protected DescriptionTableViewCell(IntPtr handle) : base(handle)
+        { 
+            _attributedLabel.EnabledTextCheckingTypes = NSTextCheckingType.Link;
             var prop = new NSDictionary();
-            attributedLabel.LinkAttributes = prop;
-            attributedLabel.ActiveLinkAttributes = prop;
+            _attributedLabel.LinkAttributes = prop;
+            _attributedLabel.ActiveLinkAttributes = prop;
 
-            DescriptionView.AddSubview(attributedLabel);
-            attributedLabel.Font = Helpers.Constants.Regular14;
-            attributedLabel.Lines = 0;
-            attributedLabel.UserInteractionEnabled = true;
-            attributedLabel.Enabled = true;
-            attributedLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Left);
-            attributedLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Right);
-            attributedLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Top, 15f);
-            attributedLabel.Delegate = new TTTAttributedLabelFeedDelegate(TagAction);
+            AddSubview(_attributedLabel);
+            _attributedLabel.Font = Helpers.Constants.Regular14;
+            _attributedLabel.Lines = 0;
+            _attributedLabel.UserInteractionEnabled = true;
+            _attributedLabel.Enabled = true;
+            _attributedLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 15);
+            _attributedLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 15);
+            _attributedLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Top, 15f);
 
             var separator = new UIView();
-            separator.BackgroundColor = iOS.Helpers.Constants.R245G245B245;
-            DescriptionView.AddSubview(separator);
+            separator.BackgroundColor = Helpers.Constants.R245G245B245;
+            AddSubview(separator);
 
-            separator.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, attributedLabel, 15f);
-            separator.AutoPinEdgeToSuperviewEdge(ALEdge.Left);
-            separator.AutoPinEdgeToSuperviewEdge(ALEdge.Right);
+            separator.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, _attributedLabel, 15f);
+            separator.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 15);
+            separator.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 15);
             separator.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom);
             separator.AutoSetDimension(ALDimension.Height, 1);
+        }
 
+        public void Initialize(Post post, Action<string> TagAction)
+        {
+            if (_isInitialized)
+                return;
+            _isInitialized = true;
             var noLinkAttribute = new UIStringAttributes
             {
                 Font = Helpers.Constants.Regular14,
@@ -75,7 +72,14 @@ namespace Steepshot.iOS.Cells
                 };
                 at.Append(new NSAttributedString($" #{tag}", linkAttribute));
             }
-            attributedLabel.SetText(at);
+            _attributedLabel.SetText(at);
+
+            _attributedLabel.Delegate = new TTTAttributedLabelFeedDelegate(TagAction);
+        }
+
+        public void ReleaseCell()
+        {
+            _attributedLabel.Delegate = null;
         }
     }
 }
