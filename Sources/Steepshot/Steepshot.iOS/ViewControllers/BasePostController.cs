@@ -273,10 +273,5 @@ namespace Steepshot.iOS.ViewControllers
         {
             await GetPosts(false, false);
         }
-
-        protected sealed override void CreatePresenter()
-        {
-            base.CreatePresenter();
-        }
     }
 }

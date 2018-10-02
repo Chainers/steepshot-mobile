@@ -1,5 +1,4 @@
-﻿using System;
-using Steepshot.Core;
+﻿using Steepshot.Core;
 using Steepshot.Core.Presenters;
 
 namespace Steepshot.iOS.ViewControllers
@@ -8,13 +7,12 @@ namespace Steepshot.iOS.ViewControllers
     {
         protected T _presenter;
 
-        public override void ViewDidLoad()
+        protected BaseViewControllerWithPresenter()
         {
             CreatePresenter();
-            base.ViewDidLoad();
         }
 
-        protected virtual void CreatePresenter()
+        protected void CreatePresenter()
         {
             _presenter = new T();
 
