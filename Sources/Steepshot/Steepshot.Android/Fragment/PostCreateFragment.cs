@@ -10,10 +10,10 @@ using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
 using Java.IO;
-using Steepshot.Activity;
 using Steepshot.Base;
 using Steepshot.Core;
 using Steepshot.Core.Exceptions;
+using Steepshot.Core.Jobs.Upload;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
@@ -30,8 +30,8 @@ namespace Steepshot.Fragment
         public static string PreparePostTemp = "PreparePostTemp" + AppSettings.User.Login;
         private readonly PreparePostModel _tepmPost;
         private GalleryMediaAdapter _galleryAdapter;
-        private bool _isUploading;
-        private bool _isEnableSaveState = true;
+        private bool _isUploading = false;
+        //private bool _isEnableSaveState = true;
 
 
         protected List<GalleryMediaModel> Media { get; }
@@ -130,8 +130,8 @@ namespace Steepshot.Fragment
                 PreviewContainer.LayoutParameters = layoutParams;
                 Preview.Touch += PreviewOnTouch;
 
-                if (Media[0].UploadState >= UploadState.Saved)
-                    Preview.SetImageBitmap(Media[0]);
+                if (!string.IsNullOrEmpty(Media[0].TempPath))
+                    Preview.SetImageBitmap(Media[0].TempPath);
             }
             else
             {
@@ -164,48 +164,44 @@ namespace Steepshot.Fragment
             touchEventArgs.Handled = true;
         }
 
-        protected async Task ConvertAndSave()
+        protected Task<bool> ConvertAndSave()
         {
-            await Task.Run(() =>
+            return Task.Run(() =>
             {
                 try
                 {
-                    if (Media.All(m => m.UploadState != UploadState.ReadyToSave))
-                        return;
-
                     for (var i = 0; i < Media.Count; i++)
                     {
                         var model = Media[i];
-                        if (model.UploadState == UploadState.ReadyToSave)
+
+                        if (!string.IsNullOrEmpty(model.TempPath))
+                            continue;
+
+                        model.TempPath = CropAndSave(model);
+                        model.UploadState = UploadState.ReadyToUpload;
+
+                        if (!IsInitialized)
+                            break;
+
+                        var i1 = i;
+                        Activity.RunOnUiThread(() =>
                         {
-                            model.TempPath = CropAndSave(model);
-                            if (string.IsNullOrEmpty(model.TempPath))
-                                continue;
-                            model.UploadState = UploadState.Saved;
-
-                            if (!IsInitialized)
-                                break;
-
-                            var i1 = i;
-                            Activity.RunOnUiThread(() =>
-                            {
-                                if (_isSingleMode)
-                                    Preview.SetImageBitmap(Media[i1]);
-                                else
-                                    _galleryAdapter.NotifyItemChanged(i1);
-                            });
-                        }
+                            if (_isSingleMode)
+                                Preview.SetImageBitmap(model.TempPath);
+                            else
+                                _galleryAdapter.NotifyItemChanged(i1);
+                        });
                     }
 
-                    //SaveGalleryTemp();
+                    return true;
                 }
                 catch (Exception ex)
                 {
                     AppSettings.Logger.ErrorAsync(ex);
+                    return false;
                 }
             });
         }
-
 
         public string CropAndSave(GalleryMediaModel model)
         {
@@ -355,7 +351,7 @@ namespace Steepshot.Fragment
                 for (var i = 0; i < Media.Count; i++)
                 {
                     var media = Media[i];
-                    if (!(media.UploadState == UploadState.Saved || media.UploadState == UploadState.UploadError))
+                    if (media.UploadState != UploadState.ReadyToUpload)
                         continue;
 
                     var operationResult = await UploadMedia(media);
@@ -373,7 +369,7 @@ namespace Steepshot.Fragment
                 }
 
 
-                if (Media.All(m => m.UploadState == UploadState.UploadEnd))
+                if (Media.All(m => m.UploadState > UploadState.ReadyToUpload))
                     break;
 
                 repeatCount++;
@@ -383,8 +379,7 @@ namespace Steepshot.Fragment
 
         private async Task<OperationResult<UUIDModel>> UploadMedia(GalleryMediaModel model)
         {
-            model.UploadState = UploadState.UploadStart;
-            System.IO.Stream stream = null;
+            StreamConverter stream = null;
             FileInputStream fileInputStream = null;
 
             try
@@ -395,20 +390,16 @@ namespace Steepshot.Fragment
 
                 var request = new UploadMediaModel(AppSettings.User.UserInfo, stream, System.IO.Path.GetExtension(model.TempPath));
                 var serverResult = await Presenter.TryUploadMediaAsync(request);
-                model.UploadState = UploadState.UploadEnd;
+                model.UploadState = UploadState.ReadyToVerify;
                 return serverResult;
             }
             catch (Exception ex)
             {
-                model.UploadState = UploadState.UploadError;
                 await AppSettings.Logger.ErrorAsync(ex);
                 return new OperationResult<UUIDModel>(new InternalException(LocalizationKeys.PhotoUploadError, ex));
             }
             finally
             {
-                fileInputStream?.Close(); // ??? change order?
-                stream?.Flush();
-                fileInputStream?.Dispose();
                 stream?.Dispose();
             }
         }
@@ -420,7 +411,7 @@ namespace Steepshot.Fragment
                 for (var i = 0; i < Media.Count; i++)
                 {
                     var media = Media[i];
-                    if (media.UploadState != UploadState.UploadEnd)
+                    if (media.UploadState != UploadState.ReadyToVerify)
                         continue;
 
                     var operationResult = await Presenter.TryGetMediaStatusAsync(media.UploadMediaUuid);
@@ -433,7 +424,7 @@ namespace Steepshot.Fragment
                         {
                             case UploadMediaCode.Done:
                                 {
-                                    media.UploadState = UploadState.UploadVerified;
+                                    media.UploadState = UploadState.ReadyToResult;
                                     //SaveGalleryTemp();
                                 }
                                 break;
@@ -441,7 +432,7 @@ namespace Steepshot.Fragment
                             case UploadMediaCode.FailedToUpload:
                             case UploadMediaCode.FailedToSave:
                                 {
-                                    media.UploadState = UploadState.UploadError;
+                                    media.UploadState = UploadState.ReadyToUpload;
                                     //SaveGalleryTemp();
                                 }
                                 break;
@@ -449,7 +440,7 @@ namespace Steepshot.Fragment
                     }
                 }
 
-                if (Media.All(m => m.UploadState != UploadState.UploadEnd))
+                if (Media.All(m => m.UploadState != UploadState.ReadyToVerify))
                     break;
 
                 await Task.Delay(3000);
@@ -467,7 +458,7 @@ namespace Steepshot.Fragment
             for (var i = 0; i < Media.Count; i++)
             {
                 var media = Media[i];
-                if (media.UploadState != UploadState.UploadVerified)
+                if (media.UploadState != UploadState.ReadyToResult)
                     continue;
 
                 var mediaResult = await Presenter.TryGetMediaResultAsync(media.UploadMediaUuid);
@@ -711,7 +702,7 @@ namespace Steepshot.Fragment
                 _image.SetImageBitmap(null);
                 _image.SetImageResource(Style.R245G245B245);
 
-                if (model.UploadState > UploadState.ReadyToSave)
+                if (!string.IsNullOrEmpty(model.TempPath))
                 {
                     var bitmap = BitmapUtils.DecodeSampledBitmapFromFile(ItemView.Context, Android.Net.Uri.Parse(model.TempPath), Style.GalleryHorizontalScreenWidth, Style.GalleryHorizontalHeight);
                     _image.SetImageBitmap(bitmap);

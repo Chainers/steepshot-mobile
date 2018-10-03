@@ -18,6 +18,8 @@
     <PackageReference Include="Ditch.Golos" Version="4.1.0" />
     <PackageReference Include="Ditch.Steem" Version="4.1.0" />
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+    <PackageReference Include="sqlite-net-pcl" Version="1.5.231" />
+    <PackageReference Include="SQLiteNetExtensions" Version="2.1.0" />
     <PackageReference Include="System.ComponentModel" Version="4.3.0" />
     <PackageReference Include="System.ComponentModel.Annotations" Version="4.5.0" />
     <PackageReference Include="System.Net.Http" Version="4.3.3" />

@@ -60,7 +60,7 @@ namespace Steepshot.iOS.Views
             qrButton.Font = Constants.Semibold14;
 #if DEBUG
             var di = AppSettings.AssetHelper.GetDebugInfo();
-            if (AppDelegate.MainChain == KnownChains.Steem)
+            if (AppSettings.MainChain == KnownChains.Steem)
                 password.Text = di.SteemTestWif;
             else
                 password.Text = di.GolosTestWif;
@@ -79,7 +79,7 @@ namespace Steepshot.iOS.Views
             loginButton.Enabled = false;
             do
             {
-                var response = await _presenter.TryGetAccountInfoAsync(Username);
+                var response = await Presenter.TryGetAccountInfoAsync(Username);
                 if (response.IsSuccess)
                 {
                     AccountInfoResponse = response.Result;

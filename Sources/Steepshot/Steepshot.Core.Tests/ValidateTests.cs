@@ -14,7 +14,7 @@ namespace Steepshot.Core.Tests
         [Test]
         public void FollowModel_Empty_Username()
         {
-            var user = Users.First().Value;
+            var user = Users.First().Value.UserInfo;
 
             var request = new FollowModel(user, FollowType.Follow, string.Empty);
 
@@ -37,7 +37,7 @@ namespace Steepshot.Core.Tests
         [Test]
         public void PreparePostModel_Empty_Title()
         {
-            var user = Users.First().Value;
+            var user = Users.First().Value.UserInfo;
             var request = new PreparePostModel(user, AppSettings.AppInfo.GetModel())
             {
                 Media = new MediaModel[1]
@@ -51,7 +51,7 @@ namespace Steepshot.Core.Tests
         [Test]
         public void PreparePostModel_Empty_Media()
         {
-            var user = Users.First().Value;
+            var user = Users.First().Value.UserInfo;
             var request = new PreparePostModel(user, AppSettings.AppInfo.GetModel())
             {
                 Title = "title"
@@ -65,7 +65,7 @@ namespace Steepshot.Core.Tests
         [Test]
         public void PreparePostModel_MaxTags()
         {
-            var user = Users.First().Value;
+            var user = Users.First().Value.UserInfo;
             var tags = new string[PreparePostModel.TagLimit + 1];
             for (int i = 0; i < tags.Length; i++)
                 tags[i] = "tag_" + i;

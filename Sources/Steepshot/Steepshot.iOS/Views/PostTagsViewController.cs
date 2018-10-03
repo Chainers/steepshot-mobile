@@ -2,6 +2,8 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Foundation;
+using Steepshot.Core.Models.Common;
+using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Presenters;
 using Steepshot.iOS.Cells;
 using Steepshot.iOS.ViewControllers;
@@ -17,18 +19,12 @@ namespace Steepshot.iOS.Views
         private Timer _timer;
 
 
-        protected override void CreatePresenter()
-        {
-            _presenter = new TagsPresenter();
-        }
-
-
         public override async void ViewDidLoad()
         {
             base.ViewDidLoad();
             _timer = new Timer(OnTimer);
             //Table initialization
-            _tagsSource = new PostTagsTableViewSource(_presenter);
+            _tagsSource = new PostTagsTableViewSource(Presenter);
             tagsTable.Source = _tagsSource;
             tagsTable.RegisterClassForCellReuse(typeof(UITableViewCell), "PostTagsCell");
             _tagsSource.RowSelectedEvent += TableTagSelected;
@@ -62,7 +58,7 @@ namespace Steepshot.iOS.Views
 
             Activeview = searchText;
 
-            var exception = await _presenter.TryGetTopTagsAsync();
+            var exception = await Presenter.TryGetTopTagsAsync();
 
             if (exception == null)
                 tagsTable.ReloadData();
@@ -72,7 +68,7 @@ namespace Steepshot.iOS.Views
 
         private void TableTagSelected(int row)
         {
-            var tag = _presenter[row];
+            var tag = Presenter[row];
             if (tag == null)
                 return;
             AddTag(tag.Name);
@@ -94,20 +90,20 @@ namespace Steepshot.iOS.Views
             if (query != null && query.Length == 1)
                 return;
 
-            _presenter.Clear();
-            Exception exception;
+            Presenter.Clear();
+            OperationResult<ListResponse<SearchResult>> result;
             if (string.IsNullOrEmpty(query))
             {
-                exception = await _presenter.TryGetTopTagsAsync();
+                result = await Presenter.TryGetTopTagsAsync();
             }
             else
             {
-                exception = await _presenter.TryLoadNextAsync(query);
+                result = await Presenter.TryLoadNextAsync(query);
             }
 
-            if (exception == null)
+            if (result.IsSuccess)
                 tagsTable.ReloadData();
-            ShowAlert(exception);
+            ShowAlert(result);
         }
 
         private void AddTags(object sender, EventArgs e)

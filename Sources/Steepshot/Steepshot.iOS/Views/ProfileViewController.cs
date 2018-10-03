@@ -21,7 +21,7 @@ using Steepshot.iOS.Popups;
 
 namespace Steepshot.iOS.Views
 {
-    public partial class ProfileViewController : BasePostController <UserProfilePresenter>, IPageCloser
+    public partial class ProfileViewController : BasePostController<UserProfilePresenter>, IPageCloser
     {
         private UserProfileResponse _userData;
         private FeedCollectionViewSource _collectionViewSource;
@@ -42,7 +42,7 @@ namespace Steepshot.iOS.Views
         public override void ViewDidLoad()
         {
             base.ViewDidLoad();
-            _presenter.UserName = Username;
+            Presenter.UserName = Username;
             _navController = TabBarController != null ? TabBarController.NavigationController : NavigationController;
 
             collectionView.RegisterClassForCell(typeof(ProfileHeaderViewCell), nameof(ProfileHeaderViewCell));
@@ -56,23 +56,23 @@ namespace Steepshot.iOS.Views
                 MinimumInteritemSpacing = 0,
             }, false);
 
-            _gridDelegate = new ProfileCollectionViewFlowDelegate(collectionView, _presenter);
+            _gridDelegate = new ProfileCollectionViewFlowDelegate(collectionView, Presenter);
             _gridDelegate.IsGrid = false;
             _gridDelegate.IsProfile = true;
             _gridDelegate.ScrolledToBottom += ScrolledToBottom;
             _gridDelegate.CellClicked += CellAction;
 
-            _collectionViewSource = new ProfileCollectionViewSource(_presenter, _gridDelegate);
+            _collectionViewSource = new ProfileCollectionViewSource(Presenter, _gridDelegate);
             _collectionViewSource.CellAction += CellAction;
             _collectionViewSource.TagAction += TagAction;
             _collectionViewSource.ProfileAction += ProfileAction;
             collectionView.Source = _collectionViewSource;
             collectionView.Delegate = _gridDelegate;
 
-            _sliderGridDelegate = new SliderCollectionViewFlowDelegate(sliderCollection, _presenter);
+            _sliderGridDelegate = new SliderCollectionViewFlowDelegate(sliderCollection, Presenter);
             _sliderGridDelegate.ScrolledToBottom += ScrolledToBottom;
 
-            var _sliderCollectionViewSource = new SliderCollectionViewSource(_presenter, _sliderGridDelegate);
+            var _sliderCollectionViewSource = new SliderCollectionViewSource(Presenter, _sliderGridDelegate);
             _sliderCollectionViewSource.CellAction += CellAction;
             _sliderCollectionViewSource.TagAction += TagAction;
             sliderCollection.DecelerationRate = UIScrollView.DecelerationRateFast;
@@ -183,7 +183,7 @@ namespace Steepshot.iOS.Views
                     ShowPowerPopup();
                     break;
                 case ActionType.Balance:
-                    if(_userData.Username == AppSettings.User.Login && TabBarController != null)
+                    if (_userData.Username == AppSettings.User.Login && TabBarController != null)
                         TabBarController.NavigationController.PushViewController(new WalletViewController(), true);
                     break;
                 default:
@@ -206,7 +206,7 @@ namespace Steepshot.iOS.Views
 
         async void RefreshControl_ValueChanged(object sender, EventArgs e)
         {
-            await _presenter.TryUpdateUserPostsAsync(AppSettings.User.Login);
+            await Presenter.TryUpdateUserPostsAsync(AppSettings.User.Login);
 
             await RefreshPage();
             _refreshControl.EndRefreshing();
@@ -329,15 +329,15 @@ namespace Steepshot.iOS.Views
             errorMessage.Hidden = true;
             try
             {
-                var exception = await _presenter.TryGetUserInfoAsync(Username);
+                var result = await Presenter.TryGetUserInfoAsync(Username);
                 _refreshControl.EndRefreshing();
 
-                if (exception == null)
+                if (result.IsSuccess)
                 {
-                    _userData = _presenter.UserProfileResponse;
+                    _userData = Presenter.UserProfileResponse;
                     if (_userData.IsSubscribed)
                     {
-                        if(!AppSettings.User.WatchedUsers.Contains(_userData.Username))
+                        if (!AppSettings.User.WatchedUsers.Contains(_userData.Username))
                             AppSettings.User.WatchedUsers.Add(_userData.Username);
                     }
                     else
@@ -404,7 +404,7 @@ namespace Steepshot.iOS.Views
             {
                 WatchedUser = Username
             };
-            var response = await _presenter.TrySubscribeForPushesAsync(model);
+            var response = await Presenter.TrySubscribeForPushesAsync(model);
             if (response.IsSuccess)
             {
                 if (UserIsWatched)
@@ -447,12 +447,12 @@ namespace Steepshot.iOS.Views
 
             if (clearOld)
             {
-                _presenter.Clear();
+                Presenter.Clear();
                 _gridDelegate.ClearPosition();
                 _sliderGridDelegate.ClearPosition();
             }
 
-            var exception = await _presenter.TryLoadNextPostsAsync();
+            var exception = await Presenter.TryLoadNextPostsAsync();
 
             if (exception == null)
             {
@@ -473,12 +473,12 @@ namespace Steepshot.iOS.Views
         private async Task Follow()
         {
             _gridDelegate.profileCell.DecorateFollowButton();
-            var exception = await _presenter.TryFollowAsync();
+            var result = await Presenter.TryFollowAsync();
 
-            if (exception == null)
+            if (result.IsSuccess)
                 _gridDelegate.profileCell.DecorateFollowButton();
             else
-                ShowAlert(exception);
+                ShowAlert(result);
         }
 
         public void OpenPost(Post post)
@@ -487,7 +487,7 @@ namespace Steepshot.iOS.Views
             sliderCollection.Hidden = false;
             _sliderGridDelegate.GenerateVariables();
             sliderCollection.ReloadData();
-            sliderCollection.ScrollToItem(NSIndexPath.FromRowSection(_presenter.IndexOf(post), 0), UICollectionViewScrollPosition.CenteredHorizontally, false);
+            sliderCollection.ScrollToItem(NSIndexPath.FromRowSection(Presenter.IndexOf(post), 0), UICollectionViewScrollPosition.CenteredHorizontally, false);
         }
 
         public bool ClosePost()

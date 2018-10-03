@@ -19,6 +19,8 @@ namespace Steepshot.Core.Authorization
 
         public string Login { get; set; } = string.Empty;
 
+        public string Token { get; set; } = string.Empty;
+
         public string PostingKey { get; set; } = string.Empty;
 
         public string ActiveKey { get; set; } = string.Empty;
@@ -34,7 +36,7 @@ namespace Steepshot.Core.Authorization
         public HashSet<string> PostBlackList { get; set; } = new HashSet<string>();
 
         public string DefaultPhotoDirectory { get; set; } = "Steepshot";
-        
+
         public DateTime LastPostTime { get; set; }
 
         public bool ShowFooter { get; set; } = true;

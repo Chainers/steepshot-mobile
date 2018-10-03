@@ -9,6 +9,7 @@ using Steepshot.Core.Utils;
 using PureLayout.Net;
 using Steepshot.Core.Exceptions;
 using Steepshot.Core.Interfaces;
+using Steepshot.Core.Models.Common;
 using Steepshot.iOS.Helpers;
 using Steepshot.iOS.Views;
 
@@ -250,6 +251,14 @@ namespace Steepshot.iOS.ViewControllers
                     }, null);
                 });
             });
+        }
+
+        protected void ShowAlert(OperationResult operationResult)
+        {
+            if (operationResult.IsSuccess)
+                return;
+
+            ShowAlert(operationResult.Exception);
         }
 
         protected void ShowAlert(Exception exception, Action<UIAlertAction> okAction = null)

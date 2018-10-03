@@ -23,7 +23,7 @@ namespace Steepshot.Core.Tests.HttpClient
                 Offset = string.Empty,
 
             };
-            var response = await Api[apiName].GetPostVotersAsync(request, CancellationToken.None);
+            var response = await SteepshotApi[apiName].GetPostVotersAsync(request, CancellationToken.None);
             AssertResult(response);
             Assert.IsTrue(response.Result.Count == count);
         }
@@ -43,7 +43,7 @@ namespace Steepshot.Core.Tests.HttpClient
                 };
 
                 var token = new CancellationTokenSource(50);
-                var response = await Api[apiName].GetPostVotersAsync(request, token.Token);
+                var response = await SteepshotApi[apiName].GetPostVotersAsync(request, token.Token);
                 Assert.IsTrue(response.IsSuccess);
                 Assert.IsTrue(response.Result.Count == count);
             }

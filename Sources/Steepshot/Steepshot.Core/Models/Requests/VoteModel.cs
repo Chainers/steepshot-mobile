@@ -7,7 +7,7 @@ using Steepshot.Core.Models.Common;
 namespace Steepshot.Core.Models.Requests
 {
     [JsonObject(MemberSerialization.OptIn)]
-    public class VoteModel : AuthorizedPostingModel
+    public class VoteModel : AuthorizedWifModel
     {
         public Post Post { get; }
 
@@ -24,8 +24,11 @@ namespace Steepshot.Core.Models.Requests
 
         public int VoteDelay { get; set; } = 3000;
 
+        public short VotePower { get; set; }
+
         public VoteModel(UserInfo user, Post post, VoteType type) : base(user)
         {
+            VotePower = user.VotePower;
             Post = post;
             Type = type;
         }

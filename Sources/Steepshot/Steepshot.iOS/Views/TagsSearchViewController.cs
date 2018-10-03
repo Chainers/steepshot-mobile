@@ -34,9 +34,7 @@ namespace Steepshot.iOS.Views
             base.ViewDidLoad();
             CreateView();
 
-            var client = AppDelegate.MainChain == KnownChains.Steem ? AppDelegate.SteemClient : AppDelegate.GolosClient;
-            _searchFacade = new SearchFacade();
-            _searchFacade.SetClient(client);
+            _searchFacade = AppSettings.GetFacade<SearchFacade>(AppSettings.MainChain);
 
             _timer = new Timer(OnTimer);
 
@@ -128,8 +126,8 @@ namespace Steepshot.iOS.Views
         {
             if (user != null)
             {
-                var exception = await _searchFacade.UserFriendPresenter.TryFollowAsync(user);
-                ShowAlert(exception);
+                var result = await _searchFacade.UserFriendPresenter.TryFollowAsync(user);
+                ShowAlert(result);
             }
         }
 
@@ -164,7 +162,7 @@ namespace Steepshot.iOS.Views
             var shouldHideLoader = await Search(clear, shouldAnimate, isLoaderNeeded);
             if (shouldHideLoader)
             {
-                if(searchTextField.Text.Length > 2)
+                if (searchTextField.Text.Length > 2)
                     _noResultViewPeople.Hidden = _searchFacade.UserFriendPresenter.Count > 0;
                 _peopleLoader.StopAnimating();
             }

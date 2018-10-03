@@ -4,7 +4,6 @@ using Foundation;
 using MessageUI;
 using PureLayout.Net;
 using Steepshot.Core.Models.Enums;
-using Steepshot.Core.Services;
 using Steepshot.Core.Utils;
 using Steepshot.iOS.Cells;
 using Steepshot.iOS.ViewControllers;
@@ -14,6 +13,7 @@ using Constants = Steepshot.iOS.Helpers.Constants;
 using Steepshot.Core.Localization;
 using Com.OneSignal;
 using Steepshot.Core.Authorization;
+using Steepshot.Core.Interfaces;
 using Steepshot.Core.Presenters;
 
 namespace Steepshot.iOS.Views
@@ -79,8 +79,8 @@ namespace Steepshot.iOS.Views
             lowRatedSwitch.ValueChanged += SwitchLowRated;
             nsfwSwitch.ValueChanged += SwitchNSFW;
             SetBackButton();
-            _presenter.SubscriptionsUpdated += OnSubscriptionsUpdated;
-            _presenter.TryCheckSubscriptions();
+            Presenter.SubscriptionsUpdated += OnSubscriptionsUpdated;
+            Presenter.TryCheckSubscriptions();
 #if !DEBUG
             lowRatedLabel.Hidden = nsfwLabel.Hidden = nsfwSwitch.Hidden = lowRatedSwitch.Hidden = true;
 #endif
@@ -198,12 +198,12 @@ namespace Steepshot.iOS.Views
 */
         private void SwitchNetwork(UserInfo user)
         {
-            if (AppDelegate.MainChain == user.Chain)
+            if (AppSettings.MainChain == user.Chain)
                 return;
 
             AppSettings.User.SwitchUser(user);
             //HighlightView(user.Chain);
-            AppDelegate.MainChain = user.Chain;
+            AppSettings.MainChain = user.Chain;
 
             SetAddButton();
 
@@ -232,7 +232,7 @@ namespace Steepshot.iOS.Views
             }
             else
             {
-                if (AppDelegate.MainChain != account.Chain)
+                if (AppSettings.MainChain != account.Chain)
                 {
                     SetAddButton();
                 }

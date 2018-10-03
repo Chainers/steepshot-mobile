@@ -3,7 +3,9 @@ using System.Threading;
 using Foundation;
 using PureLayout.Net;
 using Steepshot.Core.Models;
+using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
+using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Presenters;
 using Steepshot.iOS.Cells;
 using Steepshot.iOS.CustomViews;
@@ -34,7 +36,7 @@ namespace Steepshot.iOS.Views
         {
             base.ViewDidLoad();
 
-            _presenter.SourceChanged += SourceChanged;
+            Presenter.SourceChanged += SourceChanged;
 
             NavigationController.NavigationBar.SetBackgroundImage(new UIImage(), UIBarMetrics.Default);
             NavigationController.NavigationBar.ShadowImage = new UIImage();
@@ -68,11 +70,11 @@ namespace Steepshot.iOS.Views
             });
             View.AddGestureRecognizer(tap);
 
-            _tableSource = new TagsTableViewSource(_presenter, tagsTableView);
+            _tableSource = new TagsTableViewSource(Presenter, tagsTableView);
             _tableSource.ScrolledToBottom += async () =>
             {
                 _tagField.Loader.StartAnimating();
-                var exception = await _presenter.TryLoadNextAsync(_tagField.Text, false);
+                var exception = await Presenter.TryLoadNextAsync(_tagField.Text, false);
                 _tagField.Loader.StopAnimating();
                 ShowAlert(exception);
             };
@@ -172,15 +174,19 @@ namespace Steepshot.iOS.Views
             _tagField.Loader.StartAnimating();
             _previousQuery = _tagField.Text;
 
-            Exception exception = null;
+            OperationResult<ListResponse<SearchResult>> result = null;
             if (_tagField.Text.Length == 0)
-                exception = await _presenter.TryGetTopTagsAsync();
+            {
+                result = await Presenter.TryGetTopTagsAsync();
+            }
             else if (_tagField.Text.Length > 1)
-                exception = await _presenter.TryLoadNextAsync(_tagField.Text, showUnknownTag : true);
+            {
+                result = await Presenter.TryLoadNextAsync(_tagField.Text, showUnknownTag : true);
+            }
 
-            if(!(exception is OperationCanceledException))
+            if(result.IsSuccess || !(result.Exception is OperationCanceledException))
                 _tagField.Loader.StopAnimating();
-            ShowAlert(exception);
+            ShowAlert(result);
         }
 
         private void EditingDidChange(object sender, EventArgs e)

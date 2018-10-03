@@ -33,9 +33,7 @@ namespace Steepshot.iOS.Views
         {
             base.ViewDidLoad();
 
-            var client = AppDelegate.MainChain == KnownChains.Steem ? AppDelegate.SteemClient : AppDelegate.GolosClient;
-            _transferFacade = new TransferFacade();
-            _transferFacade.SetClient(client);
+            _transferFacade = AppSettings.GetFacade<TransferFacade>(AppSettings.MainChain);
             _transferFacade.OnRecipientChanged += OnRecipientChanged;
             _transferFacade.OnUserBalanceChanged += OnUserBalanceChanged;
             _transferFacade.UserFriendPresenter.SourceChanged += PresenterOnSourceChanged;
@@ -187,7 +185,7 @@ namespace Steepshot.iOS.Views
                 _tranfserLoader.StartAnimating();
                 RemoveFocus();
 
-                var transferResponse = await _presenter.TryTransferAsync(AppSettings.User.UserInfo, _transferFacade.Recipient.Author, _amountTextField.GetDoubleValue().ToString(CultureInfo.InvariantCulture), _pickedCoin, _memoTextView.Text);
+                var transferResponse = await Presenter.TryTransferAsync(AppSettings.User.UserInfo, _transferFacade.Recipient.Author, _amountTextField.GetDoubleValue().ToString(CultureInfo.InvariantCulture), _pickedCoin, _memoTextView.Text);
 
                 _tranfserLoader.StopAnimating();
                 TogglButtons(true);
@@ -238,15 +236,15 @@ namespace Steepshot.iOS.Views
                 _noResultViewTags.Hidden = true;
                 _usersLoader.StartAnimating();
             }
-            var searchResult = await _transferFacade.TryLoadNextSearchUserAsync(_recepientTextField.Text);
+            var result = await _transferFacade.TryLoadNextSearchUserAsync(_recepientTextField.Text);
 
-            if (!(searchResult is OperationCanceledException))
+            if (result.IsSuccess || !(result.Exception is OperationCanceledException))
             {
                 if (_recepientTextField.IsFirstResponder)
                     _noResultViewTags.Hidden = _transferFacade.UserFriendPresenter.Count > 0;
                 _usersLoader.StopAnimating();
 
-                if (!_isWarningOpen && searchResult != null)
+                if (!_isWarningOpen && !result.IsSuccess)
                 {
                     UIView.Animate(0.3f, 0f, UIViewAnimationOptions.CurveEaseOut, () =>
                     {

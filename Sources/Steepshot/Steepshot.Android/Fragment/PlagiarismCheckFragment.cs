@@ -13,16 +13,14 @@ using Android.Widget;
 using CheeseBind;
 using Steepshot.Base;
 using Steepshot.Core;
-using Steepshot.Core.Extensions;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
-using Steepshot.Fragment;
 using Steepshot.Utils;
 
-namespace Steepshot.Activity
+namespace Steepshot.Fragment
 {
     public class PlagiarismCheckFragment : BaseFragmentWithPresenter<PostDescriptionPresenter>
     {

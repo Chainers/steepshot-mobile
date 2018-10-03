@@ -16,7 +16,7 @@ using Constants = Steepshot.iOS.Helpers.Constants;
 
 namespace Steepshot.iOS.ViewControllers
 {
-    public abstract class BasePostController<T> : BaseViewControllerWithPresenter<T> where T : BasePostPresenter, new()
+    public abstract class BasePostController<T> : BaseViewControllerWithPresenter<T> where T : BasePostPresenter
     {
         private UIView dialog;
         private UIButton rightButton;
@@ -29,22 +29,16 @@ namespace Steepshot.iOS.ViewControllers
                 LoginTapped(null, null);
                 return;
             }
-
-            if (post == null)
-                return;
-
-            var exception = await _presenter.TryVoteAsync(post);
-            if (exception is OperationCanceledException)
-                return;
-
-            ShowAlert(exception);
-            if (exception == null)
+            
+            var result = await Presenter.TryVoteAsync(post);
+            ShowAlert(result);
+            if (result.IsSuccess)
                 ((MainTabBarController)TabBarController)?.UpdateProfile();
         }
 
         protected virtual async void LoginTapped(object sender, EventArgs e)
         {
-            var response = await _presenter.CheckServiceStatusAsync();
+            var response = await Presenter.CheckServiceStatusAsync();
 
             var myViewController = new WelcomeViewController(response.IsSuccess);
             NavigationController.PushViewController(myViewController, true);
@@ -79,7 +73,7 @@ namespace Steepshot.iOS.ViewControllers
 
         public override void ViewDidAppear(bool animated)
         {
-            if(_alert != null)
+            if (_alert != null)
                 _alert.Hidden = false;
 
             base.ViewDidAppear(animated);
@@ -96,7 +90,7 @@ namespace Steepshot.iOS.ViewControllers
             AppSettings.User.PostBlackList.Add(post.Url);
             AppSettings.User.Save();
 
-            _presenter.HidePost(post);
+            Presenter.HidePost(post);
         }
 
         protected async Task FlagPhoto(Post post)
@@ -106,13 +100,10 @@ namespace Steepshot.iOS.ViewControllers
                 LoginTapped(null, null);
                 return;
             }
-
-            if (post == null)
-                return;
-
-            var exception = await _presenter.TryFlagAsync(post);
-            ShowAlert(exception);
-            if (exception == null)
+            
+            var result = await Presenter.TryFlagAsync(post);
+            ShowAlert(result);
+            if (result.IsSuccess)
                 ((MainTabBarController)TabBarController)?.UpdateProfile();
         }
 
@@ -243,10 +234,8 @@ namespace Steepshot.iOS.ViewControllers
         {
             action.Invoke();
 
-            var exception = await _presenter.TryDeletePostAsync(post);
-
-            if (exception != null)
-                ShowAlert(exception);
+            var result = await Presenter.TryDeletePostAsync(post);
+            ShowAlert(result);
         }
 
         private void EditPost(Post post)
@@ -284,7 +273,7 @@ namespace Steepshot.iOS.ViewControllers
         protected sealed override void CreatePresenter()
         {
             base.CreatePresenter();
-            _presenter.SourceChanged += SourceChanged;
+            Presenter.SourceChanged += SourceChanged;
         }
     }
 }

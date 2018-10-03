@@ -31,10 +31,10 @@ namespace Steepshot.iOS.Views
         {
             base.ViewDidLoad();
 
-            _presenter.VotersType = _votersType;
-            _presenter.SourceChanged += SourceChanged;
+            Presenter.VotersType = _votersType;
+            Presenter.SourceChanged += SourceChanged;
 
-            var tableSource = new FollowTableViewSource(_presenter, votersTable);
+            var tableSource = new FollowTableViewSource(Presenter, votersTable);
             votersTable.Source = tableSource;
             votersTable.SeparatorStyle = UITableViewCellSeparatorStyle.None;
             votersTable.LayoutMargins = UIEdgeInsets.Zero;
@@ -66,7 +66,7 @@ namespace Steepshot.iOS.Views
             NavigationItem.LeftBarButtonItem = leftBarButton;
             NavigationItem.RightBarButtonItem = rightBarButton;
             NavigationController.NavigationBar.TintColor = Helpers.Constants.R15G24B30;
-            NavigationItem.Title = _presenter.VotersType.GetDescription();
+            NavigationItem.Title = Presenter.VotersType.GetDescription();
         }
 
         private void CellAction(ActionType type, UserFriend user)
@@ -95,7 +95,7 @@ namespace Steepshot.iOS.Views
 
         public async void GetItems()
         {
-            var exception = await _presenter.TryLoadNextPostVotersAsync(!_isComment ? _post.Url : _post.Url.Substring(_post.Url.LastIndexOf("@", StringComparison.Ordinal)));
+            var exception = await Presenter.TryLoadNextPostVotersAsync(!_isComment ? _post.Url : _post.Url.Substring(_post.Url.LastIndexOf("@", StringComparison.Ordinal)));
             ShowAlert(exception);
             progressBar.StopAnimating();
         }
@@ -104,14 +104,14 @@ namespace Steepshot.iOS.Views
         {
             if (user != null)
             {
-                var exception = await _presenter.TryFollowAsync(user);
-                ShowAlert(exception);
+                var result = await Presenter.TryFollowAsync(user);
+                ShowAlert(result);
             }
         }
 
         public override void ViewDidUnload()
         {
-            _presenter.LoadCancel();
+            Presenter.LoadCancel();
             base.ViewDidUnload();
         }
     }

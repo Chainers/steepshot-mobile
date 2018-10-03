@@ -1,10 +1,10 @@
 ﻿using Android.OS;
-using Steepshot.Core;
 using Steepshot.Core.Presenters;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.Base
 {
-    public abstract class BaseActivityWithPresenter<T> : BaseActivity where T : BasePresenter, new()
+    public abstract class BaseActivityWithPresenter<T> : BaseActivity where T : BasePresenter
     {
         protected T Presenter;
 
@@ -17,16 +17,7 @@ namespace Steepshot.Base
 
         private void CreatePresenter()
         {
-            Presenter = new T();
-            switch (App.MainChain)
-            {
-                case KnownChains.Golos:
-                    Presenter.SetClient(App.GolosClient);
-                    break;
-                case KnownChains.Steem:
-                    Presenter.SetClient(App.SteemClient);
-                    break;
-            }
+            Presenter = AppSettings.GetPresenter<T>(AppSettings.MainChain);
         }
 
         protected override void OnDestroy()

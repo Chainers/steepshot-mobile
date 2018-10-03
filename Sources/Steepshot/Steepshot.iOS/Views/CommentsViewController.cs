@@ -48,11 +48,11 @@ namespace Steepshot.iOS.Views
             base.ViewDidLoad();
             View.BackgroundColor = UIColor.White;
 
-            _presenter.SourceChanged += SourceChanged;
+            Presenter.SourceChanged += SourceChanged;
 
             CreateView();
 
-            _tableSource = new CommentsTableViewSource(_presenter, Post);
+            _tableSource = new CommentsTableViewSource(Presenter, Post);
             _tableSource.CellAction += CellAction;
             _tableSource.TagAction += TagAction;
 
@@ -289,7 +289,7 @@ namespace Steepshot.iOS.Views
 
         private void HideAction(Post post)
         {
-            _presenter.HidePost(post);
+            Presenter.HidePost(post);
         }
 
         private void OpenKeyboard()
@@ -300,8 +300,8 @@ namespace Steepshot.iOS.Views
         public async void GetComments()
         {
             _tableProgressBar.StartAnimating();
-            _presenter.Clear();
-            var exception = await _presenter.TryLoadNextCommentsAsync(Post);
+            Presenter.Clear();
+            var exception = await Presenter.TryLoadNextCommentsAsync(Post);
             if (exception is OperationCanceledException)
                 return;
             ShowAlert(exception);
@@ -316,10 +316,10 @@ namespace Steepshot.iOS.Views
                 LoginTapped();
                 return;
             }
-
-            var exception = await _presenter.TryVoteAsync(post);
-            ShowAlert(exception);
-            if (exception == null)
+            
+            var result = await Presenter.TryVoteAsync(post);
+            ShowAlert(result);
+            if (result.IsSuccess)
                 ((MainTabBarController)TabBarController)?.UpdateProfile();
         }
 
@@ -331,9 +331,9 @@ namespace Steepshot.iOS.Views
                 return;
             }
 
-            var exception = await _presenter.TryFlagAsync(post);
-            ShowAlert(exception);
-            if (exception == null)
+            var result = await Presenter.TryFlagAsync(post);
+            ShowAlert(result);
+            if (result.IsSuccess)
                 ((MainTabBarController)TabBarController)?.UpdateProfile();
         }
 
@@ -359,7 +359,7 @@ namespace Steepshot.iOS.Views
             _sendButton.Hidden = true;
             _sendProgressBar.StartAnimating();
 
-            var response = await _presenter.TryCreateCommentAsync(Post, textToSend);
+            var response = await Presenter.TryCreateCommentAsync(Post, textToSend);
 
             _sendProgressBar.StopAnimating();
             _commentTextView.UserInteractionEnabled = true;
@@ -369,7 +369,7 @@ namespace Steepshot.iOS.Views
             {
                 CancelTap(null, null);
 
-                var exception = await _presenter.TryLoadNextCommentsAsync(Post);
+                var exception = await Presenter.TryLoadNextCommentsAsync(Post);
 
                 ShowAlert(exception);
                 //if (_presenter.Count > 0)
@@ -391,12 +391,12 @@ namespace Steepshot.iOS.Views
                 return;
             }
 
-            var exception = await _presenter.TryDeleteCommentAsync(post, Post);
+            var result = await Presenter.TryDeleteCommentAsync(post, Post);
 
-            if (exception == null)
+            if (result.IsSuccess)
                 Post.Children--;
 
-            ShowAlert(exception);
+            ShowAlert(result);
         }
 
         protected override void ScrollTheView(bool move)
@@ -407,7 +407,7 @@ namespace Steepshot.iOS.Views
                 _commentsTable.ScrollIndicatorInsets = _commentsTable.ContentInset = new UIEdgeInsets(ScrollAmount, 0, 0, 0);
                 if (_postToEdit != null)
                 {
-                    var currentPostIndex = _presenter.IndexOf(_postToEdit);
+                    var currentPostIndex = Presenter.IndexOf(_postToEdit);
                     _commentsTable.ScrollToRow(NSIndexPath.FromItemSection(currentPostIndex + 1, 0), UITableViewScrollPosition.Top, true);
                 }
             }
@@ -472,7 +472,7 @@ namespace Steepshot.iOS.Views
             _saveButton.Hidden = true;
             _commentTextView.UserInteractionEnabled = false;
 
-            var exception = await _presenter.TryEditCommentAsync(AppSettings.User.UserInfo, Post, _postToEdit, textToSend, AppSettings.AppInfo);
+            var exception = await Presenter.TryEditCommentAsync(AppSettings.User.UserInfo, Post, _postToEdit, textToSend, AppSettings.AppInfo);
 
             if (exception == null)
                 CancelTap(null, null);

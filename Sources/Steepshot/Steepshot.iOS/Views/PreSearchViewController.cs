@@ -36,22 +36,22 @@ namespace Steepshot.iOS.Views
             _navController = TabBarController != null ? TabBarController.NavigationController : NavigationController;
             _navController.NavigationBar.Translucent = false;
 
-            _gridDelegate = new CollectionViewFlowDelegate(collectionView, _presenter);
+            _gridDelegate = new CollectionViewFlowDelegate(collectionView, Presenter);
             _gridDelegate.IsGrid = true;
             _gridDelegate.ScrolledToBottom += ScrolledToBottom;
             _gridDelegate.CellClicked += CellAction;
 
-            _collectionViewSource = new FeedCollectionViewSource(_presenter, _gridDelegate);
+            _collectionViewSource = new FeedCollectionViewSource(Presenter, _gridDelegate);
             _collectionViewSource.IsGrid = true;
             collectionView.Source = _collectionViewSource;
             collectionView.RegisterClassForCell(typeof(LoaderCollectionCell), nameof(LoaderCollectionCell));
             collectionView.RegisterClassForCell(typeof(PhotoCollectionViewCell), nameof(PhotoCollectionViewCell));
             collectionView.RegisterClassForCell(typeof(NewFeedCollectionViewCell), nameof(NewFeedCollectionViewCell));
 
-            _sliderGridDelegate = new SliderCollectionViewFlowDelegate(sliderCollection, _presenter);
+            _sliderGridDelegate = new SliderCollectionViewFlowDelegate(sliderCollection, Presenter);
             _sliderGridDelegate.ScrolledToBottom += ScrolledToBottom;
 
-            var _sliderCollectionViewSource = new SliderCollectionViewSource(_presenter, _sliderGridDelegate);
+            var _sliderCollectionViewSource = new SliderCollectionViewSource(Presenter, _sliderGridDelegate);
 
             sliderCollection.DecelerationRate = UIScrollView.DecelerationRateFast;
             sliderCollection.ShowsHorizontalScrollIndicator = false;
@@ -133,7 +133,7 @@ namespace Steepshot.iOS.Views
             signInLoader.StartAnimating();
             loginButton.Enabled = false;
 
-            var response = await _presenter.CheckServiceStatusAsync();
+            var response = await Presenter.CheckServiceStatusAsync();
 
             loginButton.Enabled = true;
             signInLoader.StopAnimating();
@@ -189,9 +189,9 @@ namespace Steepshot.iOS.Views
 
         private void SwitchSearchType(PostType postType)
         {
-            if (postType == _presenter.PostType)
+            if (postType == Presenter.PostType)
                 return;
-            _presenter.PostType = postType;
+            Presenter.PostType = postType;
             switch (postType)
             {
                 case PostType.Hot:
@@ -264,7 +264,7 @@ namespace Steepshot.iOS.Views
             sliderCollection.Hidden = false;
             _sliderGridDelegate.GenerateVariables();
             sliderCollection.ReloadData();
-            sliderCollection.ScrollToItem(NSIndexPath.FromRowSection(_presenter.IndexOf(post), 0), UICollectionViewScrollPosition.CenteredHorizontally, false);
+            sliderCollection.ScrollToItem(NSIndexPath.FromRowSection(Presenter.IndexOf(post), 0), UICollectionViewScrollPosition.CenteredHorizontally, false);
         }
 
         public bool ClosePost()
@@ -332,15 +332,15 @@ namespace Steepshot.iOS.Views
                 {
                     _sliderGridDelegate.ClearPosition();
                     _gridDelegate.ClearPosition();
-                    _presenter.Clear();
+                    Presenter.Clear();
                 }
 
                 if (CurrentPostCategory == null)
-                    exception = await _presenter.TryLoadNextTopPostsAsync();
+                    exception = await Presenter.TryLoadNextTopPostsAsync();
                 else
                 {
-                    _presenter.Tag = CurrentPostCategory;
-                    exception = await _presenter.TryGetSearchedPostsAsync();
+                    Presenter.Tag = CurrentPostCategory;
+                    exception = await Presenter.TryGetSearchedPostsAsync();
                 }
 
                 if (exception is OperationCanceledException)
@@ -371,7 +371,7 @@ namespace Steepshot.iOS.Views
         {
             if (!collectionView.Hidden)
             {
-                foreach (var item in _presenter)
+                foreach (var item in Presenter)
                 {
                     foreach (var url in item.Media)
                     {
@@ -387,7 +387,7 @@ namespace Steepshot.iOS.Views
             }
             else
             {
-                foreach (var item in _presenter)
+                foreach (var item in Presenter)
                 {
                     foreach (var url in item.Media)
                     {
@@ -399,7 +399,7 @@ namespace Steepshot.iOS.Views
                 }
 
 
-                foreach (var item in _presenter)
+                foreach (var item in Presenter)
                 {
                     ImageLoader.Preload(item.Media[0].Url, new CGSize(UIScreen.MainScreen.Bounds.Width, UIScreen.MainScreen.Bounds.Width));
                 }

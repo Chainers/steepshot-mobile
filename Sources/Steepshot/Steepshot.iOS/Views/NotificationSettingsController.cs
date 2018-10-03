@@ -88,7 +88,7 @@ namespace Steepshot.iOS.Views
             {
                 Subscriptions = PushSettings.FlagToStringList()
             };
-            var resp = await _presenter.TrySubscribeForPushesAsync(model);
+            var resp = await Presenter.TrySubscribeForPushesAsync(model);
             if (resp.IsSuccess)
                 AppSettings.User.PushSettings = PushSettings;
         }

@@ -5,31 +5,41 @@ using System.IO;
 using Autofac;
 using NUnit.Framework;
 using Steepshot.Core.Models.Common;
-using Steepshot.Core.Services;
 using Steepshot.Core.Tests.Stubs;
 using Steepshot.Core.Utils;
 using System.ComponentModel.DataAnnotations;
+using System.Threading;
+using System.Threading.Tasks;
+using Ditch.Core.JsonRpc;
 using Newtonsoft.Json;
 using Steepshot.Core.Authorization;
 using Steepshot.Core.Clients;
+using Steepshot.Core.Interfaces;
 using Steepshot.Core.Localization;
+using Steepshot.Core.Models.Requests;
 
 namespace Steepshot.Core.Tests
 {
     public class BaseTests
     {
         private const bool IsDev = true;
-        private static readonly ExtendedHttpClient ExtendedHttpClient;
-        protected static readonly Dictionary<KnownChains, UserInfo> Users;
-        protected static readonly Dictionary<KnownChains, SteepshotApiClient> Api;
+        protected static readonly Dictionary<KnownChains, User> Users;
+        protected static readonly Dictionary<KnownChains, BaseDitchClient> Api;
+        protected static readonly Dictionary<KnownChains, SteepshotApiClient> SteepshotApi;
+        protected static readonly SteepshotClient steepshotClient;
 
         static BaseTests()
         {
             var builder = new ContainerBuilder();
 
             var saverService = new StubSaverService();
+            var logService = new StubLogService();
             var assetsHelper = new AssetsHelperStub();
-            var lm = new LocalizationManager(saverService, assetsHelper);
+            var configManager = new ConfigManager(saverService, assetsHelper);
+            var connectionService = new StubConnectionService();
+            var extendedHttpClient = new ExtendedHttpClient();
+
+            var lm = new LocalizationManager(saverService, assetsHelper, connectionService, logService);
 
             builder.RegisterInstance(assetsHelper).As<IAssetHelper>().SingleInstance();
             builder.RegisterInstance(new StubAppInfo()).As<IAppInfo>().SingleInstance();
@@ -41,22 +51,27 @@ namespace Steepshot.Core.Tests
 
             AppSettings.Container = builder.Build();
             AppSettings.Settings.IsDev = IsDev;
-            ExtendedHttpClient = new ExtendedHttpClient();
 
-            Users = new Dictionary<KnownChains, UserInfo>
+            // = new UserInfo {Login = ConfigurationManager.AppSettings["SteemLogin"], PostingKey = ConfigurationManager.AppSettings["SteemPostingWif"]}},
+            //{Login = ConfigurationManager.AppSettings["GolosLogin"], PostingKey = ConfigurationManager.AppSettings["GolosPostingWif"]}},
+            Users = new Dictionary<KnownChains, User>
             {
-                {KnownChains.Steem, new UserInfo {Login = ConfigurationManager.AppSettings["SteemLogin"], PostingKey = ConfigurationManager.AppSettings["SteemPostingWif"]}},
-                {KnownChains.Golos, new UserInfo {Login = ConfigurationManager.AppSettings["GolosLogin"], PostingKey = ConfigurationManager.AppSettings["GolosPostingWif"]}},
+                //{KnownChains.Steem, new User(new StubUserManager(new)),
+                //{KnownChains.Golos, new User(new StubUserManager()) ,
             };
 
-            Api = new Dictionary<KnownChains, SteepshotApiClient>
+            Api = new Dictionary<KnownChains, BaseDitchClient>
             {
-                {KnownChains.Steem, new SteepshotApiClient(ExtendedHttpClient, KnownChains.Steem)},
-                {KnownChains.Golos, new SteepshotApiClient(ExtendedHttpClient, KnownChains.Golos)},
+                {KnownChains.Steem, new SteemClient(extendedHttpClient, logService, configManager)},
+                {KnownChains.Golos, new GolosClient(extendedHttpClient, logService, configManager)},
             };
 
-            Api[KnownChains.Steem].SetDev(IsDev);
-            Api[KnownChains.Golos].SetDev(IsDev);
+            SteepshotApi = new Dictionary<KnownChains, SteepshotApiClient>
+            {
+                {KnownChains.Steem, new SteepshotApiClient(extendedHttpClient, logService, Constants.SteemUrl)},
+                {KnownChains.Golos, new SteepshotApiClient(extendedHttpClient, logService, Constants.GolosUrl)},
+            };
+            steepshotClient = new SteepshotClient(extendedHttpClient);
         }
 
         protected string GetTestImagePath()
@@ -93,6 +108,17 @@ namespace Steepshot.Core.Tests
             var context = new ValidationContext(request);
             Validator.TryValidateObject(request, context, results, true);
             return results;
+        }
+
+        protected async Task<OperationResult<VoidResponse>> CreateOrEditCommentAsync(KnownChains chains, CreateOrEditCommentModel model, CancellationToken ct)
+        {
+            if (!model.IsEditMode)
+                model.Beneficiaries = await SteepshotApi[chains].GetBeneficiariesAsync(ct).ConfigureAwait(false);
+
+            var result = await Api[chains].CreateOrEditAsync(model, ct).ConfigureAwait(false);
+            //log parent post to perform update
+            await SteepshotApi[chains].TraceAsync($"post/@{model.ParentAuthor}/{model.ParentPermlink}/comment", model.Login, result.Exception, $"@{model.ParentAuthor}/{model.ParentPermlink}", ct).ConfigureAwait(false);
+            return result;
         }
     }
 }

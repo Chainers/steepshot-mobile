@@ -37,7 +37,6 @@ namespace Steepshot.Activity
 
 #pragma warning disable 0649, 4014
         [BindView(Resource.Id.dtn_terms_of_service)] private Button _termsButton;
-        [BindView(Resource.Id.tests)] private AppCompatButton _testsButton;
         [BindView(Resource.Id.btn_guide)] private Button _guideButton;
         [BindView(Resource.Id.nsfw_switch)] private SwitchCompat _nsfwSwitcher;
         [BindView(Resource.Id.low_switch)] private SwitchCompat _lowRatedSwitcher;
@@ -165,13 +164,6 @@ namespace Steepshot.Activity
             _nsfwSwitcher.CheckedChange += OnNsfwSwitcherOnCheckedChange;
             _lowRatedSwitcher.CheckedChange += OnLowRatedSwitcherOnCheckedChange;
             _powerSwitch.CheckedChange += PowerSwitchOnCheckedChange;
-
-            //for tests
-            if (_currentUser.IsDev || _currentUser.Login.Equals("joseph.kalu"))
-            {
-                _testsButton.Visibility = ViewStates.Visible;
-                _testsButton.Click += StartTestActivity;
-            }
         }
 
         private void OnGolosLytOnClick(object sender, EventArgs e)
@@ -407,22 +399,16 @@ namespace Steepshot.Activity
 
         private void OnAccountAdd()
         {
-            App.MainChain = App.MainChain == KnownChains.Steem ? KnownChains.Golos : KnownChains.Steem;
+            AppSettings.MainChain = AppSettings.MainChain == KnownChains.Steem ? KnownChains.Golos : KnownChains.Steem;
             var intent = new Intent(this, typeof(PreSignInActivity));
-            StartActivity(intent);
-        }
-
-        private void StartTestActivity(object sender, EventArgs e)
-        {
-            var intent = new Intent(this, typeof(TestActivity));
             StartActivity(intent);
         }
 
         private void SwitchChain(UserInfo user)
         {
-            if (App.MainChain != user.Chain)
+            if (AppSettings.MainChain != user.Chain)
             {
-                App.MainChain = user.Chain;
+                AppSettings.MainChain = user.Chain;
                 AppSettings.User.SwitchUser(user);
 
                 var i = new Intent(ApplicationContext, typeof(RootActivity));
@@ -443,10 +429,10 @@ namespace Steepshot.Activity
             }
             else
             {
-                if (App.MainChain == chain)
+                if (AppSettings.MainChain == chain)
                 {
                     var user = accounts.First();
-                    App.MainChain = user.Chain;
+                    AppSettings.MainChain = user.Chain;
                     AppSettings.User.SwitchUser(user);
 
                     var i = new Intent(ApplicationContext, typeof(RootActivity));

@@ -106,9 +106,13 @@ namespace Steepshot.Adapter
 
     public class FeedViewHolder : RecyclerView.ViewHolder
     {
+        private const string TagFormat = " #{0}";
+        private const string TagToExclude = "steepshot";
+        private const int MaxLines = 5;
+        public const string ClipboardTitle = "Steepshot's post link";
+
         private static bool _isScalebarOpened;
         private readonly Action<ActionType, Post> _postAction;
-        protected readonly ViewPager PhotosViewPager;
         private readonly TabLayout _pagerTabLayout;
         private readonly ImageView _avatar;
         private readonly TextView _author;
@@ -123,28 +127,25 @@ namespace Steepshot.Adapter
         private readonly ImageButton _likeScale;
         private readonly ImageButton _more;
         private readonly LinearLayout _topLikers;
-        protected readonly RelativeLayout NsfwMask;
         private readonly TextView _nsfwMaskMessage;
-        protected readonly TextView NsfwMaskSubMessage;
         private readonly ImageButton _nsfwMaskCloseButton;
         private readonly Button _nsfwMaskActionButton;
         private readonly BottomSheetDialog _moreActionsDialog;
         private readonly RelativeLayout _likeScaleContainer;
         private readonly LikeScaleBar _likeScaleBar;
         private readonly TextView _likeScalePower;
-        protected readonly Context Context;
         private CancellationSignal _isAnimationRuning;
 
-        protected Post Post;
-        public const string ClipboardTitle = "Steepshot's post link";
+        protected readonly Context Context;
+        protected readonly ViewPager PhotosViewPager;
+        protected readonly RelativeLayout NsfwMask;
+        protected readonly TextView NsfwMaskSubMessage;
 
-        private const string TagFormat = " #{0}";
-        private const string TagToExclude = "steepshot";
-        private const int MaxLines = 5;
+        protected Post Post;
+
         protected PostPagerType PhotoPagerType;
 
-        public FeedViewHolder(View itemView, Action<ActionType, Post> postAction,
-            Action<AutoLinkType, string> autoLinkAction, int height, int width)
+        public FeedViewHolder(View itemView, Action<ActionType, Post> postAction, Action<AutoLinkType, string> autoLinkAction, int height, int width)
             : base(itemView)
         {
             Context = itemView.Context;
@@ -344,8 +345,7 @@ namespace Steepshot.Adapter
                 if (Post.Author == AppSettings.User.Login)
                 {
                     flag.Visibility = hide.Visibility = ViewStates.Gone;
-                    edit.Visibility = delete.Visibility =
-                        Post.CashoutTime < DateTime.Now ? ViewStates.Gone : ViewStates.Visible;
+                    edit.Visibility = delete.Visibility = Post.CashoutTime < DateTime.Now ? ViewStates.Gone : ViewStates.Visible;
                 }
 
                 var sharepost = dialogView.FindViewById<Button>(Resource.Id.sharepost);
@@ -389,10 +389,8 @@ namespace Steepshot.Adapter
                 _moreActionsDialog.SetContentView(dialogView);
                 _moreActionsDialog.Window.FindViewById(Resource.Id.design_bottom_sheet)
                     .SetBackgroundColor(Color.Transparent);
-                var dialogPadding = (int)Android.Util.TypedValue.ApplyDimension(Android.Util.ComplexUnitType.Dip, 10,
-                    Context.Resources.DisplayMetrics);
-                _moreActionsDialog.Window.DecorView.SetPadding(dialogPadding, dialogPadding, dialogPadding,
-                    dialogPadding);
+                var dialogPadding = (int)Android.Util.TypedValue.ApplyDimension(Android.Util.ComplexUnitType.Dip, 10, Context.Resources.DisplayMetrics);
+                _moreActionsDialog.Window.DecorView.SetPadding(dialogPadding, dialogPadding, dialogPadding, dialogPadding);
                 _moreActionsDialog.Show();
 
                 var bottomSheet = _moreActionsDialog.FindViewById<FrameLayout>(Resource.Id.design_bottom_sheet);
@@ -421,6 +419,7 @@ namespace Steepshot.Adapter
         private void DoFlagAction(object sender, EventArgs e)
         {
             _moreActionsDialog.Dismiss();
+
             if (!BasePostPresenter.IsEnableVote)
                 return;
 
@@ -443,10 +442,7 @@ namespace Steepshot.Adapter
         {
             _moreActionsDialog.Dismiss();
             var clipboard = (ClipboardManager)Context.GetSystemService(Context.ClipboardService);
-            var clip = ClipData.NewPlainText(ClipboardTitle,
-                string.Format(
-                    AppSettings.User.Chain == KnownChains.Steem ? Constants.SteemPostUrl : Constants.GolosPostUrl,
-                    Post.Url));
+            var clip = ClipData.NewPlainText(ClipboardTitle, string.Format(AppSettings.User.Chain == KnownChains.Steem ? Constants.SteemPostUrl : Constants.GolosPostUrl, Post.Url));
             clipboard.PrimaryClip = clip;
             Context.ShowAlert(LocalizationKeys.Copied, ToastLength.Short);
             clip.Dispose();
@@ -491,7 +487,9 @@ namespace Steepshot.Adapter
                 return;
 
             if (_likeScaleContainer.Visibility == ViewStates.Visible)
+            {
                 AppSettings.User.VotePower = (short)_likeScaleBar.Progress;
+            }
 
             if (Post.Flag)
             {
@@ -506,8 +504,9 @@ namespace Steepshot.Adapter
 
         private void DoLikeScaleAction(object sender, View.LongClickEventArgs longClickEventArgs)
         {
-            if (!AppSettings.User.HasPostingPermission || !AppSettings.User.ShowVotingSlider ||
-                !BasePostPresenter.IsEnableVote || Post.Vote || Post.Flag || _isScalebarOpened) return;
+            if (!AppSettings.User.HasPostingPermission || !AppSettings.User.ShowVotingSlider || !BasePostPresenter.IsEnableVote || Post.Vote || Post.Flag || _isScalebarOpened)
+                return;
+
             BaseActivity.TouchEvent += TouchEvent;
             _likeScaleBar.Progress = AppSettings.User.VotePower;
             _likeScaleBar.ProgressChanged += LikeScaleBarOnProgressChanged;
@@ -517,8 +516,7 @@ namespace Steepshot.Adapter
             _isScalebarOpened = true;
         }
 
-        private void LikeScaleBarOnProgressChanged(object sender,
-            SeekBar.ProgressChangedEventArgs progressChangedEventArgs)
+        private void LikeScaleBarOnProgressChanged(object sender, SeekBar.ProgressChangedEventArgs progressChangedEventArgs)
         {
             _likeScalePower.Text = $"{_likeScaleBar.Progress}%";
         }
@@ -551,17 +549,18 @@ namespace Steepshot.Adapter
             if (post.TotalPayoutReward > 0)
             {
                 _cost.Visibility = ViewStates.Visible;
-                _cost.Text = StringHelper.ToFormatedCurrencyString(post.TotalPayoutReward, App.MainChain);
+                _cost.Text = StringHelper.ToFormatedCurrencyString(post.TotalPayoutReward, AppSettings.MainChain);
             }
             else
             {
                 _cost.Visibility = ViewStates.Gone;
             }
 
-            _time.Text = post.Created.ToPostTime();
+            _time.Text = post.Created.ToPostTime(AppSettings.LocalizationManager);
             _author.Text = post.Author;
 
             if (!string.IsNullOrEmpty(Post.Avatar))
+            {
                 Picasso.With(Context)
                     .Load(Post.Avatar.GetImageProxy(_avatar.LayoutParameters.Width, _avatar.LayoutParameters.Height))
                     .Placeholder(Resource.Drawable.ic_holder)
@@ -569,19 +568,22 @@ namespace Steepshot.Adapter
                     .Into(_avatar, null,
                         () => Picasso.With(Context).Load(Post.Avatar).Placeholder(Resource.Drawable.ic_holder).NoFade()
                             .Into(_avatar));
+            }
             else
+            {
                 Picasso.With(context).Load(Resource.Drawable.ic_holder).Into(_avatar);
+            }
 
             var height = post.Media[0].OptimalPhotoSize(Style.ScreenWidth, 130 * Style.Density, Style.MaxPostHeight);
             PhotosViewPager.LayoutParameters.Height = height;
             ((PostPhotosPagerAdapter)PhotosViewPager.Adapter).UpdateData(Post);
 
-            _title.UpdateText(Post, TagToExclude, TagFormat, MaxLines,
-                Post.IsExpanded || PhotoPagerType == PostPagerType.PostScreen);
+            _title.UpdateText(Post, TagToExclude, TagFormat, MaxLines, Post.IsExpanded || PhotoPagerType == PostPagerType.PostScreen);
 
             _topLikers.RemoveAllViews();
             var topLikersSize = (int)BitmapUtils.DpToPixel(24, Context.Resources);
             var topLikersMargin = (int)BitmapUtils.DpToPixel(6, Context.Resources);
+
             for (int i = 0; i < Post.TopLikersAvatars.Length; i++)
             {
                 var topLikersAvatar = new CircleImageView(Context)
@@ -590,19 +592,29 @@ namespace Steepshot.Adapter
                     BorderWidth = 3,
                     FillColor = Color.White
                 };
+
                 var layoutParams = new LinearLayout.LayoutParams(topLikersSize, topLikersSize);
+
                 if (i != 0)
+                {
                     layoutParams.LeftMargin = -topLikersMargin;
+                }
+
                 _topLikers.AddView(topLikersAvatar, layoutParams);
                 var avatarUrl = Post.TopLikersAvatars[i];
+
                 if (!string.IsNullOrEmpty(avatarUrl))
+                {
                     Picasso.With(Context)
                         .Load(avatarUrl.GetImageProxy(topLikersSize, topLikersSize))
                         .Placeholder(Resource.Drawable.ic_holder)
                         .Priority(Picasso.Priority.Low).Into(topLikersAvatar, null,
                             () => { Picasso.With(context).Load(Resource.Drawable.ic_holder).Into(topLikersAvatar); });
+                }
                 else
+                {
                     Picasso.With(context).Load(Resource.Drawable.ic_holder).Into(topLikersAvatar);
+                }
             }
 
             _title.UpdateText(Post, TagToExclude, TagFormat, MaxLines,
@@ -677,7 +689,9 @@ namespace Steepshot.Adapter
                 _nsfwMaskActionButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.NsfwShow);
             }
             else
+            {
                 NsfwMask.Visibility = _nsfwMaskCloseButton.Visibility = ViewStates.Gone;
+            }
         }
 
         protected virtual void SetNsfwMaskLayout()

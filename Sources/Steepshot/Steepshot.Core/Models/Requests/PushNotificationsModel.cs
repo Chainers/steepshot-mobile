@@ -3,12 +3,11 @@ using Newtonsoft.Json;
 using Steepshot.Core.Localization;
 using System.ComponentModel.DataAnnotations;
 using Steepshot.Core.Authorization;
-using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Models.Requests
 {
     [JsonObject(MemberSerialization.OptIn)]
-    public class PushNotificationsModel : AuthorizedPostingModel
+    public class PushNotificationsModel : AuthorizedWifModel
     {
         [JsonProperty("username")]
         [Required(ErrorMessage = nameof(LocalizationKeys.EmptyLogin))]
@@ -20,7 +19,7 @@ namespace Steepshot.Core.Models.Requests
 
         [JsonProperty]
         [Required]
-        public string AppId { get; } = AppSettings.User.Chain == KnownChains.Steem ? Constants.OneSignalSteemAppId : Constants.OneSignalGolosAppId;
+        public string AppId { get; }
 
         [JsonProperty]
         [Required]
@@ -39,6 +38,7 @@ namespace Steepshot.Core.Models.Requests
             : this(user, subscribe)
         {
             PlayerId = playerId;
+            AppId = user.Chain == KnownChains.Steem ? Constants.OneSignalSteemAppId : Constants.OneSignalGolosAppId;
         }
 
         public PushNotificationsModel(UserInfo user, bool subscribe)
@@ -47,6 +47,7 @@ namespace Steepshot.Core.Models.Requests
             UserName = user.Login;
             PlayerId = user.PushesPlayerId;
             Subscribe = subscribe;
+            AppId = user.Chain == KnownChains.Steem ? Constants.OneSignalSteemAppId : Constants.OneSignalGolosAppId;
         }
     }
 }

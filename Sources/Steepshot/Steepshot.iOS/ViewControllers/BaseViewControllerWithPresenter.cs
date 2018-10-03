@@ -1,12 +1,11 @@
-﻿using System;
-using Steepshot.Core;
-using Steepshot.Core.Presenters;
+﻿using Steepshot.Core.Presenters;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.iOS.ViewControllers
 {
-    public abstract class BaseViewControllerWithPresenter<T> : BaseViewController where T : BasePresenter, new()
+    public abstract class BaseViewControllerWithPresenter<T> : BaseViewController where T : BasePresenter
     {
-        protected T _presenter;
+        protected T Presenter;
 
         public override void ViewDidLoad()
         {
@@ -16,17 +15,7 @@ namespace Steepshot.iOS.ViewControllers
 
         protected virtual void CreatePresenter()
         {
-            _presenter = new T();
-
-            switch (AppDelegate.MainChain)
-            {
-                case KnownChains.Golos:
-                    _presenter.SetClient(AppDelegate.GolosClient);
-                    break;
-                case KnownChains.Steem:
-                    _presenter.SetClient(AppDelegate.SteemClient);
-                    break;
-            }
+            Presenter = AppSettings.GetPresenter<T>(AppSettings.MainChain);
         }
     }
 }

@@ -1,13 +1,21 @@
 ﻿using System;
 using System.Globalization;
 using System.Text.RegularExpressions;
+using Steepshot.Core.Interfaces;
 
 namespace Steepshot.Core.Utils
 {
     public class StringHelper
     {
+        private readonly ILogService _logService;
+
         private static readonly CultureInfo CultureInfo = CultureInfo.InvariantCulture;
         private bool invalid = false;
+
+        public StringHelper(ILogService logService)
+        {
+            _logService = logService;
+        }
 
         public bool IsValidEmail(string strIn)
         {
@@ -37,11 +45,11 @@ namespace Steepshot.Core.Utils
             catch (ArgumentException ex)
             {
                 invalid = true;
-                AppSettings.Logger.WarningAsync(ex);
+                _logService.WarningAsync(ex);
             }
             catch (Exception ex)
             {
-                AppSettings.Logger.WarningAsync(ex);
+                _logService.WarningAsync(ex);
             }
             return match.Groups[1].Value + domainName;
         }

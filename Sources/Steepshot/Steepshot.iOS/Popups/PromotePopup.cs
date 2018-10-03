@@ -31,8 +31,7 @@ namespace Steepshot.iOS.Popups
 
         public PromotePopup()
         {
-            _presenter = new PromotePresenter();
-            _presenter.SetClient(AppDelegate.SteemClient);
+            _presenter = AppSettings.GetPresenter<PromotePresenter>(AppSettings.MainChain);
         }
 
         private async void GetBalance()

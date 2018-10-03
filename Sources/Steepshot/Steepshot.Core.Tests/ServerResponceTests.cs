@@ -21,10 +21,13 @@ namespace Steepshot.Core.Tests
 
         static ServerResponseTests()
         {
+            var logService = new StubLogService();
+            var extendedHttpClient = new ExtendedHttpClient();
+
             Gateway = new Dictionary<KnownChains, BaseServerClient>
             {
-                {KnownChains.Steem, new StubServerClient( IsDev ? Constants.SteemUrlQa : Constants.SteemUrl)},
-                {KnownChains.Golos, new StubServerClient( IsDev ? Constants.GolosUrlQa : Constants.GolosUrl)},
+                {KnownChains.Steem, new StubServerClient(extendedHttpClient, logService, IsDev ? Constants.SteemUrlQa : Constants.SteemUrl)},
+                {KnownChains.Golos, new StubServerClient(extendedHttpClient, logService, IsDev ? Constants.GolosUrlQa : Constants.GolosUrl)},
             };
 
             Users = new Dictionary<KnownChains, UserInfo>

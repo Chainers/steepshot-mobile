@@ -465,20 +465,23 @@ namespace Steepshot.Fragment
 
         private async void PostAction(ActionType type, Post post)
         {
+            if (post == null)
+                return;
+
             switch (type)
             {
                 case ActionType.Like:
                     {
                         if (AppSettings.User.HasPostingPermission)
                         {
-                            var exception = await Presenter.TryVoteAsync(post);
+                            var result = await Presenter.TryVoteAsync(post);
                             if (!IsInitialized)
                                 return;
 
-                            if (exception == null && Activity is RootActivity root)
+                            if (result.IsSuccess && Activity is RootActivity root)
                                 root.TryUpdateProfile();
 
-                            Context.ShowAlert(exception);
+                            Context.ShowAlert(result);
                         }
                         else
                         {
@@ -489,9 +492,6 @@ namespace Steepshot.Fragment
                 case ActionType.VotersLikes:
                 case ActionType.VotersFlags:
                     {
-                        if (post == null)
-                            return;
-
                         var isLikers = type == ActionType.VotersLikes;
                         Activity.Intent.PutExtra(FeedFragment.PostUrlExtraPath, post.Url);
                         Activity.Intent.PutExtra(FeedFragment.PostNetVotesExtraPath, isLikers ? post.NetLikes : post.NetFlags);
@@ -501,8 +501,6 @@ namespace Steepshot.Fragment
                     }
                 case ActionType.Comments:
                     {
-                        if (post == null)
-                            return;
                         if (post.Children == 0 && !AppSettings.User.HasPostingPermission)
                         {
                             OpenLogin();
@@ -514,9 +512,6 @@ namespace Steepshot.Fragment
                     }
                 case ActionType.Profile:
                     {
-                        if (post == null)
-                            return;
-
                         if (AppSettings.User.Login != post.Author)
                             ((BaseActivity)Activity).OpenNewContentFragment(new ProfileFragment(post.Author));
                         break;
@@ -526,14 +521,14 @@ namespace Steepshot.Fragment
                         if (!AppSettings.User.HasPostingPermission)
                             return;
 
-                        var exception = await Presenter.TryFlagAsync(post);
+                        var result = await Presenter.TryFlagAsync(post);
                         if (!IsInitialized)
                             return;
 
-                        if (exception == null && Activity is RootActivity root)
+                        if (result.IsSuccess && Activity is RootActivity root)
                             root.TryUpdateProfile();
 
-                        Context.ShowAlert(exception);
+                        Context.ShowAlert(result);
                         break;
                     }
                 case ActionType.Hide:
@@ -557,11 +552,10 @@ namespace Steepshot.Fragment
 
                         actionAlert.AlertAction += async () =>
                         {
-                            var exception = await Presenter.TryDeletePostAsync(post);
+                            var result = await Presenter.TryDeletePostAsync(post);
                             if (!IsInitialized)
                                 return;
-
-                            Context.ShowAlert(exception);
+                            Context.ShowAlert(result);
                         };
 
                         actionAlert.Show();

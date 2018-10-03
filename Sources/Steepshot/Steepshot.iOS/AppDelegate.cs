@@ -5,14 +5,13 @@ using Autofac;
 using Com.OneSignal;
 using Com.OneSignal.Abstractions;
 using Foundation;
-using Steepshot.Core;
 using Steepshot.Core.Authorization;
 using Steepshot.Core.Clients;
 using Steepshot.Core.Extensions;
+using Steepshot.Core.Interfaces;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Sentry;
-using Steepshot.Core.Services;
 using Steepshot.Core.Utils;
 using Steepshot.iOS.Helpers;
 using Steepshot.iOS.Services;
@@ -28,17 +27,12 @@ namespace Steepshot.iOS
     {
         public override UIWindow Window { get; set; }
         public static UIViewController InitialViewController;
-        public static ExtendedHttpClient HttpClient;
-        public static SteepshotApiClient SteemClient;
-        public static SteepshotApiClient GolosClient;
-
-        public static KnownChains MainChain { get; set; } = KnownChains.Steem;
 
         public override bool FinishedLaunching(UIApplication application, NSDictionary launchOptions)
         {
             InitIoC();
 
-            AppSettings.LocalizationManager.Update(HttpClient);
+            AppSettings.UpdateLocalizationAsync();
 
             GAService.Instance.InitializeGAService();
 
@@ -78,33 +72,22 @@ namespace Steepshot.iOS
         {
             if (AppSettings.Container == null)
             {
-                HttpClient = new ExtendedHttpClient();
-
                 var builder = new ContainerBuilder();
-                var saverService = new SaverService();
-                var dataProvider = new UserManager(saverService);
-                var appInfo = new AppInfo();
-                var assetsHelper = new AssetHelper();
-                var connectionService = new ConnectionService();
+                builder.RegisterType<SaverService>().As<ISaverService>().SingleInstance();
+                builder.RegisterType<AppInfo>().As<IAppInfo>().SingleInstance();
+                builder.RegisterType<ConnectionService>().As<IConnectionService>().SingleInstance();
+                builder.RegisterType<AssetHelper>().As<IAssetHelper>().SingleInstance();
+                builder.RegisterType<UserManager>().As<UserManager>().SingleInstance();
+                builder.RegisterType<User>().As<User>().SingleInstance();
+                builder.RegisterType<ConfigManager>().As<ConfigManager>().SingleInstance();
+                builder.RegisterType<ExtendedHttpClient>().As<ExtendedHttpClient>().SingleInstance();
+                builder.RegisterType<LogService>().As<ILogService>().SingleInstance();
+                builder.RegisterType<LocalizationManager>().As<LocalizationManager>().SingleInstance();
+                builder.RegisterType<SteepshotClient>().As<SteepshotClient>().SingleInstance();
 
-                var localizationManager = new LocalizationManager(saverService, assetsHelper);
-                var configManager = new ConfigManager(saverService, assetsHelper);
-
-                builder.RegisterInstance(assetsHelper).As<IAssetHelper>().SingleInstance();
-                builder.RegisterInstance(appInfo).As<IAppInfo>().SingleInstance();
-                builder.RegisterInstance(saverService).As<ISaverService>().SingleInstance();
-                builder.RegisterInstance(dataProvider).As<UserManager>().SingleInstance();
-                builder.RegisterInstance(connectionService).As<IConnectionService>().SingleInstance();
-                builder.RegisterInstance(localizationManager).As<LocalizationManager>().SingleInstance();
-                builder.RegisterInstance(configManager).As<ConfigManager>().SingleInstance();
-                var configInfo = assetsHelper.GetConfigInfo();
-                var reporterService = new LogService(HttpClient, appInfo, configInfo.RavenClientDsn);
-                builder.RegisterInstance(reporterService).As<ILogService>().SingleInstance();
+                AppSettings.RegisterPresenter(builder);
+                AppSettings.RegisterFacade(builder);
                 AppSettings.Container = builder.Build();
-
-                MainChain = AppSettings.User.Chain;
-                SteemClient = new SteepshotApiClient(HttpClient, KnownChains.Steem);
-                GolosClient = new SteepshotApiClient(HttpClient, KnownChains.Golos);
             }
         }
 

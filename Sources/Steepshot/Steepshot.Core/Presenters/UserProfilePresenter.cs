@@ -1,6 +1,11 @@
 ﻿using System;
-using System.Threading;
 using System.Threading.Tasks;
+using Ditch.Core.JsonRpc;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using Steepshot.Core.Authorization;
+using Steepshot.Core.Clients;
+using Steepshot.Core.Interfaces;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Models.Enums;
@@ -19,63 +24,62 @@ namespace Steepshot.Core.Presenters
 
         public Action SubscriptionsUpdated;
 
+
+        public UserProfilePresenter(IConnectionService connectionService, ILogService logService, BaseDitchClient ditchClient, SteepshotApiClient steepshotApiClient, User user, SteepshotClient steepshotClient)
+            : base(connectionService, logService, ditchClient, steepshotApiClient, user, steepshotClient)
+        {
+        }
+
+
         public async Task<Exception> TryLoadNextPostsAsync()
         {
             if (IsLastReaded)
                 return null;
 
-            return await RunAsSingleTaskAsync(LoadNextPostsAsync).ConfigureAwait(false);
-        }
-
-        private async Task<Exception> LoadNextPostsAsync(CancellationToken ct)
-        {
             var request = new UserPostsModel(UserName)
             {
-                Login = AppSettings.User.Login,
+                Login = User.Login,
                 Offset = OffsetUrl,
                 Limit = string.IsNullOrEmpty(OffsetUrl) ? ItemsLimit : ItemsLimit + 1,
-                ShowNsfw = AppSettings.User.IsNsfw,
-                ShowLowRated = AppSettings.User.IsLowRated
+                ShowNsfw = User.IsNsfw,
+                ShowLowRated = User.IsLowRated
             };
 
             Exception exception;
             bool isNeedRepeat;
             do
             {
-                var response = await Api.GetUserPostsAsync(request, ct).ConfigureAwait(false);
+                var response = await RunAsSingleTaskAsync(SteepshotApiClient.GetUserPostsAsync, request)
+                    .ConfigureAwait(false);
                 isNeedRepeat = ResponseProcessing(response, ItemsLimit, out exception, nameof(TryLoadNextPostsAsync));
             } while (isNeedRepeat);
 
             return exception;
         }
 
-
-        public async Task<Exception> TryGetUserInfoAsync(string user)
-        {
-            return await TryRunTaskAsync(GetUserInfoAsync, OnDisposeCts.Token, user).ConfigureAwait(false);
-        }
-
-        private async Task<Exception> GetUserInfoAsync(string user, CancellationToken ct)
+        public async Task<OperationResult<UserProfileResponse>> TryGetUserInfoAsync(string user)
         {
             var req = new UserProfileModel(user)
             {
-                Login = AppSettings.User.Login,
-                ShowNsfw = AppSettings.User.IsNsfw,
-                ShowLowRated = AppSettings.User.IsLowRated
+                Login = User.Login,
+                ShowNsfw = User.IsNsfw,
+                ShowLowRated = User.IsLowRated
             };
-            var response = await Api.GetUserProfileAsync(req, ct).ConfigureAwait(false);
 
-            if (response.IsSuccess)
+            var result = await TaskHelper
+                .TryRunTaskAsync(SteepshotApiClient.GetUserProfileAsync, req, OnDisposeCts.Token)
+                .ConfigureAwait(false);
+
+            if (result.IsSuccess)
             {
-                UserProfileResponse = response.Result;
-                CashPresenterManager.Add(UserProfileResponse);
+                UserProfileResponse = result.Result;
+                CashManager.Add(UserProfileResponse);
                 NotifySourceChanged(nameof(TryGetUserInfoAsync), true);
             }
-            return response.Exception;
+            return result;
         }
 
-
-        public async Task<Exception> TryFollowAsync()
+        public async Task<OperationResult<VoidResponse>> TryFollowAsync()
         {
             if (UserProfileResponse.FollowedChanging)
                 return null;
@@ -83,67 +87,29 @@ namespace Steepshot.Core.Presenters
             UserProfileResponse.FollowedChanging = true;
             NotifySourceChanged(nameof(TryFollowAsync), true);
 
-            var exception = await TryRunTaskAsync(FollowAsync, OnDisposeCts.Token, UserProfileResponse).ConfigureAwait(false);
+            var hasFollowed = UserProfileResponse.HasFollowed;
+            var request = new FollowModel(User.UserInfo, hasFollowed ? FollowType.UnFollow : FollowType.Follow, UserName);
+            var result = await TaskHelper
+                .TryRunTaskAsync(DitchClient.FollowAsync, request, OnDisposeCts.Token)
+                .ConfigureAwait(false);
+
+            if (result.IsSuccess)
+                UserProfileResponse.HasFollowed = !hasFollowed;
+
             UserProfileResponse.FollowedChanging = false;
-            CashPresenterManager.Update(UserProfileResponse);
+            CashManager.Update(UserProfileResponse);
             NotifySourceChanged(nameof(TryFollowAsync), true);
-            return exception;
+            return result;
         }
 
-        private async Task<Exception> FollowAsync(UserProfileResponse userProfileResponse, CancellationToken ct)
+        public async Task<OperationResult<VoidResponse>> TryUpdateUserPostsAsync(string username)
         {
-            var hasFollowed = userProfileResponse.HasFollowed;
-            var request = new FollowModel(AppSettings.User.UserInfo, hasFollowed ? FollowType.UnFollow : FollowType.Follow, UserName);
-            var response = await Api.FollowAsync(request, ct).ConfigureAwait(false);
-
-            if (response.IsSuccess)
-                userProfileResponse.HasFollowed = !hasFollowed;
-
-            return response.Exception;
+            return await TaskHelper.TryRunTaskAsync(SteepshotApiClient.UpdateUserPostsAsync, username, OnDisposeCts.Token).ConfigureAwait(false);
         }
 
-
-        public async Task<Exception> TryUpdateUserProfileAsync(UpdateUserProfileModel model, UserProfileResponse currentProfile)
+        public override void Clear(bool isNotify)
         {
-            var exception = await TryRunTaskAsync(UpdateUserProfileAsync, OnDisposeCts.Token, model).ConfigureAwait(false);
-            if (exception != null)
-            {
-                NotifySourceChanged(nameof(TryUpdateUserProfileAsync), false);
-            }
-            else
-            {
-                //TODO:KOA: Looks like it is work for AutoMapper
-                currentProfile.About = model.About;
-                currentProfile.Name = model.Name;
-                currentProfile.Location = model.Location;
-                currentProfile.Website = model.Website;
-                currentProfile.ProfileImage = model.ProfileImage;
-                NotifySourceChanged(nameof(TryUpdateUserProfileAsync), false);
-            }
-
-            return exception;
-        }
-
-        private async Task<Exception> UpdateUserProfileAsync(UpdateUserProfileModel model, CancellationToken ct)
-        {
-            var response = await Api.UpdateUserProfileAsync(model, ct).ConfigureAwait(false);
-            return response.Exception;
-        }
-
-        public async Task<Exception> TryUpdateUserPostsAsync(string username)
-        {
-            return await TryRunTaskAsync(UpdateUserPostsAsync, OnDisposeCts.Token, username).ConfigureAwait(false);
-        }
-
-        private async Task<Exception> UpdateUserPostsAsync(string username, CancellationToken ct)
-        {
-            var response = await Api.UpdateUserPostsAsync(username, ct).ConfigureAwait(false);
-            return response.Exception;
-        }
-
-        public override void Clear(bool isNotify = true)
-        {
-            CashPresenterManager.Remove(UserProfileResponse);
+            CashManager.Remove(UserProfileResponse);
             base.Clear(isNotify);
         }
 
@@ -152,23 +118,30 @@ namespace Steepshot.Core.Presenters
             OperationResult<SubscriptionsModel> response;
             do
             {
-                response = await TryRunTaskAsync<SubscriptionsModel>(CheckSubscriptionsAsync, CancellationToken.None).ConfigureAwait(false);
+                response = await TaskHelper
+                    .TryRunTaskAsync(SteepshotApiClient.CheckSubscriptionsAsync, User, OnDisposeCts.Token)
+                    .ConfigureAwait(false);
                 if (!response.IsSuccess)
                     await Task.Delay(5000).ConfigureAwait(false);
             } while (!response.IsSuccess);
 
-            AppSettings.User.PushSettings = response.Result.EnumSubscriptions;
+            User.PushSettings = response.Result.EnumSubscriptions;
             SubscriptionsUpdated?.Invoke();
         }
 
-        private async Task<OperationResult<SubscriptionsModel>> CheckSubscriptionsAsync(CancellationToken ct)
+        public async Task<OperationResult<object>> TrySubscribeForPushesAsync(PushNotificationsModel model)
         {
-            var response = await Api.CheckSubscriptionsAsync(AppSettings.User, ct).ConfigureAwait(false);
-            return response;
+            var trxResp = await TaskHelper.TryRunTaskAsync(DitchClient.GetVerifyTransactionAsync, model, OnDisposeCts.Token).ConfigureAwait(false);
+
+            if (!trxResp.IsSuccess)
+                return new OperationResult<object>(trxResp.Exception);
+
+            model.VerifyTransaction = JsonConvert.DeserializeObject<JObject>(trxResp.Result);
+            return await TaskHelper.TryRunTaskAsync(SteepshotApiClient.SubscribeForPushesAsync, model, OnDisposeCts.Token);
         }
 
         #region IDisposable Support
-        private bool _disposedValue = false; // To detect redundant calls
+        private bool _disposedValue;
 
         protected override void Dispose(bool disposing)
         {
@@ -176,7 +149,7 @@ namespace Steepshot.Core.Presenters
             {
                 if (disposing)
                 {
-                    CashPresenterManager.Remove(UserProfileResponse);
+                    CashManager.Remove(UserProfileResponse);
                 }
 
                 // free unmanaged resources (unmanaged objects) and override a finalizer below.

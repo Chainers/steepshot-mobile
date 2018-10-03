@@ -56,10 +56,10 @@ namespace Steepshot.iOS.Views
 
             _navController = TabBarController.NavigationController;
 
-            _gridDelegate = new CollectionViewFlowDelegate(feedCollection, _presenter);
+            _gridDelegate = new CollectionViewFlowDelegate(feedCollection, Presenter);
             _gridDelegate.ScrolledToBottom += ScrolledToBottom;
             _gridDelegate.IsGrid = false;
-            _collectionViewSource = new FeedCollectionViewSource(_presenter, _gridDelegate);
+            _collectionViewSource = new FeedCollectionViewSource(Presenter, _gridDelegate);
             _collectionViewSource.IsGrid = false;
             _collectionViewSource.CellAction += CellAction;
             _collectionViewSource.TagAction += TagAction;
@@ -74,10 +74,10 @@ namespace Steepshot.iOS.Views
             feedCollection.Delegate = _gridDelegate;
             feedCollection.DelaysContentTouches = false;
 
-            _sliderGridDelegate = new SliderCollectionViewFlowDelegate(sliderCollection, _presenter);
+            _sliderGridDelegate = new SliderCollectionViewFlowDelegate(sliderCollection, Presenter);
             _sliderGridDelegate.ScrolledToBottom += ScrolledToBottom;
 
-            var _sliderCollectionViewSource = new SliderCollectionViewSource(_presenter, _sliderGridDelegate);
+            var _sliderCollectionViewSource = new SliderCollectionViewSource(Presenter, _sliderGridDelegate);
 
             sliderCollection.DecelerationRate = UIScrollView.DecelerationRateFast;
             sliderCollection.ShowsHorizontalScrollIndicator = false;
@@ -190,7 +190,7 @@ namespace Steepshot.iOS.Views
             sliderCollection.Hidden = false;
             _sliderGridDelegate.GenerateVariables();
             sliderCollection.ReloadData();
-            sliderCollection.ScrollToItem(NSIndexPath.FromRowSection(_presenter.IndexOf(post), 0), UICollectionViewScrollPosition.CenteredHorizontally, false);
+            sliderCollection.ScrollToItem(NSIndexPath.FromRowSection(Presenter.IndexOf(post), 0), UICollectionViewScrollPosition.CenteredHorizontally, false);
         }
 
         public bool ClosePost()
@@ -224,10 +224,10 @@ namespace Steepshot.iOS.Views
 
                 if (clearOld)
                 {
-                    _presenter.Clear();
+                    Presenter.Clear();
                     _gridDelegate.ClearPosition();
                 }
-                exception = await _presenter.TryLoadNextTopPostsAsync();
+                exception = await Presenter.TryLoadNextTopPostsAsync();
 
                 if (_refreshControl.Refreshing)
                 {

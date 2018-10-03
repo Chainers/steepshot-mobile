@@ -6,12 +6,21 @@ using Android.Views;
 using Android.Widget;
 using Steepshot.Core.Exceptions;
 using Steepshot.Core.Localization;
+using Steepshot.Core.Models.Common;
 using Steepshot.Core.Utils;
 
 namespace Steepshot.Utils
 {
     public static class MessageHelper
     {
+        public static void ShowAlert(this Context context, OperationResult operationResult)
+        {
+            if (operationResult.IsSuccess)
+                return;
+
+            ShowAlert(context, operationResult.Exception);
+        }
+
         public static void ShowAlert(this Context context, Exception exception)
         {
             if (IsSkeepException(exception))
@@ -41,6 +50,14 @@ namespace Steepshot.Utils
 
             var message = AppSettings.LocalizationManager.GetText(keys);
             Toast.MakeText(context, message, length).Show();
+        }
+
+        public static void ShowAlert(this Context context, OperationResult result, ToastLength length)
+        {
+            if (result.IsSuccess)
+                return;
+
+            ShowAlert(context, result.Exception, length);
         }
 
         public static void ShowAlert(this Context context, Exception exception, ToastLength length)

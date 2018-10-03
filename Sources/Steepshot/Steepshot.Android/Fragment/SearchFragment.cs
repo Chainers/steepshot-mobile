@@ -15,7 +15,6 @@ using Steepshot.Core.Models.Common;
 using Steepshot.Utils;
 using Steepshot.Core.Models;
 using Steepshot.Core.Models.Enums;
-using Steepshot.Core;
 using Steepshot.Core.Facades;
 using Steepshot.Core.Utils;
 
@@ -58,11 +57,7 @@ namespace Steepshot.Fragment
             base.OnCreate(savedInstanceState);
 
             if (_searchFacade == null)
-            {
-                var client = App.MainChain == KnownChains.Steem ? App.SteemClient : App.GolosClient;
-                _searchFacade = new SearchFacade();
-                _searchFacade.SetClient(client);
-            }
+                _searchFacade = AppSettings.GetFacade<SearchFacade>(AppSettings.MainChain);
         }
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -214,11 +209,11 @@ namespace Steepshot.Fragment
             if (userFriend == null)
                 return;
 
-            var exception = await _searchFacade.UserFriendPresenter.TryFollowAsync(userFriend);
+            var result = await _searchFacade.UserFriendPresenter.TryFollowAsync(userFriend);
             if (!IsInitialized)
                 return;
 
-            Context.ShowAlert(exception);
+            Context.ShowAlert(result);
         }
 
         private void OnTimer(object state)

@@ -6,7 +6,7 @@ using Steepshot.Core.Models.Responses;
 namespace Steepshot.Core.Models.Requests
 {
     [JsonObject(MemberSerialization.OptIn)]
-    public class CommentModel : AuthorizedPostingModel
+    public class CommentModel : AuthorizedWifModel
     {
         [JsonProperty]
         public string ParentAuthor { get; }
@@ -30,7 +30,7 @@ namespace Steepshot.Core.Models.Requests
         public string JsonMetadata { get; }
 
         [JsonProperty]
-        public Beneficiary[] Beneficiaries { get; internal set; }
+        public Beneficiary[] Beneficiaries { get; set; }
 
 
         public CommentModel(string login, string postingKey, string parentAuthor, string parentPermlink, string author, string permlink, string title, string body, string jsonMetadata)

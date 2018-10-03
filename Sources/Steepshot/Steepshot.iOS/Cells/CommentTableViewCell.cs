@@ -245,7 +245,7 @@ namespace Steepshot.iOS.Cells
                 _avatar.Image = UIImage.FromBundle("ic_noavatar");
 
             _loginLabel.Text = _currentPost.Author;
-            _timestamp.Text = _currentPost.Created.ToPostTime();
+            _timestamp.Text = _currentPost.Created.ToPostTime(AppSettings.LocalizationManager);
             _commentText.Text = post.Body;
 
             _like.Transform = CGAffineTransform.MakeScale(1f, 1f);
@@ -269,7 +269,7 @@ namespace Steepshot.iOS.Cells
 
             _likesLabel.Text = AppSettings.LocalizationManager.GetText(_currentPost.NetLikes == 1 ? LocalizationKeys.Like : LocalizationKeys.Likes, _currentPost.NetLikes);
             _flagsLabel.Text = AppSettings.LocalizationManager.GetText(_currentPost.NetFlags == 1 ? LocalizationKeys.Flag : LocalizationKeys.Flags, _currentPost.NetFlags);
-            _costLabel.Text = StringHelper.ToFormatedCurrencyString(_currentPost.TotalPayoutReward, AppDelegate.MainChain);
+            _costLabel.Text = StringHelper.ToFormatedCurrencyString(_currentPost.TotalPayoutReward, AppSettings.MainChain);
 
             _flagsLabel.Hidden = _currentPost.NetFlags == 0;
             _likesLabel.Hidden = _currentPost.NetLikes == 0;

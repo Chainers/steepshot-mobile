@@ -20,7 +20,7 @@ namespace Steepshot.Core.Tests.HttpClient
         [TestCase(KnownChains.Golos)]
         public async Task LoginWithPostingKeyTest(KnownChains apiName)
         {
-            var user = Users[apiName];
+            var user = Users[apiName].UserInfo;
             var request = new ValidatePrivateKeyModel(user.Login, user.PostingKey, KeyRoleType.Posting);
             var response = await Api[apiName].ValidatePrivateKeyAsync(request, CancellationToken.None);
             AssertResult(response);
@@ -33,13 +33,13 @@ namespace Steepshot.Core.Tests.HttpClient
         [Ignore("For hand test only")]
         public async Task UploadMediaTest(KnownChains apiName)
         {
-            var user = Users[apiName];
+            var user = Users[apiName].UserInfo;
 
             // 1) Create new post
             var path = GetTestImagePath();
             var stream = new FileStream(GetTestImagePath(), FileMode.Open);
             var uploadImageModel = new UploadMediaModel(user, stream, Path.GetExtension(path));
-            var servResp = await Api[apiName].UploadMediaAsync(uploadImageModel, CancellationToken.None);
+            var servResp = await steepshotClient.UploadMediaAsync(uploadImageModel, CancellationToken.None);
             AssertResult(servResp);
         }
 
@@ -48,7 +48,7 @@ namespace Steepshot.Core.Tests.HttpClient
         [TestCase(KnownChains.Golos)]
         public async Task PreparePostTest(KnownChains apiName)
         {
-            var user = Users[apiName];
+            var user = Users[apiName].UserInfo;
             var model = new PreparePostModel(user, AppSettings.AppInfo.GetModel())
             {
                 Title = "Test",
@@ -69,7 +69,7 @@ namespace Steepshot.Core.Tests.HttpClient
                 Tags = new[] { "test" }
             };
 
-            var createPostResponse = await Api[apiName].PreparePostAsync(model, CancellationToken.None);
+            var createPostResponse = await SteepshotApi[apiName].PreparePostAsync(model, CancellationToken.None);
             AssertResult(createPostResponse);
         }
 
@@ -79,13 +79,13 @@ namespace Steepshot.Core.Tests.HttpClient
         [Ignore("For hand test only")]
         public async Task CreateCommentTest(KnownChains apiName)
         {
-            var user = Users[apiName];
+            var user = Users[apiName].UserInfo;
 
             // Load last created post
             var userPostsRequest = new UserPostsModel(user.Login);
             userPostsRequest.ShowNsfw = true;
             userPostsRequest.ShowLowRated = true;
-            var userPostsResponse = await Api[apiName].GetUserPostsAsync(userPostsRequest, CancellationToken.None);
+            var userPostsResponse = await SteepshotApi[apiName].GetUserPostsAsync(userPostsRequest, CancellationToken.None);
             AssertResult(userPostsResponse);
             var lastPost = userPostsResponse.Result.Results.First();
 
@@ -93,7 +93,7 @@ namespace Steepshot.Core.Tests.HttpClient
             // Wait for 20 seconds before commenting
             Thread.Sleep(TimeSpan.FromSeconds(20));
             var createCommentModel = new CreateOrEditCommentModel(user, lastPost, $"Test comment {DateTime.Now:G}", AppSettings.AppInfo);
-            var createCommentResponse = await Api[apiName].CreateOrEditCommentAsync(createCommentModel, CancellationToken.None);
+            var createCommentResponse = await CreateOrEditCommentAsync(apiName, createCommentModel, CancellationToken.None);
             AssertResult(createCommentResponse);
             Assert.That(createCommentResponse.IsSuccess, Is.True);
 
@@ -102,7 +102,7 @@ namespace Steepshot.Core.Tests.HttpClient
 
             // Load comments for this post and check them
             var getCommentsRequest = new NamedInfoModel(lastPost.Url);
-            var commentsResponse = await Api[apiName].GetCommentsAsync(getCommentsRequest, CancellationToken.None);
+            var commentsResponse = await SteepshotApi[apiName].GetCommentsAsync(getCommentsRequest, CancellationToken.None);
             AssertResult(commentsResponse);
 
             Assert.IsNotNull(commentsResponse.Result.Results.FirstOrDefault(i => i.Url.EndsWith(createCommentModel.Permlink)));
@@ -114,11 +114,11 @@ namespace Steepshot.Core.Tests.HttpClient
         [Ignore("For hand test only")]
         public async Task VotePostTest(KnownChains apiName)
         {
-            var user = Users[apiName];
+            var user = Users[apiName].UserInfo;
 
             // Load last created post
             var userPostsRequest = new PostsModel(PostType.New) { Login = user.Login };
-            var userPostsResponse = await Api[apiName].GetPostsAsync(userPostsRequest, CancellationToken.None);
+            var userPostsResponse = await SteepshotApi[apiName].GetPostsAsync(userPostsRequest, CancellationToken.None);
             AssertResult(userPostsResponse);
             var lastPost = userPostsResponse.Result.Results.First(i => !i.Vote);
 
@@ -132,7 +132,7 @@ namespace Steepshot.Core.Tests.HttpClient
             // Wait for data to be writed into blockchain
             Thread.Sleep(TimeSpan.FromSeconds(15));
             userPostsRequest.Offset = lastPost.Url;
-            var userPostsResponse2 = await Api[apiName].GetPostsAsync(userPostsRequest, CancellationToken.None);
+            var userPostsResponse2 = await SteepshotApi[apiName].GetPostsAsync(userPostsRequest, CancellationToken.None);
             // Check if last post was voted
             AssertResult(userPostsResponse2);
             var post = userPostsResponse2.Result.Results.FirstOrDefault(i => i.Url.EndsWith(lastPost.Url, StringComparison.OrdinalIgnoreCase));
@@ -149,7 +149,7 @@ namespace Steepshot.Core.Tests.HttpClient
 
             // Wait for data to be writed into blockchain
             Thread.Sleep(TimeSpan.FromSeconds(15));
-            var userPostsResponse3 = await Api[apiName].GetPostsAsync(userPostsRequest, CancellationToken.None);
+            var userPostsResponse3 = await SteepshotApi[apiName].GetPostsAsync(userPostsRequest, CancellationToken.None);
             // Check if last post was voted
             AssertResult(userPostsResponse3);
             post = userPostsResponse3.Result.Results.FirstOrDefault(i => i.Url.Equals(lastPost.Url, StringComparison.OrdinalIgnoreCase));
@@ -164,16 +164,16 @@ namespace Steepshot.Core.Tests.HttpClient
         [Ignore("For hand test only")]
         public async Task VoteCommentTest(KnownChains apiName)
         {
-            var user = Users[apiName];
+            var user = Users[apiName].UserInfo;
 
             // Load last created post
             var userPostsRequest = new UserPostsModel(user.Login) { ShowLowRated = true, ShowNsfw = true };
-            var userPostsResponse = await Api[apiName].GetUserPostsAsync(userPostsRequest, CancellationToken.None);
+            var userPostsResponse = await SteepshotApi[apiName].GetUserPostsAsync(userPostsRequest, CancellationToken.None);
             AssertResult(userPostsResponse);
             var lastPost = userPostsResponse.Result.Results.First(i => i.Children > 0);
             // Load comments for this post and check them
             var getCommentsRequest = new NamedInfoModel(lastPost.Url);
-            var commentsResponse = await Api[apiName].GetCommentsAsync(getCommentsRequest, CancellationToken.None);
+            var commentsResponse = await SteepshotApi[apiName].GetCommentsAsync(getCommentsRequest, CancellationToken.None);
 
             // 5) Vote up comment
             var post = commentsResponse.Result.Results.First();
@@ -185,7 +185,7 @@ namespace Steepshot.Core.Tests.HttpClient
             // Wait for data to be writed into blockchain
             Thread.Sleep(TimeSpan.FromSeconds(15));
             getCommentsRequest.Login = user.Login;
-            var commentsResponse2 = await Api[apiName].GetCommentsAsync(getCommentsRequest, CancellationToken.None);
+            var commentsResponse2 = await SteepshotApi[apiName].GetCommentsAsync(getCommentsRequest, CancellationToken.None);
             // Check if last comment was voted
             AssertResult(commentsResponse2);
             var comm = commentsResponse2.Result.Results.FirstOrDefault(i => i.Url.Equals(post.Url, StringComparison.OrdinalIgnoreCase));
@@ -201,7 +201,7 @@ namespace Steepshot.Core.Tests.HttpClient
             // Wait for data to be writed into blockchain
             Thread.Sleep(TimeSpan.FromSeconds(15));
             getCommentsRequest.Login = user.Login;
-            var commentsResponse3 = await Api[apiName].GetCommentsAsync(getCommentsRequest, CancellationToken.None);
+            var commentsResponse3 = await SteepshotApi[apiName].GetCommentsAsync(getCommentsRequest, CancellationToken.None);
             // Check if last comment was voted
             AssertResult(commentsResponse3);
             comm = commentsResponse3.Result.Results.FirstOrDefault(i => i.Url.Equals(post.Url, StringComparison.OrdinalIgnoreCase));
@@ -215,7 +215,7 @@ namespace Steepshot.Core.Tests.HttpClient
         [Ignore("For hand test only")]
         public async Task FollowTest(KnownChains apiName, string followUser)
         {
-            var user = Users[apiName];
+            var user = Users[apiName].UserInfo;
 
             // 7) Follow
             var followRequest = new FollowModel(user, FollowType.Follow, followUser);
@@ -237,10 +237,10 @@ namespace Steepshot.Core.Tests.HttpClient
         [Ignore("For hand test only")]
         public async Task UpdateUserProfileTest(KnownChains apiName, string followUser)
         {
-            var user = Users[apiName];
+            var user = Users[apiName].UserInfo;
 
             var userProfileModel = new UserProfileModel(user.Login);
-            var profileResponse = await Api[apiName].GetUserProfileAsync(userProfileModel, CancellationToken.None);
+            var profileResponse = await SteepshotApi[apiName].GetUserProfileAsync(userProfileModel, CancellationToken.None);
             AssertResult(profileResponse);
             Assert.IsTrue(profileResponse.IsSuccess);
             var profile = profileResponse.Result;

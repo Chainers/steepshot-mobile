@@ -23,7 +23,7 @@ namespace Steepshot.iOS.Views
             loginButton.TouchDown += Login;
 #if DEBUG
             var di = AppSettings.AssetHelper.GetDebugInfo();
-            if (AppDelegate.MainChain == KnownChains.Steem)
+            if (AppSettings.MainChain == KnownChains.Steem)
                 loginText.Text = di.SteemTestLogin;
             else
                 loginText.Text = di.GolosTestLogin;
@@ -64,7 +64,7 @@ namespace Steepshot.iOS.Views
             activityIndicator.StartAnimating();
             loginButton.Enabled = false;
 
-            var response = await _presenter.TryGetAccountInfoAsync(loginText.Text);
+            var response = await Presenter.TryGetAccountInfoAsync(loginText.Text);
             if (response.IsSuccess)
             {
                 var myViewController = new LoginViewController

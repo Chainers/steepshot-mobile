@@ -1,32 +1,36 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Ditch.Core.JsonRpc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Steepshot.Core.Interfaces;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
-using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Clients
 {
-    internal abstract class BaseDitchClient
+    public abstract class BaseDitchClient
     {
+        protected readonly ILogService LogService;
         protected readonly object SyncConnection;
         protected readonly ExtendedHttpClient ExtendedHttpClient;
 
         public volatile bool EnableWrite;
-        
+
         public abstract KnownChains Chain { get; }
 
         public abstract bool IsConnected { get; }
 
 
-        protected BaseDitchClient(ExtendedHttpClient extendedHttpClient)
+        protected BaseDitchClient(ExtendedHttpClient extendedHttpClient, ILogService logService)
         {
             SyncConnection = new object();
             ExtendedHttpClient = extendedHttpClient;
+            LogService = logService;
         }
 
 
@@ -38,7 +42,7 @@ namespace Steepshot.Core.Clients
 
         public abstract Task<OperationResult<VoidResponse>> CreateOrEditAsync(CommentModel model, CancellationToken ct);
 
-        public abstract Task<OperationResult<string>> GetVerifyTransactionAsync(AuthorizedPostingModel model, CancellationToken ct);
+        public abstract Task<OperationResult<string>> GetVerifyTransactionAsync(AuthorizedWifModel model, CancellationToken ct);
 
         public abstract Task<OperationResult<VoidResponse>> DeleteAsync(DeleteModel model, CancellationToken ct);
 
@@ -51,7 +55,7 @@ namespace Steepshot.Core.Clients
         public abstract Task<OperationResult<VoidResponse>> ClaimRewardsAsync(ClaimRewardsModel model, CancellationToken ct);
 
         public abstract Task<OperationResult<AccountInfoResponse>> GetAccountInfoAsync(string userName, CancellationToken ct);
-        
+
         public abstract Task<OperationResult<AccountHistoryResponse[]>> GetAccountHistoryAsync(string userName, CancellationToken ct);
 
         public abstract Task<bool> TryReconnectChainAsync(CancellationToken token);
@@ -77,7 +81,7 @@ namespace Steepshot.Core.Clients
             }
             catch (System.Exception ex)
             {
-                AppSettings.Logger.WarningAsync(ex);
+                LogService.WarningAsync(ex);
             }
             return null;
         }
@@ -125,6 +129,20 @@ namespace Steepshot.Core.Clients
                 return;
             }
             value.Replace(new JValue(newValue));
+        }
+
+
+        protected ValidationException Validate<T>(T request)
+        {
+            var results = new List<ValidationResult>();
+            var context = new ValidationContext(request);
+            Validator.TryValidateObject(request, context, results, true);
+            if (results.Any())
+            {
+                var msg = results.Select(m => m.ErrorMessage).First();
+                return new ValidationException(msg);
+            }
+            return null;
         }
     }
 }

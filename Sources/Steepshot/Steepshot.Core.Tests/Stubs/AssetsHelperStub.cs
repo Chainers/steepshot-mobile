@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using Newtonsoft.Json;
 using Steepshot.Core.Clients;
-using Steepshot.Core.Localization;
-using Steepshot.Core.Services;
+using Steepshot.Core.Interfaces;
 using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Tests.Stubs
@@ -15,27 +14,15 @@ namespace Steepshot.Core.Tests.Stubs
         {
             return TryReadAsset<DebugInfo>("DebugWif.txt");
         }
-        
+
         public ConfigInfo GetConfigInfo()
         {
             return TryReadAsset<ConfigInfo>("Config.txt");
         }
 
-        public LocalizationModel GetLocalization(string lang)
+        public string GetLocalization(string lang)
         {
-            var en = File.ReadAllText($"{AppDomain.CurrentDomain.BaseDirectory}\\Data\\dic.xml");
-            var model = new LocalizationModel
-            {
-                Lang = LocalizationManager.DefaultLang,
-                Map = new Dictionary<string, string>()
-            };
-            LocalizationManager.Update(en, model);
-            return model;
-        }
-
-        public HashSet<string> TryReadCensoredWords()
-        {
-            throw new NotImplementedException();
+            return File.ReadAllText($"{AppDomain.CurrentDomain.BaseDirectory}\\Data\\dic.xml");
         }
 
         public List<NodeConfig> SteemNodesConfig()

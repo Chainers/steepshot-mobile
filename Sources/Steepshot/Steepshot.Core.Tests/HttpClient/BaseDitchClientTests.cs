@@ -19,7 +19,7 @@ namespace Steepshot.Core.Tests.HttpClient
         [TestCase(KnownChains.Golos)]
         public async Task Login_With_Posting_Key_Invalid_Credentials(KnownChains apiName)
         {
-            var user = Users[apiName];
+            var user = Users[apiName].UserInfo;
             user.Login += "x";
             user.PostingKey += "x";
             var request = new ValidatePrivateKeyModel(user.Login, user.PostingKey, KeyRoleType.Posting);
@@ -34,7 +34,7 @@ namespace Steepshot.Core.Tests.HttpClient
         [TestCase(KnownChains.Golos)]
         public async Task Login_With_Posting_Key_Wrong_PostingKey(KnownChains apiName)
         {
-            var user = Users[apiName];
+            var user = Users[apiName].UserInfo;
             user.PostingKey += "x";
             var request = new ValidatePrivateKeyModel(user.Login, user.PostingKey, KeyRoleType.Posting);
 
@@ -48,7 +48,7 @@ namespace Steepshot.Core.Tests.HttpClient
         [TestCase(KnownChains.Golos)]
         public async Task Login_With_Posting_Key_Wrong_Username(KnownChains apiName)
         {
-            var user = Users[apiName];
+            var user = Users[apiName].UserInfo;
             user.Login += "x";
             var request = new ValidatePrivateKeyModel(user.Login, user.PostingKey, KeyRoleType.Posting);
 
@@ -63,17 +63,17 @@ namespace Steepshot.Core.Tests.HttpClient
         [Ignore("For hand test only")]
         public async Task Vote_Up_Already_Voted(KnownChains apiName)
         {
-            var user = Users[apiName];
+            var user = Users[apiName].UserInfo;
             var userPostsRequest = new CensoredNamedRequestWithOffsetLimitModel();
             userPostsRequest.ShowLowRated = true;
             userPostsRequest.ShowNsfw = true;
             userPostsRequest.Login = user.Login;
-            var posts = await Api[apiName].GetUserRecentPostsAsync(userPostsRequest, CancellationToken.None);
+            var posts = await SteepshotApi[apiName].GetUserRecentPostsAsync(userPostsRequest, CancellationToken.None);
             Assert.IsTrue(posts.IsSuccess);
             var postForVote = posts.Result.Results.FirstOrDefault(i => i.Vote == false);
             Assert.IsNotNull(postForVote);
 
-            var request = new VoteModel(Users[apiName], postForVote, VoteType.Up);
+            var request = new VoteModel(user, postForVote, VoteType.Up);
             var response = await Api[apiName].VoteAsync(request, CancellationToken.None);
             AssertResult(response);
             Thread.Sleep(2000);
@@ -97,15 +97,15 @@ namespace Steepshot.Core.Tests.HttpClient
         public async Task Vote_Down_Already_Voted(KnownChains apiName)
         {
             // Load last post
-            var user = Users[apiName];
+            var user = Users[apiName].UserInfo;
             var userPostsRequest = new UserPostsModel(user.Login);
             userPostsRequest.ShowNsfw = true;
             userPostsRequest.ShowLowRated = true;
-            var posts = await Api[apiName].GetUserPostsAsync(userPostsRequest, CancellationToken.None);
+            var posts = await SteepshotApi[apiName].GetUserPostsAsync(userPostsRequest, CancellationToken.None);
             var lastPost = posts.Result.Results.First();
 
             // Arrange
-            var request = new VoteModel(Users[apiName], lastPost, VoteType.Down);
+            var request = new VoteModel(user, lastPost, VoteType.Down);
 
             // Act
             var response = await Api[apiName].VoteAsync(request, CancellationToken.None);
@@ -129,15 +129,15 @@ namespace Steepshot.Core.Tests.HttpClient
         public async Task Flag_Up_Already_Flagged(KnownChains apiName)
         {
             // Load last post
-            var user = Users[apiName];
+            var user = Users[apiName].UserInfo;
             var userPostsRequest = new UserPostsModel(user.Login);
             userPostsRequest.ShowNsfw = true;
             userPostsRequest.ShowLowRated = true;
-            var posts = await Api[apiName].GetUserPostsAsync(userPostsRequest, CancellationToken.None);
+            var posts = await SteepshotApi[apiName].GetUserPostsAsync(userPostsRequest, CancellationToken.None);
             var lastPost = posts.Result.Results.First();
 
             // Arrange
-            var request = new VoteModel(Users[apiName], lastPost, VoteType.Flag);
+            var request = new VoteModel(user, lastPost, VoteType.Flag);
 
             // Act
             var response = await Api[apiName].VoteAsync(request, CancellationToken.None);
@@ -159,15 +159,15 @@ namespace Steepshot.Core.Tests.HttpClient
         public async Task Flag_Down_Already_Flagged(KnownChains apiName)
         {
             // Load last post
-            var user = Users[apiName];
+            var user = Users[apiName].UserInfo;
             var userPostsRequest = new UserPostsModel(user.Login);
             userPostsRequest.ShowNsfw = true;
             userPostsRequest.ShowLowRated = true;
-            var posts = await Api[apiName].GetUserPostsAsync(userPostsRequest, CancellationToken.None);
+            var posts = await SteepshotApi[apiName].GetUserPostsAsync(userPostsRequest, CancellationToken.None);
             var lastPost = posts.Result.Results.First();
 
             // Arrange
-            var request = new VoteModel(Users[apiName], lastPost, VoteType.Down);
+            var request = new VoteModel(user, lastPost, VoteType.Down);
 
             // Act
             var response = await Api[apiName].VoteAsync(request, CancellationToken.None);
@@ -190,18 +190,18 @@ namespace Steepshot.Core.Tests.HttpClient
         public async Task CreateComment_20_Seconds_Delay(KnownChains apiName)
         {
             // Arrange
-            var user = Users[apiName];
+            var user = Users[apiName].UserInfo;
             var userPostsRequest = new UserPostsModel(user.Login);
             userPostsRequest.ShowLowRated = true;
             userPostsRequest.ShowNsfw = true;
-            var userPostsResponse = await Api[apiName].GetUserPostsAsync(userPostsRequest, CancellationToken.None);
+            var userPostsResponse = await SteepshotApi[apiName].GetUserPostsAsync(userPostsRequest, CancellationToken.None);
             var lastPost = userPostsResponse.Result.Results.First();
             var body = $"Test comment {DateTime.Now:G}";
-            var createCommentModel = new CreateOrEditCommentModel(Users[apiName], lastPost, body, AppSettings.AppInfo);
+            var createCommentModel = new CreateOrEditCommentModel(user, lastPost, body, AppSettings.AppInfo);
 
             // Act
-            var response1 = await Api[apiName].CreateOrEditCommentAsync(createCommentModel, CancellationToken.None);
-            var response2 = await Api[apiName].CreateOrEditCommentAsync(createCommentModel, CancellationToken.None);
+            var response1 = await CreateOrEditCommentAsync(apiName, createCommentModel, CancellationToken.None);
+            var response2 = await CreateOrEditCommentAsync(apiName, createCommentModel, CancellationToken.None);
 
             // Assert
             AssertResult(response1);
@@ -216,22 +216,22 @@ namespace Steepshot.Core.Tests.HttpClient
         public async Task EditCommentTest(KnownChains apiName)
         {
             // Arrange
-            var user = Users[apiName];
+            var user = Users[apiName].UserInfo;
             var userPostsRequest = new UserPostsModel(user.Login);
             userPostsRequest.ShowLowRated = true;
             userPostsRequest.ShowNsfw = true;
-            var userPostsResponse = await Api[apiName].GetUserPostsAsync(userPostsRequest, CancellationToken.None);
+            var userPostsResponse = await SteepshotApi[apiName].GetUserPostsAsync(userPostsRequest, CancellationToken.None);
 
             var post = userPostsResponse.Result.Results.FirstOrDefault(i => i.Children > 0);
             Assert.IsNotNull(post);
             var namedRequest = new NamedInfoModel(post.Url);
-            var comments = await Api[apiName].GetCommentsAsync(namedRequest, CancellationToken.None);
+            var comments = await SteepshotApi[apiName].GetCommentsAsync(namedRequest, CancellationToken.None);
             var comment = comments.Result.Results.FirstOrDefault(i => i.Author.Equals(user.Login));
             Assert.IsNotNull(comment);
 
             var editCommentRequest = new CreateOrEditCommentModel(user, post, comment, comment.Body += $" edited {DateTime.Now}", AppSettings.AppInfo);
 
-            var result = await Api[apiName].CreateOrEditCommentAsync(editCommentRequest, CancellationToken.None);
+            var result = await CreateOrEditCommentAsync(apiName, editCommentRequest, CancellationToken.None);
             AssertResult(result);
         }
 
@@ -240,8 +240,10 @@ namespace Steepshot.Core.Tests.HttpClient
         [TestCase(KnownChains.Golos)]
         public async Task Upload_Empty_Photo(KnownChains apiName)
         {
-            var request = new UploadMediaModel(Users[apiName], new MemoryStream(), ".jpg");
-            var response = await Api[apiName].UploadMediaAsync(request, CancellationToken.None);
+            var user = Users[apiName].UserInfo;
+
+            var request = new UploadMediaModel(user, new MemoryStream(), ".jpg");
+            var response = await steepshotClient.UploadMediaAsync(request, CancellationToken.None);
             Assert.IsTrue(response.Exception.Message.StartsWith("The submitted file is empty."));
         }
     }

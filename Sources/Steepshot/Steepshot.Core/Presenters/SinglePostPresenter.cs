@@ -1,6 +1,7 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using Steepshot.Core.Authorization;
+using Steepshot.Core.Clients;
+using Steepshot.Core.Interfaces;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Utils;
@@ -11,45 +12,38 @@ namespace Steepshot.Core.Presenters
     {
         public Post PostInfo { get; private set; }
 
-        public async Task<Exception> TryLoadPostInfoAsync(string url)
+        public SinglePostPresenter(IConnectionService connectionService, ILogService logService, BaseDitchClient ditchClient, SteepshotApiClient steepshotApiClient, User user, SteepshotClient steepshotClient)
+            : base(connectionService, logService, ditchClient, steepshotApiClient, user, steepshotClient)
         {
-            return await TryRunTaskAsync(LoadPostInfoAsync, OnDisposeCts.Token, url).ConfigureAwait(false);
         }
 
-        private async Task<Exception> LoadPostInfoAsync(string url, CancellationToken ct)
+        public async Task<OperationResult<Post>> TryLoadPostInfoAsync(string url)
         {
             var request = new NamedInfoModel(url)
             {
-                ShowNsfw = AppSettings.User.IsNsfw,
-                ShowLowRated = AppSettings.User.IsLowRated,
-                Login = AppSettings.User.Login
+                ShowNsfw = User.IsNsfw,
+                ShowLowRated = User.IsLowRated,
+                Login = User.Login
             };
 
-            var response = await Api.GetPostInfoAsync(request, ct).ConfigureAwait(false);
-            var exception = ResponseProcessing(response, nameof(TryLoadPostInfoAsync));
+            var result = await TaskHelper
+                .TryRunTaskAsync(SteepshotApiClient.GetPostInfoAsync, request, OnDisposeCts.Token)
+                .ConfigureAwait(false);
 
-            return exception;
-        }
-
-        protected Exception ResponseProcessing(OperationResult<Post> response, string sender)
-        {
-            if (response == null)
-                return null;
-
-            if (response.IsSuccess)
+            if (result.IsSuccess)
             {
                 var isAdded = false;
-                var item = response.Result;
+                var item = result.Result;
                 if (IsValidMedia(item))
                 {
-                    CashPresenterManager.Add(item);
+                    CashManager.Add(item);
                     PostInfo = item;
                     isAdded = true;
                 }
 
-                NotifySourceChanged(sender, isAdded);
+                NotifySourceChanged(nameof(TryLoadPostInfoAsync), isAdded);
             }
-            return response.Exception;
+            return result;
         }
     }
 }
