@@ -364,4 +364,9 @@ namespace Steepshot.iOS.ViewControllers
     {
         void WillEnterForeground();
     }
+
+    public interface IDidEnterBackground
+    {
+        void DidEnterBackground();
+    }
 }

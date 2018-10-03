@@ -48,6 +48,7 @@ namespace Steepshot.iOS.Views
         private UIDeviceOrientation currentOrientation;
         private UIDeviceOrientation orientationOnPhoto;
         private NSObject _orientationChangeEventToken;
+        private AVAuthorizationStatus _authorizationAudioStatus;
 
         private UIView _bottomPanel;
         private UIButton _photoTabButton;
@@ -65,6 +66,7 @@ namespace Steepshot.iOS.Views
         private UIBezierPath _bezierPath;
         private bool _initialized;
         private bool _isRecording;
+        private bool _isCancelled;
         private float _activePanelHeight;
 
         public override void ViewDidLoad()
@@ -307,10 +309,11 @@ namespace Steepshot.iOS.Views
             StopCapturing();
         }
 
-        private void StopCapturing()
+        private void StopCapturing(bool withCancel = false)
         {
             if (_currentMode == CameraMode.Video && _isRecording)
             {
+                _isCancelled = withCancel;
                 _sl.RemoveAllAnimations();
                 _sl.Hidden = true;
                 ToogleButtons(true);
@@ -403,6 +406,7 @@ namespace Steepshot.iOS.Views
                 _photoButton.TouchUpInside += OnPhotoButtonUp;
                 _photoButton.TouchUpOutside += OnPhotoButtonUp;
                 _swapCameraButton.TouchDown += SwitchCameraButtonTapped;
+                ((MainTabBarController)NavigationController.ViewControllers[0]).DidEnterBackgroundAction += DidEnterBackground;
             }
         }
 
@@ -522,7 +526,7 @@ namespace Steepshot.iOS.Views
             }
             catch (Exception ex)
             {
-                ShowAlert(new InternalException(Core.Localization.LocalizationKeys.PhotoProcessingError, ex));
+                ShowAlert(new InternalException(LocalizationKeys.PhotoProcessingError, ex));
             }
         }
 
@@ -542,6 +546,7 @@ namespace Steepshot.iOS.Views
                 _photoButton.TouchUpInside -= OnPhotoButtonUp;
                 _photoButton.TouchUpOutside -= OnPhotoButtonUp;
                 _swapCameraButton.TouchDown -= SwitchCameraButtonTapped;
+                ((MainTabBarController)NavigationController.ViewControllers[0]).DidEnterBackgroundAction -= DidEnterBackground;
             }
 
             base.ViewWillDisappear(animated);
@@ -622,8 +627,8 @@ namespace Steepshot.iOS.Views
                 _captureDeviceInput = AVCaptureDeviceInput.FromDevice(_currentCamera);
                 _captureSession.AddInput(_captureDeviceInput);
 
-                var authorizationAudioStatus = AVCaptureDevice.GetAuthorizationStatus(AVMediaType.Audio);
-                if (authorizationAudioStatus == AVAuthorizationStatus.Authorized)
+                _authorizationAudioStatus = AVCaptureDevice.GetAuthorizationStatus(AVMediaType.Audio);
+                if (_authorizationAudioStatus == AVAuthorizationStatus.Authorized)
                 {
                     var audioInputDevice = AVCaptureDevice.GetDefaultDevice(AVMediaType.Audio);
                     var audioInput = AVCaptureDeviceInput.FromDevice(audioInputDevice);
@@ -631,6 +636,8 @@ namespace Steepshot.iOS.Views
                     if (_captureSession.CanAddInput(audioInput))
                         _captureSession.AddInput(audioInput);
                 }
+                else
+                    _captureSession.UsesApplicationAudioSession = false;
 
                 _videoFileOutput = new AVCaptureMovieFileOutput();
                 var maxDuration = CMTime.FromSeconds(20, 30);
@@ -639,7 +646,6 @@ namespace Steepshot.iOS.Views
                 if (_captureSession.CanAddOutput(_videoFileOutput))
                     _captureSession.AddOutput(_videoFileOutput);
 
-                // setup preview
                 _videoPreviewLayer = new AVCaptureVideoPreviewLayer(_captureSession)
                 {
                     VideoGravity = AVLayerVideoGravity.ResizeAspectFill,
@@ -741,9 +747,9 @@ namespace Steepshot.iOS.Views
             NavigationController.PushViewController(descriptionViewController, true);
         }
 
-        public void testDidEnterBackground()
+        public void DidEnterBackground()
         {
-
+            StopCapturing(true);
         }
 
         public void FinishedRecording(AVCaptureFileOutput captureOutput, NSUrl outputFileUrl, NSObject[] connections, NSError error)
@@ -754,9 +760,15 @@ namespace Steepshot.iOS.Views
             ToogleButtons(true);
             _isRecording = false;
 
+            if (_isCancelled)
+            {
+                _isCancelled = false;
+                CleanupLocation(outputFileUrl);
+                return;
+            }
+
             var composition = AVMutableComposition.Create();
             var compositionTrackVideo = composition.AddMutableTrack(AVMediaType.Video, 0);
-            var compositionTrackAudio = composition.AddMutableTrack(AVMediaType.Audio, 0);
             var videoCompositionInstructions = new AVVideoCompositionInstruction[1];
             var index = 0;
             var startTime = CMTime.Zero;
@@ -764,26 +776,15 @@ namespace Steepshot.iOS.Views
             var asset = new AVUrlAsset(outputFileUrl, new AVUrlAssetOptions());
 
             if (asset.Duration.Seconds < Core.Constants.VideoMinDuration)
+            {
+                CleanupLocation(outputFileUrl);
                 return;
-
-            var videoTrack = asset.TracksWithMediaType(AVMediaType.Video)[0];
-            var audioTrack = asset.TracksWithMediaType(AVMediaType.Audio)[0];
+            }
 
             NSError nsError;
+            var videoTrack = asset.TracksWithMediaType(AVMediaType.Video)[0];
             var renderSize = new SizeF((float)videoTrack.NaturalSize.Height, (float)videoTrack.NaturalSize.Height);
-
             var assetTimeRange = new CMTimeRange { Start = CMTime.Zero, Duration = asset.Duration };
-
-            compositionTrackAudio.InsertTimeRange(new CMTimeRange
-            {
-                Start = CMTime.Zero,
-                Duration = asset.Duration
-            }, audioTrack, startTime, out nsError);
-
-            if (nsError != null)
-            {
-                var errMessage = nsError.Description;
-            }
 
             compositionTrackVideo.InsertTimeRange(assetTimeRange, videoTrack, startTime, out nsError);
 
@@ -800,18 +801,31 @@ namespace Steepshot.iOS.Views
             transformer.SetTransform(t2, CMTime.Zero);
 
             var audioMix = AVMutableAudioMix.Create();
-            var mixParameters = new AVMutableAudioMixInputParameters
+            audioMix.InputParameters = null;
+            if (_authorizationAudioStatus == AVAuthorizationStatus.Authorized)
             {
-                TrackID = audioTrack.TrackID
-            };
+                var compositionTrackAudio = composition.AddMutableTrack(AVMediaType.Audio, 0);
+                var audioTrack = asset.TracksWithMediaType(AVMediaType.Audio)[0];
 
-            mixParameters.SetVolumeRamp(1.0f, 1.0f, new CMTimeRange
-            {
-                Start = CMTime.Zero,
-                Duration = asset.Duration
-            });
+                compositionTrackAudio.InsertTimeRange(new CMTimeRange
+                {
+                    Start = CMTime.Zero,
+                    Duration = asset.Duration
+                }, audioTrack, startTime, out nsError);
 
-            audioMix.InputParameters = new[] { mixParameters };
+                var mixParameters = new AVMutableAudioMixInputParameters
+                {
+                    TrackID = audioTrack.TrackID
+                };
+
+                mixParameters.SetVolumeRamp(1.0f, 1.0f, new CMTimeRange
+                {
+                    Start = CMTime.Zero,
+                    Duration = asset.Duration
+                });
+                audioMix.InputParameters = new[] { mixParameters };
+            }
+
             var instruction = new AVMutableVideoCompositionInstruction
             {
                 TimeRange = assetTimeRange,
@@ -829,12 +843,11 @@ namespace Steepshot.iOS.Views
             videoComposition.RenderSize = renderSize;
 
             var exportSession = new AVAssetExportSession(composition, AVAssetExportSession.PresetHighestQuality);
-
             var outputFileName = new NSUuid().AsString();
             var documentsPath = NSSearchPath.GetDirectories(NSSearchPathDirectory.DocumentDirectory, NSSearchPathDomain.User, true).First();
             var outputFilePath = Path.Combine(documentsPath, Path.ChangeExtension(outputFileName, "mp4"));
             var exportLocation = NSUrl.CreateFileUrl(outputFilePath, false, null);
-
+            
             exportSession.OutputUrl = exportLocation;
             exportSession.OutputFileType = AVFileType.Mpeg4;
             exportSession.VideoComposition = videoComposition;
@@ -844,18 +857,6 @@ namespace Steepshot.iOS.Views
             {
                 if (exportSession.Status == AVAssetExportSessionStatus.Completed)
                 {
-                    Action cleanup = () =>
-                    {
-                        var path = exportLocation.Path;
-                        if (NSFileManager.DefaultManager.FileExists(path))
-                        {
-                            if (!NSFileManager.DefaultManager.Remove(path, out var err))
-                            {
-                                // Could not remove file at url: {outputFileUrl}
-                            }
-                        }
-                    };
-
                     bool success = true;
 
                     if (error != null)
@@ -886,17 +887,29 @@ namespace Steepshot.iOS.Views
                                     {
                                         // Could not save movie to photo library: {error2}
                                     }
-                                    cleanup();
+                                    CleanupLocation(exportLocation);
                                 });
                             }
                             else
-                                cleanup();
+                                CleanupLocation(exportLocation);
                         });
                     }
                     else
-                        cleanup();
+                        CleanupLocation(exportLocation);
                 }
             });
+        }
+
+        private void CleanupLocation(NSUrl location)
+        {
+            var path = location.Path;
+            if (NSFileManager.DefaultManager.FileExists(path))
+            {
+                if (!NSFileManager.DefaultManager.Remove(path, out var err))
+                {
+                    // Could not remove file at url: {outputFileUrl}
+                }
+            }
         }
     }
 }

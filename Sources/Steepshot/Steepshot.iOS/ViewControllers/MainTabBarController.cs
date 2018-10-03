@@ -15,10 +15,11 @@ using Constants = Steepshot.iOS.Helpers.Constants;
 
 namespace Steepshot.iOS.ViewControllers
 {
-    public class MainTabBarController : UITabBarController, IWillEnterForeground
+    public class MainTabBarController : UITabBarController, IWillEnterForeground, IDidEnterBackground
     {
         public event Action SameTabTapped;
         public event Action WillEnterForegroundAction;
+        public event Action DidEnterBackgroundAction;
         private bool _isInitialized;
         private UserProfilePresenter _presenter;
         private CircleFrame _powerFrame;
@@ -160,6 +161,11 @@ namespace Steepshot.iOS.ViewControllers
         public void WillEnterForeground()
         {
             WillEnterForegroundAction?.Invoke();
+        }
+
+        public void DidEnterBackground()
+        {
+            DidEnterBackgroundAction?.Invoke();
         }
     }
 
