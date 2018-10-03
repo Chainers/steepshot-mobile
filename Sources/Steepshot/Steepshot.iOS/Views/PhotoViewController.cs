@@ -310,6 +310,7 @@ namespace Steepshot.iOS.Views
 
         private void SwitchMode(CameraMode targetMode)
         {
+            _captureSession?.StopRunning();
             _photoTabButton.Enabled = targetMode != CameraMode.Photo;
             _videoTabButton.Enabled = targetMode != CameraMode.Video;
             _photoConstraint.Active = targetMode != CameraMode.Video;
@@ -455,6 +456,8 @@ namespace Steepshot.iOS.Views
             _photoButton.Enabled = isEnabled;
             closeButton.Enabled = isEnabled;
             _swapCameraButton.Enabled = isEnabled;
+            _photoTabButton.Enabled = isEnabled;
+            _videoTabButton.Enabled = isEnabled;
             _galleryButton.UserInteractionEnabled = isEnabled;
         }
 
@@ -591,7 +594,6 @@ namespace Steepshot.iOS.Views
                 _capturePhotoOutput.IsHighResolutionCaptureEnabled = true;
                 _capturePhotoOutput.IsLivePhotoCaptureEnabled = false;
 
-                _captureSession.BeginConfiguration();
                 _captureSession.SessionPreset = AVCaptureSession.PresetPhoto;
 
                 if (_captureSession.CanAddInput(_captureDeviceInput))
@@ -599,8 +601,6 @@ namespace Steepshot.iOS.Views
 
                 if (_captureSession.CanAddOutput(_capturePhotoOutput))
                     _captureSession.AddOutput(_capturePhotoOutput);
-
-                _captureSession.CommitConfiguration();
 
                 _videoPreviewLayer = new AVCaptureVideoPreviewLayer(_captureSession)
                 {
