@@ -76,6 +76,101 @@ namespace Steepshot.iOS.Views
             SwitchTheme(Theme.Dark);
         }
 
+        public override void ViewWillAppear(bool animated)
+        {
+            NavigationController.SetNavigationBarHidden(true, false);
+            CheckDeviceOrientation(null);
+            SetGalleryButton();
+            ToogleButtons(true);
+
+            if (IsMovingToParentViewController)
+            {
+                closeButton.TouchDown += GoBack;
+                flashButton.TouchDown += OnFlashTouch;
+                enableCameraAccess.TouchDown += EnableCameraAccess;
+                _photoButton.TouchDown += CaptureContent;
+                _photoButton.TouchUpInside += OnPhotoButtonUp;
+                _photoButton.TouchUpOutside += OnPhotoButtonUp;
+                _swapCameraButton.TouchDown += SwitchCameraButtonTapped;
+                ((MainTabBarController)NavigationController.ViewControllers[0]).DidEnterBackgroundAction += DidEnterBackground;
+            }
+        }
+
+        public override void ViewDidAppear(bool animated)
+        {
+            _orientationChangeEventToken = NSNotificationCenter.DefaultCenter.AddObserver(UIDevice.OrientationDidChangeNotification, CheckDeviceOrientation);
+            if (_captureSession == null)
+                AuthorizeCameraUse();
+            else if (!_captureSession.Running)
+                _captureSession.StartRunning();
+        }
+
+        public override void ViewDidLayoutSubviews()
+        {
+            if (!_initialized)
+            {
+                var lineWidth = (_activePanelHeight / 2 - 39);
+                var radius = lineWidth / 2 + 33;
+
+                if (radius > maxProgressRadius)
+                {
+                    radius = maxProgressRadius;
+                    lineWidth = maxLineWidth;
+                }
+
+                _bezierPath = new UIBezierPath();
+                _bezierPath.AddArc(_photoButton.Center, radius, 3f * (float)Math.PI / 2f, 4.712327f, true);
+
+                _sl = new CAShapeLayer();
+                _sl.LineWidth = lineWidth;
+                _sl.StrokeColor = UIColor.FromRGB(255, 17, 0).CGColor;
+                _sl.FillColor = UIColor.Clear.CGColor;
+                _sl.LineCap = CAShapeLayer.CapButt;
+                _sl.LineJoin = CAShapeLayer.CapButt;
+                _sl.StrokeStart = 0.0f;
+                _sl.StrokeEnd = 0.0f;
+                _sl.Hidden = true;
+                _sl.Path = _bezierPath.CGPath;
+
+                View.Layer.AddSublayer(_sl);
+
+                Constants.CreateGradient(_pointerView, 0, GradientType.Orange);
+
+                _initialized = true;
+            }
+        }
+
+        public override void ViewWillDisappear(bool animated)
+        {
+            if (_captureSession != null && _captureSession.Running)
+                _captureSession.StopRunning();
+
+            NavigationController.SetNavigationBarHidden(false, false);
+
+            if (IsMovingFromParentViewController)
+            {
+                closeButton.TouchDown -= GoBack;
+                flashButton.TouchDown -= OnFlashTouch;
+                enableCameraAccess.TouchDown -= EnableCameraAccess;
+                _photoButton.TouchDown -= CaptureContent;
+                _photoButton.TouchUpInside -= OnPhotoButtonUp;
+                _photoButton.TouchUpOutside -= OnPhotoButtonUp;
+                _swapCameraButton.TouchDown -= SwitchCameraButtonTapped;
+                ((MainTabBarController)NavigationController.ViewControllers[0]).DidEnterBackgroundAction -= DidEnterBackground;
+            }
+
+            base.ViewWillDisappear(animated);
+        }
+
+        public override void ViewDidDisappear(bool animated)
+        {
+            if (_orientationChangeEventToken != null)
+            {
+                NSNotificationCenter.DefaultCenter.RemoveObserver(_orientationChangeEventToken);
+                _orientationChangeEventToken.Dispose();
+            }
+        }
+
         private void SetupCameraControlls()
         {
             View.BackgroundColor = Constants.R255G255B255;
@@ -322,41 +417,6 @@ namespace Steepshot.iOS.Views
             }
         }
 
-        public override void ViewDidLayoutSubviews()
-        {
-            if (!_initialized)
-            {
-                var lineWidth = (_activePanelHeight / 2 - 39);
-                var radius = lineWidth / 2 + 33;
-
-                if (radius > maxProgressRadius)
-                {
-                    radius = maxProgressRadius;
-                    lineWidth = maxLineWidth;
-                }
-
-                _bezierPath = new UIBezierPath();
-                _bezierPath.AddArc(_photoButton.Center, radius, 3f * (float)Math.PI / 2f, 4.712327f, true);
-
-                _sl = new CAShapeLayer();
-                _sl.LineWidth = lineWidth;
-                _sl.StrokeColor = UIColor.FromRGB(255, 17, 0).CGColor;
-                _sl.FillColor = UIColor.Clear.CGColor;
-                _sl.LineCap = CAShapeLayer.CapButt;
-                _sl.LineJoin = CAShapeLayer.CapButt;
-                _sl.StrokeStart = 0.0f;
-                _sl.StrokeEnd = 0.0f;
-                _sl.Hidden = true;
-                _sl.Path = _bezierPath.CGPath;
-
-                View.Layer.AddSublayer(_sl);
-
-                Constants.CreateGradient(_pointerView, 0, GradientType.Orange);
-
-                _initialized = true;
-            }
-        }
-
         private void StartAnimation()
         {
             _sl.Hidden = false;
@@ -390,50 +450,12 @@ namespace Steepshot.iOS.Views
             return true;
         }
 
-        public override void ViewWillAppear(bool animated)
-        {
-            NavigationController.SetNavigationBarHidden(true, false);
-            CheckDeviceOrientation(null);
-            SetGalleryButton();
-            ToogleButtons(true);
-
-            if (IsMovingToParentViewController)
-            {
-                closeButton.TouchDown += GoBack;
-                flashButton.TouchDown += OnFlashTouch;
-                enableCameraAccess.TouchDown += EnableCameraAccess;
-                _photoButton.TouchDown += CaptureContent;
-                _photoButton.TouchUpInside += OnPhotoButtonUp;
-                _photoButton.TouchUpOutside += OnPhotoButtonUp;
-                _swapCameraButton.TouchDown += SwitchCameraButtonTapped;
-                ((MainTabBarController)NavigationController.ViewControllers[0]).DidEnterBackgroundAction += DidEnterBackground;
-            }
-        }
-
         private void ToogleButtons(bool isEnabled)
         {
             _photoButton.Enabled = isEnabled;
             closeButton.Enabled = isEnabled;
             _swapCameraButton.Enabled = isEnabled;
             _galleryButton.UserInteractionEnabled = isEnabled;
-        }
-
-        public override void ViewDidAppear(bool animated)
-        {
-            _orientationChangeEventToken = NSNotificationCenter.DefaultCenter.AddObserver(UIDevice.OrientationDidChangeNotification, CheckDeviceOrientation);
-            if (_captureSession == null)
-                AuthorizeCameraUse();
-            else if (!_captureSession.Running)
-                _captureSession.StartRunning();
-        }
-
-        public override void ViewDidDisappear(bool animated)
-        {
-            if (_orientationChangeEventToken != null)
-            {
-                NSNotificationCenter.DefaultCenter.RemoveObserver(_orientationChangeEventToken);
-                _orientationChangeEventToken.Dispose();
-            }
         }
 
         private void CheckDeviceOrientation(NSNotification notification)
@@ -528,28 +550,6 @@ namespace Steepshot.iOS.Views
             {
                 ShowAlert(new InternalException(LocalizationKeys.PhotoProcessingError, ex));
             }
-        }
-
-        public override void ViewWillDisappear(bool animated)
-        {
-            if (_captureSession != null && _captureSession.Running)
-                _captureSession.StopRunning();
-
-            NavigationController.SetNavigationBarHidden(false, false);
-
-            if (IsMovingFromParentViewController)
-            {
-                closeButton.TouchDown -= GoBack;
-                flashButton.TouchDown -= OnFlashTouch;
-                enableCameraAccess.TouchDown -= EnableCameraAccess;
-                _photoButton.TouchDown -= CaptureContent;
-                _photoButton.TouchUpInside -= OnPhotoButtonUp;
-                _photoButton.TouchUpOutside -= OnPhotoButtonUp;
-                _swapCameraButton.TouchDown -= SwitchCameraButtonTapped;
-                ((MainTabBarController)NavigationController.ViewControllers[0]).DidEnterBackgroundAction -= DidEnterBackground;
-            }
-
-            base.ViewWillDisappear(animated);
         }
 
         private async void AuthorizeCameraUse()
@@ -770,8 +770,6 @@ namespace Steepshot.iOS.Views
             var composition = AVMutableComposition.Create();
             var compositionTrackVideo = composition.AddMutableTrack(AVMediaType.Video, 0);
             var videoCompositionInstructions = new AVVideoCompositionInstruction[1];
-            var index = 0;
-            var startTime = CMTime.Zero;
 
             var asset = new AVUrlAsset(outputFileUrl, new AVUrlAssetOptions());
 
@@ -781,14 +779,11 @@ namespace Steepshot.iOS.Views
                 return;
             }
 
-            NSError nsError;
             var videoTrack = asset.TracksWithMediaType(AVMediaType.Video)[0];
             var renderSize = new SizeF((float)videoTrack.NaturalSize.Height, (float)videoTrack.NaturalSize.Height);
             var assetTimeRange = new CMTimeRange { Start = CMTime.Zero, Duration = asset.Duration };
 
-            compositionTrackVideo.InsertTimeRange(assetTimeRange, videoTrack, startTime, out nsError);
-
-            // create video instruction
+            compositionTrackVideo.InsertTimeRange(assetTimeRange, videoTrack, CMTime.Zero, out var nsError);
 
             var transformer = new AVMutableVideoCompositionLayerInstruction
             {
@@ -811,7 +806,7 @@ namespace Steepshot.iOS.Views
                 {
                     Start = CMTime.Zero,
                     Duration = asset.Duration
-                }, audioTrack, startTime, out nsError);
+                }, audioTrack, CMTime.Zero, out nsError);
 
                 var mixParameters = new AVMutableAudioMixInputParameters
                 {
@@ -832,9 +827,7 @@ namespace Steepshot.iOS.Views
                 LayerInstructions = new[] { transformer }
             };
 
-            videoCompositionInstructions[index] = instruction;
-            index++;
-            startTime = CMTime.Add(startTime, asset.Duration);
+            videoCompositionInstructions[0] = instruction;
 
             var videoComposition = new AVMutableVideoComposition();
             videoComposition.FrameDuration = new CMTime(1, (int)videoTrack.NominalFrameRate);
