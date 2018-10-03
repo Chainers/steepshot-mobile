@@ -12,6 +12,7 @@ using Ditch.Steem.Operations;
 using Newtonsoft.Json;
 using Steepshot.Core.Exceptions;
 using Steepshot.Core.Extensions;
+using Steepshot.Core.Interfaces;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
@@ -21,9 +22,10 @@ using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Clients
 {
-    internal class SteemClient : BaseDitchClient
+    public class SteemClient : BaseDitchClient
     {
         private readonly OperationManager _operationManager;
+        private readonly ConfigManager _configManager;
 
         private double? _vestsExchangeRatio;
 
@@ -31,8 +33,10 @@ namespace Steepshot.Core.Clients
 
         public override KnownChains Chain => KnownChains.Steem;
 
-        public SteemClient(ExtendedHttpClient extendedHttpClient) : base(extendedHttpClient)
+        public SteemClient(ExtendedHttpClient extendedHttpClient, ILogService logService, ConfigManager configManager)
+            : base(extendedHttpClient, logService)
         {
+            _configManager = configManager;
             var httpManager = new HttpManager(extendedHttpClient);
             _operationManager = new OperationManager(httpManager);
         }
@@ -50,9 +54,9 @@ namespace Steepshot.Core.Clients
                     Monitor.Enter(SyncConnection, ref lockWasTaken);
                     if (!EnableWrite)
                     {
-                        AppSettings.ConfigManager.UpdateAsync(ExtendedHttpClient, KnownChains.Steem, token).Wait(token);
+                        _configManager.UpdateAsync(ExtendedHttpClient, KnownChains.Steem, token).Wait(token);
 
-                        var cUrls = AppSettings.ConfigManager.SteemNodeConfigs
+                        var cUrls = _configManager.SteemNodeConfigs
                             .Where(n => n.IsEnabled)
                             .OrderBy(n => n.Order)
                             .Select(n => n.Url)
@@ -73,7 +77,7 @@ namespace Steepshot.Core.Clients
                 }
                 catch (Exception ex)
                 {
-                    AppSettings.Logger.WarningAsync(ex).Wait(token);
+                    LogService.WarningAsync(ex).Wait(token);
                 }
                 finally
                 {
@@ -101,6 +105,10 @@ namespace Steepshot.Core.Clients
 
         public override async Task<OperationResult<VoidResponse>> VoteAsync(VoteModel model, CancellationToken ct)
         {
+            var results = Validate(model);
+            if (results != null)
+                return new OperationResult<VoidResponse>(results);
+
             var isConnected = await TryReconnectChainAsync(ct).ConfigureAwait(false);
             if (!isConnected)
                 return new OperationResult<VoidResponse>(new ValidationException(LocalizationKeys.EnableConnectToBlockchain));
@@ -111,7 +119,7 @@ namespace Steepshot.Core.Clients
 
             short weigth = 0;
             if (model.Type == VoteType.Up)
-                weigth = (short)(AppSettings.User.VotePower * 100);
+                weigth = (short)(model.VotePower * 100);
             if (model.Type == VoteType.Flag)
                 weigth = -10000;
 
@@ -121,6 +129,10 @@ namespace Steepshot.Core.Clients
 
         public override async Task<OperationResult<VoidResponse>> FollowAsync(FollowModel model, CancellationToken ct)
         {
+            var results = Validate(model);
+            if (results != null)
+                return new OperationResult<VoidResponse>(results);
+
             var isConnected = await TryReconnectChainAsync(ct).ConfigureAwait(false);
             if (!isConnected)
                 return new OperationResult<VoidResponse>(new ValidationException(LocalizationKeys.EnableConnectToBlockchain));
@@ -138,6 +150,10 @@ namespace Steepshot.Core.Clients
 
         public override async Task<OperationResult<VoidResponse>> CreateOrEditAsync(CommentModel model, CancellationToken ct)
         {
+            var results = Validate(model);
+            if (results != null)
+                return new OperationResult<VoidResponse>(results);
+
             var isConnected = await TryReconnectChainAsync(ct).ConfigureAwait(false);
             if (!isConnected)
                 return new OperationResult<VoidResponse>(new ValidationException(LocalizationKeys.EnableConnectToBlockchain));
@@ -170,6 +186,10 @@ namespace Steepshot.Core.Clients
 
         public override async Task<OperationResult<VoidResponse>> DeleteAsync(DeleteModel model, CancellationToken ct)
         {
+            var results = Validate(model);
+            if (results != null)
+                return new OperationResult<VoidResponse>(results);
+
             var isConnected = await TryReconnectChainAsync(ct).ConfigureAwait(false);
             if (!isConnected)
                 return new OperationResult<VoidResponse>(new ValidationException(LocalizationKeys.EnableConnectToBlockchain));
@@ -185,6 +205,10 @@ namespace Steepshot.Core.Clients
 
         public override async Task<OperationResult<VoidResponse>> UpdateUserProfileAsync(UpdateUserProfileModel model, CancellationToken ct)
         {
+            var results = Validate(model);
+            if (results != null)
+                return new OperationResult<VoidResponse>(results);
+
             var isConnected = await TryReconnectChainAsync(ct).ConfigureAwait(false);
             if (!isConnected)
                 return new OperationResult<VoidResponse>(new ValidationException(LocalizationKeys.EnableConnectToBlockchain));
@@ -197,7 +221,7 @@ namespace Steepshot.Core.Clients
             {
                 Accounts = new[] { model.Login }
             };
-            var resp = await _operationManager.FindAccountsAsync(args, CancellationToken.None).ConfigureAwait(false);
+            var resp = await _operationManager.FindAccountsAsync(args, ct).ConfigureAwait(false);
             var result = new OperationResult<VoidResponse>();
             if (resp.IsError)
             {
@@ -221,6 +245,10 @@ namespace Steepshot.Core.Clients
 
         public override async Task<OperationResult<VoidResponse>> TransferAsync(TransferModel model, CancellationToken ct)
         {
+            var results = Validate(model);
+            if (results != null)
+                return new OperationResult<VoidResponse>(results);
+
             var isConnected = await TryReconnectChainAsync(ct).ConfigureAwait(false);
             if (!isConnected)
                 return new OperationResult<VoidResponse>(new ValidationException(LocalizationKeys.EnableConnectToBlockchain));
@@ -258,6 +286,10 @@ namespace Steepshot.Core.Clients
 
         public override async Task<OperationResult<VoidResponse>> PowerUpOrDownAsync(PowerUpDownModel model, CancellationToken ct)
         {
+            var results = Validate(model);
+            if (results != null)
+                return new OperationResult<VoidResponse>(results);
+
             var isConnected = await TryReconnectChainAsync(ct).ConfigureAwait(false);
             if (!isConnected)
                 return new OperationResult<VoidResponse>(new ValidationException(LocalizationKeys.EnableConnectToBlockchain));
@@ -289,6 +321,10 @@ namespace Steepshot.Core.Clients
 
         public override async Task<OperationResult<VoidResponse>> ClaimRewardsAsync(ClaimRewardsModel model, CancellationToken ct)
         {
+            var results = Validate(model);
+            if (results != null)
+                return new OperationResult<VoidResponse>(results);
+
             var isConnected = await TryReconnectChainAsync(ct).ConfigureAwait(false);
             if (!isConnected)
                 return new OperationResult<VoidResponse>(new ValidationException(LocalizationKeys.EnableConnectToBlockchain));
@@ -314,8 +350,12 @@ namespace Steepshot.Core.Clients
         #endregion Post requests
 
         #region Get
-        public override async Task<OperationResult<string>> GetVerifyTransactionAsync(AuthorizedPostingModel model, CancellationToken ct)
+        public override async Task<OperationResult<string>> GetVerifyTransactionAsync(AuthorizedWifModel model, CancellationToken ct)
         {
+            var results = Validate(model);
+            if (results != null)
+                return new OperationResult<string>(results);
+
             var keys = ToKeyArr(model.PostingKey);
             if (keys == null)
                 return new OperationResult<string>(new ValidationException(LocalizationKeys.WrongPrivatePostingKey));
@@ -335,6 +375,10 @@ namespace Steepshot.Core.Clients
 
         public override async Task<OperationResult<VoidResponse>> ValidatePrivateKeyAsync(ValidatePrivateKeyModel model, CancellationToken ct)
         {
+            var results = Validate(model);
+            if (results != null)
+                return new OperationResult<VoidResponse>(results);
+
             var keys = ToKey(model.PrivateKey);
             if (keys == null)
             {
@@ -360,7 +404,7 @@ namespace Steepshot.Core.Clients
             {
                 Accounts = new[] { model.Login }
             };
-            var resp = await _operationManager.FindAccountsAsync(args, CancellationToken.None).ConfigureAwait(false);
+            var resp = await _operationManager.FindAccountsAsync(args, ct).ConfigureAwait(false);
             if (resp.IsError)
             {
                 result.Exception = new RequestException(resp);
@@ -414,7 +458,7 @@ namespace Steepshot.Core.Clients
             {
                 Accounts = new[] { userName }
             };
-            var resp = await _operationManager.FindAccountsAsync(args, CancellationToken.None).ConfigureAwait(false);
+            var resp = await _operationManager.FindAccountsAsync(args, ct).ConfigureAwait(false);
             if (resp.IsError)
             {
                 result.Exception = new RequestException(resp);
@@ -489,7 +533,7 @@ namespace Steepshot.Core.Clients
                 Start = ulong.MaxValue,
                 Limit = 1000
             };
-            var resp = await _operationManager.CondenserGetAccountHistoryAsync(args, CancellationToken.None).ConfigureAwait(false);
+            var resp = await _operationManager.CondenserGetAccountHistoryAsync(args, ct).ConfigureAwait(false);
             if (resp.IsError)
             {
                 result.Exception = new RequestException(resp);

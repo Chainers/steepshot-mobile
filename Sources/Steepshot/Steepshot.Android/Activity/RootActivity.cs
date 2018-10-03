@@ -27,12 +27,13 @@ using Steepshot.Core.Utils;
 using System.Linq;
 using Android;
 using Android.Runtime;
+using Newtonsoft.Json.Linq;
+using Steepshot.Core;
 using WebSocketSharp;
-using Steepshot.Services;
 
 namespace Steepshot.Activity
 {
-    [Activity(Label = Core.Constants.Steepshot, ScreenOrientation = ScreenOrientation.Portrait, LaunchMode = LaunchMode.SingleTask)]
+    [Activity(Label = Constants.Steepshot, ScreenOrientation = ScreenOrientation.Portrait, LaunchMode = LaunchMode.SingleTask)]
     public sealed class RootActivity : BaseActivityWithPresenter<UserProfilePresenter>, IClearable
     {
         public const string NotificationData = "NotificationData";
@@ -81,8 +82,9 @@ namespace Steepshot.Activity
                 {
                     Subscriptions = PushSettings.All.FlagToStringList()
                 };
+                
+                var response = await Presenter.TrySubscribeForPushesAsync(model).ConfigureAwait(false);
 
-                var response = await Presenter.TrySubscribeForPushesAsync(model);
                 if (response.IsSuccess)
                 {
                     AppSettings.User.PushesPlayerId = playerId;
@@ -299,11 +301,11 @@ namespace Steepshot.Activity
         {
             do
             {
-                var exception = await Presenter.TryGetUserInfoAsync(AppSettings.User.Login);
+                var result = await Presenter.TryGetUserInfoAsync(AppSettings.User.Login);
                 if (IsDestroyed)
                     return;
 
-                if (exception == null || exception is System.OperationCanceledException)
+                if (result.IsSuccess || result.Exception is System.OperationCanceledException)
                 {
                     SetProfileChart(TabLayout.LayoutParameters.Height);
                     break;

@@ -1,4 +1,4 @@
-﻿using Steepshot.Core.Services;
+﻿using Steepshot.Core.Interfaces;
 
 namespace Steepshot.Core.Tests.Stubs
 {

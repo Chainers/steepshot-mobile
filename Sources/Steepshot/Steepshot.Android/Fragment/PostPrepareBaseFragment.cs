@@ -11,11 +11,11 @@ using Android.Util;
 using Android.Views;
 using Android.Widget;
 using Apmem;
+using Autofac;
 using CheeseBind;
 using Steepshot.Activity;
 using Steepshot.Adapter;
 using Steepshot.Base;
-using Steepshot.Core;
 using Steepshot.Core.Facades;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models;
@@ -71,7 +71,6 @@ namespace Steepshot.Fragment
 
         #region Properties
 
-        protected TimeSpan PostingLimit { get; set; }
         protected Timer Timer { get; set; }
         protected PreparePostModel Model { get; set; }
         protected string PreviousQuery { get; set; }
@@ -123,9 +122,7 @@ namespace Steepshot.Fragment
             LocalTagsList.SetAdapter(LocalTagsAdapter);
             LocalTagsList.AddItemDecoration(new ListItemDecoration((int)TypedValue.ApplyDimension(ComplexUnitType.Dip, 15, Resources.DisplayMetrics)));
 
-            var client = App.MainChain == KnownChains.Steem ? App.SteemClient : App.GolosClient;
-            _tagPickerFacade = new TagPickerFacade(_localTagsAdapter.LocalTags);
-            _tagPickerFacade.SetClient(client);
+            _tagPickerFacade = AppSettings.GetFacade<TagPickerFacade>(AppSettings.MainChain, new TypedParameter(_localTagsAdapter.LocalTags.GetType(), _localTagsAdapter.LocalTags));
             _tagPickerFacade.SourceChanged += TagPickerFacadeOnSourceChanged;
 
             _postSearchTagsAdapter = new PostSearchTagsAdapter(_tagPickerFacade);
@@ -186,6 +183,9 @@ namespace Steepshot.Fragment
             }
 
             await OnPostAsync();
+
+            if (!IsInitialized)
+                return;
 
             if (IsSpammer != true)
                 EnablePostAndEdit(true, true);

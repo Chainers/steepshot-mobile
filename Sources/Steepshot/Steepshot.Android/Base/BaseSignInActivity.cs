@@ -62,7 +62,7 @@ namespace Steepshot.Base
             _buttonScanDefaultView.Typeface = Style.Semibold;
 #if DEBUG
             var di = AppSettings.AssetHelper.GetDebugInfo();
-            _password.Text = App.MainChain == KnownChains.Golos
+            _password.Text = AppSettings.MainChain == KnownChains.Golos
                 ? di.GolosTestWif
                 : di.SteemTestWif;
 #endif            

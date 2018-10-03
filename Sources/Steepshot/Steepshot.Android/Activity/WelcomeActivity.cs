@@ -10,6 +10,7 @@ using Android.Widget;
 using CheeseBind;
 using Steepshot.Base;
 using Steepshot.Core;
+using Steepshot.Core.Clients;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Utils;
 using Steepshot.Utils;
@@ -113,13 +114,12 @@ namespace Steepshot.Activity
 
         private void OnDevSwitcherOnCheckedChange(object sender, CompoundButton.CheckedChangeEventArgs e)
         {
-            App.SteemClient.SetDev(e.IsChecked);
-            App.GolosClient.SetDev(e.IsChecked);
+            AppSettings.SetDev(e.IsChecked);
         }
 
         private void PickChain(KnownChains chain)
         {
-            App.MainChain = chain;
+            AppSettings.MainChain = chain;
             var intent = new Intent(this, typeof(PreSignInActivity));
             StartActivity(intent);
         }

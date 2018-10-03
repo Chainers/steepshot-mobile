@@ -1,19 +1,16 @@
-﻿using Steepshot.Core.Localization;
-using Steepshot.Core.Utils;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Steepshot.Core.Clients;
+using Steepshot.Core.Utils;
 
-namespace Steepshot.Core.Services
+namespace Steepshot.Core.Interfaces
 {
     public interface IAssetHelper
     {
-        HashSet<string> TryReadCensoredWords();
-
         ConfigInfo GetConfigInfo();
 
         DebugInfo GetDebugInfo();
 
-        LocalizationModel GetLocalization(string lang);
+        string GetLocalization(string lang);
 
         List<NodeConfig> SteemNodesConfig();
 

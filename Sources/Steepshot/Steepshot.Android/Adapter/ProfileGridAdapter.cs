@@ -313,7 +313,7 @@ namespace Steepshot.Adapter
             _followingCount.Text = profile.FollowingCount.ToString("#,##0");
             _followersCount.Text = profile.FollowersCount.ToString("#,##0");
 
-            _balance.Text = StringHelper.ToFormatedCurrencyString(profile.EstimatedBalance, App.MainChain);
+            _balance.Text = StringHelper.ToFormatedCurrencyString(profile.EstimatedBalance, AppSettings.MainChain);
         }
 
         private void OnError()

@@ -3,7 +3,9 @@ using System.Threading;
 using Foundation;
 using PureLayout.Net;
 using Steepshot.Core.Models;
+using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
+using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Presenters;
 using Steepshot.iOS.Cells;
 using Steepshot.iOS.CustomViews;
@@ -61,8 +63,8 @@ namespace Steepshot.iOS.Views
             _tagField.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 15f);
             tagsCollectionView.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, _tagField, 20f);
             _tagField.AutoSetDimension(ALDimension.Height, 40f);
-
-            _tableSource = new TagsTableViewSource(_presenter, tagsTableView);
+            
+            _tableSource = new TagsTableViewSource(Presenter, tagsTableView);
 
             tagsTableView.Source = _tableSource;
             tagsTableView.LayoutMargins = UIEdgeInsets.Zero;
@@ -93,7 +95,7 @@ namespace Steepshot.iOS.Views
                 _tableSource.ScrolledToBottom += TableSource_ScrolledToBottom;
                 View.AddGestureRecognizer(_viewTap);
                 _tagField.ClearButtonTapped += TagField_ClearButtonTapped;
-                _presenter.SourceChanged += SourceChanged;
+                Presenter.SourceChanged += SourceChanged;
             }
 
             base.ViewWillAppear(animated);
@@ -111,7 +113,7 @@ namespace Steepshot.iOS.Views
                 _tableSource.ScrolledToBottom = null;
                 View.RemoveGestureRecognizer(_viewTap);
                 _tagField.ClearButtonTapped = null;
-                _presenter.SourceChanged -= SourceChanged;
+                Presenter.SourceChanged -= SourceChanged;
                 _tableSource.FreeAllCells();
             }
             base.ViewWillDisappear(animated);
@@ -130,7 +132,7 @@ namespace Steepshot.iOS.Views
         private async void TableSource_ScrolledToBottom()
         {
             _tagField.Loader.StartAnimating();
-            var exception = await _presenter.TryLoadNextAsync(_tagField.Text, false);
+            var exception = await Presenter.TryLoadNextAsync(_tagField.Text, false);
             _tagField.Loader.StopAnimating();
             ShowAlert(exception);
         }
@@ -201,15 +203,19 @@ namespace Steepshot.iOS.Views
             _tagField.Loader.StartAnimating();
             _previousQuery = _tagField.Text;
 
-            Exception exception = null;
+            OperationResult<ListResponse<SearchResult>> result = null;
             if (_tagField.Text.Length == 0)
-                exception = await _presenter.TryGetTopTagsAsync();
+            {
+                result = await Presenter.TryGetTopTagsAsync();
+            }
             else if (_tagField.Text.Length > 1)
-                exception = await _presenter.TryLoadNextAsync(_tagField.Text, showUnknownTag : true);
+            {
+                result = await Presenter.TryLoadNextAsync(_tagField.Text, showUnknownTag : true);
+            }
 
-            if(!(exception is OperationCanceledException))
+            if(result.IsSuccess || !(result.Exception is OperationCanceledException))
                 _tagField.Loader.StopAnimating();
-            ShowAlert(exception);
+            ShowAlert(result);
         }
 
         private void EditingDidChange(object sender, EventArgs e)

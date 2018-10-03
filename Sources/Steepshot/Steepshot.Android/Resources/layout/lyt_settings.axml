@@ -242,20 +242,6 @@
                     android:background="@android:color/transparent"
                     android:gravity="center_vertical"
                     android:drawableRight="@drawable/ic_forward" />
-                <android.support.v7.widget.AppCompatButton
-                    android:id="@+id/tests"
-                    android:text="Tests"
-                    android:textSize="@dimen/dp_button_text"
-                    android:textAllCaps="false"
-                    android:textColor="@color/black"
-                    android:background="@android:color/white"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:padding="10dp"
-                    android:layout_marginTop="1dp"
-                    android:visibility="gone"
-                    style="?android:attr/borderlessButtonStyle" />
             </LinearLayout>
             <TextView
                 android:id="@+id/version_textview"

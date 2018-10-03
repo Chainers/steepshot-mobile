@@ -4,23 +4,29 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using Steepshot.Core.Authorization;
+using Steepshot.Core.Clients;
+using Steepshot.Core.Interfaces;
 using Steepshot.Core.Sentry.Models;
-using Steepshot.Core.Services;
-using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Sentry
 {
     public sealed class LogService : ILogService
     {
+        private readonly IConnectionService _connectionService;
         private readonly IAppInfo _appInfoService;
         private readonly Dsn _dsn;
-        private System.Net.Http.HttpClient HttpClient { get; set; }
+        private readonly User _user;
+        private HttpClient HttpClient { get; set; }
 
-        public LogService(System.Net.Http.HttpClient httpClient, IAppInfo appInfoService, string dsn)
+        public LogService(ExtendedHttpClient httpClient, IAppInfo appInfoService, IAssetHelper assetHelper, IConnectionService connectionService, User user)
         {
             HttpClient = httpClient;
             _appInfoService = appInfoService;
-            _dsn = new Dsn(dsn);
+            _connectionService = connectionService;
+            var config = assetHelper.GetConfigInfo();
+            _dsn = new Dsn(config.RavenClientDsn);
+            _user = user;
         }
 
 
@@ -44,7 +50,6 @@ namespace Steepshot.Core.Sentry
             await SendAsync(ex, "info").ConfigureAwait(false);
         }
 
-
         private async Task SendAsync(Exception ex, string level)
         {
             try
@@ -52,10 +57,14 @@ namespace Steepshot.Core.Sentry
                 if (ex is TaskCanceledException || ex is OperationCanceledException)
                     return;
 
-                if (!AppSettings.ConnectionService.IsConnectionAvailable())
+                if (!_connectionService.IsConnectionAvailable())
                     return; //TODO: need to store locale
 
-                var packet = GetPacket();
+                var login = _user?.Login;
+                if (string.IsNullOrEmpty(login))
+                    login = "unauthorized";
+
+                var packet = GetPacket(login);
                 packet.Level = level;
                 packet.Extra = new ExceptionData(ex);
                 packet.Exceptions = SentryException.GetList(ex);
@@ -67,12 +76,8 @@ namespace Steepshot.Core.Sentry
             }
         }
 
-        private JsonPacket GetPacket()
+        private JsonPacket GetPacket(string login)
         {
-            var login = AppSettings.User?.Login;
-            if (string.IsNullOrEmpty(login))
-                login = "unauthorized";
-
             var appVersion = _appInfoService.GetAppVersion();
             var buildVersion = _appInfoService.GetBuildVersion();
             return new JsonPacket

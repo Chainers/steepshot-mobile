@@ -72,16 +72,8 @@ namespace Steepshot.iOS.ViewControllers
             _avatar.Image = UIImage.FromBundle("ic_noavatar");
             _avatar.ContentMode = UIViewContentMode.ScaleAspectFill;
 
-            _presenter = new UserProfilePresenter() { UserName = AppSettings.User.Login };
-            switch (AppDelegate.MainChain)
-            {
-                case KnownChains.Golos:
-                    _presenter.SetClient(AppDelegate.GolosClient);
-                    break;
-                case KnownChains.Steem:
-                    _presenter.SetClient(AppDelegate.SteemClient);
-                    break;
-            }
+            _presenter = AppSettings.GetPresenter<UserProfilePresenter>(AppSettings.MainChain);
+            _presenter.UserName = AppSettings.User.Login;
 
             TabBar.Subviews[3].AddSubview(_powerFrame);
             InitializePowerFrame();
@@ -119,8 +111,8 @@ namespace Steepshot.iOS.ViewControllers
         {
             do
             {
-                var exception = await _presenter.TryGetUserInfoAsync(AppSettings.User.Login);
-                if (exception == null || exception is OperationCanceledException)
+                var result = await _presenter.TryGetUserInfoAsync(AppSettings.User.Login);
+                if (result.IsSuccess || result.Exception is OperationCanceledException)
                 {
                     _powerFrame.ChangePercents((int)_presenter.UserProfileResponse.VotingPower);
                     if (!string.IsNullOrEmpty(_presenter.UserProfileResponse.ProfileImage))

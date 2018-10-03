@@ -431,8 +431,10 @@ namespace Steepshot.Fragment
         private async void PushesOnClick(object sender, EventArgs eventArgs)
         {
             _moreActionsDialog.Dismiss();
-            var model = new PushNotificationsModel(AppSettings.User.UserInfo, !isSubscribed);
-            model.WatchedUser = _profileId;
+            var model = new PushNotificationsModel(AppSettings.User.UserInfo, !isSubscribed)
+            {
+                WatchedUser = _profileId
+            };
 
             isSubscription = true;
 
@@ -509,11 +511,11 @@ namespace Steepshot.Fragment
         {
             do
             {
-                var exception = await Presenter.TryGetUserInfoAsync(_profileId);
+                var result = await Presenter.TryGetUserInfoAsync(_profileId);
                 if (!IsInitialized)
                     return;
 
-                if (exception == null || exception is System.OperationCanceledException)
+                if (result.IsSuccess || result.Exception is System.OperationCanceledException)
                 {
                     _listLayout.Visibility = ViewStates.Visible;
                     _more.Enabled = true;
@@ -521,7 +523,7 @@ namespace Steepshot.Fragment
                     break;
                 }
 
-                Context.ShowAlert(exception, ToastLength.Short);
+                Context.ShowAlert(result, ToastLength.Short);
                 await Task.Delay(5000);
                 if (!IsInitialized)
                     return;
@@ -560,11 +562,11 @@ namespace Steepshot.Fragment
                 case ActionType.Follow:
                     if (AppSettings.User.HasPostingPermission)
                     {
-                        var exception = await Presenter.TryFollowAsync();
+                        var result = await Presenter.TryFollowAsync();
                         if (!IsInitialized)
                             return;
 
-                        Context.ShowAlert(exception, ToastLength.Long);
+                        Context.ShowAlert(result, ToastLength.Long);
                     }
                     else
                     {
@@ -586,28 +588,30 @@ namespace Steepshot.Fragment
 
         private async void PostAction(ActionType type, Post post)
         {
+            if (post == null)
+                return;
+
             switch (type)
             {
                 case ActionType.Like:
                     {
                         if (AppSettings.User.HasPostingPermission)
                         {
-                            var exception = await Presenter.TryVoteAsync(post);
+                            var result = await Presenter.TryVoteAsync(post);
                             if (!IsInitialized)
                                 return;
 
-                            Context.ShowAlert(exception);
+                            Context.ShowAlert(result);
                         }
                         else
+                        {
                             OpenLogin();
+                        }
                         break;
                     }
                 case ActionType.VotersLikes:
                 case ActionType.VotersFlags:
                     {
-                        if (post == null)
-                            return;
-
                         var isLikers = type == ActionType.VotersLikes;
                         Activity.Intent.PutExtra(FeedFragment.PostUrlExtraPath, post.Url);
                         Activity.Intent.PutExtra(FeedFragment.PostNetVotesExtraPath, isLikers ? post.NetLikes : post.NetFlags);
@@ -617,8 +621,6 @@ namespace Steepshot.Fragment
                     }
                 case ActionType.Comments:
                     {
-                        if (post == null)
-                            return;
                         if (post.Children == 0 && !AppSettings.User.HasPostingPermission)
                         {
                             OpenLogin();
@@ -630,9 +632,6 @@ namespace Steepshot.Fragment
                     }
                 case ActionType.Profile:
                     {
-                        if (post == null)
-                            return;
-
                         if (_profileId != post.Author)
                             ((BaseActivity)Activity).OpenNewContentFragment(new ProfileFragment(post.Author));
                         break;
@@ -642,11 +641,11 @@ namespace Steepshot.Fragment
                         if (!AppSettings.User.HasPostingPermission)
                             return;
 
-                        var exception = await Presenter.TryFlagAsync(post);
+                        var result = await Presenter.TryFlagAsync(post);
                         if (!IsInitialized)
                             return;
 
-                        Context.ShowAlert(exception);
+                        Context.ShowAlert(result);
                         break;
                     }
                 case ActionType.Hide:
@@ -670,11 +669,10 @@ namespace Steepshot.Fragment
 
                         actionAlert.AlertAction += async () =>
                         {
-                            var exception = await Presenter.TryDeletePostAsync(post);
+                            var result = await Presenter.TryDeletePostAsync(post);
                             if (!IsInitialized)
                                 return;
-
-                            Context.ShowAlert(exception);
+                            Context.ShowAlert(result);
                         };
 
                         actionAlert.Show();

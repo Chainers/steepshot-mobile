@@ -15,6 +15,7 @@ using Android.Content;
 using Android.Graphics;
 using Android.Graphics.Drawables;
 using Android.Text;
+using Autofac;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Utils;
@@ -84,7 +85,7 @@ namespace Steepshot.Fragment
                 return;
 
             base.OnViewCreated(view, savedInstanceState);
-
+            
             _cancel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Cancel);
             _save.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Save);
             _textInput.Hint = AppSettings.LocalizationManager.GetText(LocalizationKeys.PutYourComment);
@@ -186,12 +187,12 @@ namespace Steepshot.Fragment
 
             if (_editControls.Visibility == ViewStates.Visible)
             {
-                var exception = await Presenter.TryEditCommentAsync(AppSettings.User.UserInfo, _post, _editComment, _textInput.Text, AppSettings.AppInfo);
+                var result = await Presenter.TryEditCommentAsync(AppSettings.User.UserInfo, _post, _editComment, _textInput.Text, AppSettings.AppInfo);
 
                 if (!IsInitialized)
                     return;
 
-                Context.ShowAlert(exception);
+                Context.ShowAlert(result.Exception);
                 CommentEditCancelBtnOnClick(null, null);
             }
             else
@@ -246,17 +247,21 @@ namespace Steepshot.Fragment
 
         private async void CommentAction(ActionType type, Post post)
         {
+            if (post == null)
+                return;
+
             switch (type)
             {
                 case ActionType.Like:
                     {
                         if (AppSettings.User.HasPostingPermission)
                         {
-                            var exception = await Presenter.TryVoteAsync(post);
+                            var result = await Presenter.TryVoteAsync(post);
 
                             if (!IsInitialized)
                                 return;
-                            Context.ShowAlert(exception, ToastLength.Short);
+
+                            Context.ShowAlert(result, ToastLength.Short);
                         }
                         else
                         {
@@ -267,9 +272,6 @@ namespace Steepshot.Fragment
                     }
                 case ActionType.Profile:
                     {
-                        if (post == null)
-                            return;
-
                         if (AppSettings.User.Login != post.Author)
                             ((BaseActivity)Activity).OpenNewContentFragment(new ProfileFragment(post.Author));
                         break;
@@ -277,9 +279,6 @@ namespace Steepshot.Fragment
                 case ActionType.VotersLikes:
                 case ActionType.VotersFlags:
                     {
-                        if (post == null)
-                            return;
-
                         var isLikers = type == ActionType.VotersLikes;
                         Activity.Intent.PutExtra(PostUrlExtraPath, post.Url.Substring(post.Url.LastIndexOf("@", StringComparison.Ordinal)));
                         Activity.Intent.PutExtra(PostNetVotesExtraPath, isLikers ? post.NetLikes : post.NetFlags);
@@ -291,11 +290,11 @@ namespace Steepshot.Fragment
                     {
                         if (AppSettings.User.HasPostingPermission)
                         {
-                            var exception = await Presenter.TryFlagAsync(post);
+                            var result = await Presenter.TryFlagAsync(post);
 
                             if (!IsInitialized)
                                 return;
-                            Context.ShowAlert(exception, ToastLength.Short);
+                            Context.ShowAlert(result, ToastLength.Short);
                         }
                         else
                         {
@@ -311,8 +310,6 @@ namespace Steepshot.Fragment
                     }
                 case ActionType.Reply:
                     {
-                        if (post == null)
-                            return;
                         if (!_textInput.Text.StartsWith($"@{post.Author}"))
                         {
                             _textInput.Text = $"@{post.Author} {_textInput.Text}";
@@ -343,11 +340,11 @@ namespace Steepshot.Fragment
                             AppSettings.LocalizationManager.GetText(LocalizationKeys.Cancel), AutoLinkAction);
                         actionAlert.AlertAction += async () =>
                         {
-                            var exception = await Presenter.TryDeleteCommentAsync(post, _post);
+                            var result = await Presenter.TryDeleteCommentAsync(post, _post);
                             if (!IsInitialized)
                                 return;
 
-                            Context.ShowAlert(exception);
+                            Context.ShowAlert(result);
                         };
                         actionAlert.Show();
                         break;

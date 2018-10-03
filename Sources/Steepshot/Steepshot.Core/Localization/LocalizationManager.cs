@@ -4,10 +4,10 @@ using System.Xml;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using Steepshot.Core.Clients;
 using Steepshot.Core.Exceptions;
-using Steepshot.Core.Services;
-using Steepshot.Core.Utils;
+using Steepshot.Core.Interfaces;
 
 namespace Steepshot.Core.Localization
 {
@@ -16,39 +16,51 @@ namespace Steepshot.Core.Localization
         public const string UpdateUrl = "https://raw.githubusercontent.com/Chainers/steepshot-mobile/master/References/Languages/{0}/dic.xml";
         public const string Localization = "Localization";
         public const string DefaultLang = "en";
+
         private static readonly string[] Separator = { "&split;" };
 
+        private readonly ILogService _logService;
+        private readonly IConnectionService _connectionService;
         private readonly ISaverService _saverService;
-        private readonly Dictionary<string, LocalizationModel> _localizationModel;
+        private readonly Dictionary<string, LocalizationModel> _localizationModels;
 
         public LocalizationModel Model { get; }
 
 
-        public LocalizationManager(ISaverService saverService, IAssetHelper assetHelper)
+        public LocalizationManager(ISaverService saverService, IAssetHelper assetHelper, IConnectionService connectionService, ILogService logService)
         {
             _saverService = saverService;
-            _localizationModel = _saverService.Get<Dictionary<string, LocalizationModel>>(Localization) ?? new Dictionary<string, LocalizationModel>();
+            _connectionService = connectionService;
+            _logService = logService;
+            _localizationModels = _saverService.Get<Dictionary<string, LocalizationModel>>(Localization) ?? new Dictionary<string, LocalizationModel>();
 
-            Model = _localizationModel.ContainsKey(DefaultLang)
-                ? _localizationModel[DefaultLang]
-                : assetHelper.GetLocalization(DefaultLang);
+            if (_localizationModels.ContainsKey(DefaultLang))
+            {
+                Model = _localizationModels[DefaultLang];
+            }
+            else
+            {
+                var txt = assetHelper.GetLocalization(DefaultLang);
+                Model = new LocalizationModel();
+                Update(txt, Model);
+            }
         }
 
 
         public LocalizationModel SelectLocalization(string lang)
         {
-            if (_localizationModel.ContainsKey(lang))
-                return _localizationModel[lang];
+            if (_localizationModels.ContainsKey(lang))
+                return _localizationModels[lang];
             return null;
         }
 
-        public async void Update(ExtendedHttpClient httpClient)
+        public async Task UpdateAsync(ExtendedHttpClient httpClient, CancellationToken token)
         {
-            var available = AppSettings.ConnectionService.IsConnectionAvailable();
+            var available = _connectionService.IsConnectionAvailable();
             if (!available)
                 return;
 
-            var rez = await httpClient.GetAsync<string>(string.Format(UpdateUrl, Model.Lang), CancellationToken.None).ConfigureAwait(false);
+            var rez = await httpClient.GetAsync<string>(string.Format(UpdateUrl, Model.Lang), token).ConfigureAwait(false);
             if (!rez.IsSuccess)
                 return;
 
@@ -56,13 +68,13 @@ namespace Steepshot.Core.Localization
             var changed = Update(xml, Model);
             if (changed)
             {
-                if (!_localizationModel.ContainsKey(Model.Lang))
-                    _localizationModel.Add(Model.Lang, Model);
-                _saverService.Save(Localization, _localizationModel);
+                if (!_localizationModels.ContainsKey(Model.Lang))
+                    _localizationModels.Add(Model.Lang, Model);
+                _saverService.Save(Localization, _localizationModels);
             }
         }
 
-        public static bool Update(string xml, LocalizationModel model)
+        public bool Update(string xml, LocalizationModel model)
         {
             XmlTextReader reader = null;
             StringReader sReader = null;
@@ -113,7 +125,7 @@ namespace Steepshot.Core.Localization
             }
             catch (Exception ex)
             {
-                AppSettings.Logger.WarningAsync(ex);
+                _logService.WarningAsync(ex);
             }
             finally
             {
@@ -131,7 +143,6 @@ namespace Steepshot.Core.Localization
             }
             return GetText(validationException.Message);
         }
-
 
         public string GetText(LocalizationKeys key, params object[] args)
         {
@@ -183,7 +194,7 @@ namespace Steepshot.Core.Localization
             if (string.IsNullOrEmpty(result))
             {
                 var ex = new Exception($"Key not found: {key}");
-                AppSettings.Logger.InfoAsync(ex);
+                _logService.InfoAsync(ex);
             }
 
             return result;

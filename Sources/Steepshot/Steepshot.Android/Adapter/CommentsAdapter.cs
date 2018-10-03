@@ -103,6 +103,10 @@ namespace Steepshot.Adapter
 
     public sealed class PostDescriptionViewHolder : RecyclerView.ViewHolder
     {
+        private const string TagFormat = " #{0}";
+        private const string TagToExclude = "steepshot";
+        private const int MaxLines = 7;
+
         private readonly Action<Post> _userAction;
         private readonly Action _rootAction;
         private readonly PostCustomTextView _title;
@@ -112,10 +116,8 @@ namespace Steepshot.Adapter
         private readonly RelativeLayout _rootView;
 
         private Post _post;
-        private Context _context;
-        private const string _tagFormat = " #{0}";
-        private const string tagToExclude = "steepshot";
-        private const int _maxLines = 7;
+        private readonly Context _context;
+
         public PostDescriptionViewHolder(View itemView, Action<Post> userAction, Action<AutoLinkType, string> autoLinkAction, Action rootClickAction) : base(itemView)
         {
             _context = itemView.Context;
@@ -162,8 +164,8 @@ namespace Steepshot.Adapter
                 Picasso.With(context).Load(Resource.Drawable.ic_holder).Into(_avatar);
 
             _author.Text = post.Author;
-            _time.Text = post.Created.ToPostTime();
-            _title.UpdateText(_post, tagToExclude, _tagFormat, _maxLines, _post.IsExpanded);
+            _time.Text = post.Created.ToPostTime(AppSettings.LocalizationManager);
+            _title.UpdateText(_post, TagToExclude, TagFormat, MaxLines, _post.IsExpanded);
         }
 
         private void OnPicassoError()
@@ -194,7 +196,8 @@ namespace Steepshot.Adapter
 
         private Post _post;
 
-        public CommentViewHolder(View itemView, Action<ActionType, Post> commentAction, Action<AutoLinkType, string> autoLinkAction, Action rootClickAction) : base(itemView)
+        public CommentViewHolder(View itemView, Action<ActionType, Post> commentAction, Action<AutoLinkType, string> autoLinkAction, Action rootClickAction)
+            : base(itemView)
         {
             _avatar = itemView.FindViewById<CircleImageView>(Resource.Id.avatar);
             _author = itemView.FindViewById<TextView>(Resource.Id.sender_name);
@@ -235,7 +238,7 @@ namespace Steepshot.Adapter
             _reply.Visibility = AppSettings.User.HasPostingPermission ? ViewStates.Visible : ViewStates.Gone;
         }
 
-        private async Task LikeSet(bool isFlag)
+        private async Task LikeSetAsync(bool isFlag)
         {
             _isAnimationRuning?.Cancel();
             _isAnimationRuning = new CancellationSignal();
@@ -304,8 +307,7 @@ namespace Steepshot.Adapter
         {
             _post = post;
             _author.Text = post.Author;
-            var censoredText = post.Body.CensorText();
-            _comment.SetText(censoredText, 5);
+            _comment.SetText(post.Body, 5);
             _comment.Expanded = false;
 
             _rootView.Background = new ColorDrawable(_post.Editing ? Style.R254G249B229 : Color.White);
@@ -323,13 +325,17 @@ namespace Steepshot.Adapter
             }
 
             if (!string.IsNullOrEmpty(_post.Avatar))
+            {
                 Picasso.With(_context).Load(_post.Avatar.GetImageProxy(_avatar.LayoutParameters.Width, _avatar.LayoutParameters.Height))
                        .Placeholder(Resource.Drawable.ic_holder)
                        .NoFade()
                        .Priority(Picasso.Priority.Normal)
                        .Into(_avatar, null, OnError);
+            }
             else
+            {
                 Picasso.With(context).Load(Resource.Drawable.ic_holder).Into(_avatar);
+            }
 
             if (_isAnimationRuning != null && !_isAnimationRuning.IsCanceled && !post.VoteChanging)
             {
@@ -342,11 +348,11 @@ namespace Steepshot.Adapter
             {
                 if (post.VoteChanging && (_isAnimationRuning == null || _isAnimationRuning.IsCanceled))
                 {
-                    LikeSet(false);
+                    LikeSetAsync(false);
                 }
                 else if (post.FlagChanging)
                 {
-                    LikeSet(true);
+                    LikeSetAsync(true);
                 }
                 else if (post.Vote || !post.Flag)
                 {
@@ -375,22 +381,31 @@ namespace Steepshot.Adapter
                 _likes.Text = AppSettings.LocalizationManager.GetText(_post.NetLikes == 1 ? LocalizationKeys.Like : LocalizationKeys.Likes, post.NetLikes);
             }
             else
+            {
                 _likes.Visibility = ViewStates.Gone;
+            }
+
             if (post.NetFlags > 0)
             {
                 _flags.Visibility = ViewStates.Visible;
                 _flags.Text = AppSettings.LocalizationManager.GetText(_post.NetFlags == 1 ? LocalizationKeys.Flag : LocalizationKeys.Flags, post.NetFlags);
             }
             else
+            {
                 _flags.Visibility = ViewStates.Gone;
+            }
+
             if (post.TotalPayoutReward > 0)
             {
                 _cost.Visibility = ViewStates.Visible;
-                _cost.Text = StringHelper.ToFormatedCurrencyString(post.TotalPayoutReward, App.MainChain);
+                _cost.Text = StringHelper.ToFormatedCurrencyString(post.TotalPayoutReward, AppSettings.MainChain);
             }
             else
+            {
                 _cost.Visibility = ViewStates.Gone;
-            _time.Text = post.Created.ToPostTime();
+            }
+
+            _time.Text = post.Created.ToPostTime(AppSettings.LocalizationManager);
         }
 
         private void OnError()

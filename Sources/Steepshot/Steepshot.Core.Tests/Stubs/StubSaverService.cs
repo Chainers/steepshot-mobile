@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Configuration;
 using Steepshot.Core.Authorization;
+using Steepshot.Core.Interfaces;
 using Steepshot.Core.Localization;
-using Steepshot.Core.Services;
 
 namespace Steepshot.Core.Tests.Stubs
 {

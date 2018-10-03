@@ -7,6 +7,7 @@ using Android.Support.Design.Widget;
 using Android.Util;
 using Android.Views;
 using Android.Widget;
+using Ditch.Core.JsonRpc;
 using Steepshot.Core;
 using Steepshot.Core.Extensions;
 using Steepshot.Core.Localization;
@@ -19,7 +20,7 @@ namespace Steepshot.CustomViews
 {
     public class ClaimRewardsDialog : BottomSheetDialog
     {
-        public Func<BalanceModel, Task<Exception>> Claim;
+        public Func<BalanceModel, Task<OperationResult<VoidResponse>>> Claim;
         private readonly BalanceModel _balance;
         private TextView _title;
         private ProgressBar _claimSpinner;
@@ -114,8 +115,8 @@ namespace Steepshot.CustomViews
 
             _claimBtn.Text = string.Empty;
             _claimSpinner.Visibility = ViewStates.Visible;
-            var exception = await Claim.Invoke(_balance);
-            if (exception == null)
+            var result = await Claim.Invoke(_balance);
+            if (result.IsSuccess)
             {
                 _title.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.RewardsClaimed);
                 _claimBtnContainer.Visibility = ViewStates.Gone;
@@ -124,7 +125,7 @@ namespace Steepshot.CustomViews
             {
                 _claimBtn.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.ClaimRewards);
                 _claimSpinner.Visibility = ViewStates.Gone;
-                Context.ShowAlert(exception);
+                Context.ShowAlert(result);
             }
         }
 

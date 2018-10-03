@@ -30,7 +30,6 @@ using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Utils;
 using Steepshot.CustomViews;
 using Steepshot.Utils;
-using ViewUtils = Steepshot.Utils.ViewUtils;
 
 namespace Steepshot.Fragment
 {
@@ -141,9 +140,7 @@ namespace Steepshot.Fragment
 
             _pickedCoin = _coins[0];
 
-            var client = _userInfo.Chain == KnownChains.Steem ? App.SteemClient : App.GolosClient;
-            _transferFacade = new TransferFacade();
-            _transferFacade.SetClient(client);
+            _transferFacade = AppSettings.GetFacade<TransferFacade>(_userInfo.Chain);
             _transferFacade.OnRecipientChanged += OnRecipientChanged;
             _transferFacade.OnUserBalanceChanged += OnUserBalanceChanged;
         }
@@ -428,11 +425,9 @@ namespace Steepshot.Fragment
                 _transferFacade.UserFriendPresenter.Clear();
                 _recipientSearchLoader.Visibility = ViewStates.Visible;
                 _emptyQueryLabel.Visibility = ViewStates.Gone;
-                var searchResult = await _transferFacade.TryLoadNextSearchUserAsync(_recipientSearch.Text);
-                if (searchResult == null)
-                {
+                var result = await _transferFacade.TryLoadNextSearchUserAsync(_recipientSearch.Text);
+                if (result.IsSuccess)
                     _prevQuery = _recipientSearch.Text;
-                }
             }
             else
             {

@@ -1,6 +1,6 @@
-﻿using Steepshot.Core.Services;
-using System;
+﻿using System;
 using System.Threading.Tasks;
+using Steepshot.Core.Interfaces;
 
 
 namespace Steepshot.Core.Tests.Stubs

@@ -1,5 +1,5 @@
 ﻿using Foundation;
-using Steepshot.Core.Services;
+using Steepshot.Core.Interfaces;
 using Steepshot.iOS.Helpers;
 using UIKit;
 

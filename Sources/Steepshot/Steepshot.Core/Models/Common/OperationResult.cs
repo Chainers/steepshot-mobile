@@ -8,6 +8,8 @@ namespace Steepshot.Core.Models.Common
 
         public Exception Exception { get; set; }
 
+        public string RawResponse { get; set; }
+
         public OperationResult()
         {
         }

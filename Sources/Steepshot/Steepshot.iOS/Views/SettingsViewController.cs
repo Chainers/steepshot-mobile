@@ -4,7 +4,6 @@ using Foundation;
 using MessageUI;
 using PureLayout.Net;
 using Steepshot.Core.Models.Enums;
-using Steepshot.Core.Services;
 using Steepshot.Core.Utils;
 using Steepshot.iOS.Cells;
 using Steepshot.iOS.ViewControllers;
@@ -14,6 +13,7 @@ using Constants = Steepshot.iOS.Helpers.Constants;
 using Steepshot.Core.Localization;
 using Com.OneSignal;
 using Steepshot.Core.Authorization;
+using Steepshot.Core.Interfaces;
 using Steepshot.Core.Presenters;
 
 namespace Steepshot.iOS.Views
@@ -76,7 +76,7 @@ namespace Steepshot.iOS.Views
 #endif
             if (!AppSettings.AppInfo.GetModel().Contains("Simulator"))
             {
-                await _presenter.TryCheckSubscriptions();
+                await Presenter.TryCheckSubscriptions();
             }
         }
 
@@ -90,7 +90,7 @@ namespace Steepshot.iOS.Views
                 notificationSettings.TouchDown += NotificationSettings_TouchDown;
                 lowRatedSwitch.ValueChanged += SwitchLowRated;
                 nsfwSwitch.ValueChanged += SwitchNSFW;
-                _presenter.SubscriptionsUpdated += _presenter_SubscriptionsUpdated;
+                Presenter.SubscriptionsUpdated += OnSubscriptionsUpdated;
                 _leftBarButton.Clicked += GoBack;
                 _tableSource.CellAction += CellAction;
             }
@@ -107,13 +107,13 @@ namespace Steepshot.iOS.Views
                 notificationSettings.TouchDown -= NotificationSettings_TouchDown;
                 lowRatedSwitch.ValueChanged -= SwitchLowRated;
                 nsfwSwitch.ValueChanged -= SwitchNSFW;
-                _presenter.SubscriptionsUpdated = null;
+                Presenter.SubscriptionsUpdated = null;
                 _leftBarButton.Clicked -= GoBack;
                 _tableSource.CellAction = null;
                 _tableSource.FreeAllCells();
                 if (_mailController != null)
                     _mailController.Finished -= MailController_Finished;
-                _presenter.TasksCancel();
+                Presenter.TasksCancel();
             }
             base.ViewWillDisappear(animated);
         }
@@ -123,7 +123,7 @@ namespace Steepshot.iOS.Views
             NavigationController.PushViewController(new NotificationSettingsController(), true);
         }
 
-        private void _presenter_SubscriptionsUpdated()
+        private void OnSubscriptionsUpdated()
         {
             InvokeOnMainThread(HandleAction);
         }
@@ -216,11 +216,11 @@ namespace Steepshot.iOS.Views
 
         private void SwitchNetwork(UserInfo user)
         {
-            if (AppDelegate.MainChain == user.Chain)
+            if (AppSettings.MainChain == user.Chain)
                 return;
 
             AppSettings.User.SwitchUser(user);
-            AppDelegate.MainChain = user.Chain;
+            AppSettings.MainChain = user.Chain;
 
             SetAddButton();
 
@@ -245,7 +245,7 @@ namespace Steepshot.iOS.Views
             }
             else
             {
-                if (AppDelegate.MainChain != account.Chain)
+                if (AppSettings.MainChain != account.Chain)
                 {
                     SetAddButton();
                 }

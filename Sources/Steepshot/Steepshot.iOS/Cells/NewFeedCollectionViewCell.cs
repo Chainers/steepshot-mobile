@@ -312,7 +312,7 @@ namespace Steepshot.iOS.Cells
                 _avatarImage.Image = UIImage.FromBundle("ic_noavatar");
 
             _author.Text = _currentPost.Author;
-            _timestamp.Text = _currentPost.Created.ToPostTime();
+            _timestamp.Text = _currentPost.Created.ToPostTime(AppSettings.LocalizationManager);
 
             _photoScroll.Frame = new CGRect(0, _avatarImage.Frame.Bottom + 15, UIScreen.MainScreen.Bounds.Width, variables.PhotoHeight);
 
@@ -469,7 +469,7 @@ namespace Steepshot.iOS.Cells
             _verticalSeparator.Frame = new CGRect(_contentView.Frame.Width - likeButtonWidthConst - 1, _photoScroll.Frame.Bottom + underPhotoPanelHeight / 2 - verticalSeparatorHeight / 2, 1, verticalSeparatorHeight);
 
 #if DEBUG
-            _rewards.Text = StringHelper.ToFormatedCurrencyString(_currentPost.TotalPayoutReward, AppDelegate.MainChain);
+            _rewards.Text = StringHelper.ToFormatedCurrencyString(_currentPost.TotalPayoutReward, AppSettings.MainChain);
             var rewardWidth = _rewards.SizeThatFits(new CGSize(0, underPhotoPanelHeight));
             _rewards.Frame = new CGRect(_verticalSeparator.Frame.Left - rewardWidth.Width, _photoScroll.Frame.Bottom, rewardWidth.Width, underPhotoPanelHeight);
 #endif

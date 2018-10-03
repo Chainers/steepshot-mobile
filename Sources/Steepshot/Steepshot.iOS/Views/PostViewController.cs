@@ -49,12 +49,15 @@ namespace Steepshot.iOS.Views
         {
             if (!string.IsNullOrEmpty(_url))
             {
-                var exception = await _presenter.TryLoadPostInfoAsync(_url);
+                var result = await Presenter.TryLoadPostInfoAsync(_url);
                 loader.StopAnimating();
-                ShowAlert(exception, (UIAlertAction obj) =>
-                 {
-                     NavigationController.PopViewController(true);
-                 });
+                if (!result.IsSuccess)
+                {
+                    ShowAlert(result.Exception, (UIAlertAction obj) =>
+                        {
+                            NavigationController.PopViewController(true);
+                        });
+                }
             }
         }
 
@@ -74,7 +77,7 @@ namespace Steepshot.iOS.Views
         {
             if (TabBarController != null)
                 TabBarController.View.Frame = new CGRect(0, 0, TabBarController.View.Frame.Width, TabBarController.View.Frame.Height - _tabBarHeight);
-            _presenter.TasksCancel();
+            Presenter.TasksCancel();
             base.ViewWillDisappear(animated);
         }
 
@@ -137,8 +140,8 @@ namespace Steepshot.iOS.Views
         {
             scrollView.Hidden = false;
             loader.StopAnimating();
-            var size = Helpers.CellHeightCalculator.Calculate(_presenter.PostInfo);
-            scrollView.ContentSize = new CGSize(UIScreen.MainScreen.Bounds.Width, _cell.UpdateCell(_presenter.PostInfo, size));
+            var size = Helpers.CellHeightCalculator.Calculate(Presenter.PostInfo);
+            scrollView.ContentSize = new CGSize(UIScreen.MainScreen.Bounds.Width, _cell.UpdateCell(Presenter.PostInfo, size));
         }
     }
 }

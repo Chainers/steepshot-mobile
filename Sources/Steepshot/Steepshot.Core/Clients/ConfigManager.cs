@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Steepshot.Core.Services;
+using Steepshot.Core.Interfaces;
 
 namespace Steepshot.Core.Clients
 {
