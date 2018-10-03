@@ -241,7 +241,6 @@
     <InterfaceDefinition Include="Views\ImagePreviewViewController.xib" />
     <InterfaceDefinition Include="Views\FollowViewController.xib" />
     <InterfaceDefinition Include="Views\SettingsViewController.xib" />
-    <InterfaceDefinition Include="Views\PostTagsViewController.xib" />
     <InterfaceDefinition Include="Views\VotersViewController.xib" />
     <InterfaceDefinition Include="Views\PreSearchViewController.xib" />
     <InterfaceDefinition Include="Views\WelcomeViewController.xib" />
@@ -323,10 +322,6 @@
     <Compile Include="Views\SettingsViewController.cs" />
     <Compile Include="Views\SettingsViewController.designer.cs">
       <DependentUpon>SettingsViewController.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Views\PostTagsViewController.cs" />
-    <Compile Include="Views\PostTagsViewController.designer.cs">
-      <DependentUpon>PostTagsViewController.cs</DependentUpon>
     </Compile>
     <Compile Include="Views\TagsSearchViewController.cs" />
     <Compile Include="Views\VotersViewController.cs" />

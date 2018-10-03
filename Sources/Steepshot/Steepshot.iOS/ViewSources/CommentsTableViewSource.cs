@@ -65,11 +65,7 @@ namespace Steepshot.iOS.ViewSources
                 item.ReleaseCell();
             }
             TagAction = null;
-            _descriptionCell.ReleaseCell();
-        }
-        protected override void Dispose(bool disposing)
-        {
-            base.Dispose(disposing);
+            _descriptionCell?.ReleaseCell();
         }
     }
 }

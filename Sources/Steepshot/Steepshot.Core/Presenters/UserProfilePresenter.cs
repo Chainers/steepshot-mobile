@@ -147,7 +147,7 @@ namespace Steepshot.Core.Presenters
             base.Clear(isNotify);
         }
 
-        public async void TryCheckSubscriptions()
+        public async Task TryCheckSubscriptions()
         {
             OperationResult<SubscriptionsModel> response;
             do
