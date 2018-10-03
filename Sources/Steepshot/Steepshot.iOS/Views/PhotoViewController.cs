@@ -28,7 +28,7 @@ namespace Steepshot.iOS.Views
         }
 
         enum Theme
-        { 
+        {
             Light,
             Dark
         }
@@ -176,7 +176,7 @@ namespace Steepshot.iOS.Views
             _photoButton.AutoPinEdge(ALEdge.Bottom, ALEdge.Top, bottomSeparator, -bottomPanelHeight / 2);
             _activePanelHeight = (float)bottomPanelHeight - 60;
 
-            topCloseBtnConstraint.Constant = DeviceHelper.IsXDevice ? 64 : 20; 
+            topCloseBtnConstraint.Constant = DeviceHelper.IsXDevice ? 64 : 20;
             topFlashBtnConstraint.Constant = DeviceHelper.IsXDevice ? 64 : 20;
         }
 
@@ -302,10 +302,17 @@ namespace Steepshot.iOS.Views
             }
         }
 
-        private void EndCapturing(object sender, EventArgs e)
+        private void OnPhotoButtonUp(object sender, EventArgs e)
+        {
+            StopCapturing();
+        }
+
+        private void StopCapturing()
         {
             if (_currentMode == CameraMode.Video && _isRecording)
             {
+                _sl.RemoveAllAnimations();
+                _sl.Hidden = true;
                 ToogleButtons(true);
                 _videoFileOutput?.StopRecording();
                 _isRecording = !_isRecording;
@@ -393,8 +400,8 @@ namespace Steepshot.iOS.Views
                 flashButton.TouchDown += OnFlashTouch;
                 enableCameraAccess.TouchDown += EnableCameraAccess;
                 _photoButton.TouchDown += CaptureContent;
-                _photoButton.TouchUpInside += EndCapturing;
-                _photoButton.TouchUpOutside += EndCapturing;
+                _photoButton.TouchUpInside += OnPhotoButtonUp;
+                _photoButton.TouchUpOutside += OnPhotoButtonUp;
                 _swapCameraButton.TouchDown += SwitchCameraButtonTapped;
             }
         }
@@ -532,8 +539,8 @@ namespace Steepshot.iOS.Views
                 flashButton.TouchDown -= OnFlashTouch;
                 enableCameraAccess.TouchDown -= EnableCameraAccess;
                 _photoButton.TouchDown -= CaptureContent;
-                _photoButton.TouchUpInside -= EndCapturing;
-                _photoButton.TouchUpOutside -= EndCapturing;
+                _photoButton.TouchUpInside -= OnPhotoButtonUp;
+                _photoButton.TouchUpOutside -= OnPhotoButtonUp;
                 _swapCameraButton.TouchDown -= SwitchCameraButtonTapped;
             }
 
@@ -601,13 +608,13 @@ namespace Steepshot.iOS.Views
                 _captureSession.StartRunning();
             }
             catch (Exception ex)
-            { } 
+            { }
         }
 
         private void SetupVideoCameraStream()
         {
             _captureSession = new AVCaptureSession();
-            _captureSession.SessionPreset = AVCaptureSession.PresetHigh;
+            _captureSession.SessionPreset = AVCaptureSession.Preset1280x720;
             ConnectCamera();
 
             try
@@ -734,17 +741,18 @@ namespace Steepshot.iOS.Views
             NavigationController.PushViewController(descriptionViewController, true);
         }
 
+        public void testDidEnterBackground()
+        {
+
+        }
+
         public void FinishedRecording(AVCaptureFileOutput captureOutput, NSUrl outputFileUrl, NSObject[] connections, NSError error)
         {
-            ToogleButtons(true);
-
-            _isRecording = false;
-
             _sl.RemoveAllAnimations();
             _sl.Hidden = true;
-            
-            if (captureOutput.RecordedDuration.Seconds < Core.Constants.VideoMinDuration)
-                return;
+
+            ToogleButtons(true);
+            _isRecording = false;
 
             var composition = AVMutableComposition.Create();
             var compositionTrackVideo = composition.AddMutableTrack(AVMediaType.Video, 0);
@@ -754,6 +762,9 @@ namespace Steepshot.iOS.Views
             var startTime = CMTime.Zero;
 
             var asset = new AVUrlAsset(outputFileUrl, new AVUrlAssetOptions());
+
+            if (asset.Duration.Seconds < Core.Constants.VideoMinDuration)
+                return;
 
             var videoTrack = asset.TracksWithMediaType(AVMediaType.Video)[0];
             var audioTrack = asset.TracksWithMediaType(AVMediaType.Audio)[0];
@@ -850,7 +861,8 @@ namespace Steepshot.iOS.Views
                     if (error != null)
                     {
                         // Movie file finishing error: {error.LocalizedDescription}
-                        success = ((NSNumber)error.UserInfo[AVErrorKeys.RecordingSuccessfullyFinished]).BoolValue;
+                        if (error.LocalizedFailureReason == null)
+                            success = ((NSNumber)error.UserInfo[AVErrorKeys.RecordingSuccessfullyFinished]).BoolValue;
                     }
 
                     if (success)
