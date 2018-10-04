@@ -3,36 +3,49 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Android.Content;
 using Android.Graphics;
 using Android.Media;
 using Android.OS;
+using Android.Support.V4.Content;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
-using Java.IO;
+using Newtonsoft.Json;
+using Steepshot.Activity;
 using Steepshot.Base;
 using Steepshot.Core;
-using Steepshot.Core.Exceptions;
+using Steepshot.Core.Jobs;
 using Steepshot.Core.Jobs.Upload;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Utils;
+using Steepshot.Services;
 using Steepshot.Utils;
 
 namespace Steepshot.Fragment
 {
-    public class PostCreateFragment : PostPrepareBaseFragment
+    public class PostCreateFragment : PostPrepareBaseFragment, IJobServiceContainer
     {
         private readonly bool _isSingleMode;
         public static string PostCreateGalleryTemp = "PostCreateGalleryTemp" + AppSettings.User.Login;
         public static string PreparePostTemp = "PreparePostTemp" + AppSettings.User.Login;
         private readonly PreparePostModel _tepmPost;
         private GalleryMediaAdapter _galleryAdapter;
-        private bool _isUploading = false;
         //private bool _isEnableSaveState = true;
+        private int _jobId;
 
+        #region IJobServiceContainer
+
+        private JobServiceConnection _jobServiceConnection;
+        private JobServiceBroadcastReceiver _jobServiceBroadcastReceiver;
+
+        public bool IsBound { get; set; }
+        public JobService JobService { get; set; }
+
+        #endregion
 
         protected List<GalleryMediaModel> Media { get; }
         protected bool IsPlagiarism { get; set; }
@@ -50,7 +63,7 @@ namespace Steepshot.Fragment
         }
 
 
-        public override void OnViewCreated(View view, Bundle savedInstanceState)
+        public override async void OnViewCreated(View view, Bundle savedInstanceState)
         {
             if (IsInitialized)
                 return;
@@ -77,8 +90,12 @@ namespace Steepshot.Fragment
             //Description.FocusChange += TitleOnFocusChange;
             //LocalTagsAdapter.LocalTags.CollectionChanged += LocalTagsChanged;
 
+            _jobServiceBroadcastReceiver = new JobServiceBroadcastReceiver();
+            _jobServiceConnection = new JobServiceConnection(this);
+            Context.BindService(new Intent(Context, typeof(JobService)), _jobServiceConnection, Bind.AutoCreate);
+
             InitData();
-            SearchTextChanged();
+            await SearchTextChanged();
         }
 
         //public override void OnPause()
@@ -144,9 +161,15 @@ namespace Steepshot.Fragment
                 Photos.SetAdapter(_galleryAdapter);
             }
 
-            await ConvertAndSave();
+            var isSaved = await ConvertAndSave();
             if (!IsInitialized)
                 return;
+
+            if (!isSaved)
+            {
+                Context.ShowAlert(LocalizationKeys.PhotoProcessingError, ToastLength.Long);
+                ((BaseActivity)Activity).OnBackPressed();
+            }
 
             await CheckOnSpam();
             if (!IsInitialized)
@@ -155,7 +178,10 @@ namespace Steepshot.Fragment
             if (IsSpammer == true)
                 return;
 
-            StartUploadMedia(true);
+            if (!IsInitialized)
+                return;
+
+            _jobId = StartUploadMedia();
         }
 
         private void PreviewOnTouch(object sender, View.TouchEventArgs touchEventArgs)
@@ -173,12 +199,11 @@ namespace Steepshot.Fragment
                     for (var i = 0; i < Media.Count; i++)
                     {
                         var model = Media[i];
-
+                        
                         if (!string.IsNullOrEmpty(model.TempPath))
                             continue;
 
                         model.TempPath = CropAndSave(model);
-                        model.UploadState = UploadState.ReadyToUpload;
 
                         if (!IsInitialized)
                             break;
@@ -316,165 +341,19 @@ namespace Steepshot.Fragment
             }
         }
 
-        private async Task StartUploadMedia(bool delayStart = false)
+        private int StartUploadMedia()
         {
-            _isUploading = true;
+            var umc = new UploadMediaContainer(AppSettings.User.Chain, AppSettings.User.Login);
+            var job = new Job(UploadMediaCommand.Id);
 
-            if (delayStart)
-                await Task.Delay(5000);
-
-            if (!IsInitialized)
-                return;
-
-            await RepeatUpload();
-            if (!IsInitialized)
-                return;
-
-            await RepeatVerifyUpload();
-            if (!IsInitialized)
-                return;
-
-            await GetMediaModel();
-            if (!IsInitialized)
-                return;
-
-            _isUploading = false;
-        }
-
-        private async Task RepeatUpload()
-        {
-            var maxRepeat = 3;
-            var repeatCount = 0;
-
-            do
+            umc.Items = new List<UploadMediaItem>(Media.Count);
+            foreach (var media in Media)
             {
-                for (var i = 0; i < Media.Count; i++)
-                {
-                    var media = Media[i];
-                    if (media.UploadState != UploadState.ReadyToUpload)
-                        continue;
-
-                    var operationResult = await UploadMedia(media);
-
-                    if (!IsInitialized)
-                        return;
-
-                    if (!operationResult.IsSuccess)
-                        Activity.ShowAlert(operationResult.Exception, ToastLength.Short);
-                    else
-                    {
-                        media.UploadMediaUuid = operationResult.Result;
-                        //SaveGalleryTemp();
-                    }
-                }
-
-
-                if (Media.All(m => m.UploadState > UploadState.ReadyToUpload))
-                    break;
-
-                repeatCount++;
-
-            } while (repeatCount < maxRepeat);
-        }
-
-        private async Task<OperationResult<UUIDModel>> UploadMedia(GalleryMediaModel model)
-        {
-            StreamConverter stream = null;
-            FileInputStream fileInputStream = null;
-
-            try
-            {
-                var photo = new Java.IO.File(model.TempPath);
-                fileInputStream = new FileInputStream(photo);
-                stream = new StreamConverter(fileInputStream, null);
-
-                var request = new UploadMediaModel(AppSettings.User.UserInfo, stream, System.IO.Path.GetExtension(model.TempPath));
-                var serverResult = await Presenter.TryUploadMediaAsync(request);
-                model.UploadState = UploadState.ReadyToVerify;
-                return serverResult;
+                var item = new UploadMediaItem(media.TempPath);
+                umc.Items.Add(item);
             }
-            catch (Exception ex)
-            {
-                await AppSettings.Logger.ErrorAsync(ex);
-                return new OperationResult<UUIDModel>(new InternalException(LocalizationKeys.PhotoUploadError, ex));
-            }
-            finally
-            {
-                stream?.Dispose();
-            }
-        }
-
-        private async Task RepeatVerifyUpload()
-        {
-            do
-            {
-                for (var i = 0; i < Media.Count; i++)
-                {
-                    var media = Media[i];
-                    if (media.UploadState != UploadState.ReadyToVerify)
-                        continue;
-
-                    var operationResult = await Presenter.TryGetMediaStatusAsync(media.UploadMediaUuid);
-                    if (!IsInitialized)
-                        return;
-
-                    if (operationResult.IsSuccess)
-                    {
-                        switch (operationResult.Result.Code)
-                        {
-                            case UploadMediaCode.Done:
-                                {
-                                    media.UploadState = UploadState.ReadyToResult;
-                                    //SaveGalleryTemp();
-                                }
-                                break;
-                            case UploadMediaCode.FailedToProcess:
-                            case UploadMediaCode.FailedToUpload:
-                            case UploadMediaCode.FailedToSave:
-                                {
-                                    media.UploadState = UploadState.ReadyToUpload;
-                                    //SaveGalleryTemp();
-                                }
-                                break;
-                        }
-                    }
-                }
-
-                if (Media.All(m => m.UploadState != UploadState.ReadyToVerify))
-                    break;
-
-                await Task.Delay(3000);
-                if (!IsInitialized)
-                    return;
-
-            } while (true);
-        }
-
-        private async Task GetMediaModel()
-        {
-            if (Model.Media == null)
-                Model.Media = new MediaModel[Media.Count];
-
-            for (var i = 0; i < Media.Count; i++)
-            {
-                var media = Media[i];
-                if (media.UploadState != UploadState.ReadyToResult)
-                    continue;
-
-                var mediaResult = await Presenter.TryGetMediaResultAsync(media.UploadMediaUuid);
-                if (!IsInitialized)
-                    return;
-
-                if (mediaResult.IsSuccess)
-                {
-                    Model.Media[i] = mediaResult.Result;
-                    media.UploadState = UploadState.Ready;
-                    //SaveGalleryTemp();
-                }
-
-                if (!IsInitialized)
-                    return;
-            }
+            JobService.AddJob(job, umc);
+            return job.Id;
         }
 
         protected override async Task OnPostAsync()
@@ -484,39 +363,50 @@ namespace Steepshot.Fragment
             Model.Tags = LocalTagsAdapter.LocalTags.ToArray();
 
             //SavePreparePostTemp();
-
-            while (_isUploading)
+            JobState state;
+            do
             {
-                await Task.Delay(300);
-                if (!IsInitialized)
-                    return;
-            }
+                state = JobService.GetJobState(_jobId);
 
-            if (Media.Any(m => m.UploadState != UploadState.Ready))
-            {
-                await CheckOnSpam();
-                if (IsSpammer == true || !IsInitialized)
-                    return;
-
-                await StartUploadMedia();
-                if (!IsInitialized)
-                    return;
-            }
-
-            if (Media.Any(m => m.UploadState != UploadState.Ready))
-            {
-                Activity.ShowAlert(LocalizationKeys.PhotoUploadError, ToastLength.Long);
-            }
-            else
-            {
-                await CheckForPlagiarism();
-
-                if (!IsPlagiarism)
+                if (state == JobState.Failed)
                 {
-                    var isCreated = await TryCreateOrEditPost();
-                    if (isCreated)
-                        Activity.ShowAlert(LocalizationKeys.PostDelay, ToastLength.Long);
+                    JobService.DeleteJob(_jobId);
+                    Activity.ShowAlert(LocalizationKeys.PhotoUploadError, ToastLength.Long);
+                    ((BaseActivity)Activity).OnBackPressed();
+                    return;
                 }
+
+                if (state == JobState.Ready)
+                {
+                    var result = (UploadMediaContainer)JobService.GetResult(_jobId);
+                    Model.Media = new MediaModel[result.Items.Count];
+                    for (var i = 0; i < result.Items.Count; i++)
+                    {
+                        var itm = result.Items[i];
+                        Model.Media[i] = JsonConvert.DeserializeObject<MediaModel>(itm.ResultJson);
+                    }
+                }
+                else
+                {
+                    await Task.Delay(300);
+                    if (!IsInitialized)
+                        return;
+                }
+            } while (state != JobState.Ready);
+
+
+            await CheckForPlagiarism();
+
+            if (!IsInitialized)
+                return;
+
+            if (!IsPlagiarism)
+            {
+                var isCreated = await TryCreateOrEditPost();
+                if (isCreated)
+                    Activity.ShowAlert(LocalizationKeys.PostDelay, ToastLength.Long);
+
+                JobService.DeleteJob(_jobId);
             }
         }
 
@@ -543,7 +433,7 @@ namespace Steepshot.Fragment
             }
             catch (Exception ex)
             {
-                AppSettings.Logger.ErrorAsync(ex);
+                await AppSettings.Logger.ErrorAsync(ex);
             }
         }
 
@@ -570,6 +460,11 @@ namespace Steepshot.Fragment
 
         public override void OnDetach()
         {
+            if (IsBound)
+            {
+                Context.UnbindService(_jobServiceConnection);
+                IsBound = false;
+            }
             CleanCash();
             base.OnDetach();
         }
@@ -644,6 +539,23 @@ namespace Steepshot.Fragment
             }
         }
 
+
+        public override void OnResume()
+        {
+            base.OnResume();
+            LocalBroadcastManager
+                .GetInstance(Context)
+                .RegisterReceiver(_jobServiceBroadcastReceiver, new IntentFilter(JobService.ActionBroadcast));
+        }
+
+        public override void OnPause()
+        {
+            LocalBroadcastManager
+                .GetInstance(Context)
+                .UnregisterReceiver(_jobServiceBroadcastReceiver);
+
+            base.OnPause();
+        }
 
         #region Adapter
 

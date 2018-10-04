@@ -16,7 +16,7 @@ namespace Steepshot.Core.Jobs
         private readonly Dictionary<int, ICommand> _commands;
         private readonly DbManager _dbService;
         private readonly ILogService _logService;
-        private bool _isStopped = true;
+        private int _isStopped = 1;
 
         private Job _currentJob;
 
@@ -47,15 +47,13 @@ namespace Steepshot.Core.Jobs
 
         public async Task Start()
         {
-            if (!_isStopped)
+            if (Interlocked.CompareExchange(ref _isStopped, 0, 1) == 0)
                 return;
-
-            _isStopped = false;
 
             int curId = 0;
             while (true)
             {
-                if (_isStopped)
+                if (_isStopped == 1)
                     break;
 
                 try
@@ -77,7 +75,7 @@ namespace Steepshot.Core.Jobs
                             _currentJob.CancellationTokenSource = new CancellationTokenSource();
                             token = _currentJob.CancellationTokenSource.Token;
 
-                            if (_isStopped)
+                            if (_isStopped == 1)
                                 break;
                         }
                         else
@@ -101,6 +99,8 @@ namespace Steepshot.Core.Jobs
 
                     lock (_dbService)
                         _dbService.Update(_currentJob);
+
+                    _currentJob = null;
                 }
                 catch (OperationCanceledException)
                 {
@@ -119,15 +119,13 @@ namespace Steepshot.Core.Jobs
                 }
             }
 
-            _isStopped = true;
+            Interlocked.CompareExchange(ref _isStopped, 1, 0);
         }
 
         public void Stop()
         {
-            if (_isStopped)
+            if (Interlocked.CompareExchange(ref _isStopped, 1, 0) == 1)
                 return;
-
-            _isStopped = true;
 
             var cJob = _currentJob;
             if (cJob != null && !cJob.CancellationTokenSource.IsCancellationRequested)

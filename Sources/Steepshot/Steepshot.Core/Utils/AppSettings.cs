@@ -8,6 +8,7 @@ using Steepshot.Core.Authorization;
 using Steepshot.Core.Clients;
 using Steepshot.Core.Facades;
 using Steepshot.Core.Interfaces;
+using Steepshot.Core.Jobs;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
@@ -182,6 +183,11 @@ namespace Steepshot.Core.Utils
             builder.RegisterType<TagPickerFacade>();
         }
 
+        public static void RegisterService(ContainerBuilder builder)
+        {
+            builder.RegisterType<JobProcessingService>().SingleInstance();
+        }
+
         public static T GetPresenter<T>(KnownChains chains)
         {
             var args = new Parameter[2];
@@ -214,6 +220,18 @@ namespace Steepshot.Core.Utils
         {
             var args = new ResolvedParameter((pi, ctx) => pi.Name.EndsWith("Presenter"), (pi, ctx) => GetPresenter(chains, pi.ParameterType));
             return Container.Resolve<T>(args);
+        }
+
+        public static JobProcessingService GetJobProcessingService()
+        {
+            var args = new Parameter[]
+            {
+                new NamedParameter("steepshotSteemApiClient",SteepshotSteemClient),
+                new NamedParameter("steepshotGolosApiClient",SteepshoGolostClient),
+                new NamedParameter("steemClient",SteemClient),
+                new NamedParameter("golosClient",GolosClient),
+            };
+            return Container.Resolve<JobProcessingService>(args);
         }
 
         private static object GetPresenter(KnownChains chains, Type type)

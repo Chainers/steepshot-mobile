@@ -68,41 +68,19 @@ namespace Steepshot.Services
 
         public override void OnCreate()
         {
-            //var appInfo = new AppInfo();
-            //var assetsHelper = new AssetHelper(Assets);
-            //var configInfo = assetsHelper.GetConfigInfo();
-
-            //var httpClient = new ExtendedHttpClient();
-            //var connectionService = new ConnectionService();
-            //var dbService = new DbManager();
-            //var saverService = new SaverService();
-            //var fileProvider = new FileProvider();
-
-            //var configManager = new ConfigManager(saverService, assetsHelper);
-            //var userManager = new Core.Authorization.UserManager(saverService);
-            //var user = new User(userManager);
-
-            //var logService = new Logger(httpClient, appInfo, configInfo.RavenClientDsn, connectionService, user);
-
-            //var steemClient = new SteemClient(httpClient, logService, configManager);
-            //var golosClient = new GolosClient(httpClient, logService, configManager);
-            //var steepshotClient = new SteepshotClient(httpClient);
-            //var steepshotSteemApClient = new SteepshotApiClient(logService, httpClient, Constants.SteemUrl);
-            //var steepshotGolosApClient = new SteepshotApiClient(logService, httpClient, Constants.GolosUrl);
-
             // Start up the thread running the service.  Note that we create a
             // separate thread because the service normally runs in the process's
             // main thread, which we don't want to block.  We also make it
             // background priority so CPU-intensive work will not disrupt our UI.
-            //var thread = new HandlerThread(HandlerThreadName, (int)ThreadPriority.Background);
-            //thread.Start();
-            //// Get the HandlerThread's Looper and use it for our Handler
-            //_serviceLooper = thread.Looper;
-            //_serviceHandler = new Handler(_serviceLooper);
+            var thread = new HandlerThread(HandlerThreadName, (int)ThreadPriority.Background);
+            thread.Start();
+            // Get the HandlerThread's Looper and use it for our Handler
+            _serviceLooper = thread.Looper;
+            _serviceHandler = new Handler(_serviceLooper);
 
 
-            //_jobProcessingService = new JobProcessingService(steepshotClient, steepshotSteemApClient, steepshotGolosApClient, steemClient, golosClient, connectionService, logService, dbService, userManager, fileProvider);
-            //_jobProcessingService.StartAsync();
+            _jobProcessingService = AppSettings.GetJobProcessingService();
+            _jobProcessingService.StartAsync();
         }
 
         public override StartCommandResult OnStartCommand(Intent intent, StartCommandFlags flags, int startId)

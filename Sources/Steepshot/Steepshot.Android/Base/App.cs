@@ -99,9 +99,13 @@ namespace Steepshot.Base
                 builder.RegisterType<LogService>().As<ILogService>().SingleInstance();
                 builder.RegisterType<LocalizationManager>().As<LocalizationManager>().SingleInstance();
                 builder.RegisterType<SteepshotClient>().As<SteepshotClient>().SingleInstance();
+
+                builder.RegisterType<FileProvider>().As<IFileProvider>().SingleInstance();
+                builder.RegisterType<DbManager>().As<DbManager>().SingleInstance();
                 
                 AppSettings.RegisterPresenter(builder);
                 AppSettings.RegisterFacade(builder);
+                AppSettings.RegisterService(builder);
                 AppSettings.Container = builder.Build();
             }
         }

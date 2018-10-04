@@ -1,7 +1,6 @@
 ﻿using System;
 using Android.Graphics;
 using Newtonsoft.Json;
-using Steepshot.Core.Jobs.Upload;
 using Steepshot.Core.Models.Common;
 using Steepshot.CustomViews;
 
@@ -57,7 +56,5 @@ namespace Steepshot.Utils
         
         [JsonProperty]
         public UUIDModel UploadMediaUuid { get; set; }
-
-        public UploadState UploadState { get; set; }
     }
 }
