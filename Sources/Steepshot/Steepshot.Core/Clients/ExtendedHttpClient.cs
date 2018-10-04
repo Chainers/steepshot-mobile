@@ -7,8 +7,6 @@ using System.Net.Http;
 using System.Text;
 using Steepshot.Core.Serializing;
 using Steepshot.Core.Models.Common;
-using Steepshot.Core.Models.Responses;
-using System.IO;
 using System.Linq;
 using System.Net.Http.Headers;
 using Ditch.Core;
@@ -27,51 +25,101 @@ namespace Steepshot.Core.Clients
             MaxResponseContentBufferSize = 2560000;
         }
 
-        public async Task<OperationResult<T>> Get<T>(string endpoint, Dictionary<string, object> parameters, CancellationToken token)
+        /// <summary>
+        /// Send a GET request to the specified Uri with a cancellation token as an asynchronous operation.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="url">The Uri the request is sent to.</param>
+        /// <param name="parameters">Url arguments.</param>
+        /// <param name="token">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>The task object representing the asynchronous operation.</returns>
+        /// <exception cref="T:System.ArgumentNullException">The requestUri was null.</exception>
+        /// <exception cref="T:System.Net.Http.HttpRequestException">The request failed due to an underlying issue such as network connectivity, DNS failure, server certificate validation or timeout.</exception>
+        public async Task<OperationResult<T>> GetAsync<T>(string url, Dictionary<string, object> parameters, CancellationToken token)
         {
             var param = string.Empty;
             if (parameters != null && parameters.Count > 0)
                 param = "?" + string.Join("&", parameters.Select(i => $"{i.Key}={i.Value}"));
 
-            var url = $"{endpoint}{param}";
-            var response = await GetAsync(url, token);
-            return await CreateResult<T>(response, token);
+            var urlAndArgs = $"{url}{param}";
+            var response = await GetAsync(urlAndArgs, token).ConfigureAwait(false);
+            return await CreateResultAsync<T>(response, token).ConfigureAwait(false);
         }
 
-        public async Task<OperationResult<T>> Get<T>(string url, CancellationToken token)
+        /// <summary>
+        /// Send a GET request to the specified Uri with a cancellation token as an asynchronous operation.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="url">The Uri the request is sent to.</param>
+        /// <param name="token">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>The task object representing the asynchronous operation.</returns>
+        /// <exception cref="T:System.ArgumentNullException">The requestUri was null.</exception>
+        /// <exception cref="T:System.Net.Http.HttpRequestException">The request failed due to an underlying issue such as network connectivity, DNS failure, server certificate validation or timeout.</exception>
+        public async Task<OperationResult<T>> GetAsync<T>(string url, CancellationToken token)
         {
-            var response = await GetAsync(url, token);
-            return await CreateResult<T>(response, token);
+            var response = await GetAsync(url, token).ConfigureAwait(false);
+            return await CreateResultAsync<T>(response, token).ConfigureAwait(false);
         }
 
-        public async Task<OperationResult<T>> Post<T, TData>(string url, TData data, CancellationToken token)
+        /// <summary>
+        /// Send a POST request with a cancellation token as an asynchronous operation.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="TData"></typeparam>
+        /// <param name="url">The Uri the request is sent to.</param>
+        /// <param name="json">The HTTP request content sent to the server.</param>
+        /// <param name="token">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>The task object representing the asynchronous operation.</returns>
+        /// <exception cref="T:System.ArgumentNullException">The requestUri was null.</exception>
+        /// <exception cref="T:System.Net.Http.HttpRequestException">The request failed due to an underlying issue such as network connectivity, DNS failure, server certificate validation or timeout.</exception>
+        public async Task<OperationResult<T>> PostAsync<T, TData>(string url, TData json, CancellationToken token)
         {
             HttpContent content = null;
-            if (data != null)
+            if (json != null)
             {
-                var param = JsonNetConverter.Serialize(data);
+                var param = JsonNetConverter.Serialize(json);
                 content = new StringContent(param, Encoding.UTF8, "application/json");
             }
 
-            var response = await PostAsync(url, content, token);
-            return await CreateResult<T>(response, token);
+            var response = await PostAsync(url, content, token).ConfigureAwait(false);
+            return await CreateResultAsync<T>(response, token).ConfigureAwait(false);
         }
 
-        public async Task<OperationResult<T>> Put<T, TData>(string url, TData data, CancellationToken token)
+        /// <summary>
+        /// Send a POST request with a cancellation token as an asynchronous operation.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="TData"></typeparam>
+        /// <param name="url">The Uri the request is sent to.</param>
+        /// <param name="json">The HTTP request content sent to the server.</param>
+        /// <param name="token">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>The task object representing the asynchronous operation.</returns>
+        /// <exception cref="T:System.ArgumentNullException">The requestUri was null.</exception>
+        /// <exception cref="T:System.Net.Http.HttpRequestException">The request failed due to an underlying issue such as network connectivity, DNS failure, server certificate validation or timeout.</exception>
+        public async Task<OperationResult<T>> PutAsync<T, TData>(string url, TData json, CancellationToken token)
         {
             HttpContent content = null;
-            if (data != null)
+            if (json != null)
             {
-                var param = JsonNetConverter.Serialize(data);
+                var param = JsonNetConverter.Serialize(json);
                 content = new StringContent(param, Encoding.UTF8, "application/json");
             }
 
-            var response = await PostAsync(url, content, token);
-            //var response = await PutAsync(url, content, token);
-            return await CreateResult<T>(response, token);
+            var response = await PostAsync(url, content, token).ConfigureAwait(false);
+            //var response = await PutAsync(url, content, token).ConfigureAwait(false);
+            return await CreateResultAsync<T>(response, token).ConfigureAwait(false);
         }
 
-        public async Task<OperationResult<UUIDModel>> UploadMedia(string url, UploadMediaModel model, CancellationToken token)
+        /// <summary>
+        /// Send a POST request with a cancellation token as an asynchronous operation.
+        /// </summary>
+        /// <param name="url">The Uri the request is sent to.</param>
+        /// <param name="model">The HTTP request content sent to the server.</param>
+        /// <param name="token">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>The task object representing the asynchronous operation.</returns>
+        /// <exception cref="T:System.ArgumentNullException">The requestUri was null.</exception>
+        /// <exception cref="T:System.Net.Http.HttpRequestException">The request failed due to an underlying issue such as network connectivity, DNS failure, server certificate validation or timeout.</exception>
+        public async Task<OperationResult<UUIDModel>> UploadMediaAsync(string url, UploadMediaModel model, CancellationToken token)
         {
             var fTitle = Guid.NewGuid().ToString();
 
@@ -85,8 +133,8 @@ namespace Steepshot.Core.Clients
                 {new StringContent(model.IPFS.ToString()), "ipfs"}
             };
 
-            var response = await PostAsync(url, multiContent, token);
-            var result = await CreateResult<UUIDModel>(response, token);
+            var response = await PostAsync(url, multiContent, token).ConfigureAwait(false);
+            var result = await CreateResultAsync<UUIDModel>(response, token).ConfigureAwait(false);
 
             if (result.IsSuccess && result.Result == null)
                 result.Exception = new ValidationException(LocalizationKeys.ServeUnexpectedError);
@@ -94,13 +142,14 @@ namespace Steepshot.Core.Clients
             return result;
         }
 
-        protected virtual async Task<OperationResult<T>> CreateResult<T>(HttpResponseMessage response, CancellationToken ct)
+        protected virtual async Task<OperationResult<T>> CreateResultAsync<T>(HttpResponseMessage response, CancellationToken ct)
         {
             var result = new OperationResult<T>();
 
             if (!response.IsSuccessStatusCode)
             {
-                var rawResponse = await response.Content.ReadAsStringAsync();
+                var rawResponse = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                result.RawResponse = rawResponse;
                 result.Exception = new RequestException(response.RequestMessage.ToString(), rawResponse);
                 return result;
             }
@@ -118,11 +167,16 @@ namespace Steepshot.Core.Clients
                     case "application/json":
                     case "text/html":
                         {
-                            var content = await response.Content.ReadAsStringAsync();
+                            var content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                             if (string.IsNullOrEmpty(content))
+                            {
                                 result.Result = default(T);
+                            }
                             else
+                            {
+                                result.RawResponse = content;
                                 result.Result = JsonNetConverter.Deserialize<T>(content);
+                            }
                             break;
                         }
                     default:

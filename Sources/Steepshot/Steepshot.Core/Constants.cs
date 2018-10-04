@@ -32,13 +32,29 @@ namespace Steepshot.Core
         public const string VotedInASimilarWaySteem = "You have already voted in a similar way";
         public const string VotedInASimilarWayGolos = "You have already voted in a similar way";
 
+        public const string OneSignalSteemAppId = "77fa644f-3280-4e87-9f14-1f0c7ddf8ca5";
+        public const string OneSignalGolosAppId = "8a045ab9-04e1-4d3e-bb67-ddc1742ae385";
+
         public const int PhotoMaxSize = 1200;
         public const string DeletedPostText = "*deleted*";
-        public const string ProxyForAvatars = "https://steemitimages.com/{0}x{0}/";
+        public const string ProxyForAvatars = "https://steemitimages.com/{0}x{1}/";
 
         public static readonly HashSet<string> SupportedListBots = new HashSet<string>
-        { "promobot", "upme", "therising", "upmewhale", "rocky1", "boomerang","appreciator",
-        "postpromoter", "smartsteem", "spydo", "booster", "emperorofnaps", "jerrybanfield" };
+        {
+            "promobot",
+            "upme",
+            "therising",
+            "upmewhale",
+            "rocky1",
+            "boomerang",
+            "appreciator",
+            "postpromoter",
+            "smartsteem",
+            "spydo",
+            "booster",
+            "emperorofnaps",
+            "jerrybanfield"
+        };
 
         public const double MinBid = 0.5;
         public const double MaxBid = 130;
@@ -52,7 +68,5 @@ namespace Steepshot.Core
         public static int VideoMinHeight = 360;
         public static int VideoMinDuration = 2;  // seconds
         public static int VideoMaxDuration = 40; // seconds
-
-
     }
 }

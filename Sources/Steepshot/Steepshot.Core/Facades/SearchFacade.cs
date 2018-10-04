@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Steepshot.Core.Clients;
 using Steepshot.Core.Exceptions;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Enums;
@@ -10,22 +9,16 @@ namespace Steepshot.Core.Facades
 {
     public sealed class SearchFacade
     {
-        public UserFriendPresenter UserFriendPresenter { get; }
-        public TagsPresenter TagsPresenter { get; }
+        public readonly UserFriendPresenter UserFriendPresenter;
+        public readonly TagsPresenter TagsPresenter;
 
-        public SearchFacade()
+        public SearchFacade(UserFriendPresenter userFriendPresenter, TagsPresenter tagsPresenter)
         {
-            UserFriendPresenter = new UserFriendPresenter();
-            TagsPresenter = new TagsPresenter();
+            UserFriendPresenter = userFriendPresenter;
+            TagsPresenter = tagsPresenter;
         }
 
-        public void SetClient(SteepshotApiClient client)
-        {
-            UserFriendPresenter.SetClient(client);
-            TagsPresenter.SetClient(client);
-        }
-
-        public async Task<Exception> TrySearchCategories(string query, SearchType searchType)
+        public async Task<Exception> TrySearchCategoriesAsync(string query, SearchType searchType)
         {
             try
             {
@@ -33,12 +26,12 @@ namespace Steepshot.Core.Facades
                 {
                     if (searchType == SearchType.Tags)
                     {
-                        TagsPresenter.NotifySourceChanged(nameof(TrySearchCategories), true);
+                        TagsPresenter.NotifySourceChanged(nameof(TrySearchCategoriesAsync), true);
                         TagsPresenter.TasksCancel();
                     }
                     else
                     {
-                        UserFriendPresenter.NotifySourceChanged(nameof(TrySearchCategories), true);
+                        UserFriendPresenter.NotifySourceChanged(nameof(TrySearchCategoriesAsync), true);
                         UserFriendPresenter.TasksCancel();
                     }
 
@@ -46,14 +39,32 @@ namespace Steepshot.Core.Facades
                 }
 
                 if (string.IsNullOrEmpty(query))
-                    return await TagsPresenter.TryGetTopTags();
+                {
+                    var result = await TagsPresenter
+                        .TryGetTopTagsAsync()
+                        .ConfigureAwait(false);
+
+                    return result.Exception;
+                }
 
                 if (searchType == SearchType.Tags)
-                    return await TagsPresenter.TryLoadNext(query);
+                {
+                    var result = await TagsPresenter
+                        .TryLoadNextAsync(query)
+                        .ConfigureAwait(false);
 
-                return await UserFriendPresenter.TryLoadNextSearchUser(query);
+                    return result.Exception;
+                }
+
+                {
+                    var result = await UserFriendPresenter
+                        .TryLoadNextSearchUserAsync(query)
+                        .ConfigureAwait(false);
+
+                    return result.Exception;
+                }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return null;
             }

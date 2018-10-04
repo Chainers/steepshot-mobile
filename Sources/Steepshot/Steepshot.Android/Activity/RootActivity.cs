@@ -27,16 +27,18 @@ using Steepshot.Core.Utils;
 using System.Linq;
 using Android;
 using Android.Runtime;
+using Newtonsoft.Json.Linq;
+using Steepshot.Core;
 using WebSocketSharp;
-using Steepshot.Services;
 
 namespace Steepshot.Activity
 {
-    [Activity(Label = Core.Constants.Steepshot, ScreenOrientation = ScreenOrientation.Portrait, LaunchMode = LaunchMode.SingleTask)]
+    [Activity(Label = Constants.Steepshot, ScreenOrientation = ScreenOrientation.Portrait, LaunchMode = LaunchMode.SingleTask)]
     public sealed class RootActivity : BaseActivityWithPresenter<UserProfilePresenter>, IClearable
     {
         public const string NotificationData = "NotificationData";
         public const string SharingPhotoData = "SharingPhotoData";
+        public const string PostCreateResumeExtra = "PostCreateResumeExtra";
         protected override HostFragment CurrentHostFragment => CurrentHostFragment = _adapter.GetItem(_viewPager.CurrentItem) as HostFragment;
         private Adapter.PagerAdapter _adapter;
         private TabLayout.Tab _prevTab;
@@ -80,8 +82,9 @@ namespace Steepshot.Activity
                 {
                     Subscriptions = PushSettings.All.FlagToStringList()
                 };
+                
+                var response = await Presenter.TrySubscribeForPushesAsync(model).ConfigureAwait(false);
 
-                var response = await Presenter.TrySubscribeForPushes(model);
                 if (response.IsSuccess)
                 {
                     AppSettings.User.PushesPlayerId = playerId;
@@ -109,7 +112,7 @@ namespace Steepshot.Activity
                             case string commentUpvote when commentUpvote.Equals(PushSettings.UpvoteComment.GetEnumDescription()):
                             case string comment when comment.Equals(PushSettings.Comment.GetEnumDescription()):
                             case string userPost when userPost.Equals(PushSettings.User.GetEnumDescription()):
-                                OpenNewContentFragment(new SinglePostFragment(link));
+                                OpenNewContentFragment(new PostViewFragment(link));
                                 break;
                             case string follow when follow.Equals(PushSettings.Follow.GetEnumDescription()):
                             case string transfer when transfer.Equals(PushSettings.Transfer.GetEnumDescription()):
@@ -120,7 +123,7 @@ namespace Steepshot.Activity
                 }
                 catch (Exception e)
                 {
-                    AppSettings.Logger.Error(e);
+                    AppSettings.Logger.ErrorAsync(e);
                 }
             }
         }
@@ -135,8 +138,32 @@ namespace Steepshot.Activity
                 {
                     Path = BitmapUtils.GetUriRealPath(this, uri)
                 };
-                OpenNewContentFragment(new PostCreateFragment(galleryModel));
+                OpenNewContentFragment(new PreviewPostCreateFragment(galleryModel));
             }
+        }
+
+        public void HandlePostCreateResume(Intent intent)
+        {
+            var isEnable = intent.GetBooleanExtra(PostCreateResumeExtra, false);
+            intent.RemoveExtra(PostCreateResumeExtra);
+
+            if (!isEnable || !AppSettings.Temp.ContainsKey(PostCreateFragment.PostCreateGalleryTemp))
+                return;
+
+            var json = AppSettings.Temp[PostCreateFragment.PostCreateGalleryTemp];
+            var media = JsonConvert.DeserializeObject<List<GalleryMediaModel>>(json);
+
+            PreparePostModel model = null;
+            if (AppSettings.Temp.ContainsKey(PostCreateFragment.PreparePostTemp))
+            {
+                json = AppSettings.Temp[PostCreateFragment.PreparePostTemp];
+                model = JsonConvert.DeserializeObject<PreparePostModel>(json);
+            }
+
+            AppSettings.Temp.Remove(PostCreateFragment.PostCreateGalleryTemp);
+            AppSettings.SaveTemp();
+
+            OpenNewContentFragment(new PostCreateFragment(media, model));
         }
 
         protected override void OnNewIntent(Intent intent)
@@ -205,7 +232,7 @@ namespace Steepshot.Activity
             {
                 SelectTab(e.Tab.Position);
                 _prevTab = e.Tab;
-                AppSettings.User.SelectedTab = e.Tab.Position;
+                AppSettings.SelectedTab = e.Tab.Position;
             }
         }
 
@@ -236,8 +263,8 @@ namespace Steepshot.Activity
                     SetProfileChart(TabLayout.LayoutParameters.Height);
                 tab.SetIcon(ContextCompat.GetDrawable(this, _adapter.TabIconsInactive[i]));
             }
-            SelectTab(AppSettings.User.SelectedTab);
-            _prevTab = TabLayout.GetTabAt(AppSettings.User.SelectedTab);
+            SelectTab(AppSettings.SelectedTab);
+            _prevTab = TabLayout.GetTabAt(AppSettings.SelectedTab);
             _viewPager.OffscreenPageLimit = _adapter.Count - 1;
         }
 
@@ -274,11 +301,11 @@ namespace Steepshot.Activity
         {
             do
             {
-                var exception = await Presenter.TryGetUserInfo(AppSettings.User.Login);
+                var result = await Presenter.TryGetUserInfoAsync(AppSettings.User.Login);
                 if (IsDestroyed)
                     return;
 
-                if (exception == null || exception is System.OperationCanceledException)
+                if (result.IsSuccess || result.Exception is System.OperationCanceledException)
                 {
                     SetProfileChart(TabLayout.LayoutParameters.Height);
                     break;
@@ -331,7 +358,7 @@ namespace Steepshot.Activity
 
                 //Action action = () =>
                 //{
-                //    var featureScreen = new FeatureDialog(this);
+                //  var featureScreen = new FeatureDialog(this);
                 //    featureScreen.Show();
                 //};
                 //handler.PostDelayed(action, 2000);

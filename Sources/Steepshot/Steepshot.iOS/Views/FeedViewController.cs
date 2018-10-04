@@ -28,6 +28,11 @@ namespace Steepshot.iOS.Views
 
         protected override void SourceChanged(Status status)
         {
+            InvokeOnMainThread(HandleAction);
+        }
+
+        private void HandleAction()
+        {
             if (!feedCollection.Hidden)
             {
                 _gridDelegate.GenerateVariables();
@@ -44,6 +49,10 @@ namespace Steepshot.iOS.Views
         {
             if (!IsMovingToParentViewController)
                 feedCollection.ReloadData();
+            else
+            {
+                Presenter.SourceChanged += SourceChanged;
+            }
 
             ((MainTabBarController)TabBarController).SameTabTapped += SameTabTapped;
 
@@ -56,10 +65,10 @@ namespace Steepshot.iOS.Views
 
             _navController = TabBarController.NavigationController;
 
-            _gridDelegate = new CollectionViewFlowDelegate(feedCollection, _presenter);
+            _gridDelegate = new CollectionViewFlowDelegate(feedCollection, Presenter);
             _gridDelegate.ScrolledToBottom += ScrolledToBottom;
             _gridDelegate.IsGrid = false;
-            _collectionViewSource = new FeedCollectionViewSource(_presenter, _gridDelegate);
+            _collectionViewSource = new FeedCollectionViewSource(Presenter, _gridDelegate);
             _collectionViewSource.IsGrid = false;
             _collectionViewSource.CellAction += CellAction;
             _collectionViewSource.TagAction += TagAction;
@@ -74,10 +83,10 @@ namespace Steepshot.iOS.Views
             feedCollection.Delegate = _gridDelegate;
             feedCollection.DelaysContentTouches = false;
 
-            _sliderGridDelegate = new SliderCollectionViewFlowDelegate(sliderCollection, _presenter);
+            _sliderGridDelegate = new SliderCollectionViewFlowDelegate(sliderCollection, Presenter);
             _sliderGridDelegate.ScrolledToBottom += ScrolledToBottom;
 
-            var _sliderCollectionViewSource = new SliderCollectionViewSource(_presenter, _sliderGridDelegate);
+            var _sliderCollectionViewSource = new SliderCollectionViewSource(Presenter, _sliderGridDelegate);
 
             sliderCollection.DecelerationRate = UIScrollView.DecelerationRateFast;
             sliderCollection.ShowsHorizontalScrollIndicator = false;
@@ -121,7 +130,29 @@ namespace Steepshot.iOS.Views
 
         public override void ViewWillDisappear(bool animated)
         {
-            ((MainTabBarController) TabBarController).SameTabTapped -= SameTabTapped;
+            if (sliderCollection.Hidden)
+            {
+                foreach (var item in feedCollection.IndexPathsForVisibleItems)
+                {
+                    if (feedCollection.CellForItem(item) is NewFeedCollectionViewCell cell)
+                        cell.Cell.Playback(false);
+                }
+            }
+            else
+            {
+                foreach (var item in sliderCollection.IndexPathsForVisibleItems)
+                {
+                    if (sliderCollection.CellForItem(item) is SliderFeedCollectionViewCell cell)
+                        cell.Playback(false);
+                }
+            }
+
+            if (IsMovingFromParentViewController)
+            {
+                Presenter.SourceChanged -= SourceChanged;
+            }
+
+            ((MainTabBarController)TabBarController).SameTabTapped -= SameTabTapped;
 
             base.ViewWillDisappear(animated);
         }
@@ -154,7 +185,7 @@ namespace Steepshot.iOS.Views
                     break;
                 case ActionType.Preview:
                     if (feedCollection.Hidden)
-                        NavigationController.PushViewController(new ImagePreviewViewController(post.Body) { HidesBottomBarWhenPushed = true }, true);
+                        NavigationController.PushViewController(new ImagePreviewViewController(post.Media[post.PageIndex].Url) { HidesBottomBarWhenPushed = true }, true);
                     else
                         OpenPost(post);
                     break;
@@ -165,10 +196,7 @@ namespace Steepshot.iOS.Views
                     NavigationController.PushViewController(new VotersViewController(post, VotersType.Flags), true);
                     break;
                 case ActionType.Comments:
-                    var myViewController4 = new CommentsViewController();
-                    myViewController4.Post = post;
-                    myViewController4.HidesBottomBarWhenPushed = true;
-                    NavigationController.PushViewController(myViewController4, true);
+                    NavigationController.PushViewController(new CommentsViewController(post) { HidesBottomBarWhenPushed = true }, true);
                     break;
                 case ActionType.Like:
                     Vote(post);
@@ -190,7 +218,7 @@ namespace Steepshot.iOS.Views
             sliderCollection.Hidden = false;
             _sliderGridDelegate.GenerateVariables();
             sliderCollection.ReloadData();
-            sliderCollection.ScrollToItem(NSIndexPath.FromRowSection(_presenter.IndexOf(post), 0), UICollectionViewScrollPosition.CenteredHorizontally, false);
+            sliderCollection.ScrollToItem(NSIndexPath.FromRowSection(Presenter.IndexOf(post), 0), UICollectionViewScrollPosition.CenteredHorizontally, false);
         }
 
         public bool ClosePost()
@@ -224,10 +252,10 @@ namespace Steepshot.iOS.Views
 
                 if (clearOld)
                 {
-                    _presenter.Clear();
+                    Presenter.Clear();
                     _gridDelegate.ClearPosition();
                 }
-                exception = await _presenter.TryLoadNextTopPosts();
+                exception = await Presenter.TryLoadNextTopPostsAsync();
 
                 if (_refreshControl.Refreshing)
                 {

@@ -131,14 +131,8 @@ namespace Steepshot.iOS.Views
         {
             ToggleControls(false);
 
-            var exception = await _presenter.TryResendMail(_account);
-
-            if (exception == null)
-            {
-                ShowAlert(exception);
-            }
-            else
-                ShowAlert(exception);
+            var result = await Presenter.TryResendMailAsync(_account);
+            ShowAlert(result);
 
             ToggleControls(true);
         }

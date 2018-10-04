@@ -12,6 +12,7 @@ using Ditch.Golos.Operations;
 using Newtonsoft.Json;
 using Steepshot.Core.Exceptions;
 using Steepshot.Core.Extensions;
+using Steepshot.Core.Interfaces;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
@@ -21,9 +22,10 @@ using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Clients
 {
-    internal class GolosClient : BaseDitchClient
+    public sealed class GolosClient : BaseDitchClient
     {
         private readonly OperationManager _operationManager;
+        private readonly ConfigManager _configManager;
         private double? _vestsExchangeRatio;
 
         public override bool IsConnected => _operationManager.IsConnected;
@@ -31,13 +33,15 @@ namespace Steepshot.Core.Clients
         public override KnownChains Chain => KnownChains.Golos;
 
 
-        public GolosClient(ExtendedHttpClient extendedHttpClient) : base(extendedHttpClient)
+        public GolosClient(ExtendedHttpClient extendedHttpClient, ILogService logService, ConfigManager configManager)
+            : base(extendedHttpClient, logService)
         {
+            _configManager = configManager;
             var webSocketManager = new WebSocketManager();
             _operationManager = new OperationManager(webSocketManager);
         }
 
-        public override Task<bool> TryReconnectChain(CancellationToken token)
+        public override Task<bool> TryReconnectChainAsync(CancellationToken token)
         {
             return Task.Run(() =>
             {
@@ -50,9 +54,9 @@ namespace Steepshot.Core.Clients
                     Monitor.Enter(SyncConnection, ref lockWasTaken);
                     if (!EnableWrite)
                     {
-                        AppSettings.ConfigManager.Update(ExtendedHttpClient, KnownChains.Golos, token).Wait(token);
+                        _configManager.UpdateAsync(ExtendedHttpClient, KnownChains.Golos, token).Wait(token);
 
-                        var cUrls = AppSettings.ConfigManager.GolosNodeConfigs
+                        var cUrls = _configManager.GolosNodeConfigs
                             .Where(n => n.IsEnabled)
                             .OrderBy(n => n.Order)
                             .Select(n => n.Url)
@@ -62,7 +66,7 @@ namespace Steepshot.Core.Clients
                             if (token.IsCancellationRequested)
                                 break;
 
-                            var isConnected = _operationManager.ConnectTo(url, token).Result;
+                            var isConnected = _operationManager.ConnectToAsync(url, token).Result;
                             if (isConnected)
                             {
                                 EnableWrite = true;
@@ -73,7 +77,7 @@ namespace Steepshot.Core.Clients
                 }
                 catch (Exception ex)
                 {
-                    AppSettings.Logger.Warning(ex).Wait(token);
+                    LogService.WarningAsync(ex).Wait(token);
                 }
                 finally
                 {
@@ -86,9 +90,13 @@ namespace Steepshot.Core.Clients
 
         #region Post requests
 
-        public override async Task<OperationResult<VoidResponse>> Vote(VoteModel model, CancellationToken ct)
+        public override async Task<OperationResult<VoidResponse>> VoteAsync(VoteModel model, CancellationToken ct)
         {
-            var isConnected = await TryReconnectChain(ct);
+            var results = Validate(model);
+            if (results != null)
+                return new OperationResult<VoidResponse>(results);
+
+            var isConnected = await TryReconnectChainAsync(ct).ConfigureAwait(false);
             if (!isConnected)
                 return new OperationResult<VoidResponse>(new ValidationException(LocalizationKeys.EnableConnectToBlockchain));
 
@@ -98,12 +106,12 @@ namespace Steepshot.Core.Clients
 
             short weigth = 0;
             if (model.Type == VoteType.Up)
-                weigth = 10000;
+                weigth = (short)(model.VotePower * 100);
             if (model.Type == VoteType.Flag)
                 weigth = -10000;
 
             var op = new VoteOperation(model.Login, model.Author, model.Permlink, weigth);
-            var resp = await _operationManager.BroadcastOperationsSynchronous(keys, ct, op);
+            var resp = await _operationManager.BroadcastOperationsSynchronousAsync(keys, ct, op).ConfigureAwait(false);
 
             var result = new OperationResult<VoidResponse>();
             if (resp.IsError)
@@ -114,9 +122,13 @@ namespace Steepshot.Core.Clients
             return result;
         }
 
-        public override async Task<OperationResult<VoidResponse>> Follow(FollowModel model, CancellationToken ct)
+        public override async Task<OperationResult<VoidResponse>> FollowAsync(FollowModel model, CancellationToken ct)
         {
-            var isConnected = await TryReconnectChain(ct);
+            var results = Validate(model);
+            if (results != null)
+                return new OperationResult<VoidResponse>(results);
+
+            var isConnected = await TryReconnectChainAsync(ct).ConfigureAwait(false);
             if (!isConnected)
                 return new OperationResult<VoidResponse>(new ValidationException(LocalizationKeys.EnableConnectToBlockchain));
 
@@ -127,7 +139,7 @@ namespace Steepshot.Core.Clients
             var op = model.Type == Models.Enums.FollowType.Follow
                 ? new FollowOperation(model.Login, model.Username, Ditch.Golos.Models.FollowType.Blog, model.Login)
                 : new UnfollowOperation(model.Login, model.Username, model.Login);
-            var resp = await _operationManager.BroadcastOperationsSynchronous(keys, ct, op);
+            var resp = await _operationManager.BroadcastOperationsSynchronousAsync(keys, ct, op).ConfigureAwait(false);
 
             var result = new OperationResult<VoidResponse>();
 
@@ -139,9 +151,13 @@ namespace Steepshot.Core.Clients
             return result;
         }
 
-        public override async Task<OperationResult<VoidResponse>> CreateOrEdit(CommentModel model, CancellationToken ct)
+        public override async Task<OperationResult<VoidResponse>> CreateOrEditAsync(CommentModel model, CancellationToken ct)
         {
-            var isConnected = await TryReconnectChain(ct);
+            var results = Validate(model);
+            if (results != null)
+                return new OperationResult<VoidResponse>(results);
+
+            var isConnected = await TryReconnectChainAsync(ct).ConfigureAwait(false);
             if (!isConnected)
                 return new OperationResult<VoidResponse>(new ValidationException(LocalizationKeys.EnableConnectToBlockchain));
 
@@ -168,7 +184,7 @@ namespace Steepshot.Core.Clients
                 ops = new BaseOperation[] { op };
             }
 
-            var resp = await _operationManager.BroadcastOperationsSynchronous(keys, ct, ops);
+            var resp = await _operationManager.BroadcastOperationsSynchronousAsync(keys, ct, ops).ConfigureAwait(false);
 
             var result = new OperationResult<VoidResponse>();
             if (resp.IsError)
@@ -179,9 +195,13 @@ namespace Steepshot.Core.Clients
             return result;
         }
 
-        public override async Task<OperationResult<VoidResponse>> Delete(DeleteModel model, CancellationToken ct)
+        public override async Task<OperationResult<VoidResponse>> DeleteAsync(DeleteModel model, CancellationToken ct)
         {
-            var isConnected = await TryReconnectChain(ct);
+            var results = Validate(model);
+            if (results != null)
+                return new OperationResult<VoidResponse>(results);
+
+            var isConnected = await TryReconnectChainAsync(ct).ConfigureAwait(false);
             if (!isConnected)
                 return new OperationResult<VoidResponse>(new ValidationException(LocalizationKeys.EnableConnectToBlockchain));
 
@@ -190,7 +210,7 @@ namespace Steepshot.Core.Clients
                 return new OperationResult<VoidResponse>(new ValidationException(LocalizationKeys.WrongPrivatePostingKey));
 
             var op = new DeleteCommentOperation(model.Author, model.Permlink);
-            var resp = await _operationManager.BroadcastOperationsSynchronous(keys, ct, op);
+            var resp = await _operationManager.BroadcastOperationsSynchronousAsync(keys, ct, op).ConfigureAwait(false);
 
             var result = new OperationResult<VoidResponse>();
             if (resp.IsError)
@@ -200,9 +220,13 @@ namespace Steepshot.Core.Clients
             return result;
         }
 
-        public override async Task<OperationResult<VoidResponse>> UpdateUserProfile(UpdateUserProfileModel model, CancellationToken ct)
+        public override async Task<OperationResult<VoidResponse>> UpdateUserProfileAsync(UpdateUserProfileModel model, CancellationToken ct)
         {
-            var isConnected = await TryReconnectChain(ct);
+            var results = Validate(model);
+            if (results != null)
+                return new OperationResult<VoidResponse>(results);
+
+            var isConnected = await TryReconnectChainAsync(ct).ConfigureAwait(false);
             if (!isConnected)
                 return new OperationResult<VoidResponse>(new ValidationException(LocalizationKeys.EnableConnectToBlockchain));
 
@@ -210,7 +234,7 @@ namespace Steepshot.Core.Clients
             if (keys == null)
                 return new OperationResult<VoidResponse>(new ValidationException(LocalizationKeys.WrongPrivateActimeKey));
 
-            var resp = await _operationManager.LookupAccountNames(new[] { model.Login }, CancellationToken.None);
+            var resp = await _operationManager.LookupAccountNamesAsync(new[] { model.Login }, ct).ConfigureAwait(false);
             var result = new OperationResult<VoidResponse>();
             if (resp.IsError)
             {
@@ -228,7 +252,7 @@ namespace Steepshot.Core.Clients
             var editedMeta = UpdateProfileJson(profile.JsonMetadata, model);
 
             var op = new AccountUpdateOperation(model.Login, profile.MemoKey, editedMeta);
-            var resp2 = await _operationManager.BroadcastOperationsSynchronous(keys, ct, op);
+            var resp2 = await _operationManager.BroadcastOperationsSynchronousAsync(keys, ct, op).ConfigureAwait(false);
             if (resp2.IsError)
                 result.Exception = new RequestException(resp2);
             else
@@ -236,9 +260,13 @@ namespace Steepshot.Core.Clients
             return result;
         }
 
-        public override async Task<OperationResult<VoidResponse>> Transfer(TransferModel model, CancellationToken ct)
+        public override async Task<OperationResult<VoidResponse>> TransferAsync(TransferModel model, CancellationToken ct)
         {
-            var isConnected = await TryReconnectChain(ct);
+            var results = Validate(model);
+            if (results != null)
+                return new OperationResult<VoidResponse>(results);
+
+            var isConnected = await TryReconnectChainAsync(ct).ConfigureAwait(false);
             if (!isConnected)
                 return new OperationResult<VoidResponse>(new ValidationException(LocalizationKeys.EnableConnectToBlockchain));
 
@@ -269,7 +297,7 @@ namespace Steepshot.Core.Clients
             }
 
             var op = new TransferOperation(model.Login, model.Recipient, asset, model.Memo);
-            var resp = await _operationManager.BroadcastOperationsSynchronous(keys, ct, op);
+            var resp = await _operationManager.BroadcastOperationsSynchronousAsync(keys, ct, op).ConfigureAwait(false);
             if (resp.IsError)
                 result.Exception = new RequestException(resp);
             else
@@ -277,9 +305,13 @@ namespace Steepshot.Core.Clients
             return result;
         }
 
-        public override async Task<OperationResult<VoidResponse>> PowerUpOrDown(PowerUpDownModel model, CancellationToken ct)
+        public override async Task<OperationResult<VoidResponse>> PowerUpOrDownAsync(PowerUpDownModel model, CancellationToken ct)
         {
-            var isConnected = await TryReconnectChain(ct);
+            var results = Validate(model);
+            if (results != null)
+                return new OperationResult<VoidResponse>(results);
+
+            var isConnected = await TryReconnectChainAsync(ct).ConfigureAwait(false);
             if (!isConnected)
                 return new OperationResult<VoidResponse>(new ValidationException(LocalizationKeys.EnableConnectToBlockchain));
 
@@ -299,7 +331,7 @@ namespace Steepshot.Core.Clients
             }
             else
             {
-                var vestsExchangeRatio = await GetVestsExchangeRatio(ct);
+                var vestsExchangeRatio = await GetVestsExchangeRatioAsync(ct).ConfigureAwait(false);
                 if (!vestsExchangeRatio.IsSuccess)
                     return new OperationResult<VoidResponse>(vestsExchangeRatio.Exception);
 
@@ -307,7 +339,7 @@ namespace Steepshot.Core.Clients
                 op = new WithdrawVestingOperation(model.From, asset);
             }
 
-            var resp = await _operationManager.BroadcastOperationsSynchronous(keys, ct, op);
+            var resp = await _operationManager.BroadcastOperationsSynchronousAsync(keys, ct, op).ConfigureAwait(false);
             if (resp.IsError)
                 result.Exception = new RequestException(resp);
             else
@@ -315,7 +347,7 @@ namespace Steepshot.Core.Clients
             return result;
         }
 
-        public override Task<OperationResult<VoidResponse>> ClaimRewards(ClaimRewardsModel model, CancellationToken ct)
+        public override Task<OperationResult<VoidResponse>> ClaimRewardsAsync(ClaimRewardsModel model, CancellationToken ct)
         {
             throw new NotImplementedException();
         }
@@ -324,9 +356,13 @@ namespace Steepshot.Core.Clients
 
         #region Get
 
-        public override async Task<OperationResult<string>> GetVerifyTransaction(AuthorizedPostingModel model, CancellationToken ct)
+        public override async Task<OperationResult<string>> GetVerifyTransactionAsync(AuthorizedWifModel model, CancellationToken ct)
         {
-            var isConnected = await TryReconnectChain(ct);
+            var results = Validate(model);
+            if (results != null)
+                return new OperationResult<string>(results);
+
+            var isConnected = await TryReconnectChainAsync(ct).ConfigureAwait(false);
             if (!isConnected)
                 return new OperationResult<string>(new ValidationException(LocalizationKeys.EnableConnectToBlockchain));
 
@@ -341,12 +377,16 @@ namespace Steepshot.Core.Clients
                 Time = DateTime.Now,
                 HeadBlockNumber = 0
             };
-            var tr = await _operationManager.CreateTransaction(properties, keys, op, ct);
+            var tr = await _operationManager.CreateTransactionAsync(properties, keys, op, ct).ConfigureAwait(false);
             return new OperationResult<string> { Result = JsonConvert.SerializeObject(tr) };
         }
 
-        public override async Task<OperationResult<VoidResponse>> ValidatePrivateKey(ValidatePrivateKeyModel model, CancellationToken ct)
+        public override async Task<OperationResult<VoidResponse>> ValidatePrivateKeyAsync(ValidatePrivateKeyModel model, CancellationToken ct)
         {
+            var results = Validate(model);
+            if (results != null)
+                return new OperationResult<VoidResponse>(results);
+
             var keys = ToKey(model.PrivateKey);
             if (keys == null)
             {
@@ -359,7 +399,7 @@ namespace Steepshot.Core.Clients
                 }
             }
 
-            var isConnected = await TryReconnectChain(ct);
+            var isConnected = await TryReconnectChainAsync(ct).ConfigureAwait(false);
             if (!isConnected)
             {
                 return new OperationResult<VoidResponse>(new ValidationException(LocalizationKeys.EnableConnectToBlockchain));
@@ -367,7 +407,7 @@ namespace Steepshot.Core.Clients
 
             var result = new OperationResult<VoidResponse>();
 
-            var resp = await _operationManager.LookupAccountNames(new[] { model.Login }, CancellationToken.None);
+            var resp = await _operationManager.LookupAccountNamesAsync(new[] { model.Login }, ct).ConfigureAwait(false);
             if (resp.IsError)
             {
                 result.Exception = new RequestException(resp);
@@ -407,15 +447,15 @@ namespace Steepshot.Core.Clients
             }
         }
 
-        public override async Task<OperationResult<AccountInfoResponse>> GetAccountInfo(string userName, CancellationToken ct)
+        public override async Task<OperationResult<AccountInfoResponse>> GetAccountInfoAsync(string userName, CancellationToken ct)
         {
-            var isConnected = await TryReconnectChain(ct);
+            var isConnected = await TryReconnectChainAsync(ct).ConfigureAwait(false);
             if (!isConnected)
                 return new OperationResult<AccountInfoResponse>(new ValidationException(LocalizationKeys.EnableConnectToBlockchain));
 
             var result = new OperationResult<AccountInfoResponse>();
 
-            var resp = await _operationManager.LookupAccountNames(new[] { userName }, CancellationToken.None);
+            var resp = await _operationManager.LookupAccountNamesAsync(new[] { userName }, ct).ConfigureAwait(false);
             if (resp.IsError)
             {
                 result.Exception = new RequestException(resp);
@@ -427,7 +467,7 @@ namespace Steepshot.Core.Clients
 
             var acc = resp.Result[0];
 
-            var vestsExchangeRatio = await GetVestsExchangeRatio(ct);
+            var vestsExchangeRatio = await GetVestsExchangeRatioAsync(ct).ConfigureAwait(false);
             if (!vestsExchangeRatio.IsSuccess)
                 return new OperationResult<AccountInfoResponse>(vestsExchangeRatio.Exception);
 
@@ -457,12 +497,12 @@ namespace Steepshot.Core.Clients
             return result;
         }
 
-        private async Task<OperationResult<double>> GetVestsExchangeRatio(CancellationToken token)
+        private async Task<OperationResult<double>> GetVestsExchangeRatioAsync(CancellationToken token)
         {
             if (_vestsExchangeRatio.HasValue)
                 return new OperationResult<double>(_vestsExchangeRatio.Value);
 
-            var properties = await _operationManager.GetDynamicGlobalProperties(token);
+            var properties = await _operationManager.GetDynamicGlobalPropertiesAsync(token).ConfigureAwait(false);
             if (properties.IsError)
                 return new OperationResult<double>(properties.Exception);
 
@@ -479,22 +519,22 @@ namespace Steepshot.Core.Clients
             WithdrawVestingOperation.OperationName
         };
 
-        public override async Task<OperationResult<AccountHistoryResponse[]>> GetAccountHistory(string userName, CancellationToken ct)
+        public override async Task<OperationResult<AccountHistoryResponse[]>> GetAccountHistoryAsync(string userName, CancellationToken ct)
         {
-            var isConnected = await TryReconnectChain(ct);
+            var isConnected = await TryReconnectChainAsync(ct).ConfigureAwait(false);
             if (!isConnected)
                 return new OperationResult<AccountHistoryResponse[]>(new ValidationException(LocalizationKeys.EnableConnectToBlockchain));
 
             var result = new OperationResult<AccountHistoryResponse[]>();
 
-            var resp = await _operationManager.GetAccountHistory(userName, ulong.MaxValue, 1000, CancellationToken.None);
+            var resp = await _operationManager.GetAccountHistoryAsync(userName, ulong.MaxValue, 1000, ct).ConfigureAwait(false);
             if (resp.IsError)
             {
                 result.Exception = new RequestException(resp);
                 return result;
             }
 
-            var vestsExchangeRatio = await GetVestsExchangeRatio(ct);
+            var vestsExchangeRatio = await GetVestsExchangeRatioAsync(ct).ConfigureAwait(false);
             if (!vestsExchangeRatio.IsSuccess)
                 return new OperationResult<AccountHistoryResponse[]>(vestsExchangeRatio.Exception);
 

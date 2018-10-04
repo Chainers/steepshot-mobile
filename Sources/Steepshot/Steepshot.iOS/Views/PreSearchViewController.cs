@@ -21,37 +21,39 @@ namespace Steepshot.iOS.Views
     public partial class PreSearchViewController : BasePostController<PreSearchPresenter>, IPageCloser
     {
         public string CurrentPostCategory;
-
         private FeedCollectionViewSource _collectionViewSource;
         private CollectionViewFlowDelegate _gridDelegate;
         private SliderCollectionViewFlowDelegate _sliderGridDelegate;
-
         private UINavigationController _navController;
-        private UIRefreshControl _refreshControl;
+        private readonly UIRefreshControl _refreshControl = new UIRefreshControl();
+        private readonly UIBarButtonItem _leftBarButton = new UIBarButtonItem();
+        private readonly UITapGestureRecognizer _searchTap;
+        private SliderCollectionViewSource _sliderCollectionViewSource;
 
-        public override void ViewDidLoad()
+        public PreSearchViewController()
+        {
+            _searchTap = new UITapGestureRecognizer(SearchTapped);
+        }
+
+        public async override void ViewDidLoad()
         {
             base.ViewDidLoad();
 
             _navController = TabBarController != null ? TabBarController.NavigationController : NavigationController;
             _navController.NavigationBar.Translucent = false;
 
-            _gridDelegate = new CollectionViewFlowDelegate(collectionView, _presenter);
+            _gridDelegate = new CollectionViewFlowDelegate(collectionView, Presenter);
             _gridDelegate.IsGrid = true;
-            _gridDelegate.ScrolledToBottom += ScrolledToBottom;
-            _gridDelegate.CellClicked += CellAction;
 
-            _collectionViewSource = new FeedCollectionViewSource(_presenter, _gridDelegate);
+            _collectionViewSource = new FeedCollectionViewSource(Presenter, _gridDelegate);
             _collectionViewSource.IsGrid = true;
             collectionView.Source = _collectionViewSource;
             collectionView.RegisterClassForCell(typeof(LoaderCollectionCell), nameof(LoaderCollectionCell));
             collectionView.RegisterClassForCell(typeof(PhotoCollectionViewCell), nameof(PhotoCollectionViewCell));
             collectionView.RegisterClassForCell(typeof(NewFeedCollectionViewCell), nameof(NewFeedCollectionViewCell));
 
-            _sliderGridDelegate = new SliderCollectionViewFlowDelegate(sliderCollection, _presenter);
-            _sliderGridDelegate.ScrolledToBottom += ScrolledToBottom;
-
-            var _sliderCollectionViewSource = new SliderCollectionViewSource(_presenter, _sliderGridDelegate);
+            _sliderGridDelegate = new SliderCollectionViewFlowDelegate(sliderCollection, Presenter);
+            _sliderCollectionViewSource = new SliderCollectionViewSource(Presenter, _sliderGridDelegate);
 
             sliderCollection.DecelerationRate = UIScrollView.DecelerationRateFast;
             sliderCollection.ShowsHorizontalScrollIndicator = false;
@@ -68,18 +70,7 @@ namespace Steepshot.iOS.Views
             sliderCollection.RegisterClassForCell(typeof(LoaderCollectionCell), nameof(LoaderCollectionCell));
             sliderCollection.RegisterClassForCell(typeof(SliderFeedCollectionViewCell), nameof(SliderFeedCollectionViewCell));
 
-            _refreshControl = new UIRefreshControl();
-            _refreshControl.ValueChanged += async (sender, e) =>
-            {
-                await GetPosts(false, true);
-            };
             collectionView.Add(_refreshControl);
-
-            _collectionViewSource.CellAction += CellAction;
-            _collectionViewSource.TagAction += TagAction;
-
-            _sliderCollectionViewSource.CellAction += CellAction;
-            _sliderCollectionViewSource.TagAction += TagAction;
 
             collectionView.SetCollectionViewLayout(new UICollectionViewFlowLayout()
             {
@@ -90,12 +81,6 @@ namespace Steepshot.iOS.Views
             collectionView.Delegate = _gridDelegate;
             sliderCollection.Delegate = _sliderGridDelegate;
 
-            SliderAction += (isOpening) =>
-            {
-                if (!sliderCollection.Hidden)
-                    sliderCollection.ScrollEnabled = !isOpening;
-            };
-
             if (!AppSettings.User.HasPostingPermission && CurrentPostCategory == null)
             {
                 loginButton.Hidden = false;
@@ -103,66 +88,12 @@ namespace Steepshot.iOS.Views
                 loginButton.Layer.BorderWidth = 0;
             }
 
-            loginButton.TouchDown += LoginTapped;
-
-            hotButton.TouchDown += (object sender, EventArgs e) =>
-            {
-                SwitchSearchType(PostType.Hot);
-            };
-
-            topButton.TouchDown += (object sender, EventArgs e) =>
-            {
-                SwitchSearchType(PostType.Top);
-            };
-
-            newButton.TouchDown += (object sender, EventArgs e) =>
-            {
-                SwitchSearchType(PostType.New);
-            };
-
-            switcher.TouchDown += SwitchLayout;
-
-            var searchTap = new UITapGestureRecognizer(SearchTapped);
-            searchButton.AddGestureRecognizer(searchTap);
-
-            GetPosts();
-        }
-
-        protected async override void LoginTapped(object sender, EventArgs e)
-        {
-            signInLoader.StartAnimating();
-            loginButton.Enabled = false;
-
-            var response = await _presenter.CheckServiceStatus();
-
-            loginButton.Enabled = true;
-            signInLoader.StopAnimating();
-
-            var myViewController = new WelcomeViewController(response.IsSuccess);
-            NavigationController.PushViewController(myViewController, true);
-        }
-
-        public override void ViewWillDisappear(bool animated)
-        {
-            NavigationController.SetNavigationBarHidden(false, false);
-
-            if (TabBarController != null)
-                ((MainTabBarController)TabBarController).SameTabTapped -= SameTabTapped;
-
-            base.ViewWillDisappear(animated);
-        }
-
-        public override void ViewWillAppear(bool animated)
-        {
-            if (!IsMovingToParentViewController)
-                collectionView.ReloadData();
             if (CurrentPostCategory != null)
             {
                 NavigationItem.Title = CurrentPostCategory;
-                var leftBarButton = new UIBarButtonItem(UIImage.FromBundle("ic_back_arrow"), UIBarButtonItemStyle.Plain, GoBack);
-                leftBarButton.TintColor = Constants.R15G24B30;
-                NavigationItem.LeftBarButtonItem = leftBarButton;
-                NavigationController.SetNavigationBarHidden(false, false);
+                _leftBarButton.Image = UIImage.FromBundle("ic_back_arrow");
+                _leftBarButton.TintColor = Constants.R15G24B30;
+                NavigationItem.LeftBarButtonItem = _leftBarButton;
 
                 searchHeight.Constant = 0;
                 searchTopMargin.Constant = 0;
@@ -172,13 +103,137 @@ namespace Steepshot.iOS.Views
             {
                 if (GetVersion() == HardwareVersion.iPhoneX)
                     sliderCollectionOffset.Constant = 35;
-                NavigationController.SetNavigationBarHidden(true, false);
             }
+
+            await GetPosts();
+        }
+
+        public override void ViewWillAppear(bool animated)
+        {
+            if (!IsMovingToParentViewController)
+                collectionView.ReloadData();
+            else
+            {
+                loginButton.TouchDown += LoginTapped;
+                hotButton.TouchDown += HotButton_TouchDown;
+                topButton.TouchDown += TopButton_TouchDown;
+                newButton.TouchDown += NewButton_TouchDown;
+                switcher.TouchDown += SwitchLayout;
+                _collectionViewSource.CellAction += CellAction;
+                _collectionViewSource.TagAction += TagAction;
+                _sliderCollectionViewSource.CellAction += CellAction;
+                _sliderCollectionViewSource.TagAction += TagAction;
+                _refreshControl.ValueChanged += _refreshControl_ValueChanged;
+                _sliderGridDelegate.ScrolledToBottom += ScrolledToBottom;
+                _gridDelegate.ScrolledToBottom += ScrolledToBottom;
+                _gridDelegate.CellClicked += CellAction;
+                _leftBarButton.Clicked += GoBack;
+                Presenter.SourceChanged += SourceChanged;
+                searchButton.AddGestureRecognizer(_searchTap);
+            }
+
+            SliderAction += PreSearchViewController_SliderAction;
+
+            if (CurrentPostCategory != null)
+                NavigationController.SetNavigationBarHidden(false, false);
+            else
+                NavigationController.SetNavigationBarHidden(true, false);
 
             if (TabBarController != null)
                 ((MainTabBarController)TabBarController).SameTabTapped += SameTabTapped;
 
             base.ViewWillAppear(animated);
+        }
+
+        public override void ViewWillDisappear(bool animated)
+        {
+            NavigationController.SetNavigationBarHidden(false, false);
+
+            if (sliderCollection.Hidden)
+            {
+                foreach (var item in collectionView.IndexPathsForVisibleItems)
+                {
+                    if (collectionView.CellForItem(item) is NewFeedCollectionViewCell cell)
+                        cell.Cell.Playback(false);
+                }
+            }
+            else
+            {
+                foreach (var item in sliderCollection.IndexPathsForVisibleItems)
+                {
+                    if (sliderCollection.CellForItem(item) is SliderFeedCollectionViewCell cell)
+                        cell.Playback(false);
+                }
+            }
+
+            if (IsMovingFromParentViewController)
+            {
+                loginButton.TouchDown -= LoginTapped;
+                hotButton.TouchDown -= HotButton_TouchDown;
+                topButton.TouchDown -= TopButton_TouchDown;
+                newButton.TouchDown -= NewButton_TouchDown;
+                switcher.TouchDown -= SwitchLayout;
+                _collectionViewSource.CellAction -= CellAction;
+                _collectionViewSource.TagAction -= TagAction;
+                _sliderCollectionViewSource.CellAction -= CellAction;
+                _sliderCollectionViewSource.TagAction -= TagAction;
+                _refreshControl.ValueChanged -= _refreshControl_ValueChanged;
+                _sliderGridDelegate.ScrolledToBottom = null;
+                _gridDelegate.ScrolledToBottom = null;
+                _gridDelegate.CellClicked = null;
+                _leftBarButton.Clicked -= GoBack;
+                Presenter.SourceChanged -= SourceChanged;
+                searchButton.RemoveGestureRecognizer(_searchTap);
+                _collectionViewSource.FreeAllCells();
+                _sliderCollectionViewSource.FreeAllCells();
+            }
+
+            SliderAction -= PreSearchViewController_SliderAction;
+
+            if (TabBarController != null)
+                ((MainTabBarController)TabBarController).SameTabTapped -= SameTabTapped;
+
+            base.ViewWillDisappear(animated);
+        }
+
+        private async void NewButton_TouchDown(object sender, EventArgs e)
+        {
+            await SwitchSearchType(PostType.New);
+        }
+
+        private async void TopButton_TouchDown(object sender, EventArgs e)
+        {
+            await SwitchSearchType(PostType.Top);
+        }
+
+        private async void HotButton_TouchDown(object sender, EventArgs e)
+        {
+            await SwitchSearchType(PostType.Hot);
+        }
+
+        private void PreSearchViewController_SliderAction(bool isOpening)
+        {
+            if (!sliderCollection.Hidden)
+                sliderCollection.ScrollEnabled = !isOpening;
+        }
+
+        private async void _refreshControl_ValueChanged(object sender, EventArgs e)
+        {
+            await GetPosts(false, true);
+        }
+
+        protected async override void LoginTapped(object sender, EventArgs e)
+        {
+            signInLoader.StartAnimating();
+            loginButton.Enabled = false;
+
+            var response = await Presenter.CheckServiceStatusAsync();
+
+            loginButton.Enabled = true;
+            signInLoader.StopAnimating();
+
+            var myViewController = new WelcomeViewController(response.IsSuccess);
+            NavigationController.PushViewController(myViewController, true);
         }
 
         protected override void SameTabTapped()
@@ -187,11 +242,11 @@ namespace Steepshot.iOS.Views
                 collectionView.SetContentOffset(new CGPoint(0, 0), true);
         }
 
-        private void SwitchSearchType(PostType postType)
+        private async Task SwitchSearchType(PostType postType)
         {
-            if (postType == _presenter.PostType)
+            if (postType == Presenter.PostType)
                 return;
-            _presenter.PostType = postType;
+            Presenter.PostType = postType;
             switch (postType)
             {
                 case PostType.Hot:
@@ -207,11 +262,8 @@ namespace Steepshot.iOS.Views
                     hotConstrain.Active = newConstraint.Active = false;
                     break;
             }
-            UIView.Animate(0.2, 0, UIViewAnimationOptions.CurveEaseOut, () =>
-            {
-                View.LayoutIfNeeded();
-            }, null);
-            GetPosts(true, true);
+            UIView.Animate(0.2, 0, UIViewAnimationOptions.CurveEaseOut, View.LayoutIfNeeded, null);
+            await GetPosts(true, true);
         }
 
         private void CellAction(ActionType type, Post post)
@@ -227,8 +279,7 @@ namespace Steepshot.iOS.Views
                     break;
                 case ActionType.Preview:
                     if (collectionView.Hidden)
-                        //NavigationController.PushViewController(new PostViewController(post, _gridDelegate.Variables[_presenter.IndexOf(post)], _presenter), false);
-                        NavigationController.PushViewController(new ImagePreviewViewController(post.Body) { HidesBottomBarWhenPushed = true }, true);
+                        NavigationController.PushViewController(new ImagePreviewViewController(post.Media[post.PageIndex].Url) { HidesBottomBarWhenPushed = true }, true);
                     else
                         OpenPost(post);
                     break;
@@ -239,10 +290,7 @@ namespace Steepshot.iOS.Views
                     NavigationController.PushViewController(new VotersViewController(post, VotersType.Flags), true);
                     break;
                 case ActionType.Comments:
-                    var myViewController4 = new CommentsViewController();
-                    myViewController4.Post = post;
-                    myViewController4.HidesBottomBarWhenPushed = true;
-                    NavigationController.PushViewController(myViewController4, true);
+                    NavigationController.PushViewController(new CommentsViewController(post) { HidesBottomBarWhenPushed = true }, true);
                     break;
                 case ActionType.Like:
                     Vote(post);
@@ -264,16 +312,29 @@ namespace Steepshot.iOS.Views
             sliderCollection.Hidden = false;
             _sliderGridDelegate.GenerateVariables();
             sliderCollection.ReloadData();
-            sliderCollection.ScrollToItem(NSIndexPath.FromRowSection(_presenter.IndexOf(post), 0), UICollectionViewScrollPosition.CenteredHorizontally, false);
+            sliderCollection.ScrollToItem(NSIndexPath.FromRowSection(Presenter.IndexOf(post), 0), UICollectionViewScrollPosition.CenteredHorizontally, false);
+
+            foreach (var item in collectionView.IndexPathsForVisibleItems)
+            {
+                if (collectionView.CellForItem(item) is NewFeedCollectionViewCell cell)
+                    cell.Cell.Playback(false);
+            }
         }
 
         public bool ClosePost()
         {
+            foreach (var item in sliderCollection.IndexPathsForVisibleItems)
+            {
+                if (sliderCollection.CellForItem(item) is SliderFeedCollectionViewCell cell)
+                    cell.Playback(false);
+            }
             if (!sliderCollection.Hidden)
             {
-                var visibleRect = new CGRect();
-                visibleRect.Location = sliderCollection.ContentOffset;
-                visibleRect.Size = sliderCollection.Bounds.Size;
+                var visibleRect = new CGRect
+                {
+                    Location = sliderCollection.ContentOffset,
+                    Size = sliderCollection.Bounds.Size
+                };
                 var visiblePoint = new CGPoint(visibleRect.GetMidX(), visibleRect.GetMidY());
                 var index = sliderCollection.IndexPathForItemAtPoint(visiblePoint);
 
@@ -298,6 +359,12 @@ namespace Steepshot.iOS.Views
                     MinimumLineSpacing = 1,
                     MinimumInteritemSpacing = 1,
                 }, false);
+
+                foreach (var item in collectionView.IndexPathsForVisibleItems)
+                {
+                    if (collectionView.CellForItem(item) is NewFeedCollectionViewCell cell)
+                        cell.Cell.Playback(false);
+                }
             }
             else
             {
@@ -309,7 +376,6 @@ namespace Steepshot.iOS.Views
             }
 
             collectionView.ReloadData();
-            //collectionView.ScrollToItem(_gridDelegate.TopCurrentPosition, UICollectionViewScrollPosition.Top, false);
             collectionView.SetContentOffset(new CGPoint(0, 0), false);
         }
 
@@ -332,15 +398,15 @@ namespace Steepshot.iOS.Views
                 {
                     _sliderGridDelegate.ClearPosition();
                     _gridDelegate.ClearPosition();
-                    _presenter.Clear();
+                    Presenter.Clear();
                 }
 
                 if (CurrentPostCategory == null)
-                    exception = await _presenter.TryLoadNextTopPosts();
+                    exception = await Presenter.TryLoadNextTopPostsAsync();
                 else
                 {
-                    _presenter.Tag = CurrentPostCategory;
-                    exception = await _presenter.TryGetSearchedPosts();
+                    Presenter.Tag = CurrentPostCategory;
+                    exception = await Presenter.TryGetSearchedPostsAsync();
                 }
 
                 if (exception is OperationCanceledException)
@@ -369,16 +435,21 @@ namespace Steepshot.iOS.Views
 
         protected override void SourceChanged(Status status)
         {
+            InvokeOnMainThread(HandleAction);
+        }
+
+        private void HandleAction()
+        {
             if (!collectionView.Hidden)
             {
-                foreach (var item in _presenter)
+                foreach (var item in Presenter)
                 {
-                    foreach (var url in item.Media)
+                    foreach (var mediaModel in item.Media)
                     {
                         if (_gridDelegate.IsGrid)
-                            ImageLoader.Preload(item.Media[0].Url, Constants.CellSize);
+                            ImageLoader.Preload(item.Media[0], Constants.CellSize.Width);
                         else
-                            ImageLoader.Preload(url.Url, new CGSize(UIScreen.MainScreen.Bounds.Size.Width, UIScreen.MainScreen.Bounds.Size.Width));
+                            ImageLoader.Preload(mediaModel, Constants.ScreenWidth);
                     }
                 }
 
@@ -387,21 +458,20 @@ namespace Steepshot.iOS.Views
             }
             else
             {
-                foreach (var item in _presenter)
+                foreach (var item in Presenter)
                 {
-                    foreach (var url in item.Media)
+                    foreach (var mediaModel in item.Media)
                     {
                         if (_gridDelegate.IsGrid)
-                            ImageLoader.Preload(item.Media[0].Url, Constants.CellSize);
+                            ImageLoader.Preload(item.Media[0], Constants.CellSize.Width);
                         else
-                            ImageLoader.Preload(url.Url, new CGSize(UIScreen.MainScreen.Bounds.Size.Width, UIScreen.MainScreen.Bounds.Size.Width));
+                            ImageLoader.Preload(mediaModel, Constants.ScreenWidth);
                     }
                 }
 
-
-                foreach (var item in _presenter)
+                foreach (var item in Presenter)
                 {
-                    ImageLoader.Preload(item.Media[0].Url, new CGSize(UIScreen.MainScreen.Bounds.Width, UIScreen.MainScreen.Bounds.Width));
+                    ImageLoader.Preload(item.Media[0], Constants.ScreenWidth);
                 }
 
                 _sliderGridDelegate.GenerateVariables();

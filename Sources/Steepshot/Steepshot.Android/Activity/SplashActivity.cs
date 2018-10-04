@@ -9,6 +9,8 @@ using Steepshot.Utils;
 using Android.Content;
 using Android.Runtime;
 using Steepshot.Core.Localization;
+using Steepshot.Core.Utils;
+using Steepshot.Fragment;
 using Steepshot.Services;
 using static Steepshot.Core.Utils.AppSettings;
 
@@ -58,13 +60,25 @@ namespace Steepshot.Activity
                         StartActivity(intent);
                         return;
                     }
+                case Intent.ActionMain:
+                    {
+                        if (AppSettings.Temp.ContainsKey(PostCreateFragment.PostCreateGalleryTemp))
+                        {
+                            var intent = new Intent(this, typeof(RootActivity));
+                            intent.PutExtra(RootActivity.PostCreateResumeExtra, true);
+                            intent.SetFlags(ActivityFlags.ReorderToFront | ActivityFlags.NewTask);
+                            StartActivity(intent);
+                            return;
+                        }
+                        break;
+                    }
             }
             StartActivity(User.HasPostingPermission ? typeof(RootActivity) : typeof(GuestActivity));
         }
 
         private async void OnTaskSchedulerOnUnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs e)
         {
-            await Logger.Error(e.Exception);
+            await Logger.ErrorAsync(e.Exception);
 
             this.ShowAlert(LocalizationKeys.UnexpectedError, Android.Widget.ToastLength.Short);
         }
@@ -76,16 +90,16 @@ namespace Steepshot.Activity
                 ex = new Exception(e.ExceptionObject.ToString());
 
             if (e.IsTerminating)
-                await Logger.Fatal(ex);
+                await Logger.FatalAsync(ex);
             else
-                await Logger.Error(ex);
+                await Logger.ErrorAsync(ex);
 
             this.ShowAlert(ex, Android.Widget.ToastLength.Short);
         }
 
         private async void OnUnhandledExceptionRaiser(object sender, RaiseThrowableEventArgs e)
         {
-            await Logger.Error(e.Exception);
+            await Logger.ErrorAsync(e.Exception);
 
             this.ShowAlert(e.Exception, Android.Widget.ToastLength.Short);
         }

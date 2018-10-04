@@ -28,15 +28,15 @@ namespace Steepshot.Activity
     [Activity(ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait)]
     public sealed class SettingsActivity : BaseActivityWithPresenter<UserProfilePresenter>
     {
-        private PushSettings PushSettings;
+        private PushSettings _pushSettings;
         private BottomSheetDialog _propertiesActionsDialog;
         private bool _lowRatedChanged;
         private bool _nsfwChanged;
         private UserInfo _currentUser;
+        private List<UserInfo> _accounts;
 
 #pragma warning disable 0649, 4014
         [BindView(Resource.Id.dtn_terms_of_service)] private Button _termsButton;
-        [BindView(Resource.Id.tests)] private AppCompatButton _testsButton;
         [BindView(Resource.Id.btn_guide)] private Button _guideButton;
         [BindView(Resource.Id.nsfw_switch)] private SwitchCompat _nsfwSwitcher;
         [BindView(Resource.Id.low_switch)] private SwitchCompat _lowRatedSwitcher;
@@ -64,14 +64,15 @@ namespace Steepshot.Activity
         [BindView(Resource.Id.transfer)] private TextView _notificationTransfer;
         [BindView(Resource.Id.transfer_switch)] private SwitchCompat _notificationTransferSwitch;
 
-        [BindView(Resource.Id.steem_avatar)] private ImageView _steemAvatar;
         [BindView(Resource.Id.steem_title)] private TextView _steemTitle;
         [BindView(Resource.Id.steem_logo)] private ImageView _steemLogo;
         [BindView(Resource.Id.steem_state)] private ImageView _steemState;
-        [BindView(Resource.Id.golos_avatar)] private ImageView _golosAvatar;
         [BindView(Resource.Id.golos_title)] private TextView _golosTitle;
         [BindView(Resource.Id.golos_logo)] private ImageView _golosLogo;
         [BindView(Resource.Id.golos_state)] private ImageView _golosState;
+
+        //[BindView(Resource.Id.golos_avatar)] private ImageView _golosAvatar;
+        //[BindView(Resource.Id.steem_avatar)] private ImageView _steemAvatar;
 
         [BindView(Resource.Id.steem_account)] private LinearLayout _steemLyt;
         [BindView(Resource.Id.golos_account)] private LinearLayout _golosLyt;
@@ -91,7 +92,7 @@ namespace Steepshot.Activity
             Cheeseknife.Bind(this);
 
             var appInfoService = AppSettings.AppInfo;
-            var accounts = AppSettings.User.GetAllAccounts();
+            _accounts = AppSettings.User.GetAllAccounts();
             _currentUser = AppSettings.User.UserInfo;
 
             _propertiesActionsDialog = new BottomSheetDialog(this);
@@ -115,7 +116,7 @@ namespace Steepshot.Activity
             _steemConnectButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Connect);
             _golosConnectButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Connect);
 
-            SetupAccounts(accounts);
+            SetupAccounts(_accounts);
 
             _backButton.Visibility = ViewStates.Visible;
             _backButton.Click += GoBackClick;
@@ -144,72 +145,73 @@ namespace Steepshot.Activity
             _guideButton.Typeface = Style.Semibold;
             _guideButton.Click += GuideClick;
 
-            _steemConnectButton.Click += (sender, e) =>
-            {
-                _steemLoader.Visibility = ViewStates.Visible;
-                _steemConnectButton.Text = string.Empty;
-                _steemConnectButton.Enabled = false;
-                OnAccountAdd();
-            };
-
-            _golosConnectButton.Click += (sender, e) =>
-            {
-                _golosLoader.Visibility = ViewStates.Visible;
-                _golosConnectButton.Text = string.Empty;
-                _golosConnectButton.Enabled = false;
-                OnAccountAdd();
-            };
-
-            _steemLyt.Click += (sender, e) =>
-            {
-                OpenAccountProperties(accounts.FirstOrDefault(p => p.Chain.Equals(KnownChains.Steem)));
-            };
-
-            _golosLyt.Click += (sender, e) =>
-            {
-                OpenAccountProperties(accounts.FirstOrDefault(p => p.Chain.Equals(KnownChains.Golos)));
-            };
+            _steemConnectButton.Click += OnSteemConnectButtonOnClick;
+            _golosConnectButton.Click += OnGolosConnectButtonOnClick;
+            _steemLyt.Click += OnSteemLytOnClick;
+            _golosLyt.Click += OnGolosLytOnClick;
 
             _nsfwSwitcher.Checked = _currentUser.IsNsfw;
             _lowRatedSwitcher.Checked = _currentUser.IsLowRated;
             _powerSwitch.Checked = _currentUser.ShowVotingSlider;
 
 
-            Presenter.SubscriptionsUpdated += _presenter_SubscriptionsUpdated;
-            Presenter.CheckSubscriptions();
+            Presenter.SubscriptionsUpdated = OnSubscriptionsUpdated;
+            Presenter.TryCheckSubscriptions();
 
-            PushSettings = _currentUser.PushSettings;
+            _pushSettings = _currentUser.PushSettings;
             EnableNotificationSwitch(false);
 
             _nsfwSwitcher.CheckedChange += OnNsfwSwitcherOnCheckedChange;
             _lowRatedSwitcher.CheckedChange += OnLowRatedSwitcherOnCheckedChange;
             _powerSwitch.CheckedChange += PowerSwitchOnCheckedChange;
-
-            //for tests
-            if (_currentUser.IsDev || _currentUser.Login.Equals("joseph.kalu"))
-            {
-                _testsButton.Visibility = ViewStates.Visible;
-                _testsButton.Click += StartTestActivity;
-            }
         }
 
-        private void _presenter_SubscriptionsUpdated()
+        private void OnGolosLytOnClick(object sender, EventArgs e)
         {
-            _notificationUpvotesSwitch.Checked = PushSettings.HasFlag(PushSettings.Upvote);
-            _notificationCommentsUpvotesSwitch.Checked = PushSettings.HasFlag(PushSettings.UpvoteComment);
-            _notificationFollowingSwitch.Checked = PushSettings.HasFlag(PushSettings.Follow);
-            _notificationCommentsSwitch.Checked = PushSettings.HasFlag(PushSettings.Comment);
-            _notificationPostingSwitch.Checked = PushSettings.HasFlag(PushSettings.User);
-            _notificationTransferSwitch.Checked = PushSettings.HasFlag(PushSettings.Transfer);
+            OpenAccountProperties(_accounts.FirstOrDefault(p => p.Chain.Equals(KnownChains.Golos)));
+        }
 
-            _notificationUpvotesSwitch.CheckedChange += NotificationChange;
-            _notificationCommentsUpvotesSwitch.CheckedChange += NotificationChange;
-            _notificationFollowingSwitch.CheckedChange += NotificationChange;
-            _notificationCommentsSwitch.CheckedChange += NotificationChange;
-            _notificationPostingSwitch.CheckedChange += NotificationChange;
-            _notificationTransferSwitch.CheckedChange += NotificationChange;
+        private void OnSteemLytOnClick(object sender, EventArgs e)
+        {
+            OpenAccountProperties(_accounts.FirstOrDefault(p => p.Chain.Equals(KnownChains.Steem)));
+        }
 
-            EnableNotificationSwitch(true);
+        private void OnGolosConnectButtonOnClick(object sender, EventArgs e)
+        {
+            _golosLoader.Visibility = ViewStates.Visible;
+            _golosConnectButton.Text = string.Empty;
+            _golosConnectButton.Enabled = false;
+            OnAccountAdd();
+        }
+
+        private void OnSteemConnectButtonOnClick(object sender, EventArgs e)
+        {
+            _steemLoader.Visibility = ViewStates.Visible;
+            _steemConnectButton.Text = string.Empty;
+            _steemConnectButton.Enabled = false;
+            OnAccountAdd();
+        }
+
+        private void OnSubscriptionsUpdated()
+        {
+            RunOnUiThread(() =>
+            {
+                _notificationUpvotesSwitch.Checked = _pushSettings.HasFlag(PushSettings.Upvote);
+                _notificationCommentsUpvotesSwitch.Checked = _pushSettings.HasFlag(PushSettings.UpvoteComment);
+                _notificationFollowingSwitch.Checked = _pushSettings.HasFlag(PushSettings.Follow);
+                _notificationCommentsSwitch.Checked = _pushSettings.HasFlag(PushSettings.Comment);
+                _notificationPostingSwitch.Checked = _pushSettings.HasFlag(PushSettings.User);
+                _notificationTransferSwitch.Checked = _pushSettings.HasFlag(PushSettings.Transfer);
+
+                _notificationUpvotesSwitch.CheckedChange += NotificationChange;
+                _notificationCommentsUpvotesSwitch.CheckedChange += NotificationChange;
+                _notificationFollowingSwitch.CheckedChange += NotificationChange;
+                _notificationCommentsSwitch.CheckedChange += NotificationChange;
+                _notificationPostingSwitch.CheckedChange += NotificationChange;
+                _notificationTransferSwitch.CheckedChange += NotificationChange;
+
+                EnableNotificationSwitch(true);
+            });
         }
 
         private void EnableNotificationSwitch(bool isenabled)
@@ -247,7 +249,7 @@ namespace Steepshot.Activity
         protected override async void OnDestroy()
         {
             base.OnDestroy();
-            await SavePushSettings();
+            await SavePushSettingsAsync();
             Cheeseknife.Reset(this);
         }
 
@@ -284,25 +286,25 @@ namespace Steepshot.Activity
                 subscription = PushSettings.Transfer;
 
             if (e.IsChecked)
-                PushSettings |= subscription;
+                _pushSettings |= subscription;
             else
-                PushSettings ^= subscription;
+                _pushSettings ^= subscription;
         }
 
-        private async Task SavePushSettings()
+        private async Task SavePushSettingsAsync()
         {
-            if (_currentUser.PushSettings == PushSettings)
+            if (_currentUser.PushSettings == _pushSettings)
                 return;
 
             var model = new PushNotificationsModel(_currentUser, true)
             {
-                Subscriptions = PushSettings.FlagToStringList()
+                Subscriptions = _pushSettings.FlagToStringList()
             };
 
-            var resp = await Presenter.TrySubscribeForPushes(model);
+            var resp = await Presenter.TrySubscribeForPushesAsync(model);
             if (resp.IsSuccess)
             {
-                _currentUser.PushSettings = PushSettings;
+                _currentUser.PushSettings = _pushSettings;
                 AppSettings.DataProvider.Update(_currentUser);
             }
             else
@@ -397,22 +399,16 @@ namespace Steepshot.Activity
 
         private void OnAccountAdd()
         {
-            App.MainChain = App.MainChain == KnownChains.Steem ? KnownChains.Golos : KnownChains.Steem;
+            AppSettings.MainChain = AppSettings.MainChain == KnownChains.Steem ? KnownChains.Golos : KnownChains.Steem;
             var intent = new Intent(this, typeof(PreSignInActivity));
-            StartActivity(intent);
-        }
-
-        private void StartTestActivity(object sender, EventArgs e)
-        {
-            var intent = new Intent(this, typeof(TestActivity));
             StartActivity(intent);
         }
 
         private void SwitchChain(UserInfo user)
         {
-            if (App.MainChain != user.Chain)
+            if (AppSettings.MainChain != user.Chain)
             {
-                App.MainChain = user.Chain;
+                AppSettings.MainChain = user.Chain;
                 AppSettings.User.SwitchUser(user);
 
                 var i = new Intent(ApplicationContext, typeof(RootActivity));
@@ -433,10 +429,10 @@ namespace Steepshot.Activity
             }
             else
             {
-                if (App.MainChain == chain)
+                if (AppSettings.MainChain == chain)
                 {
                     var user = accounts.First();
-                    App.MainChain = user.Chain;
+                    AppSettings.MainChain = user.Chain;
                     AppSettings.User.SwitchUser(user);
 
                     var i = new Intent(ApplicationContext, typeof(RootActivity));

@@ -16,7 +16,7 @@ using Constants = Steepshot.iOS.Helpers.Constants;
 
 namespace Steepshot.iOS.ViewControllers
 {
-    public abstract class BasePostController<T> : BaseViewControllerWithPresenter<T> where T : BasePostPresenter, new()
+    public abstract class BasePostController<T> : BaseViewControllerWithPresenter<T> where T : BasePostPresenter
     {
         private UIView dialog;
         private UIButton rightButton;
@@ -29,22 +29,16 @@ namespace Steepshot.iOS.ViewControllers
                 LoginTapped(null, null);
                 return;
             }
-
-            if (post == null)
-                return;
-
-            var exception = await _presenter.TryVote(post);
-            if (exception is OperationCanceledException)
-                return;
-
-            ShowAlert(exception);
-            if (exception == null)
+            
+            var result = await Presenter.TryVoteAsync(post);
+            ShowAlert(result);
+            if (result.IsSuccess)
                 ((MainTabBarController)TabBarController)?.UpdateProfile();
         }
 
         protected virtual async void LoginTapped(object sender, EventArgs e)
         {
-            var response = await _presenter.CheckServiceStatus();
+            var response = await Presenter.CheckServiceStatusAsync();
 
             var myViewController = new WelcomeViewController(response.IsSuccess);
             NavigationController.PushViewController(myViewController, true);
@@ -70,7 +64,7 @@ namespace Steepshot.iOS.ViewControllers
                 actionSheetAlert.AddAction(UIAlertAction.Create(AppSettings.LocalizationManager.GetText(LocalizationKeys.FlagPhoto), UIAlertActionStyle.Default, obj => FlagPhoto(post)));
                 actionSheetAlert.AddAction(UIAlertAction.Create(AppSettings.LocalizationManager.GetText(LocalizationKeys.HidePhoto), UIAlertActionStyle.Default, obj => HidePhoto(post)));
             }
-            actionSheetAlert.AddAction(UIAlertAction.Create("Promote", UIAlertActionStyle.Default, obj => _alert = Popups.PromotePopup.Create(post, TabBarController.NavigationController, _presenter, View)));
+            actionSheetAlert.AddAction(UIAlertAction.Create("Promote", UIAlertActionStyle.Default, obj => ShowPromotePopup(post)));
             //Sharepost contain copylink function by default
             actionSheetAlert.AddAction(UIAlertAction.Create(AppSettings.LocalizationManager.GetText(LocalizationKeys.Sharepost), UIAlertActionStyle.Default, obj => SharePhoto(post)));
             actionSheetAlert.AddAction(UIAlertAction.Create("Cancel", UIAlertActionStyle.Cancel, null));
@@ -79,10 +73,16 @@ namespace Steepshot.iOS.ViewControllers
 
         public override void ViewDidAppear(bool animated)
         {
-            if(_alert != null)
+            if (_alert != null)
                 _alert.Hidden = false;
 
             base.ViewDidAppear(animated);
+        }
+
+        private void ShowPromotePopup(Post post)
+        {
+            var promotePopup = new Popups.PromotePopup();
+            _alert = promotePopup.Create(post, TabBarController != null ? TabBarController.NavigationController : NavigationController, View);
         }
 
         protected void HidePhoto(Post post)
@@ -90,7 +90,7 @@ namespace Steepshot.iOS.ViewControllers
             AppSettings.User.PostBlackList.Add(post.Url);
             AppSettings.User.Save();
 
-            _presenter.HidePost(post);
+            Presenter.HidePost(post);
         }
 
         protected async Task FlagPhoto(Post post)
@@ -100,13 +100,10 @@ namespace Steepshot.iOS.ViewControllers
                 LoginTapped(null, null);
                 return;
             }
-
-            if (post == null)
-                return;
-
-            var exception = await _presenter.TryFlag(post);
-            ShowAlert(exception);
-            if (exception == null)
+            
+            var result = await Presenter.TryFlagAsync(post);
+            ShowAlert(result);
+            if (result.IsSuccess)
                 ((MainTabBarController)TabBarController)?.UpdateProfile();
         }
 
@@ -237,10 +234,8 @@ namespace Steepshot.iOS.ViewControllers
         {
             action.Invoke();
 
-            var exception = await _presenter.TryDeletePost(post);
-
-            if (exception != null)
-                ShowAlert(exception);
+            var result = await Presenter.TryDeletePostAsync(post);
+            ShowAlert(result);
         }
 
         private void EditPost(Post post)
@@ -266,19 +261,6 @@ namespace Steepshot.iOS.ViewControllers
         protected async void ScrolledToBottom()
         {
             await GetPosts(false, false);
-        }
-
-        protected void TagAction(string tag)
-        {
-            var myViewController = new PreSearchViewController();
-            myViewController.CurrentPostCategory = tag;
-            NavigationController.PushViewController(myViewController, true);
-        }
-
-        protected sealed override void CreatePresenter()
-        {
-            base.CreatePresenter();
-            _presenter.SourceChanged += SourceChanged;
         }
     }
 }

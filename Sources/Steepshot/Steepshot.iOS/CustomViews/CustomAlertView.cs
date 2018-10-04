@@ -22,6 +22,7 @@ namespace Steepshot.iOS.CustomViews
 
         public CustomAlertView(UIView view, UIViewController controller, AnimationType animationType = AnimationType.Bottom)
         {
+            CloseKeyboard(controller.View.Subviews);
             dialog = view;
             this.controller = controller;
 
@@ -67,6 +68,18 @@ namespace Steepshot.iOS.CustomViews
             set
             {
                 popup.Hidden = value;
+            }
+        }
+
+        private static void CloseKeyboard(UIView[] subviews)
+        {
+            if (subviews.Length == 0)
+                return;
+            foreach (var item in subviews)
+            {
+                CloseKeyboard(item.Subviews);
+                if (item.IsFirstResponder)
+                    item.ResignFirstResponder();
             }
         }
 

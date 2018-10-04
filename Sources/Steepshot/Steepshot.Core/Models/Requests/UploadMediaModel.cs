@@ -8,12 +8,12 @@ using Steepshot.Core.Utils;
 namespace Steepshot.Core.Models.Requests
 {
     [JsonObject(MemberSerialization.OptIn)]
-    public class UploadMediaModel : AuthorizedPostingModel
+    public class UploadMediaModel : AuthorizedTokenModel
     {
         [Required(ErrorMessage = nameof(LocalizationKeys.EmptyFileField))]
         public Stream File { get; }
 
-        public string ContentType { get; }
+        public string ContentType { get; set; }
 
         public bool Thumbnails { get; set; } = true;
 
@@ -26,6 +26,12 @@ namespace Steepshot.Core.Models.Requests
         {
             File = file;
             ContentType = MimeTypeHelper.GetMimeType(extension);
+        }
+
+        public UploadMediaModel(UserInfo user, Stream file)
+            : base(user)
+        {
+            File = file;
         }
     }
 }

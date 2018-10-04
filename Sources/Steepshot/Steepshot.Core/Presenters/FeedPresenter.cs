@@ -1,8 +1,9 @@
 ﻿using System;
-using System.Threading;
 using System.Threading.Tasks;
+using Steepshot.Core.Authorization;
+using Steepshot.Core.Clients;
+using Steepshot.Core.Interfaces;
 using Steepshot.Core.Models.Requests;
-using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Presenters
 {
@@ -10,31 +11,31 @@ namespace Steepshot.Core.Presenters
     {
         private const int ItemsLimit = 20;
 
-        public async Task<Exception> TryLoadNextTopPosts()
+        public FeedPresenter(IConnectionService connectionService, ILogService logService, BaseDitchClient ditchClient, SteepshotApiClient steepshotApiClient, User user, SteepshotClient steepshotClient)
+            : base(connectionService, logService, ditchClient, steepshotApiClient, user, steepshotClient)
+        {
+        }
+
+        public async Task<Exception> TryLoadNextTopPostsAsync()
         {
             if (IsLastReaded)
                 return null;
 
-            return await RunAsSingleTask(LoadNextTopPosts);
-        }
-
-        private async Task<Exception> LoadNextTopPosts(CancellationToken ct)
-        {
             var request = new CensoredNamedRequestWithOffsetLimitModel
             {
-                Login = AppSettings.User.Login,
+                Login = User.Login,
                 Limit = ItemsLimit,
                 Offset = OffsetUrl,
-                ShowNsfw = AppSettings.User.IsNsfw,
-                ShowLowRated = AppSettings.User.IsLowRated
+                ShowNsfw = User.IsNsfw,
+                ShowLowRated = User.IsLowRated
             };
 
             Exception exception;
             bool isNeedRepeat;
             do
             {
-                var response = await Api.GetUserRecentPosts(request, ct);
-                isNeedRepeat = ResponseProcessing(response, ItemsLimit, out exception, nameof(TryLoadNextTopPosts));
+                var response = await RunAsSingleTaskAsync(SteepshotApiClient.GetUserRecentPostsAsync, request).ConfigureAwait(false);
+                isNeedRepeat = ResponseProcessing(response, ItemsLimit, out exception, nameof(TryLoadNextTopPostsAsync));
             } while (isNeedRepeat);
 
             return exception;

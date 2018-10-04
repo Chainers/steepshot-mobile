@@ -6,28 +6,33 @@ using System.Threading;
 using System.Threading.Tasks;
 using Ditch.Core;
 using Ditch.Core.JsonRpc;
-using Newtonsoft.Json;
 using Steepshot.Core.Authorization;
+using Steepshot.Core.Interfaces;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
-using Steepshot.Core.Utils;
+
 namespace Steepshot.Core.Clients
 {
+    [Obsolete]
     public abstract class BaseServerClient
     {
-        public bool EnableRead;
-        public ExtendedHttpClient HttpClient;
-        protected string BaseUrl;
+        protected readonly ILogService LogService;
+        protected readonly ExtendedHttpClient HttpClient;
+        protected readonly string BaseUrl;
+
+        protected BaseServerClient(ExtendedHttpClient httpClient, ILogService logService, string baseUrl)
+        {
+            LogService = logService;
+            HttpClient = httpClient;
+            BaseUrl = baseUrl;
+        }
 
         #region Get requests
 
-        public async Task<OperationResult<ListResponse<Post>>> GetUserPosts(UserPostsModel model, CancellationToken token)
+        public async Task<OperationResult<ListResponse<Post>>> GetUserPostsAsync(UserPostsModel model, CancellationToken token)
         {
-            if (!EnableRead)
-                return null;
-
             var results = Validate(model);
             if (results != null)
                 return new OperationResult<ListResponse<Post>>(results);
@@ -38,14 +43,11 @@ namespace Steepshot.Core.Clients
             AddCensorParameters(parameters, model);
 
             var endpoint = $"{BaseUrl}/{GatewayVersion.V1P1}/user/{model.Username}/posts";
-            return await HttpClient.Get<ListResponse<Post>>(endpoint, parameters, token);
+            return await HttpClient.GetAsync<ListResponse<Post>>(endpoint, parameters, token).ConfigureAwait(false);
         }
 
-        public async Task<OperationResult<ListResponse<Post>>> GetUserRecentPosts(CensoredNamedRequestWithOffsetLimitModel request, CancellationToken token)
+        public async Task<OperationResult<ListResponse<Post>>> GetUserRecentPostsAsync(CensoredNamedRequestWithOffsetLimitModel request, CancellationToken token)
         {
-            if (!EnableRead)
-                return null;
-
             var results = Validate(request);
             if (results != null)
                 return new OperationResult<ListResponse<Post>>(results);
@@ -56,14 +58,11 @@ namespace Steepshot.Core.Clients
             AddCensorParameters(parameters, request);
 
             var endpoint = $"{BaseUrl}/{GatewayVersion.V1P1}/recent";
-            return await HttpClient.Get<ListResponse<Post>>(endpoint, parameters, token);
+            return await HttpClient.GetAsync<ListResponse<Post>>(endpoint, parameters, token).ConfigureAwait(false);
         }
 
-        public async Task<OperationResult<ListResponse<Post>>> GetPosts(PostsModel model, CancellationToken token)
+        public async Task<OperationResult<ListResponse<Post>>> GetPostsAsync(PostsModel model, CancellationToken token)
         {
-            if (!EnableRead)
-                return null;
-
             var results = Validate(model);
             if (results != null)
                 return new OperationResult<ListResponse<Post>>(results);
@@ -74,14 +73,11 @@ namespace Steepshot.Core.Clients
             AddCensorParameters(parameters, model);
 
             var endpoint = $"{BaseUrl}/{GatewayVersion.V1P1}/posts/{model.Type.ToString().ToLowerInvariant()}";
-            return await HttpClient.Get<ListResponse<Post>>(endpoint, parameters, token);
+            return await HttpClient.GetAsync<ListResponse<Post>>(endpoint, parameters, token).ConfigureAwait(false);
         }
 
-        public async Task<OperationResult<ListResponse<Post>>> GetPostsByCategory(PostsByCategoryModel model, CancellationToken token)
+        public async Task<OperationResult<ListResponse<Post>>> GetPostsByCategoryAsync(PostsByCategoryModel model, CancellationToken token)
         {
-            if (!EnableRead)
-                return null;
-
             var results = Validate(model);
             if (results != null)
                 return new OperationResult<ListResponse<Post>>(results);
@@ -92,14 +88,11 @@ namespace Steepshot.Core.Clients
             AddCensorParameters(parameters, model);
 
             var endpoint = $"{BaseUrl}/{GatewayVersion.V1P1}/posts/{model.Category}/{model.Type.ToString().ToLowerInvariant()}";
-            return await HttpClient.Get<ListResponse<Post>>(endpoint, parameters, token);
+            return await HttpClient.GetAsync<ListResponse<Post>>(endpoint, parameters, token).ConfigureAwait(false);
         }
 
-        public async Task<OperationResult<ListResponse<UserFriend>>> GetPostVoters(VotersModel model, CancellationToken token)
+        public async Task<OperationResult<ListResponse<UserFriend>>> GetPostVotersAsync(VotersModel model, CancellationToken token)
         {
-            if (!EnableRead)
-                return null;
-
             var results = Validate(model);
             if (results != null)
                 return new OperationResult<ListResponse<UserFriend>>(results);
@@ -111,14 +104,11 @@ namespace Steepshot.Core.Clients
                 AddLoginParameter(parameters, model.Login);
 
             var endpoint = $"{BaseUrl}/{GatewayVersion.V1P1}/post/{model.Url}/voters";
-            return await HttpClient.Get<ListResponse<UserFriend>>(endpoint, parameters, token);
+            return await HttpClient.GetAsync<ListResponse<UserFriend>>(endpoint, parameters, token).ConfigureAwait(false);
         }
 
-        public async Task<OperationResult<ListResponse<Post>>> GetComments(NamedInfoModel model, CancellationToken token)
+        public async Task<OperationResult<ListResponse<Post>>> GetCommentsAsync(NamedInfoModel model, CancellationToken token)
         {
-            if (!EnableRead)
-                return null;
-
             var results = Validate(model);
             if (results != null)
                 return new OperationResult<ListResponse<Post>>(results);
@@ -128,18 +118,15 @@ namespace Steepshot.Core.Clients
             AddLoginParameter(parameters, model.Login);
 
             var endpoint = $"{BaseUrl}/{GatewayVersion.V1P1}/post/{model.Url}/comments";
-            var resp = await HttpClient.Get<ListResponse<Post>>(endpoint, parameters, token);
+            var resp = await HttpClient.GetAsync<ListResponse<Post>>(endpoint, parameters, token).ConfigureAwait(false);
             if (resp.IsSuccess)
                 resp.Result.Results.ForEach(p => p.IsComment = true);
 
             return resp;
         }
 
-        public async Task<OperationResult<UserProfileResponse>> GetUserProfile(UserProfileModel model, CancellationToken token)
+        public async Task<OperationResult<UserProfileResponse>> GetUserProfileAsync(UserProfileModel model, CancellationToken token)
         {
-            if (!EnableRead)
-                return null;
-
             var results = Validate(model);
             if (results != null)
                 return new OperationResult<UserProfileResponse>(results);
@@ -150,14 +137,11 @@ namespace Steepshot.Core.Clients
             parameters.Add("show_low_rated", Convert.ToInt32(model.ShowLowRated));
 
             var endpoint = $"{BaseUrl}/{GatewayVersion.V1P1}/user/{model.Username}/info";
-            return await HttpClient.Get<UserProfileResponse>(endpoint, parameters, token);
+            return await HttpClient.GetAsync<UserProfileResponse>(endpoint, parameters, token).ConfigureAwait(false);
         }
 
-        public async Task<OperationResult<ListResponse<UserFriend>>> GetUserFriends(UserFriendsModel model, CancellationToken token)
+        public async Task<OperationResult<ListResponse<UserFriend>>> GetUserFriendsAsync(UserFriendsModel model, CancellationToken token)
         {
-            if (!EnableRead)
-                return null;
-
             var results = Validate(model);
             if (results != null)
                 return new OperationResult<ListResponse<UserFriend>>(results);
@@ -167,14 +151,11 @@ namespace Steepshot.Core.Clients
             AddLoginParameter(parameters, model.Login);
 
             var endpoint = $"{BaseUrl}/{GatewayVersion.V1P1}/user/{model.Username}/{model.Type.ToString().ToLowerInvariant()}";
-            return await HttpClient.Get<ListResponse<UserFriend>>(endpoint, parameters, token);
+            return await HttpClient.GetAsync<ListResponse<UserFriend>>(endpoint, parameters, token).ConfigureAwait(false);
         }
 
-        public async Task<OperationResult<Post>> GetPostInfo(NamedInfoModel model, CancellationToken token)
+        public async Task<OperationResult<Post>> GetPostInfoAsync(NamedInfoModel model, CancellationToken token)
         {
-            if (!EnableRead)
-                return null;
-
             var results = Validate(model);
             if (results != null)
                 return new OperationResult<Post>(results);
@@ -184,14 +165,11 @@ namespace Steepshot.Core.Clients
             AddCensorParameters(parameters, model);
 
             var endpoint = $"{BaseUrl}/{GatewayVersion.V1P1}/post/{model.Url}/info";
-            return await HttpClient.Get<Post>(endpoint, parameters, token);
+            return await HttpClient.GetAsync<Post>(endpoint, parameters, token).ConfigureAwait(false);
         }
 
-        public async Task<OperationResult<ListResponse<UserFriend>>> SearchUser(SearchWithQueryModel model, CancellationToken token)
+        public async Task<OperationResult<ListResponse<UserFriend>>> SearchUserAsync(SearchWithQueryModel model, CancellationToken token)
         {
-            if (!EnableRead)
-                return null;
-
             var results = Validate(model);
             if (results != null)
                 return new OperationResult<ListResponse<UserFriend>>(results);
@@ -202,28 +180,22 @@ namespace Steepshot.Core.Clients
             parameters.Add("query", model.Query);
 
             var endpoint = $"{BaseUrl}/{GatewayVersion.V1P1}/user/search";
-            return await HttpClient.Get<ListResponse<UserFriend>>(endpoint, parameters, token);
+            return await HttpClient.GetAsync<ListResponse<UserFriend>>(endpoint, parameters, token).ConfigureAwait(false);
         }
 
-        public async Task<OperationResult<UserExistsResponse>> UserExistsCheck(UserExistsModel model, CancellationToken token)
+        public async Task<OperationResult<UserExistsResponse>> UserExistsCheckAsync(UserExistsModel model, CancellationToken token)
         {
-            if (!EnableRead)
-                return null;
-
             var results = Validate(model);
             if (results != null)
                 return new OperationResult<UserExistsResponse>(results);
 
             var parameters = new Dictionary<string, object>();
             var endpoint = $"{BaseUrl}/{GatewayVersion.V1}/user/{model.Username}/exists";
-            return await HttpClient.Get<UserExistsResponse>(endpoint, parameters, token);
+            return await HttpClient.GetAsync<UserExistsResponse>(endpoint, parameters, token).ConfigureAwait(false);
         }
 
-        public async Task<OperationResult<ListResponse<SearchResult>>> GetCategories(OffsetLimitModel request, CancellationToken token)
+        public async Task<OperationResult<ListResponse<SearchResult>>> GetCategoriesAsync(OffsetLimitModel request, CancellationToken token)
         {
-            if (!EnableRead)
-                return null;
-
             var results = Validate(request);
             if (results != null)
                 return new OperationResult<ListResponse<SearchResult>>(results);
@@ -231,7 +203,7 @@ namespace Steepshot.Core.Clients
             var parameters = new Dictionary<string, object>();
             AddOffsetLimitParameters(parameters, request.Offset, request.Limit);
             var endpoint = $"{BaseUrl}/{GatewayVersion.V1}/categories/top";
-            var result = await HttpClient.Get<ListResponse<SearchResult>>(endpoint, parameters, token);
+            var result = await HttpClient.GetAsync<ListResponse<SearchResult>>(endpoint, parameters, token).ConfigureAwait(false);
 
             if (result.IsSuccess)
             {
@@ -243,11 +215,8 @@ namespace Steepshot.Core.Clients
             return result;
         }
 
-        public async Task<OperationResult<ListResponse<SearchResult>>> SearchCategories(SearchWithQueryModel model, CancellationToken token)
+        public async Task<OperationResult<ListResponse<SearchResult>>> SearchCategoriesAsync(SearchWithQueryModel model, CancellationToken token)
         {
-            if (!EnableRead)
-                return null;
-
             var results = Validate(model);
             if (results != null)
                 return new OperationResult<ListResponse<SearchResult>>(results);
@@ -263,7 +232,7 @@ namespace Steepshot.Core.Clients
             AddOffsetLimitParameters(parameters, model.Offset, model.Limit);
             parameters.Add("query", model.Query);
             var endpoint = $"{BaseUrl}/{GatewayVersion.V1P1}/categories/search";
-            var result = await HttpClient.Get<ListResponse<SearchResult>>(endpoint, parameters, token);
+            var result = await HttpClient.GetAsync<ListResponse<SearchResult>>(endpoint, parameters, token).ConfigureAwait(false);
 
             if (result.IsSuccess)
             {
@@ -276,11 +245,8 @@ namespace Steepshot.Core.Clients
             return result;
         }
 
-        protected async Task<OperationResult<VoidResponse>> Trace(string endpoint, string login, Exception resultException, string target, CancellationToken token)
+        public async Task<OperationResult<VoidResponse>> TraceAsync(string endpoint, string login, Exception resultException, string target, CancellationToken token)
         {
-            if (!EnableRead)
-                return null;
-
             try
             {
                 var parameters = new Dictionary<string, object>();
@@ -290,76 +256,60 @@ namespace Steepshot.Core.Clients
                     parameters.Add("target", target);
 
                 endpoint = $"{BaseUrl}/{GatewayVersion.V1}/log/{endpoint}";
-                var result = await HttpClient.Put<VoidResponse, Dictionary<string, object>>(endpoint, parameters, token);
+                var result = await HttpClient.PutAsync<VoidResponse, Dictionary<string, object>>(endpoint, parameters, token).ConfigureAwait(false);
                 if (result.IsSuccess)
                     result.Result = new VoidResponse();
                 return result;
             }
             catch (Exception ex)
             {
-                await AppSettings.Logger.Warning(ex);
+                await LogService.WarningAsync(ex).ConfigureAwait(false);
             }
             return null;
         }
 
-        public async Task<OperationResult<BeneficiariesResponse>> GetBeneficiaries(CancellationToken token)
-        {
-            if (!EnableRead)
-                return null;
 
-            var endpoint = $"{BaseUrl}/{GatewayVersion.V1}/beneficiaries";
-            return await HttpClient.Get<BeneficiariesResponse>(endpoint, token);
+        private Beneficiary[] _beneficiariesCash;
+
+        public async Task<Beneficiary[]> GetBeneficiariesAsync(CancellationToken token)
+        {
+            if (_beneficiariesCash == null)
+            {
+                var endpoint = $"{BaseUrl}/{GatewayVersion.V1}/beneficiaries";
+                var result = await HttpClient.GetAsync<BeneficiariesResponse>(endpoint, token).ConfigureAwait(false);
+                if (result.IsSuccess)
+                    _beneficiariesCash = result.Result.Beneficiaries;
+            }
+
+            return _beneficiariesCash;
         }
 
-        public async Task<OperationResult<SpamResponse>> CheckForSpam(string username, CancellationToken token)
+        public async Task<OperationResult<SpamResponse>> CheckForSpamAsync(string username, CancellationToken token)
         {
-            if (!EnableRead)
-                return null;
-
             var endpoint = $"{BaseUrl}/{GatewayVersion.V1P1}/user/{username}/spam";
-            var result = await HttpClient.Get<SpamResponse>(endpoint, token);
+            var result = await HttpClient.GetAsync<SpamResponse>(endpoint, token).ConfigureAwait(false);
             return result;
         }
 
-        public async Task<OperationResult<CurrencyRate[]>> GetCurrencyRates(CancellationToken token)
+        public async Task<OperationResult<CurrencyRate[]>> GetCurrencyRatesAsync(CancellationToken token)
         {
-            if (!EnableRead)
-                return null;
-
             var endpoint = $"{BaseUrl}/{GatewayVersion.V1P1}/currency/rates";
-            var result = await HttpClient.Get<CurrencyRate[]>(endpoint, token);
+            var result = await HttpClient.GetAsync<CurrencyRate[]>(endpoint, token).ConfigureAwait(false);
             return result;
         }
 
         #endregion Get requests
 
-        public async Task<OperationResult<PreparePostResponse>> PreparePost(PreparePostModel model, CancellationToken ct)
+        public async Task<OperationResult<PreparePostResponse>> PreparePostAsync(PreparePostModel model, CancellationToken ct)
         {
             var results = Validate(model);
             if (results != null)
                 return new OperationResult<PreparePostResponse>(results);
 
             var endpoint = $"{BaseUrl}/{GatewayVersion.V1P1}/post/prepare";
-            return await HttpClient.Put<PreparePostResponse, PreparePostModel>(endpoint, model, ct);
+            return await HttpClient.PutAsync<PreparePostResponse, PreparePostModel>(endpoint, model, ct).ConfigureAwait(false);
         }
-
-        public async Task<OperationResult<CreateAccountResponse>> CreateAccount(CreateAccountModel model, CancellationToken token)
-        {
-            var endpoint = "https://createacc.steepshot.org/api/v1/account";
-            return await HttpClient.Post<CreateAccountResponse, CreateAccountModel>(endpoint, model, token);
-        }
-
-        public async Task<OperationResult<CreateAccountResponse>> ResendEmail(CreateAccountModel model, CancellationToken token)
-        {
-            var endpoint = "https://createacc.steepshot.org/api/v1/resend-mail";
-            return await HttpClient.Post<CreateAccountResponse, CreateAccountModel>(endpoint, model, token);
-        }
-
-        public async Task<OperationResult<string>> CheckRegistrationServiceStatus(CancellationToken token)
-        {
-            return await HttpClient.Get<string>("https://createacc.steepshot.org/api/v1/active", token);
-        }
-
+        
         private void AddOffsetLimitParameters(Dictionary<string, object> parameters, string offset, int limit)
         {
             if (!string.IsNullOrWhiteSpace(offset))
@@ -400,33 +350,30 @@ namespace Steepshot.Core.Clients
             return null;
         }
 
-        public async Task<OperationResult<SubscriptionsModel>> CheckSubscriptions(User user, CancellationToken token)
+        public async Task<OperationResult<SubscriptionsModel>> CheckSubscriptionsAsync(User user, CancellationToken ct)
         {
-            if (!EnableRead || !user.HasPostingPermission || string.IsNullOrEmpty(user.PushesPlayerId))
+            if (!user.HasPostingPermission || string.IsNullOrEmpty(user.PushesPlayerId))
                 return new OperationResult<SubscriptionsModel>(new NullReferenceException(nameof(user.PushesPlayerId)));
 
             var endpoint = $"{BaseUrl}/{GatewayVersion.V1P1}/subscriptions/{user.Login}/{user.PushesPlayerId}";
-            return await HttpClient.Get<SubscriptionsModel>(endpoint, token);
+            return await HttpClient.GetAsync<SubscriptionsModel>(endpoint, ct).ConfigureAwait(false);
         }
 
-        public async Task<OperationResult<PromoteResponse>> FindPromoteBot(PromoteRequest promoteModel)
+        public async Task<OperationResult<PromoteResponse>> FindPromoteBotAsync(PromoteRequest promoteModel, CancellationToken ct)
         {
-            if (!EnableRead)
-                return null;
-
-            var botsResponse = await HttpClient.Get<List<BidBot>>("https://steembottracker.net/bid_bots", CancellationToken.None);
+            var botsResponse = await HttpClient.GetAsync<List<BidBot>>("https://steembottracker.net/bid_bots", ct).ConfigureAwait(false);
             if (!botsResponse.IsSuccess)
                 return new OperationResult<PromoteResponse>(botsResponse.Exception);
 
-            var priceResponse = await HttpClient.Get<Price>("https://postpromoter.net/api/prices", CancellationToken.None);
+            var priceResponse = await HttpClient.GetAsync<Price>("https://postpromoter.net/api/prices", ct).ConfigureAwait(false);
             if (!priceResponse.IsSuccess)
                 return new OperationResult<PromoteResponse>(priceResponse.Exception);
 
-            var steemToUSD = priceResponse.Result.SteemPrice;
-            var sbdToUSD = priceResponse.Result.SbdPrice;
+            var steemToUsd = priceResponse.Result.SteemPrice;
+            var sbdToUsd = priceResponse.Result.SbdPrice;
 
             var votersModel = new VotersModel(promoteModel.PostToPromote.Url, VotersType.Likes);
-            var usersResult = await GetPostVoters(votersModel, CancellationToken.None);
+            var usersResult = await GetPostVotersAsync(votersModel, ct).ConfigureAwait(false);
             if (!usersResult.IsSuccess)
                 return new OperationResult<PromoteResponse>(usersResult.Exception);
 
@@ -434,53 +381,53 @@ namespace Steepshot.Core.Clients
             var postAge = (DateTime.Now - promoteModel.PostToPromote.Created).TotalDays;
 
             var suitableBot = botsResponse.Result
-                                          .Where(x => CheckBot(x, postAge, promoteModel, steemToUSD, sbdToUSD, usersResult.Result.Results))
+                                          .Where(x => CheckBot(x, postAge, promoteModel, steemToUsd, sbdToUsd, usersResult.Result.Results))
                                           .OrderBy(x => x.Next)
                                           .FirstOrDefault();
 
             if (suitableBot == null)
                 return new OperationResult<PromoteResponse>(new ValidationException());
 
-            var response = await SearchUser(new SearchWithQueryModel(suitableBot.Name), CancellationToken.None);
+            var response = await SearchUserAsync(new SearchWithQueryModel(suitableBot.Name), ct).ConfigureAwait(false);
 
             if (!response.IsSuccess)
                 return new OperationResult<PromoteResponse>(response.Exception);
 
-            var promoteResponse = new PromoteResponse(response.Result.Results.First(), TimeSpan.FromMilliseconds(suitableBot.Next.Value));
+            var promoteResponse = new PromoteResponse(response.Result.Results.First(), TimeSpan.FromMilliseconds(suitableBot.Next ?? 0));
             return new OperationResult<PromoteResponse>(promoteResponse);
         }
 
-        private bool CheckBot(BidBot bot, double postAge, PromoteRequest promoteModel, double steemToUSD, double sbdToUSD, List<UserFriend> users)
+        private bool CheckBot(BidBot bot, double postAge, PromoteRequest promoteModel, double steemToUsd, double sbdToUsd, List<UserFriend> users)
         {
             return !bot.IsDisabled &&
                    Constants.SupportedListBots.Contains(bot.Name) &&
                   (!bot.MaxPostAge.HasValue || postAge < TimeSpan.FromDays(bot.MaxPostAge.Value).TotalDays) &&
                   (!bot.MinPostAge.HasValue || postAge > TimeSpan.FromMinutes(bot.MinPostAge.Value).TotalDays) &&
-                  CheckAmount(promoteModel.Amount, steemToUSD, sbdToUSD, promoteModel.CurrencyType, bot) &&
-                  !users.Any(r => r.Name.Equals(bot.Name)) &&
+                  CheckAmount(promoteModel.Amount, steemToUsd, sbdToUsd, promoteModel.CurrencyType, bot) &&
+                  !users.Any(r => r.Author.Equals(bot.Name)) &&
                   (promoteModel.CurrencyType == CurrencyType.Sbd
                    ? (bot.MinBid.HasValue && bot.MinBid <= promoteModel.Amount)
                    : (bot.MinBidSteem.HasValue && bot.AcceptsSteem && bot.MinBidSteem <= promoteModel.Amount));
         }
 
 
-        private bool CheckAmount(double promoteAmount, double steemToUSD, double sbdToUSD, CurrencyType token, BidBot botInfo)
+        private bool CheckAmount(double promoteAmount, double steemToUsd, double sbdToUsd, CurrencyType token, BidBot botInfo)
         {
             var amountLimit = botInfo.VoteUsd;
             var bidsAmountInBot = botInfo.TotalUsd;
-            double userBidInUSD = 0;
+            double userBidInUsd;
             switch (token)
             {
                 case CurrencyType.Steem:
-                    userBidInUSD = promoteAmount * steemToUSD;
+                    userBidInUsd = promoteAmount * steemToUsd;
                     break;
                 case CurrencyType.Sbd:
-                    userBidInUSD = promoteAmount * sbdToUSD;
+                    userBidInUsd = promoteAmount * sbdToUsd;
                     break;
                 default:
                     return false;
             }
-            return (userBidInUSD + bidsAmountInBot) < amountLimit - (amountLimit * 0.25);
+            return (userBidInUsd + bidsAmountInBot) < amountLimit - (amountLimit * 0.25);
         }
     }
 }

@@ -21,6 +21,7 @@ namespace Steepshot.iOS.Views
         private readonly UISwitch _notificationCommentsSwitch = new UISwitch();
         private readonly UISwitch _notificationPostingSwitch = new UISwitch();
         private readonly UISwitch _notificationTranfserSwitch = new UISwitch();
+        private readonly UIBarButtonItem leftBarButton = new UIBarButtonItem();
         private PushSettings PushSettings;
 
         public override void ViewDidLoad()
@@ -36,21 +37,29 @@ namespace Steepshot.iOS.Views
             _notificationCommentsSwitch.On = PushSettings.HasFlag(PushSettings.Comment);
             _notificationPostingSwitch.On = PushSettings.HasFlag(PushSettings.User);
             _notificationTranfserSwitch.On = PushSettings.HasFlag(PushSettings.Transfer);
+        }
 
-            _notificationUpvotesSwitch.ValueChanged += NotificationChange;
-            _notificationCommentsUpvotesSwitch.ValueChanged += NotificationChange;
-            _notificationFollowingSwitch.ValueChanged += NotificationChange;
-            _notificationCommentsSwitch.ValueChanged += NotificationChange;
-            _notificationPostingSwitch.ValueChanged += NotificationChange;
-            _notificationTranfserSwitch.ValueChanged += NotificationChange;
+        public override void ViewWillAppear(bool animated)
+        {
+            if (IsMovingToParentViewController)
+            {
+                _notificationUpvotesSwitch.ValueChanged += NotificationChange;
+                _notificationCommentsUpvotesSwitch.ValueChanged += NotificationChange;
+                _notificationFollowingSwitch.ValueChanged += NotificationChange;
+                _notificationCommentsSwitch.ValueChanged += NotificationChange;
+                _notificationPostingSwitch.ValueChanged += NotificationChange;
+                _notificationTranfserSwitch.ValueChanged += NotificationChange;
+                leftBarButton.Clicked += GoBack;
+            }
+            base.ViewWillAppear(animated);
         }
 
         private void SetBackButton()
         {
-            var leftBarButton = new UIBarButtonItem(UIImage.FromBundle("ic_back_arrow"), UIBarButtonItemStyle.Plain, GoBack);
+            leftBarButton.Image = UIImage.FromBundle("ic_back_arrow");
             NavigationItem.LeftBarButtonItem = leftBarButton;
             NavigationController.NavigationBar.TintColor = Constants.R15G24B30;
-            NavigationItem.Title = "Notifications settings";
+            NavigationItem.Title = AppSettings.LocalizationManager.GetText(LocalizationKeys.NotificationSettings);
         }
 
         private void NotificationChange(object sender, EventArgs e)
@@ -88,13 +97,24 @@ namespace Steepshot.iOS.Views
             {
                 Subscriptions = PushSettings.FlagToStringList()
             };
-            var resp = await _presenter.TrySubscribeForPushes(model);
+            var resp = await Presenter.TrySubscribeForPushesAsync(model);
             if (resp.IsSuccess)
                 AppSettings.User.PushSettings = PushSettings;
         }
 
         public override async void ViewWillDisappear(bool animated)
         {
+            if (IsMovingFromParentViewController)
+            {
+                _notificationUpvotesSwitch.ValueChanged -= NotificationChange;
+                _notificationCommentsUpvotesSwitch.ValueChanged -= NotificationChange;
+                _notificationFollowingSwitch.ValueChanged -= NotificationChange;
+                _notificationCommentsSwitch.ValueChanged -= NotificationChange;
+                _notificationPostingSwitch.ValueChanged -= NotificationChange;
+                _notificationTranfserSwitch.ValueChanged -= NotificationChange;
+                leftBarButton.Clicked -= GoBack;
+            }
+
             await SavePushSettings();
             base.ViewWillDisappear(animated);
         }

@@ -13,11 +13,18 @@ namespace Steepshot.iOS.Views
 {
     public partial class WelcomeViewController : BaseViewController, ISFSafariViewControllerDelegate
     {
-        private bool _showRegistration;
+        private readonly bool _showRegistration;
+        private readonly TTTAttributedLabel _attributedLabel = new TTTAttributedLabel();
+        private readonly UIBarButtonItem _leftBarButton = new UIBarButtonItem();
+        private readonly UITapGestureRecognizer _devTap;
 
         public WelcomeViewController(bool showRegistration)
         {
             _showRegistration = showRegistration;
+            _devTap = new UITapGestureRecognizer(ToggleDevSwitchVisibility)
+            {
+                NumberOfTapsRequired = 5
+            };
         }
 
         public override void ViewDidLoad()
@@ -31,14 +38,6 @@ namespace Steepshot.iOS.Views
             Constants.CreateShadow(steemLogin, Constants.R231G72B0, 0.5f, 25, 10, 12);
             Constants.CreateShadow(newAccount, Constants.R204G204B204, 0.7f, 25, 10, 12);
 
-            var devTap = new UITapGestureRecognizer(ToggleDevSwitchVisibility);
-            devTap.NumberOfTapsRequired = 5;
-            logo.AddGestureRecognizer(devTap);
-
-            steemLogin.TouchDown += GoToPreLogin;
-            newAccount.TouchDown += CreateAccount;
-            devSwitch.ValueChanged += SwitchEnvironment;
-
             newAccount.Hidden = !_showRegistration;
 
             SetBackButton();
@@ -51,10 +50,36 @@ namespace Steepshot.iOS.Views
             Constants.CreateGradient(steemLogin, 25);
         }
 
+        public override void ViewWillAppear(bool animated)
+        {
+            if (IsMovingToParentViewController)
+            {
+                steemLogin.TouchDown += GoToPreLogin;
+                newAccount.TouchDown += CreateAccount;
+                devSwitch.ValueChanged += SwitchEnvironment;
+                _leftBarButton.Clicked += GoBack;
+                logo.AddGestureRecognizer(_devTap);
+            }
+            base.ViewWillAppear(animated);
+        }
+
+        public override void ViewWillDisappear(bool animated)
+        {
+            if (IsMovingFromParentViewController)
+            {
+                steemLogin.TouchDown -= GoToPreLogin;
+                newAccount.TouchDown -= CreateAccount;
+                devSwitch.ValueChanged -= SwitchEnvironment;
+                _leftBarButton.Clicked -= GoBack;
+                logo.RemoveGestureRecognizer(_devTap);
+            }
+            base.ViewWillDisappear(animated);
+        }
+
         private void SetBackButton()
         {
-            var leftBarButton = new UIBarButtonItem(UIImage.FromBundle("ic_back_arrow"), UIBarButtonItemStyle.Plain, GoBack);
-            NavigationItem.LeftBarButtonItem = leftBarButton;
+            _leftBarButton.Image = UIImage.FromBundle("ic_back_arrow");
+            NavigationItem.LeftBarButtonItem = _leftBarButton;
             NavigationController.NavigationBar.TintColor = Constants.R15G24B30;
         }
 
@@ -89,16 +114,10 @@ namespace Steepshot.iOS.Views
             NavigationController.PushViewController(myViewController, true);
         }
 
-        private void GoBack(object sender, EventArgs e)
-        {
-            NavigationController.PopViewController(true);
-        }
-
         private void SwitchEnvironment(object sender, EventArgs e)
         {
-            var isDev = ((UISwitch) sender).On;
-            AppDelegate.SteemClient.SetDev(isDev);
-            AppDelegate.GolosClient.SetDev(isDev);
+            var isDev = ((UISwitch)sender).On;
+            AppSettings.SetDev(isDev);
         }
 
         private void ToggleDevSwitchVisibility()
@@ -128,16 +147,15 @@ namespace Steepshot.iOS.Views
                 ForegroundColor = Constants.R151G155B158,
             };
 
-            var attributedLabel = new TTTAttributedLabel();
-            attributedLabel.EnabledTextCheckingTypes = NSTextCheckingType.Link;
-            attributedLabel.Lines = 2;
+            _attributedLabel.EnabledTextCheckingTypes = NSTextCheckingType.Link;
+            _attributedLabel.Lines = 2;
 
             var prop = new NSDictionary();
-            attributedLabel.LinkAttributes = prop;
-            attributedLabel.ActiveLinkAttributes = prop;
+            _attributedLabel.LinkAttributes = prop;
+            _attributedLabel.ActiveLinkAttributes = prop;
 
-            attributedLabel.Delegate = new TTTAttributedLabelCustomDelegate();
-            agreementView.AddSubview(attributedLabel);
+            _attributedLabel.Delegate = new TTTAttributedLabelCustomDelegate();
+            agreementView.AddSubview(_attributedLabel);
 
             var at = new NSMutableAttributedString();
             at.Append(new NSAttributedString("I agree with ", noLinkAttribute));
@@ -145,10 +163,10 @@ namespace Steepshot.iOS.Views
             at.Append(new NSAttributedString(" & ", noLinkAttribute));
             at.Append(new NSAttributedString("Privacy Policy", ppAttribute));
 
-            attributedLabel.SetText(at);
-            attributedLabel.AutoAlignAxis(axis: ALAxis.Horizontal, otherView: termsSwitcher);
-            attributedLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 15f);
-            termsSwitcher.AutoPinEdge(ALEdge.Left, ALEdge.Right, attributedLabel, 5f);
+            _attributedLabel.SetText(at);
+            _attributedLabel.AutoAlignAxis(ALAxis.Horizontal, termsSwitcher);
+            _attributedLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 15f);
+            termsSwitcher.AutoPinEdge(ALEdge.Left, ALEdge.Right, _attributedLabel, 5f);
             termsSwitcher.Layer.CornerRadius = 16;
         }
     }
@@ -157,7 +175,7 @@ namespace Steepshot.iOS.Views
     {
         public override void DidSelectLinkWithURL(TTTAttributedLabel label, NSUrl url)
         {
-            UIApplication.SharedApplication.OpenUrl(url);
+            UIApplication.SharedApplication.OpenUrl(url, new NSDictionary(), null);
         }
     }
 }

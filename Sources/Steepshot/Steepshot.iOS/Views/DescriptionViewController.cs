@@ -28,15 +28,15 @@ namespace Steepshot.iOS.Views
     public class DescriptionViewController : BaseViewControllerWithPresenter<PostDescriptionPresenter>
     {
         private const int _photoSize = 900; //kb
-        private TimeSpan PostingLimit;
-        private UIDeviceOrientation _rotation;
-        private PlagiarismResult plagiarismResult;
+        private TimeSpan _postingLimit;
+        private readonly UIDeviceOrientation _rotation;
+        private PlagiarismResult _plagiarismResult;
         protected List<Tuple<NSDictionary, UIImage>> ImageAssets;
-        protected nfloat _separatorMargin = 30;
-        private nfloat photoViewSide;
+        protected nfloat SeparatorMargin = 30;
+        private nfloat _photoViewSide;
         protected int photoMargin;
 
-        private string ImageExtension;
+        private readonly string _imageExtension;
         private bool _isSpammer;
 
         protected UIScrollView mainScroll;
@@ -48,8 +48,8 @@ namespace Steepshot.iOS.Views
         protected UIButton postPhotoButton;
         protected UIActivityIndicatorView loadingView;
         protected NSLayoutConstraint tagsCollectionHeight;
-        protected UIImageView _rotateButton;
-        protected UIImageView _resizeButton;
+        protected readonly UIImageView _rotateButton = new UIImageView();
+        protected readonly UIImageView _resizeButton = new UIImageView();
         protected bool _isinitialized;
         protected CGSize _cellSize;
         protected const int cellSide = 160;
@@ -72,14 +72,29 @@ namespace Steepshot.iOS.Views
 
         public bool _isFromCamera => ImageAssets?.Count == 1 && ImageAssets[0]?.Item1 == null;
 
+        private PostTitleTextViewDelegate _titleTextViewDelegate = new PostTitleTextViewDelegate();
+        private PostTitleTextViewDelegate _descriptionTextViewDelegate = new PostTitleTextViewDelegate(2048);
+        private readonly UIBarButtonItem _leftBarButton = new UIBarButtonItem();
+        private readonly UIBarButtonItem _rightBarButton = new UIBarButtonItem();
+
+        private readonly UITapGestureRecognizer _viewTap;
+        private readonly UITapGestureRecognizer _openTagsGestureRecognizer;
+        private readonly UITapGestureRecognizer rotateTap;
+        private readonly UITapGestureRecognizer zoomTap;
+
 
         public DescriptionViewController() { }
 
         public DescriptionViewController(List<Tuple<NSDictionary, UIImage>> imageAssets, string extension, UIDeviceOrientation rotation = UIDeviceOrientation.Portrait)
         {
             ImageAssets = imageAssets;
-            ImageExtension = extension;
+            _imageExtension = extension;
             _rotation = rotation;
+
+            _viewTap = new UITapGestureRecognizer(RemoveFocusFromTextFields);
+            _openTagsGestureRecognizer = new UITapGestureRecognizer(OpenTagPicker);
+            rotateTap = new UITapGestureRecognizer(RotateTap);
+            zoomTap = new UITapGestureRecognizer(ZoomTap);
         }
 
         public override void ViewDidLoad()
@@ -96,13 +111,10 @@ namespace Steepshot.iOS.Views
             tagsCollectionView.RegisterClassForCell(typeof(LocalTagCollectionViewCell), nameof(LocalTagCollectionViewCell));
             tagsCollectionView.RegisterNibForCell(UINib.FromName(nameof(LocalTagCollectionViewCell), NSBundle.MainBundle), nameof(LocalTagCollectionViewCell));
             collectionviewSource = new LocalTagsCollectionViewSource(editMode);
-            collectionViewDelegate = new LocalTagsCollectionViewFlowDelegate(collectionviewSource, UIScreen.MainScreen.Bounds.Width - _separatorMargin * 2);
+            collectionViewDelegate = new LocalTagsCollectionViewFlowDelegate(collectionviewSource, UIScreen.MainScreen.Bounds.Width - SeparatorMargin * 2);
             tagsCollectionView.Source = collectionviewSource;
             tagsCollectionView.Delegate = collectionViewDelegate;
             tagsCollectionView.BackgroundColor = UIColor.White;
-
-            var tap = new UITapGestureRecognizer(RemoveFocusFromTextFields);
-            View.AddGestureRecognizer(tap);
 
             SetBackButton();
             SetPlaceholder();
@@ -190,8 +202,6 @@ namespace Steepshot.iOS.Views
             tagField.Font = Constants.Regular14;
             tagField.TextColor = Constants.R151G155B158;
             tagField.UserInteractionEnabled = true;
-            var tap = new UITapGestureRecognizer(OpenTagPicker);
-            tagField.AddGestureRecognizer(tap);
 
             hashtagImage = new UIImageView();
             hashtagImage.Image = UIImage.FromBundle("ic_hash");
@@ -204,7 +214,6 @@ namespace Steepshot.iOS.Views
             postPhotoButton.SetTitle("", UIControlState.Disabled);
             postPhotoButton.Layer.CornerRadius = 25;
             postPhotoButton.TitleLabel.Font = Constants.Semibold14;
-            postPhotoButton.TouchDown += PostPhoto;
 
             loadingView = new UIActivityIndicatorView();
             loadingView.Color = UIColor.White;
@@ -230,10 +239,10 @@ namespace Steepshot.iOS.Views
             else
                 photoTitleSeparator.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, photoCollection, 15f);
 
-            photoTitleSeparator.AutoPinEdgeToSuperviewEdge(ALEdge.Left, _separatorMargin);
-            photoTitleSeparator.AutoPinEdgeToSuperviewEdge(ALEdge.Right, _separatorMargin);
+            photoTitleSeparator.AutoPinEdgeToSuperviewEdge(ALEdge.Left, SeparatorMargin);
+            photoTitleSeparator.AutoPinEdgeToSuperviewEdge(ALEdge.Right, SeparatorMargin);
             photoTitleSeparator.AutoSetDimension(ALDimension.Height, 1f);
-            photoTitleSeparator.AutoSetDimension(ALDimension.Width, UIScreen.MainScreen.Bounds.Width - _separatorMargin * 2);
+            photoTitleSeparator.AutoSetDimension(ALDimension.Width, UIScreen.MainScreen.Bounds.Width - SeparatorMargin * 2);
 
             titleTextField.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, photoTitleSeparator, 17f);
             titleTextField.AutoPinEdge(ALEdge.Left, ALEdge.Left, photoTitleSeparator, -5f);
@@ -303,7 +312,7 @@ namespace Steepshot.iOS.Views
                 if (listCount == 1)
                 {
                     photoMargin = 15;
-                    _cellSize = new CGSize(UIScreen.MainScreen.Bounds.Width - _separatorMargin * 2, (UIScreen.MainScreen.Bounds.Width - _separatorMargin * 2) / ratio);
+                    _cellSize = new CGSize(UIScreen.MainScreen.Bounds.Width - SeparatorMargin * 2, (UIScreen.MainScreen.Bounds.Width - SeparatorMargin * 2) / ratio);
                 }
                 else
                     _cellSize = new CGSize(cellSide * ratio, cellSide);
@@ -336,25 +345,17 @@ namespace Steepshot.iOS.Views
                     _cropView = new CropView(new CGRect(0, 0, UIScreen.MainScreen.Bounds.Width - 15 * 2, UIScreen.MainScreen.Bounds.Width - 15 * 2));
                     photoView.AddSubview(_cropView);
 
-                    _resizeButton = new UIImageView();
                     _resizeButton.Image = UIImage.FromBundle("ic_resize");
                     _resizeButton.UserInteractionEnabled = true;
                     mainScroll.AddSubview(_resizeButton);
                     _resizeButton.AutoPinEdge(ALEdge.Left, ALEdge.Left, photoView, 15f);
                     _resizeButton.AutoPinEdge(ALEdge.Bottom, ALEdge.Bottom, photoView, -15f);
 
-                    _rotateButton = new UIImageView();
                     _rotateButton.Image = UIImage.FromBundle("ic_rotate");
                     _rotateButton.UserInteractionEnabled = true;
                     mainScroll.AddSubview(_rotateButton);
                     _rotateButton.AutoPinEdge(ALEdge.Left, ALEdge.Right, _resizeButton, 15f);
                     _rotateButton.AutoPinEdge(ALEdge.Bottom, ALEdge.Bottom, photoView, -15f);
-
-                    var rotateTap = new UITapGestureRecognizer(RotateTap);
-                    _rotateButton.AddGestureRecognizer(rotateTap);
-
-                    var zoomTap = new UITapGestureRecognizer(ZoomTap);
-                    _resizeButton.AddGestureRecognizer(zoomTap);
                 }
             }
             else
@@ -409,7 +410,7 @@ namespace Steepshot.iOS.Views
 
         private void OpenTagPicker()
         {
-            NavigationItem.RightBarButtonItem = null;
+            RemoveOkButton();
             KeyBoardDownNotification(null);
             NavigationController.PushViewController(new TagsPickerViewController(collectionviewSource, collectionViewDelegate), true);
         }
@@ -418,7 +419,7 @@ namespace Steepshot.iOS.Views
         {
             base.ViewWillAppear(animated);
 
-            if (plagiarismResult != null && plagiarismResult.Continue && !IsMovingToParentViewController)
+            if (_plagiarismResult != null && _plagiarismResult.Continue && !IsMovingToParentViewController)
             {
                 OnPostAsync(true);
             }
@@ -430,11 +431,33 @@ namespace Steepshot.iOS.Views
                 tagsCollectionView.ReloadData();
                 ResizeView();
             }
+            else
+            {
+                postPhotoButton.TouchDown += PostPhoto;
+                _titleTextViewDelegate.EditingStartedAction += _titleTextViewDelegate_EditingStartedAction;
+                _descriptionTextViewDelegate.EditingStartedAction += _descriptionTextViewDelegate_EditingStartedAction;
+                _leftBarButton.Clicked += GoBack;
+                View.AddGestureRecognizer(_viewTap);
+                tagField.AddGestureRecognizer(_openTagsGestureRecognizer);
+                _resizeButton.AddGestureRecognizer(zoomTap);
+                _rotateButton.AddGestureRecognizer(rotateTap);
+            }
         }
 
         public override void ViewWillDisappear(bool animated)
         {
             collectionviewSource.CellAction -= CollectionCellAction;
+            if (IsMovingFromParentViewController)
+            {
+                postPhotoButton.TouchDown -= PostPhoto;
+                _titleTextViewDelegate.EditingStartedAction = null;
+                _descriptionTextViewDelegate.EditingStartedAction = null;
+                _leftBarButton.Clicked -= GoBack;
+                View.RemoveGestureRecognizer(_viewTap);
+                tagField.RemoveGestureRecognizer(_openTagsGestureRecognizer);
+                _resizeButton.RemoveGestureRecognizer(zoomTap);
+                _rotateButton.RemoveGestureRecognizer(rotateTap);
+            }
             base.ViewWillDisappear(animated);
         }
 
@@ -455,13 +478,7 @@ namespace Steepshot.iOS.Views
 
         private void SetPlaceholder()
         {
-            var _titleTextViewDelegate = new PostTitleTextViewDelegate();
             titleTextField.Delegate = _titleTextViewDelegate;
-
-            _titleTextViewDelegate.EditingStartedAction += () =>
-            {
-                Activeview = titleTextField;
-            };
 
             titlePlaceholderLabel = new UILabel();
             titlePlaceholderLabel.Text = "Enter a title of your photo";
@@ -480,11 +497,6 @@ namespace Steepshot.iOS.Views
             titleTextField.AddSubview(titlePlaceholderLabel);
             _titleTextViewDelegate.Placeholder = titlePlaceholderLabel;
 
-            var _descriptionTextViewDelegate = new PostTitleTextViewDelegate(2048);
-            _descriptionTextViewDelegate.EditingStartedAction += () =>
-            {
-                Activeview = descriptionTextField;
-            };
             descriptionTextField.Delegate = _descriptionTextViewDelegate;
 
             descriptionPlaceholderLabel = new UILabel();
@@ -503,14 +515,21 @@ namespace Steepshot.iOS.Views
 
             descriptionTextField.AddSubview(descriptionPlaceholderLabel);
             _descriptionTextViewDelegate.Placeholder = descriptionPlaceholderLabel;
-
-            _descriptionTextViewDelegate.EditingStartedAction += EditingStartedAction;
-            _titleTextViewDelegate.EditingStartedAction += EditingStartedAction;
         }
 
         private void EditingStartedAction()
         {
             AddOkButton();
+        }
+
+        private void _descriptionTextViewDelegate_EditingStartedAction()
+        {
+            Activeview = descriptionTextField;
+        }
+
+        private void _titleTextViewDelegate_EditingStartedAction()
+        {
+            Activeview = titleTextField;
         }
 
         private void CollectionCellAction(ActionType type, string tag)
@@ -546,8 +565,8 @@ namespace Steepshot.iOS.Views
 
         private void SetBackButton()
         {
-            var leftBarButton = new UIBarButtonItem(UIImage.FromBundle("ic_back_arrow"), UIBarButtonItemStyle.Plain, GoBack);
-            NavigationItem.LeftBarButtonItem = leftBarButton;
+            _leftBarButton.Image = UIImage.FromBundle("ic_back_arrow");
+            NavigationItem.LeftBarButtonItem = _leftBarButton;
             NavigationController.NavigationBar.TintColor = Constants.R15G24B30;
 
             NavigationItem.Title = AppSettings.LocalizationManager.GetText(LocalizationKeys.PostSettings);
@@ -556,8 +575,15 @@ namespace Steepshot.iOS.Views
 
         private void AddOkButton()
         {
-            var leftBarButton = new UIBarButtonItem("OK", UIBarButtonItemStyle.Plain, DoneTapped);
-            NavigationItem.RightBarButtonItem = leftBarButton;
+            _rightBarButton.Title = "Ok";
+            _rightBarButton.Clicked += DoneTapped;
+            NavigationItem.RightBarButtonItem = _rightBarButton;
+        }
+
+        private void RemoveOkButton()
+        {
+            _rightBarButton.Clicked -= DoneTapped;
+            NavigationItem.RightBarButtonItem = null;
         }
 
         private void DoneTapped()
@@ -570,8 +596,7 @@ namespace Steepshot.iOS.Views
             descriptionTextField.ResignFirstResponder();
             titleTextField.ResignFirstResponder();
             tagField.ResignFirstResponder();
-
-            NavigationItem.RightBarButtonItem = null;
+            RemoveOkButton();
         }
 
         private async Task<OperationResult<MediaModel>> UploadPhoto(UIImage photo, NSDictionary metadata)
@@ -604,8 +629,37 @@ namespace Steepshot.iOS.Views
                 else
                     stream = byteArray.AsStream();
 
-                var request = new UploadMediaModel(AppSettings.User.UserInfo, stream, ImageExtension);
-                return await _presenter.TryUploadMedia(request);
+                var request = new UploadMediaModel(AppSettings.User.UserInfo, stream, _imageExtension);
+                var serverResult = await Presenter.TryUploadMediaAsync(request);
+                if (!serverResult.IsSuccess)
+                    return new OperationResult<MediaModel>(serverResult.Exception);
+
+                var uuidModel = serverResult.Result;
+                var done = false;
+                do
+                {
+                    var state = await Presenter.TryGetMediaStatusAsync(uuidModel);
+                    if (state.IsSuccess)
+                    {
+                        switch (state.Result.Code)
+                        {
+                            case UploadMediaCode.Done:
+                                done = true;
+                                break;
+
+                            case UploadMediaCode.FailedToProcess:
+                            case UploadMediaCode.FailedToUpload:
+                            case UploadMediaCode.FailedToSave:
+                                return new OperationResult<MediaModel>(new Exception(state.Result.Message));
+
+                            default:
+                                await Task.Delay(3000);
+                                break;
+                        }
+                    }
+                } while (!done);
+
+                return await Presenter.TryGetMediaResultAsync(uuidModel);
             }
             catch (Exception ex)
             {
@@ -653,7 +707,7 @@ namespace Steepshot.iOS.Views
             EnablePostAndEdit(false, disableEditing);
             _isSpammer = false;
 
-            var spamCheck = await _presenter.TryCheckForSpam(AppSettings.User.Login);
+            var spamCheck = await Presenter.TryCheckForSpamAsync(AppSettings.User.Login);
             EnablePostAndEdit(true);
 
             if (spamCheck.IsSuccess)
@@ -663,7 +717,7 @@ namespace Steepshot.iOS.Views
                     if (spamCheck.Result.WaitingTime > 0)
                     {
                         _isSpammer = true;
-                        PostingLimit = TimeSpan.FromMinutes(5);
+                        _postingLimit = TimeSpan.FromMinutes(5);
                         StartPostTimer((int)spamCheck.Result.WaitingTime);
                         ShowAlert(LocalizationKeys.Posts5minLimit);
                     }
@@ -672,7 +726,7 @@ namespace Steepshot.iOS.Views
                 {
                     // more than 15 posts
                     _isSpammer = true;
-                    PostingLimit = TimeSpan.FromHours(24);
+                    _postingLimit = TimeSpan.FromHours(24);
                     StartPostTimer((int)spamCheck.Result.WaitingTime);
                     ShowAlert(LocalizationKeys.PostsDayLimit);
                 }
@@ -682,15 +736,15 @@ namespace Steepshot.iOS.Views
         private async void StartPostTimer(int startSeconds)
         {
             string timeFormat;
-            var timepassed = PostingLimit - TimeSpan.FromSeconds(startSeconds);
+            var timepassed = _postingLimit - TimeSpan.FromSeconds(startSeconds);
             postPhotoButton.UserInteractionEnabled = false;
 
-            while (timepassed < PostingLimit)
+            while (timepassed < _postingLimit)
             {
                 UIView.PerformWithoutAnimation(() =>
                 {
-                    timeFormat = (PostingLimit - timepassed).TotalHours >= 1 ? "hh\\:mm\\:ss" : "mm\\:ss";
-                    postPhotoButton.SetTitle((PostingLimit - timepassed).ToString(timeFormat), UIControlState.Normal);
+                    timeFormat = (_postingLimit - timepassed).TotalHours >= 1 ? "hh\\:mm\\:ss" : "mm\\:ss";
+                    postPhotoButton.SetTitle((_postingLimit - timepassed).ToString(timeFormat), UIControlState.Normal);
                     postPhotoButton.LayoutIfNeeded();
                 });
                 await Task.Delay(1000);
@@ -703,7 +757,7 @@ namespace Steepshot.iOS.Views
             postPhotoButton.SetTitle(AppSettings.LocalizationManager.GetText(LocalizationKeys.PublishButtonText).ToUpper(), UIControlState.Normal);
         }
 
-        private async void PostPhoto(object sender, EventArgs e)
+        private void PostPhoto(object sender, EventArgs e)
         {
             if (string.IsNullOrEmpty(titleTextField.Text))
             {
@@ -805,7 +859,7 @@ namespace Steepshot.iOS.Views
                 }
                 catch (Exception ex)
                 {
-                    AppSettings.Logger.Warning(ex);
+                    AppSettings.Logger.WarningAsync(ex);
                 }
                 finally
                 {
@@ -814,22 +868,22 @@ namespace Steepshot.iOS.Views
             });
         }
 
-        protected async void CreateOrEditPost(bool skipPlagiarismCheck)
+        protected void CreateOrEditPost(bool skipPlagiarismCheck)
         {
             var pushToBlockchainRetry = false;
             do
             {
                 if (!skipPlagiarismCheck)
                 {
-                    var plagiarismCheck = _presenter.TryCheckForPlagiarism(model).Result;
+                    var plagiarismCheck = Presenter.TryCheckForPlagiarismAsync(model).Result;
                     if (plagiarismCheck.IsSuccess)
                     {
                         if (plagiarismCheck.Result.plagiarism.IsPlagiarism)
                         {
                             InvokeOnMainThread(() =>
                             {
-                                plagiarismResult = new PlagiarismResult();
-                                var plagiarismViewController = new PlagiarismViewController(ImageAssets, plagiarismCheck.Result.plagiarism, plagiarismResult);
+                                _plagiarismResult = new PlagiarismResult();
+                                var plagiarismViewController = new PlagiarismViewController(ImageAssets, plagiarismCheck.Result.plagiarism, _plagiarismResult);
                                 NavigationController.PushViewController(plagiarismViewController, true);
                             });
 
@@ -839,7 +893,7 @@ namespace Steepshot.iOS.Views
                 }
 
                 pushToBlockchainRetry = false;
-                var response = _presenter.TryCreateOrEditPost(model).Result;
+                var response = Presenter.TryCreateOrEditPostAsync(model).Result;
                 if (!(response != null && response.IsSuccess))
                 {
                     InvokeOnMainThread(() =>
@@ -948,9 +1002,9 @@ namespace Steepshot.iOS.Views
             }
         }
 
-        private void GoBack(object sender, EventArgs e)
+        protected override void GoBack(object sender, EventArgs e)
         {
-            _presenter.TasksCancel();
+            Presenter.TasksCancel();
             NavigationController.PopViewController(true);
         }
 

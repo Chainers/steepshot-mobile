@@ -29,8 +29,8 @@ namespace Steepshot.CustomViews
 
         public void UpdateText(Post post, string tagToExclude, string tagFormat, int maxLines, bool isExpanded)
         {
-            var censorTitle = post.Title.CensorText();
-            var censorDescription = post.Description.CensorText();
+            var censorTitle = post.Title;
+            var censorDescription = post.Description;
             var censorDescriptionHtml = Html.FromHtml(censorDescription);
             var censorDescriptionWithoutHtml = string.IsNullOrEmpty(post.Description)
                 ? string.Empty

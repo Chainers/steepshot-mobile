@@ -17,10 +17,11 @@ using Steepshot.iOS.Helpers;
 using Steepshot.iOS.ViewControllers;
 using Steepshot.iOS.ViewSources;
 using UIKit;
+using Steepshot.iOS.Popups;
 
 namespace Steepshot.iOS.Views
 {
-    public partial class ProfileViewController : BasePostController <UserProfilePresenter>, IPageCloser
+    public partial class ProfileViewController : BasePostController<UserProfilePresenter>, IPageCloser
     {
         private UserProfileResponse _userData;
         private FeedCollectionViewSource _collectionViewSource;
@@ -29,19 +30,23 @@ namespace Steepshot.iOS.Views
         private CollectionViewFlowDelegate _gridDelegate;
         private SliderCollectionViewFlowDelegate _sliderGridDelegate;
         private UINavigationController _navController;
-        private UIBarButtonItem switchButton;
+        private readonly UIBarButtonItem _switchButton = new UIBarButtonItem();
+        private readonly UIBarButtonItem _leftBarButton = new UIBarButtonItem();
+        private readonly UIBarButtonItem _settingsButton = new UIBarButtonItem();
         private bool _userDataLoaded;
         private UIView powerPopup;
         private UILabel powerText;
         private bool isPowerOpen;
         private bool UserIsWatched => AppSettings.User.WatchedUsers.Contains(Username);
 
+        private SliderCollectionViewSource _sliderCollectionViewSource;
+
         public string Username = AppSettings.User.Login;
 
         public override void ViewDidLoad()
         {
             base.ViewDidLoad();
-            _presenter.UserName = Username;
+            Presenter.UserName = Username;
             _navController = TabBarController != null ? TabBarController.NavigationController : NavigationController;
 
             collectionView.RegisterClassForCell(typeof(ProfileHeaderViewCell), nameof(ProfileHeaderViewCell));
@@ -55,25 +60,19 @@ namespace Steepshot.iOS.Views
                 MinimumInteritemSpacing = 0,
             }, false);
 
-            _gridDelegate = new ProfileCollectionViewFlowDelegate(collectionView, _presenter);
+            _gridDelegate = new ProfileCollectionViewFlowDelegate(collectionView, Presenter);
             _gridDelegate.IsGrid = false;
             _gridDelegate.IsProfile = true;
-            _gridDelegate.ScrolledToBottom += ScrolledToBottom;
-            _gridDelegate.CellClicked += CellAction;
+            
+            _collectionViewSource = new ProfileCollectionViewSource(Presenter, _gridDelegate);
 
-            _collectionViewSource = new ProfileCollectionViewSource(_presenter, _gridDelegate);
-            _collectionViewSource.CellAction += CellAction;
-            _collectionViewSource.TagAction += TagAction;
-            _collectionViewSource.ProfileAction += ProfileAction;
             collectionView.Source = _collectionViewSource;
             collectionView.Delegate = _gridDelegate;
 
-            _sliderGridDelegate = new SliderCollectionViewFlowDelegate(sliderCollection, _presenter);
-            _sliderGridDelegate.ScrolledToBottom += ScrolledToBottom;
+            _sliderGridDelegate = new SliderCollectionViewFlowDelegate(sliderCollection, Presenter);
 
-            var _sliderCollectionViewSource = new SliderCollectionViewSource(_presenter, _sliderGridDelegate);
-            _sliderCollectionViewSource.CellAction += CellAction;
-            _sliderCollectionViewSource.TagAction += TagAction;
+            _sliderCollectionViewSource = new SliderCollectionViewSource(Presenter, _sliderGridDelegate);
+
             sliderCollection.DecelerationRate = UIScrollView.DecelerationRateFast;
             sliderCollection.ShowsHorizontalScrollIndicator = false;
 
@@ -90,14 +89,7 @@ namespace Steepshot.iOS.Views
             sliderCollection.RegisterClassForCell(typeof(SliderFeedCollectionViewCell), nameof(SliderFeedCollectionViewCell));
             sliderCollection.Delegate = _sliderGridDelegate;
 
-            SliderAction += (isOpening) =>
-            {
-                if (!sliderCollection.Hidden)
-                    sliderCollection.ScrollEnabled = !isOpening;
-            };
-
             _refreshControl = new UIRefreshControl();
-            _refreshControl.ValueChanged += RefreshControl_ValueChanged;
             collectionView.Add(_refreshControl);
 
             SetBackButton();
@@ -106,6 +98,102 @@ namespace Steepshot.iOS.Views
                 SetVotePowerView();
             GetUserInfo();
             GetPosts();
+        }
+
+        public override void ViewWillAppear(bool animated)
+        {
+            SliderAction += ProfileViewController_SliderAction;
+            if (!IsMovingToParentViewController)
+                collectionView.ReloadData();
+            else
+            {
+                Presenter.SourceChanged += SourceChanged;
+                _gridDelegate.ScrolledToBottom += ScrolledToBottom;
+                _gridDelegate.CellClicked += CellAction;
+                _collectionViewSource.CellAction += CellAction;
+                _collectionViewSource.TagAction += TagAction;
+                _collectionViewSource.ProfileAction += ProfileAction;
+                _sliderGridDelegate.ScrolledToBottom += ScrolledToBottom;
+                _sliderCollectionViewSource.CellAction += CellAction;
+                _sliderCollectionViewSource.TagAction += TagAction;
+                _refreshControl.ValueChanged += RefreshControl_ValueChanged;
+                _switchButton.Clicked += SwitchLayout;
+                if (Username == AppSettings.User.Login)
+                    _settingsButton.Clicked += GoToSettings;
+                else
+                {
+                    _leftBarButton.Clicked += GoBack;
+                    _settingsButton.Clicked += ShowPushSetting;
+                }
+            }
+
+            if (TabBarController != null)
+                ((MainTabBarController)TabBarController).SameTabTapped += SameTabTapped;
+
+            base.ViewWillAppear(animated);
+        }
+
+        public override void ViewDidAppear(bool animated)
+        {
+            base.ViewDidAppear(animated);
+
+            if (ShouldProfileUpdate)
+            {
+                RefreshPage();
+                ShouldProfileUpdate = false;
+
+                PostCreatedPopup.Show(View);
+            }
+        }
+
+        public override void ViewWillDisappear(bool animated)
+        {
+            if (sliderCollection.Hidden)
+            {
+                foreach (var item in collectionView.IndexPathsForVisibleItems)
+                {
+                    if (collectionView.CellForItem(item) is NewFeedCollectionViewCell cell)
+                        cell.Cell.Playback(false);
+                }
+            }
+            else
+            {
+                foreach (var item in sliderCollection.IndexPathsForVisibleItems)
+                {
+                    if (sliderCollection.CellForItem(item) is SliderFeedCollectionViewCell cell)
+                        cell.Playback(false);
+                }
+            }
+
+            SliderAction = null;
+
+            if (IsMovingFromParentViewController)
+            {
+                Presenter.SourceChanged -= SourceChanged;
+                _gridDelegate.ScrolledToBottom = null;
+                _gridDelegate.CellClicked = null;
+                _collectionViewSource.CellAction -= CellAction;
+                _collectionViewSource.TagAction -= TagAction;
+                _collectionViewSource.ProfileAction -= ProfileAction;
+                _sliderGridDelegate.ScrolledToBottom = null;
+                _sliderCollectionViewSource.CellAction -= CellAction;
+                _sliderCollectionViewSource.TagAction -= TagAction;
+                _refreshControl.ValueChanged -= RefreshControl_ValueChanged;
+                _switchButton.Clicked -= SwitchLayout;
+                if (Username == AppSettings.User.Login)
+                    _settingsButton.Clicked -= GoToSettings;
+                else
+                {
+                    _leftBarButton.Clicked -= GoBack;
+                    _settingsButton.Clicked -= ShowPushSetting;
+                }
+                _collectionViewSource.FreeAllCells();
+                _sliderCollectionViewSource.FreeAllCells();
+                Presenter.TasksCancel();
+            }
+            if (TabBarController != null)
+                ((MainTabBarController)TabBarController).SameTabTapped -= SameTabTapped;
+            base.ViewWillDisappear(animated);
         }
 
         private void SetVotePowerView()
@@ -137,26 +225,33 @@ namespace Steepshot.iOS.Views
 
         private void SetBackButton()
         {
-            switchButton = new UIBarButtonItem(UIImage.FromBundle("ic_grid_nonactive"), UIBarButtonItemStyle.Plain, SwitchLayout);
-            switchButton.TintColor = Constants.R231G72B0;
+            _switchButton.Image = UIImage.FromBundle("ic_grid_nonactive");
+            _switchButton.TintColor = Constants.R231G72B0;
 
             if (Username == AppSettings.User.Login)
             {
                 NavigationItem.Title = "My Profile";
-                var settingsButton = new UIBarButtonItem(UIImage.FromBundle("ic_settings"), UIBarButtonItemStyle.Plain, GoToSettings);
-                settingsButton.TintColor = Constants.R151G155B158;
-                NavigationItem.RightBarButtonItems = new UIBarButtonItem[] { settingsButton, switchButton };
+                _settingsButton.Image = UIImage.FromBundle("ic_settings");
+                _settingsButton.TintColor = Constants.R151G155B158;
+                NavigationItem.RightBarButtonItems = new UIBarButtonItem[] { _settingsButton, _switchButton };
             }
             else
             {
                 NavigationItem.Title = Username;
-                var leftBarButton = new UIBarButtonItem(UIImage.FromBundle("ic_back_arrow"), UIBarButtonItemStyle.Plain, GoBack);
-                leftBarButton.TintColor = Constants.R15G24B30;
-                NavigationItem.LeftBarButtonItem = leftBarButton;
-                var settingsButton = new UIBarButtonItem(UIImage.FromBundle("ic_more"), UIBarButtonItemStyle.Plain, ShowPushSetting);
-                settingsButton.TintColor = Constants.R151G155B158;
-                NavigationItem.RightBarButtonItems = new UIBarButtonItem[] { settingsButton, switchButton };
+                _leftBarButton.Image = UIImage.FromBundle("ic_back_arrow");
+                _leftBarButton.TintColor = Constants.R15G24B30;
+                NavigationItem.LeftBarButtonItem = _leftBarButton;
+
+                _settingsButton.Image = UIImage.FromBundle("ic_more");
+                _settingsButton.TintColor = Constants.R151G155B158;
+                NavigationItem.RightBarButtonItems = new UIBarButtonItem[] { _settingsButton, _switchButton };
             }
+        }
+
+        private void ProfileViewController_SliderAction(bool isOpening)
+        {
+            if (!sliderCollection.Hidden)
+                sliderCollection.ScrollEnabled = !isOpening;
         }
 
         protected override void SameTabTapped()
@@ -182,7 +277,7 @@ namespace Steepshot.iOS.Views
                     ShowPowerPopup();
                     break;
                 case ActionType.Balance:
-                    if(_userData.Username == AppSettings.User.Login && TabBarController != null)
+                    if (_userData.Username == AppSettings.User.Login && TabBarController != null)
                         TabBarController.NavigationController.PushViewController(new WalletViewController(), true);
                     break;
                 default:
@@ -196,16 +291,9 @@ namespace Steepshot.iOS.Views
             NavigationController.PushViewController(myViewController, true);
         }
 
-        public override void ViewWillDisappear(bool animated)
+        private async void RefreshControl_ValueChanged(object sender, EventArgs e)
         {
-            if (TabBarController != null)
-                ((MainTabBarController)TabBarController).SameTabTapped -= SameTabTapped;
-            base.ViewWillDisappear(animated);
-        }
-
-        async void RefreshControl_ValueChanged(object sender, EventArgs e)
-        {
-            await _presenter.TryUpdateUserPosts(AppSettings.User.Login);
+            await Presenter.TryUpdateUserPostsAsync(AppSettings.User.Login);
 
             await RefreshPage();
             _refreshControl.EndRefreshing();
@@ -213,6 +301,15 @@ namespace Steepshot.iOS.Views
 
         protected override void SourceChanged(Status status)
         {
+            InvokeOnMainThread(() => HandleAction(status));
+        }
+
+        private void HandleAction(Status status)
+        {
+
+            if(status.Sender == nameof(Presenter.TryGetUserInfoAsync))
+                _gridDelegate.UpdateProfile();
+
             if (sliderCollection.Hidden)
             {
                 _gridDelegate.GenerateVariables();
@@ -246,28 +343,6 @@ namespace Steepshot.iOS.Views
              });
         }
 
-        public override void ViewWillAppear(bool animated)
-        {
-            if (!IsMovingToParentViewController)
-                collectionView.ReloadData();
-
-            if (TabBarController != null)
-                ((MainTabBarController)TabBarController).SameTabTapped += SameTabTapped;
-
-            base.ViewWillAppear(animated);
-        }
-
-        public override void ViewDidAppear(bool animated)
-        {
-            base.ViewDidAppear(animated);
-
-            if (ShouldProfileUpdate)
-            {
-                RefreshPage();
-                ShouldProfileUpdate = false;
-            }
-        }
-
         private void CellAction(ActionType type, Post post)
         {
             switch (type)
@@ -281,8 +356,7 @@ namespace Steepshot.iOS.Views
                     break;
                 case ActionType.Preview:
                     if (collectionView.Hidden)
-                        //NavigationController.PushViewController(new PostViewController(post, _gridDelegate.Variables[_presenter.IndexOf(post)], _presenter), false);
-                        NavigationController.PushViewController(new ImagePreviewViewController(post.Body) { HidesBottomBarWhenPushed = true }, true);
+                        NavigationController.PushViewController(new ImagePreviewViewController(post.Media[post.PageIndex].Url) { HidesBottomBarWhenPushed = true }, true);
                     else
                         OpenPost(post);
                     break;
@@ -293,10 +367,7 @@ namespace Steepshot.iOS.Views
                     NavigationController.PushViewController(new VotersViewController(post, VotersType.Flags), true);
                     break;
                 case ActionType.Comments:
-                    var myViewController4 = new CommentsViewController();
-                    myViewController4.Post = post;
-                    myViewController4.HidesBottomBarWhenPushed = true;
-                    NavigationController.PushViewController(myViewController4, true);
+                    NavigationController.PushViewController(new CommentsViewController(post) { HidesBottomBarWhenPushed = true }, true);
                     break;
                 case ActionType.Like:
                     Vote(post);
@@ -318,30 +389,27 @@ namespace Steepshot.iOS.Views
             await GetPosts(clearOld: true);
         }
 
-        public async Task<UserProfileResponse> GetUserInfo()
+        public async Task GetUserInfo()
         {
-            if (errorMessage == null)
-                return _userData;
+            //if (errorMessage == null)
+                //return _userData;
             _userDataLoaded = false;
             errorMessage.Hidden = true;
             try
             {
-                var exception = await _presenter.TryGetUserInfo(Username);
+                var result = await Presenter.TryGetUserInfoAsync(Username);
                 _refreshControl.EndRefreshing();
 
-                if (exception == null)
+                if (result.IsSuccess)
                 {
-                    _userData = _presenter.UserProfileResponse;
+                    _userData = Presenter.UserProfileResponse;
                     if (_userData.IsSubscribed)
                     {
-                        if(!AppSettings.User.WatchedUsers.Contains(_userData.Username))
+                        if (!AppSettings.User.WatchedUsers.Contains(_userData.Username))
                             AppSettings.User.WatchedUsers.Add(_userData.Username);
                     }
                     else
                         AppSettings.User.WatchedUsers.Remove(_userData.Username);
-
-                    _collectionViewSource.user = _userData;
-                    _gridDelegate.UpdateProfile(_userData);
 
                     if (powerText != null)
                         powerText.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PowerOfLike, _userData.VotingPower);
@@ -355,19 +423,19 @@ namespace Steepshot.iOS.Views
                         collectionView.Hidden = false;
                     }
                 }
-                return _userData;
+                //return _userData;
             }
             catch (Exception ex)
             {
                 errorMessage.Hidden = false;
-                AppSettings.Logger.Error(ex);
+                AppSettings.Logger.ErrorAsync(ex);
             }
             finally
             {
                 _userDataLoaded = true;
                 loading.StopAnimating();
             }
-            return _userData;
+            //return _userData;
         }
 
         private void GoToSettings(object sender, EventArgs e)
@@ -401,7 +469,7 @@ namespace Steepshot.iOS.Views
             {
                 WatchedUser = Username
             };
-            var response = await _presenter.TrySubscribeForPushes(model);
+            var response = await Presenter.TrySubscribeForPushesAsync(model);
             if (response.IsSuccess)
             {
                 if (UserIsWatched)
@@ -416,16 +484,22 @@ namespace Steepshot.iOS.Views
             _gridDelegate.IsGrid = _collectionViewSource.IsGrid = !_collectionViewSource.IsGrid;
             if (_collectionViewSource.IsGrid)
             {
-                switchButton.Image = UIImage.FromBundle("ic_grid_active");
+                _switchButton.Image = UIImage.FromBundle("ic_grid_active");
                 collectionView.SetCollectionViewLayout(new UICollectionViewFlowLayout()
                 {
                     MinimumLineSpacing = 1,
                     MinimumInteritemSpacing = 1,
                 }, false);
+
+                foreach (var item in collectionView.IndexPathsForVisibleItems)
+                {
+                    if (collectionView.CellForItem(item) is NewFeedCollectionViewCell cell)
+                        cell.Cell.Playback(false);
+                }
             }
             else
             {
-                switchButton.Image = UIImage.FromBundle("ic_grid_nonactive");
+                _switchButton.Image = UIImage.FromBundle("ic_grid_nonactive");
                 collectionView.SetCollectionViewLayout(new UICollectionViewFlowLayout()
                 {
                     MinimumLineSpacing = 0,
@@ -444,12 +518,12 @@ namespace Steepshot.iOS.Views
 
             if (clearOld)
             {
-                _presenter.Clear();
+                Presenter.Clear();
                 _gridDelegate.ClearPosition();
                 _sliderGridDelegate.ClearPosition();
             }
 
-            var exception = await _presenter.TryLoadNextPosts();
+            var exception = await Presenter.TryLoadNextPostsAsync();
 
             if (exception == null)
             {
@@ -470,12 +544,12 @@ namespace Steepshot.iOS.Views
         private async Task Follow()
         {
             _gridDelegate.profileCell.DecorateFollowButton();
-            var exception = await _presenter.TryFollow();
+            var result = await Presenter.TryFollowAsync();
 
-            if (exception == null)
+            if (result.IsSuccess)
                 _gridDelegate.profileCell.DecorateFollowButton();
             else
-                ShowAlert(exception);
+                ShowAlert(result);
         }
 
         public void OpenPost(Post post)
@@ -484,11 +558,22 @@ namespace Steepshot.iOS.Views
             sliderCollection.Hidden = false;
             _sliderGridDelegate.GenerateVariables();
             sliderCollection.ReloadData();
-            sliderCollection.ScrollToItem(NSIndexPath.FromRowSection(_presenter.IndexOf(post), 0), UICollectionViewScrollPosition.CenteredHorizontally, false);
+            sliderCollection.ScrollToItem(NSIndexPath.FromRowSection(Presenter.IndexOf(post), 0), UICollectionViewScrollPosition.CenteredHorizontally, false);
+
+            foreach (var item in collectionView.IndexPathsForVisibleItems)
+            {
+                if (collectionView.CellForItem(item) is NewFeedCollectionViewCell cell)
+                    cell.Cell.Playback(false);
+            }
         }
 
         public bool ClosePost()
         {
+            foreach (var item in sliderCollection.IndexPathsForVisibleItems)
+            {
+                if (sliderCollection.CellForItem(item) is SliderFeedCollectionViewCell cell)
+                    cell.Playback(false);
+            }
             if (!sliderCollection.Hidden)
             {
                 var visibleRect = new CGRect();
@@ -497,11 +582,11 @@ namespace Steepshot.iOS.Views
                 var visiblePoint = new CGPoint(visibleRect.GetMidX(), visibleRect.GetMidY());
                 var index = sliderCollection.IndexPathForItemAtPoint(visiblePoint);
 
-                collectionView.ScrollToItem(NSIndexPath.FromRowSection(index.Row + 1, index.Section), UICollectionViewScrollPosition.Top, false);
-                collectionView.Hidden = false;
                 sliderCollection.Hidden = true;
                 _gridDelegate.GenerateVariables();
+                collectionView.Hidden = false;
                 collectionView.ReloadData();
+                collectionView.ScrollToItem(NSIndexPath.FromRowSection(index.Row + 1, index.Section), UICollectionViewScrollPosition.Top, false);
                 return true;
             }
             return false;

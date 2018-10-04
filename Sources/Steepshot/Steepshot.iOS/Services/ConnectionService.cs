@@ -1,5 +1,5 @@
 ﻿using Plugin.Connectivity;
-using Steepshot.Core.Services;
+using Steepshot.Core.Interfaces;
 
 namespace Steepshot.iOS.Services
 {

@@ -1,44 +1,39 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using Steepshot.Core.Clients;
+using Steepshot.Core.Interfaces;
+using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
+using Steepshot.Core.Models.Responses;
 
 namespace Steepshot.Core.Presenters
 {
     public sealed class CreateAccountPresenter : ListPresenter<string>
     {
-        public async Task<Exception> TryGetAccountInfo(string login)
+        private readonly SteepshotApiClient _steepshotApiClient;
+        private readonly SteepshotClient _steepshotClient;
+
+        public CreateAccountPresenter(IConnectionService connectionService, ILogService logService, SteepshotApiClient steepshotApiClient, SteepshotClient steepshotClient)
+            : base(connectionService, logService)
         {
-            return await RunAsSingleTask(GetAccountInfo, login);
+            _steepshotApiClient = steepshotApiClient;
+            _steepshotClient = steepshotClient;
         }
 
-        private async Task<Exception> GetAccountInfo(string login, CancellationToken ct)
+        public async Task<OperationResult<UserProfileResponse>> TryGetAccountInfoAsync(string login)
         {
             var req = new UserProfileModel(login);
-            var response = await Api.GetUserProfile(req, ct);
-            return response.Exception;
+            return await RunAsSingleTaskAsync(_steepshotApiClient.GetUserProfileAsync, req)
+                .ConfigureAwait(false);
         }
 
-        public async Task<Exception> TryCreateAccount(CreateAccountModel account)
+        public async Task<OperationResult<CreateAccountResponse>> TryCreateAccountAsync(CreateAccountModel account)
         {
-            return await RunAsSingleTask(CreateAccount, account);
+            return await RunAsSingleTaskAsync(_steepshotClient.CreateAccountAsync, account).ConfigureAwait(false);
         }
 
-        private async Task<Exception> CreateAccount(CreateAccountModel account, CancellationToken ct)
+        public async Task<OperationResult<CreateAccountResponse>> TryResendMailAsync(CreateAccountModel account)
         {
-            var response = await Api.CreateAccount(account, ct);
-            return response.Exception;
-        }
-
-        public async Task<Exception> TryResendMail(CreateAccountModel account)
-        {
-            return await RunAsSingleTask(ResendMail, account);
-        }
-
-        private async Task<Exception> ResendMail(CreateAccountModel account, CancellationToken ct)
-        {
-            var response = await Api.ResendEmail(account, ct);
-            return response.Exception;
+            return await RunAsSingleTaskAsync(_steepshotClient.ResendEmailAsync, account).ConfigureAwait(false);
         }
     }
 }

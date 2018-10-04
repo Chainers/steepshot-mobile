@@ -29,10 +29,10 @@ namespace Steepshot.iOS.Views
         {
             base.ViewDidLoad();
 
-            _presenter.FollowType = _friendsType;
-            _presenter.SourceChanged += SourceChanged;
+            Presenter.FollowType = _friendsType;
+            Presenter.SourceChanged += SourceChanged;
 
-            var tableSource = new FollowTableViewSource(_presenter, followTableView);
+            var tableSource = new FollowTableViewSource(Presenter, followTableView);
             followTableView.Source = tableSource;
             followTableView.LayoutMargins = UIEdgeInsets.Zero;
             followTableView.RegisterClassForCellReuse(typeof(FollowViewCell), nameof(FollowViewCell));
@@ -63,7 +63,7 @@ namespace Steepshot.iOS.Views
             NavigationItem.LeftBarButtonItem = leftBarButton;
             NavigationItem.RightBarButtonItem = rightBarButton;
             NavigationController.NavigationBar.TintColor = Helpers.Constants.R15G24B30;
-            NavigationItem.Title = _presenter.FollowType.GetDescription();
+            NavigationItem.Title = Presenter.FollowType.GetDescription();
         }
 
         private void CellAction(ActionType type, UserFriend user)
@@ -87,13 +87,13 @@ namespace Steepshot.iOS.Views
 
         private void SourceChanged(Status status)
         {
-            followTableView.ReloadData();
+            InvokeOnMainThread(followTableView.ReloadData);
         }
 
         public async void GetItems()
         {
-            var exception = await _presenter.TryLoadNextUserFriends(_user.Username);
-            ShowAlert(exception);
+            var result = await Presenter.TryLoadNextUserFriendsAsync(_user.Username);
+            ShowAlert(result);
             progressBar.StopAnimating();
         }
 
@@ -101,14 +101,14 @@ namespace Steepshot.iOS.Views
         {
             if (user != null)
             {
-                var exception = await _presenter.TryFollow(user);
-                ShowAlert(exception);
+                var result = await Presenter.TryFollowAsync(user);
+                ShowAlert(result);
             }
         }
 
         public override void ViewDidUnload()
         {
-            _presenter.LoadCancel();
+            Presenter.LoadCancel();
             base.ViewDidUnload();
         }
     }

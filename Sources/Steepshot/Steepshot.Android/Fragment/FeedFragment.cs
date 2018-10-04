@@ -8,6 +8,7 @@ using Android.Support.V4.Widget;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
+using Autofac;
 using CheeseBind;
 using Steepshot.Activity;
 using Steepshot.Adapter;
@@ -21,6 +22,7 @@ using Steepshot.Core.Models;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Interfaces;
 using Steepshot.Core.Utils;
+using Steepshot.CustomViews;
 
 namespace Steepshot.Fragment
 {
@@ -188,7 +190,7 @@ namespace Steepshot.Fragment
 
         private async void LoadPosts()
         {
-            var exception = await Presenter.TryLoadNextTopPosts();
+            var exception = await Presenter.TryLoadNextTopPostsAsync();
             if (!IsInitialized)
                 return;
 
@@ -233,29 +235,28 @@ namespace Steepshot.Fragment
 
         private async void PostAction(ActionType type, Post post)
         {
+            if (post == null)
+                return;
             switch (type)
             {
                 case ActionType.Like:
                     {
                         if (!AppSettings.User.HasPostingPermission)
                             return;
-
-                        var exception = await Presenter.TryVote(post);
+                        
+                        var result = await Presenter.TryVoteAsync(post);
                         if (!IsInitialized)
                             return;
 
-                        if (exception == null && Activity is RootActivity root)
+                        if (result.IsSuccess && Activity is RootActivity root)
                             root.TryUpdateProfile();
 
-                        Context.ShowAlert(exception);
+                        Context.ShowAlert(result);
                         break;
                     }
                 case ActionType.VotersLikes:
                 case ActionType.VotersFlags:
                     {
-                        if (post == null)
-                            return;
-
                         var isLikers = type == ActionType.VotersLikes;
                         Activity.Intent.PutExtra(PostUrlExtraPath, post.Url);
                         Activity.Intent.PutExtra(PostNetVotesExtraPath, isLikers ? post.NetLikes : post.NetFlags);
@@ -265,17 +266,11 @@ namespace Steepshot.Fragment
                     }
                 case ActionType.Comments:
                     {
-                        if (post == null)
-                            return;
-
                         ((BaseActivity)Activity).OpenNewContentFragment(new CommentsFragment(post, post.Children == 0));
                         break;
                     }
                 case ActionType.Profile:
                     {
-                        if (post == null)
-                            return;
-
                         ((BaseActivity)Activity).OpenNewContentFragment(new ProfileFragment(post.Author));
                         break;
                     }
@@ -283,15 +278,15 @@ namespace Steepshot.Fragment
                     {
                         if (!AppSettings.User.HasPostingPermission)
                             return;
-
-                        var exception = await Presenter.TryFlag(post);
+                        
+                        var result = await Presenter.TryFlagAsync(post);
                         if (!IsInitialized)
                             return;
 
-                        if (exception == null && Activity is RootActivity root)
+                        if (result.IsSuccess && Activity is RootActivity root)
                             root.TryUpdateProfile();
 
-                        Context.ShowAlert(exception);
+                        Context.ShowAlert(result);
                         break;
                     }
                 case ActionType.Hide:
@@ -301,11 +296,22 @@ namespace Steepshot.Fragment
                     }
                 case ActionType.Delete:
                     {
-                        var exception = await Presenter.TryDeletePost(post);
-                        if (!IsInitialized)
-                            return;
+                        var actionAlert = new ActionAlertDialog(Context,
+                            AppSettings.LocalizationManager.GetText(LocalizationKeys.DeleteAlertTitle),
+                            AppSettings.LocalizationManager.GetText(LocalizationKeys.DeleteAlertMessage),
+                            AppSettings.LocalizationManager.GetText(LocalizationKeys.Delete),
+                            AppSettings.LocalizationManager.GetText(LocalizationKeys.Cancel), AutoLinkAction);
 
-                        Context.ShowAlert(exception);
+                        actionAlert.AlertAction += async () =>
+                        {
+                            var result = await Presenter.TryDeletePostAsync(post);
+                            if (!IsInitialized)
+                                return;
+
+                            Context.ShowAlert(result);
+                        };
+
+                        actionAlert.Show();
                         break;
                     }
                 case ActionType.Share:
@@ -320,6 +326,13 @@ namespace Steepshot.Fragment
                 case ActionType.Photo:
                     {
                         OpenPost(post);
+                        break;
+                    }
+                case ActionType.Promote:
+                    {
+                        var actionAlert = new PromoteAlertDialog(Context, post, AutoLinkAction);
+                        actionAlert.Window.RequestFeature(WindowFeatures.NoTitle);
+                        actionAlert.Show();
                         break;
                     }
             }

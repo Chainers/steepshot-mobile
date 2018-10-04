@@ -1,9 +1,13 @@
 ﻿using System;
 using Android.Graphics;
+using Newtonsoft.Json;
+using Steepshot.Core.Jobs.Upload;
+using Steepshot.Core.Models.Common;
 using Steepshot.CustomViews;
 
 namespace Steepshot.Utils
 {
+    [JsonObject(MemberSerialization.OptIn)]
     public class GalleryMediaModel
     {
         private bool _selected;
@@ -41,10 +45,19 @@ namespace Steepshot.Utils
             }
         }
 
+        [JsonProperty]
         public ImageParameters Parameters { get; set; }
 
         public Bitmap PreparedBitmap { get; set; }
 
         public bool MultySelect { get; set; }
+        
+        [JsonProperty]
+        public string TempPath { get; set; }
+        
+        [JsonProperty]
+        public UUIDModel UploadMediaUuid { get; set; }
+
+        public UploadState UploadState { get; set; }
     }
 }

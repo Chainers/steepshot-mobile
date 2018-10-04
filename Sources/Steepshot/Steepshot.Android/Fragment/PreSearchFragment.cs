@@ -18,7 +18,6 @@ using Steepshot.Activity;
 using Steepshot.Adapter;
 using Steepshot.Base;
 using Steepshot.Core;
-using Steepshot.Core.Authorization;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
@@ -27,6 +26,7 @@ using Steepshot.Core.Localization;
 using Steepshot.Interfaces;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Utils;
+using Steepshot.CustomViews;
 using OperationCanceledException = System.OperationCanceledException;
 
 namespace Steepshot.Fragment
@@ -36,7 +36,7 @@ namespace Steepshot.Fragment
         public const string IsGuestKey = "isGuest";
 
         private bool _isGuest;
-        private TabSettings _tabSettings;
+        private TabOptions _tabOptions;
 
         private ScrollListener _scrollListner;
         private LinearLayoutManager _linearLayoutManager;
@@ -231,8 +231,8 @@ namespace Steepshot.Fragment
 
                 _gridItemDecoration = new GridItemDecoration();
 
-                _tabSettings = AppSettings.User.GetTabSettings(nameof(PreSearchFragment));
-                SwitchListAdapter(_tabSettings.IsGridView);
+                _tabOptions = AppSettings.GetTabSettings(nameof(PreSearchFragment));
+                SwitchListAdapter(_tabOptions.IsGridView);
                 _postsList.AddOnScrollListener(_scrollListner);
 
                 _postPager.SetClipToPadding(false);
@@ -389,9 +389,9 @@ namespace Steepshot.Fragment
 
         private void OnSwitcherClick(object sender, EventArgs e)
         {
-            _tabSettings.IsGridView = !(_postsList.GetLayoutManager() is GridLayoutManager);
-            AppSettings.User.Save();
-            SwitchListAdapter(_tabSettings.IsGridView);
+            _tabOptions.IsGridView = !(_postsList.GetLayoutManager() is GridLayoutManager);
+            AppSettings.SaveNavigation();
+            SwitchListAdapter(_tabOptions.IsGridView);
         }
 
         private void SwitchListAdapter(bool isGridView)
@@ -465,20 +465,23 @@ namespace Steepshot.Fragment
 
         private async void PostAction(ActionType type, Post post)
         {
+            if (post == null)
+                return;
+
             switch (type)
             {
                 case ActionType.Like:
                     {
                         if (AppSettings.User.HasPostingPermission)
                         {
-                            var exception = await Presenter.TryVote(post);
+                            var result = await Presenter.TryVoteAsync(post);
                             if (!IsInitialized)
                                 return;
 
-                            if (exception == null && Activity is RootActivity root)
+                            if (result.IsSuccess && Activity is RootActivity root)
                                 root.TryUpdateProfile();
 
-                            Context.ShowAlert(exception);
+                            Context.ShowAlert(result);
                         }
                         else
                         {
@@ -489,9 +492,6 @@ namespace Steepshot.Fragment
                 case ActionType.VotersLikes:
                 case ActionType.VotersFlags:
                     {
-                        if (post == null)
-                            return;
-
                         var isLikers = type == ActionType.VotersLikes;
                         Activity.Intent.PutExtra(FeedFragment.PostUrlExtraPath, post.Url);
                         Activity.Intent.PutExtra(FeedFragment.PostNetVotesExtraPath, isLikers ? post.NetLikes : post.NetFlags);
@@ -501,8 +501,6 @@ namespace Steepshot.Fragment
                     }
                 case ActionType.Comments:
                     {
-                        if (post == null)
-                            return;
                         if (post.Children == 0 && !AppSettings.User.HasPostingPermission)
                         {
                             OpenLogin();
@@ -514,9 +512,6 @@ namespace Steepshot.Fragment
                     }
                 case ActionType.Profile:
                     {
-                        if (post == null)
-                            return;
-
                         if (AppSettings.User.Login != post.Author)
                             ((BaseActivity)Activity).OpenNewContentFragment(new ProfileFragment(post.Author));
                         break;
@@ -526,14 +521,14 @@ namespace Steepshot.Fragment
                         if (!AppSettings.User.HasPostingPermission)
                             return;
 
-                        var exception = await Presenter.TryFlag(post);
+                        var result = await Presenter.TryFlagAsync(post);
                         if (!IsInitialized)
                             return;
 
-                        if (exception == null && Activity is RootActivity root)
+                        if (result.IsSuccess && Activity is RootActivity root)
                             root.TryUpdateProfile();
 
-                        Context.ShowAlert(exception);
+                        Context.ShowAlert(result);
                         break;
                     }
                 case ActionType.Hide:
@@ -549,11 +544,21 @@ namespace Steepshot.Fragment
                     }
                 case ActionType.Delete:
                     {
-                        var exception = await Presenter.TryDeletePost(post);
-                        if (!IsInitialized)
-                            return;
+                        var actionAlert = new ActionAlertDialog(Context,
+                            AppSettings.LocalizationManager.GetText(LocalizationKeys.DeleteAlertTitle),
+                            AppSettings.LocalizationManager.GetText(LocalizationKeys.DeleteAlertMessage),
+                            AppSettings.LocalizationManager.GetText(LocalizationKeys.Delete),
+                            AppSettings.LocalizationManager.GetText(LocalizationKeys.Cancel), AutoLinkAction);
 
-                        Context.ShowAlert(exception);
+                        actionAlert.AlertAction += async () =>
+                        {
+                            var result = await Presenter.TryDeletePostAsync(post);
+                            if (!IsInitialized)
+                                return;
+                            Context.ShowAlert(result);
+                        };
+
+                        actionAlert.Show();
                         break;
                     }
                 case ActionType.Share:
@@ -568,6 +573,13 @@ namespace Steepshot.Fragment
                 case ActionType.Photo:
                     {
                         OpenPost(post);
+                        break;
+                    }
+                case ActionType.Promote:
+                    {
+                        var actionAlert = new PromoteAlertDialog(Context, post, AutoLinkAction);
+                        actionAlert.Window.RequestFeature(WindowFeatures.NoTitle);
+                        actionAlert.Show();
                         break;
                     }
             }
@@ -588,9 +600,9 @@ namespace Steepshot.Fragment
 
             Exception exception;
             if (string.IsNullOrEmpty(tag))
-                exception = await Presenter.TryLoadNextTopPosts();
+                exception = await Presenter.TryLoadNextTopPostsAsync();
             else
-                exception = await Presenter.TryGetSearchedPosts();
+                exception = await Presenter.TryGetSearchedPostsAsync();
 
             if (!IsInitialized)
                 return;

@@ -22,8 +22,8 @@ namespace Steepshot.iOS.Views
     {
         private CommentsTextViewDelegate _commentsTextViewDelegate;
         private CommentsTableViewSource _tableSource;
-        public Post Post;
-
+        private readonly UIBarButtonItem _leftBarButton = new UIBarButtonItem();
+        private readonly Post _post;
         private Post _postToEdit;
 
         private UITableView _commentsTable;
@@ -43,18 +43,19 @@ namespace Steepshot.iOS.Views
         private UIActivityIndicatorView _sendProgressBar;
         private UIActivityIndicatorView _editProgressBar;
 
-        public override void ViewDidLoad()
+        public CommentsViewController(Post post)
+        {
+            _post = post;
+        }
+
+        public async override void ViewDidLoad()
         {
             base.ViewDidLoad();
             View.BackgroundColor = UIColor.White;
 
-            _presenter.SourceChanged += SourceChanged;
-
             CreateView();
 
-            _tableSource = new CommentsTableViewSource(_presenter, Post);
-            _tableSource.CellAction += CellAction;
-            _tableSource.TagAction += TagAction;
+            _tableSource = new CommentsTableViewSource(Presenter, _post);
 
             _commentsTable.SeparatorStyle = UITableViewCellSeparatorStyle.None;
             _commentsTable.Bounces = false;
@@ -62,7 +63,6 @@ namespace Steepshot.iOS.Views
             _commentsTable.Source = _tableSource;
             _commentsTable.LayoutMargins = UIEdgeInsets.Zero;
             _commentsTable.RegisterClassForCellReuse(typeof(DescriptionTableViewCell), nameof(DescriptionTableViewCell));
-            _commentsTable.RegisterNibForCellReuse(UINib.FromName(nameof(DescriptionTableViewCell), NSBundle.MainBundle), nameof(DescriptionTableViewCell));
             _commentsTable.RegisterClassForCellReuse(typeof(CommentTableViewCell), nameof(CommentTableViewCell));
 
             _commentsTable.RowHeight = UITableView.AutomaticDimension;
@@ -71,19 +71,59 @@ namespace Steepshot.iOS.Views
             Offset = 0;
             Activeview = _commentView;
 
-            if (Post.Children == 0)
+            if (_post.Children == 0)
                 OpenKeyboard();
 
             SetPlaceholder();
             SetBackButton();
-            GetComments();
+            await GetComments();
+        }
+
+        public override void ViewWillAppear(bool animated)
+        {
+            if (IsMovingToParentViewController)
+            {
+                Presenter.SourceChanged += SourceChanged;
+                _leftBarButton.Clicked += GoBack;
+                _tableSource.CellAction += CellAction;
+                _tableSource.TagAction += TagAction;
+                _saveButton.TouchDown += SaveTap;
+                _commentsTextViewDelegate.ChangedAction += CommentsTextViewDelegate_ChangedAction;
+                _sendButton.TouchDown += CreateComment;
+                _cancelButton.TouchDown += CancelTap;
+            }
+            base.ViewWillAppear(animated);
+        }
+
+        public override void ViewWillDisappear(bool animated)
+        {
+            /*
+            if (_postToEdit != null)
+            {
+                _postToEdit.Editing = false;
+                _commentsTable.ReloadData();
+            }*/
+            if (IsMovingFromParentViewController)
+            {
+                Presenter.SourceChanged -= SourceChanged;
+                _leftBarButton.Clicked -= GoBack;
+                _tableSource.CellAction -= CellAction;
+                _tableSource.TagAction -= TagAction;
+                _saveButton.TouchDown -= SaveTap;
+                _commentsTextViewDelegate.ChangedAction = null;
+                _sendButton.TouchDown -= CreateComment;
+                _cancelButton.TouchDown -= CancelTap;
+                _tableSource.FreeAllCells();
+                Presenter.TasksCancel();
+            }
+            base.ViewWillDisappear(animated);
         }
 
         private void SetBackButton()
         {
-            var leftBarButton = new UIBarButtonItem(UIImage.FromBundle("ic_back_arrow"), UIBarButtonItemStyle.Plain, GoBack);
-            NavigationItem.LeftBarButtonItem = leftBarButton;
-            NavigationController.NavigationBar.TintColor = Helpers.Constants.R15G24B30;
+            _leftBarButton.Image = UIImage.FromBundle("ic_back_arrow");
+            NavigationItem.LeftBarButtonItem = _leftBarButton;
+            NavigationController.NavigationBar.TintColor = Constants.R15G24B30;
             NavigationItem.Title = AppSettings.LocalizationManager.GetText(LocalizationKeys.Comments);
         }
 
@@ -99,13 +139,6 @@ namespace Steepshot.iOS.Views
             _commentTextView.ShowsVerticalScrollIndicator = false;
             _commentsTextViewDelegate = new CommentsTextViewDelegate();
 
-            _commentsTextViewDelegate.ChangedAction += (gh) =>
-            {
-                _commentViewHeight.Constant = _commentTextViewHeight.Constant = gh;
-                if (_postToEdit != null && _postToEdit.Editing)
-                    _saveButton.Enabled = _postToEdit.Body != _commentTextView.Text;
-            };
-
             _commentTextView.Delegate = _commentsTextViewDelegate;
 
             _sendButton = new UIButton();
@@ -113,7 +146,6 @@ namespace Steepshot.iOS.Views
             _sendButton.Layer.BorderWidth = 1f;
             _sendButton.Layer.CornerRadius = 20f;
             _sendButton.SetImage(UIImage.FromBundle("ic_send_comment"), UIControlState.Normal);
-            _sendButton.TouchDown += CreateComment;
 
             _sendProgressBar = new UIActivityIndicatorView();
             _sendProgressBar.Color = Constants.R231G72B0;
@@ -136,8 +168,10 @@ namespace Steepshot.iOS.Views
 
             _commentsTable = new UITableView();
 
-            _rootView = new UIStackView(new UIView[] { _commentsTable, _commentView });
-            _rootView.Axis = UILayoutConstraintAxis.Vertical;
+            _rootView = new UIStackView(new UIView[] { _commentsTable, _commentView })
+            {
+                Axis = UILayoutConstraintAxis.Vertical
+            };
             View.AddSubview(_rootView);
 
             _rootView.AutoPinEdgeToSuperviewEdge(ALEdge.Top);
@@ -156,7 +190,7 @@ namespace Steepshot.iOS.Views
             _saveButton = new UIButton();
             _saveButton.SetTitle("Save", UIControlState.Normal);
             _saveButton.SetTitleColor(UIColor.FromRGB(255, 44, 5), UIControlState.Normal);
-            _saveButton.TouchDown += SaveTap;
+
             _saveButton.Layer.BorderColor = Constants.R244G244B246.CGColor;
             _saveButton.Layer.BorderWidth = 1f;
             _saveButton.Layer.CornerRadius = 20f;
@@ -169,7 +203,6 @@ namespace Steepshot.iOS.Views
             _cancelButton = new UIButton();
             _cancelButton.SetTitle("Cancel", UIControlState.Normal);
             _cancelButton.SetTitleColor(UIColor.Black, UIControlState.Normal);
-            _cancelButton.TouchDown += CancelTap;
             _cancelButton.Layer.BorderColor = Constants.R244G244B246.CGColor;
             _cancelButton.Layer.BorderWidth = 1f;
             _cancelButton.Layer.CornerRadius = 20f;
@@ -199,16 +232,6 @@ namespace Steepshot.iOS.Views
                 _commentView.Hidden = true;
         }
 
-        public override void ViewWillDisappear(bool animated)
-        {
-            if (_postToEdit != null)
-            {
-                _postToEdit.Editing = false;
-                _commentsTable.ReloadData();
-            }
-            base.ViewWillDisappear(animated);
-        }
-
         private void SetPlaceholder()
         {
             var placeholderLabel = new UILabel();
@@ -227,6 +250,13 @@ namespace Steepshot.iOS.Views
 
             _commentTextView.AddSubview(placeholderLabel);
             _commentsTextViewDelegate.Placeholder = placeholderLabel;
+        }
+
+        private void CommentsTextViewDelegate_ChangedAction(nfloat gh)
+        {
+            _commentViewHeight.Constant = _commentTextViewHeight.Constant = gh;
+            if (_postToEdit != null && _postToEdit.Editing)
+                _saveButton.Enabled = _postToEdit.Body != _commentTextView.Text;
         }
 
         private void CellAction(ActionType type, Post post)
@@ -284,12 +314,17 @@ namespace Steepshot.iOS.Views
 
         private void SourceChanged(Status status)
         {
+            InvokeOnMainThread(HandleAction);
+        }
+
+        private void HandleAction()
+        {
             _commentsTable.ReloadData();
         }
 
         private void HideAction(Post post)
         {
-            _presenter.HidePost(post);
+            Presenter.HidePost(post);
         }
 
         private void OpenKeyboard()
@@ -297,14 +332,15 @@ namespace Steepshot.iOS.Views
             _commentTextView.BecomeFirstResponder();
         }
 
-        public async void GetComments()
+        public async Task GetComments()
         {
             _tableProgressBar.StartAnimating();
-            _presenter.Clear();
-            var exception = await _presenter.TryLoadNextComments(Post);
+            Presenter.Clear();
+            var exception = await Presenter.TryLoadNextCommentsAsync(_post);
             if (exception is OperationCanceledException)
                 return;
             ShowAlert(exception);
+            _commentsTable.ReloadData();
             _tableProgressBar.StopAnimating();
         }
 
@@ -316,9 +352,9 @@ namespace Steepshot.iOS.Views
                 return;
             }
 
-            var exception = await _presenter.TryVote(post);
-            ShowAlert(exception);
-            if (exception == null)
+            var result = await Presenter.TryVoteAsync(post);
+            ShowAlert(result);
+            if (result.IsSuccess)
                 ((MainTabBarController)TabBarController)?.UpdateProfile();
         }
 
@@ -330,9 +366,9 @@ namespace Steepshot.iOS.Views
                 return;
             }
 
-            var exception = await _presenter.TryFlag(post);
-            ShowAlert(exception);
-            if (exception == null)
+            var result = await Presenter.TryFlagAsync(post);
+            ShowAlert(result);
+            if (result.IsSuccess)
                 ((MainTabBarController)TabBarController)?.UpdateProfile();
         }
 
@@ -358,7 +394,7 @@ namespace Steepshot.iOS.Views
             _sendButton.Hidden = true;
             _sendProgressBar.StartAnimating();
 
-            var response = await _presenter.TryCreateComment(Post, textToSend);
+            var response = await Presenter.TryCreateCommentAsync(_post, textToSend);
 
             _sendProgressBar.StopAnimating();
             _commentTextView.UserInteractionEnabled = true;
@@ -368,12 +404,10 @@ namespace Steepshot.iOS.Views
             {
                 CancelTap(null, null);
 
-                var exception = await _presenter.TryLoadNextComments(Post);
+                var exception = await Presenter.TryLoadNextCommentsAsync(_post);
 
                 ShowAlert(exception);
-                //if (_presenter.Count > 0)
-                //_commentsTable.ScrollToRow(NSIndexPath.FromRowSection(_presenter.Count - 1, 0), UITableViewScrollPosition.Bottom, true);
-                Post.Children++;
+                _post.Children++;
             }
             else
                 ShowAlert(response.Exception);
@@ -390,12 +424,12 @@ namespace Steepshot.iOS.Views
                 return;
             }
 
-            var exception = await _presenter.TryDeleteComment(post, Post);
+            var result = await Presenter.TryDeleteCommentAsync(post, _post);
 
-            if (exception == null)
-                Post.Children--;
+            if (result.IsSuccess)
+                _post.Children--;
 
-            ShowAlert(exception);
+            ShowAlert(result);
         }
 
         protected override void ScrollTheView(bool move)
@@ -406,7 +440,7 @@ namespace Steepshot.iOS.Views
                 _commentsTable.ScrollIndicatorInsets = _commentsTable.ContentInset = new UIEdgeInsets(ScrollAmount, 0, 0, 0);
                 if (_postToEdit != null)
                 {
-                    var currentPostIndex = _presenter.IndexOf(_postToEdit);
+                    var currentPostIndex = Presenter.IndexOf(_postToEdit);
                     _commentsTable.ScrollToRow(NSIndexPath.FromItemSection(currentPostIndex + 1, 0), UITableViewScrollPosition.Top, true);
                 }
             }
@@ -444,7 +478,7 @@ namespace Steepshot.iOS.Views
         private void CancelTap(object sender, EventArgs e)
         {
             _commentTextView.BackgroundColor = UIColor.White;
-            _commentTextView.Layer.BorderColor = Helpers.Constants.R244G244B246.CGColor;
+            _commentTextView.Layer.BorderColor = Constants.R244G244B246.CGColor;
             _commentTextView.ResignFirstResponder();
             _commentTextView.Text = string.Empty;
             _commentsTextViewDelegate.Changed(_commentTextView);
@@ -471,18 +505,18 @@ namespace Steepshot.iOS.Views
             _saveButton.Hidden = true;
             _commentTextView.UserInteractionEnabled = false;
 
-            var exception = await _presenter.TryEditComment(AppSettings.User.UserInfo, Post, _postToEdit, textToSend, AppSettings.AppInfo);
+            var result = await Presenter.TryEditCommentAsync(AppSettings.User.UserInfo, _post, _postToEdit, textToSend, AppSettings.AppInfo);
 
-            if (exception == null)
+            if (result.IsSuccess)
                 CancelTap(null, null);
-            ShowAlert(exception);
+            ShowAlert(result);
 
             _commentTextView.UserInteractionEnabled = true;
             _editProgressBar.StopAnimating();
             _saveButton.Hidden = false;
         }
 
-        void LoginTapped()
+        private void LoginTapped()
         {
             NavigationController.PushViewController(new PreLoginViewController(), true);
         }

@@ -21,11 +21,11 @@ namespace Steepshot.Fragment
 
             base.OnViewCreated(view, savedInstanceState);
 
-            _photos.Visibility = ViewStates.Gone;
-            _preview.Visibility = ViewStates.Gone;
-            _videoPreview.Visibility = ViewStates.Visible;
+            Photos.Visibility = ViewStates.Gone;
+            Preview.Visibility = ViewStates.Gone;
+            VideoPreview.Visibility = ViewStates.Visible;
 
-            _videoPreview.MediaSource = new MediaModel
+            VideoPreview.MediaSource = new MediaModel
             {
                 Url = _path,
                 ContentType = "video",

@@ -1,4 +1,5 @@
 ﻿using System;
+using Foundation;
 using PureLayout.Net;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Presenters;
@@ -7,12 +8,13 @@ using Steepshot.iOS.CustomViews;
 using Steepshot.iOS.Helpers;
 using Steepshot.iOS.Views;
 using UIKit;
+using Steepshot.Core.Extensions;
 
 namespace Steepshot.iOS.Popups
 {
     public class PowerManipulationPopup
     {
-        public static void Create(UINavigationController controller, WalletPresenter _presenter)
+        public static void Create(UINavigationController controller, WalletPresenter _presenter, Action<bool> continuePowerDownCancellation)
         {
             var commonMargin = 20;
 
@@ -74,11 +76,35 @@ namespace Steepshot.iOS.Popups
             powerDownButton.AutoPinEdgeToSuperviewEdge(ALEdge.Right, commonMargin);
             powerDownButton.AutoSetDimension(ALDimension.Height, 50);
 
+            var showCancelPowerDown = _presenter.Balances[0].ToWithdraw > 0;
+
+            var cancelPowerDownButton = new UIButton();
+
+            if (showCancelPowerDown)
+            {
+                cancelPowerDownButton.SetTitle(AppSettings.LocalizationManager.GetText(LocalizationKeys.CancelPowerDown), UIControlState.Normal);
+                cancelPowerDownButton.SetTitleColor(UIColor.Black, UIControlState.Normal);
+                cancelPowerDownButton.BackgroundColor = Constants.R255G255B255;
+                cancelPowerDownButton.Layer.CornerRadius = 25;
+                cancelPowerDownButton.Font = Constants.Semibold14;
+                cancelPowerDownButton.Layer.BorderWidth = 1;
+                cancelPowerDownButton.Layer.BorderColor = Constants.R245G245B245.CGColor;
+                popup.AddSubview(cancelPowerDownButton);
+
+                cancelPowerDownButton.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, powerDownButton, 10);
+                cancelPowerDownButton.AutoPinEdgeToSuperviewEdge(ALEdge.Left, commonMargin);
+                cancelPowerDownButton.AutoPinEdgeToSuperviewEdge(ALEdge.Right, commonMargin);
+                cancelPowerDownButton.AutoSetDimension(ALDimension.Height, 50);
+            }
+
             var bottomSeparator = new UIView();
             bottomSeparator.BackgroundColor = Constants.R245G245B245;
             popup.AddSubview(bottomSeparator);
 
-            bottomSeparator.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, powerDownButton, 26);
+            if (showCancelPowerDown)
+                bottomSeparator.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, cancelPowerDownButton, 26);
+            else
+                bottomSeparator.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, powerDownButton, 26);
             bottomSeparator.AutoPinEdgeToSuperviewEdge(ALEdge.Left, commonMargin);
             bottomSeparator.AutoPinEdgeToSuperviewEdge(ALEdge.Right, commonMargin);
             bottomSeparator.AutoSetDimension(ALDimension.Height, 1);
@@ -102,13 +128,21 @@ namespace Steepshot.iOS.Popups
             powerUpButton.TouchDown += (s, ev) =>
             {
                 _alert.Close();
-                controller.PushViewController(new PowerManipulationViewController(_presenter.Balances[0], Core.Models.Enums.PowerAction.PowerUp), true);
+                controller.PushViewController(new PowerManipulationViewController(_presenter, Core.Models.Enums.PowerAction.PowerUp), true);
             };
             powerDownButton.TouchDown += (s, ev) =>
             {
                 _alert.Close();
-                controller.PushViewController(new PowerManipulationViewController(_presenter.Balances[0], Core.Models.Enums.PowerAction.PowerDown), true);
+                controller.PushViewController(new PowerManipulationViewController(_presenter, Core.Models.Enums.PowerAction.PowerDown), true);
+            };
+            cancelPowerDownButton.TouchDown += (s, ev) =>
+            {
+                _alert.Close();
+                var at = new NSMutableAttributedString();
+                at.Append(new NSAttributedString(string.Format(AppSettings.LocalizationManager.GetText(LocalizationKeys.CancelPowerDownAlert),
+                                                               _presenter.Balances[0].ToWithdraw.ToBalanceValueString())));
 
+                TransferDialogPopup.Create(controller, at, continuePowerDownCancellation);
             };
             cancelButton.TouchDown += (s, ev) => { _alert.Close(); };
 

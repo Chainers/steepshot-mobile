@@ -1,7 +1,8 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Ditch.Core.JsonRpc;
 using Steepshot.Core.Authorization;
+using Steepshot.Core.Clients;
+using Steepshot.Core.Interfaces;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Models.Requests;
@@ -10,30 +11,25 @@ namespace Steepshot.Core.Presenters
 {
     public class TransferPresenter : PreSignInPresenter
     {
-        public async Task<OperationResult<VoidResponse>> TryTransfer(UserInfo userInfo, string recipient, string amount, CurrencyType type, string memo = null)
+        public TransferPresenter(IConnectionService connectionService, ILogService logService, BaseDitchClient ditchClient)
+            : base(connectionService, logService, ditchClient)
+        {
+        }
+
+        public async Task<OperationResult<VoidResponse>> TryTransferAsync(UserInfo userInfo, string recipient, string amount, CurrencyType type, string memo = null)
         {
             var transferModel = new TransferModel(userInfo, recipient, amount, type);
 
             if (!string.IsNullOrEmpty(memo))
                 transferModel.Memo = memo;
 
-            return await TryRunTask<TransferModel, VoidResponse>(Transfer, OnDisposeCts.Token, transferModel);
+            return await TaskHelper.TryRunTaskAsync(DitchClient.TransferAsync, transferModel, OnDisposeCts.Token).ConfigureAwait(false);
         }
 
-        private Task<OperationResult<VoidResponse>> Transfer(TransferModel model, CancellationToken ct)
-        {
-            return Api.Transfer(model, ct);
-        }
-
-        public async Task<OperationResult<VoidResponse>> TryPowerUpOrDown(BalanceModel balance, PowerAction powerAction)
+        public async Task<OperationResult<VoidResponse>> TryPowerUpOrDownAsync(BalanceModel balance, PowerAction powerAction)
         {
             var model = new PowerUpDownModel(balance, powerAction);
-            return await TryRunTask<PowerUpDownModel, VoidResponse>(PowerDownOrDown, OnDisposeCts.Token, model);
-        }
-
-        private Task<OperationResult<VoidResponse>> PowerDownOrDown(PowerUpDownModel model, CancellationToken ct)
-        {
-            return Api.PowerUpOrDown(model, ct);
+            return await TaskHelper.TryRunTaskAsync(DitchClient.PowerUpOrDownAsync, model, OnDisposeCts.Token).ConfigureAwait(false);
         }
     }
 }

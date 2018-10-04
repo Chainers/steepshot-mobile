@@ -11,17 +11,19 @@ using Steepshot.iOS.ViewSources;
 using UIKit;
 using Steepshot.Core.Utils;
 using System.Threading.Tasks;
-using Steepshot.Core;
 using Steepshot.Core.Exceptions;
+using Steepshot.Core.Localization;
 
 namespace Steepshot.iOS.Views
 {
     public partial class TagsSearchViewController : BaseViewController
     {
-        private Timer _timer;
+        private readonly Timer _timer;
         private FollowTableViewSource _userTableSource;
+        private TagsTableViewSource _tagsSource;
         private SearchType _searchType = SearchType.Tags;
-        private SearchFacade _searchFacade;
+        private readonly SearchFacade _searchFacade;
+        private readonly UIBarButtonItem _leftBarButton = new UIBarButtonItem();
 
         private readonly Dictionary<SearchType, string> _prevQuery = new Dictionary<SearchType, string>
         {
@@ -29,28 +31,68 @@ namespace Steepshot.iOS.Views
             {SearchType.Tags, null}
         };
 
+        public TagsSearchViewController()
+        {
+            _searchFacade = AppSettings.GetFacade<SearchFacade>(AppSettings.MainChain);
+
+            _timer = new Timer(OnTimer);
+        }
+
         public override void ViewDidLoad()
         {
             base.ViewDidLoad();
             CreateView();
-
-            var client = AppDelegate.MainChain == KnownChains.Steem ? AppDelegate.SteemClient : AppDelegate.GolosClient;
-            _searchFacade = new SearchFacade();
-            _searchFacade.SetClient(client);
-
-            _timer = new Timer(OnTimer);
-
             SetupTables();
-
-            _searchFacade.UserFriendPresenter.SourceChanged += UserFriendPresenterSourceChanged;
-            _searchFacade.TagsPresenter.SourceChanged += TagsPresenterSourceChanged;
-
-            searchTextField.EditingChanged += EditingChanged;
-            tagsButton.TouchDown += TagsButtonTap;
-            peopleButton.TouchDown += PeopleButtonTap;
-
             SwitchSearchType(false);
             SetBackButton();
+        }
+
+        public override void ViewWillAppear(bool animated)
+        {
+            if (IsMovingToParentViewController)
+            {
+                _searchFacade.UserFriendPresenter.SourceChanged += UserFriendPresenterSourceChanged;
+                _searchFacade.TagsPresenter.SourceChanged += TagsPresenterSourceChanged;
+                searchTextField.EditingChanged += EditingChanged;
+                tagsButton.TouchDown += TagsButtonTap;
+                peopleButton.TouchDown += PeopleButtonTap;
+                _userTableSource.ScrolledToBottom += GetItems;
+                _userTableSource.CellAction += CellAction;
+                _tagsSource.CellAction += CellAction;
+                searchTextField.ReturnButtonTapped += ShouldReturn;
+                searchTextField.ClearButtonTapped += SearchTextField_ClearButtonTapped;
+                View.AddGestureRecognizer(_tap);
+                _leftBarButton.Clicked += GoBack;
+            }
+            base.ViewWillAppear(animated);
+        }
+
+        public override void ViewWillDisappear(bool animated)
+        {
+            if (IsMovingFromParentViewController)
+            {
+                _searchFacade.UserFriendPresenter.SourceChanged -= UserFriendPresenterSourceChanged;
+                _searchFacade.TagsPresenter.SourceChanged -= TagsPresenterSourceChanged;
+                searchTextField.EditingChanged -= EditingChanged;
+                tagsButton.TouchDown -= TagsButtonTap;
+                peopleButton.TouchDown -= PeopleButtonTap;
+                _leftBarButton.Clicked -= GoBack;
+                _userTableSource.ScrolledToBottom = null;
+                _userTableSource.CellAction = null;
+                _tagsSource.CellAction = null;
+                searchTextField.ReturnButtonTapped -= ShouldReturn;
+                searchTextField.ClearButtonTapped = null;
+                View.RemoveGestureRecognizer(_tap);
+                _timer.Dispose();
+                _tagsSource.FreeAllCells();
+                _userTableSource.FreeAllCells();
+            }
+            base.ViewWillDisappear(animated);
+        }
+
+        private void SearchTextField_ClearButtonTapped()
+        {
+            OnTimer(null);
         }
 
         private void PeopleButtonTap(object sender, EventArgs e)
@@ -103,20 +145,20 @@ namespace Steepshot.iOS.Views
 
         private void TagsPresenterSourceChanged(Status obj)
         {
-            tagsTable.ReloadData();
+            InvokeOnMainThread(tagsTable.ReloadData);
         }
 
         private void UserFriendPresenterSourceChanged(Status obj)
         {
-            usersTable.ReloadData();
+            InvokeOnMainThread(usersTable.ReloadData);
         }
 
         private void SetBackButton()
         {
-            NavigationItem.Title = "Search";
-            var leftBarButton = new UIBarButtonItem(UIImage.FromBundle("ic_back_arrow"), UIBarButtonItemStyle.Plain, GoBack);
-            leftBarButton.TintColor = Helpers.Constants.R15G24B30;
-            NavigationItem.LeftBarButtonItem = leftBarButton;
+            NavigationItem.Title = AppSettings.LocalizationManager.GetText(LocalizationKeys.RecipientNameHint);
+            _leftBarButton.Image = UIImage.FromBundle("ic_back_arrow");
+            _leftBarButton.TintColor = Helpers.Constants.R15G24B30;
+            NavigationItem.LeftBarButtonItem = _leftBarButton;
         }
 
         public void GetItems()
@@ -128,14 +170,9 @@ namespace Steepshot.iOS.Views
         {
             if (user != null)
             {
-                var exception = await _searchFacade.UserFriendPresenter.TryFollow(user);
-                ShowAlert(exception);
+                var result = await _searchFacade.UserFriendPresenter.TryFollowAsync(user);
+                ShowAlert(result);
             }
-        }
-
-        private void GoBack(object sender, EventArgs e)
-        {
-            NavigationController.PopViewController(true);
         }
 
         private void OnTimer(object state)
@@ -164,7 +201,7 @@ namespace Steepshot.iOS.Views
             var shouldHideLoader = await Search(clear, shouldAnimate, isLoaderNeeded);
             if (shouldHideLoader)
             {
-                if(searchTextField.Text.Length > 2)
+                if (searchTextField.Text.Length > 2)
                     _noResultViewPeople.Hidden = _searchFacade.UserFriendPresenter.Count > 0;
                 _peopleLoader.StopAnimating();
             }
@@ -205,7 +242,7 @@ namespace Steepshot.iOS.Views
                 }
             }
 
-            var exception = await _searchFacade.TrySearchCategories(searchTextField.Text, _searchType);
+            var exception = await _searchFacade.TrySearchCategoriesAsync(searchTextField.Text, _searchType);
             if (exception is OperationCanceledException)
                 return false;
 

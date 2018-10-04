@@ -3,6 +3,7 @@ using CoreGraphics;
 using FFImageLoading;
 using FFImageLoading.Work;
 using Steepshot.Core.Extensions;
+using Steepshot.Core.Models.Common;
 using UIKit;
 
 namespace Steepshot.iOS.Helpers
@@ -33,16 +34,16 @@ namespace Steepshot.iOS.Helpers
                          .Into(view);
         }
 
-        public static void Preload(string url, CGSize gSize, string microUrl = null)
+        public static void Preload(MediaModel mediaModel, nfloat width)
         {
-            ImageService.Instance.LoadUrl(url.GetImageProxy((int)(gSize.Width * UIScreen.MainScreen.Scale), (int)(gSize.Width * UIScreen.MainScreen.Scale)), TimeSpan.FromDays(5))
+            ImageService.Instance.LoadUrl(mediaModel.GetImageProxy((int)(width * Constants.ScreenScale)), TimeSpan.FromDays(5))
                                  .WithCache(FFImageLoading.Cache.CacheType.All)
                                  .WithPriority(LoadingPriority.Low)
                                  .Error((error) =>
                                  {
-                                     ImageService.Instance.LoadUrl(microUrl != null ? microUrl : url, TimeSpan.FromDays(5))
+                                     ImageService.Instance.LoadUrl(mediaModel.Thumbnails.Mini, TimeSpan.FromDays(5))
                                                  .WithCache(FFImageLoading.Cache.CacheType.All)
-                                                 .DownSample((int)gSize.Width)
+                                                 .DownSample((int)width)
                                                  .WithPriority(LoadingPriority.Lowest)
                                                  .Preload();
                                  })

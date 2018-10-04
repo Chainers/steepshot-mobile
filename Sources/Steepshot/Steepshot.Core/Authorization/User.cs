@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Models.Responses;
-using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Authorization
 {
@@ -157,23 +156,12 @@ namespace Steepshot.Core.Authorization
 
         public bool HasActivePermission => !string.IsNullOrEmpty(UserInfo?.ActiveKey);
 
-        public int SelectedTab
-        {
-            get => UserInfo.SelectedTab;
-            set
-            {
-                UserInfo.SelectedTab = value;
-                if (HasPostingPermission)
-                    _data.Update(UserInfo);
-            }
-        }
-
         public Dictionary<string, string> Integration => UserInfo.Integration;
 
 
-        public User()
+        public User(UserManager data)
         {
-            _data = AppSettings.DataProvider;
+            _data = data;
         }
 
         public void Load()
@@ -258,22 +246,6 @@ namespace Steepshot.Core.Authorization
         public void Save()
         {
             _data.Update(UserInfo);
-        }
-
-        public void SetTabSettings(string tabKey, TabSettings value)
-        {
-            if (UserInfo.Navigation.TabSettings.ContainsKey(tabKey))
-                UserInfo.Navigation.TabSettings[tabKey] = value;
-            else
-                UserInfo.Navigation.TabSettings.Add(tabKey, value);
-        }
-
-        public TabSettings GetTabSettings(string tabKey)
-        {
-            if (!UserInfo.Navigation.TabSettings.ContainsKey(tabKey))
-                UserInfo.Navigation.TabSettings.Add(tabKey, new TabSettings());
-
-            return UserInfo.Navigation.TabSettings[tabKey];
         }
     }
 }

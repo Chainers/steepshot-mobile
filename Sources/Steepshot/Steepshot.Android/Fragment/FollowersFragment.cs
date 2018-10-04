@@ -119,11 +119,11 @@ namespace Steepshot.Fragment
                 return;
             if (AppSettings.User.HasPostingPermission)
             {
-                var exception = await Presenter.TryFollow(userFriend);
+                var result = await Presenter.TryFollowAsync(userFriend);
                 if (!IsInitialized)
                     return;
 
-                Context.ShowAlert(exception, ToastLength.Long);
+                Context.ShowAlert(result, ToastLength.Long);
             }
             else
             {
@@ -134,11 +134,11 @@ namespace Steepshot.Fragment
 
         private async void LoadItems()
         {
-            var exception = await Presenter.TryLoadNextUserFriends(_username);
+            var result = await Presenter.TryLoadNextUserFriendsAsync(_username);
             if (!IsInitialized)
                 return;
 
-            Context.ShowAlert(exception, ToastLength.Long);
+            Context.ShowAlert(result, ToastLength.Long);
             _bar.Visibility = ViewStates.Gone;
 
             _emptyQueryLabel.Visibility = Presenter.Count > 0 ? ViewStates.Invisible : ViewStates.Visible;

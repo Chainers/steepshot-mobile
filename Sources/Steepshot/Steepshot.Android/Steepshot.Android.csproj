@@ -70,6 +70,7 @@
     <OutputPath>bin\x86\Release\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Adapter\PostPhotosPagerAdapter.cs" />
     <Compile Include="Adapter\SpinnerAdapter.cs" />
     <Compile Include="Activity\ActiveSignInActivity.cs" />
     <Compile Include="Adapter\RecipientsAdapter.cs" />
@@ -118,7 +119,8 @@
     <Compile Include="CustomViews\TouchableSpan.cs" />
     <Compile Include="CustomViews\WalletExtraDialog.cs" />
     <Compile Include="Fragment\NewCameraFragment.cs" />
-    <Compile Include="Fragment\PostCreateBaseFragment.cs" />
+    <Compile Include="CustomViews\WheelPicker.cs" />
+    <Compile Include="Fragment\PreviewPostCreateFragment.cs" />
     <Compile Include="Fragment\PostCreateFragment.cs" />
     <Compile Include="Fragment\PostPrepareBaseFragment.cs" />
     <Compile Include="Fragment\PowerUpDownFragment.cs" />
@@ -126,7 +128,10 @@
     <Compile Include="Fragment\VideoPostCreateFragment.cs" />
     <Compile Include="Fragment\WalletFragment.cs" />
     <Compile Include="Integration\InstagramModule.cs" />
+    <Compile Include="Services\JobService.cs" />
     <Compile Include="Resources\Resource.designer.cs" />
+    <Compile Include="Utils\CustomBottomSheetCallback.cs" />
+    <Compile Include="Utils\FileProvider.cs" />
     <Compile Include="Utils\Media\ImageProducer.cs" />
     <Compile Include="Utils\Media\IMediaPerformer.cs" />
     <Compile Include="Utils\Media\IMediaProducer.cs" />
@@ -135,7 +140,6 @@
     <Compile Include="Utils\TextInputFilter.cs" />
     <Compile Include="Utils\NotificationExtender.cs" />
     <Compile Include="Adapter\GalleryGridAdapter.cs" />
-    <Compile Include="Adapter\GalleryHorizontalAdapter.cs" />
     <Compile Include="CustomViews\CoordinatorLinearLayout.cs" />
     <Compile Include="CustomViews\CoordinatorRecyclerView.cs" />
     <Compile Include="CustomViews\CropViewGrid.cs" />
@@ -144,7 +148,7 @@
     <Compile Include="CustomViews\LikeScaleBar.cs" />
     <Compile Include="Fragment\GalleryFragment.cs" />
     <Compile Include="Fragment\PostEditFragment.cs" />
-    <Compile Include="Fragment\SinglePostFragment.cs" />
+    <Compile Include="Fragment\PostViewFragment.cs" />
     <Compile Include="Utils\GalleryMediaModel.cs" />
     <Compile Include="CustomViews\SelectableImageView.cs" />
     <Compile Include="CustomViews\PowerIndicator.cs" />
@@ -152,7 +156,6 @@
     <Compile Include="Activity\PostPreviewActivity.cs" />
     <Compile Include="Activity\GuestActivity.cs" />
     <Compile Include="Activity\RootActivity.cs" />
-    <Compile Include="Activity\TestActivity.cs" />
     <Compile Include="Activity\SettingsActivity.cs" />
     <Compile Include="Activity\SignInActivity.cs" />
     <Compile Include="Activity\SplashActivity.cs" />
@@ -218,6 +221,12 @@
     <Compile Include="Activity\RegistrationActivity.cs" />
     <Compile Include="Fragment\PlagiarismCheckFragment.cs" />
     <Compile Include="CustomViews\FeatureDialog.cs" />
+    <Compile Include="CustomViews\PromoteAlertDialog.cs" />
+    <Compile Include="Adapter\PromotePagerAdapter.cs" />
+    <Compile Include="Holders\PromoteMainHolder.cs" />
+    <Compile Include="Holders\PromotePickerHolder.cs" />
+    <Compile Include="Holders\PromoterFoundHolder.cs" />
+    <Compile Include="Holders\PromoteMessageHolder.cs" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\values-v21\styles.xml">
@@ -237,6 +246,11 @@
     <AndroidResource Include="Resources\mipmap-xhdpi\ic_launcher.png" />
     <AndroidResource Include="Resources\mipmap-xxhdpi\ic_launcher.png" />
     <AndroidResource Include="Resources\mipmap-xxxhdpi\ic_launcher.png" />
+    <AndroidResource Include="Resources\layout\lyt_promote_popup.axml" />
+    <AndroidResource Include="Resources\layout\lyt_promote_main.axml" />
+    <AndroidResource Include="Resources\layout\lyt_promote_picker.axml" />
+    <AndroidResource Include="Resources\layout\lyt_promote_searching.axml" />
+    <AndroidResource Include="Resources\layout\lyt_promote_message.axml" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\values-v21\styles.xml" />
@@ -254,7 +268,6 @@
     <AndroidAsset Include="Assets\DebugWif.txt.template" />
     <AndroidAsset Include="Assets\DebugWif.txt" />
     <AndroidAsset Include="Assets\Config.txt" />
-    <AndroidAsset Include="Assets\CensoredWords.txt" />
     <AndroidAsset Include="Assets\SteemNodesConfig.txt" />
     <AndroidAsset Include="Assets\GolosNodesConfig.txt" />
     <AndroidAsset Include="..\..\..\References\Languages\en\dic.xml">
@@ -562,11 +575,10 @@
     <AndroidResource Include="Resources\layout\lyt_account_item.axml" />
     <AndroidResource Include="Resources\layout\lyt_account_popup.axml" />
     <AndroidResource Include="Resources\layout\lyt_alert.axml" />
-    <AndroidResource Include="Resources\layout\lyt_auto_test.axml" />
     <AndroidResource Include="Resources\layout\lyt_coin_pick.axml" />
     <AndroidResource Include="Resources\layout\lyt_comment_item.axml" />
     <AndroidResource Include="Resources\layout\lyt_comments.axml" />
-    <AndroidResource Include="Resources\layout\lyt_deletion_alert.axml" />
+    <AndroidResource Include="Resources\layout\lyt_custom_alert.axml" />
     <AndroidResource Include="Resources\layout\lyt_description_item.axml" />
     <AndroidResource Include="Resources\layout\lyt_empty_feed.axml" />
     <AndroidResource Include="Resources\layout\lyt_feed.axml" />
@@ -662,22 +674,22 @@
       <HintPath>..\packages\MisterJimson.Cheeseknife.1.1.0\lib\MonoAndroid10\Cheeseknife.dll</HintPath>
     </Reference>
     <Reference Include="Com.OneSignal, Version=3.2.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Com.OneSignal.3.2.0\lib\MonoAndroid10\Com.OneSignal.dll</HintPath>
+      <HintPath>..\packages\Com.OneSignal.3.2.1\lib\MonoAndroid10\Com.OneSignal.dll</HintPath>
     </Reference>
     <Reference Include="Com.OneSignal.Abstractions, Version=3.2.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Com.OneSignal.3.2.0\lib\MonoAndroid10\Com.OneSignal.Abstractions.dll</HintPath>
+      <HintPath>..\packages\Com.OneSignal.3.2.1\lib\MonoAndroid10\Com.OneSignal.Abstractions.dll</HintPath>
     </Reference>
     <Reference Include="Cryptography.ECDSA, Version=1.1.2.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Cryptography.ECDSA.Secp256K1.1.1.2\lib\netstandard2.0\Cryptography.ECDSA.dll</HintPath>
     </Reference>
-    <Reference Include="Ditch.Core, Version=4.0.3.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Ditch.Core.4.0.3\lib\netstandard2.0\Ditch.Core.dll</HintPath>
+    <Reference Include="Ditch.Core, Version=4.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Ditch.Core.4.1.0\lib\netstandard2.0\Ditch.Core.dll</HintPath>
     </Reference>
-    <Reference Include="Ditch.Golos, Version=4.0.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Ditch.Golos.4.0.1\lib\netstandard2.0\Ditch.Golos.dll</HintPath>
+    <Reference Include="Ditch.Golos, Version=4.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Ditch.Golos.4.1.0\lib\netstandard2.0\Ditch.Golos.dll</HintPath>
     </Reference>
-    <Reference Include="Ditch.Steem, Version=4.0.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Ditch.Steem.4.0.1\lib\netstandard2.0\Ditch.Steem.dll</HintPath>
+    <Reference Include="Ditch.Steem, Version=4.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Ditch.Steem.4.1.0\lib\netstandard2.0\Ditch.Steem.dll</HintPath>
     </Reference>
     <Reference Include="ExoPlayer, Version=2.8.8.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Xam.Plugins.Android.ExoPlayer.2.8.8\lib\monoandroid81\ExoPlayer.dll</HintPath>
@@ -708,13 +720,34 @@
       <HintPath>..\packages\Newtonsoft.Json.11.0.2\lib\netstandard2.0\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="OneSignal.Android.Binding, Version=3.2.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Com.OneSignal.3.2.0\lib\MonoAndroid10\OneSignal.Android.Binding.dll</HintPath>
+      <HintPath>..\packages\Com.OneSignal.3.2.1\lib\MonoAndroid10\OneSignal.Android.Binding.dll</HintPath>
     </Reference>
     <Reference Include="Refractored.Controls.CircleImageView, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Refractored.Controls.CircleImageView.1.0.1\lib\MonoAndroid10\Refractored.Controls.CircleImageView.dll</HintPath>
     </Reference>
     <Reference Include="ShimmerLayout, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Karamunting.Android.TeamSupercharge.ShimmerLayout.2.1.0\lib\monoandroid71\ShimmerLayout.dll</HintPath>
+    </Reference>
+    <Reference Include="SQLite-net, Version=1.5.231.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\sqlite-net-pcl.1.5.231\lib\netstandard1.1\SQLite-net.dll</HintPath>
+    </Reference>
+    <Reference Include="SQLiteNetExtensions, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SQLiteNetExtensions.2.1.0\lib\netstandard1.1\SQLiteNetExtensions.dll</HintPath>
+    </Reference>
+    <Reference Include="SQLitePCLRaw.batteries_green, Version=1.1.11.121, Culture=neutral, PublicKeyToken=a84b7dcfb1391f7f, processorArchitecture=MSIL">
+      <HintPath>..\packages\SQLitePCLRaw.bundle_green.1.1.11\lib\MonoAndroid\SQLitePCLRaw.batteries_green.dll</HintPath>
+    </Reference>
+    <Reference Include="SQLitePCLRaw.batteries_v2, Version=1.1.11.121, Culture=neutral, PublicKeyToken=8226ea5df37bcae9, processorArchitecture=MSIL">
+      <HintPath>..\packages\SQLitePCLRaw.bundle_green.1.1.11\lib\MonoAndroid\SQLitePCLRaw.batteries_v2.dll</HintPath>
+    </Reference>
+    <Reference Include="SQLitePCLRaw.core, Version=1.1.11.121, Culture=neutral, PublicKeyToken=1488e028ca7ab535, processorArchitecture=MSIL">
+      <HintPath>..\packages\SQLitePCLRaw.core.1.1.11\lib\MonoAndroid\SQLitePCLRaw.core.dll</HintPath>
+    </Reference>
+    <Reference Include="SQLitePCLRaw.lib.e_sqlite3, Version=1.1.11.121, Culture=neutral, PublicKeyToken=e4ad490600e2234c, processorArchitecture=MSIL">
+      <HintPath>..\packages\SQLitePCLRaw.lib.e_sqlite3.android.1.1.11\lib\MonoAndroid\SQLitePCLRaw.lib.e_sqlite3.dll</HintPath>
+    </Reference>
+    <Reference Include="SQLitePCLRaw.provider.e_sqlite3, Version=1.1.11.121, Culture=neutral, PublicKeyToken=9c301db686d0bd12, processorArchitecture=MSIL">
+      <HintPath>..\packages\SQLitePCLRaw.provider.e_sqlite3.android.1.1.11\lib\MonoAndroid\SQLitePCLRaw.provider.e_sqlite3.dll</HintPath>
     </Reference>
     <Reference Include="Square.OkHttp, Version=2.7.5.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Square.OkHttp.2.7.5.0\lib\MonoAndroid\Square.OkHttp.dll</HintPath>

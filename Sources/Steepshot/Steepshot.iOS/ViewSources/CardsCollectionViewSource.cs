@@ -17,15 +17,25 @@ namespace Steepshot.iOS.ViewSources
 
         public override nint GetItemsCount(UICollectionView collectionView, nint section)
         {
+            if (_presenter.Balances.Count == 0)
+                return 1;
             return _presenter.Balances.Count;
         }
 
         public override UICollectionViewCell GetCell(UICollectionView collectionView, NSIndexPath indexPath)
         {
-            var cell = (CardCollectionViewCell)collectionView.DequeueReusableCell(nameof(CardCollectionViewCell), indexPath);
-            var currencyRate = _presenter.GetCurrencyRate(_presenter.Balances[indexPath.Row].CurrencyType);
-            cell.UpdateCard(_presenter.Balances[indexPath.Row], currencyRate, indexPath.Row);
-            return cell;
+            if (_presenter.Balances.Count == 0)
+            {
+                var cell = (CardShimmerCollectionView)collectionView.DequeueReusableCell(nameof(CardShimmerCollectionView), indexPath);
+                return cell;
+            }
+            else
+            {
+                var cell = (CardCollectionViewCell)collectionView.DequeueReusableCell(nameof(CardCollectionViewCell), indexPath);
+                var currencyRate = _presenter.GetCurrencyRate(_presenter.Balances[indexPath.Row].CurrencyType);
+                cell.UpdateCard(_presenter.Balances[indexPath.Row], currencyRate, indexPath.Row);
+                return cell;
+            }
         }
     }
 }

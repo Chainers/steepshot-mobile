@@ -114,12 +114,13 @@ namespace Steepshot.Fragment
 
             if (_pickedItems.Count > 0)
             {
-                _pickedItems.Find(x => x.Selected).Parameters = _preview.DrawableImageParameters.Copy();
-                foreach (var galleryMediaModel in _pickedItems)
+                for (int i = 0; i < _pickedItems.Count; i++)
                 {
-                    var croppedBitmap = _preview.Crop(galleryMediaModel.Path, galleryMediaModel.Parameters);
-                    galleryMediaModel.PreparedBitmap = croppedBitmap;
+                    var itm = _pickedItems[i];
+                    if (itm.Selected)
+                        itm.Parameters = _preview.DrawableImageParameters.Copy();
                 }
+
                 ((BaseActivity)Activity).OpenNewContentFragment(new PostCreateFragment(_pickedItems));
             }
             else
@@ -135,6 +136,9 @@ namespace Steepshot.Fragment
 
         private void RatioBtnOnClick(object sender, EventArgs eventArgs)
         {
+            if (!_preview.IsBitmapReady)
+                return;
+
             _preview.SwitchScale();
         }
 
@@ -143,11 +147,14 @@ namespace Steepshot.Fragment
             if (!_preview.IsBitmapReady)
                 return;
 
-            _preview.Rotate(_preview.DrawableImageParameters.Rotation + 90f);
+            _preview.Rotate(_preview.DrawableImageParameters.Rotation + 90);
         }
 
         private void MultiselectBtnOnClick(object sender, EventArgs eventArgs)
         {
+            if (!_preview.IsBitmapReady)
+                return;
+
             _multiSelect = !_multiSelect;
             _ratioBtn.Visibility = _multiSelect ? ViewStates.Gone : ViewStates.Visible;
             _preview.UseStrictBounds = _multiSelect;
@@ -198,6 +205,9 @@ namespace Steepshot.Fragment
                 return;
             }
 
+            if (!_preview.IsBitmapReady)
+                return;
+
             if (_coordinator.SwitchToWhole())
             {
                 _gridView.ScrollToPosition(position);
@@ -217,7 +227,7 @@ namespace Steepshot.Fragment
             {
                 if (_prevSelected != null)
                     _prevSelected.Parameters = _preview.DrawableImageParameters.Copy();
-
+               
                 _prevSelected = model;
 
                 if (!_pickedItems.Contains(model))

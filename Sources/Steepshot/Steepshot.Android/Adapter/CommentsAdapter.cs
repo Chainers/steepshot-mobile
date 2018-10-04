@@ -13,7 +13,6 @@ using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
 using System.Threading.Tasks;
-using Android.App;
 using Android.OS;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Enums;
@@ -57,7 +56,7 @@ namespace Steepshot.Adapter
             else
             {
                 MItemManager.BindView(holder.ItemView, position);
-                (holder.ItemView as SwipeLayout).SwipeEnabled = SwipeEnabled;
+                ((SwipeLayout)holder.ItemView).SwipeEnabled = SwipeEnabled;
                 (holder as CommentViewHolder)?.UpdateData(post, _context);
             }
         }
@@ -104,6 +103,10 @@ namespace Steepshot.Adapter
 
     public sealed class PostDescriptionViewHolder : RecyclerView.ViewHolder
     {
+        private const string TagFormat = " #{0}";
+        private const string TagToExclude = "steepshot";
+        private const int MaxLines = 7;
+
         private readonly Action<Post> _userAction;
         private readonly Action _rootAction;
         private readonly PostCustomTextView _title;
@@ -113,10 +116,8 @@ namespace Steepshot.Adapter
         private readonly RelativeLayout _rootView;
 
         private Post _post;
-        private Context _context;
-        private const string _tagFormat = " #{0}";
-        private const string tagToExclude = "steepshot";
-        private const int _maxLines = 7;
+        private readonly Context _context;
+
         public PostDescriptionViewHolder(View itemView, Action<Post> userAction, Action<AutoLinkType, string> autoLinkAction, Action rootClickAction) : base(itemView)
         {
             _context = itemView.Context;
@@ -163,8 +164,8 @@ namespace Steepshot.Adapter
                 Picasso.With(context).Load(Resource.Drawable.ic_holder).Into(_avatar);
 
             _author.Text = post.Author;
-            _time.Text = post.Created.ToPostTime();
-            _title.UpdateText(_post, tagToExclude, _tagFormat, _maxLines, _post.IsExpanded);
+            _time.Text = post.Created.ToPostTime(AppSettings.LocalizationManager);
+            _title.UpdateText(_post, TagToExclude, TagFormat, MaxLines, _post.IsExpanded);
         }
 
         private void OnPicassoError()
@@ -195,7 +196,8 @@ namespace Steepshot.Adapter
 
         private Post _post;
 
-        public CommentViewHolder(View itemView, Action<ActionType, Post> commentAction, Action<AutoLinkType, string> AutoLinkAction, Action rootClickAction) : base(itemView)
+        public CommentViewHolder(View itemView, Action<ActionType, Post> commentAction, Action<AutoLinkType, string> autoLinkAction, Action rootClickAction)
+            : base(itemView)
         {
             _avatar = itemView.FindViewById<CircleImageView>(Resource.Id.avatar);
             _author = itemView.FindViewById<TextView>(Resource.Id.sender_name);
@@ -226,17 +228,17 @@ namespace Steepshot.Adapter
             _rootView.Click += Root_Click;
             _likes.Click += DoLikersAction;
             _flags.Click += DoFlagersAction;
-            _comment.LinkClick += AutoLinkAction;
+            _comment.LinkClick += autoLinkAction;
             _flag.Click += DoFlagAction;
             _edit.Click += EditOnClick;
             _delete.Click += DeleteOnClick;
 
-            _context = itemView.RootView.Context;
+            _context = itemView.Context;
 
             _reply.Visibility = AppSettings.User.HasPostingPermission ? ViewStates.Visible : ViewStates.Gone;
         }
 
-        private async Task LikeSet(bool isFlag)
+        private async Task LikeSetAsync(bool isFlag)
         {
             _isAnimationRuning?.Cancel();
             _isAnimationRuning = new CancellationSignal();
@@ -250,35 +252,7 @@ namespace Steepshot.Adapter
 
         private void DeleteOnClick(object sender, EventArgs eventArgs)
         {
-            var alertBuilder = new AlertDialog.Builder(_context);
-            var alert = alertBuilder.Create();
-            var inflater = (LayoutInflater)_context.GetSystemService(Context.LayoutInflaterService);
-            var alertView = inflater.Inflate(Resource.Layout.lyt_deletion_alert, null);
-
-            var alertTitle = alertView.FindViewById<TextView>(Resource.Id.deletion_title);
-            alertTitle.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.DeleteAlertTitle);
-            alertTitle.Typeface = Style.Semibold;
-
-            var alertMessage = alertView.FindViewById<TextView>(Resource.Id.deletion_message);
-            alertMessage.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.DeleteAlertMessage);
-            alertMessage.Typeface = Style.Light;
-
-            var alertCancel = alertView.FindViewById<Button>(Resource.Id.cancel);
-            alertCancel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Cancel);
-            alertCancel.Click += (o, args) => alert.Cancel();
-
-            var alertDelete = alertView.FindViewById<Button>(Resource.Id.delete);
-            alertDelete.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Delete);
-            alertDelete.Click += (o, args) =>
-            {
-                _commentAction?.Invoke(ActionType.Delete, _post);
-                alert.Cancel();
-            };
-
-            alert.SetCancelable(true);
-            alert.SetView(alertView);
-            alert.Window.SetBackgroundDrawable(new ColorDrawable(Color.Transparent));
-            alert.Show();
+            _commentAction?.Invoke(ActionType.Delete, _post);
         }
 
         private void DoFlagAction(object sender, EventArgs e)
@@ -333,8 +307,7 @@ namespace Steepshot.Adapter
         {
             _post = post;
             _author.Text = post.Author;
-            var censoredText = post.Body.CensorText();
-            _comment.SetText(censoredText, 5);
+            _comment.SetText(post.Body, 5);
             _comment.Expanded = false;
 
             _rootView.Background = new ColorDrawable(_post.Editing ? Style.R254G249B229 : Color.White);
@@ -352,13 +325,17 @@ namespace Steepshot.Adapter
             }
 
             if (!string.IsNullOrEmpty(_post.Avatar))
+            {
                 Picasso.With(_context).Load(_post.Avatar.GetImageProxy(_avatar.LayoutParameters.Width, _avatar.LayoutParameters.Height))
                        .Placeholder(Resource.Drawable.ic_holder)
                        .NoFade()
                        .Priority(Picasso.Priority.Normal)
                        .Into(_avatar, null, OnError);
+            }
             else
+            {
                 Picasso.With(context).Load(Resource.Drawable.ic_holder).Into(_avatar);
+            }
 
             if (_isAnimationRuning != null && !_isAnimationRuning.IsCanceled && !post.VoteChanging)
             {
@@ -371,11 +348,11 @@ namespace Steepshot.Adapter
             {
                 if (post.VoteChanging && (_isAnimationRuning == null || _isAnimationRuning.IsCanceled))
                 {
-                    LikeSet(false);
+                    LikeSetAsync(false);
                 }
                 else if (post.FlagChanging)
                 {
-                    LikeSet(true);
+                    LikeSetAsync(true);
                 }
                 else if (post.Vote || !post.Flag)
                 {
@@ -404,22 +381,31 @@ namespace Steepshot.Adapter
                 _likes.Text = AppSettings.LocalizationManager.GetText(_post.NetLikes == 1 ? LocalizationKeys.Like : LocalizationKeys.Likes, post.NetLikes);
             }
             else
+            {
                 _likes.Visibility = ViewStates.Gone;
+            }
+
             if (post.NetFlags > 0)
             {
                 _flags.Visibility = ViewStates.Visible;
                 _flags.Text = AppSettings.LocalizationManager.GetText(_post.NetFlags == 1 ? LocalizationKeys.Flag : LocalizationKeys.Flags, post.NetFlags);
             }
             else
+            {
                 _flags.Visibility = ViewStates.Gone;
+            }
+
             if (post.TotalPayoutReward > 0)
             {
                 _cost.Visibility = ViewStates.Visible;
-                _cost.Text = StringHelper.ToFormatedCurrencyString(post.TotalPayoutReward, App.MainChain);
+                _cost.Text = StringHelper.ToFormatedCurrencyString(post.TotalPayoutReward, AppSettings.MainChain);
             }
             else
+            {
                 _cost.Visibility = ViewStates.Gone;
-            _time.Text = post.Created.ToPostTime();
+            }
+
+            _time.Text = post.Created.ToPostTime(AppSettings.LocalizationManager);
         }
 
         private void OnError()

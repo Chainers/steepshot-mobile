@@ -74,7 +74,7 @@ namespace Steepshot.iOS.CustomViews
             }
             remove
             {
-                throw new NotImplementedException();
+                ((BaseTextFieldDelegate)Delegate).DoneTapped = null;
             }
         }
 

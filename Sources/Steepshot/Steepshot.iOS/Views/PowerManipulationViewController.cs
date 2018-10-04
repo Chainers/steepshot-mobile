@@ -12,12 +12,14 @@ using Steepshot.iOS.Helpers;
 using Steepshot.iOS.ViewControllers;
 using Steepshot.Core.Extensions;
 using UIKit;
+using Steepshot.Core.Models.Requests;
+using System.Globalization;
 
 namespace Steepshot.iOS.Views
 {
-    public class PowerManipulationViewController : BaseViewControllerWithPresenter<TransferPresenter>
+    public class PowerManipulationViewController : BaseViewController
     {
-        private readonly BalanceModel _balance;
+        private readonly WalletPresenter _walletPresenter;
         private readonly PowerAction _powerAction;
         private double _powerAmount;
         private SearchTextField _amountTextField;
@@ -27,9 +29,9 @@ namespace Steepshot.iOS.Views
         private UIButton _actionButton = new UIButton();
         private UILabel errorMessage;
 
-        public PowerManipulationViewController(BalanceModel balance, PowerAction action)
+        public PowerManipulationViewController(WalletPresenter presenter, PowerAction action)
         {
-            _balance = balance;
+            _walletPresenter = presenter;
             _powerAction = action;
         }
 
@@ -43,9 +45,9 @@ namespace Steepshot.iOS.Views
 
         private void AmountEditOnTextChanged(object sender, EventArgs e)
         {
-            var spAvailiable = _balance.EffectiveSp - _balance.DelegatedToMe;
+            var spAvailiable = _walletPresenter.Balances[0].EffectiveSp - _walletPresenter.Balances[0].DelegatedToMe;
             var amountEdit = _amountTextField.GetDoubleValue();
-            var amountAvailable = _balance.Value;
+            var amountAvailable = _walletPresenter.Balances[0].Value;
             errorMessage.Hidden = true;
 
             if (amountEdit <= (_powerAction == PowerAction.PowerUp ? amountAvailable : spAvailiable))
@@ -53,43 +55,32 @@ namespace Steepshot.iOS.Views
                 switch (_powerAction)
                 {
                     case PowerAction.PowerUp:
-                        UpdateTokenValues(_balance.Value.ToBalanceValueString(), (amountAvailable - amountEdit).ToBalanceValueString(), _balance.EffectiveSp.ToBalanceValueString(), (_balance.EffectiveSp + amountEdit).ToBalanceValueString());
+                        UpdateTokenValues(_walletPresenter.Balances[0].Value.ToBalanceValueString(), (amountAvailable - amountEdit).ToBalanceValueString(), _walletPresenter.Balances[0].EffectiveSp.ToBalanceValueString(), (_walletPresenter.Balances[0].EffectiveSp + amountEdit).ToBalanceValueString());
                         break;
                     case PowerAction.PowerDown:
-                        UpdateTokenValues(_balance.Value.ToBalanceValueString(), (amountAvailable + amountEdit).ToBalanceValueString(), spAvailiable.ToBalanceValueString(), (spAvailiable - amountEdit).ToBalanceValueString());
+                        UpdateTokenValues(_walletPresenter.Balances[0].Value.ToBalanceValueString(), (amountAvailable + amountEdit).ToBalanceValueString(), spAvailiable.ToBalanceValueString(), (spAvailiable - amountEdit).ToBalanceValueString());
                         break;
                 }
                 _powerAmount = amountEdit;
             }
             else
             {
-                UpdateTokenValues(_balance.Value.ToBalanceValueString(), AppSettings.LocalizationManager.GetText(LocalizationKeys.AmountLimit), _balance.EffectiveSp.ToBalanceValueString(), AppSettings.LocalizationManager.GetText(LocalizationKeys.AmountLimit));
+                UpdateTokenValues(_walletPresenter.Balances[0].Value.ToBalanceValueString(), AppSettings.LocalizationManager.GetText(LocalizationKeys.AmountLimit), _walletPresenter.Balances[0].EffectiveSp.ToBalanceValueString(), AppSettings.LocalizationManager.GetText(LocalizationKeys.AmountLimit));
                 _powerAmount = -1;
                 errorMessage.Hidden = false;
             }
         }
 
-        private UIStringAttributes _noLinkAttribute = new UIStringAttributes
-        {
-            Font = Constants.Regular24,
-            ForegroundColor = Constants.R151G155B158,
-        };
-        private UIStringAttributes linkAttribute = new UIStringAttributes
-        {
-            Font = Constants.Regular24,
-            ForegroundColor = Constants.R255G34B5,
-        };
-
         private void UpdateTokenValues(string currTokenOne, string nextTokenOne, string currTokenTwo, string nextTokenTwo)
         {
             var at = new NSMutableAttributedString();
-            at.Append(new NSAttributedString($"{currTokenOne} >", _noLinkAttribute));
-            at.Append(new NSAttributedString($" {nextTokenOne}", linkAttribute));
+            at.Append(new NSAttributedString($"{currTokenOne} >", Constants.PowerManipulationTextStyle));
+            at.Append(new NSAttributedString($" {nextTokenOne}", Constants.PowerManipulatioSelectedTextStyle));
             _firstTokenText.AttributedText = at;
 
             var at2 = new NSMutableAttributedString();
-            at2.Append(new NSAttributedString($"{currTokenTwo} >", _noLinkAttribute));
-            at2.Append(new NSAttributedString($" {nextTokenTwo}", linkAttribute));
+            at2.Append(new NSAttributedString($"{currTokenTwo} >", Constants.PowerManipulationTextStyle));
+            at2.Append(new NSAttributedString($" {nextTokenTwo}", Constants.PowerManipulatioSelectedTextStyle));
             _secondTokenText.AttributedText = at2;
         }
 
@@ -98,10 +89,10 @@ namespace Steepshot.iOS.Views
             if (_powerAction == PowerAction.PowerDown)
                 ShowAlert(LocalizationKeys.MinSP);
 
-            var maxPowerDown = _balance.EffectiveSp - _balance.DelegatedToMe - 3;
+            var maxPowerDown = _walletPresenter.Balances[0].EffectiveSp - _walletPresenter.Balances[0].DelegatedToMe - 3;
             maxPowerDown = maxPowerDown < 0 ? 0 : maxPowerDown;
 
-            _amountTextField.Text = _powerAction == PowerAction.PowerUp ? _balance.Value.ToBalanceValueString() : maxPowerDown.ToBalanceValueString();
+            _amountTextField.Text = _powerAction == PowerAction.PowerUp ? _walletPresenter.Balances[0].Value.ToBalanceValueString() : maxPowerDown.ToBalanceValueString();
             AmountEditOnTextChanged(null, null);
         }
 
@@ -110,9 +101,9 @@ namespace Steepshot.iOS.Views
             if (_powerAmount <= 0)
                 return;
 
-            if (string.IsNullOrEmpty(_balance.UserInfo.ActiveKey))
+            if (string.IsNullOrEmpty(_walletPresenter.Balances[0].UserInfo.ActiveKey))
             {
-                NavigationController.PushViewController(new LoginViewController(false), true);
+                NavigationController.PushViewController(new LoginViewController(), true);
                 return;
             }
 
@@ -121,10 +112,9 @@ namespace Steepshot.iOS.Views
 
         private void DoPowerAction()
         {
-            Popups.TransferDialogPopup.Create(NavigationController,
-                                              _amountTextField.GetDoubleValue().ToString(),
-                                              ContinuePowerAction,
-                                              powerAction: _powerAction);
+            var at = new NSMutableAttributedString();
+            at.Append(new NSAttributedString($"Are you sure you want to {_powerAction.GetDescription()} {_amountTextField.GetDoubleValue().ToString(CultureInfo.InvariantCulture)} {CurrencyType.Steem.ToString()}?", Constants.DialogPopupTextStyle));
+            Popups.TransferDialogPopup.Create(NavigationController, at, ContinuePowerAction);
         }
 
         private async void ContinuePowerAction(bool shouldContinue)
@@ -134,18 +124,21 @@ namespace Steepshot.iOS.Views
                 _loader.StartAnimating();
                 _actionButton.Enabled = false;
 
-                var model = new BalanceModel(_powerAmount, _balance.MaxDecimals, _balance.CurrencyType)
+                var model = new BalanceModel(_powerAmount, _walletPresenter.Balances[0].MaxDecimals, _walletPresenter.Balances[0].CurrencyType)
                 {
-                    UserInfo = _balance.UserInfo
+                    UserInfo = _walletPresenter.Balances[0].UserInfo
                 };
 
-                var response = await _presenter.TryPowerUpOrDown(model, _powerAction);
+                var response = await _walletPresenter.TryPowerUpOrDownAsync(model, _powerAction);
 
                 _loader.StopAnimating();
                 _actionButton.Enabled = true;
 
                 if (response.IsSuccess)
+                {
+                    _walletPresenter.UpdateWallet?.Invoke();
                     NavigationController.PopViewController(true);
+                }
                 else
                     ShowAlert(response.Exception);
             }

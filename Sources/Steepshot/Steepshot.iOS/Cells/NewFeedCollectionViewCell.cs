@@ -16,6 +16,8 @@ using Steepshot.Core.Utils;
 using Steepshot.iOS.CustomViews;
 using Steepshot.iOS.ViewControllers;
 using Steepshot.iOS.Helpers;
+using AVFoundation;
+using CoreMedia;
 
 namespace Steepshot.iOS.Cells
 {
@@ -61,6 +63,8 @@ namespace Steepshot.iOS.Cells
         private UILabel _comments;
         private UIView _bottomSeparator;
 
+        private readonly VideoView _videoView;
+
         private IScheduledWork _scheduledWorkAvatar;
         private IScheduledWork[] _scheduledWorkBody = new IScheduledWork[0];
         private IScheduledWork _scheduledWorkfirst;
@@ -80,8 +84,17 @@ namespace Steepshot.iOS.Cells
         private readonly nfloat moreButtonWidth = 50;
         private readonly nfloat likersCornerRadius;
 
+        private readonly UITapGestureRecognizer _liketap;
+        private readonly UILongPressGestureRecognizer _likelongtap;
+        private readonly UITapGestureRecognizer _tap;
+        private readonly UITapGestureRecognizer _profileTap;
+        private readonly UITapGestureRecognizer _headerTap;
+        private readonly UITapGestureRecognizer _commentTap;
+        private readonly UITapGestureRecognizer _netVotesTap;
+        private readonly UITapGestureRecognizer _flagersTap;
+
         public bool IsCellActionSet => CellAction != null;
-        public event Action<ActionType, Post> CellAction;
+        public Action<ActionType, Post> CellAction;
         public event Action<string> TagAction
         {
             add
@@ -90,7 +103,7 @@ namespace Steepshot.iOS.Cells
             }
             remove
             {
-                throw new NotImplementedException();
+                _attributedLabel.Delegate = null;
             }
         }
 
@@ -128,11 +141,7 @@ namespace Steepshot.iOS.Cells
             _photoScroll.ShowsHorizontalScrollIndicator = false;
             _photoScroll.Bounces = false;
             _photoScroll.PagingEnabled = true;
-            _photoScroll.Scrolled += (sender, e) =>
-            {
-                var pageWidth = _photoScroll.Frame.Size.Width;
-                _pageControl.CurrentPage = (int)Math.Floor((_photoScroll.ContentOffset.X - pageWidth / 2) / pageWidth) + 1;
-            };
+            _photoScroll.Scrolled += PhotoScroll_Scrolled;
             contentView.AddSubview(_photoScroll);
 
             _pageControl = new UIPageControl();
@@ -221,21 +230,14 @@ namespace Steepshot.iOS.Cells
             likersY = underPhotoPanelHeight / 2 - likersImageSide / 2;
             likersCornerRadius = likersImageSide / 2;
 
-            var liketap = new UITapGestureRecognizer(LikeTap);
-            _like.AddGestureRecognizer(liketap);
+            _liketap = new UITapGestureRecognizer(LikeTap);
+            _like.AddGestureRecognizer(_liketap);
 
             _sliderView = new SliderView(UIScreen.MainScreen.Bounds.Width);
-            _sliderView.LikeTap += () =>
-            {
-                LikeTap();
-            };
-            BaseViewController.SliderAction += (isSliderOpening) =>
-            {
-                if (_sliderView.Superview != null && !isSliderOpening)
-                    _sliderView.Close();
-            };
+            _sliderView.LikeTap += LikeTap;
+            BaseViewController.SliderAction += BaseViewController_SliderAction;
 
-            var likelongtap = new UILongPressGestureRecognizer((UILongPressGestureRecognizer obj) =>
+            _likelongtap = new UILongPressGestureRecognizer((UILongPressGestureRecognizer obj) =>
             {
                 if (AppSettings.User.HasPostingPermission && !_currentPost.Vote)
                 {
@@ -248,44 +250,46 @@ namespace Steepshot.iOS.Cells
                     }
                 }
             });
-            _like.AddGestureRecognizer(likelongtap);
+            _like.AddGestureRecognizer(_likelongtap);
 
-            UITapGestureRecognizer tap = new UITapGestureRecognizer(() =>
+            _tap = new UITapGestureRecognizer(() =>
             {
                 CellAction?.Invoke(ActionType.Preview, _currentPost);
             });
-            _photoScroll.AddGestureRecognizer(tap);
+            _photoScroll.AddGestureRecognizer(_tap);
 
-            var profileTap = new UITapGestureRecognizer(() =>
+            _profileTap = new UITapGestureRecognizer(() =>
             {
                 CellAction?.Invoke(ActionType.Profile, _currentPost);
             });
-            var headerTap = new UITapGestureRecognizer(() =>
+            _headerTap = new UITapGestureRecognizer(() =>
             {
                 CellAction?.Invoke(ActionType.Profile, _currentPost);
             });
-            _profileTapView.AddGestureRecognizer(headerTap);
-            _rewards.AddGestureRecognizer(profileTap);
+            _profileTapView.AddGestureRecognizer(_headerTap);
+            _rewards.AddGestureRecognizer(_profileTap);
 
-            var commentTap = new UITapGestureRecognizer(() =>
+            _commentTap = new UITapGestureRecognizer(() =>
             {
                 CellAction?.Invoke(ActionType.Comments, _currentPost);
             });
-            _comments.AddGestureRecognizer(commentTap);
+            _comments.AddGestureRecognizer(_commentTap);
 
-            var netVotesTap = new UITapGestureRecognizer(() =>
+            _netVotesTap = new UITapGestureRecognizer(() =>
             {
                 CellAction?.Invoke(ActionType.Voters, _currentPost);
             });
-            _likersTapView.AddGestureRecognizer(netVotesTap);
+            _likersTapView.AddGestureRecognizer(_netVotesTap);
 
-            var flagersTap = new UITapGestureRecognizer(() =>
+            _flagersTap = new UITapGestureRecognizer(() =>
             {
                 CellAction?.Invoke(ActionType.Flagers, _currentPost);
             });
-            _flags.AddGestureRecognizer(flagersTap);
+            _flags.AddGestureRecognizer(_flagersTap);
 
             _moreButton.TouchDown += FlagButton_TouchDown;
+
+            _videoView = new VideoView(true);
         }
 
         public nfloat UpdateCell(Post post, CellSizeHelper variables)
@@ -308,34 +312,10 @@ namespace Steepshot.iOS.Cells
                 _avatarImage.Image = UIImage.FromBundle("ic_noavatar");
 
             _author.Text = _currentPost.Author;
-            _timestamp.Text = _currentPost.Created.ToPostTime();
+            _timestamp.Text = _currentPost.Created.ToPostTime(AppSettings.LocalizationManager);
 
             _photoScroll.Frame = new CGRect(0, _avatarImage.Frame.Bottom + 15, UIScreen.MainScreen.Bounds.Width, variables.PhotoHeight);
-            _photoScroll.ContentSize = new CGSize(UIScreen.MainScreen.Bounds.Width * _currentPost.Media.Length, variables.PhotoHeight);
 
-            foreach (var subview in _photoScroll.Subviews)
-                subview.RemoveFromSuperview();
-
-            for (int i = 0; i < _scheduledWorkBody.Length; i++)
-            {
-                _scheduledWorkBody[i]?.Cancel();
-            }
-            _scheduledWorkBody = new IScheduledWork[_currentPost.Media.Length];
-
-            _bodyImage = new UIImageView[_currentPost.Media.Length];
-            for (int i = 0; i < _currentPost.Media.Length; i++)
-            {
-                _bodyImage[i] = new UIImageView();
-                _bodyImage[i].ClipsToBounds = true;
-                _bodyImage[i].UserInteractionEnabled = true;
-                _bodyImage[i].ContentMode = UIViewContentMode.ScaleAspectFill;
-                _bodyImage[i].Frame = new CGRect(UIScreen.MainScreen.Bounds.Width * i, 0, UIScreen.MainScreen.Bounds.Width, variables.PhotoHeight);
-                _photoScroll.AddSubview(_bodyImage[i]);
-
-                _scheduledWorkBody[i] = ImageLoader.Load(_currentPost.Media[i].Url,
-                                                         _bodyImage[i],
-                                                         2, LoadingPriority.Highest);
-            }
             if (_currentPost.Media.Length > 1)
             {
                 _pageControl.Hidden = false;
@@ -346,6 +326,44 @@ namespace Steepshot.iOS.Cells
             else
                 _pageControl.Hidden = true;
 
+            for (int i = 0; i < _scheduledWorkBody.Length; i++)
+            {
+                _scheduledWorkBody[i]?.Cancel();
+            }
+
+            foreach (var subview in _photoScroll.Subviews)
+                subview.RemoveFromSuperview();
+
+            if (MimeTypeHelper.IsVideo(_currentPost.Media[0].ContentType))
+            {
+                _photoScroll.ContentSize = new CGSize(UIScreen.MainScreen.Bounds.Width, UIScreen.MainScreen.Bounds.Width);
+                _photoScroll.AddSubview(_videoView);
+                _videoView.PlayerLayer.Frame = new CGRect(new CGPoint(0, 0), _photoScroll.Frame.Size);
+                _videoView.Frame = new CGRect(new CGPoint(0, 0), _photoScroll.Frame.Size);
+                _videoView.ChangeItem(_currentPost.Media[0].Url);
+            }
+            else
+            {
+                _photoScroll.ContentSize = new CGSize(UIScreen.MainScreen.Bounds.Width * _currentPost.Media.Length, variables.PhotoHeight);
+                _videoView.ChangeItem(null);
+
+                _scheduledWorkBody = new IScheduledWork[_currentPost.Media.Length];
+
+                _bodyImage = new UIImageView[_currentPost.Media.Length];
+                for (int i = 0; i < _currentPost.Media.Length; i++)
+                {
+                    _bodyImage[i] = new UIImageView();
+                    _bodyImage[i].ClipsToBounds = true;
+                    _bodyImage[i].UserInteractionEnabled = true;
+                    _bodyImage[i].ContentMode = UIViewContentMode.ScaleAspectFill;
+                    _bodyImage[i].Frame = new CGRect(UIScreen.MainScreen.Bounds.Width * i, 0, UIScreen.MainScreen.Bounds.Width, variables.PhotoHeight);
+                    _photoScroll.AddSubview(_bodyImage[i]);
+
+                    _scheduledWorkBody[i] = ImageLoader.Load(_currentPost.Media[i].Url,
+                                                             _bodyImage[i],
+                                                             2, LoadingPriority.Highest);
+                }
+            }
             if (_currentPost.TopLikersAvatars.Any() && !string.IsNullOrEmpty(_currentPost.TopLikersAvatars[0]))
             {
                 _firstLikerImage?.RemoveFromSuperview();
@@ -451,7 +469,7 @@ namespace Steepshot.iOS.Cells
             _verticalSeparator.Frame = new CGRect(_contentView.Frame.Width - likeButtonWidthConst - 1, _photoScroll.Frame.Bottom + underPhotoPanelHeight / 2 - verticalSeparatorHeight / 2, 1, verticalSeparatorHeight);
 
 #if DEBUG
-            _rewards.Text = StringHelper.ToFormatedCurrencyString(_currentPost.TotalPayoutReward, AppDelegate.MainChain);
+            _rewards.Text = StringHelper.ToFormatedCurrencyString(_currentPost.TotalPayoutReward, AppSettings.MainChain);
             var rewardWidth = _rewards.SizeThatFits(new CGSize(0, underPhotoPanelHeight));
             _rewards.Frame = new CGRect(_verticalSeparator.Frame.Left - rewardWidth.Width, _photoScroll.Frame.Bottom, rewardWidth.Width, underPhotoPanelHeight);
 #endif
@@ -469,10 +487,32 @@ namespace Steepshot.iOS.Cells
             _comments.Frame = new CGRect(leftMargin - 5, _attributedLabel.Frame.Bottom + 5, _comments.SizeThatFits(new CGSize(10, 20)).Width + 10, 20 + 10);
 
             _bottomSeparator.Frame = new CGRect(0, _comments.Frame.Bottom + 10, UIScreen.MainScreen.Bounds.Width, 1);
-
             return _bottomSeparator.Frame.Bottom;
             //for constant size checking
             //var constantsSize = _bottomSeparator.Frame.Bottom - _attributedLabel.Frame.Height - _bodyImage.Frame.Height;
+        }
+
+        private void BaseViewController_SliderAction(bool isSliderOpening)
+        {
+            if (_sliderView.Superview != null && !isSliderOpening)
+                _sliderView.Close();
+        }
+
+        private void PhotoScroll_Scrolled(object sender, EventArgs e)
+        {
+            var pageWidth = _photoScroll.Frame.Size.Width;
+            _pageControl.CurrentPage = (int)Math.Floor((_photoScroll.ContentOffset.X - pageWidth / 2) / pageWidth) + 1;
+        }
+
+        public void Playback(bool shouldPlay)
+        {
+            if (_videoView.Player.Status == AVPlayerStatus.ReadyToPlay)
+            {
+                if (shouldPlay)
+                    _videoView.Play();
+                else
+                    _videoView.Stop();
+            }
         }
 
         private void LikeTap()
@@ -495,6 +535,23 @@ namespace Steepshot.iOS.Cells
             {
                 _like.Transform = CGAffineTransform.MakeScale(0.5f, 0.5f);
             }, null);
+        }
+
+        public void ReleaseCell()
+        {
+            CellAction = null;
+            _photoScroll.Scrolled -= PhotoScroll_Scrolled;
+            _like.RemoveGestureRecognizer(_liketap);
+            _sliderView.LikeTap -= LikeTap;
+            _like.RemoveGestureRecognizer(_likelongtap);
+            _photoScroll.RemoveGestureRecognizer(_tap);
+            _profileTapView.RemoveGestureRecognizer(_headerTap);
+            _rewards.RemoveGestureRecognizer(_profileTap);
+            _moreButton.TouchDown -= FlagButton_TouchDown;
+            _comments.RemoveGestureRecognizer(_commentTap);
+            _likersTapView.RemoveGestureRecognizer(_netVotesTap);
+            _flags.RemoveGestureRecognizer(_flagersTap);
+            BaseViewController.SliderAction -= BaseViewController_SliderAction;
         }
     }
 }

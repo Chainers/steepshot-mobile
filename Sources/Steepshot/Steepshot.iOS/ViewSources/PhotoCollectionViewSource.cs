@@ -47,7 +47,7 @@ namespace Steepshot.iOS.ViewSources
 
         public override nint GetItemsCount(UICollectionView collectionView, nint section)
         {
-            return _fetchResults.Count;
+            return _fetchResults == null ? 0 : _fetchResults.Count;
         }
 
         public override UICollectionViewCell GetCell(UICollectionView collectionView, NSIndexPath indexPath)
@@ -65,7 +65,9 @@ namespace Steepshot.iOS.ViewSources
 
         public PHAsset GetPHAsset(int index)
         {
-            return (PHAsset)_fetchResults[_fetchResults.Count - 1 - index];
+            if(_fetchResults != null)
+                return (PHAsset)_fetchResults[_fetchResults.Count - 1 - index];
+            return null;
         }
     }
 }

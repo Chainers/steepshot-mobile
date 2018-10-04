@@ -19,6 +19,8 @@ namespace Steepshot.Core.Authorization
 
         public string Login { get; set; } = string.Empty;
 
+        public string Token { get; set; } = string.Empty;
+
         public string PostingKey { get; set; } = string.Empty;
 
         public string ActiveKey { get; set; } = string.Empty;
@@ -34,10 +36,6 @@ namespace Steepshot.Core.Authorization
         public HashSet<string> PostBlackList { get; set; } = new HashSet<string>();
 
         public string DefaultPhotoDirectory { get; set; } = "Steepshot";
-
-        public Navigation Navigation { get; set; } = new Navigation();
-
-        public int SelectedTab { get; set; } = 0;
 
         public DateTime LastPostTime { get; set; }
 
@@ -56,16 +54,5 @@ namespace Steepshot.Core.Authorization
         public bool ShowVotingSlider { get; set; }
 
         public Dictionary<string, string> Integration { get; set; } = new Dictionary<string, string>();
-    }
-
-    public sealed class Navigation
-    {
-        public Dictionary<string, TabSettings> TabSettings { get; set; } = new Dictionary<string, TabSettings>();
-    }
-
-    public sealed class TabSettings
-    {
-        public bool IsGridView { get; set; } = false;
-        public PostType PostType { get; set; } = PostType.Hot;
     }
 }

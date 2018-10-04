@@ -15,7 +15,6 @@ using Steepshot.Core.Models.Common;
 using Steepshot.Utils;
 using Steepshot.Core.Models;
 using Steepshot.Core.Models.Enums;
-using Steepshot.Core;
 using Steepshot.Core.Facades;
 using Steepshot.Core.Utils;
 
@@ -34,7 +33,7 @@ namespace Steepshot.Fragment
         private Timer _timer;
         private SearchType _searchType = SearchType.Tags;
         private ScrollListener _scrollListner;
-        private TagsAdapter _categoriesAdapter;
+        private BrowseSearchTagsAdapter _categoriesAdapter;
         private FollowersAdapter _usersSearchAdapter;
         private SearchFacade _searchFacade;
 
@@ -58,11 +57,7 @@ namespace Steepshot.Fragment
             base.OnCreate(savedInstanceState);
 
             if (_searchFacade == null)
-            {
-                var client = App.MainChain == KnownChains.Steem ? App.SteemClient : App.GolosClient;
-                _searchFacade = new SearchFacade();
-                _searchFacade.SetClient(client);
-            }
+                _searchFacade = AppSettings.GetFacade<SearchFacade>(AppSettings.MainChain);
         }
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -96,7 +91,7 @@ namespace Steepshot.Fragment
 
             _searchFacade.UserFriendPresenter.SourceChanged += UserFriendPresenterSourceChanged;
             _searchFacade.TagsPresenter.SourceChanged += TagsPresenterSourceChanged;
-            _categoriesAdapter = new TagsAdapter(_searchFacade.TagsPresenter);
+            _categoriesAdapter = new BrowseSearchTagsAdapter(_searchFacade.TagsPresenter);
             _usersSearchAdapter = new FollowersAdapter(Activity, _searchFacade.UserFriendPresenter);
             _categories.SetAdapter(_categoriesAdapter);
             _users.SetAdapter(_usersSearchAdapter);
@@ -141,6 +136,7 @@ namespace Steepshot.Fragment
         private void OnClearClick(object sender, EventArgs e)
         {
             _searchView.Text = string.Empty;
+            _emptyQueryLabel.Visibility = ViewStates.Invisible;
         }
 
         private void TagsClick(object sender, EventArgs e)
@@ -213,11 +209,11 @@ namespace Steepshot.Fragment
             if (userFriend == null)
                 return;
 
-            var exception = await _searchFacade.UserFriendPresenter.TryFollow(userFriend);
+            var result = await _searchFacade.UserFriendPresenter.TryFollowAsync(userFriend);
             if (!IsInitialized)
                 return;
 
-            Context.ShowAlert(exception);
+            Context.ShowAlert(result);
         }
 
         private void OnTimer(object state)
@@ -266,7 +262,7 @@ namespace Steepshot.Fragment
                     _tagSpinner.Visibility = ViewStates.Visible;
             }
 
-            var exception = await _searchFacade.TrySearchCategories(_searchView.Text, _searchType);
+            var exception = await _searchFacade.TrySearchCategoriesAsync(_searchView.Text, _searchType);
             if (!IsInitialized)
                 return;
             CheckQueryIsEmpty();

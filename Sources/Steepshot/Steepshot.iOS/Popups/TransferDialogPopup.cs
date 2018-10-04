@@ -14,24 +14,7 @@ namespace Steepshot.iOS.Popups
 {
     public static class TransferDialogPopup
     {
-        private static readonly UIStringAttributes _noLinkAttribute = new UIStringAttributes
-        {
-            Font = Constants.Regular20,
-            ForegroundColor = Constants.R15G24B30,
-        };
-
-        private static readonly UIStringAttributes _linkAttribute = new UIStringAttributes
-        {
-            Font = Constants.Regular20,
-            ForegroundColor = Constants.R255G0B0,
-        };
-
-        public static void Create(UINavigationController controller,
-                                  string amount,
-                                  Action<bool> dialogAction,
-                                  CurrencyType type = CurrencyType.Steem,
-                                  string recipient = null,
-                                  PowerAction powerAction = PowerAction.None)
+        public static void Create(UINavigationController controller, NSMutableAttributedString at, Action<bool> dialogAction)
         {
             var commonMargin = 20;
 
@@ -53,18 +36,6 @@ namespace Steepshot.iOS.Popups
             title.AutoPinEdgeToSuperviewEdge(ALEdge.Top, 34);
             title.AutoPinEdgeToSuperviewEdge(ALEdge.Right, commonMargin);
             title.AutoPinEdgeToSuperviewEdge(ALEdge.Left, commonMargin);
-            var at = new NSMutableAttributedString();
-            if (powerAction == PowerAction.None)
-            {
-                at.Append(new NSAttributedString($"Are you sure you want to transfer {amount} {type.ToString()} to ", _noLinkAttribute));
-                at.Append(new NSAttributedString($"@{recipient}", _linkAttribute));
-                at.Append(new NSAttributedString("?", _noLinkAttribute));
-            }
-            else
-            {
-                at.Append(new NSAttributedString($"Are you sure you want to {powerAction.GetDescription()} {amount} {type.ToString()}?", _noLinkAttribute));
-            }
-
             title.AttributedText = at;
 
             var separator = new UIView();

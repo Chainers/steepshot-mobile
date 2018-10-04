@@ -2,55 +2,64 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Ditch.Core.JsonRpc;
 using Steepshot.Core.Authorization;
+using Steepshot.Core.Clients;
 using Steepshot.Core.Exceptions;
+using Steepshot.Core.Interfaces;
 using Steepshot.Core.Models.Common;
+using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
-using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Presenters
 {
-    public class WalletPresenter : TransferPresenter, IEnumerator<UserInfo>
+    public class WalletPresenter : BasePresenter, IEnumerator<UserInfo>
     {
         public Dictionary<int, UserInfo> ConnectedUsers { get; }
         public bool HasNext { get; private set; }
         public List<BalanceModel> Balances { get; }
+        public Action UpdateWallet;
         private CurrencyRate[] CurrencyRates { get; set; }
         private readonly int[] _logins;
         private int _current = -1;
 
-        public WalletPresenter()
+        private SteepshotApiClient _steepshotApiClient;
+        private BaseDitchClient _ditchClient;
+
+        public WalletPresenter(IConnectionService connectionService, ILogService logService, BaseDitchClient ditchClient, SteepshotApiClient steepshotApiClient, UserManager dataProvider)
+            : base(connectionService, logService)
         {
-            ConnectedUsers = AppSettings.DataProvider.Select().OrderByDescending(x=>x.LoginTime).ToDictionary(x => x.Id, x => x);
+            _steepshotApiClient = steepshotApiClient;
+            _ditchClient = ditchClient;
+
+            ConnectedUsers = dataProvider.Select().OrderByDescending(x => x.LoginTime).ToDictionary(x => x.Id, x => x);
             _logins = ConnectedUsers.Keys.ToArray();
             Balances = new List<BalanceModel>();
             HasNext = MoveNext();
         }
 
-        public async Task<Exception> TryLoadNextAccountInfo()
+        public async Task<Exception> TryLoadNextAccountInfoAsync()
         {
             if (!HasNext || Current == null)
                 return new ValidationException(string.Empty);
 
-            var exception = await TryUpdateAccountInfo(Current);
+            var exception = await TryUpdateAccountInfoAsync(Current).ConfigureAwait(false);
             if (exception == null)
-            {
                 HasNext = MoveNext();
-            }
 
             return exception;
         }
 
-        public async Task<Exception> TryUpdateAccountInfo(UserInfo userInfo)
+        public async Task<Exception> TryUpdateAccountInfoAsync(UserInfo userInfo)
         {
             if (!ConnectedUsers.ContainsKey(userInfo.Id))
                 return new ValidationException(string.Empty);
 
-            var response = await TryRunTask<string, AccountInfoResponse>(GetAccountInfo, OnDisposeCts.Token, userInfo.Login);
+            var response = await TaskHelper
+                .TryRunTaskAsync(_ditchClient.GetAccountInfoAsync, userInfo.Login, OnDisposeCts.Token)
+                .ConfigureAwait(false);
             if (response.IsSuccess)
             {
                 ConnectedUsers[userInfo.Id].AccountInfo = response.Result;
@@ -73,7 +82,7 @@ namespace Steepshot.Core.Presenters
                 return response.Exception;
             }
 
-            var historyResp = await TryRunTask<string, AccountHistoryResponse[]>(GetAccountHistory, OnDisposeCts.Token, userInfo.Login);
+            var historyResp = await TaskHelper.TryRunTaskAsync(_ditchClient.GetAccountHistoryAsync, userInfo.Login, OnDisposeCts.Token).ConfigureAwait(false);
             if (historyResp.IsSuccess)
             {
                 ConnectedUsers[userInfo.Id].AccountHistory = historyResp.Result;
@@ -83,16 +92,11 @@ namespace Steepshot.Core.Presenters
             return historyResp.Exception;
         }
 
-        private Task<OperationResult<AccountHistoryResponse[]>> GetAccountHistory(string login, CancellationToken ct)
-        {
-            return Api.GetAccountHistory(login, ct);
-        }
-
-        public async Task<Exception> TryClaimRewards(BalanceModel balance)
+        public async Task<OperationResult<VoidResponse>> TryClaimRewardsAsync(BalanceModel balance)
         {
             var claimRewardsModel = new ClaimRewardsModel(balance.UserInfo, balance.RewardSteem, balance.RewardSp, balance.RewardSbd);
-            var response = await TryRunTask<ClaimRewardsModel, VoidResponse>(ClaimRewards, CancellationToken.None, claimRewardsModel);
-            if (response.IsSuccess)
+            var result = await TaskHelper.TryRunTaskAsync(_ditchClient.ClaimRewardsAsync, claimRewardsModel, OnDisposeCts.Token).ConfigureAwait(false);
+            if (result.IsSuccess)
             {
                 Balances.ForEach(x =>
                 {
@@ -102,40 +106,53 @@ namespace Steepshot.Core.Presenters
                         x.RewardSteem = x.RewardSbd = x.RewardSp = 0;
                     }
                 });
-                await TryUpdateAccountInfo(balance.UserInfo);
+                await TryUpdateAccountInfoAsync(balance.UserInfo).ConfigureAwait(false);
             }
 
-            return response.Exception;
+            return result;
         }
 
-        private Task<OperationResult<VoidResponse>> ClaimRewards(ClaimRewardsModel claimRewardsModel, CancellationToken ct)
+        public async Task<OperationResult<CurrencyRate[]>> TryGetCurrencyRatesAsync()
         {
-            return Api.ClaimRewards(claimRewardsModel, ct);
-        }
-
-        public async Task<Exception> TryGetCurrencyRates()
-        {
-            var response = await TryRunTask<CurrencyRate[]>(GetCurrencyRates, OnDisposeCts.Token);
-            if (response.IsSuccess)
-            {
-                CurrencyRates = response.Result;
-            }
-            return response.Exception;
-        }
-
-        private Task<OperationResult<CurrencyRate[]>> GetCurrencyRates(CancellationToken ct)
-        {
-            return Api.GetCurrencyRates(ct);
+            var result = await TaskHelper.TryRunTaskAsync(_steepshotApiClient.GetCurrencyRatesAsync, OnDisposeCts.Token).ConfigureAwait(false);
+            if (result.IsSuccess)
+                CurrencyRates = result.Result;
+            return result;
         }
 
         public CurrencyRate GetCurrencyRate(CurrencyType currency)
         {
-            return CurrencyRates?.First(x =>
-                x.Symbol.Equals(currency.ToString(), StringComparison.OrdinalIgnoreCase)) ?? new CurrencyRate
-                {
-                    Symbol = currency.ToString(),
-                    UsdRate = 1
-                };
+            return CurrencyRates?.FirstOrDefault(x => x.Symbol.Equals(currency.ToString(), StringComparison.OrdinalIgnoreCase)) ?? new CurrencyRate
+            {
+                Symbol = currency.ToString(),
+                UsdRate = 1
+            };
+        }
+
+        public void SetClient(SteepshotApiClient steepshotApiClient, BaseDitchClient ditchClient)
+        {
+            TasksCancel();
+
+            _steepshotApiClient = steepshotApiClient;
+            _ditchClient = ditchClient;
+        }
+
+        
+        public async Task<OperationResult<VoidResponse>> TryPowerUpOrDownAsync(BalanceModel balance, PowerAction powerAction)
+        {
+            var model = new PowerUpDownModel(balance, powerAction);
+            return await TaskHelper.TryRunTaskAsync(_ditchClient.PowerUpOrDownAsync, model, OnDisposeCts.Token).ConfigureAwait(false);
+        }
+
+        #region IEnumerator<UserInfo>
+
+        object IEnumerator.Current => Current;
+        public UserInfo Current => ConnectedUsers[_logins[_current]];
+
+        public void Reset()
+        {
+            _current = -1;
+            HasNext = MoveNext();
         }
 
         public bool MoveNext()
@@ -146,18 +163,10 @@ namespace Steepshot.Core.Presenters
             return hasNext;
         }
 
-        public void Reset()
-        {
-            _current = -1;
-            HasNext = MoveNext();
-        }
-
-        public UserInfo Current => ConnectedUsers[_logins[_current]];
-
-        object IEnumerator.Current => Current;
-
         public void Dispose()
         {
         }
+
+        #endregion
     }
 }

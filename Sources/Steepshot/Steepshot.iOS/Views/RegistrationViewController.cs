@@ -46,7 +46,7 @@ namespace Steepshot.iOS.Views
             View.UserInteractionEnabled = true;
 
             _timer = new Timer(OnTimer);
-            _mailChecker = new StringHelper();
+            _mailChecker = new StringHelper(AppSettings.Logger);
 
             _createAcc = new UIButton();
             _createAcc.SetTitle("Create account", UIControlState.Normal);
@@ -138,7 +138,7 @@ namespace Steepshot.iOS.Views
             {
                 if (string.IsNullOrEmpty(_username.Text))
                 {
-                    _presenter.TasksCancel();
+                    Presenter.TasksCancel();
                     _timer.Change(Timeout.Infinite, Timeout.Infinite);
                     _usernameUnderline.BackgroundColor = Constants.R240G240B240;
                     _usernameLabel.Hidden = true;
@@ -224,25 +224,25 @@ namespace Steepshot.iOS.Views
 
             _loader.StartAnimating();
 
-            var exception = await _presenter.TryGetAccountInfo(_username.Text);
-
-            if (exception is OperationCanceledException)
-            {
-                if (string.IsNullOrEmpty(_username.Text))
-                    _loader.StopAnimating();
-                return;
-            }
-
-            if (exception != null)
-            {
-                _usernameUnderline.BackgroundColor = Constants.R240G240B240;
-                _usernameLabel.Hidden = true;
-            }
-            else
+            var result = await Presenter.TryGetAccountInfoAsync(_username.Text);
+            
+            if (result.IsSuccess)
             {
                 _usernameLabel.Text = "username already taken";
                 _usernameUnderline.BackgroundColor = Constants.R255G0B0;
                 _usernameLabel.Hidden = false;
+            }
+            else
+            {
+                if (result.Exception is OperationCanceledException)
+                {
+                    if (string.IsNullOrEmpty(_username.Text))
+                        _loader.StopAnimating();
+                    return;
+                }
+
+                _usernameUnderline.BackgroundColor = Constants.R240G240B240;
+                _usernameLabel.Hidden = true;
             }
 
             _loader.StopAnimating();
@@ -269,15 +269,15 @@ namespace Steepshot.iOS.Views
 
             var model = new CreateAccountModel(_username.Text, _email.Text);
 
-            var exception = await _presenter.TryCreateAccount(model);
+            var result = await Presenter.TryCreateAccountAsync(model);
 
-            if (exception == null)
+            if (result.IsSuccess)
             {
                 var myViewController = new RegistrationCompletionViewController(model);
                 NavigationController.PushViewController(myViewController, true);
             }
             else
-                ShowAlert(exception);
+                ShowAlert(result);
 
             ToggleControls(true);
         }

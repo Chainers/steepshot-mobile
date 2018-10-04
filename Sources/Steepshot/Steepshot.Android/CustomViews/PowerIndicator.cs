@@ -42,7 +42,7 @@ namespace Steepshot.CustomViews
             }
             catch (System.Exception ex)
             {
-                AppSettings.Logger.Warning(ex);
+                AppSettings.Logger.WarningAsync(ex);
             }
             finally
             {

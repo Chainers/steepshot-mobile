@@ -1,4 +1,4 @@
-﻿using Android.Content;
+using Android.Content;
 using Android.Media;
 using Android.Views;
 using Com.Google.Android.Exoplayer2;

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
-using Steepshot.Core.Clients;
 using Steepshot.Core.Models;
 using Steepshot.Core.Presenters;
 
@@ -13,7 +12,7 @@ namespace Steepshot.Core.Facades
     {
         public event Action<Status> SourceChanged;
 
-        private readonly TagsPresenter _tagsPresenter = new TagsPresenter();
+        private readonly TagsPresenter _tagsPresenter;
         private readonly ObservableCollection<string> _localTags;
         private List<string> _filteredTags = new List<string>();
         public int Count => _filteredTags.Count;
@@ -28,15 +27,11 @@ namespace Steepshot.Core.Facades
             }
         }
 
-        public TagPickerFacade(ObservableCollection<string> localTags)
+        public TagPickerFacade(ObservableCollection<string> localTags, TagsPresenter tagsPresenter)
         {
             _localTags = localTags;
+            _tagsPresenter = tagsPresenter;
             _localTags.CollectionChanged += UpdateFilteredTags;
-        }
-
-        public void SetClient(SteepshotApiClient client)
-        {
-            _tagsPresenter.SetClient(client);
         }
 
         private void UpdateFilteredTags(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
@@ -63,16 +58,17 @@ namespace Steepshot.Core.Facades
             NotifySourceChanged(nameof(Clear), isEmpty);
         }
 
-        public async Task<Exception> TryGetTopTags()
+        public async Task<Exception> TryGetTopTagsAsync()
         {
             var isAdded = false;
 
             do
             {
-                var result = await _tagsPresenter.TryGetTopTags();
+                var result = await _tagsPresenter.TryGetTopTagsAsync()
+                    .ConfigureAwait(false);
 
-                if (result != null)
-                    return result;
+                if (!result.IsSuccess)
+                    return result.Exception;
 
                 foreach (var item in _tagsPresenter)
                 {
@@ -85,21 +81,21 @@ namespace Steepshot.Core.Facades
 
             } while (!(isAdded || _tagsPresenter.IsLastReaded));
 
-            NotifySourceChanged(nameof(TryGetTopTags), isAdded);
+            NotifySourceChanged(nameof(TryGetTopTagsAsync), isAdded);
 
             return null;
         }
 
-        public async Task<Exception> TryLoadNext(string tagFieldText)
+        public async Task<Exception> TryLoadNextAsync(string tagFieldText)
         {
             var isAdded = false;
 
             do
             {
-                var result = await _tagsPresenter.TryLoadNext(tagFieldText);
+                var result = await _tagsPresenter.TryLoadNextAsync(tagFieldText).ConfigureAwait(false);
 
-                if (result != null)
-                    return result;
+                if (!result.IsSuccess)
+                    return result.Exception;
 
                 foreach (var item in _tagsPresenter)
                 {
@@ -112,7 +108,7 @@ namespace Steepshot.Core.Facades
 
             } while (!(isAdded || _tagsPresenter.IsLastReaded));
 
-            NotifySourceChanged(nameof(TryLoadNext), isAdded);
+            NotifySourceChanged(nameof(TryLoadNextAsync), isAdded);
 
             return null;
         }

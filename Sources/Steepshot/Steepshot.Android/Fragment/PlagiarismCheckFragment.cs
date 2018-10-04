@@ -18,10 +18,9 @@ using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
-using Steepshot.Fragment;
 using Steepshot.Utils;
 
-namespace Steepshot.Activity
+namespace Steepshot.Fragment
 {
     public class PlagiarismCheckFragment : BaseFragmentWithPresenter<PostDescriptionPresenter>
     {
@@ -117,8 +116,7 @@ namespace Steepshot.Activity
 
                 if (media[0].PreparedBitmap != null)
                 {
-                    var previewSize = Utils.ViewUtils
-                        .CalculateImagePreviewSize(media[0].PreparedBitmap.Width, media[0].PreparedBitmap.Height, Style.ScreenWidth - margin * 2, int.MaxValue);
+                    var previewSize = BitmapUtils.CalculateImagePreviewSize(media[0].Parameters, Style.ScreenWidth - margin * 2);
                     var layoutParams = new RelativeLayout.LayoutParams(previewSize.Width, previewSize.Height);
                     layoutParams.SetMargins(margin, 0, margin, margin);
                     _previewContainer.LayoutParameters = layoutParams;
@@ -201,7 +199,7 @@ namespace Steepshot.Activity
         {
             var link = $"@{model.PlagiarismUsername}/{model.PlagiarismPermlink}";
 
-            ((BaseActivity)Activity).OpenNewContentFragment(new SinglePostFragment(link));
+            ((BaseActivity)Activity).OpenNewContentFragment(new PostViewFragment(link));
         }
 
         private void OpenProfile(View obj)

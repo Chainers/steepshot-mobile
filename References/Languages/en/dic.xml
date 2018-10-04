@@ -1,341 +1,350 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources version="15">
-    <string obsolete="true" name="[&quot;ResponseContentContainsHtml&quot;]">Response content contains HTML: </string>
-    <string obsolete="true" name="[&quot;UnexpectedUrlFormat&quot;]">Unexpected url format: </string>
-    <string obsolete="true" name="[&quot;EnableConnectToServer&quot;]">Can not connect to the server, check for an Internet connection and try again.</string>
-    <string obsolete="true" name="[&quot;ServeNotRespond&quot;]">The server does not respond to the request. Check your internet connection and try again.</string>
-    <string obsolete="true" name="[&quot;EmptyCommentField&quot;]">Comment may not be blank!</string>
-    <string obsolete="true" name="[&quot;UnknownCriticalError&quot;]">An unexpected critical error occurred. Unfortunately the next step can not be performed.</string>
-    <string obsolete="true" name="[&quot;EmptyBodyField&quot;]">Body required</string>
-    <string obsolete="true" name="[&quot;EmptyCategoryField&quot;]">Category required</string>
-    <string obsolete="true" name="[&quot;EmptyPhotoField&quot;]">Photo cannot be empty</string>
-    <string obsolete="true" name="[&quot;EmptyContentType&quot;]">Unknown file format</string>
-    <string obsolete="true" name="[&quot;EmptyPostPermlink&quot;]">Permlink cannot be empty</string>
-    <string obsolete="true" name="[&quot;PhotoPrepareError&quot;]">Failure to process the photos. Try to re-select the photo.</string>
-    <string obsolete="true" name="[&quot;ErrorCameraPreview&quot;]">Error setting camera preview: </string>
-    <string obsolete="true" name="[&quot;FollowError&quot;]">Follow page follow error: </string>
-    <string obsolete="true" name="[&quot;PostTagsError&quot;]">Post tags page get items error: </string>
-    <string obsolete="true" name="[&quot;IncorrectIdentifier&quot;]">Incorrect identifier</string>
-    <string obsolete="true" name="[&quot;RapidPosting&quot;]">You post too quickly.</string>
-    <string obsolete="true" name="[&quot;Error&quot;]">Error</string>
-    <string obsolete="true" name="[&quot;Feed&quot;]">FEED</string>
-    <string obsolete="true" name="[&quot;Trending&quot;]">TRENDING</string>
-    <string obsolete="true" name="[&quot;Login&quot;]">Login</string>
-    <string obsolete="true" name="[&quot;NewPhotos&quot;]">NEW PHOTOS</string>
-    <string obsolete="true" name="[&quot;Hello&quot;]">Hello, </string>
-    <string obsolete="true" name="[&quot;Profile&quot;]">PROFILE</string>
-    <string obsolete="true" name="[&quot;ChoosePhoto&quot;]">CHOOSE PHOTO</string>
-    <string obsolete="true" name="[&quot;TypeTag&quot;]">Please type a tag</string>
-    <string obsolete="true" name="[&quot;TypeUsername&quot;]">Please type an username</string>
-    <string obsolete="true" name="[&quot;ServeRejectRequest&quot;]">The server did not accept the request! Reason ({0}) {0}</string>
-    <string obsolete="true" name="[&quot;LoginMsg&quot;]">Log in with your {0} Account</string>
-    <string obsolete="true" name="[&quot;NoAccountMsg&quot;]">Haven't {0} account yet?</string>
-    <string obsolete="true" name="[&quot;BadRequest&quot;]">{0} BadRequest. (The server cannot or will not process the request due to an apparent client error.)</string>
-    <string obsolete="true" name="[&quot;Forbidden&quot;]">{0} Forbidden. (The request was valid, but the server is refusing action. Try to log in.)</string>
-    <string obsolete="true" name="[&quot;NotFound&quot;]">{0} NotFound. (The requested resource could not be found but may be available in the future.)</string>
-    <string obsolete="true" name="[&quot;InternalServerError&quot;]">{0} InternalServerError. (A generic error message, given when an unexpected condition was encountered and no more specific message is suitable.)</string>
-    <string obsolete="true" name="[&quot;BadGateway&quot;]">{0} BadGateway. (The server was acting as a gateway or proxy and received an invalid response from the upstream server)</string>
-    <string obsolete="true" name="[&quot;GatewayTimeout&quot;]">{statusCode} GatewayTimeout. (The server was acting as a gateway or proxy and did not receive a timely response from the upstream server. Try repeat request a little later.)</string>
-    <string obsolete="true" name="[&quot;HttpErrorCode&quot;]">({statusCode}) Some error on server side.</string>
+<resources version="16">
+    <!--obsolete-->
+    <string obsolete="true" name="ResponseContentContainsHtml">Response content contains HTML: </string>
+    <string obsolete="true" name="UnexpectedUrlFormat">Unexpected url format: </string>
+    <string obsolete="true" name="EnableConnectToServer">Can not connect to the server, check for an Internet connection and try again.</string>
+    <string obsolete="true" name="ServeNotRespond">The server does not respond to the request. Check your internet connection and try again.</string>
+    <string obsolete="true" name="EmptyCommentField">Comment may not be blank!</string>
+    <string obsolete="true" name="UnknownCriticalError">An unexpected critical error occurred. Unfortunately the next step can not be performed.</string>
+    <string obsolete="true" name="EmptyBodyField">Body required</string>
+    <string obsolete="true" name="EmptyCategoryField">Category required</string>
+    <string obsolete="true" name="EmptyPhotoField">Photo cannot be empty</string>
+    <string obsolete="true" name="EmptyContentType">Unknown file format</string>
+    <string obsolete="true" name="EmptyPostPermlink">Permlink cannot be empty</string>
+    <string obsolete="true" name="PhotoPrepareError">Failure to process the photos. Try to re-select the photo.</string>
+    <string obsolete="true" name="ErrorCameraPreview">Error setting camera preview: </string>
+    <string obsolete="true" name="FollowError">Follow page follow error: </string>
+    <string obsolete="true" name="PostTagsError">Post tags page get items error: </string>
+    <string obsolete="true" name="IncorrectIdentifier">Incorrect identifier</string>
+    <string obsolete="true" name="RapidPosting">You post too quickly.</string>
+    <string obsolete="true" name="Error">Error</string>
+    <string obsolete="true" name="Feed">FEED</string>
+    <string obsolete="true" name="Trending">TRENDING</string>
+    <string obsolete="true" name="Login">Login</string>
+    <string obsolete="true" name="NewPhotos">NEW PHOTOS</string>
+    <string obsolete="true" name="Hello">Hello, </string>
+    <string obsolete="true" name="Profile">PROFILE</string>
+    <string obsolete="true" name="ChoosePhoto">CHOOSE PHOTO</string>
+    <string obsolete="true" name="TypeTag">Please type a tag</string>
+    <string obsolete="true" name="TypeUsername">Please type an username</string>
+    <string obsolete="true" name="ServeRejectRequest">The server did not accept the request! Reason ({0}) {0}</string>
+    <string obsolete="true" name="LoginMsg">Log in with your {0} Account</string>
+    <string obsolete="true" name="NoAccountMsg">Haven't {0} account yet?</string>
+    <string obsolete="true" name="BadRequest">{0} BadRequest. (The server cannot or will not process the request due to an apparent client error.)</string>
+    <string obsolete="true" name="Forbidden">{0} Forbidden. (The request was valid, but the server is refusing action. Try to log in.)</string>
+    <string obsolete="true" name="NotFound">{0} NotFound. (The requested resource could not be found but may be available in the future.)</string>
+    <string obsolete="true" name="InternalServerError">{0} InternalServerError. (A generic error message, given when an unexpected condition was encountered and no more specific message is suitable.)</string>
+    <string obsolete="true" name="BadGateway">{0} BadGateway. (The server was acting as a gateway or proxy and received an invalid response from the upstream server)</string>
+    <string obsolete="true" name="GatewayTimeout">{statusCode} GatewayTimeout. (The server was acting as a gateway or proxy and did not receive a timely response from the upstream server. Try repeat request a little later.)</string>
+    <string obsolete="true" name="HttpErrorCode">({statusCode}) Some error on server side.</string>
 
-    <string name="[&quot;WrongPrivatePostingKey&quot;]">The key you've entered is not a private posting key. If you're not able to sign in this [video] (https://www.youtube.com/watch?v=XAVapBwbS1U) might be helpful.</string>
-    <string name="[&quot;WrongPrivateActimeKey&quot;]">It`s not a valid Private Active key! Check - Private key looks like 5********...</string>
-    <string name="[&quot;EmptyResponseContent&quot;]">Empty response content</string>
-    <string name="[&quot;EnableConnectToBlockchain&quot;]">Failed to connect to blockchain!</string>
-    <string name="[&quot;ServeUnexpectedError&quot;]">An unexpected error occurred. Check the Internet or try restarting the application.</string>
-    <string name="[&quot;UnknownError&quot;]">Unknown error. Try again</string>
-    <string name="[&quot;EmptyTitleField&quot;]">Title required</string>
-    <string name="[&quot;EmptyDeviceField&quot;]">Device type required</string>
-    <string name="[&quot;EmptyFileField&quot;]">File cannot be empty</string>
-    <string name="[&quot;EmptyVerifyTransaction&quot;]">Empty authentification</string>
-    <string name="[&quot;EmptyUrlField&quot;]">Url cannot be empty</string>
-    <string name="[&quot;EmptyUsernameField&quot;]">Username cannot be empty</string>
-    <string name="[&quot;EmptyLogin&quot;]">Login cannot be empty</string>
-    <string name="[&quot;EmptyPostingKey&quot;]">Private posting key cannot be empty</string>
-    <string name="[&quot;EmptyActiveKey&quot;]">Active key cannot be empty</string>
-    <string name="[&quot;PhotoProcessingError&quot;]">An error occurred while processing the photo. Unfortunately the next step can not be performed.</string>
-    <string name="[&quot;PhotoUploadError&quot;]">Could not upload file to server</string>
-    <string name="[&quot;ErrorCameraScale&quot;]">ScalemageView does not support FitStart or FitEnd</string>
-    <string name="[&quot;ErrorCameraZoom&quot;]">getZoomedRect() not supported with FitXy</string>
-    <string name="[&quot;InternetUnavailable&quot;]">Check your internet connection</string>
-    <string name="[&quot;STEEMIT_MAX_VOTE_CHANGES&quot;,&quot;MaxVoteChanges&quot;]">You`ve already liked this post a few times. Please try another one.</string>
-    <string name="[&quot;UnexpectedError&quot;]">An unexpected error occurred.</string>
-    <string name="[&quot;CameraSettingError&quot;]">Camera Setting error.</string>
-    <string name="[&quot;TagLimitError&quot;]">The number of tags should not be more than 20. Please remove a couple of tags and try again.</string>
-    <string name="[&quot;UnsupportedMime&quot;]">Unsupported file type</string>
-    <string name="[&quot;UnsupportedCurrency&quot;]">Unsupported currency type \"{0}\"</string>
-    <string name="[&quot;UnexpectedProfileData&quot;]">Unexpected profile data</string>
-    <string name="[&quot;ScanQRCode&quot;]">Scan the QR code</string>
-    <string name="[&quot;PostFirstComment&quot;]">Post your first comment</string>
-    <string name="[&quot;Comments&quot;]">Comments</string>
-    <string name="[&quot;PostSettings&quot;]">Post settings</string>
-    <string name="[&quot;CameraHoldUp&quot;]">Hold the camera up to the barcode
+    <!--UI text-->
+    <string name="WrongPrivatePostingKey">The key you've entered is not a private posting key. If you're not able to sign in this [video] (https://www.youtube.com/watch?v=XAVapBwbS1U) might be helpful.</string>
+    <string name="WrongPrivateActimeKey">It`s not a valid Private Active key! Check - Private key looks like 5********...</string>
+    <string name="EmptyResponseContent">Empty response content</string>
+    <string name="EnableConnectToBlockchain">Failed to connect to blockchain!</string>
+    <string name="ServeUnexpectedError">An unexpected error occurred. Check the Internet or try restarting the application.</string>
+    <string name="UnknownError">Unknown error. Try again</string>
+    <string name="EmptyTitleField">Title required</string>
+    <string name="EmptyDeviceField">Device type required</string>
+    <string name="EmptyFileField">File cannot be empty</string>
+    <string name="EmptyVerifyTransaction">Empty authentification</string>
+    <string name="EmptyUrlField">Url cannot be empty</string>
+    <string name="EmptyUsernameField">Username cannot be empty</string>
+    <string name="EmptyLogin">Login cannot be empty</string>
+    <string name="EmptyPostingKey">Private posting key cannot be empty</string>
+    <string name="EmptyActiveKey">Active key cannot be empty</string>
+    <string name="PhotoProcessingError">An error occurred while processing the photo. Unfortunately the next step can not be performed.</string>
+    <string name="PhotoUploadError">Could not upload file to server</string>
+    <string name="ErrorCameraScale">ScalemageView does not support FitStart or FitEnd</string>
+    <string name="ErrorCameraZoom">getZoomedRect() not supported with FitXy</string>
+    <string name="InternetUnavailable">Check your internet connection</string>
+    <string name="STEEMIT_MAX_VOTE_CHANGES&split;MaxVoteChanges">You`ve already liked this post a few times. Please try another one.</string>
+    <string name="UnexpectedError">An unexpected error occurred.</string>
+    <string name="CameraSettingError">Camera Setting error.</string>
+    <string name="TagLimitError">The number of tags should not be more than 20. Please remove a couple of tags and try again.</string>
+    <string name="UnsupportedMime">Unsupported file type</string>
+    <string name="UnsupportedCurrency">Unsupported currency type \"{0}\"</string>
+    <string name="UnexpectedProfileData">Unexpected profile data</string>
+    <string name="ScanQRCode">Scan the QR code</string>
+    <string name="PostFirstComment">Post your first comment</string>
+    <string name="Comments">Comments</string>
+    <string name="PostSettings">Post settings</string>
+    <string name="CameraHoldUp">Hold the camera up to the barcode
 About 6 inches away</string>
-    <string name="[&quot;WaitforScan&quot;]">Wait for the barcode to automatically scan!</string>
-    <string name="[&quot;Likes&quot;]">{0} likes</string>
-    <string name="[&quot;Like&quot;]">{0} like</string>
-    <string name="[&quot;Flags&quot;]">{0} flags</string>
-    <string name="[&quot;Flag&quot;]">{0} flag</string>
-    <string name="[&quot;Follow&quot;]">Follow</string>
-    <string name="[&quot;Unfollow&quot;]">Unfollow</string>
-    <string name="[&quot;Ok&quot;]">Ok</string>
-    <string name="[&quot;TryAgain&quot;]">Try again</string>
-    <string name="[&quot;Forget&quot;]">Forget</string>
-    <string name="[&quot;Voters&quot;]">Likes</string>
-    <string name="[&quot;FlagVoters&quot;]">Flags</string>
-    <string name="[&quot;ViewComments&quot;]">See all {0} comments</string>
-    <string name="[&quot;FlagPhoto&quot;]">Flag photo</string>
-    <string name="[&quot;Reply&quot;]">Reply</string>
-    <string name="[&quot;HidePhoto&quot;]">Hide photo</string>
-    <string name="[&quot;Cancel&quot;]">Cancel</string>
-    <string name="[&quot;Save&quot;]">Save</string>
-    <string name="[&quot;Following&quot;]">Following</string>
-    <string name="[&quot;Followers&quot;]">Followers</string>
-    <string name="[&quot;Hot&quot;]">Hot</string>
-    <string name="[&quot;Top&quot;]">Top</string>
-    <string name="[&quot;New&quot;]">New</string>
-    <string name="[&quot;Photos&quot;]">Photos</string>
-    <string name="[&quot;AcceptToS&quot;]">Please make sure you accept the terms of service and privacy policy</string>
-    <string name="[&quot;YourAccountName&quot;]">Your account name</string>
-    <string name="[&quot;NextStep&quot;]">Next step</string>
-    <string name="[&quot;Account&quot;]">{0} account</string>
-    <string name="[&quot;NsfwShow&quot;]">Show</string>
-    <string name="[&quot;Nsfw&quot;]">NSFW</string>
-    <string name="[&quot;NsfwContent&quot;]">NSFW content</string>
-    <string name="[&quot;NsfwContentExplanation&quot;]">This content is for adults only. Not recommended for children or sensitive individuals.</string>
-    <string name="[&quot;LowRated&quot;]">Low rated</string>
-    <string name="[&quot;LowRatedContent&quot;]">Low rated content</string>
-    <string name="[&quot;LowRatedContentExplanation&quot;]">This content is hidden due to low ratings</string>
-    <string name="[&quot;FlagMessage&quot;]">You sent a complaint to this post.</string>
-    <string name="[&quot;FlagSubMessage&quot;]"></string>
-    <string name="[&quot;DeleteAlertTitle&quot;]">Are you sure you want to delete this post?</string>
-    <string name="[&quot;DeleteAlertMessage&quot;]">This action can not be undone.</string>
-    <string name="[&quot;PowerOfLike&quot;]">Power of like {0}%</string>
-    <string name="[&quot;TitleForAcceptToS&quot;]">By pressing any of the buttons you agree with our &lt;a href=\"https://steepshot.org/terms-of-service\"&gt;Terms of Service&lt;/a&gt; &amp; &lt;a href=\"https://steepshot.org/privacy-policy\"&gt;Privacy policy&lt;/a&gt;</string>
-    <string name="[&quot;PostDelay&quot;]">Post has been successfully created. If you don't see the post in your profile, please give it a few minutes to sync from the blockchain</string>
-    <string name="[&quot;SignInButtonText&quot;]">Sign in with {0}</string>
-    <string name="[&quot;CreateButtonText&quot;]">Create new account</string>
-    <string name="[&quot;EnterAccountText&quot;]">Enter to your account</string>
-    <string name="[&quot;PasswordViewTitleText&quot;]">Account private posting key</string>
-    <string name="[&quot;ActivePasswordViewTitleText&quot;]">Account active key</string>
-    <string name="[&quot;PublishButtonText&quot;]">Publish Photo</string>
-    <string name="[&quot;AppSettingsTitle&quot;]">App settings</string>
-    <string name="[&quot;AddAccountText&quot;]">Add account</string>
-    <string name="[&quot;PeopleText&quot;]">{0:N0} people</string>
-    <string name="[&quot;TapToSearch&quot;]">Tap to search</string>
-    <string name="[&quot;SearchHint&quot;]">Type something to search</string>
-    <string name="[&quot;Tag&quot;]">Tag</string>
-    <string name="[&quot;Users&quot;]">Users</string>
-    <string name="[&quot;Clear&quot;]">Clear</string>
-    <string name="[&quot;SeeComment&quot;]">See comment</string>
-    <string name="[&quot;YearsAgo&quot;]">{0} years ago</string>
-    <string name="[&quot;MonthAgo&quot;]">{0} month ago</string>
-    <string name="[&quot;DaysAgo&quot;]">{0} days ago</string>
-    <string name="[&quot;DayAgo&quot;]">{0} day ago</string>
-    <string name="[&quot;HrsAgo&quot;]">{0} hrs ago</string>
-    <string name="[&quot;HrAgo&quot;]">{0} hr ago</string>
-    <string name="[&quot;MinAgo&quot;]">{0} min ago</string>
-    <string name="[&quot;SecAgo&quot;]">{0} sec ago</string>
-    <string name="[&quot;CreateFirstPostText&quot;]">Create first photo</string>
-    <string name="[&quot;EmptyQuery&quot;]">It's very strange, but we do not have anything yet for this query. Try to look for something else ...</string>
-    <string name="[&quot;Copied&quot;]">Copied to clipboard</string>
-    <string name="[&quot;PostLink&quot;]">https://alpha.steepshot.io/post{0}</string>
-    <string name="[&quot;ShowMoreString&quot;]"> Show more...</string>
-    <string name="[&quot;SignIn&quot;]">Sign in</string>
-    <string name="[&quot;FlagPost&quot;]">Flag post</string>
-    <string name="[&quot;UnFlagPost&quot;]">Remove flag</string>
-    <string name="[&quot;FlagComment&quot;]">Flag comment</string>
-    <string name="[&quot;HideComment&quot;]">Hide comment</string>
-    <string name="[&quot;EditComment&quot;]">Edit comment</string>
-    <string name="[&quot;DeleteComment&quot;]">Delete comment</string>
-    <string name="[&quot;UnFlagComment&quot;]">Unflag comment</string>
-    <string name="[&quot;HidePost&quot;]">Hide post</string>
-    <string name="[&quot;EditPost&quot;]">Edit post</string>
-    <string name="[&quot;DeletePost&quot;]">Delete post</string>
-    <string name="[&quot;CopyLink&quot;]">Copy link</string>
-    <string name="[&quot;Delete&quot;]">Delete</string>
-    <string name="[&quot;PutYourComment&quot;]">Put your comment here...</string>
-    <string name="[&quot;EnterPostTitle&quot;]">Enter a title of your photo</string>
-    <string name="[&quot;EnterPostDescription&quot;]">Enter a description of your photo</string>
-    <string name="[&quot;AddHashtag&quot;]">Add Hashtag</string>
-    <string name="[&quot;Hashtag&quot;]">Hashtag</string>
-    <string name="[&quot;MyProfile&quot;]">My Profile</string>
-    <string name="[&quot;AccountBalance&quot;]">Account Balance</string>
-    <string name="[&quot;ShowNsfw&quot;]">Show NSFW content</string>
-    <string name="[&quot;ShowLowRated&quot;]">Show low rated content</string>
-    <string name="[&quot;Guidelines&quot;]">Community Guidelines</string>
-    <string name="[&quot;ToS&quot;]">Terms of Service</string>
-    <string name="[&quot;AppVersion&quot;]">App version: {0} Build number: {1}</string>
-    <string name="[&quot;EmptyCategory&quot;]">category cannot be empty</string>
-    <string name="[&quot;QueryMinLength&quot;]">Query should have at least 2 characters</string>
-    <string name="[&quot;Sharepost&quot;]">Share post</string>
-    <string name="[&quot;Retry&quot;]">Retry</string>
-    <string name="[&quot;CheckPermission&quot;]">Check your app permissions</string>
-    <string name="[&quot;SetupMail&quot;]">Setup your mail please</string>
-    <string name="[&quot;Gallery&quot;]">Gallery</string>
-    <string name="[&quot;PickedPhotosLimit&quot;]">Sorry, you can't select more than 7 photos</string>
-    <string name="[&quot;NoPhotosPicked&quot;]">Please select a photo</string>
-    <string name="[&quot;SinglePost&quot;]">Post</string>
-    <string name="[&quot;NotificationSettings&quot;]">Push Notifications</string>
-    <string name="[&quot;NotificationPostUpvotes&quot;]">Post Likes</string>
-    <string name="[&quot;NotificationCommentsUpvotes&quot;]">Comment Likes</string>
-    <string name="[&quot;NotificationFollow&quot;]">Follower Requests</string>
-    <string name="[&quot;NotificationComment&quot;]">All comments</string>
-    <string name="[&quot;NotificationPosting&quot;]">New Posts</string>
-    <string name="[&quot;NotificationTransfers&quot;]">Transfers</string>
-    <string name="[&quot;WatchUser&quot;]">Notify me of new posts</string>
-    <string name="[&quot;UnwatchUser&quot;]">Stop notifying me of new posts</string>
-    <string name="[&quot;TagSearchWarning&quot;]">Here should be at least 2 characters for hashtags search and 3 for the users' query</string>
-    <string name="[&quot;NoResultText&quot;]">No results found</string>
-    <string name="[&quot;VotingPowerSetting&quot;]">Show voting slider</string>
-    <string name="[&quot;Transfer&quot;]">Transfer</string>
-    <string name="[&quot;RecipientName&quot;]">To</string>
-    <string name="[&quot;RecipientNameHint&quot;]">Search</string>
-    <string name="[&quot;TransferAmount&quot;]">Amount</string>
-    <string name="[&quot;TransferAmountHint&quot;]">0</string>
-    <string name="[&quot;TransferComment&quot;]">Add message (memo)</string>
-    <string name="[&quot;TranferCommentHint&quot;]">Enter comment</string>
-    <string name="[&quot;WrongRecipientName&quot;]">Check recipient name</string>
-    <string name="[&quot;WrongTransferAmount&quot;]">Check transfer amount</string>
-    <string name="[&quot;TransferSuccess&quot;]">Transaction completed successfully!</string>
-    <string name="[&quot;TransferFail&quot;]">Transfer failed</string>
-    <string name="[&quot;Select&quot;]">Select</string>
-    <string name="[&quot;SelectToken&quot;]">Select token</string>
-    <string name="[&quot;ActiveKeyPrivacy&quot;]">We store your keys in the device. We never send them to the server.</string>
-    <string name="[&quot;Recipient&quot;]">Recipient</string>
-    <string name="[&quot;Amount&quot;]">Amount</string>
-    <string name="[&quot;Time&quot;]">Time</string>
-    <string name="[&quot;Wallet&quot;]">Wallet</string>
-    <string name="[&quot;&lt;h1&gt;Server Error (500)&lt;/h1&gt;&quot;]">(500) Server Error</string>
-    <string name="[&quot;&lt;h1&gt;Not Found&lt;/h1&gt;&quot;]">Not Found</string>
-    <string name="[&quot;504 Gateway Time-out&quot;]">(504) Gateway Time-out</string>
-    <string name="[&quot;Greeting&quot;]">Hello! It's time to find the coolest content for you!</string>
-    <string name="[&quot;EmptyFeedHint&quot;]">Click the button below to find interesting people and publications</string>
-    <string name="[&quot;GoToBrowse&quot;]">Let's go</string>
-    <string name="[&quot;Posts5minLimit&quot;]">You can publish no more than one post in 5 minutes</string>
-    <string name="[&quot;PostsDayLimit&quot;]">You have reached per-day limit for 15 posts</string>
-    <string name="[&quot;RegistrationWith&quot;]">Create account</string>
-    <string name="[&quot;RegisterWithEmail&quot;]">Sign up with Email</string>
-    <string name="[&quot;RegisterThroughSteemit&quot;]">Sign up with Steemit</string>
-    <string name="[&quot;RegisterThroughBlocktrades&quot;]">Sign up with Blocktrades</string>
-    <string name="[&quot;RegisterThroughSteemCreate&quot;]">Sign up with SteemCreate</string>
-    <string name="[&quot;Use&quot;]">Use</string>
-    <string name="[&quot;Close&quot;]">Close</string>
-    <string name="[&quot;SteemitAccount&quot;]">Steemit account</string>
-    <string name="[&quot;GolosAccount&quot;]">Golos account</string>
-    <string name="[&quot;Connect&quot;]">Connect</string>
-    <string name="[&quot;Logout&quot;]">Log out</string>
-    <string name="[&quot;SwitchTo&quot;]">Switch to</string>
-    <string name="[&quot;&lt;html&gt; &lt;head&gt;&lt;title&gt;502 Bad Gateway&quot;]">(502) Bad Gateway</string>
-    <string name="[&quot;&lt;html&gt; &lt;head&gt;&lt;title&gt;400 Bad Request&quot;]">(400) Bad Request</string>
-    <string name="[&quot;&lt;html&gt;&lt;head&gt;&lt;title&gt;413 Request Entity Too Large&quot;]">(413) Request Entity Too Large</string>
-    <string name="[&quot;Query should have at least 3 characters&quot;]">Query should have at least 3 characters</string>
-    <string name="[&quot;Username used for offset was not found&quot;]">Username used for offset was not found</string>
-    <string name="[&quot;User not found&quot;]">User not found</string>
-    <string name="[&quot;Account does not exist&quot;]">Account does not exist</string>
-    <string name="[&quot;Cannot get posts for this username&quot;]">Cannot get posts for this username</string>
-    <string name="[&quot;Wrong identifier&quot;]">Wrong identifier.</string>
-    <string name="[&quot;The submitted file is empty&quot;]">The submitted file is empty.</string>
-    <string name="[&quot;Category used for offset was not found&quot;]">Category used for offset was not found</string>
-    <string name="[&quot;Size of the uploaded file is too big. Max size: 10 MB&quot;]">Size of the uploaded file is too big. Max size: 10 MB.</string>
-    <string name="[&quot;Upload a valid image. The file you uploaded was either not an image or a corrupted image&quot;]">Upload a valid image. The file you uploaded was either not an image or a corrupted image.</string>
-    <string name="[&quot;Cannot find posts for user&quot;]">Cannot find posts</string>
-    <string name="[&quot;InsufficientBalance&quot;]">Insufficient balance. Current balance: {0}</string>
+    <string name="WaitforScan">Wait for the barcode to automatically scan!</string>
+    <string name="Likes">{0} likes</string>
+    <string name="Like">{0} like</string>
+    <string name="Flags">{0} flags</string>
+    <string name="Flag">{0} flag</string>
+    <string name="Follow">Follow</string>
+    <string name="Unfollow">Unfollow</string>
+    <string name="Ok">Ok</string>
+    <string name="TryAgain">Try again</string>
+    <string name="Forget">Forget</string>
+    <string name="Voters">Likes</string>
+    <string name="FlagVoters">Flags</string>
+    <string name="ViewComments">See all {0} comments</string>
+    <string name="FlagPhoto">Flag photo</string>
+    <string name="Reply">Reply</string>
+    <string name="HidePhoto">Hide photo</string>
+    <string name="Cancel">Cancel</string>
+    <string name="Save">Save</string>
+    <string name="Following">Following</string>
+    <string name="Followers">Followers</string>
+    <string name="Hot">Hot</string>
+    <string name="Top">Top</string>
+    <string name="New">New</string>
+    <string name="Photos">Photos</string>
+    <string name="AcceptToS">Please make sure you accept the terms of service and privacy policy</string>
+    <string name="YourAccountName">Your account name</string>
+    <string name="NextStep">Next step</string>
+    <string name="Account">{0} account</string>
+    <string name="NsfwShow">Show</string>
+    <string name="Nsfw">NSFW</string>
+    <string name="NsfwContent">NSFW content</string>
+    <string name="NsfwContentExplanation">This content is for adults only. Not recommended for children or sensitive individuals.</string>
+    <string name="LowRated">Low rated</string>
+    <string name="LowRatedContent">Low rated content</string>
+    <string name="LowRatedContentExplanation">This content is hidden due to low ratings</string>
+    <string name="FlagMessage">You sent a complaint to this post.</string>
+    <string name="DeleteAlertTitle">Are you sure you want to delete this post?</string>
+    <string name="DeleteAlertMessage">This action can not be undone.</string>
+    <string name="PowerOfLike">Power of like {0}%</string>
+    <string name="TitleForAcceptToS">By pressing any of the buttons you agree with our &lt;a href=\"https://steepshot.org/terms-of-service\"&gt;Terms of Service&lt;/a&gt; &amp; &lt;a href=\"https://steepshot.org/privacy-policy\"&gt;Privacy policy&lt;/a&gt;</string>
+    <string name="PostDelay">Post has been successfully created. If you don't see the post in your profile, please give it a few minutes to sync from the blockchain</string>
+    <string name="SignInButtonText">Sign in with {0}</string>
+    <string name="CreateButtonText">Create new account</string>
+    <string name="EnterAccountText">Enter to your account</string>
+    <string name="PasswordViewTitleText">Account private posting key</string>
+    <string name="ActivePasswordViewTitleText">Account active key</string>
+    <string name="PublishButtonText">Publish Photo</string>
+    <string name="AppSettingsTitle">App settings</string>
+    <string name="AddAccountText">Add account</string>
+    <string name="PeopleText">{0:N0} people</string>
+    <string name="TapToSearch">Tap to search</string>
+    <string name="SearchHint">Type something to search</string>
+    <string name="Tag">Tag</string>
+    <string name="Users">Users</string>
+    <string name="Clear">Clear</string>
+    <string name="SeeComment">See comment</string>
+    <string name="YearsAgo">{0} years ago</string>
+    <string name="MonthAgo">{0} month ago</string>
+    <string name="DaysAgo">{0} days ago</string>
+    <string name="DayAgo">{0} day ago</string>
+    <string name="HrsAgo">{0} hrs ago</string>
+    <string name="HrAgo">{0} hr ago</string>
+    <string name="MinAgo">{0} min ago</string>
+    <string name="SecAgo">{0} sec ago</string>
+    <string name="CreateFirstPostText">Create first photo</string>
+    <string name="EmptyQuery">It's very strange, but we do not have anything yet for this query. Try to look for something else ...</string>
+    <string name="Copied">Copied to clipboard</string>
+    <string name="PostLink">https://alpha.steepshot.io/post{0}</string>
+    <string name="ShowMoreString"> Show more...</string>
+    <string name="SignIn">Sign in</string>
+    <string name="FlagPost">Flag post</string>
+    <string name="UnFlagPost">Remove flag</string>
+    <string name="FlagComment">Flag comment</string>
+    <string name="HideComment">Hide comment</string>
+    <string name="EditComment">Edit comment</string>
+    <string name="DeleteComment">Delete comment</string>
+    <string name="UnFlagComment">Unflag comment</string>
+    <string name="HidePost">Hide post</string>
+    <string name="EditPost">Edit post</string>
+    <string name="DeletePost">Delete post</string>
+    <string name="CopyLink">Copy link</string>
+    <string name="Delete">Delete</string>
+    <string name="PutYourComment">Put your comment here...</string>
+    <string name="EnterPostTitle">Enter a title of your photo</string>
+    <string name="EnterPostDescription">Enter a description of your photo</string>
+    <string name="AddHashtag">Add Hashtag</string>
+    <string name="Hashtag">Hashtag</string>
+    <string name="MyProfile">My Profile</string>
+    <string name="AccountBalance">Account Balance</string>
+    <string name="ShowNsfw">Show NSFW content</string>
+    <string name="ShowLowRated">Show low rated content</string>
+    <string name="Guidelines">Community Guidelines</string>
+    <string name="ToS">Terms of Service</string>
+    <string name="AppVersion">App version: {0} Build number: {1}</string>
+    <string name="EmptyCategory">category cannot be empty</string>
+    <string name="QueryMinLength">Query should have at least 2 characters</string>
+    <string name="Sharepost">Share post</string>
+    <string name="Retry">Retry</string>
+    <string name="CheckPermission">Check your app permissions</string>
+    <string name="SetupMail">Setup your mail please</string>
+    <string name="Gallery">Gallery</string>
+    <string name="PickedPhotosLimit">Sorry, you can't select more than 7 photos</string>
+    <string name="NoPhotosPicked">Please select a photo</string>
+    <string name="SinglePost">Post</string>
+    <string name="NotificationSettings">Push Notifications</string>
+    <string name="NotificationPostUpvotes">Post Likes</string>
+    <string name="NotificationCommentsUpvotes">Comment Likes</string>
+    <string name="NotificationFollow">Follower Requests</string>
+    <string name="NotificationComment">All comments</string>
+    <string name="NotificationPosting">New Posts</string>
+    <string name="NotificationTransfers">Transfers</string>
+    <string name="WatchUser">Notify me of new posts</string>
+    <string name="UnwatchUser">Stop notifying me of new posts</string>
+    <string name="TagSearchWarning">Here should be at least 2 characters for hashtags search and 3 for the users' query</string>
+    <string name="NoResultText">No results found</string>
+    <string name="VotingPowerSetting">Show voting slider</string>
+    <string name="Transfer">Transfer</string>
+    <string name="RecipientName">To</string>
+    <string name="RecipientNameHint">Search</string>
+    <string name="TransferAmount">Amount</string>
+    <string name="TransferAmountHint">0</string>
+    <string name="TransferComment">Add message (memo)</string>
+    <string name="TranferCommentHint">Enter comment</string>
+    <string name="WrongRecipientName">Check recipient name</string>
+    <string name="WrongTransferAmount">Check transfer amount</string>
+    <string name="TransferSuccess">Transaction completed successfully!</string>
+    <string name="TransferFail">Transfer failed</string>
+    <string name="Select">Select</string>
+    <string name="SelectToken">Select token</string>
+    <string name="ActiveKeyPrivacy">We store your keys in the device. We never send them to the server.</string>
+    <string name="Recipient">Recipient</string>
+    <string name="Amount">Amount</string>
+    <string name="Time">Time</string>
+    <string name="Wallet">Wallet</string>
+    <string name="Greeting">Hello! It's time to find the coolest content for you!</string>
+    <string name="EmptyFeedHint">Click the button below to find interesting people and publications</string>
+    <string name="GoToBrowse">Let's go</string>
+    <string name="Posts5minLimit">You can publish no more than one post in 5 minutes</string>
+    <string name="PostsDayLimit">You have reached per-day limit for 15 posts</string>
+    <string name="RegistrationWith">Create account</string>
+    <string name="RegisterWithEmail">Sign up with Email</string>
+    <string name="RegisterThroughSteemit">Sign up with Steemit</string>
+    <string name="RegisterThroughBlocktrades">Sign up with Blocktrades</string>
+    <string name="RegisterThroughSteemCreate">Sign up with SteemCreate</string>
+    <string name="Use">Use</string>
+    <string name="Close">Close</string>
+    <string name="SteemitAccount">Steemit account</string>
+    <string name="GolosAccount">Golos account</string>
+    <string name="Connect">Connect</string>
+    <string name="Logout">Log out</string>
+    <string name="SwitchTo">Switch to</string>
+    <string name="Query should have at least 3 characters">Query should have at least 3 characters</string>
+    <string name="Username used for offset was not found">Username used for offset was not found</string>
+    <string name="User not found">User not found</string>
+    <string name="Account does not exist">Account does not exist</string>
+    <string name="Cannot get posts for this username">Cannot get posts for this username</string>
+    <string name="Wrong identifier">Wrong identifier.</string>
+    <string name="The submitted file is empty">The submitted file is empty.</string>
+    <string name="Category used for offset was not found">Category used for offset was not found</string>
+    <string name="Size of the uploaded file is too big. Max size: 10 MB">Size of the uploaded file is too big. Max size: 10 MB.</string>
+    <string name="Upload a valid image. The file you uploaded was either not an image or a corrupted image">Upload a valid image. The file you uploaded was either not an image or a corrupted image.</string>
+    <string name="Cannot find posts for user">Cannot find posts</string>
+    <string name="InsufficientBalance">Insufficient balance. Current balance: {0}</string>
 
-    <string name="[&quot;unknown key&quot;]">unknown key</string>
-    <string name="[&quot;The comment is archived&quot;]">The comment is archived</string>
-    <string name="[&quot;bandwidth limit&quot;]">Bandwidth limit exceeded. Please wait to transact or power up STEEM.</string>
-    <string name="[&quot;already submitted a custom json operation this block&quot;]">Account already submitted a custom json operation this block.</string>
-    <string name="[&quot;tx_missing_posting_auth&quot;]">Missing required posting authority</string>
-    <string name="[&quot;transaction_tapos_exception&quot;]">Transaction tapos exception</string>
-    <string name="[&quot;transaction_expiration_exception&quot;]">Transaction expiration exception.</string>
-    <string name="[&quot;vote_percent != o.weight&quot;,&quot;VotedInASimilarWay&quot;]">You have already voted in a similar way.</string>
-    <string name="[&quot;num_changes &lt; STEEMIT_MAX_VOTE_CHANGES&quot;,&quot;num_changes &lt; STEEM_MAX_VOTE_CHANGES&quot;,&quot;vote.num_changes &lt; STEEM_MAX_VOTE_CHANGES&quot;]">Voter has used the maximum number of vote changes on this comment.</string>
+    <!--Server errors-->
+    <string name="Bad Gateway">Server went to lunch, but will be back soon.</string>
+    <string name="Bad Request">Server did not understand what we want.</string>
+    <string name="Request Entity Too Large">Your request was too big and can not fit on Server, try to make it smaller.</string>
+    <string name="Server Error">Server made a mistake and sent the wrong answer. Try to changing or repeating your request.</string>
+    <string name="Not Found">Server tried, but did not find any data for your request.</string>
+    <string name="Gateway Time-out">Server is busy and forgot to respond to your request. Try to repeating your request.</string>
+    <string name="Height is too small. Minimum height: 420.">You can publish only photos that are larger than 420px</string>
 
-    <string name="[&quot;STEEMIT_MIN_ROOT_COMMENT_INTERVAL&quot;,&quot;STEEM_MIN_ROOT_COMMENT_INTERVAL&quot;,&quot;( now - auth.last_root_post ) &gt; STEEMIT_MIN_ROOT_COMMENT_INTERVAL&quot;,&quot;( now - auth.last_root_post ) &gt; STEEM_MIN_ROOT_COMMENT_INTERVAL&quot;]">You may only post once every 5 minutes.</string>
-    <string name="[&quot;STEEMIT_MIN_REPLY_INTERVAL&quot;,&quot;STEEM_MIN_REPLY_INTERVAL&quot;,&quot;(now - auth.last_post) &gt; STEEMIT_MIN_REPLY_INTERVAL&quot;,&quot;(now - auth.last_post) &gt; STEEM_MIN_REPLY_INTERVAL&quot;]">You may only comment once every 20 seconds.</string>
-    <string name="[&quot;equal( com.parent_permlink, o.parent_permlink )&quot;]">The permlink of a comment cannot change.</string>
-    <string name="[&quot;head_block_time() &lt; comment.cashout_time - STEEMIT_UPVOTE_LOCKOUT_HF17&quot;,&quot;head_block_time() &lt; comment.cashout_time - STEEM_UPVOTE_LOCKOUT_HF17&quot;,&quot;head_block_time() &lt; comment.cashout_time - STEEM_UPVOTE_LOCKOUT_HF17&quot;]">Cannot increase payout within last twelve hours before payout.</string>
+    <!--Blockchain errors-->
+    <string name="unknown key">Post not found (deleted or not available)</string>
+    <string name="The comment is archived">The comment is archived</string>
+    <string name="bandwidth limit">Bandwidth limit exceeded. Please wait to transact or power up STEEM.</string>
+    <string name="already submitted a custom json operation this block">Account already submitted a custom json operation this block.</string>
+    <string name="tx_missing_posting_auth">Missing required posting authority</string>
+    <string name="transaction_tapos_exception">Transaction tapos exception</string>
+    <string name="transaction_expiration_exception">Transaction expiration exception.</string>
+    <string name="vote_percent != o.weight&split;VotedInASimilarWay">You have already voted in a similar way.</string>
+    <string name="num_changes &lt; STEEMIT_MAX_VOTE_CHANGES&split;num_changes &lt; STEEM_MAX_VOTE_CHANGES&split;vote.num_changes &lt; STEEM_MAX_VOTE_CHANGES">Voter has used the maximum number of vote changes on this comment.</string>
 
-    <string name="[&quot;abs_rshares &gt; STEEMIT_VOTE_DUST_THRESHOLD || o.weight == 0&quot;,&quot;abs_rshares &gt; STEEM_VOTE_DUST_THRESHOLD || o.weight == 0&quot;,&quot;abs_rshares &gt; STEEM_VOTE_DUST_THRESHOLD || vote_weight == 0&quot;,&quot;abs_rshares &gt; 30000000 || o.weight == 0&quot;]">Voting weight is too small, please accumulate more voting power or steem power.</string>
+    <string name="STEEMIT_MIN_ROOT_COMMENT_INTERVAL&split;STEEM_MIN_ROOT_COMMENT_INTERVAL&split;( now - auth.last_root_post ) &gt; STEEMIT_MIN_ROOT_COMMENT_INTERVAL&split;( now - auth.last_root_post ) &gt; STEEM_MIN_ROOT_COMMENT_INTERVAL">You may only post once every 5 minutes.</string>
+    <string name="STEEMIT_MIN_REPLY_INTERVAL&split;STEEM_MIN_REPLY_INTERVAL&split;(now - auth.last_post) &gt; STEEMIT_MIN_REPLY_INTERVAL&split;(now - auth.last_post) &gt; STEEM_MIN_REPLY_INTERVAL">You may only comment once every 20 seconds.</string>
+    <string name="equal( com.parent_permlink, o.parent_permlink )">The permlink of a comment cannot change.</string>
+    <string name="head_block_time() &lt; comment.cashout_time - STEEMIT_UPVOTE_LOCKOUT_HF17&split;head_block_time() &lt; comment.cashout_time - STEEM_UPVOTE_LOCKOUT_HF17&split;head_block_time() &lt; comment.cashout_time - STEEM_UPVOTE_LOCKOUT_HF17">Cannot increase payout within last twelve hours before payout.</string>
 
-    <string name="[&quot;beneficiaries.size() == 0&quot;]">Comment already has beneficiaries specified.</string>
-    <string name="[&quot;(skip &amp; skip_transaction_dupe_check) || trx_idx.indices().get&lt;by_trx_id&gt;().find(trx_id) == trx_idx.indices().get&lt;by_trx_id&gt;().end()&quot;]">Duplicate transaction check failed.</string>
-    <string name="[&quot;title.size() &lt; 256&quot;]">Title larger than size limit.</string>
-    <string name="[&quot;elapsed_seconds &gt;= STEEMIT_MIN_VOTE_INTERVAL_SEC&quot;]">Can only vote once every 3 seconds.</string>
-    <string name="[&quot;elapsed_seconds &gt;= STEEM_MIN_VOTE_INTERVAL_SEC&quot;]">Can only vote once every 3 seconds.</string>
-    <string name="[&quot;body.size() &gt; 0&quot;]">Body is empty.</string>
-    <string name="[&quot;weight != 0&quot;]">Vote weight cannot be 0.</string>
-    <string name="[&quot;!check_max_block_age( _max_block_age )&quot;]">Block Exception</string>
-    <string name="[&quot;com.parent_author == o.parent_author&quot;]">The parent of a comment cannot change.</string>
-    <string name="[&quot;_db.calculate_discussion_payout_time(*parent) != fc::time_point_sec::maximum()&quot;]">Discussion is frozen.</string>
-    <string name="[&quot;_callbacks.find( txid ) == _callbacks.end()&quot;]">Transaction is a duplicate</string>
-    <string name="[&quot;The post is hidden from you. Please change your settings to see this post&quot;]">The post is hidden from you. Please change your settings to see this post</string>
-    <string name="[&quot;DuplicateTag&quot;]">You have already added this tag</string>
-    <string name="[&quot;SendTokens&quot;]"> Send tokens</string>
-    <string name="[&quot;TransactionHistory&quot;]">Transaction history</string>
-    <string name="[&quot;SelectAction&quot;]">Select action</string>
-    <string name="[&quot;PowerUp&quot;]">Power up</string>
-    <string name="[&quot;PowerDown&quot;]">Power down</string>
-    <string name="[&quot;Max&quot;]">Max</string>
-    <string name="[&quot;ClaimRewards&quot;]">Claim rewards</string>
+    <string name="abs_rshares &gt; STEEMIT_VOTE_DUST_THRESHOLD || o.weight == 0&split;abs_rshares &gt; STEEM_VOTE_DUST_THRESHOLD || o.weight == 0&split;abs_rshares &gt; STEEM_VOTE_DUST_THRESHOLD || vote_weight == 0&split;abs_rshares &gt; 30000000 || o.weight == 0">Voting weight is too small, please accumulate more voting power or steem power.</string>
 
-    <string name="[&quot;PlagiarismTitle&quot;]">Plagiarism check</string>
-    <string name="[&quot;GuidelinesForPlagiarism&quot;]">Guidelines</string>
-    <string name="[&quot;SelfPlagiarism&quot;]">We have found a {0} in Steepshot, uploaded by you. We do not recommend you to re-upload photos as it may result in low payouts and reputation loss.</string>
-    <string name="[&quot;PhotoPlagiarism&quot;]">We have found a {0} in Steepshot, uploaded by {1}. We do not recommend you to upload other users' photos as it may result in low payouts and reputation loss.</string>
-    <string name="[&quot;PlagiarismDescription&quot;]">If you're sure that you are the author of the photo, please flag and/or leave a comment under the {0} to let other people know they should flag this post.</string>
-    <string name="[&quot;IPFSLink&quot;]">IPFS Link</string>
-    <string name="[&quot;CancelPublishing&quot;]">No, cancel publishing</string>
-    <string name="[&quot;ContinuePublishing&quot;]">Yes, continue publishing</string>
-    <string name="[&quot;ClaimYourRights&quot;]">Claim your rights to this post</string>
-    <string name="[&quot;SimilarPhoto&quot;]">Similar photo</string>
-    <string name="[&quot;Photo&quot;]">Photo</string>
+    <string name="beneficiaries.size() == 0">Comment already has beneficiaries specified.</string>
+    <string name="(skip &amp; skip_transaction_dupe_check) || trx_idx.indices().get&lt;by_trx_id&gt;().find(trx_id) == trx_idx.indices().get&lt;by_trx_id&gt;().end()">Duplicate transaction check failed.</string>
+    <string name="title.size() &lt; 256">Title larger than size limit.</string>
+    <string name="elapsed_seconds &gt;= STEEMIT_MIN_VOTE_INTERVAL_SEC">Can only vote once every 3 seconds.</string>
+    <string name="elapsed_seconds &gt;= STEEM_MIN_VOTE_INTERVAL_SEC">Can only vote once every 3 seconds.</string>
+    <string name="body.size() &gt; 0">Body is empty.</string>
+    <string name="weight != 0">Vote weight cannot be 0.</string>
+    <string name="!check_max_block_age( _max_block_age )">Block Exception</string>
+    <string name="com.parent_author == o.parent_author">The parent of a comment cannot change.</string>
+    <string name="_db.calculate_discussion_payout_time(*parent) != fc::time_point_sec::maximum()">Discussion is frozen.</string>
+    <string name="_callbacks.find( txid ) == _callbacks.end()">Transaction is a duplicate</string>
+    <string name="The post is hidden from you. Please change your settings to see this post">The post is hidden from you. Please change your settings to see this post</string>
+    <string name="DuplicateTag">You have already added this tag</string>
+    <string name="SendTokens"> Send tokens</string>
+    <string name="TransactionHistory">Transaction history</string>
+    <string name="SelectAction">Select action</string>
+    <string name="PowerUp">Power up</string>
+    <string name="PowerDown">Power down</string>
+    <string name="Max">Max</string>
+    <string name="ClaimRewards">Claim rewards</string>
 
-    <string name="[&quot;Each username segment should start with a letter&quot;]">Each username segment should start with a letter</string>
-    <string name="[&quot;Account with this email already exists&quot;]">Account with this email already exists</string>
-    <string name="[&quot;You cannot create more than &quot;]">You cannot create more than 3 accounts per day</string>
-    <string name="[&quot;Account with this username already exists&quot;]">Account with this username already exists</string>
-    <string name="[&quot;Username should be longer&quot;]">Username should be longer</string>
-    <string name="[&quot;Username should be shorter&quot;]">Username should be shorter</string>
-    <string name="[&quot;Username should contain only letters, digits, periods or dashes&quot;]">Username should contain only letters, digits, periods or dashes</string>
-    <string name="[&quot;Each username segment should have only one dash in a row&quot;]">Each username segment should have only one dash in a row</string>
-    <string name="[&quot;Each username segment should end with a letter or digit&quot;]">Each username segment should end with a letter or digit</string>
-    <string name="[&quot;Each account segment should be longer&quot;]">Each account segment should be longer</string>
-    <string name="[&quot;Enter a valid email address&quot;]">Enter a valid email address</string>
-    <string name="[&quot;Email may not be blank&quot;]">Email may not be blank</string>
-    <string name="[&quot;Email is required&quot;]">Email is required</string>
-    <string name="[&quot;Email may not be null&quot;]">Email may not be null</string>
-    <string name="[&quot;Username is required&quot;]">Username is required</string>
-    <string name="[&quot;Username may not be null&quot;]">Username may not be null</string>
-    <string name="[&quot;Unable to create account&quot;]">Unable to create account</string>
-    <string name="[&quot;AmountLimit&quot;]">limit</string>
-    <string name="[&quot;AmountLimitFull&quot;]">Limit exceeded. Press max balance.</string>
-    <string name="[&quot;Balance&quot;]">Balance</string>
-    <string name="[&quot;PowerHint&quot;]">Long press the heart under a post to see the scale</string>
-    <string name="[&quot;RecievedTransfers&quot;]">Recieved transfers</string>
-    <string name="[&quot;RewardsClaimed&quot;]">Rewards successfully claimed!</string>
-    <string name="[&quot;TimeToClaimRewards&quot;]">Hello. It's time to claim rewards!</string>
-    <string name="[&quot;CancelPowerDown&quot;]">Cancel power down</string>
-    <string name="[&quot;CancelPowerDownAlert&quot;]">You are in the process of powering down the {0} Steem Power. Are you sure you want to cancel?</string>
-    <string name="[&quot;Yes&quot;]">Yes</string>
-    <string name="[&quot;No&quot;]">No</string>
-    <string name="[&quot;PromotePost&quot;]">Promote post</string>
-    <string name="[&quot;ExpectedVoteTime&quot;]">Expected vote time</string>
-    <string name="[&quot;FindPromoter&quot;]">FIND PROMOTER</string>
-    <string name="[&quot;NotEnoughBalance&quot;]">Not enough balance</string>
-    <string name="[&quot;SuccessPromote&quot;]">Your bid has been successfully sent. Wait for upvote.</string>
-    <string name="[&quot;TokenTransferError&quot;]">Tokens transfer error</string>
-    <string name="[&quot;PromoteComplete&quot;]">Promote is complete</string>
-    <string name="[&quot;TransferError&quot;]">Transfer error</string>
-    <string name="[&quot;PromoteAgain&quot;]">Promote again???</string>
-    <string name="[&quot;PromoterFound&quot;]">Promoter found</string>
-    <string name="[&quot;Promote&quot;]">PROMOTE</string> 
-    <string name="[&quot;PromoterNotFound&quot;]">We look, but there's no appropriate bot for promotion. Please, try a little later.</string>
-    <string name="[&quot;PromoterSearchResult&quot;]">Promoter search result</string>
-    <string name="[&quot;SearchAgain&quot;]">Search again</string>
-    <string name="[&quot;MaxBid&quot;]">Max bid is</string>
-    <string name="[&quot;MinBid&quot;]">Min bid is</string>
-    <string name="[&quot;MinSP&quot;]">The minimal amount of Steem Power in your account should be not less than 3 Steem</string>
-    <string name="[&quot;NotificationWarning&quot;]">By including or disabling notifications here, you control both normal notifications and push notifications.</string>
+    <string name="PlagiarismTitle">Plagiarism check</string>
+    <string name="GuidelinesForPlagiarism">Guidelines</string>
+    <string name="SelfPlagiarism">We have found a {0} in Steepshot, uploaded by you. We do not recommend you to re-upload photos as it may result in low payouts and reputation loss.</string>
+    <string name="PhotoPlagiarism">We have found a {0} in Steepshot, uploaded by {1}. We do not recommend you to upload other users' photos as it may result in low payouts and reputation loss.</string>
+    <string name="PlagiarismDescription">If you're sure that you are the author of the photo, please flag and/or leave a comment under the {0} to let other people know they should flag this post.</string>
+    <string name="IPFSLink">IPFS Link</string>
+    <string name="CancelPublishing">No, cancel publishing</string>
+    <string name="ContinuePublishing">Yes, continue publishing</string>
+    <string name="ClaimYourRights">Claim your rights to this post</string>
+    <string name="SimilarPhoto">Similar photo</string>
+    <string name="Photo">Photo</string>
+
+    <string name="Each username segment should start with a letter">Each username segment should start with a letter</string>
+    <string name="Account with this email already exists">Account with this email already exists</string>
+    <string name="You cannot create more than ">You cannot create more than 3 accounts per day</string>
+    <string name="Account with this username already exists">Account with this username already exists</string>
+    <string name="Username should be longer">Username should be longer</string>
+    <string name="Username should be shorter">Username should be shorter</string>
+    <string name="Username should contain only letters, digits, periods or dashes">Username should contain only letters, digits, periods or dashes</string>
+    <string name="Each username segment should have only one dash in a row">Each username segment should have only one dash in a row</string>
+    <string name="Each username segment should end with a letter or digit">Each username segment should end with a letter or digit</string>
+    <string name="Each account segment should be longer">Each account segment should be longer</string>
+    <string name="Enter a valid email address">Enter a valid email address</string>
+    <string name="Email may not be blank">Email may not be blank</string>
+    <string name="Email is required">Email is required</string>
+    <string name="Email may not be null">Email may not be null</string>
+    <string name="Username is required">Username is required</string>
+    <string name="Username may not be null">Username may not be null</string>
+    <string name="Unable to create account">Unable to create account</string>
+    <string name="AmountLimit">limit</string>
+    <string name="AmountLimitFull">Limit exceeded. Press max balance.</string>
+    <string name="Balance">Balance</string>
+    <string name="PowerHint">Long press the heart under a post to see the scale</string>
+    <string name="RecievedTransfers">Recieved transfers</string>
+    <string name="RewardsClaimed">Rewards successfully claimed!</string>
+    <string name="TimeToClaimRewards">Hello. It's time to claim rewards!</string>
+    <string name="CancelPowerDown">Cancel power down</string>
+    <string name="CancelPowerDownAlert">You are in the process of powering down the {0} Steem Power. Are you sure you want to cancel?</string>
+    <string name="Yes">Yes</string>
+    <string name="No">No</string>
+    <string name="ActionWithPost">Action with post</string>
+    <string name="PromotePost">Promote post</string>
+    <string name="ExpectedVoteTime">Expected vote time</string>
+    <string name="FindPromoter">FIND PROMOTER</string>
+    <string name="NotEnoughBalance">Not enough balance</string>
+    <string name="SuccessPromote">Your bid has been successfully sent. Wait for upvote.</string>
+    <string name="TokenTransferError">Tokens transfer error</string>
+    <string name="PromoteComplete">Promote is complete</string>
+    <string name="TransferError">Transfer error</string>
+    <string name="PromoteAgain">Promote again???</string>
+    <string name="PromoterFound">Promoter found</string>
+    <string name="Promote">PROMOTE</string>
+    <string name="PromoterNotFound">We look, but there's no appropriate bot for promotion. Please, try a little later.</string>
+    <string name="PromoterSearchResult">Promoter search result</string>
+    <string name="SearchAgain">Search again</string>
+    <string name="MaxBid">Max bid is</string>
+    <string name="MinBid">Min bid is</string>
+    <string name="MinSP">The minimal amount of Steem Power in your account should be not less than 3 Steem</string>
+    <string name="NotificationWarning">By including or disabling notifications here, you control both normal notifications and push notifications.</string>
+    <string name="PromoteConfirmation">Are you sure you want to send {0} {1} to @{2}?</string>
+    <string name="TransferConfirmation">Are you sure you want to transfer {0} {1} to @{2}?</string>
+    <string name="PowerUpDownConfirmation">Are you sure you want to {0} {1} {2}?</string>
 </resources>

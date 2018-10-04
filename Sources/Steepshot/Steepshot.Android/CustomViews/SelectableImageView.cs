@@ -3,20 +3,21 @@ using Android.Graphics;
 using Android.Provider;
 using Android.Widget;
 using Steepshot.Utils;
-using System.Threading;
 using System.Threading.Tasks;
 using Android.Graphics.Drawables;
 using Android.OS;
+using Handler = Android.OS.Handler;
 
 namespace Steepshot.CustomViews
 {
     public sealed class SelectableImageView : ImageView
     {
         private GalleryMediaModel _model;
-        private CancellationTokenSource _cts;
         private readonly Handler _handler = new Handler(Looper.MainLooper);
         private Paint _selectionPaint;
         private Paint _whitePaint;
+        private static readonly Drawable DefaultColor = new ColorDrawable(Style.R245G245B245);
+        private readonly BitmapFactory.Options _options;
 
         private Paint SelectionPaint => _selectionPaint ?? (_selectionPaint = new Paint(PaintFlags.AntiAlias) { Color = Style.R255G81B4, StrokeWidth = BitmapUtils.DpToPixel(6, Context.Resources) });
         private Paint WhitePaint => _whitePaint ?? (_whitePaint = new Paint(PaintFlags.AntiAlias) { Color = Color.White, StrokeWidth = BitmapUtils.DpToPixel(1, Context.Resources), TextSize = BitmapUtils.DpToPixel(16, Context.Resources), TextAlign = Paint.Align.Center });
@@ -26,6 +27,10 @@ namespace Steepshot.CustomViews
         {
             Clickable = true;
             SetScaleType(ScaleType.CenterCrop);
+            _options = new BitmapFactory.Options
+            {
+                InPreferredConfig = Bitmap.Config.Rgb565
+            };
         }
 
 
@@ -61,53 +66,52 @@ namespace Steepshot.CustomViews
             }
         }
 
-        public void Bind(GalleryMediaModel model)
+        public async Task Bind(GalleryMediaModel model)
         {
-            if (_model != null)
-            {
-                _model.ModelChanged -= ModelChanged;
-                (Drawable as BitmapDrawable)?.Bitmap?.Recycle();
-                SetImageDrawable(new ColorDrawable(Style.R245G245B245));
-            }
+            BitmapUtils.ReleaseBitmap(Drawable);
+            SetImageDrawable(DefaultColor);
 
             _model = model;
-            _model.ModelChanged += ModelChanged;
-            LoadThumbnail(_model);
+            _model.ModelChanged = Invalidate;
+            await LoadThumbnail(_model);
         }
 
-        private void LoadThumbnail(GalleryMediaModel model)
+        private Task LoadThumbnail(GalleryMediaModel model)
         {
-            if (_cts != null && !_cts.IsCancellationRequested)
-                _cts.Cancel();
-
-            _cts = new CancellationTokenSource();
-            var token = _cts.Token;
-
-            Task.Run(() =>
+            return Task.Run(() =>
             {
-                if (token.IsCancellationRequested)
+                var thumbnail = MediaStore.Images.Thumbnails.GetThumbnail(Context.ContentResolver, model.Id, ThumbnailKind.MiniKind, _options);
+                if (thumbnail == null || _model == null || model.Id != _model.Id)
                     return;
 
-                var thumbnail = MediaStore.Images.Thumbnails.GetThumbnail(Context.ContentResolver, model.Id, ThumbnailKind.MiniKind, null);
-
-                var matrix = new Matrix();
-                matrix.PostRotate(model.Orientation * 45);
-                var oriThumbnail = Bitmap.CreateBitmap(thumbnail, 0, 0, thumbnail.Width, thumbnail.Height, matrix, true);
-
-                if (token.IsCancellationRequested)
+                if (model.Orientation == 0)
                 {
-                    thumbnail.Recycle();
-                    oriThumbnail.Recycle();
+                    _handler.Post(() =>
+                    {
+                        if (_model == null || model.Id != _model.Id)
+                            return;
+
+                        BitmapUtils.ReleaseBitmap(Drawable);
+                        SetImageBitmap(thumbnail);
+                    });
                     return;
                 }
 
-                _handler.Post(() => SetImageBitmap(oriThumbnail));
-            }, token);
-        }
+                var matrix = new Matrix();
+                matrix.PostRotate(model.Orientation);
+                var oriThumbnail = Bitmap.CreateBitmap(thumbnail, 0, 0, thumbnail.Width, thumbnail.Height, matrix, false);
 
-        private void ModelChanged()
-        {
-            Invalidate();
+                BitmapUtils.ReleaseBitmap(thumbnail);
+
+                _handler.Post(() =>
+                {
+                    if (_model == null || model.Id != _model.Id)
+                        return;
+
+                    BitmapUtils.ReleaseBitmap(Drawable);
+                    SetImageBitmap(oriThumbnail);
+                });
+            });
         }
     }
 }

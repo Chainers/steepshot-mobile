@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using CoreAnimation;
 using CoreGraphics;
+using Foundation;
 using UIKit;
 
 namespace Steepshot.iOS.Helpers
@@ -52,6 +53,30 @@ namespace Steepshot.iOS.Helpers
         public static readonly CGSize CellSize = new CGSize(CellSideSize, CellSideSize);
 
         public static readonly TimeSpan ImageCacheDuration = TimeSpan.FromDays(2);
+
+        public static readonly nfloat ScreenScale = UIScreen.MainScreen.Scale;
+        public static readonly nfloat ScreenWidth = UIScreen.MainScreen.Bounds.Width;
+
+        public static readonly UIStringAttributes PowerManipulationTextStyle = new UIStringAttributes
+        {
+            Font = Regular24,
+            ForegroundColor = R151G155B158,
+        };
+        public static readonly UIStringAttributes PowerManipulatioSelectedTextStyle = new UIStringAttributes
+        {
+            Font = Regular24,
+            ForegroundColor = R255G34B5,
+        };
+        public static readonly UIStringAttributes DialogPopupTextStyle = new UIStringAttributes
+        {
+            Font = Regular20,
+            ForegroundColor = R15G24B30,
+        };
+        public static readonly UIStringAttributes DialogPopupSelectedTextStyle = new UIStringAttributes
+        {
+            Font = Regular20,
+            ForegroundColor = R255G0B0,
+        };
 
         public static void CreateGradient(UIView view, nfloat cornerRadius, GradientType gradientType = GradientType.Orange)
         {
@@ -118,6 +143,27 @@ namespace Steepshot.iOS.Helpers
                     view.Layer.ShadowPath = UIBezierPath.FromRect(rect).CGPath;
                 }
             }
+        }
+
+        public static void ApplyShimmer(UIView viewToApplyShimmer)
+        {
+            var gradientLayer = new CAGradientLayer
+            {
+                Colors = new CGColor[] { UIColor.White.ColorWithAlpha(0f).CGColor, UIColor.White.ColorWithAlpha(1f).CGColor, UIColor.White.ColorWithAlpha(0f).CGColor },
+                StartPoint = new CGPoint(0.7, 1.0),
+                EndPoint = new CGPoint(0, 0.8),
+                Frame = viewToApplyShimmer.Bounds
+            };
+            viewToApplyShimmer.Layer.InsertSublayer(gradientLayer, 0);
+
+            var animation = new CABasicAnimation();
+            animation.KeyPath = "transform.translation.x";
+            animation.Duration = 1;
+            animation.From = NSNumber.FromNFloat(-viewToApplyShimmer.Frame.Size.Width);
+            animation.To = NSNumber.FromNFloat(viewToApplyShimmer.Frame.Size.Width);
+            animation.RepeatCount = float.PositiveInfinity;
+
+            gradientLayer.AddAnimation(animation, "");
         }
     }
 

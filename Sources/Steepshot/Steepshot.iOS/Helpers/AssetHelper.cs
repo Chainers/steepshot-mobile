@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using Newtonsoft.Json;
 using Steepshot.Core.Clients;
-using Steepshot.Core.Localization;
-using Steepshot.Core.Services;
+using Steepshot.Core.Interfaces;
 using Steepshot.Core.Utils;
 
 namespace Steepshot.iOS.Helpers
@@ -37,47 +36,18 @@ namespace Steepshot.iOS.Helpers
         }
 
 
-        public LocalizationModel GetLocalization(string lang)
+        public string GetLocalization(string lang)
         {
+            var txt = string.Empty;
             try
             {
-                var txt = File.ReadAllText($@"Languages/{lang}/dic.xml");
-
-                if (!string.IsNullOrWhiteSpace(txt))
-                {
-                    var model = new LocalizationModel();
-                    LocalizationManager.Update(txt, model);
-                    return model;
-                }
-            }
-            catch (System.Exception ex)
-            {
-                AppSettings.Logger.Warning(ex);
-            }
-            return new LocalizationModel();
-        }
-
-        public HashSet<string> TryReadCensoredWords()
-        {
-            var file = "Assets/CensoredWords.txt";
-            var hs = new HashSet<string>();
-            try
-            {
-                if (File.Exists(file))
-                {
-                    var lines = File.ReadAllLines(file);
-                    foreach (var word in lines)
-                    {
-                        if (!string.IsNullOrEmpty(word) && !hs.Contains(word))
-                            hs.Add(word.ToUpperInvariant());
-                    }
-                }
+                txt = File.ReadAllText($@"Languages/{lang}/dic.xml");
             }
             catch (Exception ex)
             {
-                AppSettings.Logger.Warning(ex);
+                AppSettings.Logger.WarningAsync(ex);
             }
-            return hs;
+            return txt;
         }
 
         private T TryReadAsset<T>(string file) where T : new()
@@ -96,7 +66,7 @@ namespace Steepshot.iOS.Helpers
             }
             catch (Exception ex)
             {
-                AppSettings.Logger.Warning(ex);
+                AppSettings.Logger.WarningAsync(ex);
             }
             return new T();
         }

@@ -2,6 +2,7 @@
 using Foundation;
 using Steepshot.Core.Authorization;
 using Steepshot.Core.Models.Enums;
+using Steepshot.Core.Utils;
 using UIKit;
 
 namespace Steepshot.iOS.Cells
@@ -14,6 +15,9 @@ namespace Steepshot.iOS.Cells
         public Action<ActionType, UserInfo> CellAction;
         private bool _isInitialized;
         private UserInfo _currentAccount;
+
+        private UITapGestureRecognizer _tap;
+        UITapGestureRecognizer _deleteTap;
 
         static AccountTableViewCell()
         {
@@ -29,17 +33,17 @@ namespace Steepshot.iOS.Cells
         {
             if (!_isInitialized)
             {
-                var tap = new UITapGestureRecognizer(() =>
+                _tap = new UITapGestureRecognizer(() =>
                 {
                     CellAction?.Invoke(ActionType.Tap, _currentAccount);
                 });
-                var deleteTap = new UITapGestureRecognizer(() =>
+                _deleteTap = new UITapGestureRecognizer(() =>
                 {
                     CellAction?.Invoke(ActionType.Delete, _currentAccount);
                 });
 
-                closeButton.AddGestureRecognizer(deleteTap);
-                ContentView.AddGestureRecognizer(tap);
+                closeButton.AddGestureRecognizer(_deleteTap);
+                ContentView.AddGestureRecognizer(_tap);
 
                 networkName.Font = Helpers.Constants.Semibold14;
 
@@ -51,7 +55,13 @@ namespace Steepshot.iOS.Cells
         {
             _currentAccount = user;
             networkName.Text = $"{_currentAccount.Chain.ToString()} account";
-            networkStatus.Image = AppDelegate.MainChain == _currentAccount.Chain ? UIImage.FromBundle("ic_activated") : UIImage.FromBundle("ic_deactivated");
+            networkStatus.Image = AppSettings.MainChain == _currentAccount.Chain ? UIImage.FromBundle("ic_activated") : UIImage.FromBundle("ic_deactivated");
+        }
+
+        public void ReleaseCell()
+        {
+            closeButton.RemoveGestureRecognizer(_deleteTap);
+            ContentView.RemoveGestureRecognizer(_tap);
         }
     }
 }

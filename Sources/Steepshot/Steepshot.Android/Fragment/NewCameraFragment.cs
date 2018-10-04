@@ -308,7 +308,7 @@ namespace Steepshot.Fragment
                 SetUiEnable(true);
                 _shotBtn.Visibility = ViewStates.Visible;
                 _shotBtnLoading.Visibility = ViewStates.Gone;
-                AppSettings.Logger.Warning(ex);
+                AppSettings.Logger.WarningAsync(ex);
             }
         }
 
@@ -356,7 +356,7 @@ namespace Steepshot.Fragment
 
                 Activity.RunOnUiThread(() =>
                 {
-                    ((BaseActivity)Activity).OpenNewContentFragment(new PostCreateFragment(model));
+                    ((BaseActivity)Activity).OpenNewContentFragment(new PreviewPostCreateFragment(model));
                     //if (_progressBar != null)
                     //{
                     //    _progressBar.Visibility = ViewStates.Gone;

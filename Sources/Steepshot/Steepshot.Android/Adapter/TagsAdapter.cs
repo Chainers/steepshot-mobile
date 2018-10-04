@@ -8,33 +8,27 @@ using Steepshot.Utils;
 
 namespace Steepshot.Adapter
 {
-    public sealed class TagsAdapter : RecyclerView.Adapter
+    public sealed class PostSearchTagsAdapter : RecyclerView.Adapter
     {
-        private readonly TagsPresenter _presenter;
         private readonly TagPickerFacade _tagPickerFacade;
         public Action<string> Click;
 
-        public override int ItemCount => _presenter?.Count ?? _tagPickerFacade.Count;
+        public override int ItemCount => _tagPickerFacade.Count;
 
 
-        public TagsAdapter(TagsPresenter presenter)
-        {
-            _presenter = presenter;
-        }
-
-        public TagsAdapter(TagPickerFacade facade)
+        public PostSearchTagsAdapter(TagPickerFacade facade)
         {
             _tagPickerFacade = facade;
         }
 
         public int IndexOfTag(string tag)
         {
-            return _presenter?.FindIndex(t => t.Name == tag) ?? _tagPickerFacade.IndexOf(tag);
+            return _tagPickerFacade.IndexOf(tag);
         }
 
         public override void OnBindViewHolder(RecyclerView.ViewHolder holder, int position)
         {
-            var result = _presenter?[position].Name ?? _tagPickerFacade?[position];
+            var result = _tagPickerFacade[position];
             if (result == null)
                 return;
 
@@ -44,7 +38,42 @@ namespace Steepshot.Adapter
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
         {
             var itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.lyt_search_tag, parent, false);
-            var vh = new TagViewHolder(itemView, Click, _presenter == null ? TagType.PostSearch : TagType.BrowseSearch);
+            var vh = new TagViewHolder(itemView, Click, TagType.PostSearch);
+            return vh;
+        }
+    }
+
+    public sealed class BrowseSearchTagsAdapter : RecyclerView.Adapter
+    {
+        private readonly TagsPresenter _presenter;
+        public Action<string> Click;
+
+        public override int ItemCount => _presenter.Count;
+
+
+        public BrowseSearchTagsAdapter(TagsPresenter presenter)
+        {
+            _presenter = presenter;
+        }
+
+        public int IndexOfTag(string tag)
+        {
+            return _presenter.FindIndex(t => t.Name == tag);
+        }
+
+        public override void OnBindViewHolder(RecyclerView.ViewHolder holder, int position)
+        {
+            var result = _presenter[position];
+            if (result == null)
+                return;
+
+            ((TagViewHolder)holder).UpdateData(result.Name);
+        }
+
+        public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
+        {
+            var itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.lyt_search_tag, parent, false);
+            var vh = new TagViewHolder(itemView, Click, TagType.BrowseSearch);
             return vh;
         }
     }

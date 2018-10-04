@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:customAttrs="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:maxWidth="355dp"
+    android:layout_height="wrap_content"
+    android:layout_margin="30dp"
+    android:background="@drawable/popup_background">
+    <Steepshot.CustomViews.AutoLinkTextView
+        android:id="@+id/alert_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="20sp"
+        android:textColor="@color/black"
+        customAttrs:selectedColor="@color/rgb255_34_5"
+        customAttrs:mentionColor="@color/rgb255_34_5"
+        android:textStyle="bold"
+        android:gravity="center_horizontal"
+        android:layout_marginTop="22dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp" />
+    <TextView
+        android:id="@+id/alert_message"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="14sp"
+        android:textColor="@color/black"
+        android:gravity="center_horizontal"
+        android:layout_marginTop="14dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp" />
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2px"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginTop="20dp"
+        android:background="@color/rgb244_244_246" />
+    <LinearLayout
+        android:id="@+id/horizontal_lyt"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="20dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:visibility="gone">
+        <Button
+            android:id="@+id/cancel_h"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_weight="1"
+            android:layout_marginRight="7dp"
+            android:background="@drawable/grey_rounded_border" />
+        <Button
+            android:id="@+id/alert_action_btn_h"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_weight="1"
+            android:layout_marginLeft="7dp"
+            android:background="@drawable/orange_btn_style"
+            android:textColor="@color/white" />
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/vertical_lyt"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="20dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:visibility="gone">
+        <Button
+            android:id="@+id/alert_action_btn_v"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_weight="1"
+            android:background="@drawable/orange_btn_style"
+            android:textColor="@color/white" />
+        <Button
+            android:id="@+id/cancel_v"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_weight="1"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/grey_rounded_border" />
+    </LinearLayout>
+</LinearLayout>

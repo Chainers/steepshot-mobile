@@ -1,11 +1,11 @@
 ﻿using System;
-using System.Threading;
 using System.Threading.Tasks;
+using Steepshot.Core.Authorization;
+using Steepshot.Core.Clients;
 using Steepshot.Core.Extensions;
+using Steepshot.Core.Interfaces;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Enums;
-using Steepshot.Core.Utils;
-using Steepshot.Core.Models.Common;
 
 namespace Steepshot.Core.Presenters
 {
@@ -15,61 +15,57 @@ namespace Steepshot.Core.Presenters
         private const int ItemsLimit = 18;
         public string Tag;
 
-        public async Task<Exception> TryLoadNextTopPosts()
+        public PreSearchPresenter(IConnectionService connectionService, ILogService logService, BaseDitchClient ditchClient, SteepshotApiClient steepshotApiClient, User user, SteepshotClient steepshotClient)
+            : base(connectionService, logService, ditchClient, steepshotApiClient, user, steepshotClient)
+        {
+        }
+
+        public async Task<Exception> TryLoadNextTopPostsAsync()
         {
             if (IsLastReaded)
                 return null;
 
-            return await RunAsSingleTask(LoadNextTopPosts);
-        }
-
-        private async Task<Exception> LoadNextTopPosts(CancellationToken ct)
-        {
             var request = new PostsModel(PostType)
             {
-                Login = AppSettings.User.Login,
+                Login = User.Login,
                 Limit = string.IsNullOrEmpty(OffsetUrl) ? ItemsLimit : ItemsLimit + 1,
                 Offset = OffsetUrl,
-                ShowNsfw = AppSettings.User.IsNsfw,
-                ShowLowRated = AppSettings.User.IsLowRated
+                ShowNsfw = User.IsNsfw,
+                ShowLowRated = User.IsLowRated
             };
 
             Exception exception;
             bool isNeedRepeat;
             do
             {
-                var response = await Api.GetPosts(request, ct);
-                isNeedRepeat = ResponseProcessing(response, ItemsLimit, out exception, nameof(TryLoadNextTopPosts));
+                var response = await RunAsSingleTaskAsync(SteepshotApiClient.GetPostsAsync, request).ConfigureAwait(false);
+                isNeedRepeat = ResponseProcessing(response, ItemsLimit, out exception, nameof(TryLoadNextTopPostsAsync));
             } while (isNeedRepeat);
 
             return exception;
         }
 
-        public async Task<Exception> TryGetSearchedPosts()
+
+        public async Task<Exception> TryGetSearchedPostsAsync()
         {
             if (IsLastReaded)
                 return null;
 
-            return await RunAsSingleTask(GetSearchedPosts);
-        }
-
-        private async Task<Exception> GetSearchedPosts(CancellationToken ct)
-        {
             var request = new PostsByCategoryModel(PostType, Tag.TagToEn())
             {
-                Login = AppSettings.User.Login,
+                Login = User.Login,
                 Limit = string.IsNullOrEmpty(OffsetUrl) ? ItemsLimit : ItemsLimit + 1,
                 Offset = OffsetUrl,
-                ShowNsfw = AppSettings.User.IsNsfw,
-                ShowLowRated = AppSettings.User.IsLowRated
+                ShowNsfw = User.IsNsfw,
+                ShowLowRated = User.IsLowRated
             };
 
             Exception exception;
             bool isNeedRepeat;
             do
             {
-                var response = await Api.GetPostsByCategory(request, ct);
-                isNeedRepeat = ResponseProcessing(response, ItemsLimit, out exception, nameof(TryGetSearchedPosts));
+                var response = await RunAsSingleTaskAsync(SteepshotApiClient.GetPostsByCategoryAsync, request).ConfigureAwait(false);
+                isNeedRepeat = ResponseProcessing(response, ItemsLimit, out exception, nameof(TryGetSearchedPostsAsync));
             } while (isNeedRepeat);
 
             return exception;

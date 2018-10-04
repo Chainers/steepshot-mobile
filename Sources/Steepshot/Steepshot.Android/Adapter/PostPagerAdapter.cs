@@ -18,11 +18,13 @@ namespace Steepshot.Adapter
         where T : BasePostPresenter
     {
         private const int CachedPagesCount = 5;
+
         private readonly float _pageOffset;
         private readonly T _presenter;
         private readonly ViewPager _pager;
         private readonly Context _context;
         private readonly List<PostViewHolder> _viewHolders;
+        
         private int _itemsCount;
         private View _loadingView;
         public Action<ActionType, Post> PostAction;
@@ -67,7 +69,9 @@ namespace Steepshot.Adapter
                 container.AddView(vh.ItemView);
             }
             else
+            {
                 vh = _viewHolders[reusePosition];
+            }
 
             vh.UpdateData(_presenter[position], _context);
             return vh.ItemView;

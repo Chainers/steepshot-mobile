@@ -19,6 +19,8 @@ namespace Steepshot.iOS.Views
         private readonly Post _post;
         private readonly VotersType _votersType;
         private readonly bool _isComment;
+        private readonly UIBarButtonItem _leftBarButton = new UIBarButtonItem();
+        private FollowTableViewSource _tableSource;
 
         public VotersViewController(Post post, VotersType votersType, bool isComment = false)
         {
@@ -31,23 +33,44 @@ namespace Steepshot.iOS.Views
         {
             base.ViewDidLoad();
 
-            _presenter.VotersType = _votersType;
-            _presenter.SourceChanged += SourceChanged;
-
-            var tableSource = new FollowTableViewSource(_presenter, votersTable);
-            votersTable.Source = tableSource;
+            Presenter.VotersType = _votersType;
+            _tableSource = new FollowTableViewSource(Presenter, votersTable);
+            votersTable.Source = _tableSource;
             votersTable.SeparatorStyle = UITableViewCellSeparatorStyle.None;
             votersTable.LayoutMargins = UIEdgeInsets.Zero;
             votersTable.RegisterClassForCellReuse(typeof(FollowViewCell), nameof(FollowViewCell));
             votersTable.RegisterNibForCellReuse(UINib.FromName(nameof(FollowViewCell), NSBundle.MainBundle), nameof(FollowViewCell));
             votersTable.RegisterClassForCellReuse(typeof(LoaderCell), nameof(LoaderCell));
 
-            tableSource.ScrolledToBottom += GetItems;
-            tableSource.CellAction += CellAction;
-
             SetBackButton();
             progressBar.StartAnimating();
             GetItems();
+        }
+
+        public override void ViewWillAppear(bool animated)
+        {
+            if (IsMovingToParentViewController)
+            {
+                Presenter.SourceChanged += SourceChanged;
+                _tableSource.ScrolledToBottom = GetItems;
+                _tableSource.CellAction = CellAction;
+                _leftBarButton.Clicked += GoBack;
+            }
+            base.ViewWillAppear(animated);
+        }
+
+        public override void ViewWillDisappear(bool animated)
+        {
+            if (IsMovingFromParentViewController)
+            {
+                Presenter.SourceChanged -= SourceChanged;
+                _tableSource.ScrolledToBottom = null;
+                _tableSource.CellAction = null;
+                _leftBarButton.Clicked -= GoBack;
+                Presenter.LoadCancel();
+                _tableSource.FreeAllCells();
+            }
+            base.ViewWillDisappear(animated);
         }
 
         private void SetBackButton()
@@ -61,12 +84,12 @@ namespace Steepshot.iOS.Views
             };
             peopleLabel.SizeToFit();
 
-            var leftBarButton = new UIBarButtonItem(UIImage.FromBundle("ic_back_arrow"), UIBarButtonItemStyle.Plain, GoBack);
+            _leftBarButton.Image = UIImage.FromBundle("ic_back_arrow");
             var rightBarButton = new UIBarButtonItem(peopleLabel);
-            NavigationItem.LeftBarButtonItem = leftBarButton;
+            NavigationItem.LeftBarButtonItem = _leftBarButton;
             NavigationItem.RightBarButtonItem = rightBarButton;
             NavigationController.NavigationBar.TintColor = Helpers.Constants.R15G24B30;
-            NavigationItem.Title = _presenter.VotersType.GetDescription();
+            NavigationItem.Title = Presenter.VotersType.GetDescription();
         }
 
         private void CellAction(ActionType type, UserFriend user)
@@ -90,12 +113,17 @@ namespace Steepshot.iOS.Views
 
         private void SourceChanged(Status status)
         {
+            InvokeOnMainThread(HandleAction);
+        }
+
+        private void HandleAction()
+        {
             votersTable.ReloadData();
         }
 
         public async void GetItems()
         {
-            var exception = await _presenter.TryLoadNextPostVoters(!_isComment ? _post.Url : _post.Url.Substring(_post.Url.LastIndexOf("@", StringComparison.Ordinal)));
+            var exception = await Presenter.TryLoadNextPostVotersAsync(!_isComment ? _post.Url : _post.Url.Substring(_post.Url.LastIndexOf("@", StringComparison.Ordinal)));
             ShowAlert(exception);
             progressBar.StopAnimating();
         }
@@ -104,15 +132,9 @@ namespace Steepshot.iOS.Views
         {
             if (user != null)
             {
-                var exception = await _presenter.TryFollow(user);
-                ShowAlert(exception);
+                var result = await Presenter.TryFollowAsync(user);
+                ShowAlert(result);
             }
-        }
-
-        public override void ViewDidUnload()
-        {
-            _presenter.LoadCancel();
-            base.ViewDidUnload();
         }
     }
 }

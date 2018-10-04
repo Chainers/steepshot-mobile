@@ -11,6 +11,8 @@ namespace Steepshot.iOS.Views
 {
     public partial class PreLoginViewController : BaseViewControllerWithPresenter<PreSignInPresenter>
     {
+        private readonly UIBarButtonItem leftBarButton = new UIBarButtonItem();
+
         public override void ViewDidLoad()
         {
             base.ViewDidLoad();
@@ -18,12 +20,9 @@ namespace Steepshot.iOS.Views
             Constants.CreateShadow(loginButton, Constants.R231G72B0, 0.5f, 25, 10, 12);
             loginText.Font = Constants.Regular14;
             loginButton.Font = Constants.Semibold14;
-
-            loginText.ShouldReturn += LoginShouldReturn;
-            loginButton.TouchDown += Login;
 #if DEBUG
             var di = AppSettings.AssetHelper.GetDebugInfo();
-            if (AppDelegate.MainChain == KnownChains.Steem)
+            if (AppSettings.MainChain == KnownChains.Steem)
                 loginText.Text = di.SteemTestLogin;
             else
                 loginText.Text = di.GolosTestLogin;
@@ -38,13 +37,34 @@ namespace Steepshot.iOS.Views
             Constants.CreateGradient(loginButton, 25);
         }
 
+        public override void ViewWillAppear(bool animated)
+        {
+            if (IsMovingToParentViewController)
+            {
+                loginText.ShouldReturn += LoginShouldReturn;
+                loginButton.TouchDown += Login;
+                leftBarButton.Clicked += GoBack;
+            }
+            base.ViewWillAppear(animated);
+        }
+
+        public override void ViewWillDisappear(bool animated)
+        {
+            if (IsMovingFromParentViewController)
+            {
+                loginText.ShouldReturn -= LoginShouldReturn;
+                loginButton.TouchDown -= Login;
+                leftBarButton.Clicked -= GoBack;
+            }
+            base.ViewWillDisappear(animated);
+        }
+
         private void SetBackButton()
         {
-            var leftBarButton = new UIBarButtonItem(UIImage.FromBundle("ic_back_arrow"), UIBarButtonItemStyle.Plain, GoBack);
+            leftBarButton.Image = UIImage.FromBundle("ic_back_arrow");
             NavigationItem.SetLeftBarButtonItem(leftBarButton, true);
-            NavigationController.NavigationBar.TintColor = Helpers.Constants.R15G24B30;
-
-            NavigationItem.Title = "Your account name";
+            NavigationController.NavigationBar.TintColor = Constants.R15G24B30;
+            NavigationItem.Title = AppSettings.LocalizationManager.GetText(LocalizationKeys.YourAccountName);
         }
 
         private bool LoginShouldReturn(UITextField textField)
@@ -64,14 +84,10 @@ namespace Steepshot.iOS.Views
             activityIndicator.StartAnimating();
             loginButton.Enabled = false;
 
-            var response = await _presenter.TryGetAccountInfo(loginText.Text);
+            var response = await Presenter.TryGetAccountInfoAsync(loginText.Text);
             if (response.IsSuccess)
             {
-                var myViewController = new LoginViewController
-                {
-                    AccountInfoResponse = response.Result,
-                    Username = loginText.Text
-                };
+                var myViewController = new LoginViewController(loginText.Text, response.Result);
                 NavigationController.PushViewController(myViewController, true);
             }
             else

@@ -1,5 +1,6 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using Steepshot.Core.Clients;
+using Steepshot.Core.Interfaces;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Responses;
 
@@ -7,14 +8,17 @@ namespace Steepshot.Core.Presenters
 {
     public class PreSignInPresenter : BasePresenter
     {
-        public async Task<OperationResult<AccountInfoResponse>> TryGetAccountInfo(string login)
+        protected readonly BaseDitchClient DitchClient;
+
+        public PreSignInPresenter(IConnectionService connectionService, ILogService logService, BaseDitchClient ditchClient)
+            : base(connectionService, logService)
         {
-            return await TryRunTask<string, AccountInfoResponse>(GetAccountInfo, OnDisposeCts.Token, login);
+            DitchClient = ditchClient;
         }
 
-        protected Task<OperationResult<AccountInfoResponse>> GetAccountInfo(string login, CancellationToken ct)
+        public async Task<OperationResult<AccountInfoResponse>> TryGetAccountInfoAsync(string login)
         {
-            return Api.GetAccountInfo(login, ct);
+            return await TaskHelper.TryRunTaskAsync(DitchClient.GetAccountInfoAsync, login, OnDisposeCts.Token).ConfigureAwait(false);
         }
     }
 }

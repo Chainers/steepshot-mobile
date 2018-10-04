@@ -30,7 +30,6 @@ using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Utils;
 using Steepshot.CustomViews;
 using Steepshot.Utils;
-using ViewUtils = Steepshot.Utils.ViewUtils;
 
 namespace Steepshot.Fragment
 {
@@ -118,7 +117,7 @@ namespace Steepshot.Fragment
                 return heightDiff;
             }
         }
-        private bool IsKeyboardOpening => LytHeightDiff > ViewUtils.KeyboardVisibilityThreshold;
+        private bool IsKeyboardOpening => LytHeightDiff > Style.KeyboardVisibilityThreshold;
 
         public TransferFragment() : this(AppSettings.User.UserInfo)
         {
@@ -141,9 +140,7 @@ namespace Steepshot.Fragment
 
             _pickedCoin = _coins[0];
 
-            var client = _userInfo.Chain == KnownChains.Steem ? App.SteemClient : App.GolosClient;
-            _transferFacade = new TransferFacade();
-            _transferFacade.SetClient(client);
+            _transferFacade = AppSettings.GetFacade<TransferFacade>(_userInfo.Chain);
             _transferFacade.OnRecipientChanged += OnRecipientChanged;
             _transferFacade.OnUserBalanceChanged += OnUserBalanceChanged;
         }
@@ -300,7 +297,7 @@ namespace Steepshot.Fragment
 
         private void ScrollListenerOnScrolledToBottom()
         {
-            _transferFacade.TryLoadNextSearchUser(_prevQuery);
+            _transferFacade.TryLoadNextSearchUserAsync(_prevQuery);
         }
 
         private void PresenterOnSourceChanged(Status obj)
@@ -428,11 +425,9 @@ namespace Steepshot.Fragment
                 _transferFacade.UserFriendPresenter.Clear();
                 _recipientSearchLoader.Visibility = ViewStates.Visible;
                 _emptyQueryLabel.Visibility = ViewStates.Gone;
-                var searchResult = await _transferFacade.TryLoadNextSearchUser(_recipientSearch.Text);
-                if (searchResult == null)
-                {
+                var result = await _transferFacade.TryLoadNextSearchUserAsync(_recipientSearch.Text);
+                if (result.IsSuccess)
                     _prevQuery = _recipientSearch.Text;
-                }
             }
             else
             {
@@ -492,7 +487,7 @@ namespace Steepshot.Fragment
         {
             _balance.Visibility = ViewStates.Gone;
             _balanceLoader.Visibility = ViewStates.Visible;
-            var response = await _transferFacade.TryGetAccountInfo(_userInfo.Login);
+            var response = await _transferFacade.TryGetAccountInfoAsync(_userInfo.Login);
 
             if (!IsInitialized || IsDetached)
                 return;
@@ -587,7 +582,7 @@ namespace Steepshot.Fragment
 
             if (_transferFacade.UserBalance == null)
             {
-                await _transferFacade.TryGetAccountInfo(_userInfo.Login);
+                await _transferFacade.TryGetAccountInfoAsync(_userInfo.Login);
                 return await Validate();
             }
 
@@ -613,15 +608,13 @@ namespace Steepshot.Fragment
 
         private async void TransferBtnOnClick(object sender, EventArgs e)
         {
-            State = FragmentState.Transfer;
-
             if (!await Validate())
             {
                 State = FragmentState.TransferPrepare;
                 return;
             }
 
-            Transfer();
+            TransferConfirmation();
         }
 
         private void TransferBtnOnTouch(object sender, View.TouchEventArgs e)
@@ -632,12 +625,25 @@ namespace Steepshot.Fragment
             e.Handled = false;
         }
 
+        private void TransferConfirmation()
+        {
+            var transferConfirmation = AppSettings.LocalizationManager.GetText(LocalizationKeys.TransferConfirmation, _transferAmountEdit.Text, _pickedCoin, _transferFacade.Recipient.Author);
+            var actionAlert = new ActionAlertDialog(Context, transferConfirmation,
+                                                    AppSettings.LocalizationManager.GetText(string.Empty),
+                                                    AppSettings.LocalizationManager.GetText(LocalizationKeys.Yes),
+                                                    AppSettings.LocalizationManager.GetText(LocalizationKeys.No), AutoLinkAction, Orientation.Vertical);
+            actionAlert.AlertAction += Transfer;
+            actionAlert.Show();
+        }
+
         private async void Transfer()
         {
+            State = FragmentState.Transfer;
+
             if (_transferFacade.UserBalance == null)
                 return;
 
-            var transferResponse = await _transferFacade.TransferPresenter.TryTransfer(_userInfo, _transferFacade.Recipient.Author, _transferAmountEdit.Text, _pickedCoin, _transferCommentEdit.Text);
+            var transferResponse = await _transferFacade.TransferPresenter.TryTransferAsync(_userInfo, _transferFacade.Recipient.Author, _transferAmountEdit.Text, _pickedCoin, _transferCommentEdit.Text);
             if (transferResponse.IsSuccess)
             {
                 var success = new SuccessfullTrxDialog(Activity, _transferFacade.Recipient.Author, $"{_transferAmountEdit.Text} {_pickedCoin.ToString().ToUpper()}");
@@ -656,8 +662,7 @@ namespace Steepshot.Fragment
         {
             if (requestCode == ActiveSignInActivity.ActiveKeyRequestCode && resultCode == (int)Result.Ok)
             {
-                State = FragmentState.Transfer;
-                Transfer();
+                TransferConfirmation();
             }
 
             base.OnActivityResult(requestCode, resultCode, data);

@@ -53,8 +53,8 @@ namespace Steepshot
 
         private void InvokeApp(string invokeArgs)
         {
-            NSUrl request = new NSUrl("steepshot://" + invokeArgs);
-            UIApplication.SharedApplication.OpenUrl(request);
+            var request = new NSUrl("steepshot://" + invokeArgs);
+            UIApplication.SharedApplication.OpenUrl(request, new NSDictionary(), null);
             ExtensionContext.CompleteRequest(new NSExtensionItem[0], null);
         }
 

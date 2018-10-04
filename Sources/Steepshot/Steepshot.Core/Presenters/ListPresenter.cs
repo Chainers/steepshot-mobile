@@ -4,12 +4,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using Steepshot.Core.Models;
 using Steepshot.Core.Localization;
-using System.Net;
 using System.Collections;
 using System.Data;
 using Steepshot.Core.Exceptions;
 using Steepshot.Core.Interfaces;
-using Steepshot.Core.Utils;
+using Steepshot.Core.Models.Common;
 
 namespace Steepshot.Core.Presenters
 {
@@ -24,7 +23,8 @@ namespace Steepshot.Core.Presenters
 
         public bool IsLastReaded { get; protected set; }
 
-        protected ListPresenter()
+        protected ListPresenter(IConnectionService connectionService, ILogService logService)
+            : base(connectionService, logService)
         {
             _sync = new object();
             Items = new List<T>();
@@ -53,11 +53,12 @@ namespace Steepshot.Core.Presenters
             }
         }
 
-        protected async Task<Exception> RunAsSingleTask(Func<CancellationToken, Task<Exception>> func, bool cancelPrevTask = true)
+
+        protected async Task<OperationResult<TResult>> RunAsSingleTaskAsync<TResult>(Func<CancellationToken, Task<OperationResult<TResult>>> func, bool cancelPrevTask = true)
         {
-            var available = AppSettings.ConnectionService.IsConnectionAvailable();
+            var available = ConnectionService.IsConnectionAvailable();
             if (!available)
-                return new ValidationException(LocalizationKeys.InternetUnavailable);
+                return new OperationResult<TResult>(new ValidationException(LocalizationKeys.InternetUnavailable));
 
             CancellationToken ts;
             lock (_sync)
@@ -67,7 +68,7 @@ namespace Steepshot.Core.Presenters
                     if (cancelPrevTask)
                         _singleTaskCancellationTokenSource.Cancel();
                     else
-                        return new OperationCanceledException();
+                        return new OperationResult<TResult>(new OperationCanceledException());
                 }
                 _singleTaskCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(OnDisposeCts.Token);
                 ts = _singleTaskCancellationTokenSource.Token;
@@ -75,24 +76,19 @@ namespace Steepshot.Core.Presenters
 
             try
             {
-                return await func(ts);
-            }
-            catch (WebException ex)
-            {
-                await AppSettings.Logger.Error(ex);
-                return new RequestException(ex);
+                return await func(ts).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
                 if (ts.IsCancellationRequested)
-                    return new OperationCanceledException();
+                    return new OperationResult<TResult>(new OperationCanceledException());
 
-                available = AppSettings.ConnectionService.IsConnectionAvailable();
+                available = ConnectionService.IsConnectionAvailable();
                 if (!available)
-                    return new ValidationException(LocalizationKeys.InternetUnavailable);
+                    return new OperationResult<TResult>(new ValidationException(LocalizationKeys.InternetUnavailable));
 
-                await AppSettings.Logger.Error(ex);
-                return ex;
+                await LogService.ErrorAsync(ex).ConfigureAwait(false);
+                return new OperationResult<TResult>(ex);
             }
             finally
             {
@@ -107,11 +103,11 @@ namespace Steepshot.Core.Presenters
             }
         }
 
-        protected async Task<Exception> RunAsSingleTask<T1>(Func<T1, CancellationToken, Task<Exception>> func, T1 param1, bool cancelPrevTask = true)
+        protected async Task<OperationResult<TResult>> RunAsSingleTaskAsync<T1, TResult>(Func<T1, CancellationToken, Task<OperationResult<TResult>>> func, T1 arg1, bool cancelPrevTask = true)
         {
-            var available = AppSettings.ConnectionService.IsConnectionAvailable();
+            var available = ConnectionService.IsConnectionAvailable();
             if (!available)
-                return new ValidationException(LocalizationKeys.InternetUnavailable);
+                return new OperationResult<TResult>(new ValidationException(LocalizationKeys.InternetUnavailable));
 
             CancellationToken ts;
             lock (_sync)
@@ -121,7 +117,7 @@ namespace Steepshot.Core.Presenters
                     if (cancelPrevTask)
                         _singleTaskCancellationTokenSource.Cancel();
                     else
-                        return new OperationCanceledException();
+                        return new OperationResult<TResult>(new OperationCanceledException());
                 }
                 _singleTaskCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(OnDisposeCts.Token);
                 ts = _singleTaskCancellationTokenSource.Token;
@@ -129,24 +125,19 @@ namespace Steepshot.Core.Presenters
 
             try
             {
-                return await func(param1, ts);
-            }
-            catch (WebException ex)
-            {
-                await AppSettings.Logger.Error(ex);
-                return new RequestException(ex);
+                return await func(arg1, ts).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
                 if (ts.IsCancellationRequested)
-                    return new OperationCanceledException();
+                    return new OperationResult<TResult>(new OperationCanceledException());
 
-                available = AppSettings.ConnectionService.IsConnectionAvailable();
+                available = ConnectionService.IsConnectionAvailable();
                 if (!available)
-                    return new ValidationException(LocalizationKeys.InternetUnavailable);
+                    return new OperationResult<TResult>(new ValidationException(LocalizationKeys.InternetUnavailable));
 
-                await AppSettings.Logger.Error(ex);
-                return ex;
+                await LogService.ErrorAsync(ex).ConfigureAwait(false);
+                return new OperationResult<TResult>(ex);
             }
             finally
             {

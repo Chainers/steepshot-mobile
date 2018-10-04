@@ -68,7 +68,7 @@ namespace Steepshot.Activity
             base.OnBackPressed();
             var currentUser = AppSettings.User.GetAllAccounts().FirstOrDefault();
             if (currentUser != null)
-                App.MainChain = currentUser.Chain;
+                AppSettings.MainChain = currentUser.Chain;
         }
 
         private void GoBack(object sender, EventArgs e)
@@ -89,7 +89,7 @@ namespace Steepshot.Activity
             _preSignInBtn.Text = string.Empty;
             _spinner.Visibility = ViewStates.Visible;
 
-            var response = await Presenter.TryGetAccountInfo(login);
+            var response = await Presenter.TryGetAccountInfoAsync(login);
             if (IsFinishing || IsDestroyed)
                 return;
 

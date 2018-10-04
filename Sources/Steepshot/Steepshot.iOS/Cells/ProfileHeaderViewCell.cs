@@ -61,6 +61,12 @@ namespace Steepshot.iOS.Cells
         public bool IsProfileActionSet => ProfileAction != null;
         public event Action<ActionType> ProfileAction;
 
+        private UITapGestureRecognizer _followTap;
+        private UITapGestureRecognizer _followersTap;
+        private UITapGestureRecognizer _followingTap;
+        private UITapGestureRecognizer _avatarTap;
+        private UITapGestureRecognizer _balanceTap;
+
         public ProfileHeaderCellBuilder()
         {
             CreateView();
@@ -237,14 +243,14 @@ namespace Steepshot.iOS.Cells
             balanceContainer.AddSubview(balanceArrow);
             balanceContainer.AddSubview(balance);
 
-            UITapGestureRecognizer balanceTap = new UITapGestureRecognizer(() =>
+            _balanceTap = new UITapGestureRecognizer(() =>
             {
                 ProfileAction?.Invoke(ActionType.Balance);
             });
-            balanceContainer.AddGestureRecognizer(balanceTap);
-#if DEBUG
+            balanceContainer.AddGestureRecognizer(_balanceTap);
+//#if DEBUG
             AddSubview(balanceContainer);
-#endif
+//#endif
             #endregion
 
             AddSubview(bottomSeparator);
@@ -272,7 +278,7 @@ namespace Steepshot.iOS.Cells
 
             followProgress.AutoAlignAxis(ALAxis.Horizontal, followButton);
             followProgress.AutoAlignAxis(ALAxis.Vertical, followButton);
-#if DEBUG
+//#if DEBUG
             balanceImage.AutoSetDimensionsToSize(new CGSize(10, 10));
             balanceImage.AutoPinEdgeToSuperviewEdge(ALEdge.Left, mainMargin);
             balanceImage.AutoAlignAxisToSuperviewAxis(ALAxis.Horizontal);
@@ -283,11 +289,35 @@ namespace Steepshot.iOS.Cells
             balanceArrow.AutoAlignAxisToSuperviewAxis(ALAxis.Horizontal);
             balance.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 55);
             balance.AutoAlignAxisToSuperviewAxis(ALAxis.Horizontal);
-#endif
+//#endif
             firstSpacing.AutoSetDimension(ALDimension.Width, 48);
             secondSpacing.AutoSetDimension(ALDimension.Width, 48);
 
             #endregion
+
+            _followTap = new UITapGestureRecognizer(() =>
+            {
+                ProfileAction?.Invoke(ActionType.Follow);
+            });
+            followButton.AddGestureRecognizer(_followTap);
+
+            _followersTap = new UITapGestureRecognizer(() =>
+            {
+                ProfileAction?.Invoke(ActionType.Followers);
+            });
+            followers.AddGestureRecognizer(_followersTap);
+
+            _followingTap = new UITapGestureRecognizer(() =>
+            {
+                ProfileAction?.Invoke(ActionType.Following);
+            });
+            following.AddGestureRecognizer(_followingTap);
+
+            _avatarTap = new UITapGestureRecognizer(() =>
+            {
+                ProfileAction?.Invoke(ActionType.ProfilePower);
+            });
+            avatar.AddGestureRecognizer(_avatarTap);
 
             return this;
         }
@@ -359,7 +389,7 @@ namespace Steepshot.iOS.Cells
             {
                 var linkAttribute = new UIStringAttributes
                 {
-                    Link = new NSUrl(_userData.Website),
+                    Link = new NSUrl(_userData.Website.Replace(" ", string.Empty)),
                     Font = Helpers.Constants.Semibold14,
                     ForegroundColor = Helpers.Constants.R255G34B5
                 };
@@ -384,17 +414,17 @@ namespace Steepshot.iOS.Cells
                                          new CGSize(UIScreen.MainScreen.Bounds.Width - mainMargin * 2, 45));
 
             SetupStats();
-#if DEBUG
+//#if DEBUG
             balanceContainer.Frame = new CGRect(new CGPoint(0, statsContainer.Frame.Bottom + verticalSpacing),
                                                 new CGSize(UIScreen.MainScreen.Bounds.Width, 70));
             balance.Text = $"$ {_userData.EstimatedBalance}";
 
             Frame = new CGRect(0, 0, UIScreen.MainScreen.Bounds.Width, balanceContainer.Frame.Bottom);
             return balanceContainer.Frame.Bottom;
-#else
-            Frame = new CGRect(0, 0, UIScreen.MainScreen.Bounds.Width, statsContainer.Frame.Bottom + verticalSpacing);
-            return statsContainer.Frame.Bottom + verticalSpacing;
-#endif
+//#else
+            //Frame = new CGRect(0, 0, UIScreen.MainScreen.Bounds.Width, statsContainer.Frame.Bottom + verticalSpacing);
+            //return statsContainer.Frame.Bottom + verticalSpacing;
+//#endif
         }
 
         private void SetupStats()
@@ -437,30 +467,6 @@ namespace Steepshot.iOS.Cells
             followers.TitleLabel.LineBreakMode = UILineBreakMode.WordWrap;
             followers.TitleLabel.TextAlignment = UITextAlignment.Left;
             followers.SetAttributedTitle(followersString, UIControlState.Normal);
-
-            UITapGestureRecognizer followTap = new UITapGestureRecognizer(() =>
-            {
-                ProfileAction?.Invoke(ActionType.Follow);
-            });
-            followButton.AddGestureRecognizer(followTap);
-
-            UITapGestureRecognizer followersTap = new UITapGestureRecognizer(() =>
-            {
-                ProfileAction?.Invoke(ActionType.Followers);
-            });
-            followers.AddGestureRecognizer(followersTap);
-
-            UITapGestureRecognizer followingTap = new UITapGestureRecognizer(() =>
-            {
-                ProfileAction?.Invoke(ActionType.Following);
-            });
-            following.AddGestureRecognizer(followingTap);
-
-            UITapGestureRecognizer avatarTap = new UITapGestureRecognizer(() =>
-            {
-                ProfileAction?.Invoke(ActionType.ProfilePower);
-            });
-            avatar.AddGestureRecognizer(avatarTap);
         }
 
         public void DecorateFollowButton()
@@ -507,6 +513,15 @@ namespace Steepshot.iOS.Cells
                     Helpers.Constants.CreateGradient(followButton, 20);
                 }
             }
+        }
+
+        public void ReleaseCell()
+        {
+            followButton.RemoveGestureRecognizer(_followTap);
+            followers.RemoveGestureRecognizer(_followersTap);
+            following.RemoveGestureRecognizer(_followingTap);
+            avatar.RemoveGestureRecognizer(_avatarTap);
+            balanceContainer.RemoveGestureRecognizer(_balanceTap);
         }
     }
 }

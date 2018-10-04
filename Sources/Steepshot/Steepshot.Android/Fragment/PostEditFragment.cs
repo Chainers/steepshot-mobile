@@ -6,19 +6,17 @@ using Android.Util;
 using Android.Views;
 using Android.Widget;
 using Square.Picasso;
-using Steepshot.Adapter;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Utils;
 using Steepshot.Utils;
-using ViewUtils = Steepshot.Utils.ViewUtils;
 
 namespace Steepshot.Fragment
 {
     public class PostEditFragment : PostPrepareBaseFragment
     {
         private readonly Post _editPost;
-        private GalleryHorizontalAdapter GalleryAdapter => _galleryAdapter ?? (_galleryAdapter = new GalleryHorizontalAdapter(_editPost));
+        private MediaAdapter _galleryAdapter;
 
         public PostEditFragment(Post post)
         {
@@ -31,37 +29,36 @@ namespace Steepshot.Fragment
                 return;
 
             base.OnViewCreated(view, savedInstanceState);
+            _galleryAdapter = new MediaAdapter(_editPost);
 
             SetEditPost();
 
-            _ratioBtn.Visibility = _rotateBtn.Visibility = ViewStates.Gone;
+            RatioBtn.Visibility = RotateBtn.Visibility = ViewStates.Gone;
             if (_editPost.Media.Length > 1)
             {
-                _photos.Visibility = ViewStates.Visible;
-                _previewContainer.Visibility = ViewStates.Gone;
-                _photos.SetLayoutManager(new LinearLayoutManager(Activity, LinearLayoutManager.Horizontal, false));
-                _photos.SetAdapter(GalleryAdapter);
-                _photos.AddItemDecoration(new ListItemDecoration((int)TypedValue.ApplyDimension(ComplexUnitType.Dip, 10, Resources.DisplayMetrics)));
+                Photos.Visibility = ViewStates.Visible;
+                PreviewContainer.Visibility = ViewStates.Gone;
+                Photos.SetLayoutManager(new LinearLayoutManager(Activity, LinearLayoutManager.Horizontal, false));
+                Photos.SetAdapter(_galleryAdapter);
+                Photos.AddItemDecoration(new ListItemDecoration((int)TypedValue.ApplyDimension(ComplexUnitType.Dip, 10, Resources.DisplayMetrics)));
             }
             else
             {
-                _photos.Visibility = ViewStates.Gone;
-                _previewContainer.Visibility = ViewStates.Visible;
+                Photos.Visibility = ViewStates.Gone;
+                PreviewContainer.Visibility = ViewStates.Visible;
                 var margin = (int)BitmapUtils.DpToPixel(15, Resources);
-                var previewSize = ViewUtils.CalculateImagePreviewSize(_editPost.Media[0].Size.Width,
-                    _editPost.Media[0].Size.Height, Style.ScreenWidth - margin * 2,
-                    int.MaxValue);
+                var previewSize = BitmapUtils.CalculateImagePreviewSize(_editPost.Media[0].Size.Width, _editPost.Media[0].Size.Height, Style.ScreenWidth - margin * 2, int.MaxValue);
                 var layoutParams = new RelativeLayout.LayoutParams(previewSize.Width, previewSize.Height);
                 layoutParams.SetMargins(margin, 0, margin, margin);
-                _previewContainer.LayoutParameters = layoutParams;
-                _preview.CornerRadius = BitmapUtils.DpToPixel(5, Resources);
+                PreviewContainer.LayoutParameters = layoutParams;
+                Preview.CornerRadius = Style.CornerRadius5;
 
                 var url = _editPost.Media[0].Thumbnails.Mini;
                 Picasso.With(Activity).Load(url).CenterCrop()
-                    .Resize(_previewContainer.LayoutParameters.Width, _previewContainer.LayoutParameters.Height)
-                    .Into(_preview);
+                    .Resize(PreviewContainer.LayoutParameters.Width, PreviewContainer.LayoutParameters.Height)
+                    .Into(Preview);
 
-                _preview.Touch += PreviewOnTouch;
+                Preview.Touch += PreviewOnTouch;
             }
 
             SearchTextChanged();
@@ -69,31 +66,91 @@ namespace Steepshot.Fragment
 
         protected override async Task OnPostAsync()
         {
-            _model.Media = _editPost.Media;
+            Model.Media = _editPost.Media;
 
-            _model.Title = _title.Text;
-            _model.Description = _description.Text;
-            _model.Tags = _localTagsAdapter.LocalTags.ToArray();
-            TryCreateOrEditPost(false);
+            Model.Title = Title.Text;
+            Model.Description = Description.Text;
+            Model.Tags = LocalTagsAdapter.LocalTags.ToArray();
+            TryCreateOrEditPost();
         }
 
         protected void PreviewOnTouch(object sender, View.TouchEventArgs touchEventArgs)
         {
-            _descriptionScrollContainer.OnTouchEvent(touchEventArgs.Event);
+            DescriptionScrollContainer.OnTouchEvent(touchEventArgs.Event);
         }
 
 
         private void SetEditPost()
         {
-            _model = new PreparePostModel(AppSettings.User.UserInfo, _editPost, AppSettings.AppInfo.GetModel());
-            _title.Text = _editPost.Title;
-            _title.SetSelection(_editPost.Title.Length);
-            _description.Text = _editPost.Description;
-            _description.SetSelection(_editPost.Description.Length);
+            Model = new PreparePostModel(AppSettings.User.UserInfo, _editPost, AppSettings.AppInfo.GetModel());
+            Title.Text = _editPost.Title;
+            Title.SetSelection(_editPost.Title.Length);
+            Description.Text = _editPost.Description;
+            Description.SetSelection(_editPost.Description.Length);
             foreach (var editPostTag in _editPost.Tags)
             {
                 AddTag(editPostTag);
             }
         }
+
+        #region Adapter
+
+        private class MediaAdapter : RecyclerView.Adapter
+        {
+            private readonly MediaModel[] _postMedia;
+
+            public MediaAdapter(Post post)
+            {
+                _postMedia = post.Media;
+            }
+
+            public override void OnBindViewHolder(RecyclerView.ViewHolder holder, int position)
+            {
+                var galleryHolder = (MediaViewHolder)holder;
+                galleryHolder?.Update(_postMedia[position]);
+            }
+
+            public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
+            {
+                var maxWidth = Style.GalleryHorizontalScreenWidth;
+                var maxHeight = Style.GalleryHorizontalHeight;
+
+                var previewSize = BitmapUtils.CalculateImagePreviewSize(_postMedia[0].Size.Width, _postMedia[0].Size.Height, maxWidth, maxHeight);
+
+                var cardView = new CardView(parent.Context)
+                {
+                    LayoutParameters = new FrameLayout.LayoutParams(previewSize.Width, previewSize.Height),
+                    Radius = BitmapUtils.DpToPixel(5, parent.Resources)
+                };
+                var image = new ImageView(parent.Context)
+                {
+                    Id = Resource.Id.photo,
+                    LayoutParameters = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MatchParent, ViewGroup.LayoutParams.MatchParent)
+                };
+                image.SetScaleType(ImageView.ScaleType.FitXy);
+                cardView.AddView(image);
+                return new MediaViewHolder(cardView);
+            }
+
+            public override int ItemCount => _postMedia.Length;
+        }
+
+        private class MediaViewHolder : RecyclerView.ViewHolder
+        {
+            private readonly ImageView _image;
+            public MediaViewHolder(View itemView) : base(itemView)
+            {
+                _image = itemView.FindViewById<ImageView>(Resource.Id.photo);
+            }
+
+            public void Update(MediaModel model)
+            {
+                var url = model.Thumbnails.Micro;
+                Picasso.With(ItemView.Context).Load(url).Into(_image);
+            }
+        }        
+
+        #endregion
+
     }
 }

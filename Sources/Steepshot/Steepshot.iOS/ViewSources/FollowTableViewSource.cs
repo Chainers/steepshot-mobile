@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Foundation;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
@@ -14,6 +16,7 @@ namespace Steepshot.iOS.ViewSources
         string _loaderCellIdentifier = nameof(LoaderCell);
         public Action<ActionType, UserFriend> CellAction;
         private bool _hideFollowButton;
+        private readonly List<FollowViewCell> _cellsList = new List<FollowViewCell>();
 
         public FollowTableViewSource(UserFriendPresenter presenter, UITableView table, bool hideFollowButton = false) : base(presenter, table)
         {
@@ -31,7 +34,10 @@ namespace Steepshot.iOS.ViewSources
             {
                 cell = (FollowViewCell)tableView.DequeueReusableCell(_cellIdentifier, indexPath);
                 if (!((FollowViewCell)cell).IsCellActionSet)
-                    ((FollowViewCell)cell).CellAction += CellAction;
+                    ((FollowViewCell)cell).CellAction = CellAction;
+
+                if(!_cellsList.Any(c => c.Handle == cell.Handle))
+                    _cellsList.Add((FollowViewCell)cell);
 
                 ((FollowViewCell)cell).HideFollowButton = _hideFollowButton;
 
@@ -40,6 +46,14 @@ namespace Steepshot.iOS.ViewSources
                     ((FollowViewCell)cell).UpdateCell(user);
             }
             return cell;
+        }
+
+        public void FreeAllCells()
+        {
+            foreach (var item in _cellsList)
+            {
+                item.CellAction = null;
+            }
         }
     }
 }

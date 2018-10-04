@@ -27,5 +27,6 @@
         LikePower,
         ProfilePower,
         Transfer,
+        Promote
     }
 }

@@ -4,17 +4,19 @@ using System.Threading.Tasks;
 using Autofac;
 using Com.OneSignal;
 using Com.OneSignal.Abstractions;
+using FFImageLoading;
+using FFImageLoading.Config;
 using Foundation;
-using Steepshot.Core;
 using Steepshot.Core.Authorization;
 using Steepshot.Core.Clients;
 using Steepshot.Core.Extensions;
+using Steepshot.Core.Interfaces;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Sentry;
-using Steepshot.Core.Services;
 using Steepshot.Core.Utils;
 using Steepshot.iOS.Helpers;
+using Steepshot.iOS.Models;
 using Steepshot.iOS.Services;
 using Steepshot.iOS.ViewControllers;
 using Steepshot.iOS.Views;
@@ -27,18 +29,13 @@ namespace Steepshot.iOS
     public class AppDelegate : UIApplicationDelegate
     {
         public override UIWindow Window { get; set; }
-        public static UIViewController InitialViewController;
-        public static ExtendedHttpClient HttpClient;
-        public static SteepshotApiClient SteemClient;
-        public static SteepshotApiClient GolosClient;
-
-        public static KnownChains MainChain { get; set; } = KnownChains.Steem;
 
         public override bool FinishedLaunching(UIApplication application, NSDictionary launchOptions)
         {
             InitIoC();
 
-            AppSettings.LocalizationManager.Update(HttpClient);
+            SetupFFImageLoading();
+            AppSettings.UpdateLocalizationAsync();
 
             GAService.Instance.InitializeGAService();
 
@@ -54,57 +51,61 @@ namespace Steepshot.iOS
             }
 
             Window = new CustomWindow();
+            UIViewController initialViewController;
             if (AppSettings.User.HasPostingPermission)
-                InitialViewController = new MainTabBarController();
+                initialViewController = new MainTabBarController();
             else
-                InitialViewController = new PreSearchViewController();
+                initialViewController = new PreSearchViewController();
 
-            Window.RootViewController = new InteractivePopNavigationController(InitialViewController);
+            Window.RootViewController = new InteractivePopNavigationController(initialViewController);
             Window.MakeKeyAndVisible();
             return true;
         }
 
         private void OnUnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs e)
         {
-            AppSettings.Logger.Error(e.Exception);
+            AppSettings.Logger.ErrorAsync(e.Exception);
         }
 
         private void OnUnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
-            AppSettings.Logger.Error((Exception)e.ExceptionObject);
+            AppSettings.Logger.ErrorAsync((Exception)e.ExceptionObject);
+        }
+
+        private void SetupFFImageLoading()
+        {
+            var config = new Configuration
+            {
+                VerboseLogging = false,
+                VerboseMemoryCacheLogging = false,
+                VerbosePerformanceLogging = false,
+                VerboseLoadingCancelledLogging = false,
+                Logger = new EmptyLogger(),
+                HttpClient = AppSettings.ExtendedHttpClient
+            };
+            ImageService.Instance.Initialize(config);
         }
 
         private void InitIoC()
         {
             if (AppSettings.Container == null)
             {
-                HttpClient = new ExtendedHttpClient();
-
                 var builder = new ContainerBuilder();
-                var saverService = new SaverService();
-                var dataProvider = new UserManager(saverService);
-                var appInfo = new AppInfo();
-                var assetsHelper = new AssetHelper();
-                var connectionService = new ConnectionService();
+                builder.RegisterType<SaverService>().As<ISaverService>().SingleInstance();
+                builder.RegisterType<AppInfo>().As<IAppInfo>().SingleInstance();
+                builder.RegisterType<ConnectionService>().As<IConnectionService>().SingleInstance();
+                builder.RegisterType<AssetHelper>().As<IAssetHelper>().SingleInstance();
+                builder.RegisterType<UserManager>().As<UserManager>().SingleInstance();
+                builder.RegisterType<User>().As<User>().SingleInstance();
+                builder.RegisterType<ConfigManager>().As<ConfigManager>().SingleInstance();
+                builder.RegisterType<ExtendedHttpClient>().As<ExtendedHttpClient>().SingleInstance();
+                builder.RegisterType<LogService>().As<ILogService>().SingleInstance();
+                builder.RegisterType<LocalizationManager>().As<LocalizationManager>().SingleInstance();
+                builder.RegisterType<SteepshotClient>().As<SteepshotClient>().SingleInstance();
 
-                var localizationManager = new LocalizationManager(saverService, assetsHelper);
-                var configManager = new ConfigManager(saverService, assetsHelper);
-
-                builder.RegisterInstance(assetsHelper).As<IAssetHelper>().SingleInstance();
-                builder.RegisterInstance(appInfo).As<IAppInfo>().SingleInstance();
-                builder.RegisterInstance(saverService).As<ISaverService>().SingleInstance();
-                builder.RegisterInstance(dataProvider).As<UserManager>().SingleInstance();
-                builder.RegisterInstance(connectionService).As<IConnectionService>().SingleInstance();
-                builder.RegisterInstance(localizationManager).As<LocalizationManager>().SingleInstance();
-                builder.RegisterInstance(configManager).As<ConfigManager>().SingleInstance();
-                var configInfo = assetsHelper.GetConfigInfo();
-                var reporterService = new LogService(HttpClient, appInfo, configInfo.RavenClientDsn);
-                builder.RegisterInstance(reporterService).As<ILogService>().SingleInstance();
+                AppSettings.RegisterPresenter(builder);
+                AppSettings.RegisterFacade(builder);
                 AppSettings.Container = builder.Build();
-
-                MainChain = AppSettings.User.Chain;
-                SteemClient = new SteepshotApiClient(HttpClient, KnownChains.Steem);
-                GolosClient = new SteepshotApiClient(HttpClient, KnownChains.Golos);
             }
         }
 
@@ -118,10 +119,10 @@ namespace Steepshot.iOS
                 case string commentUpvote when commentUpvote.Equals(PushSettings.UpvoteComment.GetEnumDescription()):
                 case string comment when comment.Equals(PushSettings.Comment.GetEnumDescription()):
                 case string userPost when userPost.Equals(PushSettings.User.GetEnumDescription()):
-                    InitialViewController.NavigationController.PushViewController(new PostViewController(data), false);
+                    ((InteractivePopNavigationController)((AppDelegate)UIApplication.SharedApplication.Delegate).Window.RootViewController).PushViewController(new PostViewController(data), false);
                     break;
                 case string follow when follow.Equals(PushSettings.Follow.GetEnumDescription()):
-                    InitialViewController.NavigationController.PushViewController(new ProfileViewController { Username = data }, false);
+                    ((InteractivePopNavigationController)((AppDelegate)UIApplication.SharedApplication.Delegate).Window.RootViewController).PushViewController(new ProfileViewController { Username = data }, false);
                     break;
             }
         }
@@ -167,7 +168,10 @@ namespace Steepshot.iOS
 
         public override void WillEnterForeground(UIApplication application)
         {
-            ((IWillEnterForeground)InitialViewController).WillEnterForeground();
+            //Remake this: invoke WillEnterForeground() only for top view of stack
+            ((IWillEnterForeground)((InteractivePopNavigationController)((AppDelegate)UIApplication.SharedApplication.Delegate).Window.RootViewController).RootViewController).WillEnterForeground();
+
+            //((IWillEnterForeground)InitialViewController).WillEnterForeground();
             // Called as part of the transiton from background to active state.
             // Here you can undo many of the changes made on entering the background.
         }

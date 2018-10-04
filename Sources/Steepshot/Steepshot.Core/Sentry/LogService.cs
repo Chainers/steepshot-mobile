@@ -4,62 +4,71 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using Steepshot.Core.Authorization;
+using Steepshot.Core.Clients;
+using Steepshot.Core.Interfaces;
 using Steepshot.Core.Sentry.Models;
-using Steepshot.Core.Services;
-using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Sentry
 {
     public sealed class LogService : ILogService
     {
+        private readonly IConnectionService _connectionService;
         private readonly IAppInfo _appInfoService;
         private readonly Dsn _dsn;
-        private System.Net.Http.HttpClient HttpClient { get; set; }
+        private readonly User _user;
+        private HttpClient HttpClient { get; set; }
 
-        public LogService(System.Net.Http.HttpClient httpClient, IAppInfo appInfoService, string dsn)
+        public LogService(ExtendedHttpClient httpClient, IAppInfo appInfoService, IAssetHelper assetHelper, IConnectionService connectionService, User user)
         {
             HttpClient = httpClient;
             _appInfoService = appInfoService;
-            _dsn = new Dsn(dsn);
+            _connectionService = connectionService;
+            var config = assetHelper.GetConfigInfo();
+            _dsn = new Dsn(config.RavenClientDsn);
+            _user = user;
         }
 
 
-        public async Task Fatal(Exception ex)
+        public async Task FatalAsync(Exception ex)
         {
-            await Send(ex, "fatal");
+            await SendAsync(ex, "fatal").ConfigureAwait(false);
         }
 
-        public async Task Error(Exception ex)
+        public async Task ErrorAsync(Exception ex)
         {
-            await Send(ex, "error");
+            await SendAsync(ex, "error").ConfigureAwait(false);
         }
 
-        public async Task Warning(Exception ex)
+        public async Task WarningAsync(Exception ex)
         {
-            await Send(ex, "warning");
+            await SendAsync(ex, "warning").ConfigureAwait(false);
         }
 
-        public async Task Info(Exception ex)
+        public async Task InfoAsync(Exception ex)
         {
-            await Send(ex, "info");
+            await SendAsync(ex, "info").ConfigureAwait(false);
         }
 
-
-        private async Task Send(Exception ex, string level)
+        private async Task SendAsync(Exception ex, string level)
         {
             try
             {
                 if (ex is TaskCanceledException || ex is OperationCanceledException)
                     return;
 
-                if (!AppSettings.ConnectionService.IsConnectionAvailable())
+                if (!_connectionService.IsConnectionAvailable())
                     return; //TODO: need to store locale
 
-                var packet = GetPacket();
+                var login = _user?.Login;
+                if (string.IsNullOrEmpty(login))
+                    login = "unauthorized";
+
+                var packet = GetPacket(login);
                 packet.Level = level;
                 packet.Extra = new ExceptionData(ex);
                 packet.Exceptions = SentryException.GetList(ex);
-                await Send(packet, _dsn);
+                await SendAsync(packet, _dsn).ConfigureAwait(false);
             }
             catch
             {
@@ -67,12 +76,8 @@ namespace Steepshot.Core.Sentry
             }
         }
 
-        private JsonPacket GetPacket()
+        private JsonPacket GetPacket(string login)
         {
-            var login = AppSettings.User?.Login;
-            if (string.IsNullOrEmpty(login))
-                login = "unauthorized";
-
             var appVersion = _appInfoService.GetAppVersion();
             var buildVersion = _appInfoService.GetBuildVersion();
             return new JsonPacket
@@ -91,7 +96,7 @@ namespace Steepshot.Core.Sentry
             };
         }
 
-        private async Task Send(JsonPacket packet, Dsn dsn)
+        private async Task SendAsync(JsonPacket packet, Dsn dsn)
         {
             try
             {
@@ -99,7 +104,7 @@ namespace Steepshot.Core.Sentry
                 var json = JsonConvert.SerializeObject(packet, Formatting.Indented);
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
                 content.Headers.Add("X-Sentry-Auth", $"Sentry sentry_version={7},sentry_client=steepshot/1, sentry_timestamp={ts}, sentry_key={dsn.PublicKey}, sentry_secret={dsn.PrivateKey}");
-                await HttpClient.PostAsync(dsn.SentryUri, content);
+                await HttpClient.PostAsync(dsn.SentryUri, content).ConfigureAwait(false);
             }
             catch
             {

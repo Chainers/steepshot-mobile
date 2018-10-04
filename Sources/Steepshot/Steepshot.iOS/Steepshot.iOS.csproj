@@ -34,6 +34,7 @@
     </CodesignProvision>
     <LangVersion>Default</LangVersion>
     <MtouchExtraArgs>--registrar:static</MtouchExtraArgs>
+    <MtouchEnableSGenConc>true</MtouchEnableSGenConc>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhone' ">
     <DebugType>pdbonly</DebugType>
@@ -47,13 +48,14 @@
     <MtouchFloat32>true</MtouchFloat32>
     <CodesignEntitlements>Entitlements.plist</CodesignEntitlements>
     <MtouchLink>SdkOnly</MtouchLink>
-    <MtouchArch>ARMv7, ARM64</MtouchArch>
+    <MtouchArch>ARM64</MtouchArch>
     <MtouchHttpClientHandler>NSUrlSessionHandler</MtouchHttpClientHandler>
     <MtouchTlsProvider>Default</MtouchTlsProvider>
     <LangVersion>Default</LangVersion>
     <CodesignProvision>
     </CodesignProvision>
     <MtouchUseLlvm>true</MtouchUseLlvm>
+    <MtouchEnableSGenConc>true</MtouchEnableSGenConc>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhoneSimulator' ">
     <DebugType>pdbonly</DebugType>
@@ -106,23 +108,17 @@
     <Reference Include="Autofac, Version=4.8.1.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
       <HintPath>..\packages\Autofac.4.8.1\lib\netstandard1.1\Autofac.dll</HintPath>
     </Reference>
-    <Reference Include="Com.OneSignal, Version=3.2.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Com.OneSignal.3.2.0\lib\Xamarin.iOS10\Com.OneSignal.dll</HintPath>
-    </Reference>
-    <Reference Include="Com.OneSignal.Abstractions, Version=3.2.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Com.OneSignal.3.2.0\lib\Xamarin.iOS10\Com.OneSignal.Abstractions.dll</HintPath>
-    </Reference>
     <Reference Include="Cryptography.ECDSA, Version=1.1.2.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Cryptography.ECDSA.Secp256K1.1.1.2\lib\netstandard2.0\Cryptography.ECDSA.dll</HintPath>
     </Reference>
-    <Reference Include="Ditch.Core, Version=4.0.3.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Ditch.Core.4.0.3\lib\netstandard2.0\Ditch.Core.dll</HintPath>
+    <Reference Include="Ditch.Core, Version=4.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Ditch.Core.4.1.0\lib\netstandard2.0\Ditch.Core.dll</HintPath>
     </Reference>
-    <Reference Include="Ditch.Golos, Version=4.0.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Ditch.Golos.4.0.1\lib\netstandard2.0\Ditch.Golos.dll</HintPath>
+    <Reference Include="Ditch.Golos, Version=4.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Ditch.Golos.4.1.0\lib\netstandard2.0\Ditch.Golos.dll</HintPath>
     </Reference>
-    <Reference Include="Ditch.Steem, Version=4.0.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Ditch.Steem.4.0.1\lib\netstandard2.0\Ditch.Steem.dll</HintPath>
+    <Reference Include="Ditch.Steem, Version=4.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Ditch.Steem.4.1.0\lib\netstandard2.0\Ditch.Steem.dll</HintPath>
     </Reference>
     <Reference Include="FFImageLoading, Version=2.4.3.840, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Xamarin.FFImageLoading.2.4.3.840\lib\Xamarin.iOS10\FFImageLoading.dll</HintPath>
@@ -142,9 +138,6 @@
     <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.11.0.2\lib\netstandard2.0\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="OneSignal.iOS.Binding, Version=3.2.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Com.OneSignal.3.2.0\lib\Xamarin.iOS10\OneSignal.iOS.Binding.dll</HintPath>
-    </Reference>
     <Reference Include="Plugin.Connectivity, Version=3.2.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Xam.Plugin.Connectivity.3.2.0\lib\Xamarin.iOS10\Plugin.Connectivity.dll</HintPath>
     </Reference>
@@ -153,6 +146,24 @@
     </Reference>
     <Reference Include="PureLayout.Net, Version=1.0.6645.26525, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\PureLayout.Net.1.0.1\lib\xamarinios10\PureLayout.Net.dll</HintPath>
+    </Reference>
+    <Reference Include="SQLite-net, Version=1.5.231.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\sqlite-net-pcl.1.5.231\lib\netstandard1.1\SQLite-net.dll</HintPath>
+    </Reference>
+    <Reference Include="SQLiteNetExtensions, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SQLiteNetExtensions.2.1.0\lib\netstandard1.1\SQLiteNetExtensions.dll</HintPath>
+    </Reference>
+    <Reference Include="SQLitePCLRaw.batteries_green, Version=1.1.11.121, Culture=neutral, PublicKeyToken=a84b7dcfb1391f7f, processorArchitecture=MSIL">
+      <HintPath>..\packages\SQLitePCLRaw.bundle_green.1.1.11\lib\Xamarin.iOS10\SQLitePCLRaw.batteries_green.dll</HintPath>
+    </Reference>
+    <Reference Include="SQLitePCLRaw.batteries_v2, Version=1.1.11.121, Culture=neutral, PublicKeyToken=8226ea5df37bcae9, processorArchitecture=MSIL">
+      <HintPath>..\packages\SQLitePCLRaw.bundle_green.1.1.11\lib\Xamarin.iOS10\SQLitePCLRaw.batteries_v2.dll</HintPath>
+    </Reference>
+    <Reference Include="SQLitePCLRaw.core, Version=1.1.11.121, Culture=neutral, PublicKeyToken=1488e028ca7ab535, processorArchitecture=MSIL">
+      <HintPath>..\packages\SQLitePCLRaw.core.1.1.11\lib\Xamarin.iOS10\SQLitePCLRaw.core.dll</HintPath>
+    </Reference>
+    <Reference Include="SQLitePCLRaw.provider.sqlite3, Version=1.1.11.121, Culture=neutral, PublicKeyToken=62684c7b4f184e3f, processorArchitecture=MSIL">
+      <HintPath>..\packages\SQLitePCLRaw.provider.sqlite3.ios_unified.1.1.11\lib\Xamarin.iOS10\SQLitePCLRaw.provider.sqlite3.dll</HintPath>
     </Reference>
     <Reference Include="SuperSocket.ClientEngine, Version=0.10.0.0, Culture=neutral, PublicKeyToken=ee9af13f57f00acc, processorArchitecture=MSIL">
       <HintPath>..\packages\SuperSocket.ClientEngine.Core.0.10.0\lib\netstandard1.3\SuperSocket.ClientEngine.dll</HintPath>
@@ -183,6 +194,15 @@
     </Reference>
     <Reference Include="ZXingNetMobile, Version=2.4.1.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\ZXing.Net.Mobile.2.4.1\lib\Xamarin.iOS10\ZXingNetMobile.dll</HintPath>
+    </Reference>
+    <Reference Include="Com.OneSignal.Abstractions">
+      <HintPath>..\packages\Com.OneSignal.3.2.1\lib\Xamarin.iOS10\Com.OneSignal.Abstractions.dll</HintPath>
+    </Reference>
+    <Reference Include="Com.OneSignal">
+      <HintPath>..\packages\Com.OneSignal.3.2.1\lib\Xamarin.iOS10\Com.OneSignal.dll</HintPath>
+    </Reference>
+    <Reference Include="OneSignal.iOS.Binding">
+      <HintPath>..\packages\Com.OneSignal.3.2.1\lib\Xamarin.iOS10\OneSignal.iOS.Binding.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -230,18 +250,15 @@
     <InterfaceDefinition Include="LaunchScreen.storyboard" />
     <InterfaceDefinition Include="Cells\TagCollectionViewCell.xib" />
     <InterfaceDefinition Include="Cells\FollowViewCell.xib" />
-    <InterfaceDefinition Include="Views\ProfileHeaderViewController.xib" />
     <InterfaceDefinition Include="Cells\UsersSearchViewCell.xib" />
     <InterfaceDefinition Include="Views\FeedViewController.xib" />
     <InterfaceDefinition Include="Views\PreLoginViewController.xib" />
     <InterfaceDefinition Include="Views\LoginViewController.xib" />
     <InterfaceDefinition Include="Views\PhotoViewController.xib" />
     <InterfaceDefinition Include="Views\ProfileViewController.xib" />
-    <InterfaceDefinition Include="Views\WebPageViewController.xib" />
     <InterfaceDefinition Include="Views\ImagePreviewViewController.xib" />
     <InterfaceDefinition Include="Views\FollowViewController.xib" />
     <InterfaceDefinition Include="Views\SettingsViewController.xib" />
-    <InterfaceDefinition Include="Views\PostTagsViewController.xib" />
     <InterfaceDefinition Include="Views\VotersViewController.xib" />
     <InterfaceDefinition Include="Views\PreSearchViewController.xib" />
     <InterfaceDefinition Include="Views\WelcomeViewController.xib" />
@@ -251,7 +268,6 @@
     <InterfaceDefinition Include="Views\PhotoPreviewViewController.xib" />
     <InterfaceDefinition Include="Views\PostViewController.xib" />
     <InterfaceDefinition Include="Views\TagsPickerViewController.xib" />
-    <InterfaceDefinition Include="Cells\DescriptionTableViewCell.xib" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
@@ -286,17 +302,11 @@
     <Compile Include="ViewSources\BaseTableSource.cs" />
     <Compile Include="Cells\CommentTableViewCell.cs" />
     <Compile Include="ViewSources\CommentsTableViewSource.cs" />
-    <Compile Include="Views\ProfileHeaderViewController.cs" />
-    <Compile Include="Views\ProfileHeaderViewController.designer.cs">
-      <DependentUpon>ProfileHeaderViewController.cs</DependentUpon>
-    </Compile>
     <Compile Include="Cells\BaseProfileCell.cs" />
     <Compile Include="Cells\UsersSearchViewCell.cs" />
     <Compile Include="Cells\UsersSearchViewCell.designer.cs">
       <DependentUpon>UsersSearchViewCell.cs</DependentUpon>
     </Compile>
-    <Compile Include="ViewSources\UserSearchTableViewSource.cs" />
-    <Compile Include="ViewSources\VotersTableViewSource.cs" />
     <Compile Include="Views\FeedViewController.cs" />
     <Compile Include="Views\FeedViewController.designer.cs">
       <DependentUpon>FeedViewController.cs</DependentUpon>
@@ -318,10 +328,6 @@
       <DependentUpon>ProfileViewController.cs</DependentUpon>
     </Compile>
     <Compile Include="Views\CommentsViewController.cs" />
-    <Compile Include="Views\WebPageViewController.cs" />
-    <Compile Include="Views\WebPageViewController.designer.cs">
-      <DependentUpon>WebPageViewController.cs</DependentUpon>
-    </Compile>
     <Compile Include="Views\ImagePreviewViewController.cs" />
     <Compile Include="Views\ImagePreviewViewController.designer.cs">
       <DependentUpon>ImagePreviewViewController.cs</DependentUpon>
@@ -334,10 +340,6 @@
     <Compile Include="Views\SettingsViewController.cs" />
     <Compile Include="Views\SettingsViewController.designer.cs">
       <DependentUpon>SettingsViewController.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Views\PostTagsViewController.cs" />
-    <Compile Include="Views\PostTagsViewController.designer.cs">
-      <DependentUpon>PostTagsViewController.cs</DependentUpon>
     </Compile>
     <Compile Include="Views\TagsSearchViewController.cs" />
     <Compile Include="Views\VotersViewController.cs" />
@@ -405,9 +407,6 @@
     <Compile Include="Views\NotificationSettingsController.cs" />
     <Compile Include="Views\PostEditViewController.cs" />
     <Compile Include="Cells\DescriptionTableViewCell.cs" />
-    <Compile Include="Cells\DescriptionTableViewCell.designer.cs">
-      <DependentUpon>DescriptionTableViewCell.cs</DependentUpon>
-    </Compile>
     <Compile Include="Views\TagsSearchViewControllerDesign.cs" />
     <Compile Include="ViewSources\FolderTableViewSource.cs" />
     <Compile Include="Helpers\Logger.cs" />
@@ -441,6 +440,14 @@
     <Compile Include="Cells\CardsContainerHeader.cs" />
     <Compile Include="Popups\PowerManipulationPopup.cs" />
     <Compile Include="Popups\TransferDialogPopup.cs" />
+    <Compile Include="Popups\PostCreatedPopup.cs" />
+    <Compile Include="CustomViews\CustomView.cs" />
+    <Compile Include="Cells\TransactionShimmerCollectionViewCell.cs" />
+    <Compile Include="Cells\CardShimmerCollectionView.cs" />
+    <Compile Include="CustomViews\VideoView.cs" />
+    <Compile Include="Models\EmptyLogger.cs" />
+    <Compile Include="ViewSources\SliderCollectionViewSource.cs" />
+    <Compile Include="ViewSources\ProfileCollectionViewSource.cs" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\ic_photo_holder.png" />
@@ -591,9 +598,6 @@
     </BundleResource>
     <BundleResource Include="..\Steepshot.Android\Assets\SteemNodesConfig.txt">
       <Link>Resources\Assets\SteemNodesConfig.txt</Link>
-    </BundleResource>
-    <BundleResource Include="..\Steepshot.Android\Assets\CensoredWords.txt">
-      <Link>Resources\Assets\CensoredWords.txt</Link>
     </BundleResource>
     <BundleResource Include="..\Steepshot.Android\Assets\Config.txt">
       <Link>Resources\Assets\Config.txt</Link>

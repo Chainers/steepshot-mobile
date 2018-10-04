@@ -33,9 +33,7 @@ namespace Steepshot.iOS.Views
         {
             base.ViewDidLoad();
 
-            var client = AppDelegate.MainChain == KnownChains.Steem ? AppDelegate.SteemClient : AppDelegate.GolosClient;
-            _transferFacade = new TransferFacade();
-            _transferFacade.SetClient(client);
+            _transferFacade = AppSettings.GetFacade<TransferFacade>(AppSettings.MainChain);
             _transferFacade.OnRecipientChanged += OnRecipientChanged;
             _transferFacade.OnUserBalanceChanged += OnUserBalanceChanged;
             _transferFacade.UserFriendPresenter.SourceChanged += PresenterOnSourceChanged;
@@ -164,15 +162,18 @@ namespace Steepshot.iOS.Views
 
             if (!AppSettings.User.HasActivePermission)
             {
-                NavigationController.PushViewController(new LoginViewController(false), true);
+                NavigationController.PushViewController(new LoginViewController(), true);
                 return;
             }
 
-            Popups.TransferDialogPopup.Create(NavigationController,
-                                              _amountTextField.GetDoubleValue().ToString(),
-                                              ContinueTransfer,
-                                              recipient: _transferFacade.Recipient.Author,
-                                              type: _pickedCoin);
+            var at = new NSMutableAttributedString();
+            at.Append(new NSAttributedString($"Are you sure you want to transfer {_amountTextField.GetDoubleValue().ToString(CultureInfo.InvariantCulture)} {_pickedCoin.ToString()} to ", Constants.DialogPopupTextStyle));
+            at.Append(new NSAttributedString($"@{_transferFacade.Recipient.Author}", Constants.DialogPopupSelectedTextStyle));
+            at.Append(new NSAttributedString("?", Constants.DialogPopupTextStyle));
+
+            NavigationController.ResignFirstResponder();
+
+            Popups.TransferDialogPopup.Create(NavigationController, at, ContinueTransfer);
         }
 
         private async void ContinueTransfer(bool shouldContinue)
@@ -184,7 +185,7 @@ namespace Steepshot.iOS.Views
                 _tranfserLoader.StartAnimating();
                 RemoveFocus();
 
-                var transferResponse = await _presenter.TryTransfer(AppSettings.User.UserInfo, _transferFacade.Recipient.Author, _amountTextField.GetDoubleValue().ToString(), _pickedCoin, _memoTextView.Text);
+                var transferResponse = await Presenter.TryTransferAsync(AppSettings.User.UserInfo, _transferFacade.Recipient.Author, _amountTextField.GetDoubleValue().ToString(CultureInfo.InvariantCulture), _pickedCoin, _memoTextView.Text);
 
                 _tranfserLoader.StopAnimating();
                 TogglButtons(true);
@@ -208,7 +209,7 @@ namespace Steepshot.iOS.Views
         {
             _balanceLabel.TextColor = UIColor.Clear;
             _balanceLoader.StartAnimating();
-            var response = await _transferFacade.TryGetAccountInfo(AppSettings.User.Login);
+            var response = await _transferFacade.TryGetAccountInfoAsync(AppSettings.User.Login);
             if (response.IsSuccess)
             {
                 AppSettings.User.AccountInfo = response.Result;
@@ -235,15 +236,15 @@ namespace Steepshot.iOS.Views
                 _noResultViewTags.Hidden = true;
                 _usersLoader.StartAnimating();
             }
-            var searchResult = await _transferFacade.TryLoadNextSearchUser(_recepientTextField.Text);
+            var result = await _transferFacade.TryLoadNextSearchUserAsync(_recepientTextField.Text);
 
-            if (!(searchResult is OperationCanceledException))
+            if (result.IsSuccess || !(result.Exception is OperationCanceledException))
             {
                 if (_recepientTextField.IsFirstResponder)
                     _noResultViewTags.Hidden = _transferFacade.UserFriendPresenter.Count > 0;
                 _usersLoader.StopAnimating();
 
-                if (!_isWarningOpen && searchResult != null)
+                if (!_isWarningOpen && !result.IsSuccess)
                 {
                     UIView.Animate(0.3f, 0f, UIViewAnimationOptions.CurveEaseOut, () =>
                     {

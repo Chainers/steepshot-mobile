@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Steepshot.Core.Services;
+using Steepshot.Core.Interfaces;
 
 namespace Steepshot.Core.Authorization
 {
@@ -45,6 +45,11 @@ namespace Steepshot.Core.Authorization
         public List<UserInfo> Select(KnownChains chain)
         {
             return _set.Where(i => i.Chain == chain).ToList();
+        }
+
+        public UserInfo Select(KnownChains chain, string login)
+        {
+            return _set.FirstOrDefault(i => i.Chain == chain && i.Login == login);
         }
 
         public void Update(UserInfo userInfo)
