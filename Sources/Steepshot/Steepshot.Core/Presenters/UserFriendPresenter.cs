@@ -1,11 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
+using Ditch.Core.JsonRpc;
+using Steepshot.Core.Authorization;
+using Steepshot.Core.Clients;
+using Steepshot.Core.Interfaces;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Enums;
+using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Presenters
@@ -13,8 +17,21 @@ namespace Steepshot.Core.Presenters
     public class UserFriendPresenter : ListPresenter<UserFriend>, IDisposable
     {
         private const int ItemsLimit = 40;
+        private readonly SteepshotApiClient _steepshotApiClient;
+        private readonly BaseDitchClient _ditchClient;
+        private readonly User _user;
+
         public FriendsType? FollowType { get; set; }
         public VotersType? VotersType { get; set; }
+
+
+        public UserFriendPresenter(IConnectionService connectionService, ILogService logService, BaseDitchClient ditchClient, SteepshotApiClient steepshotApiClient, User user)
+            : base(connectionService, logService)
+        {
+            _steepshotApiClient = steepshotApiClient;
+            _user = user;
+            _ditchClient = ditchClient;
+        }
 
         public UserFriend FirstOrDefault(Func<UserFriend, bool> func)
         {
@@ -32,11 +49,7 @@ namespace Steepshot.Core.Presenters
         {
             if (IsLastReaded)
                 return null;
-            return await RunAsSingleTaskAsync(LoadNextPostVotersAsync, url).ConfigureAwait(false);
-        }
 
-        private async Task<Exception> LoadNextPostVotersAsync(string url, CancellationToken ct)
-        {
             if (!VotersType.HasValue)
                 return null;
 
@@ -44,10 +57,11 @@ namespace Steepshot.Core.Presenters
             {
                 Offset = OffsetUrl,
                 Limit = ItemsLimit,
-                Login = AppSettings.User.Login
+                Login = _user.Login
             };
 
-            var response = await Api.GetPostVotersAsync(request, ct).ConfigureAwait(false);
+            var response = await RunAsSingleTaskAsync(_steepshotApiClient.GetPostVotersAsync, request)
+                .ConfigureAwait(false);
 
             if (response.IsSuccess)
             {
@@ -57,7 +71,7 @@ namespace Steepshot.Core.Presenters
                     lock (Items)
                     {
                         Items.AddRange(Items.Count == 0 ? voters : voters.Skip(1));
-                        CashPresenterManager.Add(Items.Count == 0 ? voters : voters.Skip(1));
+                        CashManager.Add(Items.Count == 0 ? voters : voters.Skip(1));
                     }
 
                     OffsetUrl = voters.Last().Author;
@@ -70,27 +84,23 @@ namespace Steepshot.Core.Presenters
             return response.Exception;
         }
 
-
-        public async Task<Exception> TryLoadNextUserFriendsAsync(string username)
+        public async Task<OperationResult<ListResponse<UserFriend>>> TryLoadNextUserFriendsAsync(string username)
         {
             if (IsLastReaded)
                 return null;
-            return await RunAsSingleTaskAsync(LoadNextUserFriendsAsync, username).ConfigureAwait(false);
-        }
 
-        private async Task<Exception> LoadNextUserFriendsAsync(string username, CancellationToken ct)
-        {
             if (!FollowType.HasValue)
                 return null;
 
             var request = new UserFriendsModel(username, FollowType.Value)
             {
-                Login = AppSettings.User.Login,
+                Login = _user.Login,
                 Offset = OffsetUrl,
                 Limit = ItemsLimit
             };
 
-            var response = await Api.GetUserFriendsAsync(request, ct).ConfigureAwait(false);
+            var response = await RunAsSingleTaskAsync(_steepshotApiClient.GetUserFriendsAsync, request)
+                .ConfigureAwait(false);
 
             if (response.IsSuccess)
             {
@@ -100,7 +110,7 @@ namespace Steepshot.Core.Presenters
                     lock (Items)
                     {
                         Items.AddRange(Items.Count == 0 ? result : result.Skip(1));
-                        CashPresenterManager.Add(Items.Count == 0 ? result : result.Skip(1));
+                        CashManager.Add(Items.Count == 0 ? result : result.Skip(1));
                     }
 
                     OffsetUrl = result.Last().Author;
@@ -111,28 +121,23 @@ namespace Steepshot.Core.Presenters
                 NotifySourceChanged(nameof(TryLoadNextUserFriendsAsync), true);
             }
 
-            return response.Exception;
+            return response;
         }
 
-
-        public async Task<Exception> TryLoadNextSearchUserAsync(string query)
-        {
-            return await RunAsSingleTaskAsync(LoadNextSearchUserAsync, query).ConfigureAwait(false);
-        }
-
-        private async Task<Exception> LoadNextSearchUserAsync(string query, CancellationToken ct)
+        public async Task<OperationResult<ListResponse<UserFriend>>> TryLoadNextSearchUserAsync(string query)
         {
             if (string.IsNullOrEmpty(query) || query.Length <= 2)
-                return new OperationCanceledException();
+                return new OperationResult<ListResponse<UserFriend>>(new OperationCanceledException());
 
             var request = new SearchWithQueryModel(query)
             {
                 Limit = ItemsLimit,
                 Offset = OffsetUrl,
-                Login = AppSettings.User.Login
+                Login = _user.Login
             };
 
-            var response = await Api.SearchUserAsync(request, ct).ConfigureAwait(false);
+            var response = await RunAsSingleTaskAsync(_steepshotApiClient.SearchUserAsync, request)
+                .ConfigureAwait(false);
 
             if (response.IsSuccess)
             {
@@ -142,7 +147,7 @@ namespace Steepshot.Core.Presenters
                     lock (Items)
                     {
                         Items.AddRange(Items.Count == 0 ? result : result.Skip(1));
-                        CashPresenterManager.Add(Items.Count == 0 ? result : result.Skip(1));
+                        CashManager.Add(Items.Count == 0 ? result : result.Skip(1));
                     }
 
                     OffsetUrl = result.Last().Author;
@@ -152,44 +157,38 @@ namespace Steepshot.Core.Presenters
                     IsLastReaded = true;
                 NotifySourceChanged(nameof(TryLoadNextSearchUserAsync), true);
             }
-            return response.Exception;
+            return response;
         }
 
-        public async Task<Exception> TryFollowAsync(UserFriend item)
+        public async Task<OperationResult<VoidResponse>> TryFollowAsync(UserFriend userFriend)
         {
-            item.FollowedChanging = true;
+            userFriend.FollowedChanging = true;
             NotifySourceChanged(nameof(TryFollowAsync), true);
-            var exception = await TryRunTaskAsync(FollowAsync, OnDisposeCts.Token, item).ConfigureAwait(false);
-            item.FollowedChanging = false;
+
+            var hasFollowed = userFriend.HasFollowed;
+            var request = new FollowModel(_user.UserInfo, hasFollowed ? Models.Enums.FollowType.UnFollow : Models.Enums.FollowType.Follow, userFriend.Author);
+            var result = await TaskHelper.TryRunTaskAsync(_ditchClient.FollowAsync, request, OnDisposeCts.Token).ConfigureAwait(false);
+
+            if (result.IsSuccess)
+                userFriend.HasFollowed = !hasFollowed;
+
+            CashManager.Update(userFriend);
+
+            userFriend.FollowedChanging = false;
             NotifySourceChanged(nameof(TryFollowAsync), true);
-            return exception;
+            return result;
         }
 
-        private async Task<Exception> FollowAsync(UserFriend item, CancellationToken ct)
-        {
-            var hasFollowed = item.HasFollowed;
-            var request = new FollowModel(AppSettings.User.UserInfo, item.HasFollowed ? Models.Enums.FollowType.UnFollow : Models.Enums.FollowType.Follow, item.Author);
-            var response = await Api.FollowAsync(request, ct).ConfigureAwait(false);
-
-            if (response.IsSuccess)
-                item.HasFollowed = !hasFollowed;
-
-            CashPresenterManager.Update(item);
-
-            return response.Exception;
-        }
-
-        public override void Clear(bool isNotify = true)
+        public override void Clear(bool isNotify)
         {
             lock (Items)
-            {
-                CashPresenterManager.RemoveAll(Items);
-            }
+                CashManager.RemoveAll(Items);
+
             base.Clear(isNotify);
         }
 
         #region IDisposable Support
-        private bool _disposedValue = false; // To detect redundant calls
+        private bool _disposedValue; // To detect redundant calls
 
         private void Dispose(bool disposing)
         {
@@ -199,7 +198,7 @@ namespace Steepshot.Core.Presenters
                 {
                     lock (Items)
                     {
-                        CashPresenterManager.RemoveAll(Items);
+                        CashManager.RemoveAll(Items);
                     }
                 }
 

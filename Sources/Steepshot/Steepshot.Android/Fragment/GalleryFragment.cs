@@ -119,7 +119,6 @@ namespace Steepshot.Fragment
                     var itm = _pickedItems[i];
                     if (itm.Selected)
                         itm.Parameters = _preview.DrawableImageParameters.Copy();
-                    itm.UploadState = UploadState.ReadyToSave;
                 }
 
                 ((BaseActivity)Activity).OpenNewContentFragment(new PostCreateFragment(_pickedItems));

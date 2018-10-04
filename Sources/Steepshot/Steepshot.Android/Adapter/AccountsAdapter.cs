@@ -67,7 +67,7 @@ namespace Steepshot.Adapter
         {
             _userInfo = userInfo;
             _cellText.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Account, userInfo.Chain);
-            _checkImage.SetImageResource(App.MainChain == userInfo.Chain ? Resource.Drawable.ic_checked : Resource.Drawable.ic_unchecked);
+            _checkImage.SetImageResource(AppSettings.MainChain == userInfo.Chain ? Resource.Drawable.ic_checked : Resource.Drawable.ic_unchecked);
         }
 
         private void OnCellLayoutOnClick(object sender, EventArgs e)

@@ -5,7 +5,7 @@ using Steepshot.Core.Utils;
 namespace Steepshot.Utils
 {
 
-    public sealed class StreamConverter : System.IO.Stream
+    public sealed class StreamConverter : System.IO.Stream, IDisposable
     {
         private readonly Java.IO.FileInputStream _fileInputStream;
         private readonly Java.IO.FileOutputStream _fileOutputStream;
@@ -40,7 +40,6 @@ namespace Steepshot.Utils
         public override void Flush()
         {
             _fileOutputStream?.Flush();
-            //_fileInputStream;
         }
 
         public override long Seek(long offset, SeekOrigin origin)
@@ -79,5 +78,45 @@ namespace Steepshot.Utils
         {
             _fileOutputStream.Write(buffer, offset, count);
         }
+
+
+        #region IDisposable Support
+        private bool _disposedValue = false; // To detect redundant calls
+
+        protected override void Dispose(bool disposing)
+        {
+            if (!_disposedValue)
+            {
+                if (disposing)
+                {
+                    _fileInputStream?.Close();
+                    Flush();
+                    _fileInputStream?.Dispose();
+                    _fileOutputStream?.Close();
+                    _fileOutputStream?.Dispose();
+                }
+
+                // free unmanaged resources (unmanaged objects) and override a finalizer below.
+                // set large fields to null.
+
+                _disposedValue = true;
+            }
+        }
+
+        // override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
+        // ~BasePostPresenter() {
+        //   // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+        //   Dispose(false);
+        // }
+
+        // This code added to correctly implement the disposable pattern.
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+            Dispose(true);
+            // uncomment the following line if the finalizer is overridden above.
+            // GC.SuppressFinalize(this);
+        }
+        #endregion
     }
 }

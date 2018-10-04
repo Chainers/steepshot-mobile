@@ -3,6 +3,7 @@ using Android.Content;
 using Android.OS;
 using Android.Views;
 using Android.Widget;
+using Autofac;
 using CheeseBind;
 using Steepshot.Activity;
 using Steepshot.Adapter;
@@ -48,6 +49,7 @@ namespace Steepshot.Fragment
                 return;
 
             base.OnViewCreated(view, savedInstanceState);
+
             ToggleTabBar();
 
             _container.Visibility = ViewStates.Gone;
@@ -85,7 +87,9 @@ namespace Steepshot.Fragment
 
         private async void PostAction(ActionType type, Post post)
         {
-            if (post == null) return;
+            if (post == null)
+                return;
+
             switch (type)
             {
                 case ActionType.Like:
@@ -93,17 +97,17 @@ namespace Steepshot.Fragment
                         if (!AppSettings.User.HasPostingPermission)
                             return;
 
-                        var exception = await Presenter.TryVoteAsync(post);
+                        var result = await Presenter.TryVoteAsync(post);
                         if (!IsInitialized)
                             return;
 
-                        if (exception == null && Activity is RootActivity root)
+                        if (result.IsSuccess && Activity is RootActivity root)
                         {
                             root.TryUpdateProfile();
                             PostViewHolder.UpdateData(post, Activity);
                         }
 
-                        Context.ShowAlert(exception);
+                        Context.ShowAlert(result);
                         break;
                     }
                 case ActionType.VotersLikes:
@@ -130,30 +134,30 @@ namespace Steepshot.Fragment
                     {
                         if (!AppSettings.User.HasPostingPermission)
                             return;
-
-                        var exception = await Presenter.TryFlagAsync(post);
+                        
+                        var result = await Presenter.TryFlagAsync(post);
                         if (!IsInitialized)
                             return;
 
-                        if (exception == null && Activity is RootActivity root)
+                        if (result.IsSuccess && Activity is RootActivity root)
                         {
                             root.TryUpdateProfile();
                             PostViewHolder.UpdateData(post, Activity);
                         }
 
-                        Context.ShowAlert(exception);
+                        Context.ShowAlert(result);
                         break;
                     }
                 case ActionType.Delete:
                     {
-                        var exception = await Presenter.TryDeletePostAsync(post);
+                        var result = await Presenter.TryDeletePostAsync(post);
                         if (!IsInitialized)
                             return;
 
-                        if (exception == null)
+                        if (result.IsSuccess)
                             ((BaseActivity)Activity).OnBackPressed();
 
-                        Context.ShowAlert(exception);
+                        Context.ShowAlert(result);
                         break;
                     }
                 case ActionType.Edit:

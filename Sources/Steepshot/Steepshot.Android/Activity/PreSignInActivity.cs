@@ -68,7 +68,7 @@ namespace Steepshot.Activity
             base.OnBackPressed();
             var currentUser = AppSettings.User.GetAllAccounts().FirstOrDefault();
             if (currentUser != null)
-                App.MainChain = currentUser.Chain;
+                AppSettings.MainChain = currentUser.Chain;
         }
 
         private void GoBack(object sender, EventArgs e)

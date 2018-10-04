@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Models.Responses;
-using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Authorization
 {
@@ -156,13 +155,13 @@ namespace Steepshot.Core.Authorization
         public bool HasPostingPermission => !string.IsNullOrEmpty(UserInfo?.PostingKey);
 
         public bool HasActivePermission => !string.IsNullOrEmpty(UserInfo?.ActiveKey);
-        
-        public Dictionary<string, string> Integration => UserInfo.Integration;
-        
 
-        public User()
+        public Dictionary<string, string> Integration => UserInfo.Integration;
+
+
+        public User(UserManager data)
         {
-            _data = AppSettings.DataProvider;
+            _data = data;
         }
 
         public void Load()

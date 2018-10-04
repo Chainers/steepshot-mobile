@@ -33,8 +33,8 @@ namespace Steepshot.iOS.Views
         {
             base.ViewDidLoad();
 
-            _presenter.VotersType = _votersType;
-            _tableSource = new FollowTableViewSource(_presenter, votersTable);
+            Presenter.VotersType = _votersType;
+            _tableSource = new FollowTableViewSource(Presenter, votersTable);
             votersTable.Source = _tableSource;
             votersTable.SeparatorStyle = UITableViewCellSeparatorStyle.None;
             votersTable.LayoutMargins = UIEdgeInsets.Zero;
@@ -51,7 +51,7 @@ namespace Steepshot.iOS.Views
         {
             if (IsMovingToParentViewController)
             {
-                _presenter.SourceChanged += SourceChanged;
+                Presenter.SourceChanged += SourceChanged;
                 _tableSource.ScrolledToBottom = GetItems;
                 _tableSource.CellAction = CellAction;
                 _leftBarButton.Clicked += GoBack;
@@ -63,11 +63,11 @@ namespace Steepshot.iOS.Views
         {
             if (IsMovingFromParentViewController)
             {
-                _presenter.SourceChanged -= SourceChanged;
+                Presenter.SourceChanged -= SourceChanged;
                 _tableSource.ScrolledToBottom = null;
                 _tableSource.CellAction = null;
                 _leftBarButton.Clicked -= GoBack;
-                _presenter.LoadCancel();
+                Presenter.LoadCancel();
                 _tableSource.FreeAllCells();
             }
             base.ViewWillDisappear(animated);
@@ -89,7 +89,7 @@ namespace Steepshot.iOS.Views
             NavigationItem.LeftBarButtonItem = _leftBarButton;
             NavigationItem.RightBarButtonItem = rightBarButton;
             NavigationController.NavigationBar.TintColor = Helpers.Constants.R15G24B30;
-            NavigationItem.Title = _presenter.VotersType.GetDescription();
+            NavigationItem.Title = Presenter.VotersType.GetDescription();
         }
 
         private void CellAction(ActionType type, UserFriend user)
@@ -123,7 +123,7 @@ namespace Steepshot.iOS.Views
 
         public async void GetItems()
         {
-            var exception = await _presenter.TryLoadNextPostVotersAsync(!_isComment ? _post.Url : _post.Url.Substring(_post.Url.LastIndexOf("@", StringComparison.Ordinal)));
+            var exception = await Presenter.TryLoadNextPostVotersAsync(!_isComment ? _post.Url : _post.Url.Substring(_post.Url.LastIndexOf("@", StringComparison.Ordinal)));
             ShowAlert(exception);
             progressBar.StopAnimating();
         }
@@ -132,8 +132,8 @@ namespace Steepshot.iOS.Views
         {
             if (user != null)
             {
-                var exception = await _presenter.TryFollowAsync(user);
-                ShowAlert(exception);
+                var result = await Presenter.TryFollowAsync(user);
+                ShowAlert(result);
             }
         }
     }

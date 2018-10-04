@@ -29,7 +29,7 @@ namespace Steepshot.iOS.Views
             View.BackgroundColor = Constants.R250G250B250;
             View.ClipsToBounds = true;
 
-            LoadData();
+            LoadDataAsync();
             SetBackButton();
 
             SetupHistoryCollection();
@@ -49,7 +49,7 @@ namespace Steepshot.iOS.Views
             if (IsMovingToParentViewController)
             {
                 _refreshControl.ValueChanged += OnRefresh;
-                _presenter.UpdateWallet += UpdateWallet;
+                Presenter.UpdateWallet += UpdateWallet;
             }
             base.ViewDidAppear(animated);
         }
@@ -60,7 +60,7 @@ namespace Steepshot.iOS.Views
             if (IsMovingFromParentViewController)
             {
                 _refreshControl.ValueChanged -= OnRefresh;
-                _presenter.UpdateWallet -= UpdateWallet;
+                Presenter.UpdateWallet -= UpdateWallet;
             }
         }
 
@@ -71,21 +71,21 @@ namespace Steepshot.iOS.Views
 
         private async void OnRefresh(object sender, EventArgs e)
         {
-            await LoadData();
+            await LoadDataAsync();
             _refreshControl.EndRefreshing();
         }
 
-        private async Task LoadData()
+        private async Task LoadDataAsync()
         {
-            _presenter.Reset();
-            var exception = await _presenter.TryLoadNextAccountInfoAsync();
+            Presenter.Reset();
+            var exception = await Presenter.TryLoadNextAccountInfoAsync();
             if (exception == null)
             {
                 _historySource.GroupHistory();
                 _historyCollection.ReloadData();
                 _historySource.ReloadCardsHeader();
 
-                if (_presenter.Balances[0].RewardSp > 0 || _presenter.Balances[0].RewardSbd > 0 || _presenter.Balances[0].RewardSteem > 0)
+                if (Presenter.Balances[0].RewardSp > 0 || Presenter.Balances[0].RewardSbd > 0 || Presenter.Balances[0].RewardSteem > 0)
                 {
                     NavigationItem.RightBarButtonItem.TintColor = Constants.R231G72B0;
                     NavigationItem.RightBarButtonItem.Enabled = true;
@@ -118,11 +118,11 @@ namespace Steepshot.iOS.Views
 
             View.Add(_historyCollection);
 
-            _historySource = new TransferCollectionViewSource(_presenter, NavigationController);
+            _historySource = new TransferCollectionViewSource(Presenter, NavigationController);
 
             _historySource.CellAction += (string obj) =>
             {
-                if(obj == AppSettings.User.Login)
+                if (obj == AppSettings.User.Login)
                     return;
                 var myViewController = new ProfileViewController();
                 myViewController.Username = obj;
@@ -197,7 +197,7 @@ namespace Steepshot.iOS.Views
             steemAmountLabel.AutoAlignAxisToSuperviewAxis(ALAxis.Horizontal);
 
             var steemAmount = new UILabel();
-            steemAmount.Text = _presenter.Balances[0].RewardSteem.ToBalanceValueString();
+            steemAmount.Text = Presenter.Balances[0].RewardSteem.ToBalanceValueString();
             steemAmount.Font = Constants.Semibold14;
             steemAmount.TextColor = Constants.R255G34B5;
             steemAmount.TextAlignment = UITextAlignment.Right;
@@ -227,7 +227,7 @@ namespace Steepshot.iOS.Views
             sbdAmountLabel.AutoAlignAxisToSuperviewAxis(ALAxis.Horizontal);
 
             var sbdAmount = new UILabel();
-            sbdAmount.Text = _presenter.Balances[0].RewardSbd.ToBalanceValueString();
+            sbdAmount.Text = Presenter.Balances[0].RewardSbd.ToBalanceValueString();
             sbdAmount.Font = Constants.Semibold14;
             sbdAmount.TextColor = Constants.R255G34B5;
             sbdAmount.TextAlignment = UITextAlignment.Right;
@@ -257,7 +257,7 @@ namespace Steepshot.iOS.Views
             spAmountLabel.AutoAlignAxisToSuperviewAxis(ALAxis.Horizontal);
 
             var spAmount = new UILabel();
-            spAmount.Text = _presenter.Balances[0].RewardSp.ToBalanceValueString();
+            spAmount.Text = Presenter.Balances[0].RewardSp.ToBalanceValueString();
             spAmount.Font = Constants.Semibold14;
             spAmount.TextColor = Constants.R255G34B5;
             spAmount.TextAlignment = UITextAlignment.Right;
@@ -318,17 +318,19 @@ namespace Steepshot.iOS.Views
             {
                 selectButton.Enabled = false;
                 loader.StartAnimating();
-                var exception = await _presenter.TryClaimRewardsAsync(_presenter.Balances[0]);
+                var result = await Presenter.TryClaimRewardsAsync(Presenter.Balances[0]);
                 loader.StopAnimating();
                 selectButton.Enabled = true;
 
-                if (exception == null)
+                if (result.IsSuccess)
                 {
-                    LoadData();
+                    LoadDataAsync();
                     _alert.Close();
                 }
                 else
-                    ShowAlert(exception);
+                {
+                    ShowAlert(result);
+                }
             };
             cancelButton.TouchDown += (s, ev) => { _alert.Close(); };
 

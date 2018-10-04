@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -11,14 +10,14 @@ using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
 using Java.IO;
-using Newtonsoft.Json;
-using Steepshot.Activity;
 using Steepshot.Base;
 using Steepshot.Core;
 using Steepshot.Core.Exceptions;
+using Steepshot.Core.Jobs.Upload;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
+using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Utils;
 using Steepshot.Utils;
 
@@ -31,8 +30,8 @@ namespace Steepshot.Fragment
         public static string PreparePostTemp = "PreparePostTemp" + AppSettings.User.Login;
         private readonly PreparePostModel _tepmPost;
         private GalleryMediaAdapter _galleryAdapter;
-        private bool _isUploading;
-        private bool _isEnableSaveState = true;
+        private bool _isUploading = false;
+        //private bool _isEnableSaveState = true;
 
 
         protected List<GalleryMediaModel> Media { get; }
@@ -131,8 +130,8 @@ namespace Steepshot.Fragment
                 PreviewContainer.LayoutParameters = layoutParams;
                 Preview.Touch += PreviewOnTouch;
 
-                if (Media[0].UploadState >= UploadState.Saved)
-                    Preview.SetImageBitmap(Media[0]);
+                if (!string.IsNullOrEmpty(Media[0].TempPath))
+                    Preview.SetImageBitmap(Media[0].TempPath);
             }
             else
             {
@@ -165,48 +164,44 @@ namespace Steepshot.Fragment
             touchEventArgs.Handled = true;
         }
 
-        protected async Task ConvertAndSave()
+        protected Task<bool> ConvertAndSave()
         {
-            await Task.Run(() =>
+            return Task.Run(() =>
             {
                 try
                 {
-                    if (Media.All(m => m.UploadState != UploadState.ReadyToSave))
-                        return;
-
                     for (var i = 0; i < Media.Count; i++)
                     {
                         var model = Media[i];
-                        if (model.UploadState == UploadState.ReadyToSave)
+
+                        if (!string.IsNullOrEmpty(model.TempPath))
+                            continue;
+
+                        model.TempPath = CropAndSave(model);
+                        model.UploadState = UploadState.ReadyToUpload;
+
+                        if (!IsInitialized)
+                            break;
+
+                        var i1 = i;
+                        Activity.RunOnUiThread(() =>
                         {
-                            model.TempPath = CropAndSave(model);
-                            if (string.IsNullOrEmpty(model.TempPath))
-                                continue;
-                            model.UploadState = UploadState.Saved;
-
-                            if (!IsInitialized)
-                                break;
-
-                            var i1 = i;
-                            Activity.RunOnUiThread(() =>
-                            {
-                                if (_isSingleMode)
-                                    Preview.SetImageBitmap(Media[i1]);
-                                else
-                                    _galleryAdapter.NotifyItemChanged(i1);
-                            });
-                        }
+                            if (_isSingleMode)
+                                Preview.SetImageBitmap(model.TempPath);
+                            else
+                                _galleryAdapter.NotifyItemChanged(i1);
+                        });
                     }
 
-                    //SaveGalleryTemp();
+                    return true;
                 }
                 catch (Exception ex)
                 {
                     AppSettings.Logger.ErrorAsync(ex);
+                    return false;
                 }
             });
         }
-
 
         public string CropAndSave(GalleryMediaModel model)
         {
@@ -356,7 +351,7 @@ namespace Steepshot.Fragment
                 for (var i = 0; i < Media.Count; i++)
                 {
                     var media = Media[i];
-                    if (!(media.UploadState == UploadState.Saved || media.UploadState == UploadState.UploadError))
+                    if (media.UploadState != UploadState.ReadyToUpload)
                         continue;
 
                     var operationResult = await UploadMedia(media);
@@ -374,7 +369,7 @@ namespace Steepshot.Fragment
                 }
 
 
-                if (Media.All(m => m.UploadState == UploadState.UploadEnd))
+                if (Media.All(m => m.UploadState > UploadState.ReadyToUpload))
                     break;
 
                 repeatCount++;
@@ -384,8 +379,7 @@ namespace Steepshot.Fragment
 
         private async Task<OperationResult<UUIDModel>> UploadMedia(GalleryMediaModel model)
         {
-            model.UploadState = UploadState.UploadStart;
-            System.IO.Stream stream = null;
+            StreamConverter stream = null;
             FileInputStream fileInputStream = null;
 
             try
@@ -396,20 +390,16 @@ namespace Steepshot.Fragment
 
                 var request = new UploadMediaModel(AppSettings.User.UserInfo, stream, System.IO.Path.GetExtension(model.TempPath));
                 var serverResult = await Presenter.TryUploadMediaAsync(request);
-                model.UploadState = UploadState.UploadEnd;
+                model.UploadState = UploadState.ReadyToVerify;
                 return serverResult;
             }
             catch (Exception ex)
             {
-                model.UploadState = UploadState.UploadError;
                 await AppSettings.Logger.ErrorAsync(ex);
                 return new OperationResult<UUIDModel>(new InternalException(LocalizationKeys.PhotoUploadError, ex));
             }
             finally
             {
-                fileInputStream?.Close(); // ??? change order?
-                stream?.Flush();
-                fileInputStream?.Dispose();
                 stream?.Dispose();
             }
         }
@@ -421,7 +411,7 @@ namespace Steepshot.Fragment
                 for (var i = 0; i < Media.Count; i++)
                 {
                     var media = Media[i];
-                    if (media.UploadState != UploadState.UploadEnd)
+                    if (media.UploadState != UploadState.ReadyToVerify)
                         continue;
 
                     var operationResult = await Presenter.TryGetMediaStatusAsync(media.UploadMediaUuid);
@@ -434,7 +424,7 @@ namespace Steepshot.Fragment
                         {
                             case UploadMediaCode.Done:
                                 {
-                                    media.UploadState = UploadState.UploadVerified;
+                                    media.UploadState = UploadState.ReadyToResult;
                                     //SaveGalleryTemp();
                                 }
                                 break;
@@ -442,7 +432,7 @@ namespace Steepshot.Fragment
                             case UploadMediaCode.FailedToUpload:
                             case UploadMediaCode.FailedToSave:
                                 {
-                                    media.UploadState = UploadState.UploadError;
+                                    media.UploadState = UploadState.ReadyToUpload;
                                     //SaveGalleryTemp();
                                 }
                                 break;
@@ -450,7 +440,7 @@ namespace Steepshot.Fragment
                     }
                 }
 
-                if (Media.All(m => m.UploadState != UploadState.UploadEnd))
+                if (Media.All(m => m.UploadState != UploadState.ReadyToVerify))
                     break;
 
                 await Task.Delay(3000);
@@ -468,7 +458,7 @@ namespace Steepshot.Fragment
             for (var i = 0; i < Media.Count; i++)
             {
                 var media = Media[i];
-                if (media.UploadState != UploadState.UploadVerified)
+                if (media.UploadState != UploadState.ReadyToResult)
                     continue;
 
                 var mediaResult = await Presenter.TryGetMediaResultAsync(media.UploadMediaUuid);
@@ -543,27 +533,12 @@ namespace Steepshot.Fragment
                 if (!spamCheck.IsSuccess)
                     return;
 
-                if (spamCheck.Result.IsSpam)
+                IsSpammer = spamCheck.Result.IsSpam | spamCheck.Result.WaitingTime > 0;
+
+                if (spamCheck.Result.WaitingTime > 0)
                 {
-                    // more than 15 posts
-                    IsSpammer = true;
-                    PostingLimit = TimeSpan.FromHours(24);
-                    StartPostTimer((int)spamCheck.Result.WaitingTime);
-                    Activity.ShowAlert(LocalizationKeys.PostsDayLimit, ToastLength.Long);
-                }
-                else
-                {
-                    if (spamCheck.Result.WaitingTime > 0)
-                    {
-                        IsSpammer = true;
-                        PostingLimit = TimeSpan.FromMinutes(5);
-                        StartPostTimer((int)spamCheck.Result.WaitingTime);
-                        Activity.ShowAlert(LocalizationKeys.Posts5minLimit, ToastLength.Long);
-                    }
-                    else
-                    {
-                        IsSpammer = false;
-                    }
+                    StartPostTimer(spamCheck.Result);
+                    Activity.ShowAlert(LocalizationKeys.Posts5minLimit, ToastLength.Long);
                 }
             }
             catch (Exception ex)
@@ -572,23 +547,21 @@ namespace Steepshot.Fragment
             }
         }
 
-        private async void StartPostTimer(int startSeconds)
+        private async void StartPostTimer(SpamResponse spamResponse)
         {
-            var timepassed = PostingLimit - TimeSpan.FromSeconds(startSeconds);
+            var delay = DateTime.Now.AddSeconds(spamResponse.WaitingTime);
             LoadingSpinner.Visibility = ViewStates.Gone;
 
-            while (timepassed < PostingLimit)
+            while (delay > DateTime.Now)
             {
-                var delay = PostingLimit - timepassed;
-                var timeFormat = delay.TotalHours >= 1 ? "hh\\:mm\\:ss" : "mm\\:ss";
-                PostButton.Text = delay.ToString(timeFormat);
+                var rest = DateTime.Now - delay;
+                var timeFormat = rest.TotalHours >= 1 ? "hh\\:mm\\:ss" : "mm\\:ss";
+                PostButton.Text = rest.ToString(timeFormat);
                 PostButton.Enabled = false;
 
                 await Task.Delay(1000);
                 if (!IsInitialized)
                     return;
-
-                timepassed = timepassed.Add(TimeSpan.FromSeconds(1));
             }
 
             IsSpammer = null;
@@ -729,7 +702,7 @@ namespace Steepshot.Fragment
                 _image.SetImageBitmap(null);
                 _image.SetImageResource(Style.R245G245B245);
 
-                if (model.UploadState > UploadState.ReadyToSave)
+                if (!string.IsNullOrEmpty(model.TempPath))
                 {
                     var bitmap = BitmapUtils.DecodeSampledBitmapFromFile(ItemView.Context, Android.Net.Uri.Parse(model.TempPath), Style.GalleryHorizontalScreenWidth, Style.GalleryHorizontalHeight);
                     _image.SetImageBitmap(bitmap);

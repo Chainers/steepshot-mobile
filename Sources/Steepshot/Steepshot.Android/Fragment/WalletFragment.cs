@@ -11,9 +11,11 @@ using Android.Util;
 using Android.Views;
 using Android.Widget;
 using CheeseBind;
+using Ditch.Core.JsonRpc;
 using Steepshot.Activity;
 using Steepshot.Adapter;
 using Steepshot.Base;
+using Steepshot.Core;
 using Steepshot.Core.Authorization;
 using Steepshot.Core.Extensions;
 using Steepshot.Core.Localization;
@@ -186,7 +188,14 @@ namespace Steepshot.Fragment
         private void LoadNextAccount() => Task.Run(async () =>
         {
             var currAcc = Presenter.Current;
-            Presenter.SetClient(currAcc?.Chain == Core.KnownChains.Steem ? App.SteemClient : App.GolosClient);
+            if (currAcc == null)
+                return;
+
+            if (currAcc.Chain == KnownChains.Golos)
+                Presenter.SetClient(AppSettings.SteepshoGolostClient, AppSettings.GolosClient);
+            else
+                Presenter.SetClient(AppSettings.SteepshotSteemClient, AppSettings.SteemClient);
+
             var exception = await Presenter.TryLoadNextAccountInfoAsync();
             if (exception == null && IsInitialized && !IsDetached)
                 Activity.RunOnUiThread(() =>
@@ -295,12 +304,12 @@ namespace Steepshot.Fragment
             claimRewardsDialog.Show();
         }
 
-        private async Task<Exception> Claim(BalanceModel balance)
+        private async Task<OperationResult<VoidResponse>> Claim(BalanceModel balance)
         {
-            var error = await Presenter.TryClaimRewardsAsync(balance);
-            if (error == null)
+            var result = await Presenter.TryClaimRewardsAsync(balance);
+            if (result.IsSuccess)
                 _claimBtn.Visibility = ViewStates.Gone;
-            return error;
+            return result;
         }
 
         private void OnPageTransforming(TokenCardHolder fromCard, TokenCardHolder toCard, float progress)

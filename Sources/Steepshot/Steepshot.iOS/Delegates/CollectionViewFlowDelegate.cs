@@ -121,9 +121,9 @@ namespace Steepshot.iOS.Helpers
             }
         }
 
-        public void UpdateProfile(UserProfileResponse userData)
+        public void UpdateProfile()
         {
-            profileHeight = profileCell.UpdateProfile(userData);
+            profileHeight = profileCell.UpdateProfile(((UserProfilePresenter)_presenter).UserProfileResponse);
         }
 
         public override CGSize GetSizeForItem(UICollectionView collectionView, UICollectionViewLayout layout, NSIndexPath indexPath)

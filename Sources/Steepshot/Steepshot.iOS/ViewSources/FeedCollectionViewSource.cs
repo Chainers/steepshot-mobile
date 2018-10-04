@@ -19,7 +19,6 @@ namespace Steepshot.iOS.ViewSources
         public event Action<ActionType, Post> CellAction;
         public event Action<ActionType> ProfileAction;
         public event Action<string> TagAction;
-        public UserProfileResponse user;
         private readonly List<NewFeedCollectionViewCell> _feedCellsList = new List<NewFeedCollectionViewCell>();
         protected readonly BasePostPresenter _presenter;
         private readonly CollectionViewFlowDelegate _flowDelegate;
@@ -56,8 +55,6 @@ namespace Steepshot.iOS.ViewSources
 
                     if (!_flowDelegate.profileCell.IsProfileActionSet)
                         _flowDelegate.profileCell.ProfileAction += ProfileAction;
-
-                    _flowDelegate.UpdateProfile(null);
 
                     return profile;
                 }
@@ -118,7 +115,10 @@ namespace Steepshot.iOS.ViewSources
                 item.Cell.ReleaseCell();
             }
 
+            _flowDelegate.profileCell.ReleaseCell();
+            _flowDelegate.profileCell.RemoveFromSuperview();
             _flowDelegate.profileCell.ProfileAction -= ProfileAction;
+            _flowDelegate.profileCell = null;
             _presenter.SourceChanged -= SourceChanged;
         }
     }

@@ -4,7 +4,8 @@ using Android.App;
 using Android.Content;
 using Android.Net;
 using Steepshot.Base;
-using Steepshot.Core.Services;
+using Steepshot.Core.Interfaces;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.Services
 {
@@ -29,7 +30,7 @@ namespace Steepshot.Services
 
         private bool TryToConnect()
         {
-            if (App.HttpClient == null)
+            if (AppSettings.ExtendedHttpClient == null)
                 return false;
 
             try

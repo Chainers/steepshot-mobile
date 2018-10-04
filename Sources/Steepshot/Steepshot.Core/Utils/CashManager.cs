@@ -2,9 +2,9 @@
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Responses;
 
-namespace Steepshot.Core.Presenters
+namespace Steepshot.Core.Utils
 {
-    internal static class CashPresenterManager
+    internal static class CashManager
     {
         private static readonly Dictionary<string, Container<Post>> PostsCash = new Dictionary<string, Container<Post>>();
         private static readonly Dictionary<string, HashSet<IFollowable>> FollowableCash = new Dictionary<string, HashSet<IFollowable>>();
@@ -110,7 +110,6 @@ namespace Steepshot.Core.Presenters
 
         #endregion
 
-
         #region FollowableCash
 
         public static void Add(IEnumerable<IFollowable> items)
@@ -188,7 +187,6 @@ namespace Steepshot.Core.Presenters
         }
 
         #endregion
-
 
     }
 }

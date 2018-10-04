@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace Steepshot.Core.Services
+namespace Steepshot.Core.Interfaces
 {
     public interface ILogService
     {

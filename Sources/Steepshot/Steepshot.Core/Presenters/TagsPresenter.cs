@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
+using Steepshot.Core.Clients;
 using Steepshot.Core.Extensions;
+using Steepshot.Core.Interfaces;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
+using Steepshot.Core.Models.Responses;
 
 namespace Steepshot.Core.Presenters
 {
@@ -12,28 +14,33 @@ namespace Steepshot.Core.Presenters
     {
         private const int ItemsLimit = 40;
 
-        public async Task<Exception> TryLoadNextAsync(string s, bool shouldClear = true, bool showUnknownTag = false)
+        private readonly SteepshotApiClient _steepshotApiClient;
+
+        public TagsPresenter(IConnectionService connectionService, ILogService logService, SteepshotApiClient steepshotApiClient)
+            : base(connectionService, logService)
         {
-            return await RunAsSingleTaskAsync(LoadNextAsync, new Tuple<string, bool, bool>(s, shouldClear, showUnknownTag)).ConfigureAwait(false);
+            _steepshotApiClient = steepshotApiClient;
         }
 
-        private async Task<Exception> LoadNextAsync(Tuple<string, bool, bool> queryParams, CancellationToken ct)
+        public async Task<OperationResult<ListResponse<SearchResult>>> TryLoadNextAsync(string s, bool shouldClear = true, bool showUnknownTag = false)
         {
-            if (queryParams.Item2)
+            if (shouldClear)
                 Clear();
 
-            var request = new SearchWithQueryModel(queryParams.Item1.TagToEn())
+            var request = new SearchWithQueryModel(s.TagToEn())
             {
                 Offset = OffsetUrl,
                 Limit = ItemsLimit
             };
 
-            var response = await Api.SearchCategoriesAsync(request, ct).ConfigureAwait(false);
+            var response = await RunAsSingleTaskAsync(_steepshotApiClient.SearchCategoriesAsync, request)
+                .ConfigureAwait(false);
 
             if (response.IsSuccess)
             {
-                if (queryParams.Item2)
+                if (shouldClear)
                     Clear();
+
                 var tags = response.Result.Results;
                 if (tags.Count > 0)
                 {
@@ -43,23 +50,24 @@ namespace Steepshot.Core.Presenters
                     }
                     OffsetUrl = tags.Last().Name;
                 }
-                else if ((Items.Count == 0 || Items.Count == 1) && queryParams.Item3)
+                else
+                {
                     lock (Items)
-                        Items.Add(new SearchResult() { Name = queryParams.Item1 });
+                    {
+                        if ((Items.Count == 0 || Items.Count == 1) && showUnknownTag)
+                            Items.Add(new SearchResult { Name = s });
+                    }
+                }
 
                 if (tags.Count < Math.Min(ServerMaxCount, ItemsLimit))
                     IsLastReaded = true;
+
                 NotifySourceChanged(nameof(TryLoadNextAsync), true);
             }
-            return response.Exception;
+            return response;
         }
 
-        public async Task<Exception> TryGetTopTagsAsync()
-        {
-            return await RunAsSingleTaskAsync(GetTopTagsAsync).ConfigureAwait(false);
-        }
-
-        private async Task<Exception> GetTopTagsAsync(CancellationToken ct)
+        public async Task<OperationResult<ListResponse<SearchResult>>> TryGetTopTagsAsync()
         {
             Clear();
             var request = new OffsetLimitModel()
@@ -68,7 +76,9 @@ namespace Steepshot.Core.Presenters
                 Limit = ItemsLimit
             };
 
-            var response = await Api.GetCategoriesAsync(request, ct).ConfigureAwait(false);
+
+            var response = await RunAsSingleTaskAsync(_steepshotApiClient.GetCategoriesAsync, request)
+                .ConfigureAwait(false);
 
             if (response.IsSuccess)
             {
@@ -86,7 +96,7 @@ namespace Steepshot.Core.Presenters
                     IsLastReaded = true;
                 NotifySourceChanged(nameof(TryGetTopTagsAsync), true);
             }
-            return response.Exception;
+            return response;
         }
     }
 }

@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Android.Views;
 using Android.Widget;
+using Steepshot.Core.Localization;
 using Steepshot.Utils;
 
 namespace Steepshot.Fragment
@@ -13,7 +15,7 @@ namespace Steepshot.Fragment
             : base(new List<GalleryMediaModel> { media }) { }
 
 
-        protected override async void InitData()
+        protected override void InitData()
         {
             Photos.Visibility = ViewStates.Gone;
             PreviewContainer.Visibility = ViewStates.Visible;
@@ -30,14 +32,12 @@ namespace Steepshot.Fragment
             RatioBtn.Click += RatioBtnOnClick;
             RotateBtn.Click += RotateBtnOnClick;
 
-            Media[0].UploadState = UploadState.Prepare;
-
             CheckOnSpam();
         }
 
         private void PreviewOnTouch(object sender, View.TouchEventArgs touchEventArgs)
         {
-            if (Media[0].UploadState < UploadState.ReadyToSave)
+            if (string.IsNullOrEmpty(Media[0].TempPath))
             {
                 Preview.OnTouchEvent(touchEventArgs.Event);
                 if (touchEventArgs.Event.Action == MotionEventActions.Down)
@@ -49,16 +49,20 @@ namespace Steepshot.Fragment
 
         protected override async Task OnPostAsync()
         {
-            if (Media[0].UploadState == UploadState.Prepare)
+            if (Media.Any(m => string.IsNullOrEmpty(m.TempPath)))
             {
                 RatioBtn.Click -= RatioBtnOnClick;
                 RotateBtn.Click -= RotateBtnOnClick;
                 RatioBtn.Visibility = ViewStates.Gone;
                 RotateBtn.Visibility = ViewStates.Gone;
-                Media[0].Parameters = Preview.DrawableImageParameters.Copy();
-                Media[0].UploadState = UploadState.ReadyToSave;
+                Media.ForEach(m => m.Parameters = Preview.DrawableImageParameters.Copy());
 
-                await ConvertAndSave();
+                var isSaved = await ConvertAndSave();
+                if (!isSaved)
+                {
+                    Context.ShowAlert(LocalizationKeys.PhotoProcessingError, ToastLength.Long);
+                    return;
+                }
             }
 
             await base.OnPostAsync();

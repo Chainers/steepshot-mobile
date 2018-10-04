@@ -11,7 +11,6 @@ using Steepshot.iOS.ViewSources;
 using UIKit;
 using Steepshot.Core.Utils;
 using System.Threading.Tasks;
-using Steepshot.Core;
 using Steepshot.Core.Exceptions;
 using Steepshot.Core.Localization;
 
@@ -23,7 +22,7 @@ namespace Steepshot.iOS.Views
         private FollowTableViewSource _userTableSource;
         private TagsTableViewSource _tagsSource;
         private SearchType _searchType = SearchType.Tags;
-        private readonly SearchFacade _searchFacade = new SearchFacade();
+        private readonly SearchFacade _searchFacade;
         private readonly UIBarButtonItem _leftBarButton = new UIBarButtonItem();
 
         private readonly Dictionary<SearchType, string> _prevQuery = new Dictionary<SearchType, string>
@@ -34,8 +33,8 @@ namespace Steepshot.iOS.Views
 
         public TagsSearchViewController()
         {
-            var client = AppDelegate.MainChain == KnownChains.Steem ? AppDelegate.SteemClient : AppDelegate.GolosClient;
-            _searchFacade.SetClient(client);
+            _searchFacade = AppSettings.GetFacade<SearchFacade>(AppSettings.MainChain);
+
             _timer = new Timer(OnTimer);
         }
 
@@ -171,8 +170,8 @@ namespace Steepshot.iOS.Views
         {
             if (user != null)
             {
-                var exception = await _searchFacade.UserFriendPresenter.TryFollowAsync(user);
-                ShowAlert(exception);
+                var result = await _searchFacade.UserFriendPresenter.TryFollowAsync(user);
+                ShowAlert(result);
             }
         }
 

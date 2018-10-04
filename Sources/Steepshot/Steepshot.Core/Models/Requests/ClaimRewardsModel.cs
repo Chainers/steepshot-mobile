@@ -4,7 +4,7 @@ using Steepshot.Core.Authorization;
 namespace Steepshot.Core.Models.Requests
 {
     [JsonObject(MemberSerialization.OptIn)]
-    public class ClaimRewardsModel : AuthorizedPostingModel
+    public class ClaimRewardsModel : AuthorizedWifModel
     {
         public double RewardSteem { get; set; }
 

@@ -1,5 +1,5 @@
 ﻿using Android.App;
-using Steepshot.Core.Services;
+using Steepshot.Core.Interfaces;
 
 namespace Steepshot.Services
 {

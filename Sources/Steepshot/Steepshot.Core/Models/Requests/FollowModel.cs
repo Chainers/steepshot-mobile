@@ -7,7 +7,7 @@ using Steepshot.Core.Models.Enums;
 namespace Steepshot.Core.Models.Requests
 {
     [JsonObject(MemberSerialization.OptIn)]
-    public class FollowModel : AuthorizedPostingModel
+    public class FollowModel : AuthorizedWifModel
     {
         [JsonProperty]
         public FollowType Type { get; }

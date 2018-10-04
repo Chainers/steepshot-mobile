@@ -11,7 +11,6 @@ using Android.Widget;
 using CheeseBind;
 using Steepshot.Activity;
 using Steepshot.Base;
-using Steepshot.Core;
 using Steepshot.Core.Extensions;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Common;
@@ -25,6 +24,7 @@ namespace Steepshot.Fragment
 {
     public class PowerUpDownFragment : BaseFragmentWithPresenter<TransferPresenter>
     {
+#pragma warning disable 0649, 4014
         [BindView(Resource.Id.title)] private TextView _fragmentTitle;
         [BindView(Resource.Id.arrow_back)] private ImageButton _backBtn;
         [BindView(Resource.Id.token1)] private TextView _tokenOneTitle;
@@ -38,6 +38,7 @@ namespace Steepshot.Fragment
         [BindView(Resource.Id.max)] private Button _maxBtn;
         [BindView(Resource.Id.powerBtn)] private Button _powerBtn;
         [BindView(Resource.Id.power_spinner)] private ProgressBar _powerBtnLoader;
+#pragma warning restore 0649
 
         private readonly BalanceModel _balance;
         private readonly PowerAction _powerAction;
@@ -63,6 +64,11 @@ namespace Steepshot.Fragment
             return InflatedView;
         }
 
+        protected override void CreatePresenter()
+        {
+            Presenter = AppSettings.GetPresenter<TransferPresenter>(_balance.UserInfo.Chain);
+        }
+
         public override void OnViewCreated(View view, Bundle savedInstanceState)
         {
             if (IsInitialized)
@@ -70,8 +76,6 @@ namespace Steepshot.Fragment
 
             base.OnViewCreated(view, savedInstanceState);
             ToggleTabBar(true);
-
-            Presenter.SetClient(_balance.UserInfo.Chain == KnownChains.Steem ? App.SteemClient : App.GolosClient);
 
             _fragmentTitle.Typeface = Style.Semibold;
             _tokenOneTitle.Typeface = Style.Semibold;
@@ -209,7 +213,7 @@ namespace Steepshot.Fragment
                 return;
             }
 
-            var doPowerConfirmation = AppSettings.LocalizationManager.GetText(LocalizationKeys.PowerUpDownConfirmation, _powerActionText.ToLower() ,_powerAmount, _balance.CurrencyType);
+            var doPowerConfirmation = AppSettings.LocalizationManager.GetText(LocalizationKeys.PowerUpDownConfirmation, _powerActionText.ToLower(), _powerAmount, _balance.CurrencyType);
             var actionAlert = new ActionAlertDialog(Context, doPowerConfirmation,
                                                     AppSettings.LocalizationManager.GetText(string.Empty),
                                                     AppSettings.LocalizationManager.GetText(LocalizationKeys.Yes),

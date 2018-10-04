@@ -4,69 +4,88 @@ using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
 using Ditch.Core.JsonRpc;
+using Newtonsoft.Json;
+using Steepshot.Core.Clients;
+using Steepshot.Core.Interfaces;
 
 namespace Steepshot.Core.Presenters
 {
     public sealed class PostDescriptionPresenter : BasePresenter
     {
-        public async Task<OperationResult<UUIDModel>> TryUploadMediaAsync(UploadMediaModel model)
+        private readonly BaseDitchClient _ditchClient;
+        private readonly SteepshotApiClient _steepshotApiClient;
+        private readonly SteepshotClient _steepshotClient;
+
+        public PostDescriptionPresenter(IConnectionService connectionService, ILogService logService, BaseDitchClient ditchClient, SteepshotApiClient steepshotApiClient, SteepshotClient steepshotClient)
+            : base(connectionService, logService)
         {
-            return await TryRunTaskAsync<UploadMediaModel, UUIDModel>(UploadMediaAsync, OnDisposeCts.Token, model).ConfigureAwait(false);
+            _ditchClient = ditchClient;
+            _steepshotApiClient = steepshotApiClient;
+            _steepshotClient = steepshotClient;
         }
 
-        private async Task<OperationResult<UUIDModel>> UploadMediaAsync(UploadMediaModel model, CancellationToken ct)
+        public async Task<OperationResult<UUIDModel>> TryUploadMediaAsync(UploadMediaModel model)
         {
-            return await Api.UploadMediaAsync(model, ct).ConfigureAwait(false);
+            return await TaskHelper.TryRunTaskAsync(_steepshotClient.UploadMediaAsync, model, OnDisposeCts.Token).ConfigureAwait(false);
         }
 
         public async Task<OperationResult<UploadMediaStatusModel>> TryGetMediaStatusAsync(UUIDModel uuid)
         {
-            return await TryRunTaskAsync<UUIDModel, UploadMediaStatusModel>(GetMediaStatusAsync, OnDisposeCts.Token, uuid).ConfigureAwait(false);
-        }
-
-        private async Task<OperationResult<UploadMediaStatusModel>> GetMediaStatusAsync(UUIDModel uuid, CancellationToken ct)
-        {
-            return await Api.GetMediaStatusAsync(uuid, ct).ConfigureAwait(false);
+            return await TaskHelper.TryRunTaskAsync(_steepshotApiClient.GetMediaStatusAsync, uuid, OnDisposeCts.Token).ConfigureAwait(false);
         }
 
         public async Task<OperationResult<MediaModel>> TryGetMediaResultAsync(UUIDModel uuid)
         {
-            return await TryRunTaskAsync<UUIDModel, MediaModel>(GetMediaResultAsync, OnDisposeCts.Token, uuid).ConfigureAwait(false);
-        }
-
-        private async Task<OperationResult<MediaModel>> GetMediaResultAsync(UUIDModel uuid, CancellationToken ct)
-        {
-            return await Api.GetMediaResultAsync(uuid, ct).ConfigureAwait(false);
+            return await TaskHelper.TryRunTaskAsync(_steepshotApiClient.GetMediaResultAsync, uuid, OnDisposeCts.Token).ConfigureAwait(false);
         }
 
         public async Task<OperationResult<PreparePostResponse>> TryCheckForPlagiarismAsync(PreparePostModel model)
         {
-            return await TryRunTaskAsync<PreparePostModel, PreparePostResponse>(CheckForPlagiarismAsync, OnDisposeCts.Token, model).ConfigureAwait(false);
-        }
-
-        private async Task<OperationResult<PreparePostResponse>> CheckForPlagiarismAsync(PreparePostModel model, CancellationToken ct)
-        {
-            return await Api.CheckPostForPlagiarismAsync(model, ct).ConfigureAwait(false);
+            return await TaskHelper.TryRunTaskAsync(_steepshotApiClient.CheckPostForPlagiarismAsync, model, OnDisposeCts.Token).ConfigureAwait(false);
         }
 
         public async Task<OperationResult<VoidResponse>> TryCreateOrEditPostAsync(PreparePostModel model)
         {
-            return await TryRunTaskAsync<PreparePostModel, VoidResponse>(CreateOrEditPostAsync, OnDisposeCts.Token, model).ConfigureAwait(false);
+            return await TaskHelper.TryRunTaskAsync(CreateOrEditPostAsync, model, OnDisposeCts.Token).ConfigureAwait(false);
         }
 
         private async Task<OperationResult<VoidResponse>> CreateOrEditPostAsync(PreparePostModel model, CancellationToken ct)
         {
-            return await Api.CreateOrEditPostAsync(model, ct).ConfigureAwait(false);
+            var operationResult = await _steepshotApiClient.PreparePostAsync(model, ct).ConfigureAwait(false);
+
+            if (!operationResult.IsSuccess)
+                return new OperationResult<VoidResponse>(operationResult.Exception);
+
+            var preparedData = operationResult.Result;
+            var meta = JsonConvert.SerializeObject(preparedData.JsonMetadata);
+            var commentModel = new CommentModel(model, preparedData.Body, meta);
+            if (!model.IsEditMode)
+                commentModel.Beneficiaries = preparedData.Beneficiaries;
+
+            var result = await _ditchClient.CreateOrEditAsync(commentModel, ct).ConfigureAwait(false);
+            if (model.IsEditMode)
+            {
+                await _steepshotApiClient.TraceAsync($"post/{model.PostPermlink}/edit", model.Login, result.Exception, model.PostPermlink, ct).ConfigureAwait(false);
+            }
+            else
+            {
+                await _steepshotApiClient.TraceAsync("post", model.Login, result.Exception, model.PostPermlink, ct).ConfigureAwait(false);
+            }
+
+            var infoModel = new NamedInfoModel($"@{model.Author}/{model.Permlink}")
+            {
+                Login = model.Login,
+                ShowLowRated = true,
+                ShowNsfw = true
+            };
+            var postInfo = await _steepshotApiClient.GetPostInfoAsync(infoModel, ct).ConfigureAwait(false);
+
+            return result;
         }
 
         public async Task<OperationResult<SpamResponse>> TryCheckForSpamAsync(string username)
         {
-            return await TryRunTaskAsync<string, SpamResponse>(CheckForSpamAsync, OnDisposeCts.Token, username).ConfigureAwait(false);
-        }
-
-        private async Task<OperationResult<SpamResponse>> CheckForSpamAsync(string username, CancellationToken token)
-        {
-            return await Api.CheckForSpamAsync(username, token).ConfigureAwait(false);
+            return await TaskHelper.TryRunTaskAsync(_steepshotApiClient.CheckForSpamAsync, username, OnDisposeCts.Token).ConfigureAwait(false);
         }
     }
 }

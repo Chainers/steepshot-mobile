@@ -16,7 +16,6 @@ using System.Globalization;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Activity;
-using Steepshot.Base;
 using Steepshot.Core;
 
 namespace Steepshot.CustomViews
@@ -50,8 +49,7 @@ namespace Steepshot.CustomViews
 
         public PromoteAlertDialog(Context context, Post post, Action<AutoLinkType, string> autoLinkAction) : this(context)
         {
-            _presenter = new PromotePresenter();
-            _presenter.SetClient(AppSettings.User.Chain == KnownChains.Steem ? App.SteemClient : App.GolosClient);
+            _presenter = AppSettings.GetPresenter<PromotePresenter>(AppSettings.User.Chain);
             _post = post;
             _autoLinkAction = autoLinkAction;
             ShowEvent += OnShowEvent;

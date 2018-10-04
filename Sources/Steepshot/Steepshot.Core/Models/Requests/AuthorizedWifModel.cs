@@ -6,7 +6,7 @@ using Steepshot.Core.Localization;
 namespace Steepshot.Core.Models.Requests
 {
     [JsonObject(MemberSerialization.OptIn)]
-    public class AuthorizedPostingModel
+    public class AuthorizedWifModel
     {
         [Required(ErrorMessage = nameof(LocalizationKeys.EmptyUsernameField))]
         public string Login { get; }
@@ -15,15 +15,15 @@ namespace Steepshot.Core.Models.Requests
         public string PostingKey { get; }
 
 
-        public AuthorizedPostingModel(string login, string postingKey)
+        public AuthorizedWifModel(string login, string postingKey)
         {
             Login = login;
             PostingKey = postingKey;
         }
 
-        public AuthorizedPostingModel() { }
+        public AuthorizedWifModel() { }
 
-        public AuthorizedPostingModel(UserInfo user)
+        public AuthorizedWifModel(UserInfo user)
             : this(user.Login, user.PostingKey)
         {
         }

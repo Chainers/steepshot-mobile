@@ -3,9 +3,8 @@ using System.IO;
 using Android.Content.Res;
 using Newtonsoft.Json;
 using Steepshot.Core.Clients;
-using Steepshot.Core.Localization;
+using Steepshot.Core.Interfaces;
 using Steepshot.Core.Utils;
-using Steepshot.Core.Services;
 
 namespace Steepshot.Utils
 {
@@ -28,52 +27,27 @@ namespace Steepshot.Utils
             return TryReadJsonAsset<ConfigInfo>("Config.txt");
         }
 
-        public LocalizationModel GetLocalization(string lang)
+        public string GetLocalization(string lang)
         {
+            var txt = string.Empty;
+            Stream stream = null;
+            StreamReader sr = null;
             try
             {
-                string txt;
-                var stream = _assetManager.Open($@"Languages/{lang}/dic.xml");
-                using (var sr = new StreamReader(stream))
-                    txt = sr.ReadToEnd();
-
-                stream.Dispose();
-                if (!string.IsNullOrWhiteSpace(txt))
-                {
-                    var model = new LocalizationModel();
-                    LocalizationManager.Update(txt, model);
-                    return model;
-                }
+                stream = _assetManager.Open($@"Languages/{lang}/dic.xml");
+                sr = new StreamReader(stream);
+                txt = sr.ReadToEnd();
             }
             catch (System.Exception ex)
             {
                 AppSettings.Logger.WarningAsync(ex);
             }
-            return new LocalizationModel();
-        }
-
-        public HashSet<string> TryReadCensoredWords()
-        {
-            var hs = new HashSet<string>();
-            try
+            finally
             {
-                var stream = _assetManager.Open("CensoredWords.txt");
-                using (var sr = new StreamReader(stream))
-                {
-                    while (!sr.EndOfStream)
-                    {
-                        var word = sr.ReadLine();
-                        if (!string.IsNullOrEmpty(word) && !hs.Contains(word))
-                            hs.Add(word.ToUpperInvariant());
-                    }
-                }
-                stream.Dispose();
+                sr?.Dispose();
+                stream?.Dispose();
             }
-            catch (System.Exception ex)
-            {
-                AppSettings.Logger.WarningAsync(ex);
-            }
-            return hs;
+            return txt;
         }
 
         public List<NodeConfig> SteemNodesConfig()

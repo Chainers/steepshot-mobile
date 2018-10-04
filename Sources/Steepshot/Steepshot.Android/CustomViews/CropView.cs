@@ -275,14 +275,14 @@ namespace Steepshot.CustomViews
             Invalidate();
         }
 
-        public void SetImageBitmap(GalleryMediaModel model)
+        public void SetImageBitmap(string filePath)
         {
             _reloadImage = false;
             BitmapUtils.ReleaseBitmap(_drawable);
-            _drawable = Drawable.CreateFromPath(model.TempPath);
+            _drawable = Drawable.CreateFromPath(filePath);
 
             var options = new BitmapFactory.Options { InJustDecodeBounds = true };
-            BitmapFactory.DecodeFile(model.TempPath, options);
+            BitmapFactory.DecodeFile(filePath, options);
 
             _imageRawWidth = options.OutWidth;
             _imageRawHeight = options.OutHeight;
