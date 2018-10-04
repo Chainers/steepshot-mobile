@@ -49,6 +49,7 @@ namespace Steepshot.iOS.Views
         private UIDeviceOrientation orientationOnPhoto;
         private NSObject _orientationChangeEventToken;
         private AVAuthorizationStatus _authorizationAudioStatus;
+        private AVAssetExportSession exportSession;
 
         private UIView _bottomPanel;
         private UIButton _photoTabButton;
@@ -64,9 +65,11 @@ namespace Steepshot.iOS.Views
         private CAShapeLayer _sl;
         private CABasicAnimation _animation;
         private UIBezierPath _bezierPath;
+        private NSUrl _exportLocation;
         private bool _initialized;
         private bool _isRecording;
         private bool _isCancelled;
+        private bool _successfulRecord;
         private float _activePanelHeight;
 
         public override void ViewDidLoad()
@@ -547,7 +550,7 @@ namespace Steepshot.iOS.Views
 
                 var x = ((float)inSampleSize.Width - Core.Constants.PhotoMaxSize * (float)deviceRatio) / 2f;
                 photo = ImageHelper.CropImage(photo, x, 0, Core.Constants.PhotoMaxSize * (float)deviceRatio, Core.Constants.PhotoMaxSize, inSampleSize);
-                GoToDescription(photo, orientationOnPhoto);
+                SendPhotoToDescription(photo, orientationOnPhoto);
             }
             catch (Exception ex)
             {
@@ -741,10 +744,15 @@ namespace Steepshot.iOS.Views
             return null;
         }
 
-        private void GoToDescription(UIImage image, UIDeviceOrientation orientation)
+        private void SendPhotoToDescription(UIImage image, UIDeviceOrientation orientation)
         {
             var descriptionViewController = new DescriptionViewController(new List<Tuple<NSDictionary, UIImage>>() { new Tuple<NSDictionary, UIImage>(null, image) }, "jpg", orientation);
             NavigationController.PushViewController(descriptionViewController, true);
+        }
+
+        private void SendVideoToDescription()
+        { 
+            
         }
 
         public void DidEnterBackground()
@@ -765,6 +773,13 @@ namespace Steepshot.iOS.Views
                 _isCancelled = false;
                 CleanupLocation(outputFileUrl);
                 return;
+            }
+
+            _successfulRecord = true;
+            if (error != null)
+            {
+                if (error.LocalizedFailureReason == null)
+                    _successfulRecord = ((NSNumber)error.UserInfo[AVErrorKeys.RecordingSuccessfullyFinished]).BoolValue;
             }
 
             var composition = AVMutableComposition.Create();
@@ -835,62 +850,49 @@ namespace Steepshot.iOS.Views
             videoComposition.Instructions = videoCompositionInstructions;
             videoComposition.RenderSize = renderSize;
 
-            var exportSession = new AVAssetExportSession(composition, AVAssetExportSession.PresetHighestQuality);
             var outputFileName = new NSUuid().AsString();
             var documentsPath = NSSearchPath.GetDirectories(NSSearchPathDirectory.DocumentDirectory, NSSearchPathDomain.User, true).First();
             var outputFilePath = Path.Combine(documentsPath, Path.ChangeExtension(outputFileName, "mp4"));
-            var exportLocation = NSUrl.CreateFileUrl(outputFilePath, false, null);
-            
-            exportSession.OutputUrl = exportLocation;
-            exportSession.OutputFileType = AVFileType.Mpeg4;
-            exportSession.VideoComposition = videoComposition;
-            exportSession.AudioMix = audioMix;
-            exportSession.ShouldOptimizeForNetworkUse = true;
-            exportSession.ExportAsynchronously(() =>
+            _exportLocation = NSUrl.CreateFileUrl(outputFilePath, false, null);
+
+            exportSession = new AVAssetExportSession(composition, AVAssetExportSession.PresetHighestQuality)
             {
-                if (exportSession.Status == AVAssetExportSessionStatus.Completed)
-                {
-                    bool success = true;
+                OutputUrl = _exportLocation,
+                OutputFileType = AVFileType.Mpeg4,
+                VideoComposition = videoComposition,
+                AudioMix = audioMix,
+                ShouldOptimizeForNetworkUse = true
+            };
+            exportSession.ExportAsynchronously(OnExportDone);
+        }
 
-                    if (error != null)
-                    {
-                        // Movie file finishing error: {error.LocalizedDescription}
-                        if (error.LocalizedFailureReason == null)
-                            success = ((NSNumber)error.UserInfo[AVErrorKeys.RecordingSuccessfullyFinished]).BoolValue;
-                    }
+        private void OnExportDone()
+        {
+            if (exportSession.Status == AVAssetExportSessionStatus.Completed && _successfulRecord)
+                CheckPhotoLibraryAuthorizationStatus(PHPhotoLibrary.AuthorizationStatus);
+            else
+                CleanupLocation(_exportLocation);
+        }
 
-                    if (success)
-                    {
-                        // Check authorization status
-                        PHPhotoLibrary.RequestAuthorization(status =>
-                        {
-                            if (status == PHAuthorizationStatus.Authorized)
-                            {
-                                PHPhotoLibrary.SharedPhotoLibrary.PerformChanges(() =>
-                                {
-                                    var options = new PHAssetResourceCreationOptions
-                                    {
-                                        ShouldMoveFile = true
-                                    };
-                                    var creationRequest = PHAssetCreationRequest.CreationRequestForAsset();
-                                    creationRequest.AddResource(PHAssetResourceType.Video, exportLocation, options);
-                                }, (success2, error2) =>
-                                {
-                                    if (!success2)
-                                    {
-                                        // Could not save movie to photo library: {error2}
-                                    }
-                                    CleanupLocation(exportLocation);
-                                });
-                            }
-                            else
-                                CleanupLocation(exportLocation);
-                        });
-                    }
-                    else
-                        CleanupLocation(exportLocation);
-                }
-            });
+        private void CheckPhotoLibraryAuthorizationStatus(PHAuthorizationStatus authorizationStatus)
+        {
+            if (authorizationStatus == PHAuthorizationStatus.Authorized)
+                PHPhotoLibrary.SharedPhotoLibrary.PerformChanges(CreateResourceInPhotoLibrary, PhotoLibraryResult);
+            else
+                CleanupLocation(_exportLocation);
+        }
+
+        private void CreateResourceInPhotoLibrary()
+        {
+            var options = new PHAssetResourceCreationOptions();
+            options.ShouldMoveFile = true;
+            var creationRequest = PHAssetCreationRequest.CreationRequestForAsset();
+            creationRequest.AddResource(PHAssetResourceType.Video, _exportLocation, options);
+        }
+
+        private void PhotoLibraryResult(bool arg1, NSError arg2)
+        {
+            CleanupLocation(_exportLocation);
         }
 
         private void CleanupLocation(NSUrl location)
