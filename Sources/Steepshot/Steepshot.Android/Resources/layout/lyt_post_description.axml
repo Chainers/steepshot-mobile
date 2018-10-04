@@ -91,7 +91,11 @@
                         android:background="@android:color/transparent"
                         android:src="@drawable/ic_rotate" />
                 </RelativeLayout>
-            </RelativeLayout>
+				<Steepshot.Utils.Media.MediaView
+					android:id="@+id/video_preview"
+					android:layout_width="match_parent"
+					android:layout_height="500dp" />
+			</RelativeLayout>
             <LinearLayout
                 android:id="@+id/description_container"
                 android:layout_below="@id/photos_layout"

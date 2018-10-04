@@ -12,7 +12,7 @@
   <item name="white40" type="color">#99FFFFFF</item>
   <item name="white50" type="color">#80FFFFFF</item>  
   <item name="black40" type="color">#66000000</item>
-  <item name="black10" type="color">#1A000000</item>
+  <item name="black10" type="color">#1A000000</item>  
   <item name="black" type="color">#000000</item>
   <item name="light_gray" type="color">#CCCCCC</item>
   <item name="light_gray_fa" type="color">#fafafa</item>
@@ -40,4 +40,5 @@
   <item name="rgb230_230_230" type="color">#E6E6E6</item>
   <item name="rgb97_179_241" type="color">#61B3F1</item>
   <item name="argb66_0_0_0" type="color">#66000000</item>
+  <item name="rgb217_217_217" type="color">#D9D9D9</item>
 </resources>

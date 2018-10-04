@@ -22,8 +22,10 @@ namespace Steepshot.Utils
         public static readonly Color R245G245B245;
         public static readonly Color R254G249B229;
         public static readonly Color R230G230B230;
+        public static readonly Color R217G217B217;
 
         public static readonly int ScreenWidth;
+        public static readonly int ScreenHeight;
         public static readonly int PagerScreenWidth;
         public static readonly float MaxPostHeight;
         public static readonly float Density;
@@ -46,6 +48,7 @@ namespace Steepshot.Utils
             R245G245B245 = BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(Application.Context, Resource.Color.rgb245_245_245));
             R254G249B229 = BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(Application.Context, Resource.Color.rgb254_249_229));
             R230G230B230 = BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(Application.Context, Resource.Color.rgb230_230_230));
+            R217G217B217 = BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(Application.Context, Resource.Color.rgb217_217_217));
 
             Density = Application.Context.Resources.DisplayMetrics.Density;
 
@@ -56,6 +59,7 @@ namespace Steepshot.Utils
 
             var screenHeight = Application.Context.Resources.DisplayMetrics.HeightPixels;
             ScreenWidth = Application.Context.Resources.DisplayMetrics.WidthPixels;
+            ScreenHeight = Application.Context.Resources.DisplayMetrics.HeightPixels;
 
             PagerScreenWidth = ScreenWidth - PostPagerMargin * 4;
             MaxPostHeight = screenHeight - topPanelHeight - feedItemHeaderHeight - tabBarHeight - 54 * Density;

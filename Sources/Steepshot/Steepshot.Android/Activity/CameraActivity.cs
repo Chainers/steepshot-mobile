@@ -17,7 +17,7 @@ namespace Steepshot.Activity
             base.OnCreate(savedInstanceState);
 
             var fragmentTransaction = SupportFragmentManager.BeginTransaction();
-            CurrentHostFragment = HostFragment.NewInstance(new OldCameraFragment());
+            CurrentHostFragment = HostFragment.NewInstance(new NewCameraFragment());
             fragmentTransaction.Add(Android.Resource.Id.Content, CurrentHostFragment);
             fragmentTransaction.Commit();
         }

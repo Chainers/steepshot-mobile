@@ -26,6 +26,7 @@ using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 using Steepshot.CustomViews;
 using Steepshot.Utils;
+using Steepshot.Utils.Media;
 
 namespace Steepshot.Fragment
 {
@@ -55,6 +56,7 @@ namespace Steepshot.Fragment
         [BindView(Resource.Id.photo_preview)] protected CropView _preview;
         [BindView(Resource.Id.photo_preview_container)] protected RelativeLayout _previewContainer;
         [BindView(Resource.Id.photos_layout)] protected RelativeLayout _photosContainer;
+        [BindView(Resource.Id.video_preview)] protected MediaView _videoPreview;
         [BindView(Resource.Id.title)] protected EditText _title;
         [BindView(Resource.Id.title_layout)] protected RelativeLayout _titleContainer;
         [BindView(Resource.Id.description)] protected EditText _description;

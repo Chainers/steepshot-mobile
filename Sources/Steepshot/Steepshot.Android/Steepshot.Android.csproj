@@ -59,6 +59,7 @@
     <AndroidHttpClientHandlerType>Xamarin.Android.Net.AndroidClientHandler</AndroidHttpClientHandlerType>
     <AndroidTlsProvider>btls</AndroidTlsProvider>
     <AndroidLinkMode>SdkOnly</AndroidLinkMode>
+    <AndroidEnableMultiDex>true</AndroidEnableMultiDex>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <PlatformTarget>x86</PlatformTarget>
@@ -76,9 +77,39 @@
     <Compile Include="Adapter\WalletPagerAdapter.cs" />
     <Compile Include="Base\App.cs" />
     <Compile Include="Base\BaseSignInActivity.cs" />
+    <Compile Include="CameraGL\AspectFrameLayout.cs" />
+    <Compile Include="CameraGL\Audio\AudioRecorderConfig.cs" />
+    <Compile Include="CameraGL\Audio\AudioRecorderWrapper.cs" />
+    <Compile Include="CameraGL\CameraHandler.cs" />
+    <Compile Include="CameraGL\CameraInfo.cs" />
+    <Compile Include="CameraGL\CameraManager.cs" />
+    <Compile Include="CameraGL\CameraSurfaceRenderer.cs" />
+    <Compile Include="CameraGL\CameraUtils.cs" />
+    <Compile Include="CameraGL\CameraConfig.cs" />
+    <Compile Include="CameraGL\Encoder\AudioEncoder.cs" />
+    <Compile Include="CameraGL\Encoder\AudioEncoderConfig.cs" />
+    <Compile Include="CameraGL\Encoder\AudioEncoderHandler.cs" />
+    <Compile Include="CameraGL\Encoder\AudioEncoderWrapper.cs" />
+    <Compile Include="CameraGL\Encoder\BaseMediaEncoder.cs" />
+    <Compile Include="CameraGL\Encoder\EncoderType.cs" />
+    <Compile Include="CameraGL\Encoder\VideoEncoder.cs" />
+    <Compile Include="CameraGL\Encoder\VideoEncoderConfig.cs" />
+    <Compile Include="CameraGL\Encoder\VideoEncoderHandler.cs" />
+    <Compile Include="CameraGL\Encoder\VideoEncoderWrapper.cs" />
+    <Compile Include="CameraGL\Gles\Drawable2D.cs" />
+    <Compile Include="CameraGL\Gles\EglCore.cs" />
+    <Compile Include="CameraGL\Gles\EglSurfaceBase.cs" />
+    <Compile Include="CameraGL\Gles\FullFrameRect.cs" />
+    <Compile Include="CameraGL\Gles\GlUtil.cs" />
+    <Compile Include="CameraGL\Gles\Texture2dProgram.cs" />
+    <Compile Include="CameraGL\Gles\WindowSurface.cs" />
+    <Compile Include="CameraGL\MuxerWrapper.cs" />
+    <Compile Include="CameraGL\VideoRecordEnums\EncoderMessages.cs" />
+    <Compile Include="CameraGL\VideoRecordEnums\RecordingStatus.cs" />
     <Compile Include="CustomViews\AccurateMovementMethod.cs" />
     <Compile Include="CustomViews\ActionAlertDialog.cs" />
     <Compile Include="CustomViews\AutoLinkTextView.cs" />
+    <Compile Include="CustomViews\CameraShotButton.cs" />
     <Compile Include="CustomViews\ClaimRewardsDialog.cs" />
     <Compile Include="CustomViews\CoinPickDialog.cs" />
     <Compile Include="CustomViews\ExpandableTextView.cs" />
@@ -86,10 +117,13 @@
     <Compile Include="CustomViews\SuccessfullTrxDialog.cs" />
     <Compile Include="CustomViews\TouchableSpan.cs" />
     <Compile Include="CustomViews\WalletExtraDialog.cs" />
+    <Compile Include="Fragment\NewCameraFragment.cs" />
+    <Compile Include="Fragment\PostCreateBaseFragment.cs" />
     <Compile Include="Fragment\PostCreateFragment.cs" />
     <Compile Include="Fragment\PostPrepareBaseFragment.cs" />
     <Compile Include="Fragment\PowerUpDownFragment.cs" />
     <Compile Include="Fragment\TransferFragment.cs" />
+    <Compile Include="Fragment\VideoPostCreateFragment.cs" />
     <Compile Include="Fragment\WalletFragment.cs" />
     <Compile Include="Integration\InstagramModule.cs" />
     <Compile Include="Resources\Resource.designer.cs" />
@@ -225,6 +259,7 @@
     <AndroidAsset Include="Assets\GolosNodesConfig.txt" />
     <AndroidAsset Include="..\..\..\References\Languages\en\dic.xml">
       <Link>Assets\Languages\en\dic.xml</Link>
+      <SubType>Designer</SubType>
     </AndroidAsset>
     <AndroidAsset Include="Assets\IntegrationModuleConfig.txt" />
   </ItemGroup>
@@ -829,6 +864,38 @@
     <AndroidResource Include="Resources\layout\lyt_wallet_cards.axml">
       <SubType>Designer</SubType>
     </AndroidResource>
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\layout\lyt_new_camera.axml">
+      <SubType>Designer</SubType>
+    </AndroidResource>
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable-mdpi\ic_revert_black.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable-mdpi\ic_revert_white.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_revert_black.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_revert_white.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_revert_black.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_revert_white.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable-mdpi\ic_flash_auto.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_flash_auto.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_flash_auto.png" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <Import Project="..\packages\Xamarin.Build.Download.0.4.2\build\Xamarin.Build.Download.targets" Condition="Exists('..\packages\Xamarin.Build.Download.0.4.2\build\Xamarin.Build.Download.targets')" />
