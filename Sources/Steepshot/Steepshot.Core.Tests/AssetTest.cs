@@ -1,6 +1,6 @@
 ﻿using NUnit.Framework;
+using Steepshot.Core.Extensions;
 using Steepshot.Core.Localization;
-using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Tests
 {
@@ -10,14 +10,16 @@ namespace Steepshot.Core.Tests
         [Test]
         public void LocalizationManagerTest()
         {
-            var acc = AppSettings.LocalizationManager.GetText(LocalizationKeys.Account);
+            var lm = Container.GetLocalizationManager();
+            var acc = lm.GetText(LocalizationKeys.Account);
             Assert.IsFalse(string.IsNullOrEmpty(acc));
         }
 
         [Test]
         public void IntegrationModuleConfigTest()
         {
-            var result = AppSettings.AssetHelper.IntegrationModuleConfig();
+            var assetHelper = Container.GetAssetHelper();
+            var result = assetHelper.IntegrationModuleConfig();
             Assert.IsTrue(result.Count > 0);
         }
     }

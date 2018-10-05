@@ -47,7 +47,7 @@ namespace Steepshot.iOS.Popups
             separator.AutoSetDimension(ALDimension.Height, 1);
 
             var powerUpButton = new UIButton();
-            powerUpButton.SetTitle(AppSettings.LocalizationManager.GetText(LocalizationKeys.PowerUp), UIControlState.Normal);
+            powerUpButton.SetTitle(AppDelegate.Localization.GetText(LocalizationKeys.PowerUp), UIControlState.Normal);
             powerUpButton.SetTitleColor(UIColor.Black, UIControlState.Normal);
             powerUpButton.BackgroundColor = Constants.R255G255B255;
             powerUpButton.Layer.CornerRadius = 25;
@@ -62,7 +62,7 @@ namespace Steepshot.iOS.Popups
             powerUpButton.AutoSetDimension(ALDimension.Height, 50);
 
             var powerDownButton = new UIButton();
-            powerDownButton.SetTitle(AppSettings.LocalizationManager.GetText(LocalizationKeys.PowerDown), UIControlState.Normal);
+            powerDownButton.SetTitle(AppDelegate.Localization.GetText(LocalizationKeys.PowerDown), UIControlState.Normal);
             powerDownButton.SetTitleColor(UIColor.Black, UIControlState.Normal);
             powerDownButton.BackgroundColor = Constants.R255G255B255;
             powerDownButton.Layer.CornerRadius = 25;
@@ -82,7 +82,7 @@ namespace Steepshot.iOS.Popups
 
             if (showCancelPowerDown)
             {
-                cancelPowerDownButton.SetTitle(AppSettings.LocalizationManager.GetText(LocalizationKeys.CancelPowerDown), UIControlState.Normal);
+                cancelPowerDownButton.SetTitle(AppDelegate.Localization.GetText(LocalizationKeys.CancelPowerDown), UIControlState.Normal);
                 cancelPowerDownButton.SetTitleColor(UIColor.Black, UIControlState.Normal);
                 cancelPowerDownButton.BackgroundColor = Constants.R255G255B255;
                 cancelPowerDownButton.Layer.CornerRadius = 25;
@@ -110,7 +110,7 @@ namespace Steepshot.iOS.Popups
             bottomSeparator.AutoSetDimension(ALDimension.Height, 1);
 
             var cancelButton = new UIButton();
-            cancelButton.SetTitle(AppSettings.LocalizationManager.GetText(LocalizationKeys.Cancel), UIControlState.Normal);
+            cancelButton.SetTitle(AppDelegate.Localization.GetText(LocalizationKeys.Cancel), UIControlState.Normal);
             cancelButton.SetTitleColor(UIColor.Black, UIControlState.Normal);
             cancelButton.Layer.CornerRadius = 25;
             cancelButton.Font = Constants.Semibold14;
@@ -139,7 +139,7 @@ namespace Steepshot.iOS.Popups
             {
                 _alert.Close();
                 var at = new NSMutableAttributedString();
-                at.Append(new NSAttributedString(string.Format(AppSettings.LocalizationManager.GetText(LocalizationKeys.CancelPowerDownAlert),
+                at.Append(new NSAttributedString(string.Format(AppDelegate.Localization.GetText(LocalizationKeys.CancelPowerDownAlert),
                                                                _presenter.Balances[0].ToWithdraw.ToBalanceValueString())));
 
                 TransferDialogPopup.Create(controller, at, continuePowerDownCancellation);

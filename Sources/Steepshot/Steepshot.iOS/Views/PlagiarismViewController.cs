@@ -78,7 +78,7 @@ namespace Steepshot.iOS.Views
         {
             var leftBarButton = new UIButton();
             leftBarButton.SetImage(UIImage.FromBundle("ic_back_arrow"), UIControlState.Normal);
-            leftBarButton.SetTitle(AppSettings.LocalizationManager.GetText(LocalizationKeys.PlagiarismTitle), UIControlState.Normal);
+            leftBarButton.SetTitle(AppDelegate.Localization.GetText(LocalizationKeys.PlagiarismTitle), UIControlState.Normal);
             leftBarButton.ImageEdgeInsets = new UIEdgeInsets(0, 0, 0, 20);
             leftBarButton.TitleEdgeInsets = new UIEdgeInsets(0, 20, 0, -20);
             leftBarButton.SetTitleColor(UIColor.Black, UIControlState.Normal);
@@ -89,7 +89,7 @@ namespace Steepshot.iOS.Views
 
             NavigationItem.LeftBarButtonItem = new UIBarButtonItem(leftBarButton);
 
-            var guidelines = new UIBarButtonItem(AppSettings.LocalizationManager.GetText(LocalizationKeys.GuidelinesForPlagiarism), UIBarButtonItemStyle.Plain, OpenGuidelines);
+            var guidelines = new UIBarButtonItem(AppDelegate.Localization.GetText(LocalizationKeys.GuidelinesForPlagiarism), UIBarButtonItemStyle.Plain, OpenGuidelines);
             var textAttributes = new UITextAttributes();
             textAttributes.Font = Constants.Semibold14;
             textAttributes.TextColor = Constants.R255G34B5;
@@ -142,13 +142,13 @@ namespace Steepshot.iOS.Views
             _plagiarismAttributedLabel.Delegate = new TTTAttributedLabelActionDelegate(TextLinkAction);
 
             _cancelButton = new UIButton();
-            _cancelButton.SetTitle(AppSettings.LocalizationManager.GetText(LocalizationKeys.CancelPublishing).ToUpper(), UIControlState.Normal);
+            _cancelButton.SetTitle(AppDelegate.Localization.GetText(LocalizationKeys.CancelPublishing).ToUpper(), UIControlState.Normal);
             _cancelButton.Layer.CornerRadius = 25;
             _cancelButton.TitleLabel.Font = Constants.Bold14;
             _cancelButton.TitleLabel.TextColor = Constants.R255G255B255;
 
             _continueButton = new UIButton();
-            _continueButton.SetTitle(AppSettings.LocalizationManager.GetText(LocalizationKeys.ContinuePublishing).ToUpper(), UIControlState.Normal);
+            _continueButton.SetTitle(AppDelegate.Localization.GetText(LocalizationKeys.ContinuePublishing).ToUpper(), UIControlState.Normal);
             _continueButton.Layer.CornerRadius = 25;
             _continueButton.TitleLabel.Font = Constants.Bold14;
             _continueButton.TitleLabel.TextColor = Constants.R255G255B255;
@@ -172,16 +172,16 @@ namespace Steepshot.iOS.Views
 
             var at = new NSMutableAttributedString();
 
-            if (_model.PlagiarismUsername == AppSettings.User.Login)
+            if (_model.PlagiarismUsername == AppDelegate.User.Login)
             {
                 at.Append(new NSAttributedString("We have found a ", noLinkTitleAttribute));
-                at.Append(new NSAttributedString(AppSettings.LocalizationManager.GetText(LocalizationKeys.SimilarPhoto).ToLower(), similarAttribute));
+                at.Append(new NSAttributedString(AppDelegate.Localization.GetText(LocalizationKeys.SimilarPhoto).ToLower(), similarAttribute));
                 at.Append(new NSAttributedString(" in Steepshot, uploaded by you. We do not recommend you to re-upload photos as it may result in low payouts and reputation loss.", noLinkTitleAttribute));
             }
             else
             {
                 at.Append(new NSAttributedString("We have found a ", noLinkTitleAttribute));
-                at.Append(new NSAttributedString(AppSettings.LocalizationManager.GetText(LocalizationKeys.SimilarPhoto).ToLower(), similarAttribute));
+                at.Append(new NSAttributedString(AppDelegate.Localization.GetText(LocalizationKeys.SimilarPhoto).ToLower(), similarAttribute));
                 at.Append(new NSAttributedString(" in Steepshot, uploaded by ", noLinkTitleAttribute));
                 at.Append(new NSAttributedString($"@{_model.PlagiarismUsername}", authorAttribute));
                 at.Append(new NSAttributedString(". We do not recommend you to upload other users' photos as it may result in low payouts and reputation loss.", noLinkTitleAttribute));
@@ -193,7 +193,7 @@ namespace Steepshot.iOS.Views
                 similarAttribute.Font = Constants.Semibold14;
 
                 at.Append(new NSAttributedString("If you're sure that you are the author of the photo, please flag and/or leave a comment under the ", noLinkTitleAttribute));
-                at.Append(new NSAttributedString(AppSettings.LocalizationManager.GetText(LocalizationKeys.Photo).ToLower(), similarAttribute));
+                at.Append(new NSAttributedString(AppDelegate.Localization.GetText(LocalizationKeys.Photo).ToLower(), similarAttribute));
                 at.Append(new NSAttributedString(" to let other people know they should flag this post.", noLinkTitleAttribute));
             }
 

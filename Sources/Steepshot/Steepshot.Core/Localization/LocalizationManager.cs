@@ -22,16 +22,18 @@ namespace Steepshot.Core.Localization
         private readonly ILogService _logService;
         private readonly IConnectionService _connectionService;
         private readonly ISaverService _saverService;
+        private readonly ExtendedHttpClient _httpClient;
         private readonly Dictionary<string, LocalizationModel> _localizationModels;
 
         public LocalizationModel Model { get; }
 
 
-        public LocalizationManager(ISaverService saverService, IAssetHelper assetHelper, IConnectionService connectionService, ILogService logService)
+        public LocalizationManager(ISaverService saverService, IAssetHelper assetHelper, IConnectionService connectionService, ILogService logService, ExtendedHttpClient httpClient)
         {
             _saverService = saverService;
             _connectionService = connectionService;
             _logService = logService;
+            _httpClient = httpClient;
             _localizationModels = _saverService.Get<Dictionary<string, LocalizationModel>>(Localization) ?? new Dictionary<string, LocalizationModel>();
 
             if (_localizationModels.ContainsKey(DefaultLang))
@@ -54,13 +56,13 @@ namespace Steepshot.Core.Localization
             return null;
         }
 
-        public async Task UpdateAsync(ExtendedHttpClient httpClient, CancellationToken token)
+        public async Task UpdateAsync(CancellationToken token)
         {
             var available = _connectionService.IsConnectionAvailable();
             if (!available)
                 return;
 
-            var rez = await httpClient.GetAsync<string>(string.Format(UpdateUrl, Model.Lang), token).ConfigureAwait(false);
+            var rez = await _httpClient.GetAsync<string>(string.Format(UpdateUrl, Model.Lang), token).ConfigureAwait(false);
             if (!rez.IsSuccess)
                 return;
 

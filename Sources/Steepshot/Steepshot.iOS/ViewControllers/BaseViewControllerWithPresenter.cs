@@ -1,3 +1,4 @@
+using Steepshot.Core.Extensions;
 using Steepshot.Core.Presenters;
 ﻿using Steepshot.Core.Utils;
 
@@ -14,7 +15,7 @@ namespace Steepshot.iOS.ViewControllers
 
         protected void CreatePresenter()
         {
-            Presenter = AppSettings.GetPresenter<T>(AppSettings.MainChain);
+            Presenter = AppDelegate.Container.GetPresenter<T>(AppDelegate.MainChain);
         }
     }
 }

@@ -7,6 +7,7 @@ using Android.Util;
 using Android.Views;
 using Android.Widget;
 using IO.SuperCharge.ShimmerLayoutLib;
+using Steepshot.Base;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Utils;
@@ -174,7 +175,7 @@ namespace Steepshot.Adapter
             _date.Visibility = headItem ? ViewStates.Visible : ViewStates.Gone;
             _date.Text = transaction.DateTime.ToString("dd MMM yyyy", CultureInfo.GetCultureInfo("en-US"));
             _trxType.Text = transaction.Type.ToString();
-            _recipient.AutoLinkText = $"{(transaction.From.Equals(AppSettings.User.Login) ? $"to @{transaction.To}" : $"from @{transaction.From}")}";
+            _recipient.AutoLinkText = $"{(transaction.From.Equals(App.User.Login) ? $"to @{transaction.To}" : $"from @{transaction.From}")}";
             if (transaction.Type == AccountHistoryResponse.OperationType.ClaimReward)
             {
                 _tokenOne.Text = CurrencyType.Steem.ToString().ToUpper();

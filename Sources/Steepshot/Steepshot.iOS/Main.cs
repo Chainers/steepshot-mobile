@@ -14,7 +14,7 @@ namespace Steepshot.iOS
             }
             catch (Exception ex)
             {
-                AppSettings.Logger.ErrorAsync(ex);
+                AppDelegate.Logger.ErrorAsync(ex);
             }
         }
     }

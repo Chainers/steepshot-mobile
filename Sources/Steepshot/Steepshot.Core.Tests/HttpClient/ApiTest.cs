@@ -39,7 +39,7 @@ namespace Steepshot.Core.Tests.HttpClient
             var path = GetTestImagePath();
             var stream = new FileStream(GetTestImagePath(), FileMode.Open);
             var uploadImageModel = new UploadMediaModel(user, stream, Path.GetExtension(path));
-            var servResp = await steepshotClient.UploadMediaAsync(uploadImageModel, CancellationToken.None);
+            var servResp = await SteepshotClient.UploadMediaAsync(uploadImageModel, CancellationToken.None);
             AssertResult(servResp);
         }
 
@@ -49,7 +49,7 @@ namespace Steepshot.Core.Tests.HttpClient
         public async Task PreparePostTest(KnownChains apiName)
         {
             var user = Users[apiName].UserInfo;
-            var model = new PreparePostModel(user, AppSettings.AppInfo.GetModel())
+            var model = new PreparePostModel(user, AppInfo.GetModel())
             {
                 Title = "Test",
                 Description = DateTime.Now.ToString(CultureInfo.InvariantCulture),
@@ -92,7 +92,7 @@ namespace Steepshot.Core.Tests.HttpClient
             // 2) Create new comment
             // Wait for 20 seconds before commenting
             Thread.Sleep(TimeSpan.FromSeconds(20));
-            var createCommentModel = new CreateOrEditCommentModel(user, lastPost, $"Test comment {DateTime.Now:G}", AppSettings.AppInfo);
+            var createCommentModel = new CreateOrEditCommentModel(user, lastPost, $"Test comment {DateTime.Now:G}", AppInfo);
             var createCommentResponse = await CreateOrEditCommentAsync(apiName, createCommentModel, CancellationToken.None);
             AssertResult(createCommentResponse);
             Assert.That(createCommentResponse.IsSuccess, Is.True);

@@ -14,6 +14,7 @@ using Steepshot.Core.Presenters;
 using Steepshot.Utils;
 using Steepshot.Core.Utils;
 using Android.Util;
+using Steepshot.Base;
 
 namespace Steepshot.Adapter
 {
@@ -154,11 +155,11 @@ namespace Steepshot.Adapter
                 else
                     Picasso.With(_context).Load(Resource.Drawable.ic_holder).Into(_friendAvatar);
 
-                _followButton.Visibility = AppSettings.User.Login == _friendLogin.Text
+                _followButton.Visibility = App.User.Login == _friendLogin.Text
                     ? ViewStates.Gone
                     : ViewStates.Visible;
 
-                if (string.Equals(AppSettings.User.Login, userFriends.Author, StringComparison.OrdinalIgnoreCase))
+                if (string.Equals(App.User.Login, userFriends.Author, StringComparison.OrdinalIgnoreCase))
                 {
                     _followButton.Visibility = ViewStates.Invisible;
                 }
@@ -183,7 +184,7 @@ namespace Steepshot.Adapter
                         {
                             background.SetColors(new int[] { Color.White, Color.White });
                             background.SetStroke(3, Style.R244G244B246);
-                            _followButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Unfollow);
+                            _followButton.Text = App.Localization.GetText(LocalizationKeys.Unfollow);
                             _followButton.SetTextColor(Style.R15G24B30);
                         }
                         else
@@ -191,7 +192,7 @@ namespace Steepshot.Adapter
                             background.SetColors(new int[] { Style.R255G121B4, Style.R255G22B5 });
                             background.SetOrientation(GradientDrawable.Orientation.LeftRight);
                             background.SetStroke(0, Color.White);
-                            _followButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Follow);
+                            _followButton.Text = App.Localization.GetText(LocalizationKeys.Follow);
                             _followButton.SetTextColor(Color.White);
                         }
                         _followButton.Enabled = true;

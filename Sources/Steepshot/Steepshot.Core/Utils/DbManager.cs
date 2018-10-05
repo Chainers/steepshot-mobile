@@ -2,7 +2,7 @@
 using SQLite;
 using SQLiteNetExtensions.Extensions;
 using Steepshot.Core.Jobs;
-using Steepshot.Core.Jobs.Upload;
+using Steepshot.Core.Models.Database;
 
 namespace Steepshot.Core.Utils
 {

@@ -3,15 +3,18 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Autofac;
 using Ditch.Core.JsonRpc;
 using Steepshot.Core.Authorization;
 using Steepshot.Core.Clients;
 using Steepshot.Core.Exceptions;
+using Steepshot.Core.Extensions;
 using Steepshot.Core.Interfaces;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Presenters
 {
@@ -129,15 +132,15 @@ namespace Steepshot.Core.Presenters
             };
         }
 
-        public void SetClient(SteepshotApiClient steepshotApiClient, BaseDitchClient ditchClient)
+        public void SetClient(IContainer container, KnownChains chain)
         {
             TasksCancel();
 
-            _steepshotApiClient = steepshotApiClient;
-            _ditchClient = ditchClient;
+            _steepshotApiClient = container.GetSteepshotApiClient(chain);
+            _ditchClient = container.GetDitchClient(chain);
         }
 
-        
+
         public async Task<OperationResult<VoidResponse>> TryPowerUpOrDownAsync(BalanceModel balance, PowerAction powerAction)
         {
             var model = new PowerUpDownModel(balance, powerAction);

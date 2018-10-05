@@ -122,7 +122,7 @@ namespace Steepshot.iOS.Views
 
             _historySource.CellAction += (string obj) =>
             {
-                if (obj == AppSettings.User.Login)
+                if (obj == AppDelegate.User.Login)
                     return;
                 var myViewController = new ProfileViewController();
                 myViewController.Username = obj;
@@ -144,7 +144,7 @@ namespace Steepshot.iOS.Views
             NavigationItem.SetLeftBarButtonItem(leftBarButton, true);
             NavigationController.NavigationBar.TintColor = Constants.R15G24B30;
 
-            NavigationItem.Title = AppSettings.LocalizationManager.GetText(LocalizationKeys.Wallet);
+            NavigationItem.Title = AppDelegate.Localization.GetText(LocalizationKeys.Wallet);
 
             var rightBarButton = new UIBarButtonItem(UIImage.FromBundle("ic_present"), UIBarButtonItemStyle.Plain, ShowClaimPopUp);
 
@@ -278,7 +278,7 @@ namespace Steepshot.iOS.Views
             separator.AutoSetDimension(ALDimension.Height, 1);
 
             var selectButton = new UIButton();
-            selectButton.SetTitle(AppSettings.LocalizationManager.GetText(LocalizationKeys.ClaimRewards), UIControlState.Normal);
+            selectButton.SetTitle(AppDelegate.Localization.GetText(LocalizationKeys.ClaimRewards), UIControlState.Normal);
             selectButton.SetTitle(string.Empty, UIControlState.Disabled);
             selectButton.SetTitleColor(UIColor.White, UIControlState.Normal);
             selectButton.Layer.CornerRadius = 25;
@@ -298,7 +298,7 @@ namespace Steepshot.iOS.Views
             loader.AutoCenterInSuperview();
 
             var cancelButton = new UIButton();
-            cancelButton.SetTitle(AppSettings.LocalizationManager.GetText(LocalizationKeys.Close), UIControlState.Normal);
+            cancelButton.SetTitle(AppDelegate.Localization.GetText(LocalizationKeys.Close), UIControlState.Normal);
             cancelButton.SetTitleColor(UIColor.Black, UIControlState.Normal);
             cancelButton.Layer.CornerRadius = 25;
             cancelButton.Font = Constants.Semibold14;

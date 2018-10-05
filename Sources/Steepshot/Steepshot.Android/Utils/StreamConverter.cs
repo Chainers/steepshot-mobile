@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using Steepshot.Base;
 using Steepshot.Core.Utils;
 
 namespace Steepshot.Utils
@@ -69,7 +70,7 @@ namespace Steepshot.Utils
             }
             catch (System.Exception ex)
             {
-                AppSettings.Logger.WarningAsync(ex);
+                App.Logger.WarningAsync(ex);
             }
             return 0;
         }

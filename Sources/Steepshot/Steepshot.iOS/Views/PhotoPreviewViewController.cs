@@ -9,6 +9,7 @@ using PureLayout.Net;
 using Steepshot.Core.Models.Enums;
 using Steepshot.iOS.Cells;
 using Steepshot.iOS.CustomViews;
+using Steepshot.iOS.Delegates;
 using Steepshot.iOS.Helpers;
 using Steepshot.iOS.ViewControllers;
 using Steepshot.iOS.ViewSources;

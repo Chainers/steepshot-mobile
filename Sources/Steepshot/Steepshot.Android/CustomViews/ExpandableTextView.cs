@@ -3,6 +3,7 @@ using Android.Content;
 using Android.Runtime;
 using Android.Text;
 using Android.Util;
+using Steepshot.Base;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Utils;
 using Steepshot.Utils;
@@ -51,7 +52,7 @@ namespace Steepshot.CustomViews
                 var nLines = layout.LineCount;
                 if (!_expanded && nLines > _maxLines)
                 {
-                    var showMore = AppSettings.LocalizationManager.GetText(LocalizationKeys.ShowMoreString);
+                    var showMore = App.Localization.GetText(LocalizationKeys.ShowMoreString);
                     var showMoreSpan = new SpannableString(showMore);
                     showMoreSpan.SetSpan(new TouchableSpan(() => Expanded = true, Style.R151G155B158, Style.R151G155B158, false), 0, showMore.Length, SpanTypes.ExclusiveExclusive);
                     var lastLineStart = layout.GetLineStart(_maxLines - 1);

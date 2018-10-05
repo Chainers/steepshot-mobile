@@ -74,10 +74,10 @@ namespace Steepshot.Fragment
 
             base.OnViewCreated(view, savedInstanceState);
 
-            _pageTitle.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PlagiarismTitle);
-            _guidelines.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.GuidelinesForPlagiarism);
-            _cancelPublishing.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.CancelPublishing);
-            _continuePublishing.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.ContinuePublishing);
+            _pageTitle.Text = App.Localization.GetText(LocalizationKeys.PlagiarismTitle);
+            _guidelines.Text = App.Localization.GetText(LocalizationKeys.GuidelinesForPlagiarism);
+            _cancelPublishing.Text = App.Localization.GetText(LocalizationKeys.CancelPublishing);
+            _continuePublishing.Text = App.Localization.GetText(LocalizationKeys.ContinuePublishing);
 
             _pageTitle.Typeface = Style.Semibold;
             _guidelines.Typeface = Style.Semibold;
@@ -125,16 +125,16 @@ namespace Steepshot.Fragment
                 }
             }
 
-            var similarText = AppSettings.LocalizationManager.GetText(LocalizationKeys.SimilarPhoto).ToLower();
-            var photoText = AppSettings.LocalizationManager.GetText(LocalizationKeys.Photo).ToLower();
+            var similarText = App.Localization.GetText(LocalizationKeys.SimilarPhoto).ToLower();
+            var photoText = App.Localization.GetText(LocalizationKeys.Photo).ToLower();
             var plagiarismText = string.Empty;
 
             CustomClickableSpan clickableSpan;
             SpannableString spannableTitle;
 
-            if (model.PlagiarismUsername == AppSettings.User.Login)
+            if (model.PlagiarismUsername == App.User.Login)
             {
-                plagiarismText = AppSettings.LocalizationManager.GetText(LocalizationKeys.SelfPlagiarism, similarText);
+                plagiarismText = App.Localization.GetText(LocalizationKeys.SelfPlagiarism, similarText);
 
                 clickableSpan = new CustomClickableSpan();
                 clickableSpan.Click += OpenSimilar;
@@ -146,7 +146,7 @@ namespace Steepshot.Fragment
             else
             {
                 var author = $"@{model.PlagiarismUsername}";
-                plagiarismText = AppSettings.LocalizationManager.GetText(LocalizationKeys.PhotoPlagiarism, similarText, author);
+                plagiarismText = App.Localization.GetText(LocalizationKeys.PhotoPlagiarism, similarText, author);
 
                 spannableTitle = new SpannableString(plagiarismText);
                 var similarIndex = plagiarismText.IndexOf(similarText, StringComparison.Ordinal);
@@ -164,7 +164,7 @@ namespace Steepshot.Fragment
                 spannableTitle.SetSpan(clickableAuthor, authorIndex, authorIndex + author.Length, SpanTypes.ExclusiveExclusive);
                 _plagiarismTitle.SetText(spannableTitle, TextView.BufferType.Spannable);
 
-                var descriptionText = AppSettings.LocalizationManager.GetText(LocalizationKeys.PlagiarismDescription, photoText);
+                var descriptionText = App.Localization.GetText(LocalizationKeys.PlagiarismDescription, photoText);
 
                 var clickablePhoto = new CustomClickableSpan();
                 clickablePhoto.Click += OpenSimilar;

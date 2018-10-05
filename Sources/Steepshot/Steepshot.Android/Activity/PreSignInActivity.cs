@@ -13,6 +13,7 @@ using System.Linq;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Utils;
 using Newtonsoft.Json;
+using Steepshot.Core.Extensions;
 
 namespace Steepshot.Activity
 {
@@ -37,8 +38,9 @@ namespace Steepshot.Activity
             SetContentView(Resource.Layout.lyt_pre_sign_in);
             Cheeseknife.Bind(this);
 #if DEBUG
-            var di = AppSettings.AssetHelper.GetDebugInfo();
-            _username.Text = AppSettings.User.Chain == KnownChains.Golos
+            var assetHelper = App.Container.GetAssetHelper();
+            var di = assetHelper.GetDebugInfo();
+            _username.Text = App.User.Chain == KnownChains.Golos
                 ? di.GolosTestLogin
                 : di.SteemTestLogin;
 #endif
@@ -47,12 +49,12 @@ namespace Steepshot.Activity
             _backButton.Click += GoBack;
             _switcher.Visibility = ViewStates.Gone;
             _settings.Visibility = ViewStates.Gone;
-            _viewTitle.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.YourAccountName);
+            _viewTitle.Text = App.Localization.GetText(LocalizationKeys.YourAccountName);
 
             _viewTitle.Typeface = Style.Semibold;
             _username.Typeface = Style.Regular;
             _preSignInBtn.Typeface = Style.Semibold;
-            _preSignInBtn.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.NextStep);
+            _preSignInBtn.Text = App.Localization.GetText(LocalizationKeys.NextStep);
             _preSignInBtn.Click += SignInBtn_Click;
             _rootLayout.Click += HideKeyboard;
         }
@@ -66,9 +68,9 @@ namespace Steepshot.Activity
         public override void OnBackPressed()
         {
             base.OnBackPressed();
-            var currentUser = AppSettings.User.GetAllAccounts().FirstOrDefault();
+            var currentUser = App.User.GetAllAccounts().FirstOrDefault();
             if (currentUser != null)
-                AppSettings.MainChain = currentUser.Chain;
+                App.MainChain = currentUser.Chain;
         }
 
         private void GoBack(object sender, EventArgs e)
@@ -106,7 +108,7 @@ namespace Steepshot.Activity
             }
 
             _spinner.Visibility = ViewStates.Invisible;
-            _preSignInBtn.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.NextStep);
+            _preSignInBtn.Text = App.Localization.GetText(LocalizationKeys.NextStep);
         }
 
         private void HideKeyboard(object sender, EventArgs e)

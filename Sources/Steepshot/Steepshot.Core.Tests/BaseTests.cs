@@ -1,77 +1,78 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.IO;
 using Autofac;
 using NUnit.Framework;
-using Steepshot.Core.Models.Common;
-using Steepshot.Core.Tests.Stubs;
-using Steepshot.Core.Utils;
 using System.ComponentModel.DataAnnotations;
+using System.Configuration;
 using System.Threading;
 using System.Threading.Tasks;
 using Ditch.Core.JsonRpc;
 using Newtonsoft.Json;
 using Steepshot.Core.Authorization;
 using Steepshot.Core.Clients;
+using Steepshot.Core.Extensions;
 using Steepshot.Core.Interfaces;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Requests;
+using Steepshot.Core.Utils;
+using Steepshot.Core.Models.Common;
 
 namespace Steepshot.Core.Tests
 {
     public class BaseTests
     {
-        private const bool IsDev = true;
+        protected static IContainer Container;
+        protected static IAppInfo AppInfo;
+        protected static LocalizationManager LocalizationManager;
+
         protected static readonly Dictionary<KnownChains, User> Users;
         protected static readonly Dictionary<KnownChains, BaseDitchClient> Api;
         protected static readonly Dictionary<KnownChains, SteepshotApiClient> SteepshotApi;
-        protected static readonly SteepshotClient steepshotClient;
+        protected static readonly SteepshotClient SteepshotClient;
 
         static BaseTests()
         {
             var builder = new ContainerBuilder();
+            builder.RegisterModule<IocModule>();
+            Container = builder.Build();
 
-            var saverService = new StubSaverService();
-            var logService = new StubLogService();
-            var assetsHelper = new AssetsHelperStub();
-            var configManager = new ConfigManager(saverService, assetsHelper);
-            var connectionService = new StubConnectionService();
-            var extendedHttpClient = new ExtendedHttpClient();
-
-            var lm = new LocalizationManager(saverService, assetsHelper, connectionService, logService);
-
-            builder.RegisterInstance(assetsHelper).As<IAssetHelper>().SingleInstance();
-            builder.RegisterInstance(new StubAppInfo()).As<IAppInfo>().SingleInstance();
-            builder.RegisterInstance(new UserManager(saverService)).As<UserManager>().SingleInstance();
-            builder.RegisterInstance(saverService).As<ISaverService>().SingleInstance();
-            builder.RegisterInstance(new StubConnectionService()).As<IConnectionService>().SingleInstance();
-            builder.RegisterInstance(lm).As<LocalizationManager>().SingleInstance();
-            builder.RegisterType<StubLogService>().As<ILogService>().SingleInstance();
-
-            AppSettings.Container = builder.Build();
-            AppSettings.Settings.IsDev = IsDev;
-
-            // = new UserInfo {Login = ConfigurationManager.AppSettings["SteemLogin"], PostingKey = ConfigurationManager.AppSettings["SteemPostingWif"]}},
-            //{Login = ConfigurationManager.AppSettings["GolosLogin"], PostingKey = ConfigurationManager.AppSettings["GolosPostingWif"]}},
-            Users = new Dictionary<KnownChains, User>
-            {
-                //{KnownChains.Steem, new User(new StubUserManager(new)),
-                //{KnownChains.Golos, new User(new StubUserManager()) ,
-            };
+            SteepshotClient = Container.GetSteepshotClient();
+            AppInfo = Container.GetAppInfo();
+            LocalizationManager = Container.GetLocalizationManager();
 
             Api = new Dictionary<KnownChains, BaseDitchClient>
             {
-                {KnownChains.Steem, new SteemClient(extendedHttpClient, logService, configManager)},
-                {KnownChains.Golos, new GolosClient(extendedHttpClient, logService, configManager)},
+                {KnownChains.Steem, Container.GetDitchClient(KnownChains.Steem)},
+                {KnownChains.Golos, Container.GetDitchClient(KnownChains.Golos)}
             };
 
             SteepshotApi = new Dictionary<KnownChains, SteepshotApiClient>
             {
-                {KnownChains.Steem, new SteepshotApiClient(extendedHttpClient, logService, Constants.SteemUrl)},
-                {KnownChains.Golos, new SteepshotApiClient(extendedHttpClient, logService, Constants.GolosUrl)},
+                {KnownChains.Steem, Container.GetSteepshotApiClient(KnownChains.Steem)},
+                {KnownChains.Golos, Container.GetSteepshotApiClient(KnownChains.Golos)}
             };
-            steepshotClient = new SteepshotClient(extendedHttpClient);
+
+            Users = new Dictionary<KnownChains, User>
+            {
+                {KnownChains.Steem, Container.GetUser()},
+                {KnownChains.Golos, Container.GetUser()}
+            };
+
+            Users[KnownChains.Steem].SwitchUser(new UserInfo { Login = ConfigurationManager.AppSettings["SteemLogin"], Chain = KnownChains.Steem });
+            Users[KnownChains.Golos].SwitchUser(new UserInfo { Login = ConfigurationManager.AppSettings["GolosLogin"], Chain = KnownChains.Golos });
+        }
+
+        private void InitIoC()
+        {
+            if (Container == null)
+            {
+                var builder = new ContainerBuilder();
+
+                builder.RegisterModule<IocModule>();
+
+                Container = builder.Build();
+            }
         }
 
         protected string GetTestImagePath()

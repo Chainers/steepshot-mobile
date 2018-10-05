@@ -22,6 +22,7 @@ using ImageIO;
 using PureLayout.Net;
 using Steepshot.Core.Exceptions;
 using Steepshot.iOS.CustomViews;
+using Steepshot.iOS.Delegates;
 
 namespace Steepshot.iOS.Views
 {
@@ -210,7 +211,7 @@ namespace Steepshot.iOS.Views
             hashtagCollectionSeparator.BackgroundColor = Constants.R245G245B245;
 
             postPhotoButton = new UIButton();
-            postPhotoButton.SetTitle(AppSettings.LocalizationManager.GetText(LocalizationKeys.PublishButtonText).ToUpper(), UIControlState.Normal);
+            postPhotoButton.SetTitle(AppDelegate.Localization.GetText(LocalizationKeys.PublishButtonText).ToUpper(), UIControlState.Normal);
             postPhotoButton.SetTitle("", UIControlState.Disabled);
             postPhotoButton.Layer.CornerRadius = 25;
             postPhotoButton.TitleLabel.Font = Constants.Semibold14;
@@ -569,7 +570,7 @@ namespace Steepshot.iOS.Views
             NavigationItem.LeftBarButtonItem = _leftBarButton;
             NavigationController.NavigationBar.TintColor = Constants.R15G24B30;
 
-            NavigationItem.Title = AppSettings.LocalizationManager.GetText(LocalizationKeys.PostSettings);
+            NavigationItem.Title = AppDelegate.Localization.GetText(LocalizationKeys.PostSettings);
             NavigationController.NavigationBar.Translucent = false;
         }
 
@@ -629,7 +630,7 @@ namespace Steepshot.iOS.Views
                 else
                     stream = byteArray.AsStream();
 
-                var request = new UploadMediaModel(AppSettings.User.UserInfo, stream, _imageExtension);
+                var request = new UploadMediaModel(AppDelegate.User.UserInfo, stream, _imageExtension);
                 var serverResult = await Presenter.TryUploadMediaAsync(request);
                 if (!serverResult.IsSuccess)
                     return new OperationResult<MediaModel>(serverResult.Exception);
@@ -707,7 +708,7 @@ namespace Steepshot.iOS.Views
             EnablePostAndEdit(false, disableEditing);
             _isSpammer = false;
 
-            var spamCheck = await Presenter.TryCheckForSpamAsync(AppSettings.User.Login);
+            var spamCheck = await Presenter.TryCheckForSpamAsync(AppDelegate.User.Login);
             EnablePostAndEdit(true);
 
             if (spamCheck.IsSuccess)
@@ -754,7 +755,7 @@ namespace Steepshot.iOS.Views
 
             _isSpammer = false;
             postPhotoButton.UserInteractionEnabled = true;
-            postPhotoButton.SetTitle(AppSettings.LocalizationManager.GetText(LocalizationKeys.PublishButtonText).ToUpper(), UIControlState.Normal);
+            postPhotoButton.SetTitle(AppDelegate.Localization.GetText(LocalizationKeys.PublishButtonText).ToUpper(), UIControlState.Normal);
         }
 
         private void PostPhoto(object sender, EventArgs e)
@@ -844,7 +845,7 @@ namespace Steepshot.iOS.Views
                         if (shouldReturn)
                             return;
 
-                        model = new PreparePostModel(AppSettings.User.UserInfo, AppSettings.AppInfo.GetModel())
+                        model = new PreparePostModel(AppDelegate.User.UserInfo, AppDelegate.AppInfo.GetModel())
                         {
                             Title = title,
                             Description = description,
@@ -859,7 +860,7 @@ namespace Steepshot.iOS.Views
                 }
                 catch (Exception ex)
                 {
-                    AppSettings.Logger.WarningAsync(ex);
+                    AppDelegate.Logger.WarningAsync(ex);
                 }
                 finally
                 {

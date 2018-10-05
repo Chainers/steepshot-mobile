@@ -6,6 +6,7 @@ using Android.Util;
 using Android.Views;
 using Android.Widget;
 using Square.Picasso;
+using Steepshot.Base;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Utils;
@@ -82,7 +83,7 @@ namespace Steepshot.Fragment
 
         private void SetEditPost()
         {
-            Model = new PreparePostModel(AppSettings.User.UserInfo, _editPost, AppSettings.AppInfo.GetModel());
+            Model = new PreparePostModel(App.User.UserInfo, _editPost, App.AppInfo.GetModel());
             Title.Text = _editPost.Title;
             Title.SetSelection(_editPost.Title.Length);
             Description.Text = _editPost.Description;

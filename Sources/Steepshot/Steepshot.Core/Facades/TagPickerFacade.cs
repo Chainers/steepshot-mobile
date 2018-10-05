@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using Steepshot.Core.Models;
+using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
 
 namespace Steepshot.Core.Facades

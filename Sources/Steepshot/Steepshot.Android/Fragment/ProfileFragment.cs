@@ -121,12 +121,12 @@ namespace Steepshot.Fragment
                         if (!_isActivated)
                         {
                             GetUserPosts();
-                            AppSettings.ProfileUpdateType = ProfileUpdateType.None;
+                            App.ProfileUpdateType = ProfileUpdateType.None;
                         }
                         _isActivated = true;
                     }
                     else
-                        AppSettings.ProfileUpdateType = ProfileUpdateType.Full;
+                        App.ProfileUpdateType = ProfileUpdateType.Full;
                 }
                 base.UserVisibleHint = value;
             }
@@ -198,9 +198,9 @@ namespace Steepshot.Fragment
 
                 _gridItemDecoration = new GridItemDecoration(true);
 
-                _tabOptions = AppSettings.User.Login.Equals(_profileId)
-                    ? AppSettings.GetTabSettings($"User_{nameof(ProfileFragment)}")
-                    : AppSettings.GetTabSettings(nameof(ProfileFragment));
+                _tabOptions = App.User.Login.Equals(_profileId)
+                    ? App.NavigationManager.GetTabSettings($"User_{nameof(ProfileFragment)}")
+                    : App.NavigationManager.GetTabSettings(nameof(ProfileFragment));
 
                 SwitchListAdapter(_tabOptions.IsGridView);
 
@@ -226,9 +226,9 @@ namespace Steepshot.Fragment
                 _moreActionsDialog = new BottomSheetDialog(Context);
                 _moreActionsDialog.Window.RequestFeature(WindowFeatures.NoTitle);
 
-                _firstPostButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.CreateFirstPostText);
+                _firstPostButton.Text = App.Localization.GetText(LocalizationKeys.CreateFirstPostText);
 
-                if (_profileId != AppSettings.User.Login)
+                if (_profileId != App.User.Login)
                 {
                     _settings.Visibility = ViewStates.Gone;
                     _backButton.Visibility = ViewStates.Visible;
@@ -239,7 +239,7 @@ namespace Steepshot.Fragment
                 else
                 {
                     _more.Visibility = ViewStates.Gone;
-                    _login.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.MyProfile);
+                    _login.Text = App.Localization.GetText(LocalizationKeys.MyProfile);
                 }
 
                 LoadProfile();
@@ -344,7 +344,7 @@ namespace Steepshot.Fragment
                 if (status.Sender == nameof(UserProfilePresenter.TryFollowAsync) || status.Sender == nameof(UserProfilePresenter.TryGetUserInfoAsync))
                 {
                     _firstPostButton.Visibility =
-                        _profileId == AppSettings.User.Login && Presenter.UserProfileResponse.PostCount == 0 && Presenter.UserProfileResponse.HiddenPostCount == 0
+                        _profileId == App.User.Login && Presenter.UserProfileResponse.PostCount == 0 && Presenter.UserProfileResponse.HiddenPostCount == 0
                             ? ViewStates.Visible
                             : ViewStates.Gone;
                 }
@@ -357,7 +357,7 @@ namespace Steepshot.Fragment
 
         private async void RefresherRefresh(object sender, EventArgs e)
         {
-            await Presenter.TryUpdateUserPostsAsync(AppSettings.User.Login);
+            await Presenter.TryUpdateUserPostsAsync(App.User.Login);
             await UpdatePage(ProfileUpdateType.Full);
             if (!IsInitialized)
                 return;
@@ -400,18 +400,18 @@ namespace Steepshot.Fragment
                     if (isSubscribed)
                     {
                         pushes.SetTextColor(Style.R255G34B5);
-                        pushes.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.UnwatchUser);
+                        pushes.Text = App.Localization.GetText(LocalizationKeys.UnwatchUser);
                     }
                     else
                     {
                         pushes.SetTextColor(Color.Black);
-                        pushes.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.WatchUser);
+                        pushes.Text = App.Localization.GetText(LocalizationKeys.WatchUser);
                     }
 
                     pushes.Typeface = Style.Semibold;
 
                     var cancel = dialogView.FindViewById<Button>(Resource.Id.cancel);
-                    cancel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Cancel);
+                    cancel.Text = App.Localization.GetText(LocalizationKeys.Cancel);
                     cancel.Typeface = Style.Semibold;
 
                     pushes.Click -= PushesOnClick;
@@ -431,7 +431,7 @@ namespace Steepshot.Fragment
         private async void PushesOnClick(object sender, EventArgs eventArgs)
         {
             _moreActionsDialog.Dismiss();
-            var model = new PushNotificationsModel(AppSettings.User.UserInfo, !isSubscribed)
+            var model = new PushNotificationsModel(App.User.UserInfo, !isSubscribed)
             {
                 WatchedUser = _profileId
             };
@@ -479,7 +479,7 @@ namespace Steepshot.Fragment
         private void OnSwitcherClick(object sender, EventArgs e)
         {
             _tabOptions.IsGridView = !(_postsList.GetLayoutManager() is GridLayoutManager);
-            AppSettings.SaveNavigation();
+            App.NavigationManager.Save();
             SwitchListAdapter(_tabOptions.IsGridView);
         }
 
@@ -531,7 +531,7 @@ namespace Steepshot.Fragment
             } while (true);
 
             _firstPostButton.Visibility =
-                    _profileId == AppSettings.User.Login && Presenter.UserProfileResponse.PostCount == 0 && Presenter.UserProfileResponse.HiddenPostCount == 0
+                    _profileId == App.User.Login && Presenter.UserProfileResponse.PostCount == 0 && Presenter.UserProfileResponse.HiddenPostCount == 0
                     ? ViewStates.Visible
                     : ViewStates.Gone;
             _loadingSpinner.Visibility = ViewStates.Gone;
@@ -542,7 +542,7 @@ namespace Steepshot.Fragment
             switch (type)
             {
                 case ActionType.Transfer:
-                    ((BaseActivity)Activity).OpenNewContentFragment(Presenter.UserProfileResponse.Username.Equals(AppSettings.User.Login, StringComparison.OrdinalIgnoreCase) ? new TransferFragment() : new TransferFragment(Presenter.UserProfileResponse));
+                    ((BaseActivity)Activity).OpenNewContentFragment(Presenter.UserProfileResponse.Username.Equals(App.User.Login, StringComparison.OrdinalIgnoreCase) ? new TransferFragment() : new TransferFragment(Presenter.UserProfileResponse));
                     break;
                 case ActionType.Balance:
                     ((BaseActivity)Activity).OpenNewContentFragment(new WalletFragment());
@@ -560,7 +560,7 @@ namespace Steepshot.Fragment
                     ((BaseActivity)Activity).OpenNewContentFragment(new FollowersFragment());
                     break;
                 case ActionType.Follow:
-                    if (AppSettings.User.HasPostingPermission)
+                    if (App.User.HasPostingPermission)
                     {
                         var result = await Presenter.TryFollowAsync();
                         if (!IsInitialized)
@@ -577,7 +577,7 @@ namespace Steepshot.Fragment
                 case ActionType.LikePower:
                     var avatar = _postsList.FindViewById(Resource.Id.profile_image);
                     avatar.Enabled = false;
-                    _likePowerLabel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PowerOfLike, Presenter.UserProfileResponse.VotingPower);
+                    _likePowerLabel.Text = App.Localization.GetText(LocalizationKeys.PowerOfLike, Presenter.UserProfileResponse.VotingPower);
                     _likePowerLabel.Visibility = ViewStates.Visible;
                     await Task.Delay(1000);
                     _likePowerLabel.Visibility = ViewStates.Gone;
@@ -595,7 +595,7 @@ namespace Steepshot.Fragment
             {
                 case ActionType.Like:
                     {
-                        if (AppSettings.User.HasPostingPermission)
+                        if (App.User.HasPostingPermission)
                         {
                             var result = await Presenter.TryVoteAsync(post);
                             if (!IsInitialized)
@@ -621,7 +621,7 @@ namespace Steepshot.Fragment
                     }
                 case ActionType.Comments:
                     {
-                        if (post.Children == 0 && !AppSettings.User.HasPostingPermission)
+                        if (post.Children == 0 && !App.User.HasPostingPermission)
                         {
                             OpenLogin();
                             return;
@@ -638,7 +638,7 @@ namespace Steepshot.Fragment
                     }
                 case ActionType.Flag:
                     {
-                        if (!AppSettings.User.HasPostingPermission)
+                        if (!App.User.HasPostingPermission)
                             return;
 
                         var result = await Presenter.TryFlagAsync(post);
@@ -662,10 +662,10 @@ namespace Steepshot.Fragment
                 case ActionType.Delete:
                     {
                         var actionAlert = new ActionAlertDialog(Context,
-                            AppSettings.LocalizationManager.GetText(LocalizationKeys.DeleteAlertTitle),
-                            AppSettings.LocalizationManager.GetText(LocalizationKeys.DeleteAlertMessage),
-                            AppSettings.LocalizationManager.GetText(LocalizationKeys.Delete),
-                            AppSettings.LocalizationManager.GetText(LocalizationKeys.Cancel), AutoLinkAction);
+                            App.Localization.GetText(LocalizationKeys.DeleteAlertTitle),
+                            App.Localization.GetText(LocalizationKeys.DeleteAlertMessage),
+                            App.Localization.GetText(LocalizationKeys.Delete),
+                            App.Localization.GetText(LocalizationKeys.Cancel), AutoLinkAction);
 
                         actionAlert.AlertAction += async () =>
                         {
@@ -683,8 +683,8 @@ namespace Steepshot.Fragment
                         var shareIntent = new Intent(Intent.ActionSend);
                         shareIntent.SetType("text/plain");
                         shareIntent.PutExtra(Intent.ExtraSubject, post.Title);
-                        shareIntent.PutExtra(Intent.ExtraText, string.Format(AppSettings.User.Chain == KnownChains.Steem ? Constants.SteemPostUrl : Constants.GolosPostUrl, post.Url));
-                        StartActivity(Intent.CreateChooser(shareIntent, AppSettings.LocalizationManager.GetText(LocalizationKeys.Sharepost)));
+                        shareIntent.PutExtra(Intent.ExtraText, string.Format(App.User.Chain == KnownChains.Steem ? Constants.SteemPostUrl : Constants.GolosPostUrl, post.Url));
+                        StartActivity(Intent.CreateChooser(shareIntent, App.Localization.GetText(LocalizationKeys.Sharepost)));
                         break;
                     }
                 case ActionType.Photo:
@@ -715,10 +715,10 @@ namespace Steepshot.Fragment
 
         private void UpdateProfile()
         {
-            if (AppSettings.ProfileUpdateType != ProfileUpdateType.None)
+            if (App.ProfileUpdateType != ProfileUpdateType.None)
             {
-                UpdatePage(AppSettings.ProfileUpdateType);
-                AppSettings.ProfileUpdateType = ProfileUpdateType.None;
+                UpdatePage(App.ProfileUpdateType);
+                App.ProfileUpdateType = ProfileUpdateType.None;
             }
         }
     }

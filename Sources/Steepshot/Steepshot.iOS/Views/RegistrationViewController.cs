@@ -4,6 +4,7 @@ using PureLayout.Net;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
+using Steepshot.iOS.Delegates;
 using Steepshot.iOS.Helpers;
 using Steepshot.iOS.ViewControllers;
 using UIKit;
@@ -46,7 +47,7 @@ namespace Steepshot.iOS.Views
             View.UserInteractionEnabled = true;
 
             _timer = new Timer(OnTimer);
-            _mailChecker = new StringHelper(AppSettings.Logger);
+            _mailChecker = new StringHelper(AppDelegate.Logger);
 
             _createAcc = new UIButton();
             _createAcc.SetTitle("Create account", UIControlState.Normal);
@@ -185,7 +186,7 @@ namespace Steepshot.iOS.Views
             var leftBarButton = new UIBarButtonItem(UIImage.FromBundle("ic_back_arrow"), UIBarButtonItemStyle.Plain, GoBack);
             NavigationItem.LeftBarButtonItem = leftBarButton;
             NavigationController.NavigationBar.TintColor = Helpers.Constants.R15G24B30;
-            NavigationItem.Title = "Create account"; //AppSettings.LocalizationManager.GetText(LocalizationKeys.Comments);
+            NavigationItem.Title = "Create account"; //AppDelegate.Localization.GetText(LocalizationKeys.Comments);
         }
 
         private void CheckMail(object sender, EventArgs e)

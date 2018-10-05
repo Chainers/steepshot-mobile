@@ -1,4 +1,4 @@
-﻿namespace Steepshot.Core.Jobs
+﻿namespace Steepshot.Core.Models.Database
 {
     public enum JobState
     {

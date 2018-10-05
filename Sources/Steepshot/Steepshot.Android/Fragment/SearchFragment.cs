@@ -10,6 +10,7 @@ using Android.Widget;
 using CheeseBind;
 using Steepshot.Adapter;
 using Steepshot.Base;
+using Steepshot.Core.Extensions;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Common;
 using Steepshot.Utils;
@@ -57,7 +58,7 @@ namespace Steepshot.Fragment
             base.OnCreate(savedInstanceState);
 
             if (_searchFacade == null)
-                _searchFacade = AppSettings.GetFacade<SearchFacade>(AppSettings.MainChain);
+                _searchFacade = App.Container.GetFacade<SearchFacade>(App.MainChain);
         }
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -77,12 +78,12 @@ namespace Steepshot.Fragment
                 return;
 
             base.OnViewCreated(view, savedInstanceState);
-            _searchView.Hint = AppSettings.LocalizationManager.GetText(LocalizationKeys.SearchHint);
+            _searchView.Hint = App.Localization.GetText(LocalizationKeys.SearchHint);
             _searchView.SetFilters(new IInputFilter[] { new TextInputFilter(TextInputFilter.TagFilter) });
-            _tagsButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Tag);
-            _peopleButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Users);
-            _clearButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Clear);
-            _emptyQueryLabel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.EmptyQuery);
+            _tagsButton.Text = App.Localization.GetText(LocalizationKeys.Tag);
+            _peopleButton.Text = App.Localization.GetText(LocalizationKeys.Users);
+            _clearButton.Text = App.Localization.GetText(LocalizationKeys.Clear);
+            _emptyQueryLabel.Text = App.Localization.GetText(LocalizationKeys.EmptyQuery);
 
             _searchView.TextChanged += OnSearchViewOnTextChanged;
 

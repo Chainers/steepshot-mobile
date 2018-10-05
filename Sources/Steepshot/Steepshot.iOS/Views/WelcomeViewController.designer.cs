@@ -16,9 +16,6 @@ namespace Steepshot.iOS.Views
 		UIKit.UIView agreementView { get; set; }
 
 		[Outlet]
-		UIKit.UISwitch devSwitch { get; set; }
-
-		[Outlet]
 		UIKit.UIImageView logo { get; set; }
 
 		[Outlet]
@@ -36,12 +33,7 @@ namespace Steepshot.iOS.Views
 				agreementView.Dispose ();
 				agreementView = null;
 			}
-
-			if (devSwitch != null) {
-				devSwitch.Dispose ();
-				devSwitch = null;
-			}
-
+            
 			if (logo != null) {
 				logo.Dispose ();
 				logo = null;

@@ -2,42 +2,39 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Autofac;
 using Steepshot.Core.Authorization;
 using Steepshot.Core.Clients;
+using Steepshot.Core.Extensions;
 using Steepshot.Core.Interfaces;
 using Steepshot.Core.Models.Common;
+using Steepshot.Core.Models.Database;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Utils;
 
-namespace Steepshot.Core.Jobs.Upload
+namespace Steepshot.Core.Jobs
 {
     public class UploadMediaCommand : ICommand
     {
-        private static SteepshotClient _steepshotClient;
-        private static SteepshotApiClient _steepshotSteemApiClient;
-        private static SteepshotApiClient _steepshotGolosApiClient;
-
+        private readonly IContainer _container;
         private readonly IConnectionService _connectionService;
-        private readonly ILogService _logService;
-        private readonly UserManager _userManager;
-        private readonly DbManager _dbService;
+        private readonly DbManager _dbManager;
         private readonly IFileProvider _fileProvider;
+        private readonly ILogService _logService;
+        private readonly SteepshotClient _steepshotClient;
 
-        public static readonly int Id = 1;
+        public static readonly string Id = "4832491F-7168-4F88-B781-1BF5BF662E72";
 
-        public int CommandId => Id;
+        public string CommandId => Id;
 
-        public UploadMediaCommand(SteepshotClient steepshotClient, SteepshotApiClient steepshotSteemApiClient, SteepshotApiClient steepshotGolosApiClient,
-            IConnectionService connectionService, ILogService logService, UserManager userManager, DbManager dbService, IFileProvider fileProvider)
+        public UploadMediaCommand(IContainer container, IConnectionService connectionService, DbManager dbManager, IFileProvider fileProvider, SteepshotClient steepshotClient, ILogService logService)
         {
-            _steepshotClient = steepshotClient;
-            _steepshotSteemApiClient = steepshotSteemApiClient;
-            _steepshotGolosApiClient = steepshotGolosApiClient;
+            _container = container;
             _connectionService = connectionService;
-            _logService = logService;
-            _userManager = userManager;
-            _dbService = dbService;
+            _dbManager = dbManager;
             _fileProvider = fileProvider;
+            _steepshotClient = steepshotClient;
+            _logService = logService;
         }
 
         public async Task<JobState> Execute(int id, CancellationToken token)
@@ -46,11 +43,14 @@ namespace Steepshot.Core.Jobs.Upload
             if (!available)
                 return JobState.Skipped;
 
-            var media = _dbService.Select<UploadMediaContainer>(id);
+            var media = _dbManager.Select<UploadMediaContainer>(id);
+
             if (!IsValid(media, token))
                 return JobState.Failed;
 
-            var userInfo = _userManager.Select(media.Chain, media.Login);
+            var userManager = _container.GetUserManager();
+
+            var userInfo = userManager.Select(media.Chain, media.Login);
             if (userInfo == null)
                 return JobState.Failed;
 
@@ -71,8 +71,12 @@ namespace Steepshot.Core.Jobs.Upload
             //}
 
             await UploadAsync(userInfo, media, token);
-            await GetUploadMediaStatus(media, token);
-            await GetMediaModel(media, token);
+
+            var steepshotApiClient = _container.GetSteepshotApiClient(media.Chain);
+
+            await GetUploadMediaStatus(media, steepshotApiClient, token);
+
+            await GetMediaModel(media, steepshotApiClient, token);
 
             if (media.Items.All(i => i.State == UploadState.Ready))
                 return JobState.Ready;
@@ -148,19 +152,13 @@ namespace Steepshot.Core.Jobs.Upload
             }
         }
 
-        private async Task GetUploadMediaStatus(UploadMediaContainer mediaContainer, CancellationToken token)
+        private async Task GetUploadMediaStatus(UploadMediaContainer mediaContainer, SteepshotApiClient steepshotApiClient, CancellationToken token)
         {
-            var steepshotApiClient = mediaContainer.Chain == KnownChains.Steem
-                ? _steepshotSteemApiClient
-                : _steepshotGolosApiClient;
-
             for (var i = 0; i < mediaContainer.Items.Count; i++)
             {
                 var media = mediaContainer.Items[i];
                 if (media.State != UploadState.ReadyToVerify)
                     continue;
-
-
 
                 var operationResult = await steepshotApiClient.GetMediaStatusAsync(media.Uuid, token)
                     .ConfigureAwait(false);
@@ -188,12 +186,8 @@ namespace Steepshot.Core.Jobs.Upload
             }
         }
 
-        private async Task GetMediaModel(UploadMediaContainer mediaContainer, CancellationToken token)
+        private async Task GetMediaModel(UploadMediaContainer mediaContainer, SteepshotApiClient steepshotApiClient, CancellationToken token)
         {
-            var steepshotApiClient = mediaContainer.Chain == KnownChains.Steem
-                ? _steepshotSteemApiClient
-                : _steepshotGolosApiClient;
-
             for (var i = 0; i < mediaContainer.Items.Count; i++)
             {
                 var media = mediaContainer.Items[i];
@@ -214,17 +208,17 @@ namespace Steepshot.Core.Jobs.Upload
 
         private void SaveState(UploadMediaItem mediaItem)
         {
-            _dbService.Update(mediaItem);
+            _dbManager.Update(mediaItem);
         }
 
         public void CleanData(int id)
         {
-            _dbService.Delete<UploadMediaContainer>(id);
+            _dbManager.Delete<UploadMediaContainer>(id);
         }
 
         public object GetResult(int id)
         {
-            return _dbService.Select<UploadMediaContainer>(id);
+            return _dbManager.Select<UploadMediaContainer>(id);
         }
     }
 }

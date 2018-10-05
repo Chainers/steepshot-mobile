@@ -12,6 +12,7 @@ using UIKit;
 using Steepshot.Core.Utils;
 using System.Threading.Tasks;
 using Steepshot.Core.Exceptions;
+using Steepshot.Core.Extensions;
 using Steepshot.Core.Localization;
 
 namespace Steepshot.iOS.Views
@@ -33,7 +34,7 @@ namespace Steepshot.iOS.Views
 
         public TagsSearchViewController()
         {
-            _searchFacade = AppSettings.GetFacade<SearchFacade>(AppSettings.MainChain);
+            _searchFacade = AppDelegate.Container.GetFacade<SearchFacade>(AppDelegate.MainChain);
 
             _timer = new Timer(OnTimer);
         }
@@ -129,7 +130,7 @@ namespace Steepshot.iOS.Views
             switch (type)
             {
                 case ActionType.Profile:
-                    if (user.Author == AppSettings.User.Login)
+                    if (user.Author == AppDelegate.User.Login)
                         return;
                     var myViewController = new ProfileViewController();
                     myViewController.Username = user.Author;
@@ -155,7 +156,7 @@ namespace Steepshot.iOS.Views
 
         private void SetBackButton()
         {
-            NavigationItem.Title = AppSettings.LocalizationManager.GetText(LocalizationKeys.RecipientNameHint);
+            NavigationItem.Title = AppDelegate.Localization.GetText(LocalizationKeys.RecipientNameHint);
             _leftBarButton.Image = UIImage.FromBundle("ic_back_arrow");
             _leftBarButton.TintColor = Helpers.Constants.R15G24B30;
             NavigationItem.LeftBarButtonItem = _leftBarButton;

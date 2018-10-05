@@ -14,6 +14,7 @@ using Steepshot.Core.Extensions;
 using UIKit;
 using Steepshot.Core.Models.Requests;
 using System.Globalization;
+using Steepshot.iOS.Delegates;
 
 namespace Steepshot.iOS.Views
 {
@@ -65,7 +66,7 @@ namespace Steepshot.iOS.Views
             }
             else
             {
-                UpdateTokenValues(_walletPresenter.Balances[0].Value.ToBalanceValueString(), AppSettings.LocalizationManager.GetText(LocalizationKeys.AmountLimit), _walletPresenter.Balances[0].EffectiveSp.ToBalanceValueString(), AppSettings.LocalizationManager.GetText(LocalizationKeys.AmountLimit));
+                UpdateTokenValues(_walletPresenter.Balances[0].Value.ToBalanceValueString(), AppDelegate.Localization.GetText(LocalizationKeys.AmountLimit), _walletPresenter.Balances[0].EffectiveSp.ToBalanceValueString(), AppDelegate.Localization.GetText(LocalizationKeys.AmountLimit));
                 _powerAmount = -1;
                 errorMessage.Hidden = false;
             }
@@ -237,14 +238,14 @@ namespace Steepshot.iOS.Views
             amountBackground.AutoPinEdgeToSuperviewEdge(ALEdge.Right);
 
             var amountLabel = new UILabel();
-            amountLabel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Amount);
+            amountLabel.Text = AppDelegate.Localization.GetText(LocalizationKeys.Amount);
             amountLabel.Font = Constants.Semibold14;
             amountBackground.AddSubview(amountLabel);
 
             amountLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Top, 15);
             amountLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 20);
 
-            _amountTextField = new SearchTextField(AppSettings.LocalizationManager.GetText(LocalizationKeys.TransferAmountHint), new AmountFieldDelegate(), false);
+            _amountTextField = new SearchTextField(AppDelegate.Localization.GetText(LocalizationKeys.TransferAmountHint), new AmountFieldDelegate(), false);
             _amountTextField.EditingChanged += AmountEditOnTextChanged;
             _amountTextField.KeyboardType = UIKeyboardType.DecimalPad;
             _amountTextField.Layer.CornerRadius = 25;
@@ -264,7 +265,7 @@ namespace Steepshot.iOS.Views
             {
                 Font = Constants.Semibold14,
                 TextColor = Constants.R255G34B5,
-                Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.AmountLimitFull),
+                Text = AppDelegate.Localization.GetText(LocalizationKeys.AmountLimitFull),
                 Hidden = true,
             };
             amountBackground.AddSubview(errorMessage);
@@ -274,7 +275,7 @@ namespace Steepshot.iOS.Views
             errorMessage.AutoPinEdge(ALEdge.Right, ALEdge.Right, _amountTextField);
 
             var max = new UIButton();
-            max.SetTitle(AppSettings.LocalizationManager.GetText(LocalizationKeys.Max), UIControlState.Normal);
+            max.SetTitle(AppDelegate.Localization.GetText(LocalizationKeys.Max), UIControlState.Normal);
             max.SetTitleColor(UIColor.Black, UIControlState.Normal);
             max.Font = Constants.Semibold14;
             max.Layer.BorderWidth = 1;
@@ -289,7 +290,7 @@ namespace Steepshot.iOS.Views
             max.AutoAlignAxis(ALAxis.Horizontal, _amountTextField);
             max.TouchDown += MaxBtnOnClick;
 
-            _actionButton.SetTitle(AppSettings.LocalizationManager.GetText(_powerAction == PowerAction.PowerUp ? LocalizationKeys.PowerUp : LocalizationKeys.PowerDown), UIControlState.Normal);
+            _actionButton.SetTitle(AppDelegate.Localization.GetText(_powerAction == PowerAction.PowerUp ? LocalizationKeys.PowerUp : LocalizationKeys.PowerDown), UIControlState.Normal);
             _actionButton.SetTitleColor(UIColor.White, UIControlState.Normal);
             _actionButton.SetTitleColor(UIColor.Clear, UIControlState.Disabled);
 
@@ -318,7 +319,7 @@ namespace Steepshot.iOS.Views
             NavigationItem.SetLeftBarButtonItem(leftBarButton, true);
             NavigationController.NavigationBar.TintColor = Constants.R15G24B30;
 
-            NavigationItem.Title = AppSettings.LocalizationManager.GetText(_powerAction == PowerAction.PowerUp ? LocalizationKeys.PowerUp : LocalizationKeys.PowerDown);
+            NavigationItem.Title = AppDelegate.Localization.GetText(_powerAction == PowerAction.PowerUp ? LocalizationKeys.PowerUp : LocalizationKeys.PowerDown);
 
             NavigationController.NavigationBar.Translucent = false;
         }

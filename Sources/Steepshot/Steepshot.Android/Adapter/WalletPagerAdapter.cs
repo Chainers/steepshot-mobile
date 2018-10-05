@@ -9,6 +9,7 @@ using Android.Util;
 using Android.Views;
 using Android.Widget;
 using IO.SuperCharge.ShimmerLayoutLib;
+using Steepshot.Base;
 using Steepshot.Core.Extensions;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Common;
@@ -209,7 +210,7 @@ namespace Steepshot.Adapter
                 case CurrencyType.Steem:
                 case CurrencyType.Golos:
                     {
-                        _balanceTitle.Text = $"{balance.CurrencyType.ToString()} {AppSettings.LocalizationManager.GetText(LocalizationKeys.Balance).ToLower()}";
+                        _balanceTitle.Text = $"{balance.CurrencyType.ToString()} {App.Localization.GetText(LocalizationKeys.Balance).ToLower()}";
                         _tokenBalanceTitle2.Text = $"{balance.CurrencyType.ToString()} Power".ToUpper();
                         usdBalance = (balance.Value + balance.EffectiveSp) * (currencyRate?.UsdRate ?? 1);
                         break;
@@ -217,7 +218,7 @@ namespace Steepshot.Adapter
                 case CurrencyType.Sbd:
                 case CurrencyType.Gbg:
                     {
-                        _balanceTitle.Text = $"{balance.CurrencyType.ToString().ToUpper()} {AppSettings.LocalizationManager.GetText(LocalizationKeys.Balance).ToLower()}";
+                        _balanceTitle.Text = $"{balance.CurrencyType.ToString().ToUpper()} {App.Localization.GetText(LocalizationKeys.Balance).ToLower()}";
                         _tokenBalanceTitle2.Visibility = ViewStates.Gone;
                         _tokenBalance2.Visibility = ViewStates.Gone;
                         usdBalance = balance.Value * (currencyRate?.UsdRate ?? 1);

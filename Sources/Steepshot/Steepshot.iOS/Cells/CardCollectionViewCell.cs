@@ -7,6 +7,7 @@ using Steepshot.iOS.Helpers;
 using Steepshot.Core.Extensions;
 using UIKit;
 using Steepshot.Core.Models.Requests;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.iOS.Cells
 {

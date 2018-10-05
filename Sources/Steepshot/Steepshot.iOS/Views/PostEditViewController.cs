@@ -27,7 +27,7 @@ namespace Steepshot.iOS.Views
             SetupTags();
             SetupFields();
 
-            model = new PreparePostModel(AppSettings.User.UserInfo, post, AppSettings.AppInfo.GetModel());
+            model = new PreparePostModel(AppDelegate.User.UserInfo, post, AppDelegate.AppInfo.GetModel());
         }
 
         protected override void GetPostSize()
@@ -117,7 +117,7 @@ namespace Steepshot.iOS.Views
                 }
                 catch (Exception ex)
                 {
-                    AppSettings.Logger.WarningAsync(ex);
+                    AppDelegate.Logger.WarningAsync(ex);
                 }
                 finally
                 { 

@@ -10,6 +10,7 @@ using Android.Views;
 using Android.Views.Animations;
 using Newtonsoft.Json;
 using Square.Picasso;
+using Steepshot.Base;
 using Steepshot.Core.Utils;
 using Steepshot.Utils;
 using Math = System.Math;
@@ -541,7 +542,7 @@ namespace Steepshot.CustomViews
                 }
                 catch (Exception ex)
                 {
-                    AppSettings.Logger.WarningAsync(ex);
+                    App.Logger.WarningAsync(ex);
                     return null;
                 }
             });

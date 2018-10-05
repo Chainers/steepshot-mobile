@@ -7,6 +7,7 @@ using Ditch.Core.JsonRpc;
 using Newtonsoft.Json;
 using Steepshot.Core.Clients;
 using Steepshot.Core.Interfaces;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Presenters
 {

@@ -10,6 +10,7 @@ using Android.Views;
 using Android.Views.Animations;
 using Android.Widget;
 using Java.Lang;
+using Steepshot.Base;
 using Math = System.Math;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Exceptions;
@@ -302,7 +303,7 @@ namespace Steepshot.CustomViews
             }
             catch (System.Exception ex)
             {
-                AppSettings.Logger.WarningAsync(ex);
+                App.Logger.WarningAsync(ex);
             }
         }
 
@@ -1167,7 +1168,7 @@ namespace Steepshot.CustomViews
                 }
                 catch (System.Exception ex)
                 {
-                    AppSettings.Logger.WarningAsync(ex);
+                    App.Logger.WarningAsync(ex);
                 }
             }
 
@@ -1205,7 +1206,7 @@ namespace Steepshot.CustomViews
                 }
                 catch (System.Exception ex)
                 {
-                    AppSettings.Logger.WarningAsync(ex);
+                    App.Logger.WarningAsync(ex);
                 }
             }
         }

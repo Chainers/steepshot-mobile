@@ -8,6 +8,7 @@ using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
+using Steepshot.iOS.Delegates;
 using Steepshot.iOS.Helpers;
 using Steepshot.iOS.Views;
 using UIKit;
@@ -72,12 +73,12 @@ namespace Steepshot.iOS.ViewControllers
             _avatar.Image = UIImage.FromBundle("ic_noavatar");
             _avatar.ContentMode = UIViewContentMode.ScaleAspectFill;
 
-            _presenter = AppSettings.GetPresenter<UserProfilePresenter>(AppSettings.MainChain);
-            _presenter.UserName = AppSettings.User.Login;
+            _presenter = AppDelegate.Container.GetPresenter<UserProfilePresenter>(AppDelegate.MainChain);
+            _presenter.UserName = AppDelegate.User.Login;
 
             TabBar.Subviews[3].AddSubview(_powerFrame);
             InitializePowerFrame();
-            if (!AppSettings.AppInfo.GetModel().Contains("Simulator"))
+            if (!AppDelegate.AppInfo.GetModel().Contains("Simulator"))
                 InitPushes();
         }
 
@@ -88,17 +89,17 @@ namespace Steepshot.iOS.ViewControllers
 
         private async void OneSignalCallback(string playerId, string pushToken)
         {
-            OneSignal.Current.SendTag("username", AppSettings.User.Login);
+            OneSignal.Current.SendTag("username", AppDelegate.User.Login);
             OneSignal.Current.SendTag("player_id", playerId);
-            if (string.IsNullOrEmpty(AppSettings.User.PushesPlayerId) || !AppSettings.User.PushesPlayerId.Equals(playerId))
+            if (string.IsNullOrEmpty(AppDelegate.User.PushesPlayerId) || !AppDelegate.User.PushesPlayerId.Equals(playerId))
             {
-                var model = new PushNotificationsModel(AppSettings.User.UserInfo, playerId, true)
+                var model = new PushNotificationsModel(AppDelegate.User.UserInfo, playerId, true)
                 {
                     Subscriptions = PushSettings.All.FlagToStringList()
                 };
                 var response = await _presenter.TrySubscribeForPushesAsync(model);
                 if (response.IsSuccess)
-                    AppSettings.User.PushesPlayerId = playerId;
+                    AppDelegate.User.PushesPlayerId = playerId;
             }
         }
 
@@ -111,7 +112,7 @@ namespace Steepshot.iOS.ViewControllers
         {
             do
             {
-                var result = await _presenter.TryGetUserInfoAsync(AppSettings.User.Login);
+                var result = await _presenter.TryGetUserInfoAsync(AppDelegate.User.Login);
                 if (result.IsSuccess || result.Exception is OperationCanceledException)
                 {
                     _powerFrame.ChangePercents((int)_presenter.UserProfileResponse.VotingPower);

@@ -120,9 +120,9 @@ namespace Steepshot.Fragment
             _fragmentTitle.Typeface = Style.Semibold;
             _trxHistoryTitle.Typeface = Style.Semibold;
 
-            _fragmentTitle.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Wallet);
-            _trxHistoryTitle.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.TransactionHistory);
-            _transferBtn.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Transfer);
+            _fragmentTitle.Text = App.Localization.GetText(LocalizationKeys.Wallet);
+            _trxHistoryTitle.Text = App.Localization.GetText(LocalizationKeys.TransactionHistory);
+            _transferBtn.Text = App.Localization.GetText(LocalizationKeys.Transfer);
 
             _walletPager.PageScrolled += WalletPagerOnPageScrolled;
             WalletPagerAdapter.OnPageTransforming += OnPageTransforming;
@@ -191,10 +191,7 @@ namespace Steepshot.Fragment
             if (currAcc == null)
                 return;
 
-            if (currAcc.Chain == KnownChains.Golos)
-                Presenter.SetClient(AppSettings.SteepshoGolostClient, AppSettings.GolosClient);
-            else
-                Presenter.SetClient(AppSettings.SteepshotSteemClient, AppSettings.SteemClient);
+            Presenter.SetClient(App.Container, currAcc.Chain);
 
             var exception = await Presenter.TryLoadNextAccountInfoAsync();
             if (exception == null && IsInitialized && !IsDetached)
@@ -227,9 +224,9 @@ namespace Steepshot.Fragment
                     ((BaseActivity)Activity).OpenNewContentFragment(powerUpOrDownFrag);
                     break;
                 case PowerAction.CancelPowerDown:
-                    var alertAction = new ActionAlertDialog(Activity, string.Format(AppSettings.LocalizationManager.GetText(LocalizationKeys.CancelPowerDownAlert), Presenter.Balances[_walletPager.CurrentItem].ToWithdraw.ToBalanceValueString()),
-                        string.Empty, AppSettings.LocalizationManager.GetText(LocalizationKeys.Yes),
-                                      AppSettings.LocalizationManager.GetText(LocalizationKeys.No), AutoLinkAction);
+                    var alertAction = new ActionAlertDialog(Activity, string.Format(App.Localization.GetText(LocalizationKeys.CancelPowerDownAlert), Presenter.Balances[_walletPager.CurrentItem].ToWithdraw.ToBalanceValueString()),
+                        string.Empty, App.Localization.GetText(LocalizationKeys.Yes),
+                                      App.Localization.GetText(LocalizationKeys.No), AutoLinkAction);
                     alertAction.AlertAction += () =>
                     {
                         var userInfo = Presenter.Balances[_walletPager.CurrentItem].UserInfo;

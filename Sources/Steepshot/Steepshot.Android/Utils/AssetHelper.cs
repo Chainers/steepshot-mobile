@@ -2,6 +2,7 @@
 using System.IO;
 using Android.Content.Res;
 using Newtonsoft.Json;
+using Steepshot.Base;
 using Steepshot.Core.Clients;
 using Steepshot.Core.Interfaces;
 using Steepshot.Core.Utils;
@@ -40,7 +41,7 @@ namespace Steepshot.Utils
             }
             catch (System.Exception ex)
             {
-                AppSettings.Logger.WarningAsync(ex);
+                App.Logger.WarningAsync(ex);
             }
             finally
             {
@@ -85,7 +86,7 @@ namespace Steepshot.Utils
             }
             catch (System.Exception ex)
             {
-                AppSettings.Logger.WarningAsync(ex);
+                App.Logger.WarningAsync(ex);
             }
             return new T();
         }

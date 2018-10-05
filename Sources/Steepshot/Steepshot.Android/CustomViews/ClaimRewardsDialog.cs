@@ -8,6 +8,7 @@ using Android.Util;
 using Android.Views;
 using Android.Widget;
 using Ditch.Core.JsonRpc;
+using Steepshot.Base;
 using Steepshot.Core;
 using Steepshot.Core.Extensions;
 using Steepshot.Core.Localization;
@@ -44,7 +45,7 @@ namespace Steepshot.CustomViews
 
                 _title = dialogView.FindViewById<TextView>(Resource.Id.title);
                 _title.Typeface = Style.Light;
-                _title.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.TimeToClaimRewards);
+                _title.Text = App.Localization.GetText(LocalizationKeys.TimeToClaimRewards);
 
                 var tokenOne = dialogView.FindViewById<TextView>(Resource.Id.token_one);
                 tokenOne.Typeface = Style.Semibold;
@@ -84,11 +85,11 @@ namespace Steepshot.CustomViews
                 _claimBtnContainer = dialogView.FindViewById<RelativeLayout>(Resource.Id.claimBtnContainer);
 
                 _claimBtn = dialogView.FindViewById<Button>(Resource.Id.claimBtn);
-                _claimBtn.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.ClaimRewards);
+                _claimBtn.Text = App.Localization.GetText(LocalizationKeys.ClaimRewards);
                 _claimBtn.Click += ClaimBtnOnClick;
 
                 var closeBtn = dialogView.FindViewById<Button>(Resource.Id.close);
-                closeBtn.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Close);
+                closeBtn.Text = App.Localization.GetText(LocalizationKeys.Close);
                 closeBtn.Click += CloseBtnOnClick;
 
                 _claimSpinner = dialogView.FindViewById<ProgressBar>(Resource.Id.claim_spinner);
@@ -118,12 +119,12 @@ namespace Steepshot.CustomViews
             var result = await Claim.Invoke(_balance);
             if (result.IsSuccess)
             {
-                _title.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.RewardsClaimed);
+                _title.Text = App.Localization.GetText(LocalizationKeys.RewardsClaimed);
                 _claimBtnContainer.Visibility = ViewStates.Gone;
             }
             else if (IsShowing)
             {
-                _claimBtn.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.ClaimRewards);
+                _claimBtn.Text = App.Localization.GetText(LocalizationKeys.ClaimRewards);
                 _claimSpinner.Visibility = ViewStates.Gone;
                 Context.ShowAlert(result);
             }

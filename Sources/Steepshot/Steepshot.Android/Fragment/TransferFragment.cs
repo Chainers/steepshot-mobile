@@ -119,7 +119,7 @@ namespace Steepshot.Fragment
         }
         private bool IsKeyboardOpening => LytHeightDiff > Style.KeyboardVisibilityThreshold;
 
-        public TransferFragment() : this(AppSettings.User.UserInfo)
+        public TransferFragment() : this(App.User.UserInfo)
         {
         }
 
@@ -140,7 +140,7 @@ namespace Steepshot.Fragment
 
             _pickedCoin = _coins[0];
 
-            _transferFacade = AppSettings.GetFacade<TransferFacade>(_userInfo.Chain);
+            _transferFacade = App.Container.GetFacade<TransferFacade>(_userInfo.Chain);
             _transferFacade.OnRecipientChanged += OnRecipientChanged;
             _transferFacade.OnUserBalanceChanged += OnUserBalanceChanged;
         }
@@ -193,19 +193,19 @@ namespace Steepshot.Fragment
             _emptyQueryLabel.Typeface = Style.Light;
             _username.Typeface = Style.Semibold;
 
-            _fragmentTitle.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Transfer);
-            _recipientTitle.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.RecipientName);
-            _recipientSearch.Hint = AppSettings.LocalizationManager.GetText(LocalizationKeys.RecipientNameHint);
-            _transferAmountTitle.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.TransferAmount);
-            _transferAmountEdit.Hint = AppSettings.LocalizationManager.GetText(LocalizationKeys.TransferAmountHint);
-            _maxBtn.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Max);
-            _transferCommentTitle.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.TransferComment);
-            _transferCommentEdit.Hint = AppSettings.LocalizationManager.GetText(LocalizationKeys.TranferCommentHint);
-            _emptyQueryLabel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.EmptyQuery);
-            _transferBtn.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Transfer);
-            _username.Text = $"@{_userInfo?.Login ?? AppSettings.User.Login}";
-            _balance.Text = $"{AppSettings.LocalizationManager.GetText(LocalizationKeys.Balance)}:";
-            _amountLimitMessage.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.AmountLimitFull);
+            _fragmentTitle.Text = App.Localization.GetText(LocalizationKeys.Transfer);
+            _recipientTitle.Text = App.Localization.GetText(LocalizationKeys.RecipientName);
+            _recipientSearch.Hint = App.Localization.GetText(LocalizationKeys.RecipientNameHint);
+            _transferAmountTitle.Text = App.Localization.GetText(LocalizationKeys.TransferAmount);
+            _transferAmountEdit.Hint = App.Localization.GetText(LocalizationKeys.TransferAmountHint);
+            _maxBtn.Text = App.Localization.GetText(LocalizationKeys.Max);
+            _transferCommentTitle.Text = App.Localization.GetText(LocalizationKeys.TransferComment);
+            _transferCommentEdit.Hint = App.Localization.GetText(LocalizationKeys.TranferCommentHint);
+            _emptyQueryLabel.Text = App.Localization.GetText(LocalizationKeys.EmptyQuery);
+            _transferBtn.Text = App.Localization.GetText(LocalizationKeys.Transfer);
+            _username.Text = $"@{_userInfo?.Login ?? App.User.Login}";
+            _balance.Text = $"{App.Localization.GetText(LocalizationKeys.Balance)}:";
+            _amountLimitMessage.Text = App.Localization.GetText(LocalizationKeys.AmountLimitFull);
 
             _recipientSearch.SetFilters(new IInputFilter[] { new TextInputFilter(TextInputFilter.TagFilter) });
             _commentShape = new GradientDrawable();
@@ -311,7 +311,7 @@ namespace Steepshot.Fragment
 
         private void OnFragmentStateChanged()
         {
-            _transferBtn.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Transfer);
+            _transferBtn.Text = App.Localization.GetText(LocalizationKeys.Transfer);
             _emptyQueryLabel.Visibility = ViewStates.Gone;
             _transferLoader.Visibility = ViewStates.Gone;
             EditEnabled = true;
@@ -349,7 +349,7 @@ namespace Steepshot.Fragment
         private void OnUserBalanceChanged()
         {
             if (_transferFacade.UserBalance != null)
-                _balance.Text = $"{AppSettings.LocalizationManager.GetText(LocalizationKeys.Balance)}: {_transferFacade.UserBalance.Value.ToString(CultureInfo.InvariantCulture)}";
+                _balance.Text = $"{App.Localization.GetText(LocalizationKeys.Balance)}: {_transferFacade.UserBalance.Value.ToString(CultureInfo.InvariantCulture)}";
         }
 
         private void OnRecipientChanged()
@@ -576,7 +576,7 @@ namespace Steepshot.Fragment
         {
             if (_transferFacade.Recipient == null)
             {
-                Toast.MakeText(Activity, AppSettings.LocalizationManager.GetText(LocalizationKeys.WrongRecipientName), ToastLength.Short).Show();
+                Toast.MakeText(Activity, App.Localization.GetText(LocalizationKeys.WrongRecipientName), ToastLength.Short).Show();
                 return false;
             }
 
@@ -590,7 +590,7 @@ namespace Steepshot.Fragment
 
             if (!validNumber || Math.Abs(transferAmount) < 0.0000001 || transferAmount > _transferFacade.UserBalance.Value)
             {
-                Toast.MakeText(Activity, AppSettings.LocalizationManager.GetText(LocalizationKeys.WrongTransferAmount), ToastLength.Short).Show();
+                Toast.MakeText(Activity, App.Localization.GetText(LocalizationKeys.WrongTransferAmount), ToastLength.Short).Show();
                 return false;
             }
 
@@ -627,11 +627,11 @@ namespace Steepshot.Fragment
 
         private void TransferConfirmation()
         {
-            var transferConfirmation = AppSettings.LocalizationManager.GetText(LocalizationKeys.TransferConfirmation, _transferAmountEdit.Text, _pickedCoin, _transferFacade.Recipient.Author);
+            var transferConfirmation = App.Localization.GetText(LocalizationKeys.TransferConfirmation, _transferAmountEdit.Text, _pickedCoin, _transferFacade.Recipient.Author);
             var actionAlert = new ActionAlertDialog(Context, transferConfirmation,
-                                                    AppSettings.LocalizationManager.GetText(string.Empty),
-                                                    AppSettings.LocalizationManager.GetText(LocalizationKeys.Yes),
-                                                    AppSettings.LocalizationManager.GetText(LocalizationKeys.No), AutoLinkAction, Orientation.Vertical);
+                                                    App.Localization.GetText(string.Empty),
+                                                    App.Localization.GetText(LocalizationKeys.Yes),
+                                                    App.Localization.GetText(LocalizationKeys.No), AutoLinkAction, Orientation.Vertical);
             actionAlert.AlertAction += Transfer;
             actionAlert.Show();
         }

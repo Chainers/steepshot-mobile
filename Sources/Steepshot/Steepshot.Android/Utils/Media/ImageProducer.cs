@@ -4,6 +4,7 @@ using Android.Graphics.Drawables;
 using Square.Picasso;
 using Steepshot.Core.Extensions;
 using Steepshot.Core.Models.Common;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.Utils.Media
 {

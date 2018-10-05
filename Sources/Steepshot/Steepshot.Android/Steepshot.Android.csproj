@@ -120,8 +120,9 @@
     <Compile Include="CustomViews\WalletExtraDialog.cs" />
     <Compile Include="Fragment\NewCameraFragment.cs" />
     <Compile Include="CustomViews\WheelPicker.cs" />
-    <Compile Include="Fragment\PreviewPostCreateFragment.cs" />
     <Compile Include="Fragment\PostCreateFragment.cs" />
+    <Compile Include="Fragment\PreviewPostCreateFragment.cs" />
+    <Compile Include="Fragment\PostCreateFragment_new.cs" />
     <Compile Include="Fragment\PostPrepareBaseFragment.cs" />
     <Compile Include="Fragment\PowerUpDownFragment.cs" />
     <Compile Include="Fragment\TransferFragment.cs" />
@@ -132,6 +133,7 @@
     <Compile Include="Resources\Resource.designer.cs" />
     <Compile Include="Utils\CustomBottomSheetCallback.cs" />
     <Compile Include="Utils\FileProvider.cs" />
+    <Compile Include="Utils\IocModule.cs" />
     <Compile Include="Utils\Media\ImageProducer.cs" />
     <Compile Include="Utils\Media\IMediaPerformer.cs" />
     <Compile Include="Utils\Media\IMediaProducer.cs" />

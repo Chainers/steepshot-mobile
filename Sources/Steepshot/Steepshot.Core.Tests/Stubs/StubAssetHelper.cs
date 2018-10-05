@@ -8,7 +8,7 @@ using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Tests.Stubs
 {
-    public class AssetsHelperStub : IAssetHelper
+    public class StubAssetHelper : IAssetHelper
     {
         public DebugInfo GetDebugInfo()
         {
