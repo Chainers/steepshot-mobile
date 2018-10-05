@@ -301,6 +301,54 @@ namespace Steepshot.iOS.Views
             RemoveFocusFromTextFields();
         }
 
+        private async Task<OperationResult<MediaModel>> UploadVideo()
+        {
+            Stream stream = null;
+            try
+            {
+                stream = new CustomInputStream(new NSInputStream(_videoUrl));
+                var request = new UploadMediaModel(AppSettings.User.UserInfo, stream, ".mp4");
+                var serverResult = await Presenter.TryUploadMediaAsync(request);
+                if (!serverResult.IsSuccess)
+                    return new OperationResult<MediaModel>(serverResult.Exception);
+
+                var uuidModel = serverResult.Result;
+                var done = false;
+                do
+                {
+                    var state = await Presenter.TryGetMediaStatusAsync(uuidModel);
+                    if (state.IsSuccess)
+                    {
+                        switch (state.Result.Code)
+                        {
+                            case UploadMediaCode.Done:
+                                done = true;
+                                break;
+
+                            case UploadMediaCode.FailedToProcess:
+                            case UploadMediaCode.FailedToUpload:
+                            case UploadMediaCode.FailedToSave:
+                                return new OperationResult<MediaModel>(new Exception(state.Result.Message));
+
+                            default:
+                                await Task.Delay(3000);
+                                break;
+                        }
+                    }
+                } while (!done);
+
+                return await Presenter.TryGetMediaResultAsync(uuidModel);
+            }
+            catch (Exception ex)
+            {
+                return new OperationResult<MediaModel>(new InternalException(LocalizationKeys.PhotoProcessingError, ex));
+            }
+            finally
+            {
+                stream?.Dispose();
+            }
+        }
+
         private async Task<OperationResult<MediaModel>> UploadPhoto(UIImage photo, NSDictionary metadata)
         {
             Stream stream = null;
@@ -512,14 +560,23 @@ namespace Steepshot.iOS.Views
                     if (!skipPreparationSteps)
                     {
                         var photoUploadRetry = false;
-                        OperationResult<MediaModel>[] photoUploadResponse = new OperationResult<MediaModel>[ImageAssets.Count];
+                        OperationResult<MediaModel>[] photoUploadResponse;
+                        if(_mediaType == MediaType.Photo)
+                            photoUploadResponse = new OperationResult<MediaModel>[ImageAssets.Count];
+                        else
+                            photoUploadResponse = new OperationResult<MediaModel>[1];
                         do
                         {
                             photoUploadRetry = false;
-                            for (int i = 0; i < ImageAssets.Count; i++)
+                            if (_mediaType == MediaType.Photo)
                             {
-                                photoUploadResponse[i] = UploadPhoto(ImageAssets[i].Item2, ImageAssets[i].Item1).Result;
+                                for (int i = 0; i < ImageAssets.Count; i++)
+                                {
+                                    photoUploadResponse[i] = UploadPhoto(ImageAssets[i].Item2, ImageAssets[i].Item1).Result;
+                                }
                             }
+                            else
+                                photoUploadResponse[0] = UploadVideo().Result;
 
                             if (photoUploadResponse.Any(r => r.IsSuccess == false))
                             {
@@ -545,6 +602,11 @@ namespace Steepshot.iOS.Views
 
                         if (shouldReturn)
                             return;
+
+                        foreach (var item in photoUploadResponse)
+                        {
+                            item.Result.Url = item.Result.Url.Replace("http", "https");
+                        }
 
                         model = new PreparePostModel(AppSettings.User.UserInfo, AppSettings.AppInfo.GetModel())
                         {
