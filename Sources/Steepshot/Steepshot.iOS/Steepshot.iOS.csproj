@@ -448,6 +448,7 @@
     <Compile Include="Models\EmptyLogger.cs" />
     <Compile Include="ViewSources\SliderCollectionViewSource.cs" />
     <Compile Include="ViewSources\ProfileCollectionViewSource.cs" />
+    <Compile Include="Views\DescriptionViewControllerDesigner.cs" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\ic_photo_holder.png" />
