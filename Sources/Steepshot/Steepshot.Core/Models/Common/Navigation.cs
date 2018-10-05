@@ -9,10 +9,11 @@ namespace Steepshot.Core.Models.Common
 
         public Dictionary<string, TabOptions> TabSettings { get; set; } = new Dictionary<string, TabOptions>();
     }
-    
+
     public sealed class TabOptions
     {
         public bool IsGridView { get; set; } = false;
+
         public PostType PostType { get; set; } = PostType.Hot;
     }
 }

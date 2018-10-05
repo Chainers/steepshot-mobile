@@ -16,9 +16,11 @@ using CheeseBind;
 using Steepshot.Activity;
 using Steepshot.Adapter;
 using Steepshot.Base;
+using Steepshot.Core.Extensions;
 using Steepshot.Core.Facades;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models;
+using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Presenters;
@@ -98,13 +100,13 @@ namespace Steepshot.Fragment
 
             base.OnViewCreated(view, savedInstanceState);
 
-            TagEdit.Hint = AppSettings.LocalizationManager.GetText(LocalizationKeys.Hashtag);
+            TagEdit.Hint = App.Localization.GetText(LocalizationKeys.Hashtag);
             TagEdit.SetFilters(new IInputFilter[] { new TextInputFilter(TextInputFilter.TagFilter), new InputFilterLengthFilter(40) });
-            TagLabel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Hashtag);
-            Title.Hint = AppSettings.LocalizationManager.GetText(LocalizationKeys.EnterPostTitle);
-            Description.Hint = AppSettings.LocalizationManager.GetText(LocalizationKeys.EnterPostDescription);
-            PostButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PublishButtonText);
-            PageTitle.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PostSettings);
+            TagLabel.Text = App.Localization.GetText(LocalizationKeys.Hashtag);
+            Title.Hint = App.Localization.GetText(LocalizationKeys.EnterPostTitle);
+            Description.Hint = App.Localization.GetText(LocalizationKeys.EnterPostDescription);
+            PostButton.Text = App.Localization.GetText(LocalizationKeys.PublishButtonText);
+            PageTitle.Text = App.Localization.GetText(LocalizationKeys.PostSettings);
 
             PageTitle.Typeface = Style.Semibold;
             Title.Typeface = Style.Regular;
@@ -122,7 +124,7 @@ namespace Steepshot.Fragment
             LocalTagsList.SetAdapter(LocalTagsAdapter);
             LocalTagsList.AddItemDecoration(new ListItemDecoration((int)TypedValue.ApplyDimension(ComplexUnitType.Dip, 15, Resources.DisplayMetrics)));
 
-            _tagPickerFacade = AppSettings.GetFacade<TagPickerFacade>(AppSettings.MainChain, new TypedParameter(_localTagsAdapter.LocalTags.GetType(), _localTagsAdapter.LocalTags));
+            _tagPickerFacade = App.Container.GetFacade<TagPickerFacade>(App.MainChain, new TypedParameter(_localTagsAdapter.LocalTags.GetType(), _localTagsAdapter.LocalTags));
             _tagPickerFacade.SourceChanged += TagPickerFacadeOnSourceChanged;
 
             _postSearchTagsAdapter = new PostSearchTagsAdapter(_tagPickerFacade);
@@ -141,7 +143,7 @@ namespace Steepshot.Fragment
             RootLayout.Click += OnRootLayoutClick;
 
             Timer = new Timer(OnTimer);
-            Model = new PreparePostModel(AppSettings.User.UserInfo, AppSettings.AppInfo.GetModel());
+            Model = new PreparePostModel(App.User.UserInfo, App.AppInfo.GetModel());
         }
 
         public override void OnDetach()
@@ -169,15 +171,6 @@ namespace Steepshot.Fragment
             if (string.IsNullOrEmpty(Title.Text))
             {
                 Activity.ShowAlert(LocalizationKeys.EmptyTitleField, ToastLength.Long);
-                EnabledPost();
-                return;
-            }
-
-            var isConnected = AppSettings.ConnectionService.IsConnectionAvailable();
-
-            if (!isConnected)
-            {
-                Activity.ShowAlert(LocalizationKeys.InternetUnavailable);
                 EnabledPost();
                 return;
             }
@@ -219,7 +212,7 @@ namespace Steepshot.Fragment
 
         protected void EnabledPost()
         {
-            PostButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PublishButtonText);
+            PostButton.Text = App.Localization.GetText(LocalizationKeys.PublishButtonText);
             EnablePostAndEdit(true, true);
         }
 
@@ -245,9 +238,9 @@ namespace Steepshot.Fragment
 
             if (resp.IsSuccess)
             {
-                AppSettings.User.UserInfo.LastPostTime = DateTime.Now;
+                App.User.UserInfo.LastPostTime = DateTime.Now;
                 EnabledPost();
-                AppSettings.ProfileUpdateType = ProfileUpdateType.Full;
+                App.ProfileUpdateType = ProfileUpdateType.Full;
                 OnPostSuccess();
                 if (Activity is SplashActivity || Activity is CameraActivity)
                     Activity.Finish();
@@ -331,7 +324,7 @@ namespace Steepshot.Fragment
 
         protected void AnimateTagsLayout(bool openTags)
         {
-            PageTitle.Text = AppSettings.LocalizationManager.GetText(openTags ? LocalizationKeys.AddHashtag : LocalizationKeys.PostSettings);
+            PageTitle.Text = App.Localization.GetText(openTags ? LocalizationKeys.AddHashtag : LocalizationKeys.PostSettings);
             TagEdit.Visibility = TagsListContainer.Visibility = openTags ? ViewStates.Visible : ViewStates.Gone;
             PhotosContainer.Visibility = TitleContainer.Visibility = DescriptionContainer.Visibility = TagLabelContainer.Visibility = TagsFlow.Visibility = PostBtnContainer.Visibility = openTags ? ViewStates.Gone : ViewStates.Visible;
             LocalTagsList.Visibility = openTags && _localTagsAdapter.LocalTags.Count > 0 ? ViewStates.Visible : ViewStates.Gone;

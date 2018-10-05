@@ -8,6 +8,7 @@ using Android.Widget;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Presenters;
+using Steepshot.Core.Utils;
 using Steepshot.CustomViews;
 using Steepshot.Utils;
 using Object = Java.Lang.Object;

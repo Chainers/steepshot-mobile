@@ -30,9 +30,6 @@ namespace Steepshot.Services
 
         private bool TryToConnect()
         {
-            if (AppSettings.ExtendedHttpClient == null)
-                return false;
-
             try
             {
                 lock (_connectivityManager)

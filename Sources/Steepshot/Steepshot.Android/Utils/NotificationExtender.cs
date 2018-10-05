@@ -5,6 +5,7 @@ using Android.Support.V4.App;
 using Android.OS;
 using Com.OneSignal.Android;
 using Square.Picasso;
+using Steepshot.Base;
 using Steepshot.Core.Utils;
 
 namespace Steepshot.Utils
@@ -23,7 +24,7 @@ namespace Steepshot.Utils
             _result = p0;
             var overrideSettings = new OverrideSettings { Extender = this };
 
-            var isUserAuthenticated = AppSettings.User.HasPostingPermission;
+            var isUserAuthenticated = App.User.HasPostingPermission;
             if (isUserAuthenticated)
                 DisplayNotification(overrideSettings);
 
@@ -42,7 +43,7 @@ namespace Steepshot.Utils
             }
             catch (System.Exception ex)
             {
-                AppSettings.Logger.WarningAsync(ex);
+                App.Logger.WarningAsync(ex);
             }
             finally
             {

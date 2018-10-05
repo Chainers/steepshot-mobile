@@ -5,6 +5,7 @@ using Android.Support.Design.Widget;
 using Android.Util;
 using Android.Views;
 using Android.Widget;
+using Steepshot.Base;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Utils;
 using Steepshot.Utils;
@@ -36,11 +37,11 @@ namespace Steepshot.CustomViews
 
                 var title = dialogView.FindViewById<TextView>(Resource.Id.title);
                 title.Typeface = Style.Light;
-                title.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.TransferSuccess);
+                title.Text = App.Localization.GetText(LocalizationKeys.TransferSuccess);
 
                 var recipient = dialogView.FindViewById<TextView>(Resource.Id.recipient);
                 recipient.Typeface = Style.Semibold;
-                recipient.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Recipient);
+                recipient.Text = App.Localization.GetText(LocalizationKeys.Recipient);
 
                 var recipientName = dialogView.FindViewById<TextView>(Resource.Id.recipient_value);
                 recipientName.Typeface = Style.Semibold;
@@ -48,14 +49,14 @@ namespace Steepshot.CustomViews
 
                 var amount = dialogView.FindViewById<TextView>(Resource.Id.amount);
                 amount.Typeface = Style.Semibold;
-                amount.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Amount);
+                amount.Text = App.Localization.GetText(LocalizationKeys.Amount);
 
                 var amountValue = dialogView.FindViewById<TextView>(Resource.Id.amount_value);
                 amountValue.Typeface = Style.Semibold;
                 amountValue.Text = _amount;
 
                 var closeBtn = dialogView.FindViewById<Button>(Resource.Id.close);
-                closeBtn.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Close);
+                closeBtn.Text = App.Localization.GetText(LocalizationKeys.Close);
                 closeBtn.Click += CloseBtnOnClick;
 
                 SetContentView(dialogView);

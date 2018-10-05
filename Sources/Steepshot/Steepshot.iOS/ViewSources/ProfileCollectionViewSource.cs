@@ -1,5 +1,6 @@
 ﻿using System;
 using Steepshot.Core.Presenters;
+using Steepshot.iOS.Delegates;
 using Steepshot.iOS.Helpers;
 using UIKit;
 

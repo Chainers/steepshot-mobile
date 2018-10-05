@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Text.RegularExpressions;
+using Steepshot.iOS.Helpers;
 using UIKit;
 
-namespace Steepshot.iOS.Helpers
+namespace Steepshot.iOS.Delegates
 {
     public class BaseTextFieldDelegate : UITextFieldDelegate
     {

@@ -14,6 +14,7 @@ using UIKit;
 using Steepshot.Core.Utils;
 using Steepshot.Core.Localization;
 using PureLayout.Net;
+using Steepshot.iOS.Delegates;
 using static Steepshot.iOS.Helpers.DeviceHelper;
 
 namespace Steepshot.iOS.Views
@@ -124,7 +125,7 @@ namespace Steepshot.iOS.Views
             _leftBarButton.Image = UIImage.FromBundle("ic_back_arrow");
             NavigationItem.LeftBarButtonItem = _leftBarButton;
             NavigationController.NavigationBar.TintColor = Constants.R15G24B30;
-            NavigationItem.Title = AppSettings.LocalizationManager.GetText(LocalizationKeys.Comments);
+            NavigationItem.Title = AppDelegate.Localization.GetText(LocalizationKeys.Comments);
         }
 
         private void CreateView()
@@ -228,14 +229,14 @@ namespace Steepshot.iOS.Views
 
         public override void ViewWillLayoutSubviews()
         {
-            if (!AppSettings.User.HasPostingPermission)
+            if (!AppDelegate.User.HasPostingPermission)
                 _commentView.Hidden = true;
         }
 
         private void SetPlaceholder()
         {
             var placeholderLabel = new UILabel();
-            placeholderLabel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PutYourComment);
+            placeholderLabel.Text = AppDelegate.Localization.GetText(LocalizationKeys.PutYourComment);
             placeholderLabel.SizeToFit();
             placeholderLabel.Font = Constants.Regular14;
             placeholderLabel.TextColor = Constants.R151G155B158;
@@ -267,7 +268,7 @@ namespace Steepshot.iOS.Views
             switch (type)
             {
                 case ActionType.Profile:
-                    if (post.Author == AppSettings.User.Login)
+                    if (post.Author == AppDelegate.User.Login)
                         return;
                     var myViewController = new ProfileViewController();
                     myViewController.Username = post.Author;
@@ -346,7 +347,7 @@ namespace Steepshot.iOS.Views
 
         private async Task Vote(Post post)
         {
-            if (!AppSettings.User.HasPostingPermission)
+            if (!AppDelegate.User.HasPostingPermission)
             {
                 LoginTapped();
                 return;
@@ -360,7 +361,7 @@ namespace Steepshot.iOS.Views
 
         public async Task FlagComment(Post post)
         {
-            if (!AppSettings.User.HasPostingPermission)
+            if (!AppDelegate.User.HasPostingPermission)
             {
                 LoginTapped();
                 return;
@@ -418,7 +419,7 @@ namespace Steepshot.iOS.Views
             if (!_buttonsContainer.Hidden)
                 return;
 
-            if (!AppSettings.User.HasPostingPermission)
+            if (!AppDelegate.User.HasPostingPermission)
             {
                 LoginTapped();
                 return;
@@ -450,7 +451,7 @@ namespace Steepshot.iOS.Views
 
         public void EditComment(Post post)
         {
-            if (!AppSettings.User.HasPostingPermission)
+            if (!AppDelegate.User.HasPostingPermission)
             {
                 LoginTapped();
                 return;
@@ -505,7 +506,7 @@ namespace Steepshot.iOS.Views
             _saveButton.Hidden = true;
             _commentTextView.UserInteractionEnabled = false;
 
-            var result = await Presenter.TryEditCommentAsync(AppSettings.User.UserInfo, _post, _postToEdit, textToSend, AppSettings.AppInfo);
+            var result = await Presenter.TryEditCommentAsync(AppDelegate.User.UserInfo, _post, _postToEdit, textToSend, AppDelegate.AppInfo);
 
             if (result.IsSuccess)
                 CancelTap(null, null);

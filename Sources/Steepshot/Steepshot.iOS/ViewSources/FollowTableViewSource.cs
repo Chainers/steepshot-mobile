@@ -5,6 +5,7 @@ using Foundation;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Presenters;
+using Steepshot.Core.Utils;
 using Steepshot.iOS.Cells;
 using UIKit;
 
@@ -36,7 +37,7 @@ namespace Steepshot.iOS.ViewSources
                 if (!((FollowViewCell)cell).IsCellActionSet)
                     ((FollowViewCell)cell).CellAction = CellAction;
 
-                if(!_cellsList.Any(c => c.Handle == cell.Handle))
+                if (!_cellsList.Any(c => c.Handle == cell.Handle))
                     _cellsList.Add((FollowViewCell)cell);
 
                 ((FollowViewCell)cell).HideFollowButton = _hideFollowButton;

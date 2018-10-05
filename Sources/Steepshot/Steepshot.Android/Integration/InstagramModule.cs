@@ -18,7 +18,7 @@
 //        public InstagramModule(ChainApiClient client, User user)
 //            : base(client, user)
 //        {
-//            var dic = AppSettings.AssetHelper.IntegrationModuleConfig();
+//            var dic = App.AssetHelper.IntegrationModuleConfig();
 //            if (dic != null && dic.ContainsKey(AppId))
 //                _moduleConfig = JsonConvert.DeserializeObject<ModuleConfig>(dic[AppId]);
 //        }

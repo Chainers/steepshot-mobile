@@ -7,6 +7,7 @@ using Android.Support.V7.Widget;
 using Android.Text;
 using Android.Util;
 using Java.Util.Regex;
+using Steepshot.Base;
 using Steepshot.Core.Utils;
 
 namespace Steepshot.CustomViews
@@ -76,7 +77,7 @@ namespace Steepshot.CustomViews
             }
             catch (Exception ex)
             {
-                AppSettings.Logger.WarningAsync(ex);
+                App.Logger.WarningAsync(ex);
             }
             finally
             {

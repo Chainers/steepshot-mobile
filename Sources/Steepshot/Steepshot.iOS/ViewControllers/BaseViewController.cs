@@ -18,8 +18,8 @@ namespace Steepshot.iOS.ViewControllers
 {
     public class BaseViewController : UIViewController, IWillEnterForeground
     {
-        public static string Tos => AppSettings.User.IsDev ? "https://qa.steepshot.org/terms-of-service" : "https://steepshot.org/terms-of-service";
-        public static string Pp => AppSettings.User.IsDev ? "https://qa.steepshot.org/privacy-policy" : "https://steepshot.org/privacy-policy";
+        public static string Tos => AppDelegate.User.IsDev ? "https://qa.steepshot.org/terms-of-service" : "https://steepshot.org/terms-of-service";
+        public static string Pp => AppDelegate.User.IsDev ? "https://qa.steepshot.org/privacy-policy" : "https://steepshot.org/privacy-policy";
 
         protected UIView Activeview;
         protected nfloat ScrollAmount = 0.0f;
@@ -174,15 +174,15 @@ namespace Steepshot.iOS.ViewControllers
 
         protected void ShowAlert(LocalizationKeys key)
         {
-            var message = AppSettings.LocalizationManager.GetText(key);
+            var message = AppDelegate.Localization.GetText(key);
             var alert = UIAlertController.Create(null, Regex.Replace(message, @"[^\w\s-]", "", RegexOptions.None), UIAlertControllerStyle.Alert);
-            alert.AddAction(UIAlertAction.Create(AppSettings.LocalizationManager.GetText(LocalizationKeys.Ok), UIAlertActionStyle.Cancel, null));
+            alert.AddAction(UIAlertAction.Create(AppDelegate.Localization.GetText(LocalizationKeys.Ok), UIAlertActionStyle.Cancel, null));
             PresentViewController(alert, true, null);
         }
 
         protected void ShowCustomAlert(LocalizationKeys key, UIView viewToStartEditing)
         {
-            var message = AppSettings.LocalizationManager.GetText(key);
+            var message = AppDelegate.Localization.GetText(key);
             var popup = new UIView();
             popup.Frame = new CGRect(0, 0, UIScreen.MainScreen.Bounds.Width, UIScreen.MainScreen.Bounds.Height);
             popup.BackgroundColor = UIColor.Black.ColorWithAlpha(0.5f);
@@ -282,7 +282,7 @@ namespace Steepshot.iOS.ViewControllers
             var message = GetMsg(exception);
 
             var alert = UIAlertController.Create(null, message, UIAlertControllerStyle.Alert);
-            alert.AddAction(UIAlertAction.Create(AppSettings.LocalizationManager.GetText(LocalizationKeys.Ok), UIAlertActionStyle.Cancel, okAction));
+            alert.AddAction(UIAlertAction.Create(AppDelegate.Localization.GetText(LocalizationKeys.Ok), UIAlertActionStyle.Cancel, okAction));
             PresentViewController(alert, true, null);
         }
 
@@ -294,20 +294,20 @@ namespace Steepshot.iOS.ViewControllers
             var message = GetMsg(exception);
 
             var alert = UIAlertController.Create(null, message, UIAlertControllerStyle.Alert);
-            alert.AddAction(UIAlertAction.Create(AppSettings.LocalizationManager.GetText(leftButtonText), UIAlertActionStyle.Cancel, leftButtonAction));
-            alert.AddAction(UIAlertAction.Create(AppSettings.LocalizationManager.GetText(rightButtonText), UIAlertActionStyle.Default, rightButtonAction));
+            alert.AddAction(UIAlertAction.Create(AppDelegate.Localization.GetText(leftButtonText), UIAlertActionStyle.Cancel, leftButtonAction));
+            alert.AddAction(UIAlertAction.Create(AppDelegate.Localization.GetText(rightButtonText), UIAlertActionStyle.Default, rightButtonAction));
             PresentViewController(alert, true, null);
         }
 
         private static string GetMsg(Exception exception)
         {
-            var lm = AppSettings.LocalizationManager;
+            var lm = AppDelegate.Localization;
 
             if (exception is ValidationException validationException)
                 return lm.GetText(validationException);
 
 
-            AppSettings.Logger.ErrorAsync(exception);
+            AppDelegate.Logger.ErrorAsync(exception);
             var msg = string.Empty;
 
             if (exception is InternalException internalException)

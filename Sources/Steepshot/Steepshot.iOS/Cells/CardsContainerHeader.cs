@@ -4,6 +4,8 @@ using PureLayout.Net;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Presenters;
+using Steepshot.Core.Utils;
+using Steepshot.iOS.Delegates;
 using Steepshot.iOS.Helpers;
 using Steepshot.iOS.Views;
 using Steepshot.iOS.ViewSources;

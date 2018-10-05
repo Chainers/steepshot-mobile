@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Android.OS;
 using Android.Support.V4.App;
+using Steepshot.Base;
 using Steepshot.Core.Authorization;
 using Steepshot.Core.Models.Common;
 using Steepshot.Fragment;
@@ -47,7 +48,7 @@ namespace Steepshot.Adapter
 
         private void InitializeTabs()
         {
-            var isFirstLoad = !AppSettings.Navigation.TabSettings.Any();
+            var isFirstLoad = !App.NavigationManager.Navigation.TabSettings.Any();
             for (var i = 0; i < TabIconsInactive.Length; i++)
             {
                 HostFragment frag;
@@ -58,7 +59,7 @@ namespace Steepshot.Adapter
                         break;
                     case 1:
                         if (isFirstLoad)
-                            AppSettings.SetTabSettings(nameof(FeedFragment), new TabOptions());
+                            App.NavigationManager.SetTabSettings(nameof(FeedFragment), new TabOptions());
                         frag = HostFragment.NewInstance(new PreSearchFragment());
                         break;
                     case 2:
@@ -67,10 +68,10 @@ namespace Steepshot.Adapter
                     case 3:
                         if (isFirstLoad)
                         {
-                            AppSettings.SetTabSettings(nameof(ProfileFragment), new TabOptions());
-                            AppSettings.SetTabSettings($"User_{nameof(ProfileFragment)}", new TabOptions { IsGridView = true });
+                            App.NavigationManager.SetTabSettings(nameof(ProfileFragment), new TabOptions());
+                            App.NavigationManager.SetTabSettings($"User_{nameof(ProfileFragment)}", new TabOptions { IsGridView = true });
                         }
-                        frag = HostFragment.NewInstance(new ProfileFragment(AppSettings.User.Login));
+                        frag = HostFragment.NewInstance(new ProfileFragment(App.User.Login));
                         break;
                     default:
                         frag = null;

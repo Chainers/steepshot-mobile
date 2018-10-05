@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Autofac;
 using Com.OneSignal;
@@ -7,14 +8,12 @@ using Com.OneSignal.Abstractions;
 using FFImageLoading;
 using FFImageLoading.Config;
 using Foundation;
+using Steepshot.Core;
 using Steepshot.Core.Authorization;
-using Steepshot.Core.Clients;
 using Steepshot.Core.Extensions;
 using Steepshot.Core.Interfaces;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Enums;
-using Steepshot.Core.Sentry;
-using Steepshot.Core.Utils;
 using Steepshot.iOS.Helpers;
 using Steepshot.iOS.Models;
 using Steepshot.iOS.Services;
@@ -28,21 +27,39 @@ namespace Steepshot.iOS
     [Register("AppDelegate")]
     public class AppDelegate : UIApplicationDelegate
     {
+        public static Autofac.IContainer Container { get; private set; }
+        public static ILogService Logger { get; private set; }
+        public static LocalizationManager Localization { get; private set; }
+        public static User User { get; private set; }
+
+        public static IAppInfo AppInfo { get; private set; }
+        public static KnownChains MainChain { get; set; }
+
         public override UIWindow Window { get; set; }
 
         public override bool FinishedLaunching(UIApplication application, NSDictionary launchOptions)
         {
             InitIoC();
 
+
+            User = Container.GetUser();
+            User.Load();
+            MainChain = User.Chain;
+            Logger = Container.GetLogger();
+            Localization = Container.GetLocalizationManager();
+            AppInfo = Container.GetAppInfo();
+
             SetupFFImageLoading();
-            AppSettings.UpdateLocalizationAsync();
+
+            Localization.UpdateAsync(CancellationToken.None);
 
             GAService.Instance.InitializeGAService();
 
             AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
             TaskScheduler.UnobservedTaskException += OnUnobservedTaskException;
 
-            if (!AppSettings.AppInfo.GetModel().Contains("Simulator"))
+            var appInfo = Container.GetAppInfo();
+            if (!appInfo.GetModel().Contains("Simulator"))
             {
                 OneSignal.Current.StartInit("77fa644f-3280-4e87-9f14-1f0c7ddf8ca5")
                          .InFocusDisplaying(OSInFocusDisplayOption.Notification)
@@ -52,7 +69,7 @@ namespace Steepshot.iOS
 
             Window = new CustomWindow();
             UIViewController initialViewController;
-            if (AppSettings.User.HasPostingPermission)
+            if (User.HasPostingPermission)
                 initialViewController = new MainTabBarController();
             else
                 initialViewController = new PreSearchViewController();
@@ -64,12 +81,12 @@ namespace Steepshot.iOS
 
         private void OnUnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs e)
         {
-            AppSettings.Logger.ErrorAsync(e.Exception);
+            Logger.ErrorAsync(e.Exception);
         }
 
         private void OnUnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
-            AppSettings.Logger.ErrorAsync((Exception)e.ExceptionObject);
+            Logger.ErrorAsync((Exception)e.ExceptionObject);
         }
 
         private void SetupFFImageLoading()
@@ -81,31 +98,18 @@ namespace Steepshot.iOS
                 VerbosePerformanceLogging = false,
                 VerboseLoadingCancelledLogging = false,
                 Logger = new EmptyLogger(),
-                HttpClient = AppSettings.ExtendedHttpClient
+                HttpClient = Container.GetExtendedHttpClient()
             };
             ImageService.Instance.Initialize(config);
         }
 
         private void InitIoC()
         {
-            if (AppSettings.Container == null)
+            if (Container == null)
             {
                 var builder = new ContainerBuilder();
-                builder.RegisterType<SaverService>().As<ISaverService>().SingleInstance();
-                builder.RegisterType<AppInfo>().As<IAppInfo>().SingleInstance();
-                builder.RegisterType<ConnectionService>().As<IConnectionService>().SingleInstance();
-                builder.RegisterType<AssetHelper>().As<IAssetHelper>().SingleInstance();
-                builder.RegisterType<UserManager>().As<UserManager>().SingleInstance();
-                builder.RegisterType<User>().As<User>().SingleInstance();
-                builder.RegisterType<ConfigManager>().As<ConfigManager>().SingleInstance();
-                builder.RegisterType<ExtendedHttpClient>().As<ExtendedHttpClient>().SingleInstance();
-                builder.RegisterType<LogService>().As<ILogService>().SingleInstance();
-                builder.RegisterType<LocalizationManager>().As<LocalizationManager>().SingleInstance();
-                builder.RegisterType<SteepshotClient>().As<SteepshotClient>().SingleInstance();
-
-                AppSettings.RegisterPresenter(builder);
-                AppSettings.RegisterFacade(builder);
-                AppSettings.Container = builder.Build();
+                builder.RegisterModule<Steepshot.iOS.IocModule>();
+                Container = builder.Build();
             }
         }
 
@@ -130,7 +134,7 @@ namespace Steepshot.iOS
         public override bool OpenUrl(UIApplication app, NSUrl url, NSDictionary options)
         {
             var tabController = Window.RootViewController as UINavigationController;
-            if (AppSettings.User.HasPostingPermission)
+            if (User.HasPostingPermission)
             {
                 var urlCollection = url.ToString().Replace("steepshot://", string.Empty);
                 var nsFileManager = new NSFileManager();
@@ -156,14 +160,14 @@ namespace Steepshot.iOS
         {
             // Invoked when the application is about to move from active to inactive state.
             // This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) 
-            // or when the AppSettings.User quits the application and it begins the transition to the background state.
+            // or when the AppDelegate.User quits the application and it begins the transition to the background state.
             // Games should use this method to pause the game.
         }
 
         public override void DidEnterBackground(UIApplication application)
         {
-            // Use this method to release shared resources, save AppSettings.User data, invalidate timers and store the application state.
-            // If your application supports background exection this method is called instead of WillTerminate when the AppSettings.User quits.
+            // Use this method to release shared resources, save AppDelegate.User data, invalidate timers and store the application state.
+            // If your application supports background exection this method is called instead of WillTerminate when the AppDelegate.User quits.
         }
 
         public override void WillEnterForeground(UIApplication application)
@@ -179,7 +183,7 @@ namespace Steepshot.iOS
         public override void OnActivated(UIApplication application)
         {
             // Restart any tasks that were paused (or not yet started) while the application was inactive. 
-            // If the application was previously in the background, optionally refresh the AppSettings.User interface.
+            // If the application was previously in the background, optionally refresh the AppDelegate.User interface.
         }
 
         public override void WillTerminate(UIApplication application)

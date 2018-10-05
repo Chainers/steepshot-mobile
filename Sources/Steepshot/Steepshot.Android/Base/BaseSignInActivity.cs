@@ -52,17 +52,18 @@ namespace Steepshot.Base
             _backButton.Click += GoBack;
             _switcher.Visibility = ViewStates.Gone;
             _settings.Visibility = ViewStates.Gone;
-            _viewTitle.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PasswordViewTitleText);
-            _signInBtn.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.SignIn);
-            _buttonScanDefaultView.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.ScanQRCode);
+            _viewTitle.Text = App.Localization.GetText(LocalizationKeys.PasswordViewTitleText);
+            _signInBtn.Text = App.Localization.GetText(LocalizationKeys.SignIn);
+            _buttonScanDefaultView.Text = App.Localization.GetText(LocalizationKeys.ScanQRCode);
 
             _viewTitle.Typeface = Style.Semibold;
             _password.Typeface = Style.Semibold;
             _signInBtn.Typeface = Style.Semibold;
             _buttonScanDefaultView.Typeface = Style.Semibold;
 #if DEBUG
-            var di = AppSettings.AssetHelper.GetDebugInfo();
-            _password.Text = AppSettings.MainChain == KnownChains.Golos
+            var asset = App.Container.GetAssetHelper();
+            var di = asset.GetDebugInfo();
+            _password.Text = App.MainChain == KnownChains.Golos
                 ? di.GolosTestWif
                 : di.SteemTestWif;
 #endif            
@@ -100,8 +101,8 @@ namespace Steepshot.Base
                 _scanner.UseCustomOverlay = false;
 
                 //We can customize the top and bottom text of the default overlay
-                _scanner.TopText = AppSettings.LocalizationManager.GetText(LocalizationKeys.CameraHoldUp);
-                _scanner.BottomText = AppSettings.LocalizationManager.GetText(LocalizationKeys.WaitforScan);
+                _scanner.TopText = App.Localization.GetText(LocalizationKeys.CameraHoldUp);
+                _scanner.BottomText = App.Localization.GetText(LocalizationKeys.WaitforScan);
 
                 //Start scanning
                 var result = await _scanner.Scan();
@@ -117,7 +118,7 @@ namespace Steepshot.Base
             }
             catch (Exception ex)
             {
-                await AppSettings.Logger.ErrorAsync(ex);
+                await App.Logger.ErrorAsync(ex);
                 this.ShowAlert(ex, ToastLength.Short);
             }
         }

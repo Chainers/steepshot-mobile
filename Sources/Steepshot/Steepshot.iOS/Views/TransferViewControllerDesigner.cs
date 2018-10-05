@@ -13,6 +13,7 @@ using Steepshot.iOS.Helpers;
 using System.Collections.Generic;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Extensions;
+using Steepshot.iOS.Delegates;
 
 namespace Steepshot.iOS.Views
 {
@@ -86,14 +87,14 @@ namespace Steepshot.iOS.Views
             NavigationItem.SetLeftBarButtonItem(leftBarButton, true);
             NavigationController.NavigationBar.TintColor = Constants.R15G24B30;
 
-            NavigationItem.Title = AppSettings.LocalizationManager.GetText(LocalizationKeys.Transfer);
+            NavigationItem.Title = AppDelegate.Localization.GetText(LocalizationKeys.Transfer);
 
             var username = new UILabel(new CGRect(0, 0, 100, 50))
             {
                 Font = Constants.Semibold14,
                 TextColor = Constants.R255G34B5,
                 TextAlignment = UITextAlignment.Right,
-                Text = $"@{AppSettings.User.Login}"
+                Text = $"@{AppDelegate.User.Login}"
             };
 
             var rightBarButton = new UIBarButtonItem(username);
@@ -105,7 +106,7 @@ namespace Steepshot.iOS.Views
             View.BackgroundColor = UIColor.White;
 
             UILabel recepientLabel = new UILabel();
-            recepientLabel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.RecipientName);
+            recepientLabel.Text = AppDelegate.Localization.GetText(LocalizationKeys.RecipientName);
             recepientLabel.Font = Constants.Semibold14;
             recepientLabel.TextColor = UIColor.Black;
             View.AddSubview(recepientLabel);
@@ -129,7 +130,7 @@ namespace Steepshot.iOS.Views
             recipientStackView.AddArrangedSubview(_recipientAvatar);
             _recipientAvatar.AutoSetDimension(ALDimension.Width, 50);
 
-            _recepientTextField = new SearchTextField(AppSettings.LocalizationManager.GetText(LocalizationKeys.RecipientNameHint));
+            _recepientTextField = new SearchTextField(AppDelegate.Localization.GetText(LocalizationKeys.RecipientNameHint));
 
             _recepientTextField.ReturnButtonTapped += () => {
                 RemoveFocus();
@@ -171,7 +172,7 @@ namespace Steepshot.iOS.Views
             };
 
             UILabel amountLabel = new UILabel();
-            amountLabel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.TransferAmount);
+            amountLabel.Text = AppDelegate.Localization.GetText(LocalizationKeys.TransferAmount);
             amountLabel.Font = Constants.Semibold14;
             amountLabel.TextColor = UIColor.Black;
             View.AddSubview(amountLabel);
@@ -220,7 +221,7 @@ namespace Steepshot.iOS.Views
 
             rightView.LayoutIfNeeded();
 
-            _amountTextField = new SearchTextField(AppSettings.LocalizationManager.GetText(LocalizationKeys.TransferAmountHint),
+            _amountTextField = new SearchTextField(AppDelegate.Localization.GetText(LocalizationKeys.TransferAmountHint),
                                                    new UIEdgeInsets(0, 20, 0, 0), new AmountFieldDelegate(), false, rightView);
 
             _amountTextField.KeyboardType = UIKeyboardType.DecimalPad;
@@ -237,7 +238,7 @@ namespace Steepshot.iOS.Views
             _amountTextField.AutoSetDimension(ALDimension.Height, 50);
 
             var max = new UIButton();
-            max.SetTitle(AppSettings.LocalizationManager.GetText(LocalizationKeys.Max), UIControlState.Normal);
+            max.SetTitle(AppDelegate.Localization.GetText(LocalizationKeys.Max), UIControlState.Normal);
             max.SetTitleColor(UIColor.Black, UIControlState.Normal);
             max.Font = Constants.Semibold14;
             max.Layer.BorderWidth = 1;
@@ -278,7 +279,7 @@ namespace Steepshot.iOS.Views
 
                     var title = new UILabel();
                     title.Font = Constants.Semibold14;
-                    title.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.SelectToken);
+                    title.Text = AppDelegate.Localization.GetText(LocalizationKeys.SelectToken);
                     title.SizeToFit();
                     popup.AddSubview(title);
                     title.AutoPinEdgeToSuperviewEdge(ALEdge.Top);
@@ -314,7 +315,7 @@ namespace Steepshot.iOS.Views
                     separator.AutoSetDimension(ALDimension.Height, 1);
 
                     var selectButton = new UIButton();
-                    selectButton.SetTitle(AppSettings.LocalizationManager.GetText(LocalizationKeys.Select), UIControlState.Normal);
+                    selectButton.SetTitle(AppDelegate.Localization.GetText(LocalizationKeys.Select), UIControlState.Normal);
                     selectButton.SetTitleColor(UIColor.White, UIControlState.Normal);
                     selectButton.Layer.CornerRadius = 25;
                     selectButton.Font = Constants.Bold14;
@@ -327,7 +328,7 @@ namespace Steepshot.iOS.Views
                     selectButton.LayoutIfNeeded();
 
                     var cancelButton = new UIButton();
-                    cancelButton.SetTitle(AppSettings.LocalizationManager.GetText(LocalizationKeys.Close), UIControlState.Normal);
+                    cancelButton.SetTitle(AppDelegate.Localization.GetText(LocalizationKeys.Close), UIControlState.Normal);
                     cancelButton.SetTitleColor(UIColor.Black, UIControlState.Normal);
                     cancelButton.Layer.CornerRadius = 25;
                     cancelButton.Font = Constants.Semibold14;
@@ -372,11 +373,11 @@ namespace Steepshot.iOS.Views
             errorMessage.Font = Constants.Semibold12;
             errorMessage.Hidden = true;
             errorMessage.TextColor = Constants.R255G34B5;
-            errorMessage.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.AmountLimitFull);
+            errorMessage.Text = AppDelegate.Localization.GetText(LocalizationKeys.AmountLimitFull);
             bottomStackView.AddArrangedSubview(errorMessage);
 
             memoLabel = new UILabel();
-            memoLabel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.TransferComment);
+            memoLabel.Text = AppDelegate.Localization.GetText(LocalizationKeys.TransferComment);
             memoLabel.TextColor = Constants.R255G71B5;
             memoLabel.Font = Constants.Semibold14;
             memoLabel.UserInteractionEnabled = true;
@@ -384,7 +385,7 @@ namespace Steepshot.iOS.Views
             var memoTap = new UITapGestureRecognizer(() =>
             {
                 memoLabel.TextColor = UIColor.Black;
-                memoLabel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.TransferComment);
+                memoLabel.Text = AppDelegate.Localization.GetText(LocalizationKeys.TransferComment);
                 UIView.Animate(0.2, () =>
                 {
                     _memoTextView.Hidden = false;
@@ -422,7 +423,7 @@ namespace Steepshot.iOS.Views
             _transferButton = new UIButton();
             _transferButton.SetTitleColor(UIColor.White, UIControlState.Normal);
             _transferButton.SetTitleColor(UIColor.Clear, UIControlState.Disabled);
-            _transferButton.SetTitle(AppSettings.LocalizationManager.GetText(LocalizationKeys.Transfer).ToUpper(), UIControlState.Normal);
+            _transferButton.SetTitle(AppDelegate.Localization.GetText(LocalizationKeys.Transfer).ToUpper(), UIControlState.Normal);
             _transferButton.Layer.CornerRadius = 25;
             _transferButton.Font = Constants.Bold14;
             _transferButton.TouchDown += Transfer;
@@ -449,7 +450,7 @@ namespace Steepshot.iOS.Views
 
             SetupTable();
 
-            _noResultViewTags.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.NoResultText);
+            _noResultViewTags.Text = AppDelegate.Localization.GetText(LocalizationKeys.NoResultText);
             _noResultViewTags.Lines = 2;
             _noResultViewTags.Hidden = true;
             _noResultViewTags.TextAlignment = UITextAlignment.Center;
@@ -477,7 +478,7 @@ namespace Steepshot.iOS.Views
             warningImage.Image = UIImage.FromBundle("ic_info");
 
             var warningLabel = new UILabel();
-            warningLabel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.TagSearchWarning);
+            warningLabel.Text = AppDelegate.Localization.GetText(LocalizationKeys.TagSearchWarning);
             warningLabel.Lines = 3;
             warningLabel.Font = Constants.Regular12;
             warningLabel.TextColor = UIColor.FromRGB(255, 255, 255);
@@ -623,7 +624,7 @@ namespace Steepshot.iOS.Views
                 separator.AutoSetDimension(ALDimension.Height, 1);
 
                 var cancelButton = new UIButton();
-                cancelButton.SetTitle(AppSettings.LocalizationManager.GetText(LocalizationKeys.Close), UIControlState.Normal);
+                cancelButton.SetTitle(AppDelegate.Localization.GetText(LocalizationKeys.Close), UIControlState.Normal);
                 cancelButton.SetTitleColor(UIColor.Black, UIControlState.Normal);
                 cancelButton.Layer.CornerRadius = 25;
                 cancelButton.Font = Constants.Semibold14;
@@ -654,7 +655,7 @@ namespace Steepshot.iOS.Views
         private void SetPlaceholder()
         {
             var placeholderLabel = new UILabel();
-            placeholderLabel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PutYourComment);
+            placeholderLabel.Text = AppDelegate.Localization.GetText(LocalizationKeys.PutYourComment);
             placeholderLabel.SizeToFit();
             placeholderLabel.Font = Constants.Regular14;
             placeholderLabel.TextColor = Constants.R151G155B158;

@@ -48,7 +48,7 @@ namespace Steepshot.iOS.Popups
             separator.AutoSetDimension(ALDimension.Height, 1);
 
             var yesButton = new UIButton();
-            yesButton.SetTitle(AppSettings.LocalizationManager.GetText(LocalizationKeys.Yes), UIControlState.Normal);
+            yesButton.SetTitle(AppDelegate.Localization.GetText(LocalizationKeys.Yes), UIControlState.Normal);
             yesButton.SetTitleColor(UIColor.White, UIControlState.Normal);
             yesButton.Layer.CornerRadius = 25;
             yesButton.Font = Constants.Bold14;
@@ -60,7 +60,7 @@ namespace Steepshot.iOS.Popups
             yesButton.AutoSetDimension(ALDimension.Height, 50);
 
             var cancelButton = new UIButton();
-            cancelButton.SetTitle(AppSettings.LocalizationManager.GetText(LocalizationKeys.Cancel), UIControlState.Normal);
+            cancelButton.SetTitle(AppDelegate.Localization.GetText(LocalizationKeys.Cancel), UIControlState.Normal);
             cancelButton.SetTitleColor(UIColor.Black, UIControlState.Normal);
             cancelButton.Layer.CornerRadius = 25;
             cancelButton.Font = Constants.Semibold14;

@@ -2,6 +2,7 @@
 using Android.Content;
 using Android.Support.V4.View;
 using Android.Views;
+using Steepshot.Base;
 using Steepshot.Core;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Utils;
@@ -29,7 +30,7 @@ namespace Steepshot.Adapter
             _context = context;
 
             Coins = new List<CurrencyType>();
-            switch (AppSettings.User.Chain)
+            switch (App.User.Chain)
             {
                 case KnownChains.Steem:
                     Coins.AddRange(new[] { CurrencyType.Steem, CurrencyType.Sbd });

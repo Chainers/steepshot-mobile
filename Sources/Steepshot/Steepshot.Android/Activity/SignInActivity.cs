@@ -55,7 +55,7 @@ namespace Steepshot.Activity
             var isvalid = KeyHelper.ValidatePrivateKey(pass, AccountInfoResponse.PublicPostingKeys);
             if (isvalid)
             {
-                AppSettings.User.AddAndSwitchUser(login, pass, AccountInfoResponse);
+                App.User.AddAndSwitchUser(login, pass, AccountInfoResponse);
                 var intent = new Intent(this, typeof(RootActivity));
                 intent.AddFlags(ActivityFlags.NewTask | ActivityFlags.ClearTask);
                 StartActivity(intent);
@@ -66,7 +66,7 @@ namespace Steepshot.Activity
             }
 
             appCompatButton.Enabled = true;
-            appCompatButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.SignIn);
+            appCompatButton.Text = App.Localization.GetText(LocalizationKeys.SignIn);
             _spinner.Visibility = ViewStates.Invisible;
         }
     }

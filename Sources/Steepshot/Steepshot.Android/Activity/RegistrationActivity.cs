@@ -39,7 +39,7 @@ namespace Steepshot.Activity
             _switcher.Visibility = ViewStates.Gone;
             _settings.Visibility = ViewStates.Gone;
 
-            _viewTitle.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.RegistrationWith);
+            _viewTitle.Text = App.Localization.GetText(LocalizationKeys.RegistrationWith);
             _viewTitle.Typeface = Style.Semibold;
 
             SetupView();
@@ -58,9 +58,9 @@ namespace Steepshot.Activity
             blocktrades.SetCompoundDrawablesWithIntrinsicBounds(SetupLogo(Resource.Drawable.ic_blocktrade), null, arrow, null);
             steemcreate.SetCompoundDrawablesWithIntrinsicBounds(SetupLogo(Resource.Drawable.ic_steemcreate), null, arrow, null);
 
-            steemit.Text = $"{AppSettings.LocalizationManager.GetText(LocalizationKeys.RegisterThroughSteemit)} (free)";
-            blocktrades.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.RegisterThroughBlocktrades);
-            steemcreate.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.RegisterThroughSteemCreate);
+            steemit.Text = $"{App.Localization.GetText(LocalizationKeys.RegisterThroughSteemit)} (free)";
+            blocktrades.Text = App.Localization.GetText(LocalizationKeys.RegisterThroughBlocktrades);
+            steemcreate.Text = App.Localization.GetText(LocalizationKeys.RegisterThroughSteemCreate);
 
             steemit.Click += (o, args) =>
             {

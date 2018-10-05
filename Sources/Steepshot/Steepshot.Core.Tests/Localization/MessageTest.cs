@@ -12,8 +12,6 @@ namespace Steepshot.Core.Tests.Localization
     [TestFixture]
     public class MessageTest : BaseTests
     {
-        public LocalizationManager LocalizationManager => AppSettings.LocalizationManager;
-
         [Test]
         [TestCase("<h1>Server Error (500)</h1>")]
         [TestCase("Wrong identifier")]

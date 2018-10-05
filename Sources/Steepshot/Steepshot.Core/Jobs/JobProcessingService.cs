@@ -1,43 +1,29 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Steepshot.Core.Authorization;
-using Steepshot.Core.Clients;
+using Autofac;
+using Steepshot.Core.Extensions;
 using Steepshot.Core.Interfaces;
-using Steepshot.Core.Jobs.Upload;
+using Steepshot.Core.Models.Database;
 using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Jobs
 {
     public class JobProcessingService
     {
-        private readonly Dictionary<int, ICommand> _commands;
         private readonly DbManager _dbService;
         private readonly ILogService _logService;
+        private readonly IContainer _container;
         private int _isStopped = 1;
 
         private Job _currentJob;
 
-        public JobProcessingService(SteepshotClient steepshotClient,
-            SteepshotApiClient steepshotSteemApiClient, SteepshotApiClient steepshotGolosApiClient,
-            SteemClient steemClient, GolosClient golosClient,
-            IConnectionService connectionService, ILogService logService,
-            DbManager dbService, UserManager userManager, IFileProvider fileProvider)
+        public JobProcessingService(ILogService logService, DbManager dbService, IContainer container)
         {
             _dbService = dbService;
             _logService = logService;
-
-            _commands = new Dictionary<int, ICommand>
-            {
-                {
-                    UploadMediaCommand.Id,
-                    new UploadMediaCommand(steepshotClient, steepshotSteemApiClient, steepshotGolosApiClient,
-                        connectionService, logService,
-                        userManager, dbService, fileProvider)
-                }
-            };
+            _container = container;
         }
 
         public Task StartAsync()
@@ -91,7 +77,7 @@ namespace Steepshot.Core.Jobs
                     curId = _currentJob.Id;
                     token.ThrowIfCancellationRequested();
 
-                    var cmd = _commands[_currentJob.CommandId];
+                    var cmd = _container.GetCommand(_currentJob.CommandId);
                     _currentJob.LastStartTime = DateTime.Now;
                     _currentJob.State = await cmd.Execute(_currentJob.DataId, token);
 
@@ -142,7 +128,9 @@ namespace Steepshot.Core.Jobs
             {
                 var job = _dbService.Select<Job>(jobId);
                 _dbService.Delete<Job>(jobId);
-                _commands[job.CommandId].CleanData(job.DataId);
+
+                var cmd = _container.GetCommand(job.CommandId);
+                cmd.CleanData(job.DataId);
             }
         }
 
@@ -172,7 +160,8 @@ namespace Steepshot.Core.Jobs
             lock (_dbService)
             {
                 var job = _dbService.Select<Job>(jobId);
-                return _commands[job.CommandId].GetResult(job.DataId);
+                var cmd = _container.GetCommand(job.CommandId);
+                return cmd.GetResult(job.DataId);
             }
         }
     }

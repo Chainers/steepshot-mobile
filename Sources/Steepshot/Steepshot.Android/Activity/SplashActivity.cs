@@ -8,11 +8,11 @@ using Steepshot.Core;
 using Steepshot.Utils;
 using Android.Content;
 using Android.Runtime;
+using Steepshot.Core.Authorization;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Utils;
 using Steepshot.Fragment;
 using Steepshot.Services;
-using static Steepshot.Core.Utils.AppSettings;
 
 namespace Steepshot.Activity
 {
@@ -39,7 +39,7 @@ namespace Steepshot.Activity
             {
                 case Intent.ActionSend:
                     {
-                        if (User.HasPostingPermission)
+                        if (App.User.HasPostingPermission)
                         {
                             var intent = new Intent(this, typeof(RootActivity));
                             intent.PutExtra(RootActivity.SharingPhotoData, (IParcelable)Intent.GetParcelableExtra(Intent.ExtraStream));
@@ -54,31 +54,19 @@ namespace Steepshot.Activity
                     }
                 case Intent.ActionView:
                     {
-                        var intent = new Intent(this, User.HasPostingPermission ? typeof(RootActivity) : typeof(GuestActivity));
+                        var intent = new Intent(this, App.User.HasPostingPermission ? typeof(RootActivity) : typeof(GuestActivity));
                         intent.PutExtra(AppLinkingExtra, Intent?.Data?.Path);
                         intent.SetFlags(ActivityFlags.ReorderToFront | ActivityFlags.NewTask);
                         StartActivity(intent);
                         return;
                     }
-                case Intent.ActionMain:
-                    {
-                        if (AppSettings.Temp.ContainsKey(PostCreateFragment.PostCreateGalleryTemp))
-                        {
-                            var intent = new Intent(this, typeof(RootActivity));
-                            intent.PutExtra(RootActivity.PostCreateResumeExtra, true);
-                            intent.SetFlags(ActivityFlags.ReorderToFront | ActivityFlags.NewTask);
-                            StartActivity(intent);
-                            return;
-                        }
-                        break;
-                    }
             }
-            StartActivity(User.HasPostingPermission ? typeof(RootActivity) : typeof(GuestActivity));
+            StartActivity(App.User.HasPostingPermission ? typeof(RootActivity) : typeof(GuestActivity));
         }
 
         private async void OnTaskSchedulerOnUnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs e)
         {
-            await Logger.ErrorAsync(e.Exception);
+            await App.Logger.ErrorAsync(e.Exception);
 
             this.ShowAlert(LocalizationKeys.UnexpectedError, Android.Widget.ToastLength.Short);
         }
@@ -90,16 +78,16 @@ namespace Steepshot.Activity
                 ex = new Exception(e.ExceptionObject.ToString());
 
             if (e.IsTerminating)
-                await Logger.FatalAsync(ex);
+                await App.Logger.FatalAsync(ex);
             else
-                await Logger.ErrorAsync(ex);
+                await App.Logger.ErrorAsync(ex);
 
             this.ShowAlert(ex, Android.Widget.ToastLength.Short);
         }
 
         private async void OnUnhandledExceptionRaiser(object sender, RaiseThrowableEventArgs e)
         {
-            await Logger.ErrorAsync(e.Exception);
+            await App.Logger.ErrorAsync(e.Exception);
 
             this.ShowAlert(e.Exception, Android.Widget.ToastLength.Short);
         }

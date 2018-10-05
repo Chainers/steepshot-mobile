@@ -239,7 +239,7 @@ namespace Steepshot.iOS.Cells
 
             _likelongtap = new UILongPressGestureRecognizer((UILongPressGestureRecognizer obj) =>
             {
-                if (AppSettings.User.HasPostingPermission && !_currentPost.Vote)
+                if (AppDelegate.User.HasPostingPermission && !_currentPost.Vote)
                 {
                     if (obj.State == UIGestureRecognizerState.Began)
                     {
@@ -312,7 +312,7 @@ namespace Steepshot.iOS.Cells
                 _avatarImage.Image = UIImage.FromBundle("ic_noavatar");
 
             _author.Text = _currentPost.Author;
-            _timestamp.Text = _currentPost.Created.ToPostTime(AppSettings.LocalizationManager);
+            _timestamp.Text = _currentPost.Created.ToPostTime(AppDelegate.Localization);
 
             _photoScroll.Frame = new CGRect(0, _avatarImage.Frame.Bottom + 15, UIScreen.MainScreen.Bounds.Width, variables.PhotoHeight);
 
@@ -429,7 +429,7 @@ namespace Steepshot.iOS.Cells
 
             if (_currentPost.NetLikes != 0)
             {
-                _likes.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Likes, _currentPost.NetLikes);
+                _likes.Text = AppDelegate.Localization.GetText(LocalizationKeys.Likes, _currentPost.NetLikes);
                 var likesWidth = _likes.SizeThatFits(new CGSize(0, underPhotoPanelHeight));
                 _likes.Frame = new CGRect(likesMargin, _photoScroll.Frame.Bottom, likesWidth.Width, underPhotoPanelHeight);
                 flagMargin = flagsMarginConst;
@@ -441,7 +441,7 @@ namespace Steepshot.iOS.Cells
 
             if (_currentPost.NetFlags != 0)
             {
-                _flags.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Flags, _currentPost.NetFlags);
+                _flags.Text = AppDelegate.Localization.GetText(LocalizationKeys.Flags, _currentPost.NetFlags);
                 var flagsWidth = _flags.SizeThatFits(new CGSize(0, underPhotoPanelHeight));
                 _flags.Frame = new CGRect(likesMargin + _likes.Frame.Width + flagMargin, _photoScroll.Frame.Bottom, flagsWidth.Width, underPhotoPanelHeight);
             }
@@ -469,7 +469,7 @@ namespace Steepshot.iOS.Cells
             _verticalSeparator.Frame = new CGRect(_contentView.Frame.Width - likeButtonWidthConst - 1, _photoScroll.Frame.Bottom + underPhotoPanelHeight / 2 - verticalSeparatorHeight / 2, 1, verticalSeparatorHeight);
 
 #if DEBUG
-            _rewards.Text = StringHelper.ToFormatedCurrencyString(_currentPost.TotalPayoutReward, AppSettings.MainChain);
+            _rewards.Text = StringHelper.ToFormatedCurrencyString(_currentPost.TotalPayoutReward, AppDelegate.MainChain);
             var rewardWidth = _rewards.SizeThatFits(new CGSize(0, underPhotoPanelHeight));
             _rewards.Frame = new CGRect(_verticalSeparator.Frame.Left - rewardWidth.Width, _photoScroll.Frame.Bottom, rewardWidth.Width, underPhotoPanelHeight);
 #endif
@@ -481,8 +481,8 @@ namespace Steepshot.iOS.Cells
                                                 new CGSize(UIScreen.MainScreen.Bounds.Width - leftMargin * 2, variables.TextHeight));
 
             _comments.Text = _currentPost.Children == 0
-                ? AppSettings.LocalizationManager.GetText(LocalizationKeys.PostFirstComment)
-                : AppSettings.LocalizationManager.GetText(LocalizationKeys.ViewComments, _currentPost.Children);
+                ? AppDelegate.Localization.GetText(LocalizationKeys.PostFirstComment)
+                : AppDelegate.Localization.GetText(LocalizationKeys.ViewComments, _currentPost.Children);
 
             _comments.Frame = new CGRect(leftMargin - 5, _attributedLabel.Frame.Bottom + 5, _comments.SizeThatFits(new CGSize(10, 20)).Width + 10, 20 + 10);
 

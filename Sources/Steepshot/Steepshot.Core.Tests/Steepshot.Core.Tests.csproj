@@ -42,10 +42,11 @@
     <Compile Include="FrameTest.cs" />
     <Compile Include="HttpClient\BaseDitchClientTests.cs" />
     <Compile Include="AssetTest.cs" />
+    <Compile Include="IocModule.cs" />
     <Compile Include="Localization\MessageTest.cs" />
     <Compile Include="ServerResponceTests.cs" />
-    <Compile Include="Stubs\AssetsHelperStub.cs" />
-    <Compile Include="Stubs\ApiPositiveStub.cs" />
+    <Compile Include="Stubs\StubAssetHelper.cs" />
+    <Compile Include="Stubs\StubApiPositive.cs" />
     <Compile Include="BaseTests.cs" />
     <Compile Include="HttpClient\ApiTest.cs" />
     <Compile Include="HttpClient\BaseClientTest.cs" />

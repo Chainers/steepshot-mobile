@@ -191,7 +191,7 @@ namespace Steepshot.iOS.Cells
 
             _likelongtap = new UILongPressGestureRecognizer((UILongPressGestureRecognizer obj) =>
             {
-                if (AppSettings.User.HasPostingPermission && !_currentPost.Vote)
+                if (AppDelegate.User.HasPostingPermission && !_currentPost.Vote)
                 {
                     if (obj.State == UIGestureRecognizerState.Began)
                     {
@@ -244,7 +244,7 @@ namespace Steepshot.iOS.Cells
                 _avatar.Image = UIImage.FromBundle("ic_noavatar");
 
             _loginLabel.Text = _currentPost.Author;
-            _timestamp.Text = _currentPost.Created.ToPostTime(AppSettings.LocalizationManager);
+            _timestamp.Text = _currentPost.Created.ToPostTime(AppDelegate.Localization);
             _commentText.Text = post.Body;
 
             _like.Transform = CGAffineTransform.MakeScale(1f, 1f);
@@ -266,19 +266,19 @@ namespace Steepshot.iOS.Cells
             else
                 ContentView.BackgroundColor = UIColor.White;
 
-            _likesLabel.Text = AppSettings.LocalizationManager.GetText(_currentPost.NetLikes == 1 ? LocalizationKeys.Like : LocalizationKeys.Likes, _currentPost.NetLikes);
-            _flagsLabel.Text = AppSettings.LocalizationManager.GetText(_currentPost.NetFlags == 1 ? LocalizationKeys.Flag : LocalizationKeys.Flags, _currentPost.NetFlags);
-            _costLabel.Text = StringHelper.ToFormatedCurrencyString(_currentPost.TotalPayoutReward, AppSettings.MainChain);
+            _likesLabel.Text = AppDelegate.Localization.GetText(_currentPost.NetLikes == 1 ? LocalizationKeys.Like : LocalizationKeys.Likes, _currentPost.NetLikes);
+            _flagsLabel.Text = AppDelegate.Localization.GetText(_currentPost.NetFlags == 1 ? LocalizationKeys.Flag : LocalizationKeys.Flags, _currentPost.NetFlags);
+            _costLabel.Text = StringHelper.ToFormatedCurrencyString(_currentPost.TotalPayoutReward, AppDelegate.MainChain);
 
             _flagsLabel.Hidden = _currentPost.NetFlags == 0;
             _likesLabel.Hidden = _currentPost.NetLikes == 0;
-            _replyLabel.Hidden = _currentPost.Author == AppSettings.User.Login || !AppSettings.User.HasPostingPermission;
+            _replyLabel.Hidden = _currentPost.Author == AppDelegate.User.Login || !AppDelegate.User.HasPostingPermission;
 
             if (_currentPost.Body != Core.Constants.DeletedPostText)
             {
                 var rightButtons = new List<MGSwipeButton>();
 
-                if (_currentPost.Author != AppSettings.User.Login)
+                if (_currentPost.Author != AppDelegate.User.Login)
                     rightButtons.Add(flagButton);
                 else if (_currentPost.CashoutTime > DateTime.Now)
                 {

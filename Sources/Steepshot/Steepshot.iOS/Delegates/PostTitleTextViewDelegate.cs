@@ -2,7 +2,7 @@
 using Foundation;
 using UIKit;
 
-namespace Steepshot.iOS.Helpers
+namespace Steepshot.iOS.Delegates
 {
     public class BaseTextViewDelegate : UITextViewDelegate
     {

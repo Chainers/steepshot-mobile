@@ -10,6 +10,7 @@ using Android.Widget;
 using Square.Picasso;
 using Steepshot.Core.Extensions;
 using Steepshot.Core.Models.Common;
+using Steepshot.Core.Utils;
 using Steepshot.Utils;
 using Object = Java.Lang.Object;
 

@@ -100,11 +100,11 @@ namespace Steepshot.Fragment
                 _postPager.SetPageTransformer(false, _postPagerAdapter, (int)LayerType.None);
 
                 _emptyQueryLabel.Typeface = Style.Light;
-                _emptyQueryLabel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.EmptyCategory);
+                _emptyQueryLabel.Text = App.Localization.GetText(LocalizationKeys.EmptyCategory);
 
-                _mainMessage.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Greeting);
-                _hintMessage.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.EmptyFeedHint);
-                _browseButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.GoToBrowse);
+                _mainMessage.Text = App.Localization.GetText(LocalizationKeys.Greeting);
+                _hintMessage.Text = App.Localization.GetText(LocalizationKeys.EmptyFeedHint);
+                _browseButton.Text = App.Localization.GetText(LocalizationKeys.GoToBrowse);
 
                 LoadPosts();
             }
@@ -241,7 +241,7 @@ namespace Steepshot.Fragment
             {
                 case ActionType.Like:
                     {
-                        if (!AppSettings.User.HasPostingPermission)
+                        if (!App.User.HasPostingPermission)
                             return;
                         
                         var result = await Presenter.TryVoteAsync(post);
@@ -276,7 +276,7 @@ namespace Steepshot.Fragment
                     }
                 case ActionType.Flag:
                     {
-                        if (!AppSettings.User.HasPostingPermission)
+                        if (!App.User.HasPostingPermission)
                             return;
                         
                         var result = await Presenter.TryFlagAsync(post);
@@ -297,10 +297,10 @@ namespace Steepshot.Fragment
                 case ActionType.Delete:
                     {
                         var actionAlert = new ActionAlertDialog(Context,
-                            AppSettings.LocalizationManager.GetText(LocalizationKeys.DeleteAlertTitle),
-                            AppSettings.LocalizationManager.GetText(LocalizationKeys.DeleteAlertMessage),
-                            AppSettings.LocalizationManager.GetText(LocalizationKeys.Delete),
-                            AppSettings.LocalizationManager.GetText(LocalizationKeys.Cancel), AutoLinkAction);
+                            App.Localization.GetText(LocalizationKeys.DeleteAlertTitle),
+                            App.Localization.GetText(LocalizationKeys.DeleteAlertMessage),
+                            App.Localization.GetText(LocalizationKeys.Delete),
+                            App.Localization.GetText(LocalizationKeys.Cancel), AutoLinkAction);
 
                         actionAlert.AlertAction += async () =>
                         {
@@ -319,8 +319,8 @@ namespace Steepshot.Fragment
                         var shareIntent = new Intent(Intent.ActionSend);
                         shareIntent.SetType("text/plain");
                         shareIntent.PutExtra(Intent.ExtraSubject, post.Title);
-                        shareIntent.PutExtra(Intent.ExtraText, string.Format(AppSettings.User.Chain == KnownChains.Steem ? Constants.SteemPostUrl : Constants.GolosPostUrl, post.Url));
-                        StartActivity(Intent.CreateChooser(shareIntent, AppSettings.LocalizationManager.GetText(LocalizationKeys.Sharepost)));
+                        shareIntent.PutExtra(Intent.ExtraText, string.Format(App.User.Chain == KnownChains.Steem ? Constants.SteemPostUrl : Constants.GolosPostUrl, post.Url));
+                        StartActivity(Intent.CreateChooser(shareIntent, App.Localization.GetText(LocalizationKeys.Sharepost)));
                         break;
                     }
                 case ActionType.Photo:

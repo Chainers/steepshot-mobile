@@ -87,7 +87,7 @@ namespace Steepshot.Adapter
                         var itemView = (SwipeLayout)LayoutInflater.From(parent.Context)
                             .Inflate(Resource.Layout.lyt_comment_item, parent, false);
                         itemView.ClickToClose = true;
-                        itemView.SwipeEnabled = AppSettings.User.HasPostingPermission;
+                        itemView.SwipeEnabled = App.User.HasPostingPermission;
                         itemView.Opening += SwipeLayoutOnOpening;
                         var vh = new CommentViewHolder(itemView, CommentAction, AutoLinkAction, RootClickAction);
                         return vh;
@@ -164,7 +164,7 @@ namespace Steepshot.Adapter
                 Picasso.With(context).Load(Resource.Drawable.ic_holder).Into(_avatar);
 
             _author.Text = post.Author;
-            _time.Text = post.Created.ToPostTime(AppSettings.LocalizationManager);
+            _time.Text = post.Created.ToPostTime(App.Localization);
             _title.UpdateText(_post, TagToExclude, TagFormat, MaxLines, _post.IsExpanded);
         }
 
@@ -213,7 +213,7 @@ namespace Steepshot.Adapter
             _edit = itemView.FindViewById<ImageButton>(Resource.Id.edit_btn);
             _delete = itemView.FindViewById<ImageButton>(Resource.Id.delete_btn);
 
-            _reply.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Reply);
+            _reply.Text = App.Localization.GetText(LocalizationKeys.Reply);
 
             _author.Typeface = Style.Semibold;
             _comment.Typeface = _likes.Typeface = _cost.Typeface = _reply.Typeface = Style.Regular;
@@ -235,7 +235,7 @@ namespace Steepshot.Adapter
 
             _context = itemView.Context;
 
-            _reply.Visibility = AppSettings.User.HasPostingPermission ? ViewStates.Visible : ViewStates.Gone;
+            _reply.Visibility = App.User.HasPostingPermission ? ViewStates.Visible : ViewStates.Gone;
         }
 
         private async Task LikeSetAsync(bool isFlag)
@@ -313,7 +313,7 @@ namespace Steepshot.Adapter
             _rootView.Background = new ColorDrawable(_post.Editing ? Style.R254G249B229 : Color.White);
             SwitchActionsEnabled(!_post.Body.Equals(Core.Constants.DeletedPostText));
 
-            if (_post.Author == AppSettings.User.Login)
+            if (_post.Author == App.User.Login)
             {
                 _flag.Visibility = ViewStates.Gone;
                 _edit.Visibility = _delete.Visibility = _post.CashoutTime < DateTime.Now ? ViewStates.Gone : ViewStates.Visible;
@@ -378,7 +378,7 @@ namespace Steepshot.Adapter
             if (post.NetLikes > 0)
             {
                 _likes.Visibility = ViewStates.Visible;
-                _likes.Text = AppSettings.LocalizationManager.GetText(_post.NetLikes == 1 ? LocalizationKeys.Like : LocalizationKeys.Likes, post.NetLikes);
+                _likes.Text = App.Localization.GetText(_post.NetLikes == 1 ? LocalizationKeys.Like : LocalizationKeys.Likes, post.NetLikes);
             }
             else
             {
@@ -388,7 +388,7 @@ namespace Steepshot.Adapter
             if (post.NetFlags > 0)
             {
                 _flags.Visibility = ViewStates.Visible;
-                _flags.Text = AppSettings.LocalizationManager.GetText(_post.NetFlags == 1 ? LocalizationKeys.Flag : LocalizationKeys.Flags, post.NetFlags);
+                _flags.Text = App.Localization.GetText(_post.NetFlags == 1 ? LocalizationKeys.Flag : LocalizationKeys.Flags, post.NetFlags);
             }
             else
             {
@@ -398,14 +398,14 @@ namespace Steepshot.Adapter
             if (post.TotalPayoutReward > 0)
             {
                 _cost.Visibility = ViewStates.Visible;
-                _cost.Text = StringHelper.ToFormatedCurrencyString(post.TotalPayoutReward, AppSettings.MainChain);
+                _cost.Text = StringHelper.ToFormatedCurrencyString(post.TotalPayoutReward, App.MainChain);
             }
             else
             {
                 _cost.Visibility = ViewStates.Gone;
             }
 
-            _time.Text = post.Created.ToPostTime(AppSettings.LocalizationManager);
+            _time.Text = post.Created.ToPostTime(App.Localization);
         }
 
         private void OnError()

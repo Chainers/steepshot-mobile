@@ -86,10 +86,10 @@ namespace Steepshot.Fragment
 
             base.OnViewCreated(view, savedInstanceState);
             
-            _cancel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Cancel);
-            _save.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Save);
-            _textInput.Hint = AppSettings.LocalizationManager.GetText(LocalizationKeys.PutYourComment);
-            _viewTitle.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Comments);
+            _cancel.Text = App.Localization.GetText(LocalizationKeys.Cancel);
+            _save.Text = App.Localization.GetText(LocalizationKeys.Save);
+            _textInput.Hint = App.Localization.GetText(LocalizationKeys.PutYourComment);
+            _viewTitle.Text = App.Localization.GetText(LocalizationKeys.Comments);
 
             _textInputShape = new GradientDrawable();
             _textInputShape.SetCornerRadius(BitmapUtils.DpToPixel(20, Resources));
@@ -122,7 +122,7 @@ namespace Steepshot.Fragment
             _comments.SetAdapter(_adapter);
             _comments.Visibility = ViewStates.Visible;
 
-            if (!AppSettings.User.HasPostingPermission)
+            if (!App.User.HasPostingPermission)
                 _messagePanel.Visibility = ViewStates.Gone;
 
             _cancel.Click += CommentEditCancelBtnOnClick;
@@ -187,7 +187,7 @@ namespace Steepshot.Fragment
 
             if (_editControls.Visibility == ViewStates.Visible)
             {
-                var result = await Presenter.TryEditCommentAsync(AppSettings.User.UserInfo, _post, _editComment, _textInput.Text, AppSettings.AppInfo);
+                var result = await Presenter.TryEditCommentAsync(App.User.UserInfo, _post, _editComment, _textInput.Text, App.AppInfo);
 
                 if (!IsInitialized)
                     return;
@@ -254,7 +254,7 @@ namespace Steepshot.Fragment
             {
                 case ActionType.Like:
                     {
-                        if (AppSettings.User.HasPostingPermission)
+                        if (App.User.HasPostingPermission)
                         {
                             var result = await Presenter.TryVoteAsync(post);
 
@@ -272,7 +272,7 @@ namespace Steepshot.Fragment
                     }
                 case ActionType.Profile:
                     {
-                        if (AppSettings.User.Login != post.Author)
+                        if (App.User.Login != post.Author)
                             ((BaseActivity)Activity).OpenNewContentFragment(new ProfileFragment(post.Author));
                         break;
                     }
@@ -288,7 +288,7 @@ namespace Steepshot.Fragment
                     }
                 case ActionType.Flag:
                     {
-                        if (AppSettings.User.HasPostingPermission)
+                        if (App.User.HasPostingPermission)
                         {
                             var result = await Presenter.TryFlagAsync(post);
 
@@ -334,10 +334,10 @@ namespace Steepshot.Fragment
                     }
                 case ActionType.Delete:
                     {
-                        var actionAlert = new ActionAlertDialog(Activity, AppSettings.LocalizationManager.GetText(LocalizationKeys.DeleteAlertTitle),
-                            AppSettings.LocalizationManager.GetText(LocalizationKeys.DeleteAlertMessage),
-                            AppSettings.LocalizationManager.GetText(LocalizationKeys.Delete),
-                            AppSettings.LocalizationManager.GetText(LocalizationKeys.Cancel), AutoLinkAction);
+                        var actionAlert = new ActionAlertDialog(Activity, App.Localization.GetText(LocalizationKeys.DeleteAlertTitle),
+                            App.Localization.GetText(LocalizationKeys.DeleteAlertMessage),
+                            App.Localization.GetText(LocalizationKeys.Delete),
+                            App.Localization.GetText(LocalizationKeys.Cancel), AutoLinkAction);
                         actionAlert.AlertAction += async () =>
                         {
                             var result = await Presenter.TryDeleteCommentAsync(post, _post);

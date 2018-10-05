@@ -1,6 +1,7 @@
 ﻿using System;
 using CoreGraphics;
 using Steepshot.Core;
+using Steepshot.Core.Extensions;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 using Steepshot.iOS.ViewControllers;
@@ -23,7 +24,7 @@ namespace Steepshot.iOS.Views
         public LoginViewController(string username = null, AccountInfoResponse accountInfoResponse = null)
         {
             if (username == null)
-                _username = AppSettings.User.Login;
+                _username = AppDelegate.User.Login;
             else
                 _username = username;
             _accountInfoResponse = accountInfoResponse;
@@ -65,8 +66,9 @@ namespace Steepshot.iOS.Views
             loginButton.Font = Constants.Semibold14;
             qrButton.Font = Constants.Semibold14;
 #if DEBUG
-            var di = AppSettings.AssetHelper.GetDebugInfo();
-            if (AppSettings.MainChain == KnownChains.Steem)
+            var assetHelper = AppDelegate.Container.GetAssetHelper();
+            var di = assetHelper.GetDebugInfo();
+            if (AppDelegate.MainChain == KnownChains.Steem)
                 password.Text = di.SteemTestWif;
             else
                 password.Text = di.GolosTestWif;
@@ -130,9 +132,9 @@ namespace Steepshot.iOS.Views
             NavigationController.NavigationBar.TintColor = Constants.R15G24B30;
 
             if (_isPostingMode)
-                NavigationItem.Title = AppSettings.LocalizationManager.GetText(LocalizationKeys.PasswordViewTitleText);
+                NavigationItem.Title = AppDelegate.Localization.GetText(LocalizationKeys.PasswordViewTitleText);
             else
-                NavigationItem.Title = AppSettings.LocalizationManager.GetText(LocalizationKeys.ActivePasswordViewTitleText);
+                NavigationItem.Title = AppDelegate.Localization.GetText(LocalizationKeys.ActivePasswordViewTitleText);
         }
 
         private void EyeButtonTouch(object sender, EventArgs e)
@@ -191,14 +193,14 @@ namespace Steepshot.iOS.Views
 
                 if (_isPostingMode)
                 {
-                    AppSettings.User.AddAndSwitchUser(_username, password.Text, _accountInfoResponse);
+                    AppDelegate.User.AddAndSwitchUser(_username, password.Text, _accountInfoResponse);
                     var myViewController = new MainTabBarController();
                     NavigationController.SetViewControllers(new UIViewController[] { myViewController }, true);
                    //After that only top controller will finalized, don't know why other controllers won't
                 }
                 else
                 {
-                    AppSettings.User.ActiveKey = password.Text;
+                    AppDelegate.User.ActiveKey = password.Text;
                     NavigationController.PopViewController(true);
                 }
             }

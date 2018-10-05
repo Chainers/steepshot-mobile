@@ -66,7 +66,7 @@ namespace Steepshot.Fragment
 
         protected override void CreatePresenter()
         {
-            Presenter = AppSettings.GetPresenter<TransferPresenter>(_balance.UserInfo.Chain);
+            Presenter = App.Container.GetPresenter<TransferPresenter>(_balance.UserInfo.Chain);
         }
 
         public override void OnViewCreated(View view, Bundle savedInstanceState)
@@ -89,15 +89,15 @@ namespace Steepshot.Fragment
             _amountEdit.Typeface = Style.Semibold;
             _amountLimitMessage.Typeface = Style.Semibold;
 
-            _fragmentTitle.Text = _powerActionText = AppSettings.LocalizationManager.GetText(_powerAction == PowerAction.PowerUp ? LocalizationKeys.PowerUp : LocalizationKeys.PowerDown);
+            _fragmentTitle.Text = _powerActionText = App.Localization.GetText(_powerAction == PowerAction.PowerUp ? LocalizationKeys.PowerUp : LocalizationKeys.PowerDown);
             _tokenOneTitle.Text = _balance.CurrencyType.ToString().ToUpper();
             _tokenName.Text = _balance.CurrencyType.ToString().ToUpper();
             _tokenTwoTitle.Text = $"{_balance.CurrencyType} power".ToUpper();
-            _amountTitle.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Amount);
+            _amountTitle.Text = App.Localization.GetText(LocalizationKeys.Amount);
             _amountEdit.Hint = "0";
-            _maxBtn.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Max);
-            _powerBtn.Text = AppSettings.LocalizationManager.GetText(_powerAction == PowerAction.PowerUp ? LocalizationKeys.PowerUp : LocalizationKeys.PowerDown);
-            _amountLimitMessage.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.AmountLimitFull);
+            _maxBtn.Text = App.Localization.GetText(LocalizationKeys.Max);
+            _powerBtn.Text = App.Localization.GetText(_powerAction == PowerAction.PowerUp ? LocalizationKeys.PowerUp : LocalizationKeys.PowerDown);
+            _amountLimitMessage.Text = App.Localization.GetText(LocalizationKeys.AmountLimitFull);
 
             _amountEdit.SetFilters(new IInputFilter[] { new TransferAmountFilter(Int32.MaxValue, 3) });
             AmountEditOnTextChanged(null, null);
@@ -183,11 +183,11 @@ namespace Steepshot.Fragment
                 else
                 {
                     UpdateTokenValues(_balance.Value.ToBalanceValueString(),
-                        AppSettings.LocalizationManager.GetText(LocalizationKeys.AmountLimit),
+                        App.Localization.GetText(LocalizationKeys.AmountLimit),
                         spAvailiable.ToBalanceValueString(),
-                        AppSettings.LocalizationManager.GetText(LocalizationKeys.AmountLimit));
+                        App.Localization.GetText(LocalizationKeys.AmountLimit));
                     _powerAmount = -1;
-                    _amountLimitMessage.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.AmountLimitFull);
+                    _amountLimitMessage.Text = App.Localization.GetText(LocalizationKeys.AmountLimitFull);
                     _amountLimitMessage.Visibility = ViewStates.Visible;
                 }
             }
@@ -213,11 +213,11 @@ namespace Steepshot.Fragment
                 return;
             }
 
-            var doPowerConfirmation = AppSettings.LocalizationManager.GetText(LocalizationKeys.PowerUpDownConfirmation, _powerActionText.ToLower(), _powerAmount, _balance.CurrencyType);
+            var doPowerConfirmation = App.Localization.GetText(LocalizationKeys.PowerUpDownConfirmation, _powerActionText.ToLower(), _powerAmount, _balance.CurrencyType);
             var actionAlert = new ActionAlertDialog(Context, doPowerConfirmation,
-                                                    AppSettings.LocalizationManager.GetText(string.Empty),
-                                                    AppSettings.LocalizationManager.GetText(LocalizationKeys.Yes),
-                                                    AppSettings.LocalizationManager.GetText(LocalizationKeys.No), AutoLinkAction, Orientation.Vertical);
+                                                    App.Localization.GetText(string.Empty),
+                                                    App.Localization.GetText(LocalizationKeys.Yes),
+                                                    App.Localization.GetText(LocalizationKeys.No), AutoLinkAction, Orientation.Vertical);
             actionAlert.AlertAction += DoPowerAction;
             actionAlert.Show();
         }
@@ -248,7 +248,7 @@ namespace Steepshot.Fragment
                 return;
 
             _powerBtnLoader.Visibility = ViewStates.Gone;
-            _powerBtn.Text = AppSettings.LocalizationManager.GetText(_powerAction == PowerAction.PowerUp ? LocalizationKeys.PowerUp : LocalizationKeys.PowerDown);
+            _powerBtn.Text = App.Localization.GetText(_powerAction == PowerAction.PowerUp ? LocalizationKeys.PowerUp : LocalizationKeys.PowerDown);
 
             if (response.IsSuccess)
             {

@@ -24,7 +24,7 @@ namespace Steepshot.iOS.ViewControllers
 
         protected async void Vote(Post post)
         {
-            if (!AppSettings.User.HasPostingPermission)
+            if (!AppDelegate.User.HasPostingPermission)
             {
                 LoginTapped(null, null);
                 return;
@@ -50,23 +50,23 @@ namespace Steepshot.iOS.ViewControllers
             if (actions != null)
                 foreach (var action in actions)
                     actionSheetAlert.AddAction(action);
-            if (post.Author == AppSettings.User.Login)
+            if (post.Author == AppDelegate.User.Login)
             {
                 if (post.CashoutTime > post.Created)
                 {
-                    actionSheetAlert.AddAction(UIAlertAction.Create(AppSettings.LocalizationManager.GetText(LocalizationKeys.EditPost), UIAlertActionStyle.Default, obj => EditPost(post)));
+                    actionSheetAlert.AddAction(UIAlertAction.Create(AppDelegate.Localization.GetText(LocalizationKeys.EditPost), UIAlertActionStyle.Default, obj => EditPost(post)));
 
-                    actionSheetAlert.AddAction(UIAlertAction.Create(AppSettings.LocalizationManager.GetText(LocalizationKeys.DeletePost), UIAlertActionStyle.Default, obj => DeleteAlert(post)));
+                    actionSheetAlert.AddAction(UIAlertAction.Create(AppDelegate.Localization.GetText(LocalizationKeys.DeletePost), UIAlertActionStyle.Default, obj => DeleteAlert(post)));
                 }
             }
             else
             {
-                actionSheetAlert.AddAction(UIAlertAction.Create(AppSettings.LocalizationManager.GetText(LocalizationKeys.FlagPhoto), UIAlertActionStyle.Default, obj => FlagPhoto(post)));
-                actionSheetAlert.AddAction(UIAlertAction.Create(AppSettings.LocalizationManager.GetText(LocalizationKeys.HidePhoto), UIAlertActionStyle.Default, obj => HidePhoto(post)));
+                actionSheetAlert.AddAction(UIAlertAction.Create(AppDelegate.Localization.GetText(LocalizationKeys.FlagPhoto), UIAlertActionStyle.Default, obj => FlagPhoto(post)));
+                actionSheetAlert.AddAction(UIAlertAction.Create(AppDelegate.Localization.GetText(LocalizationKeys.HidePhoto), UIAlertActionStyle.Default, obj => HidePhoto(post)));
             }
             actionSheetAlert.AddAction(UIAlertAction.Create("Promote", UIAlertActionStyle.Default, obj => ShowPromotePopup(post)));
             //Sharepost contain copylink function by default
-            actionSheetAlert.AddAction(UIAlertAction.Create(AppSettings.LocalizationManager.GetText(LocalizationKeys.Sharepost), UIAlertActionStyle.Default, obj => SharePhoto(post)));
+            actionSheetAlert.AddAction(UIAlertAction.Create(AppDelegate.Localization.GetText(LocalizationKeys.Sharepost), UIAlertActionStyle.Default, obj => SharePhoto(post)));
             actionSheetAlert.AddAction(UIAlertAction.Create("Cancel", UIAlertActionStyle.Cancel, null));
             PresentViewController(actionSheetAlert, true, null);
         }
@@ -87,15 +87,15 @@ namespace Steepshot.iOS.ViewControllers
 
         protected void HidePhoto(Post post)
         {
-            AppSettings.User.PostBlackList.Add(post.Url);
-            AppSettings.User.Save();
+            AppDelegate.User.PostBlackList.Add(post.Url);
+            AppDelegate.User.Save();
 
             Presenter.HidePost(post);
         }
 
         protected async Task FlagPhoto(Post post)
         {
-            if (!AppSettings.User.HasPostingPermission)
+            if (!AppDelegate.User.HasPostingPermission)
             {
                 LoginTapped(null, null);
                 return;
@@ -109,13 +109,13 @@ namespace Steepshot.iOS.ViewControllers
 
         private void CopyLink(Post post)
         {
-            UIPasteboard.General.String = AppSettings.LocalizationManager.GetText(LocalizationKeys.PostLink, post.Url);
+            UIPasteboard.General.String = AppDelegate.Localization.GetText(LocalizationKeys.PostLink, post.Url);
             ShowAlert(LocalizationKeys.Copied);
         }
 
         private void SharePhoto(Post post)
         {
-            var postLink = AppSettings.LocalizationManager.GetText(LocalizationKeys.PostLink, post.Url);
+            var postLink = AppDelegate.Localization.GetText(LocalizationKeys.PostLink, post.Url);
             var item = NSObject.FromObject(postLink);
             var activityItems = new NSObject[] { item };
 
@@ -129,10 +129,10 @@ namespace Steepshot.iOS.ViewControllers
 
             if (_deleteAlert == null)
             {
-                var titleText = AppSettings.LocalizationManager.GetText(LocalizationKeys.DeleteAlertTitle);
-                var messageText = AppSettings.LocalizationManager.GetText(LocalizationKeys.DeleteAlertMessage);
-                var leftButtonText = AppSettings.LocalizationManager.GetText(LocalizationKeys.Cancel);
-                var rightButtonText = AppSettings.LocalizationManager.GetText(LocalizationKeys.Delete);
+                var titleText = AppDelegate.Localization.GetText(LocalizationKeys.DeleteAlertTitle);
+                var messageText = AppDelegate.Localization.GetText(LocalizationKeys.DeleteAlertMessage);
+                var leftButtonText = AppDelegate.Localization.GetText(LocalizationKeys.Cancel);
+                var rightButtonText = AppDelegate.Localization.GetText(LocalizationKeys.Delete);
 
                 var commonMargin = 20;
                 var dialogWidth = UIScreen.MainScreen.Bounds.Width - 10 * 2;

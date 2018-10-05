@@ -4,6 +4,7 @@ using Android.Graphics;
 using Android.OS;
 using Android.Util;
 using Android.Widget;
+using Steepshot.Base;
 using Steepshot.Core.Utils;
 
 namespace Steepshot.CustomViews
@@ -30,7 +31,7 @@ namespace Steepshot.CustomViews
             }
             catch (System.Exception ex)
             {
-                AppSettings.Logger.WarningAsync(ex);
+                App.Logger.WarningAsync(ex);
             }
             finally
             {

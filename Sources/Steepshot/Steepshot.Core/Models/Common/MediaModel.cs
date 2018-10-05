@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Models.Common
 {

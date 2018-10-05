@@ -91,30 +91,30 @@ namespace Steepshot.Activity
             SetContentView(Resource.Layout.lyt_settings);
             Cheeseknife.Bind(this);
 
-            var appInfoService = AppSettings.AppInfo;
-            _accounts = AppSettings.User.GetAllAccounts();
-            _currentUser = AppSettings.User.UserInfo;
+            var appInfoService = App.AppInfo;
+            _accounts = App.User.GetAllAccounts();
+            _currentUser = App.User.UserInfo;
 
             _propertiesActionsDialog = new BottomSheetDialog(this);
             _propertiesActionsDialog.Window.RequestFeature(WindowFeatures.NoTitle);
 
-            _viewTitle.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.AppSettingsTitle);
-            _nsfwSwitchText.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.ShowNsfw);
-            _lowSwitchText.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.ShowLowRated);
-            _versionText.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.AppVersion, appInfoService.GetAppVersion(), appInfoService.GetBuildVersion());
-            _guideButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Guidelines);
-            _termsButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.ToS);
-            _powerSwitchText.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.VotingPowerSetting);
-            _powerHint.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PowerHint);
-            _notificationSettings.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.NotificationSettings);
-            _notificationUpvotes.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.NotificationPostUpvotes);
-            _notificationCommentsUpvotes.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.NotificationCommentsUpvotes);
-            _notificationFollowing.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.NotificationFollow);
-            _notificationComments.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.NotificationComment);
-            _notificationPosting.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.NotificationPosting);
-            _notificationTransfer.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.RecievedTransfers);
-            _steemConnectButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Connect);
-            _golosConnectButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Connect);
+            _viewTitle.Text = App.Localization.GetText(LocalizationKeys.AppSettingsTitle);
+            _nsfwSwitchText.Text = App.Localization.GetText(LocalizationKeys.ShowNsfw);
+            _lowSwitchText.Text = App.Localization.GetText(LocalizationKeys.ShowLowRated);
+            _versionText.Text = App.Localization.GetText(LocalizationKeys.AppVersion, appInfoService.GetAppVersion(), appInfoService.GetBuildVersion());
+            _guideButton.Text = App.Localization.GetText(LocalizationKeys.Guidelines);
+            _termsButton.Text = App.Localization.GetText(LocalizationKeys.ToS);
+            _powerSwitchText.Text = App.Localization.GetText(LocalizationKeys.VotingPowerSetting);
+            _powerHint.Text = App.Localization.GetText(LocalizationKeys.PowerHint);
+            _notificationSettings.Text = App.Localization.GetText(LocalizationKeys.NotificationSettings);
+            _notificationUpvotes.Text = App.Localization.GetText(LocalizationKeys.NotificationPostUpvotes);
+            _notificationCommentsUpvotes.Text = App.Localization.GetText(LocalizationKeys.NotificationCommentsUpvotes);
+            _notificationFollowing.Text = App.Localization.GetText(LocalizationKeys.NotificationFollow);
+            _notificationComments.Text = App.Localization.GetText(LocalizationKeys.NotificationComment);
+            _notificationPosting.Text = App.Localization.GetText(LocalizationKeys.NotificationPosting);
+            _notificationTransfer.Text = App.Localization.GetText(LocalizationKeys.RecievedTransfers);
+            _steemConnectButton.Text = App.Localization.GetText(LocalizationKeys.Connect);
+            _golosConnectButton.Text = App.Localization.GetText(LocalizationKeys.Connect);
 
             SetupAccounts(_accounts);
 
@@ -226,13 +226,13 @@ namespace Steepshot.Activity
 
         private void PowerSwitchOnCheckedChange(object sender, CompoundButton.CheckedChangeEventArgs e)
         {
-            AppSettings.User.ShowVotingSlider = e.IsChecked;
+            App.User.ShowVotingSlider = e.IsChecked;
         }
 
         protected override void OnResume()
         {
             _steemLoader.Visibility = _golosLoader.Visibility = ViewStates.Gone;
-            _steemConnectButton.Text = _golosConnectButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Connect);
+            _steemConnectButton.Text = _golosConnectButton.Text = App.Localization.GetText(LocalizationKeys.Connect);
             _steemConnectButton.Enabled = _golosConnectButton.Enabled = true;
             _steemLoader.Visibility = _golosLoader.Visibility = ViewStates.Gone;
 
@@ -242,7 +242,7 @@ namespace Steepshot.Activity
         public override void OnBackPressed()
         {
             if (_nsfwChanged || _lowRatedChanged)
-                AppSettings.ProfileUpdateType = ProfileUpdateType.Full;
+                App.ProfileUpdateType = ProfileUpdateType.Full;
             base.OnBackPressed();
         }
 
@@ -255,13 +255,13 @@ namespace Steepshot.Activity
 
         private void OnLowRatedSwitcherOnCheckedChange(object sender, CompoundButton.CheckedChangeEventArgs e)
         {
-            AppSettings.User.IsLowRated = _lowRatedSwitcher.Checked;
+            App.User.IsLowRated = _lowRatedSwitcher.Checked;
             _lowRatedChanged = !_lowRatedChanged;
         }
 
         private void OnNsfwSwitcherOnCheckedChange(object sender, CompoundButton.CheckedChangeEventArgs e)
         {
-            AppSettings.User.IsNsfw = _nsfwSwitcher.Checked;
+            App.User.IsNsfw = _nsfwSwitcher.Checked;
             _nsfwChanged = !_nsfwChanged;
         }
 
@@ -305,7 +305,8 @@ namespace Steepshot.Activity
             if (resp.IsSuccess)
             {
                 _currentUser.PushSettings = _pushSettings;
-                AppSettings.DataProvider.Update(_currentUser);
+                var userManager = App.Container.GetUserManager();
+                userManager.Update(_currentUser);
             }
             else
                 this.ShowAlert(resp.Exception);
@@ -328,7 +329,7 @@ namespace Steepshot.Activity
             OneSignal.Current.DeleteTag("player_id");
             OneSignal.Current.ClearAndroidOneSignalNotifications();
             var chainToDelete = userInfo.Chain;
-            AppSettings.User.Delete(userInfo);
+            App.User.Delete(userInfo);
             RemoveChain(chainToDelete);
         }
 
@@ -338,20 +339,20 @@ namespace Steepshot.Activity
             using (var dialogView = inflater.Inflate(Resource.Layout.lyt_account_popup, null))
             {
                 var logout = dialogView.FindViewById<Button>(Resource.Id.logout);
-                logout.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Logout);
+                logout.Text = App.Localization.GetText(LocalizationKeys.Logout);
                 logout.Typeface = Style.Semibold;
 
                 var switchAccount = dialogView.FindViewById<Button>(Resource.Id.switch_account);
-                switchAccount.Text = $"{AppSettings.LocalizationManager.GetText(LocalizationKeys.SwitchTo)} {account.Login}";
+                switchAccount.Text = $"{App.Localization.GetText(LocalizationKeys.SwitchTo)} {account.Login}";
                 switchAccount.Typeface = Style.Semibold;
 
-                if (account.Chain != AppSettings.User.Chain)
+                if (account.Chain != App.User.Chain)
                 {
                     switchAccount.Visibility = ViewStates.Visible;
                 }
 
                 var cancel = dialogView.FindViewById<Button>(Resource.Id.cancel);
-                cancel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Cancel);
+                cancel.Text = App.Localization.GetText(LocalizationKeys.Cancel);
                 cancel.Typeface = Style.Semibold;
 
                 logout.Click += (sender, e) =>
@@ -399,17 +400,17 @@ namespace Steepshot.Activity
 
         private void OnAccountAdd()
         {
-            AppSettings.MainChain = AppSettings.MainChain == KnownChains.Steem ? KnownChains.Golos : KnownChains.Steem;
+            App.MainChain = App.MainChain == KnownChains.Steem ? KnownChains.Golos : KnownChains.Steem;
             var intent = new Intent(this, typeof(PreSignInActivity));
             StartActivity(intent);
         }
 
         private void SwitchChain(UserInfo user)
         {
-            if (AppSettings.MainChain != user.Chain)
+            if (App.MainChain != user.Chain)
             {
-                AppSettings.MainChain = user.Chain;
-                AppSettings.User.SwitchUser(user);
+                App.MainChain = user.Chain;
+                App.User.SwitchUser(user);
 
                 var i = new Intent(ApplicationContext, typeof(RootActivity));
                 i.AddFlags(ActivityFlags.NewTask | ActivityFlags.ClearTask);
@@ -419,7 +420,7 @@ namespace Steepshot.Activity
 
         private void RemoveChain(KnownChains chain)
         {
-            var accounts = AppSettings.User.GetAllAccounts();
+            var accounts = App.User.GetAllAccounts();
             if (accounts.Count == 0)
             {
                 var i = new Intent(ApplicationContext, typeof(GuestActivity));
@@ -429,11 +430,11 @@ namespace Steepshot.Activity
             }
             else
             {
-                if (AppSettings.MainChain == chain)
+                if (App.MainChain == chain)
                 {
                     var user = accounts.First();
-                    AppSettings.MainChain = user.Chain;
-                    AppSettings.User.SwitchUser(user);
+                    App.MainChain = user.Chain;
+                    App.User.SwitchUser(user);
 
                     var i = new Intent(ApplicationContext, typeof(RootActivity));
                     i.AddFlags(ActivityFlags.NewTask | ActivityFlags.ClearTask);
@@ -459,8 +460,8 @@ namespace Steepshot.Activity
             _steemConnectButton.Visibility = _golosConnectButton.Visibility = ViewStates.Visible;
             _steemConnectLyt.Visibility = _golosConnectLyt.Visibility = ViewStates.Visible;
 
-            _steemTitle.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.SteemitAccount);
-            _golosTitle.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.GolosAccount);
+            _steemTitle.Text = App.Localization.GetText(LocalizationKeys.SteemitAccount);
+            _golosTitle.Text = App.Localization.GetText(LocalizationKeys.GolosAccount);
 
             _steemTitle.SetTextColor(Color.Black);
             _golosTitle.SetTextColor(Color.Black);
@@ -479,7 +480,7 @@ namespace Steepshot.Activity
 
                         _steemTitle.Text = account.Login;
 
-                        if (account.Chain == AppSettings.User.Chain)
+                        if (account.Chain == App.User.Chain)
                         {
                             _steemTitle.SetTextColor(Style.R255G34B5);
                             _steemState.SetImageResource(Resource.Drawable.ic_checked);
@@ -498,7 +499,7 @@ namespace Steepshot.Activity
                         _golosConnectLyt.Visibility = ViewStates.Gone;
 
                         _golosTitle.Text = account.Login;
-                        if (account.Chain == AppSettings.User.Chain)
+                        if (account.Chain == App.User.Chain)
                         {
                             _golosTitle.SetTextColor(Style.R255G34B5);
                             _golosState.SetImageResource(Resource.Drawable.ic_checked);

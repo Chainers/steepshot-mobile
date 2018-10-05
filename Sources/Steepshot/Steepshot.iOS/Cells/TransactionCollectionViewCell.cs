@@ -135,8 +135,8 @@ namespace Steepshot.iOS.Cells
             };
 
             var at = new NSMutableAttributedString();
-            at.Append(new NSAttributedString(transaction.From.Equals(AppSettings.User.Login) ? $"to " : $"from ", _noLinkAttribute));
-            var login = transaction.From.Equals(AppSettings.User.Login) ? transaction.To : transaction.From;
+            at.Append(new NSAttributedString(transaction.From.Equals(AppDelegate.User.Login) ? $"to " : $"from ", _noLinkAttribute));
+            var login = transaction.From.Equals(AppDelegate.User.Login) ? transaction.To : transaction.From;
 
             var linkAttribute = new UIStringAttributes
             {

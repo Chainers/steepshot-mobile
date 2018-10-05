@@ -5,6 +5,7 @@ using Android.Support.Design.Widget;
 using Android.Util;
 using Android.Graphics;
 using Android.Widget;
+using Steepshot.Base;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Utils;
 using Steepshot.Utils;
@@ -27,7 +28,7 @@ namespace Steepshot.CustomViews
                 // ...
 
                 var closeBtn = dialogView.FindViewById<Button>(Resource.Id.close);
-                closeBtn.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Close);
+                closeBtn.Text = App.Localization.GetText(LocalizationKeys.Close);
                 closeBtn.Click += CloseBtnOnClick;
 
                 SetContentView(dialogView);

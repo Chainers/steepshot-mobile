@@ -1,14 +1,12 @@
 ﻿using Android.App;
 using Android.Content;
 using Android.OS;
+using Autofac;
 using Java.Lang;
-using Steepshot.Core;
-using Steepshot.Core.Authorization;
-using Steepshot.Core.Clients;
+using Steepshot.Base;
+using Steepshot.Core.Extensions;
 using Steepshot.Core.Jobs;
-using Steepshot.Core.Sentry;
-using Steepshot.Core.Utils;
-using Steepshot.Utils;
+using Steepshot.Core.Models.Database;
 
 namespace Steepshot.Services
 {
@@ -20,6 +18,7 @@ namespace Steepshot.Services
         public const string DataExtraName = "2E4E445F-D871-413A-BE1C-21F068C2EFDC";
         public const string DataResultExtraName = "ABC4129C-A906-4F63-9E6B-83D257FD6D55";
         public const string ActionBroadcast = "F7D31C6F-599F-4685-982E-141577B59283";
+        private Autofac.IContainer _container;
 
         private readonly IBinder _binder;
 
@@ -78,9 +77,29 @@ namespace Steepshot.Services
             _serviceLooper = thread.Looper;
             _serviceHandler = new Handler(_serviceLooper);
 
+            InitIoC();
 
-            _jobProcessingService = AppSettings.GetJobProcessingService();
+            _jobProcessingService = _container.GetJobProcessingService();
             _jobProcessingService.StartAsync();
+        }
+
+        private void InitIoC()
+        {
+            if (App.Container == null)
+            {
+                var builder = new ContainerBuilder();
+
+                builder.RegisterInstance(Assets)
+                    .As<Android.Content.Res.AssetManager>()
+                    .SingleInstance();
+                builder.RegisterModule<Steepshot.Utils.IocModule>();
+
+                _container = builder.Build();
+            }
+            else
+            {
+                _container = App.Container;
+            }
         }
 
         public override StartCommandResult OnStartCommand(Intent intent, StartCommandFlags flags, int startId)

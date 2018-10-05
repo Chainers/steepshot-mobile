@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using Java.Lang;
 using Steepshot.Core.Models.Common;
+using Steepshot.Core.Utils;
 using Steepshot.CustomViews;
 using Environment = Android.OS.Environment;
 using File = Java.IO.File;

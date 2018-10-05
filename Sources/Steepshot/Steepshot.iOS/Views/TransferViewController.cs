@@ -17,6 +17,7 @@ using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Models.Common;
 using Steepshot.iOS.Helpers;
 using System.Globalization;
+using Steepshot.Core.Extensions;
 using Steepshot.Core.Localization;
 
 namespace Steepshot.iOS.Views
@@ -33,13 +34,13 @@ namespace Steepshot.iOS.Views
         {
             base.ViewDidLoad();
 
-            _transferFacade = AppSettings.GetFacade<TransferFacade>(AppSettings.MainChain);
+            _transferFacade = AppDelegate.Container.GetFacade<TransferFacade>(AppDelegate.MainChain);
             _transferFacade.OnRecipientChanged += OnRecipientChanged;
             _transferFacade.OnUserBalanceChanged += OnUserBalanceChanged;
             _transferFacade.UserFriendPresenter.SourceChanged += PresenterOnSourceChanged;
 
             _coins = new List<CurrencyType>();
-            switch (AppSettings.User.Chain)
+            switch (AppDelegate.User.Chain)
             {
                 case KnownChains.Steem:
                     _coins.AddRange(new[] { CurrencyType.Steem, CurrencyType.Sbd });
@@ -127,14 +128,14 @@ namespace Steepshot.iOS.Views
         private void OnUserBalanceChanged()
         {
             if (_transferFacade.UserBalance != null)
-                _balanceLabel.Text = $"{AppSettings.LocalizationManager.GetText(LocalizationKeys.Balance)}: {_transferFacade.UserBalance.Value}";
+                _balanceLabel.Text = $"{AppDelegate.Localization.GetText(LocalizationKeys.Balance)}: {_transferFacade.UserBalance.Value}";
         }
 
         private void CoinSelected(CurrencyType pickedCoin)
         {
             _pickedCoin = pickedCoin;
             _pickerLabel.Text = _pickedCoin.ToString().ToUpper();
-            _transferFacade.UserBalance = AppSettings.User.AccountInfo?.Balances?.First(b => b.CurrencyType == pickedCoin);
+            _transferFacade.UserBalance = AppDelegate.User.AccountInfo?.Balances?.First(b => b.CurrencyType == pickedCoin);
             IsEnoughBalance(null, null);
         }
 
@@ -160,7 +161,7 @@ namespace Steepshot.iOS.Views
             if (Math.Abs(transferAmount) < 0.00000001 || transferAmount > _transferFacade.UserBalance.Value)
                 return;
 
-            if (!AppSettings.User.HasActivePermission)
+            if (!AppDelegate.User.HasActivePermission)
             {
                 NavigationController.PushViewController(new LoginViewController(), true);
                 return;
@@ -185,7 +186,7 @@ namespace Steepshot.iOS.Views
                 _tranfserLoader.StartAnimating();
                 RemoveFocus();
 
-                var transferResponse = await Presenter.TryTransferAsync(AppSettings.User.UserInfo, _transferFacade.Recipient.Author, _amountTextField.GetDoubleValue().ToString(CultureInfo.InvariantCulture), _pickedCoin, _memoTextView.Text);
+                var transferResponse = await Presenter.TryTransferAsync(AppDelegate.User.UserInfo, _transferFacade.Recipient.Author, _amountTextField.GetDoubleValue().ToString(CultureInfo.InvariantCulture), _pickedCoin, _memoTextView.Text);
 
                 _tranfserLoader.StopAnimating();
                 TogglButtons(true);
@@ -209,11 +210,11 @@ namespace Steepshot.iOS.Views
         {
             _balanceLabel.TextColor = UIColor.Clear;
             _balanceLoader.StartAnimating();
-            var response = await _transferFacade.TryGetAccountInfoAsync(AppSettings.User.Login);
+            var response = await _transferFacade.TryGetAccountInfoAsync(AppDelegate.User.Login);
             if (response.IsSuccess)
             {
-                AppSettings.User.AccountInfo = response.Result;
-                _transferFacade.UserBalance = AppSettings.User.AccountInfo?.Balances?.First(b => b.CurrencyType == _pickedCoin);
+                AppDelegate.User.AccountInfo = response.Result;
+                _transferFacade.UserBalance = AppDelegate.User.AccountInfo?.Balances?.First(b => b.CurrencyType == _pickedCoin);
             }
             _balanceLabel.TextColor = Constants.R151G155B158;
             _balanceLoader.StopAnimating();

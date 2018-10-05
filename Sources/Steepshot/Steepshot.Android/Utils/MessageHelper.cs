@@ -4,6 +4,7 @@ using Android.App;
 using Android.Content;
 using Android.Views;
 using Android.Widget;
+using Steepshot.Base;
 using Steepshot.Core.Exceptions;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Common;
@@ -30,13 +31,13 @@ namespace Steepshot.Utils
             if (string.IsNullOrWhiteSpace(message))
                 return;
 
-            var btnOk = AppSettings.LocalizationManager.GetText(LocalizationKeys.Ok);
+            var btnOk = App.Localization.GetText(LocalizationKeys.Ok);
             CreateAndShowDialog(context, message, btnOk);
         }
 
         public static void ShowAlert(this Context context, LocalizationKeys key)
         {
-            var lm = AppSettings.LocalizationManager;
+            var lm = App.Localization;
             var btnOk = lm.GetText(LocalizationKeys.Ok);
             var msg = lm.GetText(key);
 
@@ -48,7 +49,7 @@ namespace Steepshot.Utils
             if (IsDestroyed(context))
                 return;
 
-            var message = AppSettings.LocalizationManager.GetText(keys);
+            var message = App.Localization.GetText(keys);
             Toast.MakeText(context, message, length).Show();
         }
 
@@ -85,7 +86,7 @@ namespace Steepshot.Utils
             if (string.IsNullOrWhiteSpace(message))
                 return;
 
-            var lm = AppSettings.LocalizationManager;
+            var lm = App.Localization;
             var pBtn = lm.GetText(LocalizationKeys.TryAgain);
             var nBtn = lm.GetText(LocalizationKeys.Forget);
             CreateAndShowDialog(context, message, pBtn, tryAgainAction, nBtn, forgetAction);
@@ -124,7 +125,7 @@ namespace Steepshot.Utils
 
         private static string GetMsg(Exception exception)
         {
-            var lm = AppSettings.LocalizationManager;
+            var lm = App.Localization;
 
             if (exception is ValidationException validationException)
                 return lm.GetText(validationException);

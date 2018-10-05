@@ -2,6 +2,8 @@
 using Android.Graphics;
 using Newtonsoft.Json;
 using Steepshot.Core.Models.Common;
+using Steepshot.Core.Models.Database;
+using Steepshot.Core.Utils;
 using Steepshot.CustomViews;
 
 namespace Steepshot.Utils
@@ -50,11 +52,13 @@ namespace Steepshot.Utils
         public Bitmap PreparedBitmap { get; set; }
 
         public bool MultySelect { get; set; }
-        
+
         [JsonProperty]
         public string TempPath { get; set; }
-        
+
         [JsonProperty]
         public UUIDModel UploadMediaUuid { get; set; }
+
+        public UploadState UploadState { get; set; }
     }
 }
