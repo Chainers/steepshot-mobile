@@ -52,7 +52,7 @@ namespace Steepshot.Core.Presenters
         public async Task<OperationResult<VoidResponse>> TryEditCommentAsync(UserInfo userInfo, Post parentPost, Post post, string body, IAppInfo appInfo)
         {
             if (string.IsNullOrEmpty(body) || parentPost == null || post == null)
-                return null;
+                return new OperationResult<VoidResponse>(new OperationCanceledException());
 
             var model = new CreateOrEditCommentModel(userInfo, parentPost, post, body, appInfo);
             var response = await TaskHelper.TryRunTaskAsync(CreateOrEditCommentAsync, model, OnDisposeCts.Token).ConfigureAwait(false);
