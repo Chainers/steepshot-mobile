@@ -345,7 +345,7 @@ namespace Steepshot.iOS.Cells
             else
             {
                 _photoScroll.ContentSize = new CGSize(UIScreen.MainScreen.Bounds.Width * _currentPost.Media.Length, variables.PhotoHeight);
-                _videoView.ChangeItem(null);
+                _videoView.ChangeItem(string.Empty);
 
                 _scheduledWorkBody = new IScheduledWork[_currentPost.Media.Length];
 

@@ -31,10 +31,12 @@ namespace Steepshot.iOS.Views
         protected const int sectionInset = 15;
         private const int _photoSize = 900;
 
+        private UIImageView _statusImage;
         private TimeSpan _postingLimit;
         private PlagiarismResult _plagiarismResult;
         private nfloat _photoViewSide;
         private bool _isSpammer;
+        private bool _isVideoPlaying;
 
         protected List<Tuple<NSDictionary, UIImage>> ImageAssets;
         protected nfloat SeparatorMargin = 30;
@@ -65,7 +67,7 @@ namespace Steepshot.iOS.Views
         protected UICollectionView tagsCollectionView;
         protected UICollectionView photoCollection;
         protected UIImageView photoView;
-        protected UIView videoContainer;
+        protected VideoView videoContainer;
         protected AVPlayer videoPlayer;
         protected bool editMode;
 
@@ -86,6 +88,7 @@ namespace Steepshot.iOS.Views
         private UITapGestureRecognizer _openTagsGestureRecognizer;
         private UITapGestureRecognizer _rotateTap;
         private UITapGestureRecognizer _zoomTap;
+        private UITapGestureRecognizer _videoViewTap;
 
         public bool _isFromCamera => ImageAssets?.Count == 1 && ImageAssets[0]?.Item1 == null;
         
@@ -115,6 +118,7 @@ namespace Steepshot.iOS.Views
             _openTagsGestureRecognizer = new UITapGestureRecognizer(OpenTagPicker);
             _rotateTap = new UITapGestureRecognizer(RotateTap);
             _zoomTap = new UITapGestureRecognizer(ZoomTap);
+            _videoViewTap = new UITapGestureRecognizer(VideoViewTapped);
 
             SetupMainScroll();
 
@@ -219,6 +223,7 @@ namespace Steepshot.iOS.Views
                 _descriptionTextViewDelegate.EditingStartedAction += _descriptionTextViewDelegate_EditingStartedAction;
                 _leftBarButton.Clicked += GoBack;
                 View.AddGestureRecognizer(_viewTap);
+                videoContainer.AddGestureRecognizer(_videoViewTap);
                 tagField.AddGestureRecognizer(_openTagsGestureRecognizer);
                 _resizeButton.AddGestureRecognizer(_zoomTap);
                 _rotateButton.AddGestureRecognizer(_rotateTap);
@@ -235,10 +240,12 @@ namespace Steepshot.iOS.Views
                 _descriptionTextViewDelegate.EditingStartedAction = null;
                 _leftBarButton.Clicked -= GoBack;
                 View.RemoveGestureRecognizer(_viewTap);
+                videoContainer.RemoveGestureRecognizer(_videoViewTap);
                 tagField.RemoveGestureRecognizer(_openTagsGestureRecognizer);
                 _resizeButton.RemoveGestureRecognizer(_zoomTap);
                 _rotateButton.RemoveGestureRecognizer(_rotateTap);
             }
+            videoContainer.Stop();
             base.ViewWillDisappear(animated);
         }
 
@@ -255,6 +262,22 @@ namespace Steepshot.iOS.Views
                 _cropView.ZoomTap(true, false);
                 _cropView.SetScrollViewInsets();
             }
+        }
+
+        private void VideoViewTapped()
+        {
+            if (_isVideoPlaying)
+            {
+                videoContainer?.Stop();
+                _statusImage.Image = UIImage.FromBundle("ic_play");
+            }
+            else
+            {
+                videoContainer?.Play();
+                _statusImage.Image = UIImage.FromBundle("ic_pause");
+            }
+
+            _isVideoPlaying = !_isVideoPlaying;
         }
 
         private void EditingStartedAction()

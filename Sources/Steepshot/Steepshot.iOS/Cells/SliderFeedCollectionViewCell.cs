@@ -341,7 +341,7 @@ namespace Steepshot.iOS.Cells
             else
             {
                 _photoScroll.Frame = new CGRect(0, 0, _contentScroll.Frame.Width, variables.PhotoHeight);
-                _videoView.ChangeItem(null);
+                _videoView.ChangeItem(string.Empty);
                 _photoScroll.ContentSize = new CGSize(_contentScroll.Frame.Width * _currentPost.Media.Length, variables.PhotoHeight);
                 _photoScroll.SetContentOffset(new CGPoint(0, 0), false);
 

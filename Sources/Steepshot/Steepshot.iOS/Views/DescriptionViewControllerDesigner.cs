@@ -224,24 +224,21 @@ namespace Steepshot.iOS.Views
             }
             else
             {
-                videoContainer = new UIView();
+                videoContainer = new VideoView(true);
+                videoContainer.PlayerLayer.CornerRadius = 8;
                 mainScroll.AddSubview(videoContainer);
 
-                videoContainer.AutoAlignAxisToSuperviewAxis(ALAxis.Vertical); 
+                videoContainer.AutoAlignAxisToSuperviewAxis(ALAxis.Vertical);
                 videoContainer.AutoPinEdgeToSuperviewEdge(ALEdge.Top, 15f);
                 videoContainer.AutoSetDimensionsToSize(new CGSize(_cellSize.Width, _cellSize.Height));
+                videoContainer.ChangeItem(_videoUrl);
 
-                var asset = AVAsset.FromUrl(_videoUrl);
-                var item = new AVPlayerItem(asset);
-                var avPlayer = new AVPlayer(item);
-                var playerLayer = AVPlayerLayer.FromPlayer(avPlayer);
-
-                playerLayer.Frame = new CGRect(0, 0, _cellSize.Width, _cellSize.Height);
-                playerLayer.VideoGravity = AVLayerVideoGravity.ResizeAspectFill;
-                videoContainer.Layer.AddSublayer(playerLayer);
-                videoContainer.Layer.CornerRadius = 8;
-                videoContainer.ClipsToBounds = true;
-                avPlayer.Play();
+                _statusImage = new UIImageView();
+                _statusImage.Image = UIImage.FromBundle("ic_play");
+                videoContainer.AddSubview(_statusImage);
+                _statusImage.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom, 10);
+                _statusImage.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 10);
+                _statusImage.AutoSetDimensionsToSize(new CGSize(32, 32));
             }
         }
 

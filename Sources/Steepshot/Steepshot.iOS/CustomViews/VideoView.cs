@@ -57,14 +57,20 @@ namespace Steepshot.iOS.CustomViews
 
         public void ChangeItem(string url)
         {
+            ChangeItem(NSUrl.FromString(url));
+        }
+
+        public void ChangeItem(NSUrl url)
+        {
             if (_isRegistered)
             {
                 item?.RemoveObserver(this, (NSString)ObserveKey);
                 _isRegistered = false;
             }
-            if (!string.IsNullOrEmpty(url))
+
+            if (url != null)
             {
-                item = new AVPlayerItem(NSUrl.FromString(url)); ;
+                item = new AVPlayerItem(url);
                 item.AddObserver(this, (NSString)ObserveKey, NSKeyValueObservingOptions.OldNew, Handle);
                 _isRegistered = true;
                 Player.ReplaceCurrentItemWithPlayerItem(item);

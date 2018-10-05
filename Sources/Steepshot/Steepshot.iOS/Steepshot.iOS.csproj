@@ -612,6 +612,10 @@
     </BundleResource>
     <BundleResource Include="Resources\ic_revert_dark%402x.png" />
     <BundleResource Include="Resources\ic_revert_dark%403x.png" />
+    <BundleResource Include="Resources\ic_play%402x.png" />
+    <BundleResource Include="Resources\ic_play%403x.png" />
+    <BundleResource Include="Resources\ic_pause%402x.png" />
+    <BundleResource Include="Resources\ic_pause%403x.png" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="..\..\..\References\Languages\en\dic.xml">
