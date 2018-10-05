@@ -224,13 +224,6 @@ namespace Steepshot.iOS.Views
             }
             else
             {
-                //videoContainer = new VideoView(true);
-                //mainScroll.AddSubview(videoContainer);
-                //((VideoView)videoContainer).PlayerLayer.Frame = new CGRect(new CGPoint(0, 0), _cellSize);
-                //videoContainer.Frame = new CGRect(new CGPoint(0, 0), _cellSize);
-                //((VideoView)videoContainer).ChangeItemTest(_videoUrl);
-                //((VideoView)videoContainer).Play();
-
                 videoContainer = new UIView();
                 mainScroll.AddSubview(videoContainer);
 
@@ -247,6 +240,7 @@ namespace Steepshot.iOS.Views
                 playerLayer.VideoGravity = AVLayerVideoGravity.ResizeAspectFill;
                 videoContainer.Layer.AddSublayer(playerLayer);
                 videoContainer.Layer.CornerRadius = 8;
+                videoContainer.ClipsToBounds = true;
                 avPlayer.Play();
             }
         }

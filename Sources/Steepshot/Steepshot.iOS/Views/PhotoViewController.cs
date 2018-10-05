@@ -895,9 +895,7 @@ namespace Steepshot.iOS.Views
 
         private void CreateResourceInPhotoLibrary()
         {
-            var options = new PHAssetResourceCreationOptions();
-            var creationRequest = PHAssetCreationRequest.CreationRequestForAsset();
-            creationRequest.AddResource(PHAssetResourceType.Video, _exportLocation, options);
+            PHAssetChangeRequest.FromVideo(_exportLocation);
         }
 
         private void PhotoLibraryResult(bool success, NSError error)
