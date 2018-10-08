@@ -87,7 +87,7 @@ namespace Steepshot.iOS.Views
             hashtagCollectionSeparator.BackgroundColor = Constants.R245G245B245;
 
             postPhotoButton = new UIButton();
-            postPhotoButton.SetTitle(AppSettings.LocalizationManager.GetText(LocalizationKeys.PublishButtonText).ToUpper(), UIControlState.Normal);
+            postPhotoButton.SetTitle(AppDelegate.Localization.GetText(LocalizationKeys.PublishButtonText).ToUpper(), UIControlState.Normal);
             postPhotoButton.SetTitle("", UIControlState.Disabled);
             postPhotoButton.Layer.CornerRadius = 25;
             postPhotoButton.TitleLabel.Font = Constants.Semibold14;
@@ -289,7 +289,7 @@ namespace Steepshot.iOS.Views
             NavigationItem.LeftBarButtonItem = _leftBarButton;
             NavigationController.NavigationBar.TintColor = Constants.R15G24B30;
 
-            NavigationItem.Title = AppSettings.LocalizationManager.GetText(LocalizationKeys.PostSettings);
+            NavigationItem.Title = AppDelegate.Localization.GetText(LocalizationKeys.PostSettings);
             NavigationController.NavigationBar.Translucent = false;
         }
 

@@ -2,7 +2,6 @@
 using Foundation;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Presenters;
-using Steepshot.Core.Utils;
 using Steepshot.iOS.Cells;
 using Steepshot.iOS.ViewControllers;
 using Steepshot.iOS.ViewSources;
@@ -331,7 +330,7 @@ namespace Steepshot.iOS.Views
             try
             {
                 stream = new CustomInputStream(new NSInputStream(_videoUrl));
-                var request = new UploadMediaModel(AppSettings.User.UserInfo, stream, ".mp4");
+                var request = new UploadMediaModel(AppDelegate.User.UserInfo, stream, ".mp4");
                 var serverResult = await Presenter.TryUploadMediaAsync(request);
                 if (!serverResult.IsSuccess)
                     return new OperationResult<MediaModel>(serverResult.Exception);

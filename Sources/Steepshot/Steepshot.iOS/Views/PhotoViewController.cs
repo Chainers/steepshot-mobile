@@ -203,12 +203,12 @@ namespace Steepshot.iOS.Views
 
             _photoTabButton = new UIButton();
             _photoTabButton.TitleLabel.Font = Constants.Semibold14;
-            _photoTabButton.SetTitle(AppSettings.LocalizationManager.GetText(LocalizationKeys.Photo), UIControlState.Normal);
+            _photoTabButton.SetTitle(AppDelegate.Localization.GetText(LocalizationKeys.Photo), UIControlState.Normal);
             _photoTabButton.SetTitleColor(UIColor.White, UIControlState.Normal);
 
             _videoTabButton = new UIButton();
             _videoTabButton.TitleLabel.Font = Constants.Semibold14;
-            _videoTabButton.SetTitle(AppSettings.LocalizationManager.GetText(LocalizationKeys.Video), UIControlState.Normal);
+            _videoTabButton.SetTitle(AppDelegate.Localization.GetText(LocalizationKeys.Video), UIControlState.Normal);
             _videoTabButton.SetTitleColor(UIColor.White, UIControlState.Normal);
 
             View.AddSubview(_bottomPanel);
