@@ -38,7 +38,7 @@ namespace Steepshot.Core.Tests
         public void PreparePostModel_Empty_Title()
         {
             var user = Users.First().Value.UserInfo;
-            var request = new PreparePostModel(user, AppSettings.AppInfo.GetModel())
+            var request = new PreparePostModel(user, AppInfo.GetModel())
             {
                 Media = new MediaModel[1]
             };
@@ -52,7 +52,7 @@ namespace Steepshot.Core.Tests
         public void PreparePostModel_Empty_Media()
         {
             var user = Users.First().Value.UserInfo;
-            var request = new PreparePostModel(user, AppSettings.AppInfo.GetModel())
+            var request = new PreparePostModel(user, AppInfo.GetModel())
             {
                 Title = "title"
             };
@@ -70,7 +70,7 @@ namespace Steepshot.Core.Tests
             for (int i = 0; i < tags.Length; i++)
                 tags[i] = "tag_" + i;
 
-            var request = new PreparePostModel(user, AppSettings.AppInfo.GetModel())
+            var request = new PreparePostModel(user, AppInfo.GetModel())
             {
                 Title = "title",
                 Media = new MediaModel[1],

@@ -1,5 +1,7 @@
 ﻿using System;
+using Foundation;
 using Steepshot.Core;
+using Steepshot.Core.Extensions;
 using Steepshot.Core.Presenters;
 using Steepshot.iOS.ViewControllers;
 using UIKit;
@@ -21,8 +23,9 @@ namespace Steepshot.iOS.Views
             loginText.Font = Constants.Regular14;
             loginButton.Font = Constants.Semibold14;
 #if DEBUG
-            var di = AppSettings.AssetHelper.GetDebugInfo();
-            if (AppSettings.MainChain == KnownChains.Steem)
+            var assetHelper = AppDelegate.Container.GetAssetHelper();
+            var di = assetHelper.GetDebugInfo();
+            if (AppDelegate.MainChain == KnownChains.Steem)
                 loginText.Text = di.SteemTestLogin;
             else
                 loginText.Text = di.GolosTestLogin;
@@ -39,23 +42,17 @@ namespace Steepshot.iOS.Views
 
         public override void ViewWillAppear(bool animated)
         {
-            if (IsMovingToParentViewController)
-            {
-                loginText.ShouldReturn += LoginShouldReturn;
-                loginButton.TouchDown += Login;
-                leftBarButton.Clicked += GoBack;
-            }
+            loginText.ShouldReturn += LoginShouldReturn;
+            loginButton.TouchDown += Login;
+            leftBarButton.Clicked += GoBack;
             base.ViewWillAppear(animated);
         }
 
         public override void ViewWillDisappear(bool animated)
         {
-            if (IsMovingFromParentViewController)
-            {
-                loginText.ShouldReturn -= LoginShouldReturn;
-                loginButton.TouchDown -= Login;
-                leftBarButton.Clicked -= GoBack;
-            }
+            loginText.ShouldReturn -= LoginShouldReturn;
+            loginButton.TouchDown -= Login;
+            leftBarButton.Clicked -= GoBack;
             base.ViewWillDisappear(animated);
         }
 
@@ -64,7 +61,7 @@ namespace Steepshot.iOS.Views
             leftBarButton.Image = UIImage.FromBundle("ic_back_arrow");
             NavigationItem.SetLeftBarButtonItem(leftBarButton, true);
             NavigationController.NavigationBar.TintColor = Constants.R15G24B30;
-            NavigationItem.Title = AppSettings.LocalizationManager.GetText(LocalizationKeys.YourAccountName);
+            NavigationItem.Title = AppDelegate.Localization.GetText(LocalizationKeys.YourAccountName);
         }
 
         private bool LoginShouldReturn(UITextField textField)

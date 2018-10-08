@@ -86,7 +86,7 @@ namespace Steepshot.iOS.Views
             var leftBarButton = new UIBarButtonItem(UIImage.FromBundle("ic_back_arrow"), UIBarButtonItemStyle.Plain, GoBack);
             NavigationItem.LeftBarButtonItem = leftBarButton;
             NavigationController.NavigationBar.TintColor = Helpers.Constants.R15G24B30;
-            NavigationItem.Title = AppSettings.LocalizationManager.GetText(LocalizationKeys.SinglePost);
+            NavigationItem.Title = AppDelegate.Localization.GetText(LocalizationKeys.SinglePost);
         }
 
         private void CellAction(ActionType type, Post post)
@@ -94,7 +94,7 @@ namespace Steepshot.iOS.Views
             switch (type)
             {
                 case ActionType.Profile:
-                    if (post.Author == AppSettings.User.Login)
+                    if (post.Author == AppDelegate.User.Login)
                         return;
                     var myViewController = new ProfileViewController();
                     myViewController.Username = post.Author;

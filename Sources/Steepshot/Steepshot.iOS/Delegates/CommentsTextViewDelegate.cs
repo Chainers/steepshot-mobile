@@ -1,7 +1,7 @@
 ﻿using System;
 using UIKit;
 
-namespace Steepshot.iOS.Helpers
+namespace Steepshot.iOS.Delegates
 {
     class CommentsTextViewDelegate : BaseTextViewDelegate
     {

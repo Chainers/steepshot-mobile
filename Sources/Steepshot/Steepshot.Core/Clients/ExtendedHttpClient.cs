@@ -12,6 +12,7 @@ using System.Net.Http.Headers;
 using Ditch.Core;
 using Steepshot.Core.Exceptions;
 using Steepshot.Core.Localization;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Clients
 {

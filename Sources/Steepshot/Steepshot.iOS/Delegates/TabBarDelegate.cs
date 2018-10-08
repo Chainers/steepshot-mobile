@@ -2,7 +2,7 @@
 using Steepshot.iOS.Views;
 using UIKit;
 
-namespace Steepshot.iOS.Helpers
+namespace Steepshot.iOS.Delegates
 {
     public class TabBarDelegate : UITabBarControllerDelegate
     {

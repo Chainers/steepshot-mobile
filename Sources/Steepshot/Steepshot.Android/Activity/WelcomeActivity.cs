@@ -10,9 +10,7 @@ using Android.Widget;
 using CheeseBind;
 using Steepshot.Base;
 using Steepshot.Core;
-using Steepshot.Core.Clients;
 using Steepshot.Core.Localization;
-using Steepshot.Core.Utils;
 using Steepshot.Utils;
 
 namespace Steepshot.Activity
@@ -26,11 +24,9 @@ namespace Steepshot.Activity
         [BindView(Resource.Id.steem_login)] private Button _steemLogin;
         [BindView(Resource.Id.golos_login)] private Button _golosLogin;
         [BindView(Resource.Id.reg_button)] private Button _regButton;
-        [BindView(Resource.Id.dev_switch)] private SwitchCompat _devSwitcher;
         [BindView(Resource.Id.steem_loading_spinner)] private ProgressBar _steemLoader;
         [BindView(Resource.Id.golos_loading_spinner)] private ProgressBar _golosLoder;
         [BindView(Resource.Id.terms)] private TextView _termsTextView;
-        [BindView(Resource.Id.steepshot_logo)] private ImageView _steepshotLogo;
 #pragma warning restore 0649
 
         protected override void OnCreate(Bundle savedInstanceState)
@@ -39,7 +35,7 @@ namespace Steepshot.Activity
             SetContentView(Resource.Layout.lyt_welcome);
             Cheeseknife.Bind(this);
 
-            var msg = AppSettings.LocalizationManager.GetText(LocalizationKeys.TitleForAcceptToS);
+            var msg = App.Localization.GetText(LocalizationKeys.TitleForAcceptToS);
             _termsTextView.TextFormatted = Build.VERSION.SdkInt >= Build.VERSION_CODES.N
                 ? Html.FromHtml(msg, FromHtmlOptions.ModeLegacy)
                 : Html.FromHtml(msg);
@@ -51,16 +47,13 @@ namespace Steepshot.Activity
             _golosLogin.Typeface = Style.Semibold;
             _regButton.Typeface = Style.Semibold;
 
-            _steemLogin.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.SignInButtonText, "Steem");
-            _golosLogin.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.SignInButtonText, "Golos");
-            _regButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.CreateButtonText);
-            _devSwitcher.Checked = AppSettings.Settings.IsDev;
-            _devSwitcher.CheckedChange += OnDevSwitcherOnCheckedChange;
+            _steemLogin.Text = App.Localization.GetText(LocalizationKeys.SignInButtonText, "Steem");
+            _golosLogin.Text = App.Localization.GetText(LocalizationKeys.SignInButtonText, "Golos");
+            _regButton.Text = App.Localization.GetText(LocalizationKeys.CreateButtonText);
 
             _steemLogin.Click += SteemLogin;
             _golosLogin.Click += GolosLogin;
             _regButton.Click += RegistrationClick;
-            _steepshotLogo.Click += Logo_Click;
         }
 
         protected override void OnDestroy()
@@ -79,7 +72,7 @@ namespace Steepshot.Activity
 
             _steemLoader.Visibility = ViewStates.Gone;
             _steemLogin.Enabled = true;
-            _steemLogin.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.SignInButtonText, "Steem");
+            _steemLogin.Text = App.Localization.GetText(LocalizationKeys.SignInButtonText, "Steem");
         }
 
         private async void GolosLogin(object sender, EventArgs e)
@@ -91,7 +84,7 @@ namespace Steepshot.Activity
             PickChain(KnownChains.Golos);
             _golosLoder.Visibility = ViewStates.Gone;
             _golosLogin.Enabled = true;
-            _golosLogin.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.SignInButtonText, "Golos");
+            _golosLogin.Text = App.Localization.GetText(LocalizationKeys.SignInButtonText, "Golos");
         }
 
         private void RegistrationClick(object sender, EventArgs e)
@@ -99,27 +92,10 @@ namespace Steepshot.Activity
             var intent = new Intent(this, typeof(RegistrationActivity));
             StartActivity(intent);
         }
-
-        private void Logo_Click(object sender, EventArgs e)
-        {
-            _clickCount++;
-            if (_clickCount == 5)
-            {
-                _devSwitcher.Visibility = ViewStates.Visible;
-                _clickCount = 0;
-            }
-            else
-                _devSwitcher.Visibility = ViewStates.Gone;
-        }
-
-        private void OnDevSwitcherOnCheckedChange(object sender, CompoundButton.CheckedChangeEventArgs e)
-        {
-            AppSettings.SetDev(e.IsChecked);
-        }
-
+        
         private void PickChain(KnownChains chain)
         {
-            AppSettings.MainChain = chain;
+            App.MainChain = chain;
             var intent = new Intent(this, typeof(PreSignInActivity));
             StartActivity(intent);
         }

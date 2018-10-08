@@ -1,14 +1,12 @@
 ﻿using Android.App;
 using Android.Content;
 using Android.OS;
+using Autofac;
 using Java.Lang;
-using Steepshot.Core;
-using Steepshot.Core.Authorization;
-using Steepshot.Core.Clients;
+using Steepshot.Base;
+using Steepshot.Core.Extensions;
 using Steepshot.Core.Jobs;
-using Steepshot.Core.Sentry;
-using Steepshot.Core.Utils;
-using Steepshot.Utils;
+using Steepshot.Core.Models.Database;
 
 namespace Steepshot.Services
 {
@@ -20,6 +18,7 @@ namespace Steepshot.Services
         public const string DataExtraName = "2E4E445F-D871-413A-BE1C-21F068C2EFDC";
         public const string DataResultExtraName = "ABC4129C-A906-4F63-9E6B-83D257FD6D55";
         public const string ActionBroadcast = "F7D31C6F-599F-4685-982E-141577B59283";
+        private Autofac.IContainer _container;
 
         private readonly IBinder _binder;
 
@@ -68,41 +67,39 @@ namespace Steepshot.Services
 
         public override void OnCreate()
         {
-            //var appInfo = new AppInfo();
-            //var assetsHelper = new AssetHelper(Assets);
-            //var configInfo = assetsHelper.GetConfigInfo();
-
-            //var httpClient = new ExtendedHttpClient();
-            //var connectionService = new ConnectionService();
-            //var dbService = new DbManager();
-            //var saverService = new SaverService();
-            //var fileProvider = new FileProvider();
-
-            //var configManager = new ConfigManager(saverService, assetsHelper);
-            //var userManager = new Core.Authorization.UserManager(saverService);
-            //var user = new User(userManager);
-
-            //var logService = new Logger(httpClient, appInfo, configInfo.RavenClientDsn, connectionService, user);
-
-            //var steemClient = new SteemClient(httpClient, logService, configManager);
-            //var golosClient = new GolosClient(httpClient, logService, configManager);
-            //var steepshotClient = new SteepshotClient(httpClient);
-            //var steepshotSteemApClient = new SteepshotApiClient(logService, httpClient, Constants.SteemUrl);
-            //var steepshotGolosApClient = new SteepshotApiClient(logService, httpClient, Constants.GolosUrl);
-
             // Start up the thread running the service.  Note that we create a
             // separate thread because the service normally runs in the process's
             // main thread, which we don't want to block.  We also make it
             // background priority so CPU-intensive work will not disrupt our UI.
-            //var thread = new HandlerThread(HandlerThreadName, (int)ThreadPriority.Background);
-            //thread.Start();
-            //// Get the HandlerThread's Looper and use it for our Handler
-            //_serviceLooper = thread.Looper;
-            //_serviceHandler = new Handler(_serviceLooper);
+            var thread = new HandlerThread(HandlerThreadName, (int)ThreadPriority.Background);
+            thread.Start();
+            // Get the HandlerThread's Looper and use it for our Handler
+            _serviceLooper = thread.Looper;
+            _serviceHandler = new Handler(_serviceLooper);
 
+            InitIoC();
 
-            //_jobProcessingService = new JobProcessingService(steepshotClient, steepshotSteemApClient, steepshotGolosApClient, steemClient, golosClient, connectionService, logService, dbService, userManager, fileProvider);
-            //_jobProcessingService.StartAsync();
+            _jobProcessingService = _container.GetJobProcessingService();
+            _jobProcessingService.StartAsync();
+        }
+
+        private void InitIoC()
+        {
+            if (App.Container == null)
+            {
+                var builder = new ContainerBuilder();
+
+                builder.RegisterInstance(Assets)
+                    .As<Android.Content.Res.AssetManager>()
+                    .SingleInstance();
+                builder.RegisterModule<Steepshot.Utils.IocModule>();
+
+                _container = builder.Build();
+            }
+            else
+            {
+                _container = App.Container;
+            }
         }
 
         public override StartCommandResult OnStartCommand(Intent intent, StartCommandFlags flags, int startId)

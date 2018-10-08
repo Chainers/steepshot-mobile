@@ -4,6 +4,7 @@ using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
 using Square.Picasso;
+using Steepshot.Base;
 using Steepshot.Core.Extensions;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models;
@@ -134,9 +135,9 @@ namespace Steepshot.Adapter
 
             _gallery.Visibility = post.Media.Length > 1 ? ViewStates.Visible : ViewStates.Gone;
 
-            if (_post.ShowMask && (_post.IsNsfw || _post.IsLowRated) && _post.Author != AppSettings.User.Login)
+            if (_post.ShowMask && (_post.IsNsfw || _post.IsLowRated) && _post.Author != App.User.Login)
             {
-                _nsfwMaskMessage.Text = AppSettings.LocalizationManager.GetText(_post.IsLowRated ? LocalizationKeys.LowRated : LocalizationKeys.Nsfw);
+                _nsfwMaskMessage.Text = App.Localization.GetText(_post.IsLowRated ? LocalizationKeys.LowRated : LocalizationKeys.Nsfw);
                 _nsfwMask.Visibility = ViewStates.Visible;
             }
             else

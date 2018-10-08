@@ -64,8 +64,8 @@ namespace Steepshot.Fragment
             Presenter.SourceChanged += PresenterSourceChanged;
 
             var count = Activity.Intent.GetIntExtra(CountExtra, 0);
-            _peopleCount.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PeopleText, count);
-            _username = Activity.Intent.GetStringExtra(UsernameExtra) ?? AppSettings.User.Login;
+            _peopleCount.Text = App.Localization.GetText(LocalizationKeys.PeopleText, count);
+            _username = Activity.Intent.GetStringExtra(UsernameExtra) ?? App.User.Login;
 
             _backButton.Visibility = ViewStates.Visible;
             _backButton.Click += GoBackClick;
@@ -88,7 +88,7 @@ namespace Steepshot.Fragment
             _followersList.AddOnScrollListener(scrollListner);
 
             _emptyQueryLabel.Typeface = Style.Light;
-            _emptyQueryLabel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.EmptyCategory);
+            _emptyQueryLabel.Text = App.Localization.GetText(LocalizationKeys.EmptyCategory);
 
             LoadItems();
         }
@@ -110,14 +110,14 @@ namespace Steepshot.Fragment
             if (!IsInitialized)
                 return;
             Activity.RunOnUiThread(() => { _adapter.NotifyDataSetChanged(); });
-            AppSettings.ProfileUpdateType = ProfileUpdateType.OnlyInfo;
+            App.ProfileUpdateType = ProfileUpdateType.OnlyInfo;
         }
 
         private async void Follow(UserFriend userFriend)
         {
             if (userFriend == null)
                 return;
-            if (AppSettings.User.HasPostingPermission)
+            if (App.User.HasPostingPermission)
             {
                 var result = await Presenter.TryFollowAsync(userFriend);
                 if (!IsInitialized)

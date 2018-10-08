@@ -1,6 +1,6 @@
 ﻿using Android.OS;
+using Steepshot.Core.Extensions;
 using Steepshot.Core.Presenters;
-using Steepshot.Core.Utils;
 
 namespace Steepshot.Base
 {
@@ -17,7 +17,7 @@ namespace Steepshot.Base
 
         private void CreatePresenter()
         {
-            Presenter = AppSettings.GetPresenter<T>(AppSettings.MainChain);
+            Presenter = App.Container.GetPresenter<T>(App.MainChain);
         }
 
         protected override void OnDestroy()

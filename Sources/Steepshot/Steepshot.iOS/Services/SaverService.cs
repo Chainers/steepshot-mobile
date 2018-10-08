@@ -1,9 +1,9 @@
-﻿﻿using Foundation;
+﻿using Foundation;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
- using Steepshot.Core.Interfaces;
+using Steepshot.Core.Interfaces;
 
-namespace Steepshot.iOS
+namespace Steepshot.iOS.Services
 {
     public class SaverService : ISaverService
     {

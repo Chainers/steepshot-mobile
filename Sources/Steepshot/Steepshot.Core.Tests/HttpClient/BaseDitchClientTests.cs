@@ -197,7 +197,7 @@ namespace Steepshot.Core.Tests.HttpClient
             var userPostsResponse = await SteepshotApi[apiName].GetUserPostsAsync(userPostsRequest, CancellationToken.None);
             var lastPost = userPostsResponse.Result.Results.First();
             var body = $"Test comment {DateTime.Now:G}";
-            var createCommentModel = new CreateOrEditCommentModel(user, lastPost, body, AppSettings.AppInfo);
+            var createCommentModel = new CreateOrEditCommentModel(user, lastPost, body, AppInfo);
 
             // Act
             var response1 = await CreateOrEditCommentAsync(apiName, createCommentModel, CancellationToken.None);
@@ -229,7 +229,7 @@ namespace Steepshot.Core.Tests.HttpClient
             var comment = comments.Result.Results.FirstOrDefault(i => i.Author.Equals(user.Login));
             Assert.IsNotNull(comment);
 
-            var editCommentRequest = new CreateOrEditCommentModel(user, post, comment, comment.Body += $" edited {DateTime.Now}", AppSettings.AppInfo);
+            var editCommentRequest = new CreateOrEditCommentModel(user, post, comment, comment.Body += $" edited {DateTime.Now}", AppInfo);
 
             var result = await CreateOrEditCommentAsync(apiName, editCommentRequest, CancellationToken.None);
             AssertResult(result);
@@ -243,7 +243,7 @@ namespace Steepshot.Core.Tests.HttpClient
             var user = Users[apiName].UserInfo;
 
             var request = new UploadMediaModel(user, new MemoryStream(), ".jpg");
-            var response = await steepshotClient.UploadMediaAsync(request, CancellationToken.None);
+            var response = await SteepshotClient.UploadMediaAsync(request, CancellationToken.None);
             Assert.IsTrue(response.Exception.Message.StartsWith("The submitted file is empty."));
         }
     }

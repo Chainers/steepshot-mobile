@@ -10,6 +10,7 @@ using CheeseBind;
 using Steepshot.Base;
 using Steepshot.Core;
 using Steepshot.Core.Authorization;
+using Steepshot.Core.Extensions;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Utils;
 using Steepshot.Utils;
@@ -29,14 +30,15 @@ namespace Steepshot.Activity
         protected override void OnCreate(Bundle savedInstanceState)
         {
             Username = Intent.GetStringExtra(ActiveSignInUserName);
-            _userinfo = AppSettings.DataProvider.Select((KnownChains)Intent.GetIntExtra(ActiveSignInChain, 0)).Find(x => x.Login.Equals(Username, StringComparison.OrdinalIgnoreCase));
+            var userManager = App.Container.GetUserManager();
+            _userinfo = userManager.Select((KnownChains)Intent.GetIntExtra(ActiveSignInChain, 0)).Find(x => x.Login.Equals(Username, StringComparison.OrdinalIgnoreCase));
             AccountInfoResponse = _userinfo.AccountInfo;
             ProfileImageUrl = AccountInfoResponse.Metadata?.Profile?.ProfileImage;
             base.OnCreate(savedInstanceState);
 
-            _viewTitle.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.ActivePasswordViewTitleText);
+            _viewTitle.Text = App.Localization.GetText(LocalizationKeys.ActivePasswordViewTitleText);
             _privacyPolitic.Typeface = Style.Light;
-            _privacyPolitic.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.ActiveKeyPrivacy);
+            _privacyPolitic.Text = App.Localization.GetText(LocalizationKeys.ActiveKeyPrivacy);
             _privacyPolitic.SetTextColor(Color.LightGray);
             _privacyPolitic.Visibility = ViewStates.Visible;
         }
@@ -61,7 +63,8 @@ namespace Steepshot.Activity
             if (isvalid)
             {
                 _userinfo.ActiveKey = pass;
-                AppSettings.DataProvider.Update(_userinfo);
+                var userManager = App.Container.GetUserManager();
+                userManager.Update(_userinfo);
                 SetResult(Result.Ok);
                 Finish();
             }
@@ -71,7 +74,7 @@ namespace Steepshot.Activity
             }
 
             appCompatButton.Enabled = true;
-            appCompatButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.SignIn);
+            appCompatButton.Text = App.Localization.GetText(LocalizationKeys.SignIn);
             _spinner.Visibility = ViewStates.Invisible;
         }
 

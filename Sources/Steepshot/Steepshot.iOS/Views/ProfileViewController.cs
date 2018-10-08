@@ -13,6 +13,7 @@ using Steepshot.Core.Interfaces;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 using Steepshot.iOS.Cells;
+using Steepshot.iOS.Delegates;
 using Steepshot.iOS.Helpers;
 using Steepshot.iOS.ViewControllers;
 using Steepshot.iOS.ViewSources;
@@ -37,11 +38,11 @@ namespace Steepshot.iOS.Views
         private UIView powerPopup;
         private UILabel powerText;
         private bool isPowerOpen;
-        private bool UserIsWatched => AppSettings.User.WatchedUsers.Contains(Username);
+        private bool UserIsWatched => AppDelegate.User.WatchedUsers.Contains(Username);
 
         private SliderCollectionViewSource _sliderCollectionViewSource;
 
-        public string Username = AppSettings.User.Login;
+        public string Username = AppDelegate.User.Login;
 
         public override void ViewDidLoad()
         {
@@ -94,7 +95,7 @@ namespace Steepshot.iOS.Views
 
             SetBackButton();
 
-            if (Username == AppSettings.User.Login && AppSettings.User.HasPostingPermission)
+            if (Username == AppDelegate.User.Login && AppDelegate.User.HasPostingPermission)
                 SetVotePowerView();
             GetUserInfo();
             GetPosts();
@@ -118,7 +119,7 @@ namespace Steepshot.iOS.Views
                 _sliderCollectionViewSource.TagAction += TagAction;
                 _refreshControl.ValueChanged += RefreshControl_ValueChanged;
                 _switchButton.Clicked += SwitchLayout;
-                if (Username == AppSettings.User.Login)
+                if (Username == AppDelegate.User.Login)
                     _settingsButton.Clicked += GoToSettings;
                 else
                 {
@@ -180,7 +181,7 @@ namespace Steepshot.iOS.Views
                 _sliderCollectionViewSource.TagAction -= TagAction;
                 _refreshControl.ValueChanged -= RefreshControl_ValueChanged;
                 _switchButton.Clicked -= SwitchLayout;
-                if (Username == AppSettings.User.Login)
+                if (Username == AppDelegate.User.Login)
                     _settingsButton.Clicked -= GoToSettings;
                 else
                 {
@@ -228,7 +229,7 @@ namespace Steepshot.iOS.Views
             _switchButton.Image = UIImage.FromBundle("ic_grid_nonactive");
             _switchButton.TintColor = Constants.R231G72B0;
 
-            if (Username == AppSettings.User.Login)
+            if (Username == AppDelegate.User.Login)
             {
                 NavigationItem.Title = "My Profile";
                 _settingsButton.Image = UIImage.FromBundle("ic_settings");
@@ -277,7 +278,7 @@ namespace Steepshot.iOS.Views
                     ShowPowerPopup();
                     break;
                 case ActionType.Balance:
-                    if (_userData.Username == AppSettings.User.Login && TabBarController != null)
+                    if (_userData.Username == AppDelegate.User.Login && TabBarController != null)
                         TabBarController.NavigationController.PushViewController(new WalletViewController(), true);
                     break;
                 default:
@@ -293,7 +294,7 @@ namespace Steepshot.iOS.Views
 
         private async void RefreshControl_ValueChanged(object sender, EventArgs e)
         {
-            await Presenter.TryUpdateUserPostsAsync(AppSettings.User.Login);
+            await Presenter.TryUpdateUserPostsAsync(AppDelegate.User.Login);
 
             await RefreshPage();
             _refreshControl.EndRefreshing();
@@ -324,7 +325,7 @@ namespace Steepshot.iOS.Views
 
         private void ShowPowerPopup()
         {
-            if (isPowerOpen || Username != AppSettings.User.Login)
+            if (isPowerOpen || Username != AppDelegate.User.Login)
                 return;
 
             UIView.Animate(0.3f, 0f, UIViewAnimationOptions.CurveEaseOut, () =>
@@ -348,7 +349,7 @@ namespace Steepshot.iOS.Views
             switch (type)
             {
                 case ActionType.Profile:
-                    if (post.Author == AppSettings.User.Login)
+                    if (post.Author == AppDelegate.User.Login)
                         return;
                     var myViewController = new ProfileViewController();
                     myViewController.Username = post.Author;
@@ -405,14 +406,14 @@ namespace Steepshot.iOS.Views
                     _userData = Presenter.UserProfileResponse;
                     if (_userData.IsSubscribed)
                     {
-                        if (!AppSettings.User.WatchedUsers.Contains(_userData.Username))
-                            AppSettings.User.WatchedUsers.Add(_userData.Username);
+                        if (!AppDelegate.User.WatchedUsers.Contains(_userData.Username))
+                            AppDelegate.User.WatchedUsers.Add(_userData.Username);
                     }
                     else
-                        AppSettings.User.WatchedUsers.Remove(_userData.Username);
+                        AppDelegate.User.WatchedUsers.Remove(_userData.Username);
 
                     if (powerText != null)
-                        powerText.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PowerOfLike, _userData.VotingPower);
+                        powerText.Text = AppDelegate.Localization.GetText(LocalizationKeys.PowerOfLike, _userData.VotingPower);
 
                     if (!_refreshControl.Refreshing)
                     {
@@ -428,7 +429,7 @@ namespace Steepshot.iOS.Views
             catch (Exception ex)
             {
                 errorMessage.Hidden = false;
-                AppSettings.Logger.ErrorAsync(ex);
+                AppDelegate.Logger.ErrorAsync(ex);
             }
             finally
             {
@@ -450,12 +451,12 @@ namespace Steepshot.iOS.Views
 
             if (UserIsWatched)
             {
-                actionSheetAlert.AddAction(UIAlertAction.Create(AppSettings.LocalizationManager.GetText(LocalizationKeys.UnwatchUser),
+                actionSheetAlert.AddAction(UIAlertAction.Create(AppDelegate.Localization.GetText(LocalizationKeys.UnwatchUser),
                                                                 UIAlertActionStyle.Default, PushesOnClick));
             }
             else
             {
-                actionSheetAlert.AddAction(UIAlertAction.Create(AppSettings.LocalizationManager.GetText(LocalizationKeys.WatchUser),
+                actionSheetAlert.AddAction(UIAlertAction.Create(AppDelegate.Localization.GetText(LocalizationKeys.WatchUser),
                                                                 UIAlertActionStyle.Default, PushesOnClick));
             }
 
@@ -465,7 +466,7 @@ namespace Steepshot.iOS.Views
 
         private async void PushesOnClick(object sender)
         {
-            var model = new PushNotificationsModel(AppSettings.User.UserInfo, !UserIsWatched)
+            var model = new PushNotificationsModel(AppDelegate.User.UserInfo, !UserIsWatched)
             {
                 WatchedUser = Username
             };
@@ -473,9 +474,9 @@ namespace Steepshot.iOS.Views
             if (response.IsSuccess)
             {
                 if (UserIsWatched)
-                    AppSettings.User.WatchedUsers.Remove(Username);
+                    AppDelegate.User.WatchedUsers.Remove(Username);
                 else
-                    AppSettings.User.WatchedUsers.Add(Username);
+                    AppDelegate.User.WatchedUsers.Add(Username);
             }
         }
 

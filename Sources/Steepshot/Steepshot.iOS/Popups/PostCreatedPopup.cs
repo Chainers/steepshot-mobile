@@ -29,7 +29,7 @@ namespace Steepshot.iOS.Popups
             warningImage.Image = UIImage.FromBundle("ic_info");
 
             var warningLabel = new UILabel();
-            warningLabel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PostDelay);
+            warningLabel.Text = AppDelegate.Localization.GetText(LocalizationKeys.PostDelay);
             warningLabel.Lines = 5;
             warningLabel.Font = Constants.Regular12;
             warningLabel.TextColor = UIColor.FromRGB(255, 255, 255);

@@ -12,6 +12,7 @@ using Steepshot.Core.Extensions;
 using System.Threading;
 using Java.Lang;
 using Android.OS;
+using Steepshot.Base;
 
 namespace Steepshot.Holders
 {
@@ -40,7 +41,7 @@ namespace Steepshot.Holders
 
             var expectedTime = ItemView.FindViewById<TextView>(Resource.Id.expected_time);
             expectedTime.Typeface = Style.Regular;
-            expectedTime.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.ExpectedVoteTime);
+            expectedTime.Text = App.Localization.GetText(LocalizationKeys.ExpectedVoteTime);
 
             _expectedUpvoteTimeLabel = ItemView.FindViewById<TextView>(Resource.Id.expected_counter);
             _expectedUpvoteTimeLabel.Typeface = Style.Light;

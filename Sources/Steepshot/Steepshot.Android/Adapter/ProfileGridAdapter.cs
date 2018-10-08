@@ -139,11 +139,11 @@ namespace Steepshot.Adapter
             _loadingSpinner = itemView.FindViewById<ProgressBar>(Resource.Id.loading_spinner);
 
 
-            _photosTitle.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Photos);
-            _followingTitle.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Following);
-            _followersTitle.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Followers);
-            _balanceText.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.AccountBalance);
-            _transferButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.SendTokens);
+            _photosTitle.Text = App.Localization.GetText(LocalizationKeys.Photos);
+            _followingTitle.Text = App.Localization.GetText(LocalizationKeys.Following);
+            _followersTitle.Text = App.Localization.GetText(LocalizationKeys.Followers);
+            _balanceText.Text = App.Localization.GetText(LocalizationKeys.AccountBalance);
+            _transferButton.Text = App.Localization.GetText(LocalizationKeys.SendTokens);
 
             _name.Typeface = Style.Semibold;
             _place.Typeface = Style.Regular;
@@ -199,7 +199,7 @@ namespace Steepshot.Adapter
 
         private void OnBalanceContainerOnClick(object sender, EventArgs e)
         {
-            if (AppSettings.User.Login.Equals(_profile.Username, StringComparison.InvariantCultureIgnoreCase))
+            if (App.User.Login.Equals(_profile.Username, StringComparison.InvariantCultureIgnoreCase))
                 _profileAction?.Invoke(ActionType.Balance);
         }
 
@@ -232,9 +232,9 @@ namespace Steepshot.Adapter
             else
                 Picasso.With(_context).Load(Resource.Drawable.ic_holder).Into(_profileImage);
 
-            _transferButton.Visibility = AppSettings.User.HasPostingPermission ? ViewStates.Visible : ViewStates.Gone;
+            _transferButton.Visibility = App.User.HasPostingPermission ? ViewStates.Visible : ViewStates.Gone;
 
-            if (profile.Username.Equals(AppSettings.User.Login, StringComparison.OrdinalIgnoreCase))
+            if (profile.Username.Equals(App.User.Login, StringComparison.OrdinalIgnoreCase))
             {
                 _votingPower.VotingPower = (float)profile.VotingPower;
                 _votingPower.Draw = true;
@@ -258,7 +258,7 @@ namespace Steepshot.Adapter
                     {
                         _followBtnBackground.SetColors(new int[] { Color.White, Color.White });
                         _followBtnBackground.SetStroke(3, Style.R244G244B246);
-                        _followButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Unfollow);
+                        _followButton.Text = App.Localization.GetText(LocalizationKeys.Unfollow);
                         _followButton.SetTextColor(Style.R15G24B30);
                     }
                     else
@@ -266,7 +266,7 @@ namespace Steepshot.Adapter
                         _followBtnBackground.SetColors(new int[] { Style.R255G121B4, Style.R255G22B5 });
                         _followBtnBackground.SetOrientation(GradientDrawable.Orientation.LeftRight);
                         _followBtnBackground.SetStroke(0, Color.White);
-                        _followButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Follow);
+                        _followButton.Text = App.Localization.GetText(LocalizationKeys.Follow);
                         _followButton.SetTextColor(Color.White);
                     }
                     _followButton.Enabled = true;
@@ -279,14 +279,14 @@ namespace Steepshot.Adapter
                 _name.Text = profile.Name;
                 _name.SetTextColor(Style.R15G24B30);
             }
-            else if (!string.Equals(AppSettings.User.Login, profile.Username, StringComparison.OrdinalIgnoreCase))
+            else if (!string.Equals(App.User.Login, profile.Username, StringComparison.OrdinalIgnoreCase))
             {
                 _name.Visibility = ViewStates.Gone;
             }
 
             if (!string.IsNullOrEmpty(profile.Location))
                 _place.Text = profile.Location.Trim();
-            else if (!string.Equals(AppSettings.User.Login, profile.Username, StringComparison.OrdinalIgnoreCase))
+            else if (!string.Equals(App.User.Login, profile.Username, StringComparison.OrdinalIgnoreCase))
                 _place.Visibility = ViewStates.Gone;
 
             if (!string.IsNullOrEmpty(profile.About))
@@ -294,7 +294,7 @@ namespace Steepshot.Adapter
                 _description.Text = profile.About;
                 _description.SetTextColor(Style.R15G24B30);
             }
-            else if (!string.Equals(AppSettings.User.Login, profile.Username, StringComparison.OrdinalIgnoreCase))
+            else if (!string.Equals(App.User.Login, profile.Username, StringComparison.OrdinalIgnoreCase))
             {
                 _description.Visibility = ViewStates.Gone;
             }
@@ -304,7 +304,7 @@ namespace Steepshot.Adapter
                 _site.AutoLinkText = profile.Website;
                 _site.SetTextColor(Style.R231G72B00);
             }
-            else if (!string.Equals(AppSettings.User.Login, profile.Username, StringComparison.OrdinalIgnoreCase))
+            else if (!string.Equals(App.User.Login, profile.Username, StringComparison.OrdinalIgnoreCase))
             {
                 _site.Visibility = ViewStates.Gone;
             }
@@ -313,7 +313,7 @@ namespace Steepshot.Adapter
             _followingCount.Text = profile.FollowingCount.ToString("#,##0");
             _followersCount.Text = profile.FollowersCount.ToString("#,##0");
 
-            _balance.Text = StringHelper.ToFormatedCurrencyString(profile.EstimatedBalance, AppSettings.MainChain);
+            _balance.Text = StringHelper.ToFormatedCurrencyString(profile.EstimatedBalance, App.MainChain);
         }
 
         private void OnError()

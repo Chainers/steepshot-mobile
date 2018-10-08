@@ -54,7 +54,7 @@ namespace Steepshot.Fragment
             base.OnViewCreated(view, savedInstanceState);
 
             var count = Activity.Intent.GetIntExtra(FeedFragment.PostNetVotesExtraPath, 0);
-            _peopleCount.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PeopleText, count);
+            _peopleCount.Text = App.Localization.GetText(LocalizationKeys.PeopleText, count);
 
             _backButton.Visibility = ViewStates.Visible;
             _backButton.Click += GoBackClick;
@@ -64,7 +64,7 @@ namespace Steepshot.Fragment
             _peopleCount.Typeface = Style.Regular;
 
             _isLikers = Activity.Intent.GetBooleanExtra(VotersType, true);
-            _viewTitle.Text = AppSettings.LocalizationManager.GetText(_isLikers ? LocalizationKeys.Voters : LocalizationKeys.FlagVoters);
+            _viewTitle.Text = App.Localization.GetText(_isLikers ? LocalizationKeys.Voters : LocalizationKeys.FlagVoters);
 
             _url = Activity.Intent.GetStringExtra(FeedFragment.PostUrlExtraPath);
             Presenter.SourceChanged += PresenterSourceChanged;
@@ -80,7 +80,7 @@ namespace Steepshot.Fragment
             _votersList.SetLayoutManager(new LinearLayoutManager(Activity));
 
             _emptyQueryLabel.Typeface = Style.Light;
-            _emptyQueryLabel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.EmptyCategory);
+            _emptyQueryLabel.Text = App.Localization.GetText(LocalizationKeys.EmptyCategory);
 
             LoadNext();
         }
@@ -131,7 +131,7 @@ namespace Steepshot.Fragment
             if (userFriend == null)
                 return;
 
-            if (userFriend.Author == AppSettings.User.Login)
+            if (userFriend.Author == App.User.Login)
                 return;
 
             ((BaseActivity)Activity).OpenNewContentFragment(new ProfileFragment(userFriend.Author));
@@ -142,7 +142,7 @@ namespace Steepshot.Fragment
             if (userFriend == null)
                 return;
 
-            if (AppSettings.User.HasPostingPermission)
+            if (App.User.HasPostingPermission)
             {
                 var result = await Presenter.TryFollowAsync(userFriend);
                 if (!IsInitialized)

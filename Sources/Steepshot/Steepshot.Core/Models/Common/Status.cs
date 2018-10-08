@@ -1,4 +1,4 @@
-﻿namespace Steepshot.Core.Models
+﻿namespace Steepshot.Core.Models.Common
 {
     public struct Status
     {

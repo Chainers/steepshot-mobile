@@ -56,7 +56,7 @@ namespace Steepshot.iOS.CustomViews
 
             UITapGestureRecognizer likeSliderTap = new UITapGestureRecognizer(() =>
             {
-                AppSettings.User.VotePower = (short)Slider.Value;
+                AppDelegate.User.VotePower = (short)Slider.Value;
                 LikeTap?.Invoke();
                 Close();
             });
@@ -66,7 +66,7 @@ namespace Steepshot.iOS.CustomViews
 
         public void Show(UIView parentView)
         {
-            Slider.Value = AppSettings.User.VotePower;
+            Slider.Value = AppDelegate.User.VotePower;
             sliderPercents.Text = $"{(int)(Slider.Value)}%";
             sliderPercents.SizeToFit();
             Frame = new CGRect(Frame.X, Frame.Y + animationLength, Frame.Width, Frame.Height);

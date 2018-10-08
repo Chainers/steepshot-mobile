@@ -6,6 +6,7 @@ using Android.Text;
 using Android.Util;
 using Steepshot.Core.Extensions;
 using Steepshot.Core.Models.Common;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.CustomViews
 {

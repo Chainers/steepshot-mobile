@@ -27,15 +27,15 @@ namespace Steepshot.iOS.Views
         public async override void ViewDidLoad()
         {
             base.ViewDidLoad();
-            nsfwSwitch.On = AppSettings.User.IsNsfw;
-            lowRatedSwitch.On = AppSettings.User.IsLowRated;
+            nsfwSwitch.On = AppDelegate.User.IsNsfw;
+            lowRatedSwitch.On = AppDelegate.User.IsLowRated;
 
             versionLabel.Font = Constants.Regular12;
             notificationSettings.Font = reportButton.Font = termsButton.Font = guideButton.Font = lowRatedLabel.Font = nsfwLabel.Font = addAccountButton.TitleLabel.Font = Constants.Semibold14;
             Constants.CreateShadow(addAccountButton, Constants.R231G72B0, 0.5f, 25, 10, 12);
 
             _tableSource = new AccountsTableViewSource();
-            _tableSource.Accounts = AppSettings.User.GetAllAccounts();
+            _tableSource.Accounts = AppDelegate.User.GetAllAccounts();
 
             accountsTable.Source = _tableSource;
             accountsTable.LayoutMargins = UIEdgeInsets.Zero;
@@ -67,14 +67,14 @@ namespace Steepshot.iOS.Views
             forwardImage4.AutoAlignAxisToSuperviewAxis(ALAxis.Horizontal);
             forwardImage4.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 0f);
 
-            var appInfoService = AppSettings.Container.Resolve<IAppInfo>();
-            versionLabel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.AppVersion, appInfoService.GetAppVersion(), appInfoService.GetBuildVersion());
+            var appInfoService = AppDelegate.Container.Resolve<IAppInfo>();
+            versionLabel.Text = AppDelegate.Localization.GetText(LocalizationKeys.AppVersion, appInfoService.GetAppVersion(), appInfoService.GetBuildVersion());
 
             SetBackButton();
 #if !DEBUG
             lowRatedLabel.Hidden = nsfwLabel.Hidden = nsfwSwitch.Hidden = lowRatedSwitch.Hidden = true;
 #endif
-            if (!AppSettings.AppInfo.GetModel().Contains("Simulator"))
+            if (!AppDelegate.AppInfo.GetModel().Contains("Simulator"))
             {
                 await Presenter.TryCheckSubscriptions();
             }
@@ -154,17 +154,17 @@ namespace Steepshot.iOS.Views
 
         private void SwitchNSFW(object sender, EventArgs e)
         {
-            AppSettings.User.IsNsfw = nsfwSwitch.On;
+            AppDelegate.User.IsNsfw = nsfwSwitch.On;
         }
 
         private void SwitchLowRated(object sender, EventArgs e)
         {
-            AppSettings.User.IsLowRated = lowRatedSwitch.On;
+            AppDelegate.User.IsLowRated = lowRatedSwitch.On;
         }
 
         private void RemoveAccount(UserInfo account)
         {
-            AppSettings.User.Delete(account);
+            AppDelegate.User.Delete(account);
             RemoveNetwork(account);
         }
 
@@ -183,7 +183,7 @@ namespace Steepshot.iOS.Views
             _leftBarButton.Image = UIImage.FromBundle("ic_back_arrow");
             NavigationItem.LeftBarButtonItem = _leftBarButton;
             NavigationController.NavigationBar.TintColor = Constants.R15G24B30;
-            NavigationItem.Title = AppSettings.LocalizationManager.GetText(LocalizationKeys.AppSettingsTitle);
+            NavigationItem.Title = AppDelegate.Localization.GetText(LocalizationKeys.AppSettingsTitle);
         }
 
         private void CellAction(ActionType type, UserInfo account)
@@ -216,11 +216,11 @@ namespace Steepshot.iOS.Views
 
         private void SwitchNetwork(UserInfo user)
         {
-            if (AppSettings.MainChain == user.Chain)
+            if (AppDelegate.MainChain == user.Chain)
                 return;
 
-            AppSettings.User.SwitchUser(user);
-            AppSettings.MainChain = user.Chain;
+            AppDelegate.User.SwitchUser(user);
+            AppDelegate.MainChain = user.Chain;
 
             SetAddButton();
 
@@ -245,17 +245,17 @@ namespace Steepshot.iOS.Views
             }
             else
             {
-                if (AppSettings.MainChain != account.Chain)
+                if (AppDelegate.MainChain != account.Chain)
                 {
                     SetAddButton();
                 }
             }
-            AppSettings.User.Save();
+            AppDelegate.User.Save();
         }
 
         private void SetAddButton()
         {
-            addAccountButton.Hidden = AppSettings.User.GetAllAccounts().Count == 2;
+            addAccountButton.Hidden = AppDelegate.User.GetAllAccounts().Count == 2;
         }
     }
 }

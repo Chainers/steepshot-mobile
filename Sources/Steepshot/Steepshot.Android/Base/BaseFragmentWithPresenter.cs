@@ -1,5 +1,5 @@
-﻿using Steepshot.Core.Presenters;
-using Steepshot.Core.Utils;
+﻿using Steepshot.Core.Extensions;
+using Steepshot.Core.Presenters;
 
 namespace Steepshot.Base
 {
@@ -18,9 +18,9 @@ namespace Steepshot.Base
 
         protected virtual void CreatePresenter()
         {
-            Presenter = AppSettings.GetPresenter<T>(AppSettings.MainChain);
+            Presenter = App.Container.GetPresenter<T>(App.MainChain);
         }
-        
+
         public override void OnDetach()
         {
             Presenter.TasksCancel();

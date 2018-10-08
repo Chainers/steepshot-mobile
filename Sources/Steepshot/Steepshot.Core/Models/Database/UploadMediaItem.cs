@@ -1,7 +1,7 @@
 ﻿using SQLite;
 using SQLiteNetExtensions.Attributes;
 
-namespace Steepshot.Core.Jobs.Upload
+namespace Steepshot.Core.Models.Database
 {
     [Table(nameof(UploadMediaItem))]
     public class UploadMediaItem : SqlTableBase

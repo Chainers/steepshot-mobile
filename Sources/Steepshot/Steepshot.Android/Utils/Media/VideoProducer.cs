@@ -1,6 +1,7 @@
 ﻿using Android.Media;
 using Android.Views;
 using Steepshot.Core.Models.Common;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.Utils.Media
 {

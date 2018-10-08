@@ -38,7 +38,6 @@ namespace Steepshot.Activity
     {
         public const string NotificationData = "NotificationData";
         public const string SharingPhotoData = "SharingPhotoData";
-        public const string PostCreateResumeExtra = "PostCreateResumeExtra";
         protected override HostFragment CurrentHostFragment => CurrentHostFragment = _adapter.GetItem(_viewPager.CurrentItem) as HostFragment;
         private Adapter.PagerAdapter _adapter;
         private TabLayout.Tab _prevTab;
@@ -64,7 +63,7 @@ namespace Steepshot.Activity
             TabLayout.TabSelected += OnTabLayoutOnTabSelected;
             TabLayout.TabReselected += OnTabLayoutOnTabReselected;
 
-            if (AppSettings.User.HasPostingPermission)
+            if (App.User.HasPostingPermission)
                 OneSignal.Current.IdsAvailable(OneSignalCallback);
 
             CheckForNewFeatures();
@@ -73,22 +72,22 @@ namespace Steepshot.Activity
         private async void OneSignalCallback(string playerId, string pushToken)
         {
             OneSignal.Current.DeleteTags(new List<string> { "username", "player_id" });
-            OneSignal.Current.SendTag("username", AppSettings.User.Login);
+            OneSignal.Current.SendTag("username", App.User.Login);
             OneSignal.Current.SendTag("player_id", playerId);
 
-            if (AppSettings.User.IsFirstRun || string.IsNullOrEmpty(AppSettings.User.PushesPlayerId) || !AppSettings.User.PushesPlayerId.Equals(playerId))
+            if (App.User.IsFirstRun || string.IsNullOrEmpty(App.User.PushesPlayerId) || !App.User.PushesPlayerId.Equals(playerId))
             {
-                var model = new PushNotificationsModel(AppSettings.User.UserInfo, playerId, true)
+                var model = new PushNotificationsModel(App.User.UserInfo, playerId, true)
                 {
                     Subscriptions = PushSettings.All.FlagToStringList()
                 };
-                
+
                 var response = await Presenter.TrySubscribeForPushesAsync(model).ConfigureAwait(false);
 
                 if (response.IsSuccess)
                 {
-                    AppSettings.User.PushesPlayerId = playerId;
-                    AppSettings.User.PushSettings = PushSettings.All;
+                    App.User.PushesPlayerId = playerId;
+                    App.User.PushSettings = PushSettings.All;
                 }
             }
         }
@@ -123,7 +122,7 @@ namespace Steepshot.Activity
                 }
                 catch (Exception e)
                 {
-                    AppSettings.Logger.ErrorAsync(e);
+                    App.Logger.ErrorAsync(e);
                 }
             }
         }
@@ -141,31 +140,7 @@ namespace Steepshot.Activity
                 OpenNewContentFragment(new PreviewPostCreateFragment(galleryModel));
             }
         }
-
-        public void HandlePostCreateResume(Intent intent)
-        {
-            var isEnable = intent.GetBooleanExtra(PostCreateResumeExtra, false);
-            intent.RemoveExtra(PostCreateResumeExtra);
-
-            if (!isEnable || !AppSettings.Temp.ContainsKey(PostCreateFragment.PostCreateGalleryTemp))
-                return;
-
-            var json = AppSettings.Temp[PostCreateFragment.PostCreateGalleryTemp];
-            var media = JsonConvert.DeserializeObject<List<GalleryMediaModel>>(json);
-
-            PreparePostModel model = null;
-            if (AppSettings.Temp.ContainsKey(PostCreateFragment.PreparePostTemp))
-            {
-                json = AppSettings.Temp[PostCreateFragment.PreparePostTemp];
-                model = JsonConvert.DeserializeObject<PreparePostModel>(json);
-            }
-
-            AppSettings.Temp.Remove(PostCreateFragment.PostCreateGalleryTemp);
-            AppSettings.SaveTemp();
-
-            OpenNewContentFragment(new PostCreateFragment(media, model));
-        }
-
+        
         protected override void OnNewIntent(Intent intent)
         {
             base.OnNewIntent(intent);
@@ -200,7 +175,7 @@ namespace Steepshot.Activity
         protected override void OnResume()
         {
             base.OnResume();
-            if (AppSettings.ProfileUpdateType != ProfileUpdateType.None)
+            if (App.ProfileUpdateType != ProfileUpdateType.None)
             {
                 SelectTab(_adapter.Count - 1);
             }
@@ -232,7 +207,7 @@ namespace Steepshot.Activity
             {
                 SelectTab(e.Tab.Position);
                 _prevTab = e.Tab;
-                AppSettings.SelectedTab = e.Tab.Position;
+                App.NavigationManager.SelectedTab = e.Tab.Position;
             }
         }
 
@@ -263,8 +238,8 @@ namespace Steepshot.Activity
                     SetProfileChart(TabLayout.LayoutParameters.Height);
                 tab.SetIcon(ContextCompat.GetDrawable(this, _adapter.TabIconsInactive[i]));
             }
-            SelectTab(AppSettings.SelectedTab);
-            _prevTab = TabLayout.GetTabAt(AppSettings.SelectedTab);
+            SelectTab(App.NavigationManager.SelectedTab);
+            _prevTab = TabLayout.GetTabAt(App.NavigationManager.SelectedTab);
             _viewPager.OffscreenPageLimit = _adapter.Count - 1;
         }
 
@@ -301,7 +276,7 @@ namespace Steepshot.Activity
         {
             do
             {
-                var result = await Presenter.TryGetUserInfoAsync(AppSettings.User.Login);
+                var result = await Presenter.TryGetUserInfoAsync(App.User.Login);
                 if (IsDestroyed)
                     return;
 
@@ -345,8 +320,8 @@ namespace Steepshot.Activity
 
         protected void CheckForNewFeatures()
         {
-            var lastVersion = AppSettings.Settings.BuildVersion;
-            var currentVersion = AppSettings.AppInfo.GetBuildVersion();
+            var lastVersion = App.SettingsManager.Settings.BuildVersion;
+            var currentVersion = App.AppInfo.GetBuildVersion();
 
             if (currentVersion.Equals(lastVersion))
                 return;
@@ -364,8 +339,8 @@ namespace Steepshot.Activity
                 //handler.PostDelayed(action, 2000);
             }
 
-            AppSettings.Settings.BuildVersion = currentVersion;
-            AppSettings.SaveSettings();
+            App.SettingsManager.Settings.BuildVersion = currentVersion;
+            App.SettingsManager.Save();
         }
     }
 }

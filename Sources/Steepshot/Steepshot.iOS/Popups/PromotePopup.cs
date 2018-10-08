@@ -4,6 +4,7 @@ using System.Threading;
 using CoreGraphics;
 using PureLayout.Net;
 using Steepshot.Core;
+using Steepshot.Core.Extensions;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
@@ -11,6 +12,7 @@ using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 using Steepshot.iOS.CustomViews;
+using Steepshot.iOS.Delegates;
 using Steepshot.iOS.Helpers;
 using Steepshot.iOS.Views;
 using UIKit;
@@ -31,19 +33,19 @@ namespace Steepshot.iOS.Popups
 
         public PromotePopup()
         {
-            _presenter = AppSettings.GetPresenter<PromotePresenter>(AppSettings.MainChain);
+            _presenter = AppDelegate.Container.GetPresenter<PromotePresenter>(AppDelegate.MainChain);
         }
 
         private async void GetBalance()
         {
             balanceLoader.StartAnimating();
-            var response = await _presenter.TryGetAccountInfoAsync(AppSettings.User.Login);
+            var response = await _presenter.TryGetAccountInfoAsync(AppDelegate.User.Login);
 
             if (response.IsSuccess)
             {
                 balances = response.Result?.Balances;
                 var balance = balances?.Find(x => x.CurrencyType == _pickedCoin);
-                balanceLabel.Text = $"{AppSettings.LocalizationManager.GetText(LocalizationKeys.Balance)}: {balance.Value}";
+                balanceLabel.Text = $"{AppDelegate.Localization.GetText(LocalizationKeys.Balance)}: {balance.Value}";
             }
             balanceLoader.StopAnimating();
         }
@@ -52,7 +54,7 @@ namespace Steepshot.iOS.Popups
         {
             _pickedCoin = CurrencyType.Steem;
             _coins = new List<CurrencyType>();
-            switch (AppSettings.User.Chain)
+            switch (AppDelegate.User.Chain)
             {
                 case KnownChains.Steem:
                     _coins.AddRange(new[] { CurrencyType.Steem, CurrencyType.Sbd });
@@ -76,7 +78,7 @@ namespace Steepshot.iOS.Popups
 
             var title = new UILabel();
             title.Font = Constants.Semibold14;
-            title.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PromotePost);
+            title.Text = AppDelegate.Localization.GetText(LocalizationKeys.PromotePost);
             title.TextAlignment = UITextAlignment.Center;
             popup.AddSubview(title);
             title.AutoPinEdgeToSuperviewEdge(ALEdge.Top);
@@ -102,7 +104,7 @@ namespace Steepshot.iOS.Popups
             container.AutoPinEdgeToSuperviewEdge(ALEdge.Right, commonMargin);
 
             var promotionLabel = new UILabel();
-            promotionLabel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Amount);
+            promotionLabel.Text = AppDelegate.Localization.GetText(LocalizationKeys.Amount);
             promotionLabel.Font = Constants.Semibold14;
 
             container.AddSubview(promotionLabel);
@@ -156,7 +158,7 @@ namespace Steepshot.iOS.Popups
 
             rightView.LayoutIfNeeded();
 
-            _amountTextField = new SearchTextField(AppSettings.LocalizationManager.GetText(LocalizationKeys.TransferAmountHint),
+            _amountTextField = new SearchTextField(AppDelegate.Localization.GetText(LocalizationKeys.TransferAmountHint),
                                                    new UIEdgeInsets(0, 20, 0, 0), new AmountFieldDelegate(), false, rightView);
             _amountTextField.KeyboardType = UIKeyboardType.DecimalPad;
             _amountTextField.Layer.CornerRadius = 25;
@@ -177,7 +179,7 @@ namespace Steepshot.iOS.Popups
 
             _amountTextField.EditingChanged += IsEnoughBalance;
             var max = new UIButton();
-            max.SetTitle(AppSettings.LocalizationManager.GetText(LocalizationKeys.Max), UIControlState.Normal);
+            max.SetTitle(AppDelegate.Localization.GetText(LocalizationKeys.Max), UIControlState.Normal);
             max.SetTitleColor(UIColor.Black, UIControlState.Normal);
             max.Font = Constants.Semibold14;
             max.Layer.BorderWidth = 1;
@@ -249,7 +251,7 @@ namespace Steepshot.iOS.Popups
             expectedTimeBackground.AutoSetDimension(ALDimension.Height, 50);
 
             var expectedTimeLabel = new UILabel();
-            expectedTimeLabel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.ExpectedVoteTime);
+            expectedTimeLabel.Text = AppDelegate.Localization.GetText(LocalizationKeys.ExpectedVoteTime);
             expectedTimeLabel.Font = Constants.Regular14;
             expectedTimeBackground.AddSubview(expectedTimeLabel);
 
@@ -304,7 +306,7 @@ namespace Steepshot.iOS.Popups
 
             var selectButton = new UIButton();
             selectButton.SetTitle(string.Empty, UIControlState.Disabled);
-            selectButton.SetTitle(AppSettings.LocalizationManager.GetText(LocalizationKeys.FindPromoter), UIControlState.Normal);
+            selectButton.SetTitle(AppDelegate.Localization.GetText(LocalizationKeys.FindPromoter), UIControlState.Normal);
             selectButton.SetTitleColor(UIColor.White, UIControlState.Normal);
             selectButton.Layer.CornerRadius = 25;
             selectButton.Font = Constants.Bold14;
@@ -338,15 +340,15 @@ namespace Steepshot.iOS.Popups
                     popup.LayoutIfNeeded();
                 }, () =>
                 {
-                    title.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.SelectToken);
-                    selectButton.SetTitle(AppSettings.LocalizationManager.GetText(LocalizationKeys.Select), UIControlState.Normal);
+                    title.Text = AppDelegate.Localization.GetText(LocalizationKeys.SelectToken);
+                    selectButton.SetTitle(AppDelegate.Localization.GetText(LocalizationKeys.Select), UIControlState.Normal);
                 });
             });
 
             rightView.AddGestureRecognizer(tap);
 
             var cancelButton = new UIButton();
-            cancelButton.SetTitle(AppSettings.LocalizationManager.GetText(LocalizationKeys.Close), UIControlState.Normal);
+            cancelButton.SetTitle(AppDelegate.Localization.GetText(LocalizationKeys.Close), UIControlState.Normal);
             cancelButton.SetTitleColor(UIColor.Black, UIControlState.Normal);
             cancelButton.Layer.CornerRadius = 25;
             cancelButton.Font = Constants.Semibold14;
@@ -379,7 +381,7 @@ namespace Steepshot.iOS.Popups
                     _pickerLabel.Text = _pickedCoin.ToString().ToUpper();
 
                     var balance = balances?.Find(x => x.CurrencyType == _pickedCoin);
-                    balanceLabel.Text = $"{AppSettings.LocalizationManager.GetText(LocalizationKeys.Balance)}: {balance?.Value}";
+                    balanceLabel.Text = $"{AppDelegate.Localization.GetText(LocalizationKeys.Balance)}: {balance?.Value}";
 
                     pickerHidden.Active = true;
                     pickerVisible.Active = false;
@@ -388,14 +390,14 @@ namespace Steepshot.iOS.Popups
                         popup.LayoutIfNeeded();
                     }, () =>
                     {
-                        title.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PromotePost);
-                        selectButton.SetTitle(AppSettings.LocalizationManager.GetText(LocalizationKeys.FindPromoter), UIControlState.Normal);
+                        title.Text = AppDelegate.Localization.GetText(LocalizationKeys.PromotePost);
+                        selectButton.SetTitle(AppDelegate.Localization.GetText(LocalizationKeys.FindPromoter), UIControlState.Normal);
                         _amountTextField.UpdateRightViewRect();
                     });
                 }
                 else if (sureTextVisible.Active)
                 {
-                    if (!AppSettings.User.HasActivePermission)
+                    if (!AppDelegate.User.HasActivePermission)
                     {
                         _alert.Hidden = true;
                         controller.PushViewController(new LoginViewController(), true);
@@ -408,12 +410,12 @@ namespace Steepshot.iOS.Popups
                     sureTextHidden.Active = true;
                     sureTextVisible.Active = false;
 
-                    var transferResponse = await _presenter.TryTransferAsync(AppSettings.User.UserInfo, promoter.Result.Bot.Author, _amountTextField.GetDoubleValue().ToString(), _pickedCoin, $"https://steemit.com{post.Url}");
+                    var transferResponse = await _presenter.TryTransferAsync(AppDelegate.User.UserInfo, promoter.Result.Bot.Author, _amountTextField.GetDoubleValue().ToString(), _pickedCoin, $"https://steemit.com{post.Url}");
 
                     if (transferResponse.IsSuccess)
-                        completeText.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.SuccessPromote);
+                        completeText.Text = AppDelegate.Localization.GetText(LocalizationKeys.SuccessPromote);
                     else
-                        completeText.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.TokenTransferError);
+                        completeText.Text = AppDelegate.Localization.GetText(LocalizationKeys.TokenTransferError);
 
                     completeTextHidden.Active = false;
                     completeTextVisible.Active = true;
@@ -425,8 +427,8 @@ namespace Steepshot.iOS.Popups
                     {
                         selectButton.Enabled = true;
                         loader.StopAnimating();
-                        title.Text = true ? AppSettings.LocalizationManager.GetText(LocalizationKeys.PromoteComplete) : AppSettings.LocalizationManager.GetText(LocalizationKeys.TransferError);
-                        selectButton.SetTitle(AppSettings.LocalizationManager.GetText(LocalizationKeys.PromoteAgain), UIControlState.Normal);
+                        title.Text = true ? AppDelegate.Localization.GetText(LocalizationKeys.PromoteComplete) : AppDelegate.Localization.GetText(LocalizationKeys.TransferError);
+                        selectButton.SetTitle(AppDelegate.Localization.GetText(LocalizationKeys.PromoteAgain), UIControlState.Normal);
 
                         promoteVisible.Active = false;
                         promoteHidden.Active = true;
@@ -436,7 +438,7 @@ namespace Steepshot.iOS.Popups
                 }
                 else if (promoteVisible.Active)
                 {
-                    var promoteConfirmation = AppSettings.LocalizationManager.GetText(LocalizationKeys.PromoteConfirmation,
+                    var promoteConfirmation = AppDelegate.Localization.GetText(LocalizationKeys.PromoteConfirmation,
                                                                                       _amountTextField.GetDoubleValue().ToString(),
                                                                                       _pickedCoin == CurrencyType.Sbd ? "SBD" : "Steem",
                                                                                       promoter.Result.Bot.Author);
@@ -463,15 +465,15 @@ namespace Steepshot.iOS.Popups
                         popup.LayoutIfNeeded();
                     }, () =>
                     {
-                        title.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PromotePost);
-                        selectButton.SetTitle(AppSettings.LocalizationManager.GetText(LocalizationKeys.FindPromoter), UIControlState.Normal);
+                        title.Text = AppDelegate.Localization.GetText(LocalizationKeys.PromotePost);
+                        selectButton.SetTitle(AppDelegate.Localization.GetText(LocalizationKeys.FindPromoter), UIControlState.Normal);
                     });
                 }
                 else
                 {
                     if (_amountTextField.GetDoubleValue() > balances?.Find(x => x.CurrencyType == _pickedCoin).Value)
                     {
-                        errorMessage.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.NotEnoughBalance);
+                        errorMessage.Text = AppDelegate.Localization.GetText(LocalizationKeys.NotEnoughBalance);
                         errorMessage.Hidden = false;
                         return;
                     }
@@ -525,13 +527,13 @@ namespace Steepshot.iOS.Popups
                         {
                             selectButton.Enabled = true;
                             loader.StopAnimating();
-                            title.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PromoterFound);
-                            selectButton.SetTitle(AppSettings.LocalizationManager.GetText(LocalizationKeys.Promote), UIControlState.Normal);
+                            title.Text = AppDelegate.Localization.GetText(LocalizationKeys.PromoterFound);
+                            selectButton.SetTitle(AppDelegate.Localization.GetText(LocalizationKeys.Promote), UIControlState.Normal);
                         });
                     }
                     else
                     {
-                        completeText.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PromoterNotFound);
+                        completeText.Text = AppDelegate.Localization.GetText(LocalizationKeys.PromoterNotFound);
 
                         completeTextHidden.Active = false;
                         completeTextVisible.Active = true;
@@ -543,8 +545,8 @@ namespace Steepshot.iOS.Popups
                         {
                             selectButton.Enabled = true;
                             loader.StopAnimating();
-                            title.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PromoterSearchResult);
-                            selectButton.SetTitle(AppSettings.LocalizationManager.GetText(LocalizationKeys.SearchAgain), UIControlState.Normal);
+                            title.Text = AppDelegate.Localization.GetText(LocalizationKeys.PromoterSearchResult);
+                            selectButton.SetTitle(AppDelegate.Localization.GetText(LocalizationKeys.SearchAgain), UIControlState.Normal);
                         });
                     }
                 }
@@ -579,12 +581,12 @@ namespace Steepshot.iOS.Popups
             if (transferAmount < Core.Constants.MinBid)
             {
                 errorMessage.Hidden = false;
-                errorMessage.Text = $"{AppSettings.LocalizationManager.GetText(LocalizationKeys.MinBid)} {Core.Constants.MinBid}";
+                errorMessage.Text = $"{AppDelegate.Localization.GetText(LocalizationKeys.MinBid)} {Core.Constants.MinBid}";
             }
             else if (transferAmount > Core.Constants.MaxBid)
             {
                 errorMessage.Hidden = false;
-                errorMessage.Text = $"{AppSettings.LocalizationManager.GetText(LocalizationKeys.MaxBid)} {Core.Constants.MaxBid}";
+                errorMessage.Text = $"{AppDelegate.Localization.GetText(LocalizationKeys.MaxBid)} {Core.Constants.MaxBid}";
             }
         }
 

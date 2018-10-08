@@ -192,15 +192,15 @@ namespace Steepshot.Fragment
             {
                 base.OnViewCreated(view, savedInstanceState);
 
-                if (AppSettings.User.HasPostingPermission)
+                if (App.User.HasPostingPermission)
                     _loginButton.Visibility = ViewStates.Gone;
 
                 Presenter.SourceChanged += PresenterSourceChanged;
 
-                _hotButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Hot);
-                _newButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.New);
-                _trendingButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Top);
-                _clearButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Clear);
+                _hotButton.Text = App.Localization.GetText(LocalizationKeys.Hot);
+                _newButton.Text = App.Localization.GetText(LocalizationKeys.New);
+                _trendingButton.Text = App.Localization.GetText(LocalizationKeys.Top);
+                _clearButton.Text = App.Localization.GetText(LocalizationKeys.Clear);
 
                 _buttonsList = new List<Button> { _newButton, _hotButton, _trendingButton };
                 _bottomPadding = (int)TypedValue.ApplyDimension(ComplexUnitType.Dip, 3, Resources.DisplayMetrics);
@@ -213,13 +213,13 @@ namespace Steepshot.Fragment
                 _newButton.Click += OnNewClick;
                 _toolbar.OffsetChanged += OnToolbarOffsetChanged;
 
-                _searchView.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.TapToSearch);
+                _searchView.Text = App.Localization.GetText(LocalizationKeys.TapToSearch);
                 _searchView.Typeface = Style.Regular;
                 _clearButton.Typeface = Style.Regular;
                 _clearButton.Visibility = ViewStates.Gone;
                 _clearButton.Click += OnClearClick;
                 _loginButton.Typeface = Style.Semibold;
-                _loginButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.SignIn);
+                _loginButton.Text = App.Localization.GetText(LocalizationKeys.SignIn);
                 _loginButton.Click += OnLogin;
                 _scrollListner = new ScrollListener();
                 _scrollListner.ScrolledToBottom += ScrollListnerScrolledToBottom;
@@ -231,7 +231,7 @@ namespace Steepshot.Fragment
 
                 _gridItemDecoration = new GridItemDecoration();
 
-                _tabOptions = AppSettings.GetTabSettings(nameof(PreSearchFragment));
+                _tabOptions = App.NavigationManager.GetTabSettings(nameof(PreSearchFragment));
                 SwitchListAdapter(_tabOptions.IsGridView);
                 _postsList.AddOnScrollListener(_scrollListner);
 
@@ -247,7 +247,7 @@ namespace Steepshot.Fragment
                 _refresher.Refresh += RefresherRefresh;
 
                 _emptyQueryLabel.Typeface = Style.Light;
-                _emptyQueryLabel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.EmptyQuery);
+                _emptyQueryLabel.Text = App.Localization.GetText(LocalizationKeys.EmptyQuery);
 
                 _searchToolbarLayout.Click += OnSearch;
 
@@ -359,7 +359,7 @@ namespace Steepshot.Fragment
         {
             CustomTag = null;
             _clearButton.Visibility = ViewStates.Gone;
-            _searchView.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.TapToSearch);
+            _searchView.Text = App.Localization.GetText(LocalizationKeys.TapToSearch);
             _searchView.SetTextColor(Style.R151G155B158);
             _spinner.Visibility = ViewStates.Visible;
             _emptyQueryLabel.Visibility = ViewStates.Invisible;
@@ -390,7 +390,7 @@ namespace Steepshot.Fragment
         private void OnSwitcherClick(object sender, EventArgs e)
         {
             _tabOptions.IsGridView = !(_postsList.GetLayoutManager() is GridLayoutManager);
-            AppSettings.SaveNavigation();
+            App.NavigationManager.Save();
             SwitchListAdapter(_tabOptions.IsGridView);
         }
 
@@ -472,7 +472,7 @@ namespace Steepshot.Fragment
             {
                 case ActionType.Like:
                     {
-                        if (AppSettings.User.HasPostingPermission)
+                        if (App.User.HasPostingPermission)
                         {
                             var result = await Presenter.TryVoteAsync(post);
                             if (!IsInitialized)
@@ -501,7 +501,7 @@ namespace Steepshot.Fragment
                     }
                 case ActionType.Comments:
                     {
-                        if (post.Children == 0 && !AppSettings.User.HasPostingPermission)
+                        if (post.Children == 0 && !App.User.HasPostingPermission)
                         {
                             OpenLogin();
                             return;
@@ -512,13 +512,13 @@ namespace Steepshot.Fragment
                     }
                 case ActionType.Profile:
                     {
-                        if (AppSettings.User.Login != post.Author)
+                        if (App.User.Login != post.Author)
                             ((BaseActivity)Activity).OpenNewContentFragment(new ProfileFragment(post.Author));
                         break;
                     }
                 case ActionType.Flag:
                     {
-                        if (!AppSettings.User.HasPostingPermission)
+                        if (!App.User.HasPostingPermission)
                             return;
 
                         var result = await Presenter.TryFlagAsync(post);
@@ -545,10 +545,10 @@ namespace Steepshot.Fragment
                 case ActionType.Delete:
                     {
                         var actionAlert = new ActionAlertDialog(Context,
-                            AppSettings.LocalizationManager.GetText(LocalizationKeys.DeleteAlertTitle),
-                            AppSettings.LocalizationManager.GetText(LocalizationKeys.DeleteAlertMessage),
-                            AppSettings.LocalizationManager.GetText(LocalizationKeys.Delete),
-                            AppSettings.LocalizationManager.GetText(LocalizationKeys.Cancel), AutoLinkAction);
+                            App.Localization.GetText(LocalizationKeys.DeleteAlertTitle),
+                            App.Localization.GetText(LocalizationKeys.DeleteAlertMessage),
+                            App.Localization.GetText(LocalizationKeys.Delete),
+                            App.Localization.GetText(LocalizationKeys.Cancel), AutoLinkAction);
 
                         actionAlert.AlertAction += async () =>
                         {
@@ -566,8 +566,8 @@ namespace Steepshot.Fragment
                         var shareIntent = new Intent(Intent.ActionSend);
                         shareIntent.SetType("text/plain");
                         shareIntent.PutExtra(Intent.ExtraSubject, post.Title);
-                        shareIntent.PutExtra(Intent.ExtraText, string.Format(AppSettings.User.Chain == KnownChains.Steem ? Constants.SteemPostUrl : Constants.GolosPostUrl, post.Url));
-                        StartActivity(Intent.CreateChooser(shareIntent, AppSettings.LocalizationManager.GetText(LocalizationKeys.Sharepost)));
+                        shareIntent.PutExtra(Intent.ExtraText, string.Format(App.User.Chain == KnownChains.Steem ? Constants.SteemPostUrl : Constants.GolosPostUrl, post.Url));
+                        StartActivity(Intent.CreateChooser(shareIntent, App.Localization.GetText(LocalizationKeys.Sharepost)));
                         break;
                     }
                 case ActionType.Photo:

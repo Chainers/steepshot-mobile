@@ -3,6 +3,7 @@ using System.Globalization;
 using CoreGraphics;
 using Foundation;
 using PureLayout.Net;
+using Steepshot.iOS.Delegates;
 using Steepshot.iOS.Helpers;
 using UIKit;
 

@@ -1,9 +1,7 @@
-﻿namespace Steepshot.Core.Utils
+﻿namespace Steepshot.Core.Models.Common
 {
     public class AppSettingsModel
     {
-        public bool IsDev { get; set; }
-
         public string BuildVersion { get; set; }
     }
 }

@@ -16,7 +16,9 @@ using System.Globalization;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Activity;
+using Steepshot.Base;
 using Steepshot.Core;
+using Steepshot.Core.Extensions;
 
 namespace Steepshot.CustomViews
 {
@@ -49,7 +51,7 @@ namespace Steepshot.CustomViews
 
         public PromoteAlertDialog(Context context, Post post, Action<AutoLinkType, string> autoLinkAction) : this(context)
         {
-            _presenter = AppSettings.GetPresenter<PromotePresenter>(AppSettings.User.Chain);
+            _presenter = App.Container.GetPresenter<PromotePresenter>(App.User.Chain);
             _post = post;
             _autoLinkAction = autoLinkAction;
             ShowEvent += OnShowEvent;
@@ -57,7 +59,7 @@ namespace Steepshot.CustomViews
 
         private async void OnShowEvent(object sender, EventArgs e)
         {
-            var response = await _presenter.TryGetAccountInfoAsync(AppSettings.User.Login);
+            var response = await _presenter.TryGetAccountInfoAsync(App.User.Login);
             if (response.IsSuccess)
             {
                 _adapter.MainHolder.AccountInfo = response.Result;
@@ -71,7 +73,7 @@ namespace Steepshot.CustomViews
                 dialogView.SetMinimumWidth((int)(Context.Resources.DisplayMetrics.WidthPixels * 0.8));
 
                 _promoteTitle = dialogView.FindViewById<TextView>(Resource.Id.promote_title);
-                _promoteTitle.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PromotePost);
+                _promoteTitle.Text = App.Localization.GetText(LocalizationKeys.PromotePost);
                 _promoteTitle.Typeface = Style.Semibold;
 
                 _pager = dialogView.FindViewById<ViewPager>(Resource.Id.promote_container);
@@ -82,7 +84,7 @@ namespace Steepshot.CustomViews
                 _pager.PageSelected += PageSelected;
 
                 _actionBtn = dialogView.FindViewById<Button>(Resource.Id.findpromote_btn);
-                _actionBtn.Text = _actionButtonTitle = AppSettings.LocalizationManager.GetText(LocalizationKeys.FindPromoter);
+                _actionBtn.Text = _actionButtonTitle = App.Localization.GetText(LocalizationKeys.FindPromoter);
                 _actionBtn.Typeface = Style.Semibold;
                 _actionBtn.Click += ActionButtonClick;
 
@@ -91,7 +93,7 @@ namespace Steepshot.CustomViews
 
                 var close = dialogView.FindViewById<Button>(Resource.Id.close);
                 close.Typeface = Style.Semibold;
-                close.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Close);
+                close.Text = App.Localization.GetText(LocalizationKeys.Close);
                 close.Click += CloseOnClick;
 
                 SetContentView(dialogView);
@@ -127,19 +129,19 @@ namespace Steepshot.CustomViews
                     EnableActionBtn(true);
                     break;
                 case Pages.Promoter:
-                    if (!AppSettings.User.HasActivePermission)
+                    if (!App.User.HasActivePermission)
                     {
                         var intent = new Intent(Context, typeof(ActiveSignInActivity));
-                        intent.PutExtra(ActiveSignInActivity.ActiveSignInUserName, AppSettings.User.Login);
-                        intent.PutExtra(ActiveSignInActivity.ActiveSignInChain, (int)AppSettings.User.Chain);
+                        intent.PutExtra(ActiveSignInActivity.ActiveSignInUserName, App.User.Login);
+                        intent.PutExtra(ActiveSignInActivity.ActiveSignInChain, (int)App.User.Chain);
                         Context.StartActivity(intent);
                         return;
                     }
-                    var promoteConfirmation = AppSettings.LocalizationManager.GetText(LocalizationKeys.PromoteConfirmation, _promoteRequest.Amount, _promoteRequest.CurrencyType, _promoterResult.Bot.Author);
+                    var promoteConfirmation = App.Localization.GetText(LocalizationKeys.PromoteConfirmation, _promoteRequest.Amount, _promoteRequest.CurrencyType, _promoterResult.Bot.Author);
                     var actionAlert = new ActionAlertDialog(Context, promoteConfirmation,
-                                                            AppSettings.LocalizationManager.GetText(string.Empty),
-                                                            AppSettings.LocalizationManager.GetText(LocalizationKeys.Yes),
-                                                            AppSettings.LocalizationManager.GetText(LocalizationKeys.No), _autoLinkAction, Orientation.Vertical);
+                                                            App.Localization.GetText(string.Empty),
+                                                            App.Localization.GetText(LocalizationKeys.Yes),
+                                                            App.Localization.GetText(LocalizationKeys.No), _autoLinkAction, Orientation.Vertical);
                     actionAlert.AlertAction += async () =>
                     {
                         EnableActionBtn(false);
@@ -160,7 +162,7 @@ namespace Steepshot.CustomViews
 
             if (string.IsNullOrEmpty(mainHolder.AmountEdit))
             {
-                _adapter.MainHolder.ShowError($"{AppSettings.LocalizationManager.GetText(LocalizationKeys.MinBid)} {Constants.MinBid}");
+                _adapter.MainHolder.ShowError($"{App.Localization.GetText(LocalizationKeys.MinBid)} {Constants.MinBid}");
                 return;
             }
 
@@ -169,7 +171,7 @@ namespace Steepshot.CustomViews
 
             if (amountEdit > mainHolder.Balances?.Find(x => x.CurrencyType == mainHolder.PickedCoin).Value)
             {
-                mainHolder.ShowError(AppSettings.LocalizationManager.GetText(LocalizationKeys.NotEnoughBalance));
+                mainHolder.ShowError(App.Localization.GetText(LocalizationKeys.NotEnoughBalance));
                 return;
             }
 
@@ -193,24 +195,24 @@ namespace Steepshot.CustomViews
             }
             else
             {
-                _adapter.MessageHolder.SetupMessage(AppSettings.LocalizationManager.GetText(LocalizationKeys.PromoterNotFound), string.Empty);
-                ShowResultMessage(AppSettings.LocalizationManager.GetText(LocalizationKeys.PromoterSearchResult), AppSettings.LocalizationManager.GetText(LocalizationKeys.SearchAgain), false);
+                _adapter.MessageHolder.SetupMessage(App.Localization.GetText(LocalizationKeys.PromoterNotFound), string.Empty);
+                ShowResultMessage(App.Localization.GetText(LocalizationKeys.PromoterSearchResult), App.Localization.GetText(LocalizationKeys.SearchAgain), false);
             }
         }
 
         private async Task LaunchPromoCampaign()
         {
-            var transferResponse = await _presenter.TryTransferAsync(AppSettings.User.UserInfo, _promoterResult.Bot.Author,
+            var transferResponse = await _presenter.TryTransferAsync(App.User.UserInfo, _promoterResult.Bot.Author,
                                                                 _promoteRequest.Amount.ToString(CultureInfo.InvariantCulture),
                                                                 _promoteRequest.CurrencyType,
                                                                 $"https://steemit.com{_post.Url}");
 
             _adapter.MessageHolder.SetupMessage(
                 transferResponse.IsSuccess
-                    ? AppSettings.LocalizationManager.GetText(LocalizationKeys.SuccessPromote)
-                    : AppSettings.LocalizationManager.GetText(LocalizationKeys.TokenTransferError), string.Empty);
+                    ? App.Localization.GetText(LocalizationKeys.SuccessPromote)
+                    : App.Localization.GetText(LocalizationKeys.TokenTransferError), string.Empty);
 
-            ShowResultMessage(AppSettings.LocalizationManager.GetText(LocalizationKeys.PromoteComplete), AppSettings.LocalizationManager.GetText(LocalizationKeys.PromoteAgain), true);
+            ShowResultMessage(App.Localization.GetText(LocalizationKeys.PromoteComplete), App.Localization.GetText(LocalizationKeys.PromoteAgain), true);
         }
 
         private void ShowResultMessage(string viewTitle, string btnTitle, bool animate)
@@ -240,16 +242,16 @@ namespace Steepshot.CustomViews
             switch ((Pages)e.Position)
             {
                 case Pages.CoinPick:
-                    _actionButtonTitle = AppSettings.LocalizationManager.GetText(LocalizationKeys.Select);
-                    _promoteTitle.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.SelectToken);
+                    _actionButtonTitle = App.Localization.GetText(LocalizationKeys.Select);
+                    _promoteTitle.Text = App.Localization.GetText(LocalizationKeys.SelectToken);
                     break;
                 case Pages.Main:
-                    _actionButtonTitle = AppSettings.LocalizationManager.GetText(LocalizationKeys.FindPromoter);
-                    _promoteTitle.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PromotePost);
+                    _actionButtonTitle = App.Localization.GetText(LocalizationKeys.FindPromoter);
+                    _promoteTitle.Text = App.Localization.GetText(LocalizationKeys.PromotePost);
                     break;
                 case Pages.Promoter:
-                    _actionButtonTitle = AppSettings.LocalizationManager.GetText(LocalizationKeys.Promote);
-                    _promoteTitle.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PromoterFound);
+                    _actionButtonTitle = App.Localization.GetText(LocalizationKeys.Promote);
+                    _promoteTitle.Text = App.Localization.GetText(LocalizationKeys.PromoterFound);
                     break;
             }
 

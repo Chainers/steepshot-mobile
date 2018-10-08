@@ -1,7 +1,6 @@
 ﻿using System;
 using Foundation;
 using PureLayout.Net;
-using Steepshot.Core.Utils;
 using Steepshot.iOS.ViewControllers;
 using UIKit;
 using Xamarin.TTTAttributedLabel;
@@ -16,15 +15,10 @@ namespace Steepshot.iOS.Views
         private readonly bool _showRegistration;
         private readonly TTTAttributedLabel _attributedLabel = new TTTAttributedLabel();
         private readonly UIBarButtonItem _leftBarButton = new UIBarButtonItem();
-        private readonly UITapGestureRecognizer _devTap;
 
         public WelcomeViewController(bool showRegistration)
         {
             _showRegistration = showRegistration;
-            _devTap = new UITapGestureRecognizer(ToggleDevSwitchVisibility)
-            {
-                NumberOfTapsRequired = 5
-            };
         }
 
         public override void ViewDidLoad()
@@ -34,7 +28,6 @@ namespace Steepshot.iOS.Views
             NavigationController.SetNavigationBarHidden(false, false);
             steemLogin.Layer.CornerRadius = newAccount.Layer.CornerRadius = 25;
             steemLogin.TitleLabel.Font = newAccount.TitleLabel.Font = Constants.Semibold14;
-            devSwitch.On = AppSettings.Settings.IsDev;
             Constants.CreateShadow(steemLogin, Constants.R231G72B0, 0.5f, 25, 10, 12);
             Constants.CreateShadow(newAccount, Constants.R204G204B204, 0.7f, 25, 10, 12);
 
@@ -52,27 +45,17 @@ namespace Steepshot.iOS.Views
 
         public override void ViewWillAppear(bool animated)
         {
-            if (IsMovingToParentViewController)
-            {
-                steemLogin.TouchDown += GoToPreLogin;
-                newAccount.TouchDown += CreateAccount;
-                devSwitch.ValueChanged += SwitchEnvironment;
-                _leftBarButton.Clicked += GoBack;
-                logo.AddGestureRecognizer(_devTap);
-            }
+            steemLogin.TouchDown += GoToPreLogin;
+            newAccount.TouchDown += CreateAccount;
+            _leftBarButton.Clicked += GoBack;
             base.ViewWillAppear(animated);
         }
 
         public override void ViewWillDisappear(bool animated)
         {
-            if (IsMovingFromParentViewController)
-            {
-                steemLogin.TouchDown -= GoToPreLogin;
-                newAccount.TouchDown -= CreateAccount;
-                devSwitch.ValueChanged -= SwitchEnvironment;
-                _leftBarButton.Clicked -= GoBack;
-                logo.RemoveGestureRecognizer(_devTap);
-            }
+            steemLogin.TouchDown -= GoToPreLogin;
+            newAccount.TouchDown -= CreateAccount;
+            _leftBarButton.Clicked -= GoBack;
             base.ViewWillDisappear(animated);
         }
 
@@ -113,18 +96,7 @@ namespace Steepshot.iOS.Views
             var myViewController = new PreLoginViewController();
             NavigationController.PushViewController(myViewController, true);
         }
-
-        private void SwitchEnvironment(object sender, EventArgs e)
-        {
-            var isDev = ((UISwitch)sender).On;
-            AppSettings.SetDev(isDev);
-        }
-
-        private void ToggleDevSwitchVisibility()
-        {
-            devSwitch.Hidden = !devSwitch.Hidden;
-        }
-
+        
         private void SetAgreementDecoration()
         {
             var tsAttribute = new UIStringAttributes

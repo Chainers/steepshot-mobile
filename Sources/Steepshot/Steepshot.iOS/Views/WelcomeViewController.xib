@@ -12,7 +12,6 @@
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="WelcomeViewController">
             <connections>
                 <outlet property="agreementView" destination="xVx-Y3-9au" id="f8d-kZ-TX8"/>
-                <outlet property="devSwitch" destination="hfL-Ni-gsQ" id="tG9-EF-pUt"/>
                 <outlet property="logo" destination="FeC-5s-2Cq" id="MLQ-1R-rgz"/>
                 <outlet property="newAccount" destination="OPT-2g-hiz" id="SNL-Bs-0Yt"/>
                 <outlet property="steemLogin" destination="2y4-ny-kes" id="bOV-3i-NzH"/>

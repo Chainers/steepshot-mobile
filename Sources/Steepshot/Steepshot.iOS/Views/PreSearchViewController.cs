@@ -10,6 +10,7 @@ using Steepshot.Core.Interfaces;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 using Steepshot.iOS.Cells;
+using Steepshot.iOS.Delegates;
 using Steepshot.iOS.Helpers;
 using Steepshot.iOS.ViewControllers;
 using Steepshot.iOS.ViewSources;
@@ -35,7 +36,7 @@ namespace Steepshot.iOS.Views
             _searchTap = new UITapGestureRecognizer(SearchTapped);
         }
 
-        public async override void ViewDidLoad()
+        public override async void ViewDidLoad()
         {
             base.ViewDidLoad();
 
@@ -81,7 +82,7 @@ namespace Steepshot.iOS.Views
             collectionView.Delegate = _gridDelegate;
             sliderCollection.Delegate = _sliderGridDelegate;
 
-            if (!AppSettings.User.HasPostingPermission && CurrentPostCategory == null)
+            if (!AppDelegate.User.HasPostingPermission && CurrentPostCategory == null)
             {
                 loginButton.Hidden = false;
                 loginButton.Layer.CornerRadius = 25;
@@ -112,26 +113,23 @@ namespace Steepshot.iOS.Views
         {
             if (!IsMovingToParentViewController)
                 collectionView.ReloadData();
-            else
-            {
-                loginButton.TouchDown += LoginTapped;
-                hotButton.TouchDown += HotButton_TouchDown;
-                topButton.TouchDown += TopButton_TouchDown;
-                newButton.TouchDown += NewButton_TouchDown;
-                switcher.TouchDown += SwitchLayout;
-                _collectionViewSource.CellAction += CellAction;
-                _collectionViewSource.TagAction += TagAction;
-                _sliderCollectionViewSource.CellAction += CellAction;
-                _sliderCollectionViewSource.TagAction += TagAction;
-                _refreshControl.ValueChanged += _refreshControl_ValueChanged;
-                _sliderGridDelegate.ScrolledToBottom += ScrolledToBottom;
-                _gridDelegate.ScrolledToBottom += ScrolledToBottom;
-                _gridDelegate.CellClicked += CellAction;
-                _leftBarButton.Clicked += GoBack;
-                Presenter.SourceChanged += SourceChanged;
-                searchButton.AddGestureRecognizer(_searchTap);
-            }
-
+            
+            loginButton.TouchDown += LoginTapped;
+            hotButton.TouchDown += HotButton_TouchDown;
+            topButton.TouchDown += TopButton_TouchDown;
+            newButton.TouchDown += NewButton_TouchDown;
+            switcher.TouchDown += SwitchLayout;
+            _collectionViewSource.CellAction += CellAction;
+            _collectionViewSource.TagAction += TagAction;
+            _sliderCollectionViewSource.CellAction += CellAction;
+            _sliderCollectionViewSource.TagAction += TagAction;
+            _refreshControl.ValueChanged += _refreshControl_ValueChanged;
+            _sliderGridDelegate.ScrolledToBottom += ScrolledToBottom;
+            _gridDelegate.ScrolledToBottom += ScrolledToBottom;
+            _gridDelegate.CellClicked += CellAction;
+            _leftBarButton.Clicked += GoBack;
+            Presenter.SourceChanged += SourceChanged;
+            searchButton.AddGestureRecognizer(_searchTap);
             SliderAction += PreSearchViewController_SliderAction;
 
             if (CurrentPostCategory != null)
@@ -165,37 +163,43 @@ namespace Steepshot.iOS.Views
                         cell.Playback(false);
                 }
             }
+            
+            loginButton.TouchDown -= LoginTapped;
+            hotButton.TouchDown -= HotButton_TouchDown;
+            topButton.TouchDown -= TopButton_TouchDown;
+            newButton.TouchDown -= NewButton_TouchDown;
+            switcher.TouchDown -= SwitchLayout;
+            _collectionViewSource.CellAction -= CellAction;
+            _collectionViewSource.TagAction -= TagAction;
+            _sliderCollectionViewSource.CellAction -= CellAction;
+            _sliderCollectionViewSource.TagAction -= TagAction;
+            _refreshControl.ValueChanged -= _refreshControl_ValueChanged;
+            _sliderGridDelegate.ScrolledToBottom = null;
+            _gridDelegate.ScrolledToBottom = null;
+            _gridDelegate.CellClicked = null;
+            _leftBarButton.Clicked -= GoBack;
+            Presenter.SourceChanged -= SourceChanged;
+            searchButton.RemoveGestureRecognizer(_searchTap);
+            
+            SliderAction -= PreSearchViewController_SliderAction;
 
             if (IsMovingFromParentViewController)
             {
-                loginButton.TouchDown -= LoginTapped;
-                hotButton.TouchDown -= HotButton_TouchDown;
-                topButton.TouchDown -= TopButton_TouchDown;
-                newButton.TouchDown -= NewButton_TouchDown;
-                switcher.TouchDown -= SwitchLayout;
-                _collectionViewSource.CellAction -= CellAction;
-                _collectionViewSource.TagAction -= TagAction;
-                _sliderCollectionViewSource.CellAction -= CellAction;
-                _sliderCollectionViewSource.TagAction -= TagAction;
-                _refreshControl.ValueChanged -= _refreshControl_ValueChanged;
-                _sliderGridDelegate.ScrolledToBottom = null;
-                _gridDelegate.ScrolledToBottom = null;
-                _gridDelegate.CellClicked = null;
-                _leftBarButton.Clicked -= GoBack;
-                Presenter.SourceChanged -= SourceChanged;
-                searchButton.RemoveGestureRecognizer(_searchTap);
-                _collectionViewSource.FreeAllCells();
-                _sliderCollectionViewSource.FreeAllCells();
+                CleanViewController();
             }
-
-            SliderAction -= PreSearchViewController_SliderAction;
-
+            
             if (TabBarController != null)
                 ((MainTabBarController)TabBarController).SameTabTapped -= SameTabTapped;
 
             base.ViewWillDisappear(animated);
         }
 
+        public void CleanViewController()
+        {
+            _collectionViewSource.FreeAllCells();
+            _sliderCollectionViewSource.FreeAllCells();
+        }
+        
         private async void NewButton_TouchDown(object sender, EventArgs e)
         {
             await SwitchSearchType(PostType.New);
@@ -271,7 +275,7 @@ namespace Steepshot.iOS.Views
             switch (type)
             {
                 case ActionType.Profile:
-                    if (post.Author == AppSettings.User.Login)
+                    if (post.Author == AppDelegate.User.Login)
                         return;
                     var myViewController = new ProfileViewController();
                     myViewController.Username = post.Author;

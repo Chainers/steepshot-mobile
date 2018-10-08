@@ -298,7 +298,7 @@ namespace Steepshot.Fragment
             var cursor = Activity.ContentResolver.Query(MediaStore.Images.Media.ExternalContentUri, columns, null, null, null);
             var count = cursor.Count;
             _buckets = new string[count + 1];
-            _buckets[0] = AppSettings.LocalizationManager.GetText(LocalizationKeys.Gallery);
+            _buckets[0] = App.Localization.GetText(LocalizationKeys.Gallery);
 
             var dataColumnIndex = cursor.GetColumnIndex(MediaStore.Images.ImageColumns.BucketDisplayName);
             for (var i = 0; i < count; i++)

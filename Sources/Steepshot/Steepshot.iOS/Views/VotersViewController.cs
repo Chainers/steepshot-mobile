@@ -78,7 +78,7 @@ namespace Steepshot.iOS.Views
             var count = _votersType == VotersType.Likes ? _post.NetLikes : _post.NetFlags;
             var peopleLabel = new UILabel()
             {
-                Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PeopleText, count),
+                Text = AppDelegate.Localization.GetText(LocalizationKeys.PeopleText, count),
                 Font = Helpers.Constants.Regular14,
                 TextColor = Helpers.Constants.R15G24B30,
             };
@@ -97,7 +97,7 @@ namespace Steepshot.iOS.Views
             switch (type)
             {
                 case ActionType.Profile:
-                    if (user.Author == AppSettings.User.Login)
+                    if (user.Author == AppDelegate.User.Login)
                         return;
                     var myViewController = new ProfileViewController();
                     myViewController.Username = user.Author;

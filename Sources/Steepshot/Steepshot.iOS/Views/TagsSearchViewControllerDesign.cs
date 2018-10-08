@@ -160,7 +160,7 @@ namespace Steepshot.iOS.Views
             warningImage.Image = UIImage.FromBundle("ic_info");
 
             var warningLabel = new UILabel();
-            warningLabel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.TagSearchWarning);
+            warningLabel.Text = AppDelegate.Localization.GetText(LocalizationKeys.TagSearchWarning);
             warningLabel.Lines = 3;
             warningLabel.Font = Constants.Regular12;
             warningLabel.TextColor = UIColor.FromRGB(255, 255, 255);
@@ -185,7 +185,7 @@ namespace Steepshot.iOS.Views
 
         private void CreateNoResultView(UILabel label, UITableView tableToBind)
         {
-            label.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.NoResultText);
+            label.Text = AppDelegate.Localization.GetText(LocalizationKeys.NoResultText);
             label.Hidden = true;
             label.TextAlignment = UITextAlignment.Center;
             label.Font = Constants.Regular14;

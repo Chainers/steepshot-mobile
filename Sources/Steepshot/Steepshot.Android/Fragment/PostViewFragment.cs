@@ -94,7 +94,7 @@ namespace Steepshot.Fragment
             {
                 case ActionType.Like:
                     {
-                        if (!AppSettings.User.HasPostingPermission)
+                        if (!App.User.HasPostingPermission)
                             return;
 
                         var result = await Presenter.TryVoteAsync(post);
@@ -132,7 +132,7 @@ namespace Steepshot.Fragment
                     }
                 case ActionType.Flag:
                     {
-                        if (!AppSettings.User.HasPostingPermission)
+                        if (!App.User.HasPostingPermission)
                             return;
                         
                         var result = await Presenter.TryFlagAsync(post);
@@ -171,8 +171,8 @@ namespace Steepshot.Fragment
                         var shareIntent = new Intent(Intent.ActionSend);
                         shareIntent.SetType("text/plain");
                         shareIntent.PutExtra(Intent.ExtraSubject, post.Title);
-                        shareIntent.PutExtra(Intent.ExtraText, string.Format(AppSettings.User.Chain == KnownChains.Steem ? Constants.SteemPostUrl : Constants.GolosPostUrl, post.Url));
-                        StartActivity(Intent.CreateChooser(shareIntent, AppSettings.LocalizationManager.GetText(LocalizationKeys.Sharepost)));
+                        shareIntent.PutExtra(Intent.ExtraText, string.Format(App.User.Chain == KnownChains.Steem ? Constants.SteemPostUrl : Constants.GolosPostUrl, post.Url));
+                        StartActivity(Intent.CreateChooser(shareIntent, App.Localization.GetText(LocalizationKeys.Sharepost)));
                         break;
                     }
                 case ActionType.Photo:

@@ -30,7 +30,7 @@ namespace Steepshot.iOS.Views
             SetBackButton();
             CreateView();
 
-            PushSettings = AppSettings.User.PushSettings;
+            PushSettings = AppDelegate.User.PushSettings;
             _notificationUpvotesSwitch.On = PushSettings.HasFlag(PushSettings.Upvote);
             _notificationCommentsUpvotesSwitch.On = PushSettings.HasFlag(PushSettings.UpvoteComment);
             _notificationFollowingSwitch.On = PushSettings.HasFlag(PushSettings.Follow);
@@ -59,7 +59,7 @@ namespace Steepshot.iOS.Views
             leftBarButton.Image = UIImage.FromBundle("ic_back_arrow");
             NavigationItem.LeftBarButtonItem = leftBarButton;
             NavigationController.NavigationBar.TintColor = Constants.R15G24B30;
-            NavigationItem.Title = AppSettings.LocalizationManager.GetText(LocalizationKeys.NotificationSettings);
+            NavigationItem.Title = AppDelegate.Localization.GetText(LocalizationKeys.NotificationSettings);
         }
 
         private void NotificationChange(object sender, EventArgs e)
@@ -90,16 +90,16 @@ namespace Steepshot.iOS.Views
 
         private async Task SavePushSettings()
         {
-            if (AppSettings.User.PushSettings == PushSettings)
+            if (AppDelegate.User.PushSettings == PushSettings)
                 return;
 
-            var model = new PushNotificationsModel(AppSettings.User.UserInfo, true)
+            var model = new PushNotificationsModel(AppDelegate.User.UserInfo, true)
             {
                 Subscriptions = PushSettings.FlagToStringList()
             };
             var resp = await Presenter.TrySubscribeForPushesAsync(model);
             if (resp.IsSuccess)
-                AppSettings.User.PushSettings = PushSettings;
+                AppDelegate.User.PushSettings = PushSettings;
         }
 
         public override async void ViewWillDisappear(bool animated)
@@ -163,42 +163,42 @@ namespace Steepshot.iOS.Views
             likeSeparator.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, likeLabel, 30);
 
             var commentlikeLabel = new UILabel();
-            commentlikeLabel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.NotificationCommentsUpvotes);
+            commentlikeLabel.Text = AppDelegate.Localization.GetText(LocalizationKeys.NotificationCommentsUpvotes);
             commentlikeLabel.Font = Constants.Semibold14;
             var commentlikeSeparator = new UIView();
             commentlikeSeparator.BackgroundColor = Constants.R245G245B245;
             BindBlock(commentlikeLabel, _notificationCommentsUpvotesSwitch, commentlikeSeparator, likeSeparator, contentView);
 
             var followLabel = new UILabel();
-            followLabel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.NotificationFollow);
+            followLabel.Text = AppDelegate.Localization.GetText(LocalizationKeys.NotificationFollow);
             followLabel.Font = Constants.Semibold14;
             var followSeparator = new UIView();
             followSeparator.BackgroundColor = Constants.R245G245B245;
             BindBlock(followLabel, _notificationFollowingSwitch, followSeparator, commentlikeSeparator, contentView);
 
             var commentsLabel = new UILabel();
-            commentsLabel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.NotificationComment);
+            commentsLabel.Text = AppDelegate.Localization.GetText(LocalizationKeys.NotificationComment);
             commentsLabel.Font = Constants.Semibold14;
             var commentsSeparator = new UIView();
             commentsSeparator.BackgroundColor = Constants.R245G245B245;
             BindBlock(commentsLabel, _notificationCommentsSwitch, commentsSeparator, followSeparator, contentView);
 
             var postsLabel = new UILabel();
-            postsLabel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.NotificationPosting);
+            postsLabel.Text = AppDelegate.Localization.GetText(LocalizationKeys.NotificationPosting);
             postsLabel.Font = Constants.Semibold14;
             var postsSeparator = new UIView();
             postsSeparator.BackgroundColor = Constants.R245G245B245;
             BindBlock(postsLabel, _notificationPostingSwitch, postsSeparator, commentsSeparator, contentView);
 
             var transfersLabel = new UILabel();
-            transfersLabel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.NotificationTransfers);
+            transfersLabel.Text = AppDelegate.Localization.GetText(LocalizationKeys.NotificationTransfers);
             transfersLabel.Font = Constants.Semibold14;
             var transfersSeparator = new UIView();
             BindBlock(transfersLabel, _notificationTranfserSwitch, transfersSeparator, postsSeparator, contentView);
             transfersSeparator.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom);
 
             var warningLabel = new UILabel();
-            warningLabel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.NotificationWarning);
+            warningLabel.Text = AppDelegate.Localization.GetText(LocalizationKeys.NotificationWarning);
             warningLabel.Font = Constants.Regular12;
             warningLabel.Lines = 3;
             warningLabel.TextColor = Constants.R151G155B158;

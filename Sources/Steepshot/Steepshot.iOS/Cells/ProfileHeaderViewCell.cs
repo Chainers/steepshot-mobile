@@ -156,7 +156,7 @@ namespace Steepshot.iOS.Cells
 
             originalityLabel = new UILabel();
             originalityLabel.UserInteractionEnabled = false;
-            //originalityLabel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Originality);
+            //originalityLabel.Text = AppDelegate.Localization.GetText(LocalizationKeys.Originality);
             originalityLabel.TextColor = UIColor.Black;
             originalityLabel.Font = Helpers.Constants.Regular14;
             originalityLabel.Lines = 1;
@@ -221,7 +221,7 @@ namespace Steepshot.iOS.Cells
 
             var balanceLabel = new UILabel();
             balanceLabel.UserInteractionEnabled = false;
-            balanceLabel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.AccountBalance);
+            balanceLabel.Text = AppDelegate.Localization.GetText(LocalizationKeys.AccountBalance);
             balanceLabel.TextColor = UIColor.Black;
             balanceLabel.Font = Helpers.Constants.Regular14;
             balanceLabel.Lines = 1;
@@ -337,7 +337,7 @@ namespace Steepshot.iOS.Cells
             else
                 avatar.Image = UIImage.FromBundle("ic_noavatar");
 
-            if (_userData.Username == AppSettings.User.Login)
+            if (_userData.Username == AppDelegate.User.Login)
                 powerFrame.ChangePercents((int)_userData.VotingPower);
             else
                 powerFrame.ChangePercents(0);
@@ -358,7 +358,7 @@ namespace Steepshot.iOS.Cells
                 userLocation.Text = _userData.Location;
             }
 
-            if (AppSettings.User.HasPostingPermission && _userData.Username != AppSettings.User.Login)
+            if (AppDelegate.User.HasPostingPermission && _userData.Username != AppDelegate.User.Login)
             {
                 followButton.Frame = new CGRect(new CGPoint(mainMargin, descriptionY),
                                                 new CGSize(UIScreen.MainScreen.Bounds.Width - mainMargin * 2, 40));
@@ -496,7 +496,7 @@ namespace Steepshot.iOS.Cells
                 {
                     Helpers.Constants.RemoveGradient(followButton);
                     followButton.Layer.BorderWidth = 1;
-                    followButton.SetTitle(AppSettings.LocalizationManager.GetText(LocalizationKeys.Unfollow), UIControlState.Normal);
+                    followButton.SetTitle(AppDelegate.Localization.GetText(LocalizationKeys.Unfollow), UIControlState.Normal);
                     followButton.SetTitleColor(UIColor.Black, UIControlState.Normal);
                     followButton.Layer.BorderColor = Helpers.Constants.R244G244B246.CGColor;
                     followButton.TitleLabel.Font = Helpers.Constants.Semibold14;
@@ -505,7 +505,7 @@ namespace Steepshot.iOS.Cells
                 {
                     followButton.Layer.BorderWidth = 0;
                     followButton.LayoutIfNeeded();
-                    followButton.SetTitle(AppSettings.LocalizationManager.GetText(LocalizationKeys.Follow), UIControlState.Normal);
+                    followButton.SetTitle(AppDelegate.Localization.GetText(LocalizationKeys.Follow), UIControlState.Normal);
                     followButton.SetTitleColor(UIColor.White, UIControlState.Normal);
                     followButton.TitleLabel.Font = Helpers.Constants.Bold14;
 

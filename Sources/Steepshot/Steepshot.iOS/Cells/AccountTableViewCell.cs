@@ -55,7 +55,7 @@ namespace Steepshot.iOS.Cells
         {
             _currentAccount = user;
             networkName.Text = $"{_currentAccount.Chain.ToString()} account";
-            networkStatus.Image = AppSettings.MainChain == _currentAccount.Chain ? UIImage.FromBundle("ic_activated") : UIImage.FromBundle("ic_deactivated");
+            networkStatus.Image = AppDelegate.MainChain == _currentAccount.Chain ? UIImage.FromBundle("ic_activated") : UIImage.FromBundle("ic_deactivated");
         }
 
         public void ReleaseCell()

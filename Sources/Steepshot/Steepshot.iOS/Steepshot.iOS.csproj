@@ -277,6 +277,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Helpers\AssetHelper.cs" />
+    <Compile Include="IocModule.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="AppDelegate.cs" />
     <Compile Include="ViewControllers\MainTabBarController.cs" />

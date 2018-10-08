@@ -1,4 +1,4 @@
-﻿namespace Steepshot.Core.Jobs.Upload
+﻿namespace Steepshot.Core.Models.Database
 {
     public enum UploadState
     {

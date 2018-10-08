@@ -4,6 +4,7 @@ using Steepshot.Core.Models.Common;
 using UIKit;
 using Xamarin.TTTAttributedLabel;
 using PureLayout.Net;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.iOS.Cells
 {

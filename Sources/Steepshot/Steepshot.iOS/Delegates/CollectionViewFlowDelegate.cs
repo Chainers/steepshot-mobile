@@ -7,13 +7,14 @@ using Photos;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Presenters;
-using Steepshot.Core.Models.Responses;
+using Steepshot.Core.Utils;
 using Steepshot.iOS.Cells;
+using Steepshot.iOS.Helpers;
 using Steepshot.iOS.Models;
 using Steepshot.iOS.ViewSources;
 using UIKit;
 
-namespace Steepshot.iOS.Helpers
+namespace Steepshot.iOS.Delegates
 {
     public class CollectionViewFlowDelegate : UICollectionViewDelegateFlowLayout
     {

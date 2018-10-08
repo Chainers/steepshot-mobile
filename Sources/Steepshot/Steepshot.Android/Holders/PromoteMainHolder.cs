@@ -13,6 +13,7 @@ using Android.Text;
 using System.Globalization;
 using Android.Content;
 using Android.Views.InputMethods;
+using Steepshot.Base;
 using Steepshot.Core.Models.Responses;
 
 namespace Steepshot.Holders
@@ -52,7 +53,7 @@ namespace Steepshot.Holders
         private void InitializeView()
         {
             var promoteAmount = ItemView.FindViewById<TextView>(Resource.Id.promote_amount);
-            promoteAmount.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Amount);
+            promoteAmount.Text = App.Localization.GetText(LocalizationKeys.Amount);
             promoteAmount.Typeface = Style.Semibold;
 
             _balanceLabel = ItemView.FindViewById<TextView>(Resource.Id.user_balance);
@@ -61,7 +62,7 @@ namespace Steepshot.Holders
 
             _amountTextField = ItemView.FindViewById<EditText>(Resource.Id.promote_amount_edit);
             _amountTextField.Typeface = Style.Light;
-            _amountTextField.Hint = AppSettings.LocalizationManager.GetText(LocalizationKeys.TransferAmountHint);
+            _amountTextField.Hint = App.Localization.GetText(LocalizationKeys.TransferAmountHint);
             _amountTextField.TextChanged += IsEnoughBalance;
 
             _errorMessage = ItemView.FindViewById<TextView>(Resource.Id.promote_errormessage);
@@ -76,7 +77,7 @@ namespace Steepshot.Holders
 
             _maxBtn = ItemView.FindViewById<Button>(Resource.Id.promote_max);
             _maxBtn.Typeface = Style.Semibold;
-            _maxBtn.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Max);
+            _maxBtn.Text = App.Localization.GetText(LocalizationKeys.Max);
             _maxBtn.Click += MaxBtnOnClick;
 
             SetBalance();
@@ -126,7 +127,7 @@ namespace Steepshot.Holders
             {
                 Balances = _accountInfo.Balances;
                 var balance = Balances?.Find(x => x.CurrencyType == PickedCoin);
-                _balanceLabel.Text = $"{AppSettings.LocalizationManager.GetText(LocalizationKeys.Balance)}: {balance?.Value}";
+                _balanceLabel.Text = $"{App.Localization.GetText(LocalizationKeys.Balance)}: {balance?.Value}";
 
                 _balanceLabel.Visibility = ViewStates.Visible;
                 _balanceLoader.Visibility = ViewStates.Gone;
@@ -167,12 +168,12 @@ namespace Steepshot.Holders
             if (amountEdit < Core.Constants.MinBid)
             {
                 _errorMessage.Visibility = ViewStates.Visible;
-                _errorMessage.Text = $"{AppSettings.LocalizationManager.GetText(LocalizationKeys.MinBid)} {Core.Constants.MinBid}";
+                _errorMessage.Text = $"{App.Localization.GetText(LocalizationKeys.MinBid)} {Core.Constants.MinBid}";
             }
             else if (amountEdit > Core.Constants.MaxBid)
             {
                 _errorMessage.Visibility = ViewStates.Visible;
-                _errorMessage.Text = $"{AppSettings.LocalizationManager.GetText(LocalizationKeys.MaxBid)} {Core.Constants.MaxBid}";
+                _errorMessage.Text = $"{App.Localization.GetText(LocalizationKeys.MaxBid)} {Core.Constants.MaxBid}";
             }
         }
     }

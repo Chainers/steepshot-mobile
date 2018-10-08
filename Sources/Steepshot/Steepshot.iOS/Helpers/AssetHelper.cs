@@ -45,7 +45,7 @@ namespace Steepshot.iOS.Helpers
             }
             catch (Exception ex)
             {
-                AppSettings.Logger.WarningAsync(ex);
+                AppDelegate.Logger.WarningAsync(ex);
             }
             return txt;
         }
@@ -66,7 +66,7 @@ namespace Steepshot.iOS.Helpers
             }
             catch (Exception ex)
             {
-                AppSettings.Logger.WarningAsync(ex);
+                AppDelegate.Logger.WarningAsync(ex);
             }
             return new T();
         }

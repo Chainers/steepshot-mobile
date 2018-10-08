@@ -2,12 +2,12 @@
 using System.Threading;
 using SQLite;
 
-namespace Steepshot.Core.Jobs
+namespace Steepshot.Core.Models.Database
 {
     [Table(nameof(Job))]
     public class Job : SqlTableBase
     {
-        public int CommandId { get; set; }
+        public string CommandId { get; set; }
 
         public int DataId { get; set; }
 
@@ -21,7 +21,7 @@ namespace Steepshot.Core.Jobs
 
         public Job() { }
 
-        public Job(int commandId)
+        public Job(string commandId)
         {
             CommandId = commandId;
         }

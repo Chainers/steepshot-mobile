@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Steepshot.Core.Authorization;
 using Steepshot.Core.Models.Common;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Models.Requests
 {

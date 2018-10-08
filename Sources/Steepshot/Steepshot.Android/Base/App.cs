@@ -2,10 +2,6 @@
 using Android.Runtime;
 using Autofac;
 using Square.Picasso;
-using Steepshot.Core.Localization;
-using Steepshot.Core.Utils;
-using Steepshot.Services;
-using Steepshot.Utils;
 using System;
 using System.Linq;
 using System.Threading;
@@ -16,15 +12,29 @@ using Newtonsoft.Json;
 using Steepshot.Activity;
 using Steepshot.Core;
 using Steepshot.Core.Authorization;
-using Steepshot.Core.Clients;
+using Steepshot.Core.Extensions;
 using Steepshot.Core.Interfaces;
-using Steepshot.Core.Sentry;
+using Steepshot.Core.Localization;
+using Steepshot.Core.Models.Enums;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.Base
 {
     [Application]
     public class App : Application
     {
+        public static ProfileUpdateType ProfileUpdateType = ProfileUpdateType.None;
+
+        public static Autofac.IContainer Container { get; private set; }
+        public static ILogService Logger { get; private set; }
+        public static LocalizationManager Localization { get; private set; }
+        public static User User { get; private set; }
+        public static SettingsManager SettingsManager { get; private set; }
+        public static NavigationManager NavigationManager { get; private set; }
+        public static IAppInfo AppInfo { get; private set; }
+        public static KnownChains MainChain { get; set; }
+
+
         public static Square.Picasso.LruCache Cache;
 
         public App(IntPtr javaReference, JniHandleOwnership transfer)
@@ -35,16 +45,28 @@ namespace Steepshot.Base
         public override void OnCreate()
         {
             base.OnCreate();
+
             InitIoC(Context.Assets);
+
+            User = Container.GetUser();
+            User.Load();
+            MainChain = User.Chain;
+            Logger = Container.GetLogger();
+            Localization = Container.GetLocalizationManager();
+            SettingsManager = Container.GetSettingsManager();
+            NavigationManager = Container.GetNavigationManager();
+            AppInfo = Container.GetAppInfo();
+
             InitPicassoCache();
 
             InitPushes();
-            AppSettings.UpdateLocalizationAsync();
+
+            Localization.UpdateAsync(CancellationToken.None);
         }
 
         private void InitPushes()
         {
-            OneSignal.Current.StartInit(AppSettings.User.Chain == KnownChains.Steem ? Constants.OneSignalSteemAppId : Constants.OneSignalGolosAppId)
+            OneSignal.Current.StartInit(User.Chain == KnownChains.Steem ? Constants.OneSignalSteemAppId : Constants.OneSignalGolosAppId)
                 .InFocusDisplaying(OSInFocusDisplayOption.None)
                 .HandleNotificationOpened(OneSignalNotificationOpened)
                 .EndInit();
@@ -65,7 +87,7 @@ namespace Steepshot.Base
                 }
                 catch (Exception e)
                 {
-                    AppSettings.Logger.ErrorAsync(e);
+                    Logger.ErrorAsync(e);
                 }
             }
         }
@@ -83,26 +105,16 @@ namespace Steepshot.Base
 
         private void InitIoC(Android.Content.Res.AssetManager assetManagerssets)
         {
-            if (AppSettings.Container == null)
+            if (Container == null)
             {
                 var builder = new ContainerBuilder();
-                builder.RegisterInstance(assetManagerssets).As<Android.Content.Res.AssetManager>().SingleInstance();
 
-                builder.RegisterType<SaverService>().As<ISaverService>().SingleInstance();
-                builder.RegisterType<AppInfo>().As<IAppInfo>().SingleInstance();
-                builder.RegisterType<ConnectionService>().As<IConnectionService>().SingleInstance();
-                builder.RegisterType<AssetHelper>().As<IAssetHelper>().SingleInstance();
-                builder.RegisterType<UserManager>().As<UserManager>().SingleInstance();
-                builder.RegisterType<User>().As<User>().SingleInstance();
-                builder.RegisterType<ConfigManager>().As<ConfigManager>().SingleInstance();
-                builder.RegisterType<ExtendedHttpClient>().As<ExtendedHttpClient>().SingleInstance();
-                builder.RegisterType<LogService>().As<ILogService>().SingleInstance();
-                builder.RegisterType<LocalizationManager>().As<LocalizationManager>().SingleInstance();
-                builder.RegisterType<SteepshotClient>().As<SteepshotClient>().SingleInstance();
-                
-                AppSettings.RegisterPresenter(builder);
-                AppSettings.RegisterFacade(builder);
-                AppSettings.Container = builder.Build();
+                builder.RegisterInstance(assetManagerssets)
+                    .As<Android.Content.Res.AssetManager>()
+                    .SingleInstance();
+                builder.RegisterModule<Steepshot.Utils.IocModule>();
+
+                Container = builder.Build();
             }
         }
     }

@@ -11,10 +11,11 @@ using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Serializing;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Tests.Stubs
 {
-    public class ApiPositiveStub : SteepshotApiClient
+    public class StubApiPositive : SteepshotApiClient
     {
         private JsonNetConverter Converter;
         private string GetUserRecentPostsJson1;
@@ -34,7 +35,7 @@ namespace Steepshot.Core.Tests.Stubs
         private string GetUserFriendsFollowingJson;
 
 
-        public ApiPositiveStub(ExtendedHttpClient extendedHttpClient, ILogService logger, string baseUrl)
+        public StubApiPositive(ExtendedHttpClient extendedHttpClient, ILogService logger, string baseUrl)
             : base(extendedHttpClient, logger, baseUrl)
         {
             #region posts response in json
