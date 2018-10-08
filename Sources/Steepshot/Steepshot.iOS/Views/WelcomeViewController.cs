@@ -45,23 +45,17 @@ namespace Steepshot.iOS.Views
 
         public override void ViewWillAppear(bool animated)
         {
-            if (IsMovingToParentViewController)
-            {
-                steemLogin.TouchDown += GoToPreLogin;
-                newAccount.TouchDown += CreateAccount;
-                _leftBarButton.Clicked += GoBack;
-            }
+            steemLogin.TouchDown += GoToPreLogin;
+            newAccount.TouchDown += CreateAccount;
+            _leftBarButton.Clicked += GoBack;
             base.ViewWillAppear(animated);
         }
 
         public override void ViewWillDisappear(bool animated)
         {
-            if (IsMovingFromParentViewController)
-            {
-                steemLogin.TouchDown -= GoToPreLogin;
-                newAccount.TouchDown -= CreateAccount;
-                _leftBarButton.Clicked -= GoBack;
-            }
+            steemLogin.TouchDown -= GoToPreLogin;
+            newAccount.TouchDown -= CreateAccount;
+            _leftBarButton.Clicked -= GoBack;
             base.ViewWillDisappear(animated);
         }
 

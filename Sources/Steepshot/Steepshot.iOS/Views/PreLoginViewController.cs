@@ -1,4 +1,5 @@
 ﻿using System;
+using Foundation;
 using Steepshot.Core;
 using Steepshot.Core.Extensions;
 using Steepshot.Core.Presenters;
@@ -41,23 +42,17 @@ namespace Steepshot.iOS.Views
 
         public override void ViewWillAppear(bool animated)
         {
-            if (IsMovingToParentViewController)
-            {
-                loginText.ShouldReturn += LoginShouldReturn;
-                loginButton.TouchDown += Login;
-                leftBarButton.Clicked += GoBack;
-            }
+            loginText.ShouldReturn += LoginShouldReturn;
+            loginButton.TouchDown += Login;
+            leftBarButton.Clicked += GoBack;
             base.ViewWillAppear(animated);
         }
 
         public override void ViewWillDisappear(bool animated)
         {
-            if (IsMovingFromParentViewController)
-            {
-                loginText.ShouldReturn -= LoginShouldReturn;
-                loginButton.TouchDown -= Login;
-                leftBarButton.Clicked -= GoBack;
-            }
+            loginText.ShouldReturn -= LoginShouldReturn;
+            loginButton.TouchDown -= Login;
+            leftBarButton.Clicked -= GoBack;
             base.ViewWillDisappear(animated);
         }
 

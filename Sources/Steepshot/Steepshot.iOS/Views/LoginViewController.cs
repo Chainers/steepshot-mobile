@@ -15,18 +15,15 @@ namespace Steepshot.iOS.Views
 {
     public partial class LoginViewController : BaseViewControllerWithPresenter<PreSignInPresenter>
     {
-        private readonly UIBarButtonItem leftBarButton = new UIBarButtonItem();
-        private string _username;
+        private readonly UIBarButtonItem _leftBarButton = new UIBarButtonItem();
+        private readonly string _username;
         private AccountInfoResponse _accountInfoResponse;
-        private bool _isPostingMode;
+        private readonly bool _isPostingMode;
         private UIButton _eyeButton;
 
         public LoginViewController(string username = null, AccountInfoResponse accountInfoResponse = null)
         {
-            if (username == null)
-                _username = AppDelegate.User.Login;
-            else
-                _username = username;
+            _username = username ?? AppDelegate.User.Login;
             _accountInfoResponse = accountInfoResponse;
             _isPostingMode = _accountInfoResponse != null;
         }
@@ -78,29 +75,23 @@ namespace Steepshot.iOS.Views
 
         public override void ViewWillAppear(bool animated)
         {
-            if (IsMovingToParentViewController)
-            {
-                loginButton.TouchDown += Login;
-                _eyeButton.TouchDown += EyeButtonTouch;
-                password.ShouldReturn += PasswordShouldReturn;
-                password.ShouldChangeCharacters += ShouldCharactersChange;
-                qrButton.TouchDown += QrTouch;
-                leftBarButton.Clicked += GoBack;
-            }
+            loginButton.TouchDown += Login;
+            _eyeButton.TouchDown += EyeButtonTouch;
+            password.ShouldReturn += PasswordShouldReturn;
+            password.ShouldChangeCharacters += ShouldCharactersChange;
+            qrButton.TouchDown += QrTouch;
+            _leftBarButton.Clicked += GoBack;
             base.ViewWillAppear(animated);
         }
 
         public override void ViewWillDisappear(bool animated)
         {
-            if (IsMovingFromParentViewController)
-            {
-                loginButton.TouchDown -= Login;
-                _eyeButton.TouchDown -= EyeButtonTouch;
-                password.ShouldReturn -= PasswordShouldReturn;
-                password.ShouldChangeCharacters -= ShouldCharactersChange;
-                qrButton.TouchDown -= QrTouch;
-                leftBarButton.Clicked -= GoBack;
-            }
+            loginButton.TouchDown -= Login;
+            _eyeButton.TouchDown -= EyeButtonTouch;
+            password.ShouldReturn -= PasswordShouldReturn;
+            password.ShouldChangeCharacters -= ShouldCharactersChange;
+            qrButton.TouchDown -= QrTouch;
+            _leftBarButton.Clicked -= GoBack;
             base.ViewWillDisappear(animated);
         }
 
@@ -127,8 +118,8 @@ namespace Steepshot.iOS.Views
 
         private void SetBackButton()
         {
-            leftBarButton.Image = UIImage.FromBundle("ic_back_arrow");
-            NavigationItem.LeftBarButtonItem = leftBarButton;
+            _leftBarButton.Image = UIImage.FromBundle("ic_back_arrow");
+            NavigationItem.LeftBarButtonItem = _leftBarButton;
             NavigationController.NavigationBar.TintColor = Constants.R15G24B30;
 
             if (_isPostingMode)
@@ -194,9 +185,11 @@ namespace Steepshot.iOS.Views
                 if (_isPostingMode)
                 {
                     AppDelegate.User.AddAndSwitchUser(_username, password.Text, _accountInfoResponse);
+                    
+                    ((PreSearchViewController)NavigationController.ViewControllers[0]).CleanViewController();
+                    
                     var myViewController = new MainTabBarController();
                     NavigationController.SetViewControllers(new UIViewController[] { myViewController }, true);
-                   //After that only top controller will finalized, don't know why other controllers won't
                 }
                 else
                 {

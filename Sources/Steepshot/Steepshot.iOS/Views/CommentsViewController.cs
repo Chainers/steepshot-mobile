@@ -82,17 +82,15 @@ namespace Steepshot.iOS.Views
 
         public override void ViewWillAppear(bool animated)
         {
-            if (IsMovingToParentViewController)
-            {
-                Presenter.SourceChanged += SourceChanged;
-                _leftBarButton.Clicked += GoBack;
-                _tableSource.CellAction += CellAction;
-                _tableSource.TagAction += TagAction;
-                _saveButton.TouchDown += SaveTap;
-                _commentsTextViewDelegate.ChangedAction += CommentsTextViewDelegate_ChangedAction;
-                _sendButton.TouchDown += CreateComment;
-                _cancelButton.TouchDown += CancelTap;
-            }
+            Presenter.SourceChanged += SourceChanged;
+            _leftBarButton.Clicked += GoBack;
+            _tableSource.CellAction += CellAction;
+            _tableSource.TagAction += TagAction;
+            _saveButton.TouchDown += SaveTap;
+            _commentsTextViewDelegate.ChangedAction += CommentsTextViewDelegate_ChangedAction;
+            _sendButton.TouchDown += CreateComment;
+            _cancelButton.TouchDown += CancelTap;
+            
             base.ViewWillAppear(animated);
         }
 
@@ -104,20 +102,25 @@ namespace Steepshot.iOS.Views
                 _postToEdit.Editing = false;
                 _commentsTable.ReloadData();
             }*/
+            
+            Presenter.SourceChanged -= SourceChanged;
+            _leftBarButton.Clicked -= GoBack;
+            _tableSource.CellAction -= CellAction;
+            _tableSource.TagAction -= TagAction;
+            _saveButton.TouchDown -= SaveTap;
+            _commentsTextViewDelegate.ChangedAction = null;
+            _sendButton.TouchDown -= CreateComment;
+            _cancelButton.TouchDown -= CancelTap;
+            
             if (IsMovingFromParentViewController)
-            {
-                Presenter.SourceChanged -= SourceChanged;
-                _leftBarButton.Clicked -= GoBack;
-                _tableSource.CellAction -= CellAction;
-                _tableSource.TagAction -= TagAction;
-                _saveButton.TouchDown -= SaveTap;
-                _commentsTextViewDelegate.ChangedAction = null;
-                _sendButton.TouchDown -= CreateComment;
-                _cancelButton.TouchDown -= CancelTap;
-                _tableSource.FreeAllCells();
-                Presenter.TasksCancel();
-            }
+                CleanViewController();
             base.ViewWillDisappear(animated);
+        }
+        
+        public void CleanViewController()
+        {
+            _tableSource.FreeAllCells();
+            Presenter.TasksCancel();
         }
 
         private void SetBackButton()
