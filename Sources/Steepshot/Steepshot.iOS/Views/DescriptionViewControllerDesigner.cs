@@ -225,7 +225,8 @@ namespace Steepshot.iOS.Views
             else
             {
                 videoContainer = new VideoView(true);
-                videoContainer.PlayerLayer.CornerRadius = 8;
+                videoContainer.Layer.MasksToBounds = true;
+                videoContainer.Layer.CornerRadius = 8;
                 mainScroll.AddSubview(videoContainer);
 
                 videoContainer.AutoAlignAxisToSuperviewAxis(ALAxis.Vertical);

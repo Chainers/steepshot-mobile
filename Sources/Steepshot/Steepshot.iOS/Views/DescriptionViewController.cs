@@ -223,7 +223,7 @@ namespace Steepshot.iOS.Views
                 _descriptionTextViewDelegate.EditingStartedAction += _descriptionTextViewDelegate_EditingStartedAction;
                 _leftBarButton.Clicked += GoBack;
                 View.AddGestureRecognizer(_viewTap);
-                videoContainer.AddGestureRecognizer(_videoViewTap);
+                videoContainer?.AddGestureRecognizer(_videoViewTap);
                 tagField.AddGestureRecognizer(_openTagsGestureRecognizer);
                 _resizeButton.AddGestureRecognizer(_zoomTap);
                 _rotateButton.AddGestureRecognizer(_rotateTap);
@@ -240,12 +240,12 @@ namespace Steepshot.iOS.Views
                 _descriptionTextViewDelegate.EditingStartedAction = null;
                 _leftBarButton.Clicked -= GoBack;
                 View.RemoveGestureRecognizer(_viewTap);
-                videoContainer.RemoveGestureRecognizer(_videoViewTap);
+                videoContainer?.RemoveGestureRecognizer(_videoViewTap);
                 tagField.RemoveGestureRecognizer(_openTagsGestureRecognizer);
                 _resizeButton.RemoveGestureRecognizer(_zoomTap);
                 _rotateButton.RemoveGestureRecognizer(_rotateTap);
             }
-            videoContainer.Stop();
+            videoContainer?.Stop();
             base.ViewWillDisappear(animated);
         }
 
