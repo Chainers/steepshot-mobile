@@ -12,7 +12,6 @@ using UIKit;
 using CoreAnimation;
 using System.IO;
 using PureLayout.Net;
-using Steepshot.Core.Utils;
 using Steepshot.Core.Localization;
 using System.Drawing;
 using System.Linq;
@@ -575,7 +574,10 @@ namespace Steepshot.iOS.Views
         private void InitializeCamera()
         {
             ConnectCamera();
-            SetupPhotoCameraStream();
+            if (_currentMode.Equals(MediaType.Photo))
+                SetupPhotoCameraStream();
+            else
+                SetupVideoCameraStream();
         }
 
         private void SetupPhotoCameraStream()
@@ -657,6 +659,8 @@ namespace Steepshot.iOS.Views
                     _captureSession.AddOutput(_videoFileOutput);
 
                 _captureSession.CommitConfiguration();
+                if (!_captureSession.Running)
+                    _captureSession.StartRunning();
             });
         }
 

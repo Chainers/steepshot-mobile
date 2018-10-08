@@ -68,7 +68,6 @@ namespace Steepshot.iOS.Views
         protected UICollectionView photoCollection;
         protected UIImageView photoView;
         protected VideoView videoContainer;
-        protected AVPlayer videoPlayer;
         protected bool editMode;
 
         protected readonly UIImageView _rotateButton = new UIImageView();

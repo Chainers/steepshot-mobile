@@ -1,17 +1,12 @@
-﻿using System;
-using Steepshot.iOS.Helpers;
+﻿using Steepshot.iOS.Helpers;
 using Steepshot.iOS.ViewSources;
 using UIKit;
 using PureLayout.Net;
 using CoreGraphics;
-using Steepshot.Core.Utils;
 using Steepshot.Core.Localization;
 using Steepshot.iOS.Cells;
 using Steepshot.Core.Models.Enums;
-using AVFoundation;
 using Steepshot.iOS.CustomViews;
-using Foundation;
-using AVKit;
 
 namespace Steepshot.iOS.Views
 {
