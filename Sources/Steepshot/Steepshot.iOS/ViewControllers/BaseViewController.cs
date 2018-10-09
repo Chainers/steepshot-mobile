@@ -16,7 +16,7 @@ using FFImageLoading;
 
 namespace Steepshot.iOS.ViewControllers
 {
-    public class BaseViewController : UIViewController, IWillEnterForeground
+    public class BaseViewController : UIViewController
     {
         public static string Tos => AppDelegate.User.IsDev ? "https://qa.steepshot.org/terms-of-service" : "https://steepshot.org/terms-of-service";
         public static string Pp => AppDelegate.User.IsDev ? "https://qa.steepshot.org/privacy-policy" : "https://steepshot.org/privacy-policy";
@@ -74,7 +74,6 @@ namespace Steepshot.iOS.ViewControllers
             //Maybe need to move in baseviewcontrollerwithpresenter
             if (TabBarController != null)
             {
-                ((MainTabBarController)TabBarController).WillEnterForegroundAction += WillEnterForeground;
                 ((MainTabBarController)TabBarController).SameTabTapped += SameTabTapped;
             }
             base.ViewWillAppear(animated);
@@ -99,7 +98,6 @@ namespace Steepshot.iOS.ViewControllers
         {
             if (TabBarController != null)
             {
-                ((MainTabBarController)TabBarController).WillEnterForegroundAction -= WillEnterForeground;
                 ((MainTabBarController)TabBarController).SameTabTapped -= SameTabTapped;
             }
             base.ViewWillDisappear(animated);
@@ -367,15 +365,5 @@ namespace Steepshot.iOS.ViewControllers
         {
             ImageService.Instance.InvalidateMemoryCache();
         }
-    }
-
-    public interface IWillEnterForeground
-    {
-        void WillEnterForeground();
-    }
-
-    public interface IDidEnterBackground
-    {
-        void DidEnterBackground();
     }
 }

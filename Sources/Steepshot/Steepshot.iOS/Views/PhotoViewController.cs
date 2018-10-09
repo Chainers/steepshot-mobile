@@ -35,7 +35,7 @@ namespace Steepshot.iOS.Views
         private readonly UITapGestureRecognizer _photoTabTap;
         private readonly UITapGestureRecognizer _videoTabTap;
 
-        private readonly AVCaptureSession _captureSession;
+        private readonly AVCaptureSession _captureSession = new AVCaptureSession();
         private AVCaptureDevice _backCamera;
         private AVCaptureDevice _frontCamera;
         private AVCaptureDevice _currentCamera;
@@ -76,12 +76,13 @@ namespace Steepshot.iOS.Views
         private Task _photoCameraSwitchTask;
         private Task _videoCameraSwitchTask;
 
+        UIActivityIndicatorView _videoLoader = new UIActivityIndicatorView(UIActivityIndicatorViewStyle.White);
+
         public PhotoViewController()
         {
             _galleryTap = new UITapGestureRecognizer(GalleryTap);
             _photoTabTap = new UITapGestureRecognizer(SwitchToPhotoMode);
             _videoTabTap = new UITapGestureRecognizer(SwitchToVideoMode);
-            _captureSession = new AVCaptureSession();
         }
 
         public override void ViewDidLoad()
@@ -116,7 +117,7 @@ namespace Steepshot.iOS.Views
             _photoButton.TouchUpInside += OnPhotoButtonUp;
             _photoButton.TouchUpOutside += OnPhotoButtonUp;
             _swapCameraButton.TouchDown += SwitchCameraButtonTapped;
-            ((MainTabBarController)NavigationController.ViewControllers[0]).DidEnterBackgroundAction += DidEnterBackground;
+            ((InteractivePopNavigationController)NavigationController).DidEnterBackgroundEvent += DidEnterBackground;
             _orientationChangeEventToken = NSNotificationCenter.DefaultCenter.AddObserver(UIDevice.OrientationDidChangeNotification, CheckDeviceOrientation);
         }
 
@@ -178,7 +179,7 @@ namespace Steepshot.iOS.Views
             _photoButton.TouchUpInside -= OnPhotoButtonUp;
             _photoButton.TouchUpOutside -= OnPhotoButtonUp;
             _swapCameraButton.TouchDown -= SwitchCameraButtonTapped;
-            ((MainTabBarController)NavigationController.ViewControllers[0]).DidEnterBackgroundAction -= DidEnterBackground;
+            ((InteractivePopNavigationController)NavigationController).DidEnterBackgroundEvent -= DidEnterBackground;
 
             if (_orientationChangeEventToken != null)
             {
@@ -242,6 +243,11 @@ namespace Steepshot.iOS.Views
             _photoButton.Layer.BorderWidth = 2;
             TogglePhotoButton(MediaType.Photo);
             View.AddSubview(_photoButton);
+
+            _videoLoader.HidesWhenStopped = true;
+            _photoButton.AddSubview(_videoLoader);
+
+            _videoLoader.AutoCenterInSuperview();
 
             bottomSeparator.AutoSetDimension(ALDimension.Height, 1);
             bottomSeparator.AutoPinEdgeToSuperviewEdge(ALEdge.Left);
@@ -404,7 +410,6 @@ namespace Steepshot.iOS.Views
                 _isCancelled = withCancel;
                 _sl.RemoveAllAnimations();
                 _sl.Hidden = true;
-                ToogleButtons(true);
                 _videoFileOutput?.StopRecording();
                 _isRecording = !_isRecording;
             }
@@ -743,26 +748,38 @@ namespace Steepshot.iOS.Views
         private void SendVideoToDescription()
         {
             var descriptionViewController = new DescriptionViewController(_exportLocation);
-            InvokeOnMainThread(() => NavigationController.PushViewController(descriptionViewController, true));
+            InvokeOnMainThread(() =>
+            {
+                StopLoading();
+                NavigationController.PushViewController(descriptionViewController, true);
+            });
         }
 
-        public void DidEnterBackground()
+        private void StopLoading()
+        {
+            ToogleButtons(true);
+            _videoLoader.StopAnimating();
+        }
+
+        private void DidEnterBackground()
         {
             StopCapturing(true);
         }
 
         public void FinishedRecording(AVCaptureFileOutput captureOutput, NSUrl outputFileUrl, NSObject[] connections, NSError error)
         {
+            _videoLoader.StartAnimating();
+
             _sl.RemoveAllAnimations();
             _sl.Hidden = true;
 
-            ToogleButtons(true);
             _isRecording = false;
 
             if (_isCancelled)
             {
                 _isCancelled = false;
                 CleanupLocation(outputFileUrl);
+                StopLoading();
                 return;
             }
 
@@ -781,6 +798,7 @@ namespace Steepshot.iOS.Views
 
             if (asset.Duration.Seconds < Core.Constants.VideoMinDuration)
             {
+                StopLoading();
                 CleanupLocation(outputFileUrl);
                 return;
             }
@@ -864,7 +882,10 @@ namespace Steepshot.iOS.Views
             if (exportSession.Status == AVAssetExportSessionStatus.Completed && _successfulRecord)
                 CheckPhotoLibraryAuthorizationStatus(PHPhotoLibrary.AuthorizationStatus);
             else
+            {
                 CleanupLocation(_exportLocation);
+                StopLoading();
+            }
         }
 
         private void CheckPhotoLibraryAuthorizationStatus(PHAuthorizationStatus authorizationStatus)
@@ -872,7 +893,10 @@ namespace Steepshot.iOS.Views
             if (authorizationStatus == PHAuthorizationStatus.Authorized)
                 PHPhotoLibrary.SharedPhotoLibrary.PerformChanges(CreateResourceInPhotoLibrary, PhotoLibraryResult);
             else
+            {
+                StopLoading();
                 CleanupLocation(_exportLocation);
+            }
         }
 
         private void CreateResourceInPhotoLibrary()
@@ -885,7 +909,10 @@ namespace Steepshot.iOS.Views
             if (success && error == null)
                 SendVideoToDescription();
             else
+            {
+                StopLoading();
                 CleanupLocation(_exportLocation);
+            }
         }
 
         private void CleanupLocation(NSUrl location)

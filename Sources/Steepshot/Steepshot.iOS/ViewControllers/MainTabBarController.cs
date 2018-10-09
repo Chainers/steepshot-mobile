@@ -2,12 +2,10 @@
 using System.Threading.Tasks;
 using Com.OneSignal;
 using CoreGraphics;
-using Steepshot.Core;
 using Steepshot.Core.Extensions;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Presenters;
-using Steepshot.Core.Utils;
 using Steepshot.iOS.Delegates;
 using Steepshot.iOS.Helpers;
 using Steepshot.iOS.Views;
@@ -16,11 +14,9 @@ using Constants = Steepshot.iOS.Helpers.Constants;
 
 namespace Steepshot.iOS.ViewControllers
 {
-    public class MainTabBarController : UITabBarController, IWillEnterForeground, IDidEnterBackground
+    public class MainTabBarController : UITabBarController
     {
         public event Action SameTabTapped;
-        public event Action WillEnterForegroundAction;
-        public event Action DidEnterBackgroundAction;
         private bool _isInitialized;
         private UserProfilePresenter _presenter;
         private CircleFrame _powerFrame;
@@ -149,66 +145,6 @@ namespace Steepshot.iOS.ViewControllers
         {
             NavigationController.SetNavigationBarHidden(false, true);
             base.ViewWillDisappear(animated);
-        }
-
-        public void WillEnterForeground()
-        {
-            WillEnterForegroundAction?.Invoke();
-        }
-
-        public void DidEnterBackground()
-        {
-            DidEnterBackgroundAction?.Invoke();
-        }
-    }
-
-    public class InteractivePopNavigationController : UINavigationController
-    {
-        public bool IsPushingViewController = false;
-
-        public UIViewController RootViewController { get; private set; }
-
-        public InteractivePopNavigationController(UIViewController rootViewController) : base(rootViewController)
-        {
-            RootViewController = rootViewController;
-        }
-
-        public override void ViewDidLoad()
-        {
-            base.ViewDidLoad();
-            Delegate = new NavigationControllerDelegate();
-            InteractivePopGestureRecognizer.Delegate = new GestureRecognizerDelegate(this);
-        }
-
-        public override void PushViewController(UIViewController viewController, bool animated)
-        {
-            IsPushingViewController = true;
-            base.PushViewController(viewController, animated);
-        }
-    }
-
-    public class NavigationControllerDelegate : UINavigationControllerDelegate
-    {
-        public override void WillShowViewController(UINavigationController navigationController, UIViewController viewController, bool animated)
-        {
-            ((InteractivePopNavigationController)navigationController).IsPushingViewController = false;
-        }
-    }
-
-    public class GestureRecognizerDelegate : UIGestureRecognizerDelegate
-    {
-        private InteractivePopNavigationController _controller;
-
-        public GestureRecognizerDelegate(InteractivePopNavigationController controller)
-        {
-            _controller = controller;
-        }
-
-        public override bool ShouldBegin(UIGestureRecognizer recognizer)
-        {
-            if (recognizer is UIScreenEdgePanGestureRecognizer)
-                return _controller.ViewControllers.Length > 1 && !_controller.IsPushingViewController;
-            return true;
         }
     }
 }

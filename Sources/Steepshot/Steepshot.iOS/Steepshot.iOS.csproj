@@ -451,6 +451,7 @@
     <Compile Include="ViewSources\ProfileCollectionViewSource.cs" />
     <Compile Include="Views\DescriptionViewControllerDesigner.cs" />
     <Compile Include="Helpers\CustomInputStream.cs" />
+    <Compile Include="ViewControllers\InteractivePopNavigationController.cs" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\ic_photo_holder.png" />
