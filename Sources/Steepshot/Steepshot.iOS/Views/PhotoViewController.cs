@@ -161,8 +161,6 @@ namespace Steepshot.iOS.Views
 
                 View.Layer.AddSublayer(_sl);
 
-                Constants.CreateGradient(_pointerView, 0, GradientType.Orange);
-
                 _initialized = true;
             }
         }
@@ -595,7 +593,7 @@ namespace Steepshot.iOS.Views
                 return;
             }
 
-            var videoTrack = asset.TracksWithMediaType(AVMediaType.Video)[0];
+            var videoTrack = asset.TracksWithMediaType(AVMediaType.Video).First();
             var renderSize = new SizeF((float)videoTrack.NaturalSize.Height, (float)videoTrack.NaturalSize.Height);
             var assetTimeRange = new CMTimeRange { Start = CMTime.Zero, Duration = asset.Duration };
 
@@ -616,7 +614,7 @@ namespace Steepshot.iOS.Views
             if (_authorizationAudioStatus == AVAuthorizationStatus.Authorized)
             {
                 var compositionTrackAudio = composition.AddMutableTrack(AVMediaType.Audio, 0);
-                var audioTrack = asset.TracksWithMediaType(AVMediaType.Audio)[0];
+                var audioTrack = asset.TracksWithMediaType(AVMediaType.Audio).First();
 
                 compositionTrackAudio.InsertTimeRange(new CMTimeRange
                 {

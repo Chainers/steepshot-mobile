@@ -137,6 +137,9 @@ namespace Steepshot.iOS.Views
             _photoButton.AutoAlignAxisToSuperviewAxis(ALAxis.Vertical);
             _photoButton.AutoPinEdge(ALEdge.Bottom, ALEdge.Top, bottomSeparator, -bottomPanelHeight / 2);
             _activePanelHeight = (float)bottomPanelHeight - 60;
+
+            _pointerView.LayoutIfNeeded();
+            Constants.CreateGradient(_pointerView, 0, GradientType.Orange);
         }
 
         private UIButton CreateRoundButton()
@@ -214,14 +217,16 @@ namespace Steepshot.iOS.Views
         {
             PHPhotoLibrary.RequestAuthorizationAsync().ContinueWith((status) =>
             {
-                if (status.Result == PHAuthorizationStatus.Authorized)
+                InvokeOnMainThread(() =>
                 {
-                    var fetchedAssets = PHAsset.FetchAssets(PHAssetMediaType.Image, null);
-                    if (fetchedAssets.LastObject is PHAsset lastGalleryPhoto)
+                    if (status.Result == PHAuthorizationStatus.Authorized)
                     {
-                        _galleryButton.UserInteractionEnabled = true;
-                        var PHImageManager = new PHImageManager();
-                        PHImageManager.RequestImageForAsset(lastGalleryPhoto, new CGSize(300, 300),
+                        var fetchedAssets = PHAsset.FetchAssets(PHAssetMediaType.Image, null);
+                        if (fetchedAssets.LastObject is PHAsset lastGalleryPhoto)
+                        {
+                            _galleryButton.UserInteractionEnabled = true;
+                            var PHImageManager = new PHImageManager();
+                            PHImageManager.RequestImageForAsset(lastGalleryPhoto, new CGSize(300, 300),
                                                             PHImageContentMode.AspectFill, new PHImageRequestOptions()
                                                             {
                                                                 DeliveryMode = PHImageRequestOptionsDeliveryMode.Opportunistic,
@@ -230,12 +235,14 @@ namespace Steepshot.iOS.Views
                                                             {
                                                                 _galleryButton.Image = img;
                                                             });
+
+                        }
+                        else
+                            _galleryButton.UserInteractionEnabled = false;
                     }
                     else
-                        _galleryButton.UserInteractionEnabled = false;
-                }
-                else
-                    _galleryButton.UserInteractionEnabled = true;
+                        _galleryButton.UserInteractionEnabled = true;
+                });
             });
         }
 
