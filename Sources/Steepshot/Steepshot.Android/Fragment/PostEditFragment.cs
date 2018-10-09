@@ -94,6 +94,12 @@ namespace Steepshot.Fragment
             }
         }
 
+        public override void OnDetach()
+        {
+            Photos.SetAdapter(null);
+            base.OnDetach();
+        }
+
         #region Adapter
 
         private class MediaAdapter : RecyclerView.Adapter

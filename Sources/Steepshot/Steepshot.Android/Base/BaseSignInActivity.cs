@@ -79,13 +79,7 @@ namespace Steepshot.Base
             _signInBtn.Click += SignIn;
             _rootLayout.Click += HideKeyboard;
         }
-
-        protected override void OnDestroy()
-        {
-            base.OnDestroy();
-            Cheeseknife.Reset(this);
-        }
-
+        
         public override void OnRequestPermissionsResult(int requestCode, string[] permissions, [GeneratedEnum] Permission[] grantResults)
         {
             if (requestCode == CommonPermissionsRequestCode && !grantResults.Any(x => x != Permission.Granted))

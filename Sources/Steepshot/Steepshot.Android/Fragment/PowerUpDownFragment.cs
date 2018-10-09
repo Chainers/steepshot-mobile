@@ -132,8 +132,6 @@ namespace Steepshot.Fragment
             _tokenOneValue.ViewTreeObserver.GlobalLayout -= TokenValuesGlobalLayout;
             _tokenTwoValue.ViewTreeObserver.GlobalLayout -= TokenValuesGlobalLayout;
             base.OnDetach();
-            Cheeseknife.Reset(this);
-            GC.Collect(0);
         }
 
         private void UpdateTokenValues(string currTokenOne, string nextTokenOne, string currTokenTwo, string nextTokenTwo)

@@ -5,6 +5,7 @@ using Square.Picasso;
 using System;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using Android.Content;
 using Com.OneSignal;
 using Com.OneSignal.Abstractions;
@@ -17,6 +18,7 @@ using Steepshot.Core.Interfaces;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Utils;
+using Steepshot.Utils;
 
 namespace Steepshot.Base
 {
@@ -46,6 +48,16 @@ namespace Steepshot.Base
         {
             base.OnCreate();
 
+            AppDomain.CurrentDomain.UnhandledException -= OnCurrentDomainOnUnhandledExceptionAsync;
+            AppDomain.CurrentDomain.UnhandledException += OnCurrentDomainOnUnhandledExceptionAsync;
+
+            TaskScheduler.UnobservedTaskException -= OnTaskSchedulerOnUnobservedTaskException;
+            TaskScheduler.UnobservedTaskException += OnTaskSchedulerOnUnobservedTaskException;
+
+            AndroidEnvironment.UnhandledExceptionRaiser -= OnUnhandledExceptionRaiser;
+            AndroidEnvironment.UnhandledExceptionRaiser += OnUnhandledExceptionRaiser;
+
+
             InitIoC(Context.Assets);
 
             User = Container.GetUser();
@@ -60,6 +72,7 @@ namespace Steepshot.Base
             InitPicassoCache();
 
             InitPushes();
+
 
             Localization.UpdateAsync(CancellationToken.None);
         }
@@ -116,6 +129,33 @@ namespace Steepshot.Base
 
                 Container = builder.Build();
             }
+        }
+
+        private async void OnTaskSchedulerOnUnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs e)
+        {
+            await Logger.ErrorAsync(e.Exception);
+            this.ShowAlert(LocalizationKeys.UnexpectedError, Android.Widget.ToastLength.Short);
+        }
+
+        private async void OnCurrentDomainOnUnhandledExceptionAsync(object sender, UnhandledExceptionEventArgs e)
+        {
+            var ex = e.ExceptionObject as Exception;
+            if (ex != null)
+                ex = new Exception(e.ExceptionObject.ToString());
+
+            if (e.IsTerminating)
+                await Logger.FatalAsync(ex);
+            else
+                await Logger.ErrorAsync(ex);
+
+            this.ShowAlert(ex, Android.Widget.ToastLength.Short);
+        }
+
+        private async void OnUnhandledExceptionRaiser(object sender, RaiseThrowableEventArgs e)
+        {
+            await Logger.ErrorAsync(e.Exception);
+
+            this.ShowAlert(e.Exception, Android.Widget.ToastLength.Short);
         }
     }
 }

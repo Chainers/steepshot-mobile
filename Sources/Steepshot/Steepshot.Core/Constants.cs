@@ -29,7 +29,7 @@ namespace Steepshot.Core
         public const string Guide = "https://alpha.steepshot.io/guide";
         public const string Pp = "https://steepshot.org/privacy-policy";
 
-        public const string VotedInASimilarWaySteem = "You have already voted in a similar way";
+        public const string VotedInASimilarWaySteem = "Your current vote on this comment is identical to this vote.";
         public const string VotedInASimilarWayGolos = "You have already voted in a similar way";
 
         public const string OneSignalSteemAppId = "77fa644f-3280-4e87-9f14-1f0c7ddf8ca5";

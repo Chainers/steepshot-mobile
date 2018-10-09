@@ -142,13 +142,6 @@ namespace Steepshot.Fragment
             _transferBtn.ViewTreeObserver.GlobalLayout -= RecyclerLayedOut;
         }
 
-        public override void OnDetach()
-        {
-            base.OnDetach();
-            Cheeseknife.Reset(this);
-            GC.Collect(0);
-        }
-
         private void BackOnClick(object sender, EventArgs e)
         {
             ((BaseActivity)Activity).OnBackPressed();
@@ -345,6 +338,12 @@ namespace Steepshot.Fragment
             {
                 _claimBtn.Visibility = ViewStates.Visible;
             }
+        }
+
+        public override void OnDetach()
+        {
+            _trxHistory.SetAdapter(null);
+            base.OnDetach();
         }
     }
 }

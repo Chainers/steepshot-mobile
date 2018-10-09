@@ -322,12 +322,6 @@ namespace Steepshot.Fragment
             return false;
         }
 
-        public override void OnDetach()
-        {
-            base.OnDetach();
-            Cheeseknife.Reset(this);
-        }
-
         private void OnFirstPostButtonClick(object sender, EventArgs e)
         {
             var intent = new Intent(Activity, typeof(CameraActivity));
@@ -720,6 +714,12 @@ namespace Steepshot.Fragment
                 UpdatePage(App.ProfileUpdateType);
                 App.ProfileUpdateType = ProfileUpdateType.None;
             }
+        }
+
+        public override void OnDetach()
+        {
+            _postsList.SetAdapter(null);
+            base.OnDetach();
         }
     }
 }

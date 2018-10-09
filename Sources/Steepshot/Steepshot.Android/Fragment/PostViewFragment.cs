@@ -63,14 +63,7 @@ namespace Steepshot.Fragment
                 Presenter.TryLoadPostInfoAsync(_url);
             }
         }
-
-        public override void OnDetach()
-        {
-            base.OnDetach();
-            Cheeseknife.Reset(this);
-            GC.Collect(0);
-        }
-
+        
         private void BackButtonOnClick(object sender, EventArgs eventArgs) => ((BaseActivity)Activity).OnBackPressed();
 
         private void PresenterOnSourceChanged(Status status)

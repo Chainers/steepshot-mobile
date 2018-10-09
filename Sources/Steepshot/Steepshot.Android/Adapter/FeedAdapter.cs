@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using Android.Content;
 using Android.Graphics;
@@ -33,6 +35,7 @@ namespace Steepshot.Adapter
         protected readonly Context Context;
         public Action<ActionType, Post> PostAction;
         public Action<AutoLinkType, string> AutoLinkAction;
+        private readonly List<FeedViewHolder> _holders;
 
         public override int ItemCount
         {
@@ -47,11 +50,15 @@ namespace Steepshot.Adapter
         {
             Context = context;
             Presenter = presenter;
+            _holders = new List<FeedViewHolder>();
             Presenter.SourceChanged += PresenterOnSourceChanged;
         }
 
         private void PresenterOnSourceChanged(Status obj)
         {
+            if (!obj.IsChanged)
+                return;
+
             foreach (var post in Presenter)
             {
                 foreach (var media in post.Media.Where(i => !string.IsNullOrEmpty(i.ContentType) && i.ContentType.StartsWith("image")))
@@ -67,8 +74,9 @@ namespace Steepshot.Adapter
 
         public override void OnDetachedFromRecyclerView(RecyclerView recyclerView)
         {
-            Presenter.SourceChanged -= PresenterOnSourceChanged;
             base.OnDetachedFromRecyclerView(recyclerView);
+            Presenter.SourceChanged -= PresenterOnSourceChanged;
+            _holders.ForEach(h => h.OnDetached());
         }
 
         public override int GetItemViewType(int position)
@@ -99,6 +107,7 @@ namespace Steepshot.Adapter
                 default:
                     var itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.lyt_feed_item, parent, false);
                     var vh = new FeedViewHolder(itemView, PostAction, AutoLinkAction, Style.ScreenWidth, Style.ScreenWidth);
+                    _holders.Add(vh);
                     return vh;
             }
         }
@@ -236,12 +245,6 @@ namespace Steepshot.Adapter
             }
         }
 
-        protected override void Dispose(bool disposing)
-        {
-            BaseActivity.TouchEvent -= TouchEvent;
-            base.Dispose(disposing);
-        }
-
         private void HideScaleBar()
         {
             BaseActivity.TouchEvent -= TouchEvent;
@@ -281,25 +284,18 @@ namespace Steepshot.Adapter
 
         private void NsfwMaskActionButtonOnClick(object sender, EventArgs eventArgs)
         {
+            Post.ShowMask = false;
             if (!Post.FlagNotificationWasShown)
             {
                 Post.FlagNotificationWasShown = true;
                 _postAction?.Invoke(ActionType.Flag, Post);
             }
-            else
-            {
-                Post.ShowMask = false;
-            }
-
-            NsfwMask.Visibility = ViewStates.Gone;
-            _nsfwMaskCloseButton.Visibility = ViewStates.Gone;
         }
 
         private void NsfwMaskCloseButtonOnClick(object sender, EventArgs eventArgs)
         {
             Post.FlagNotificationWasShown = true;
-            NsfwMask.Visibility = ViewStates.Gone;
-            _nsfwMaskCloseButton.Visibility = ViewStates.Gone;
+            Post.ShowMask = false;
         }
 
         protected virtual void OnTitleOnClick(object sender, EventArgs e)
@@ -454,7 +450,7 @@ namespace Steepshot.Adapter
             _moreActionsDialog.Dismiss();
         }
 
-        private async Task LikeSet(bool isFlag)
+        private async Task LikeSetAsync(bool isFlag)
         {
             _isAnimationRuning?.Cancel();
             _isAnimationRuning = new CancellationSignal();
@@ -521,43 +517,17 @@ namespace Steepshot.Adapter
             _likeScalePower.Text = $"{_likeScaleBar.Progress}%";
         }
 
+
         public void UpdateData(Post post, Context context)
         {
+            if (Post != null)
+                Post.PropertyChanged -= PostOnPropertyChanged;
             Post = post;
-            if (post.NetLikes > 0)
-            {
-                _likes.Visibility = ViewStates.Visible;
-                _likes.Text =
-                    App.Localization.GetText(
-                        Post.NetLikes == 1 ? LocalizationKeys.Like : LocalizationKeys.Likes, post.NetLikes);
-            }
-            else
-            {
-                _likes.Visibility = ViewStates.Gone;
-            }
+            Post.PropertyChanged += PostOnPropertyChanged;
 
-            if (post.NetFlags > 0)
-            {
-                _flags.Visibility = _flagsIcon.Visibility = ViewStates.Visible;
-                _flags.Text = $"{post.NetFlags}";
-            }
-            else
-            {
-                _flags.Visibility = _flagsIcon.Visibility = ViewStates.Gone;
-            }
-
-            if (post.TotalPayoutReward > 0)
-            {
-                _cost.Visibility = ViewStates.Visible;
-                _cost.Text = StringHelper.ToFormatedCurrencyString(post.TotalPayoutReward, App.MainChain);
-            }
-            else
-            {
-                _cost.Visibility = ViewStates.Gone;
-            }
-
-            _time.Text = post.Created.ToPostTime(App.Localization);
-            _author.Text = post.Author;
+            SetNsfwMaskLayout();
+            _time.Text = Post.Created.ToPostTime(App.Localization);
+            _author.Text = Post.Author;
 
             if (!string.IsNullOrEmpty(Post.Avatar))
             {
@@ -574,17 +544,154 @@ namespace Steepshot.Adapter
                 Picasso.With(context).Load(Resource.Drawable.ic_holder).Into(_avatar);
             }
 
-            var height = post.Media[0].OptimalPhotoSize(Style.ScreenWidth, 130 * Style.Density, Style.MaxPostHeight);
+            var height = Post.Media[0].OptimalPhotoSize(Style.ScreenWidth, 130 * Style.Density, Style.MaxPostHeight);
             PhotosViewPager.LayoutParameters.Height = height;
             ((PostPhotosPagerAdapter)PhotosViewPager.Adapter).UpdateData(Post);
 
             _title.UpdateText(Post, TagToExclude, TagFormat, MaxLines, Post.IsExpanded || PhotoPagerType == PostPagerType.PostScreen);
 
+            _title.UpdateText(Post, TagToExclude, TagFormat, MaxLines, Post.IsExpanded || PhotoPagerType == PostPagerType.PostScreen);
+
+            _commentSubtitle.Text = Post.Children == 0
+                ? App.Localization.GetText(LocalizationKeys.PostFirstComment)
+                : Post.Children == 1
+                    ? App.Localization.GetText(LocalizationKeys.SeeComment)
+                    : App.Localization.GetText(LocalizationKeys.ViewComments, Post.Children);
+
+            if (_isAnimationRuning != null && !_isAnimationRuning.IsCanceled && !Post.VoteChanging)
+            {
+                _isAnimationRuning.Cancel();
+                _isAnimationRuning = null;
+                _likeOrFlag.ScaleX = 1f;
+                _likeOrFlag.ScaleY = 1f;
+            }
+
+            UpdateLikeAsync(Post);
+            UpdateLikeCount(Post);
+            UpdateFlagCount(Post);
+            UpdateTotalPayoutReward(Post);
+            UpdateMask(Post);
+            UpdateTopLikersAvatars(Post);
+            _pagerTabLayout.Visibility = Post.Media.Length > 1 ? ViewStates.Visible : ViewStates.Gone;
+        }
+
+
+        private void UpdateTotalPayoutReward(Post post)
+        {
+            if (post.TotalPayoutReward > 0)
+            {
+                _cost.Visibility = ViewStates.Visible;
+                _cost.Text = StringHelper.ToFormatedCurrencyString(post.TotalPayoutReward, App.MainChain);
+            }
+            else
+            {
+                _cost.Visibility = ViewStates.Gone;
+            }
+        }
+
+        private void UpdateFlagCount(Post post)
+        {
+            if (post.NetFlags > 0)
+            {
+                _flags.Visibility = _flagsIcon.Visibility = ViewStates.Visible;
+                _flags.Text = $"{post.NetFlags}";
+            }
+            else
+            {
+                _flags.Visibility = _flagsIcon.Visibility = ViewStates.Gone;
+            }
+        }
+
+        private void UpdateMask(Post post)
+        {
+            if (post.Flag && !post.FlagNotificationWasShown)
+            {
+                NsfwMask.Visibility = ViewStates.Visible;
+                _nsfwMaskCloseButton.Visibility = ViewStates.Visible;
+                _nsfwMaskMessage.Text = App.Localization.GetText(LocalizationKeys.FlagMessage);
+                NsfwMaskSubMessage.Text = string.Empty;
+                _nsfwMaskActionButton.Text = App.Localization.GetText(LocalizationKeys.UnFlagPost);
+            }
+            else if (post.ShowMask && (post.IsLowRated || post.IsNsfw) && post.Author != App.User.Login)
+            {
+                NsfwMask.Visibility = ViewStates.Visible;
+                _nsfwMaskMessage.Text = App.Localization.GetText(post.IsLowRated
+                    ? LocalizationKeys.LowRatedContent
+                    : LocalizationKeys.NsfwContent);
+                NsfwMaskSubMessage.Text = App.Localization.GetText(post.IsLowRated
+                    ? LocalizationKeys.LowRatedContentExplanation
+                    : LocalizationKeys.NsfwContentExplanation);
+                _nsfwMaskActionButton.Text = App.Localization.GetText(LocalizationKeys.NsfwShow);
+            }
+            else
+            {
+                NsfwMask.Visibility = _nsfwMaskCloseButton.Visibility = ViewStates.Gone;
+            }
+        }
+
+        private void UpdateLikeCount(Post post)
+        {
+            if (post.NetLikes > 0)
+            {
+                _likes.Visibility = ViewStates.Visible;
+                _likes.Text = App.Localization.GetText(Post.NetLikes == 1 ? LocalizationKeys.Like : LocalizationKeys.Likes, post.NetLikes);
+            }
+            else
+            {
+                _likes.Visibility = ViewStates.Gone;
+            }
+        }
+
+        private async Task UpdateLikeAsync(Post post)
+        {
+            if (BasePostPresenter.IsEnableVote)
+            {
+                if (_isAnimationRuning != null && !_isAnimationRuning.IsCanceled)
+                {
+                    _isAnimationRuning.Cancel();
+                    _isAnimationRuning = null;
+                    _likeOrFlag.ScaleX = 1;
+                    _likeOrFlag.ScaleY = 1;
+                }
+
+                if (post.Vote)
+                    _likeOrFlag.SetImageResource(Resource.Drawable.ic_new_like_filled);
+                else if (post.Flag)
+                    _likeOrFlag.SetImageResource(Resource.Drawable.ic_flag_active);
+                else
+                    _likeOrFlag.SetImageResource(Resource.Drawable.ic_new_like_selected);
+            }
+            else
+            {
+                if (post.VoteChanging || post.FlagChanging)
+                {
+                    if (_isAnimationRuning == null || _isAnimationRuning.IsCanceled)
+                    {
+                        await LikeSetAsync(post.FlagChanging);
+                    }
+                }
+                else if (post.Vote)
+                {
+                    _likeOrFlag.SetImageResource(Resource.Drawable.ic_new_like_disabled);
+                }
+                else if (post.Flag)
+                {
+                    _likeOrFlag.SetImageResource(Resource.Drawable.ic_flag);
+                }
+                else
+                {
+                    _likeOrFlag.SetImageResource(Resource.Drawable.ic_new_like);
+                }
+            }
+        }
+
+        private void UpdateTopLikersAvatars(Post post)
+        {
             _topLikers.RemoveAllViews();
             var topLikersSize = (int)BitmapUtils.DpToPixel(24, Context.Resources);
             var topLikersMargin = (int)BitmapUtils.DpToPixel(6, Context.Resources);
 
-            for (int i = 0; i < Post.TopLikersAvatars.Length; i++)
+            for (int i = 0; i < post.TopLikersAvatars.Length; i++)
             {
                 var topLikersAvatar = new CircleImageView(Context)
                 {
@@ -596,12 +703,10 @@ namespace Steepshot.Adapter
                 var layoutParams = new LinearLayout.LayoutParams(topLikersSize, topLikersSize);
 
                 if (i != 0)
-                {
                     layoutParams.LeftMargin = -topLikersMargin;
-                }
 
                 _topLikers.AddView(topLikersAvatar, layoutParams);
-                var avatarUrl = Post.TopLikersAvatars[i];
+                var avatarUrl = post.TopLikersAvatars[i];
 
                 if (!string.IsNullOrEmpty(avatarUrl))
                 {
@@ -609,90 +714,66 @@ namespace Steepshot.Adapter
                         .Load(avatarUrl.GetImageProxy(topLikersSize, topLikersSize))
                         .Placeholder(Resource.Drawable.ic_holder)
                         .Priority(Picasso.Priority.Low).Into(topLikersAvatar, null,
-                            () => { Picasso.With(context).Load(Resource.Drawable.ic_holder).Into(topLikersAvatar); });
+                            () => { Picasso.With(Context).Load(Resource.Drawable.ic_holder).Into(topLikersAvatar); });
                 }
                 else
                 {
-                    Picasso.With(context).Load(Resource.Drawable.ic_holder).Into(topLikersAvatar);
+                    Picasso.With(Context).Load(Resource.Drawable.ic_holder).Into(topLikersAvatar);
                 }
-            }
-
-            _title.UpdateText(Post, TagToExclude, TagFormat, MaxLines,
-                Post.IsExpanded || PhotoPagerType == PostPagerType.PostScreen);
-
-            _commentSubtitle.Text = post.Children == 0
-                ? App.Localization.GetText(LocalizationKeys.PostFirstComment)
-                : post.Children == 1
-                    ? App.Localization.GetText(LocalizationKeys.SeeComment)
-                    : App.Localization.GetText(LocalizationKeys.ViewComments, post.Children);
-
-            if (_isAnimationRuning != null && !_isAnimationRuning.IsCanceled && !post.VoteChanging)
-            {
-                _isAnimationRuning.Cancel();
-                _isAnimationRuning = null;
-                _likeOrFlag.ScaleX = 1f;
-                _likeOrFlag.ScaleY = 1f;
-            }
-
-            if (!BasePostPresenter.IsEnableVote)
-            {
-                if (post.VoteChanging && (_isAnimationRuning == null || _isAnimationRuning.IsCanceled))
-                {
-                    LikeSet(false);
-                }
-                else if (post.FlagChanging)
-                {
-                    LikeSet(true);
-                }
-                else if (post.Vote || !post.Flag)
-                {
-                    _likeOrFlag.SetImageResource(post.Vote
-                        ? Resource.Drawable.ic_new_like_disabled
-                        : Resource.Drawable.ic_new_like);
-                }
-            }
-            else
-            {
-                if (post.Vote || !post.Flag)
-                {
-                    _likeOrFlag.SetImageResource(post.Vote
-                        ? Resource.Drawable.ic_new_like_filled
-                        : Resource.Drawable.ic_new_like_selected);
-                }
-                else
-                {
-                    _likeOrFlag.SetImageResource(Resource.Drawable.ic_flag_active);
-                }
-            }
-
-            _pagerTabLayout.Visibility = post.Media.Length > 1 ? ViewStates.Visible : ViewStates.Gone;
-
-            SetNsfwMaskLayout();
-
-            if (Post.Flag && !Post.FlagNotificationWasShown)
-            {
-                NsfwMask.Visibility = ViewStates.Visible;
-                _nsfwMaskCloseButton.Visibility = ViewStates.Visible;
-                _nsfwMaskMessage.Text = App.Localization.GetText(LocalizationKeys.FlagMessage);
-                NsfwMaskSubMessage.Text = String.Empty;
-                _nsfwMaskActionButton.Text = App.Localization.GetText(LocalizationKeys.UnFlagPost);
-            }
-            else if (Post.ShowMask && (Post.IsLowRated || Post.IsNsfw) && Post.Author != App.User.Login)
-            {
-                NsfwMask.Visibility = ViewStates.Visible;
-                _nsfwMaskMessage.Text = App.Localization.GetText(Post.IsLowRated
-                    ? LocalizationKeys.LowRatedContent
-                    : LocalizationKeys.NsfwContent);
-                NsfwMaskSubMessage.Text = App.Localization.GetText(Post.IsLowRated
-                    ? LocalizationKeys.LowRatedContentExplanation
-                    : LocalizationKeys.NsfwContentExplanation);
-                _nsfwMaskActionButton.Text = App.Localization.GetText(LocalizationKeys.NsfwShow);
-            }
-            else
-            {
-                NsfwMask.Visibility = _nsfwMaskCloseButton.Visibility = ViewStates.Gone;
             }
         }
+
+
+        private async void PostOnPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            var post = sender as Post;
+            if (post == null || Post != post)
+                return;
+
+            switch (e.PropertyName)
+            {
+                case nameof(Post.Vote):
+                case nameof(Post.FlagChanging):
+                case nameof(Post.VoteChanging):
+                    {
+                        await UpdateLikeAsync(post);
+                        break;
+                    }
+                case nameof(Post.Flag):
+                    {
+                        await UpdateLikeAsync(post);
+                        UpdateMask(post);
+                        break;
+                    }
+                case nameof(Post.NetLikes):
+                    {
+                        UpdateLikeCount(post);
+                        break;
+                    }
+                case nameof(Post.NetFlags):
+                    {
+                        UpdateFlagCount(post);
+                        break;
+                    }
+                case nameof(Post.TotalPayoutReward):
+                    {
+                        UpdateTotalPayoutReward(post);
+                        break;
+                    }
+                case nameof(Post.ShowMask):
+                case nameof(Post.FlagNotificationWasShown):
+                    {
+                        UpdateMask(post);
+                        break;
+                    }
+                case nameof(Post.TopLikersAvatars):
+                    {
+                        UpdateTopLikersAvatars(post);
+                        break;
+                    }
+            }
+        }
+
 
         protected virtual void SetNsfwMaskLayout()
         {
@@ -704,6 +785,12 @@ namespace Steepshot.Adapter
         {
             Feed,
             PostScreen
+        }
+
+        public void OnDetached()
+        {
+            Post.PropertyChanged -= PostOnPropertyChanged;
+            BaseActivity.TouchEvent -= TouchEvent;
         }
     }
 }

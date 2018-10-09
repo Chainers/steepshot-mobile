@@ -34,7 +34,7 @@ namespace Steepshot.Core.Presenters
             bool isNeedRepeat;
             do
             {
-                var response = await RunAsSingleTaskAsync(SteepshotApiClient.GetUserRecentPostsAsync, request).ConfigureAwait(false);
+                var response = await RunAsSingleTaskAsync(SteepshotApiClient.GetUserRecentPostsAsync, request).ConfigureAwait(true);
                 isNeedRepeat = ResponseProcessing(response, ItemsLimit, out exception, nameof(TryLoadNextTopPostsAsync));
             } while (isNeedRepeat);
 

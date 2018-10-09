@@ -88,7 +88,7 @@ namespace Steepshot.Core.Utils
             item1.CoverImage = item2.CoverImage;
             item1.AuthorRewards = item2.AuthorRewards;
             item1.AuthorReputation = item2.AuthorReputation;
-            item1.NetVotes = item2.NetVotes;
+            //item1.NetVotes = item2.NetVotes;
             item1.NetLikes = item2.NetLikes;
             item1.NetFlags = item2.NetFlags;
             item1.Children = item2.Children;

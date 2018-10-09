@@ -527,21 +527,7 @@ namespace Steepshot.Fragment
             IsSpammer = null;
             EnabledPost();
         }
-
-        public override void OnDetach()
-        {
-            CleanCash();
-            base.OnDetach();
-        }
-
-        private void CleanCash()
-        {
-            var files = Context.CacheDir.ListFiles();
-            foreach (var file in files)
-                if (file.Path.EndsWith(Constants.Steepshot))
-                    file.Delete();
-        }
-
+       
         private async Task CheckForPlagiarism()
         {
             IsPlagiarism = false;
@@ -562,6 +548,20 @@ namespace Steepshot.Fragment
             }
         }
 
+        public override void OnDetach()
+        {
+            Photos.SetAdapter(null);
+            CleanCash();
+            base.OnDetach();
+        }
+
+        private void CleanCash()
+        {
+            var files = Context.CacheDir.ListFiles();
+            foreach (var file in files)
+                if (file.Path.EndsWith(Constants.Steepshot))
+                    file.Delete();
+        }
 
         #region Adapter
 

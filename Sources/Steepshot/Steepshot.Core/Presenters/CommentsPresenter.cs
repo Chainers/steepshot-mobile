@@ -35,7 +35,7 @@ namespace Steepshot.Core.Presenters
             do
             {
                 var response = await RunAsSingleTaskAsync(SteepshotApiClient.GetCommentsAsync, request)
-                    .ConfigureAwait(false);
+                    .ConfigureAwait(true);
                 isNeedRepeat = ResponseProcessing(response, ItemsLimit, out exception, nameof(TryLoadNextCommentsAsync), isNeedClearItems, true);
                 isNeedClearItems = false;
             } while (isNeedRepeat);

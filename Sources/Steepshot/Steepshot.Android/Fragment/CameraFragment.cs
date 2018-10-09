@@ -83,13 +83,6 @@
 //            base.OnPause();
 //        }
 
-//        public override void OnDestroyView()
-//        {
-//            base.OnDestroyView();
-//            _camera.Release();
-//            Cheeseknife.Reset(this);
-//        }
-
 //        public void InitCamera()
 //        {
 //            _camera = GetCameraInstance();
