@@ -347,19 +347,25 @@ namespace Steepshot.iOS.Views
             {
                 AVCaptureDevice.RequestAccessForMediaTypeAsync(AVMediaType.Video).ContinueWith((arg) =>
                 {
-                    if (!arg.Result)
+                    InvokeOnMainThread(() =>
                     {
-                        _enableCameraAccess.Hidden = false;
-                        _photoButton.Hidden = true;
-                        _flashButton.Hidden = true;
-                        _swapCameraButton.Hidden = true;
-                    }
-                    else
-                    {
-                        if (authorizationAudioStatus != AVAuthorizationStatus.Authorized)
-                            AVCaptureDevice.RequestAccessForMediaTypeAsync(AVMediaType.Audio);
-                        InitializeCamera();
-                    }
+                        if (!arg.Result)
+                        {
+                            _enableCameraAccess.Hidden = false;
+                            _photoButton.Hidden = true;
+                            _flashButton.Hidden = true;
+                            _swapCameraButton.Hidden = true;
+                            _photoTabButton.Hidden = true;
+                            _videoTabButton.Hidden = true;
+                            _pointerView.Hidden = true;
+                        }
+                        else
+                        {
+                            if (authorizationAudioStatus != AVAuthorizationStatus.Authorized)
+                                AVCaptureDevice.RequestAccessForMediaTypeAsync(AVMediaType.Audio);
+                            InitializeCamera();
+                        }
+                    });
                 });
             }
             else

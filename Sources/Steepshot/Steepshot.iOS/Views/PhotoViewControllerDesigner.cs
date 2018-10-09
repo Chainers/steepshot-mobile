@@ -34,6 +34,7 @@ namespace Steepshot.iOS.Views
             _enableCameraAccess.TextColor = Constants.R151G155B158;
             _enableCameraAccess.Text = AppDelegate.Localization.GetText(LocalizationKeys.EnableCameraAccess);
             _enableCameraAccess.TextAlignment = UITextAlignment.Center;
+            _enableCameraAccess.UserInteractionEnabled = true;
             _enableCameraAccess.Hidden = true;
 
             View.AddSubview(_closeButton);
@@ -93,6 +94,7 @@ namespace Steepshot.iOS.Views
 
             _enableCameraAccess.AutoPinEdgeToSuperviewEdge(ALEdge.Left);
             _enableCameraAccess.AutoPinEdgeToSuperviewEdge(ALEdge.Right);
+            _enableCameraAccess.AutoSetDimension(ALDimension.Height, 20);
             _enableCameraAccess.AutoAlignAxisToSuperviewAxis(ALAxis.Vertical);
             _enableCameraAccess.AutoAlignAxisToSuperviewAxis(ALAxis.Horizontal);
 
