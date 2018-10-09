@@ -77,12 +77,12 @@ namespace Steepshot.iOS.Views
             _swapCameraButton = CreateRoundButton();
             View.AddSubview(_swapCameraButton);
 
-            _photoButton = new UIButton();
-            _photoButton.UserInteractionEnabled = true;
-            _photoButton.Layer.CornerRadius = 30;
-            _photoButton.Layer.BorderWidth = 2;
+            _shotButton = new UIButton();
+            _shotButton.UserInteractionEnabled = true;
+            _shotButton.Layer.CornerRadius = 30;
+            _shotButton.Layer.BorderWidth = 2;
             ToggleShotButton(MediaType.Photo);
-            View.AddSubview(_photoButton);
+            View.AddSubview(_shotButton);
 
             _closeButton.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 30);
             _closeButton.AutoPinEdgeToSuperviewEdge(ALEdge.Top, DeviceHelper.IsXDevice ? 64 : 20);
@@ -135,9 +135,9 @@ namespace Steepshot.iOS.Views
             _bottomPanel.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom);
             _bottomPanel.AutoSetDimension(ALDimension.Height, bottomPanelHeight);
 
-            _photoButton.AutoSetDimensionsToSize(new CGSize(60, 60));
-            _photoButton.AutoAlignAxisToSuperviewAxis(ALAxis.Vertical);
-            _photoButton.AutoPinEdge(ALEdge.Bottom, ALEdge.Top, bottomSeparator, -bottomPanelHeight / 2);
+            _shotButton.AutoSetDimensionsToSize(new CGSize(60, 60));
+            _shotButton.AutoAlignAxisToSuperviewAxis(ALAxis.Vertical);
+            _shotButton.AutoPinEdge(ALEdge.Bottom, ALEdge.Top, bottomSeparator, -bottomPanelHeight / 2);
             _activePanelHeight = (float)bottomPanelHeight - 60;
 
             _pointerView.LayoutIfNeeded();
@@ -250,17 +250,21 @@ namespace Steepshot.iOS.Views
 
         private void ToggleShotButton(MediaType cameraMode)
         {
-            var color = cameraMode.Equals(MediaType.Photo) ? Constants.R255G255B255 : Constants.R255G28B5;
-            var circle = CircleBorder(50, color);
+            var normalColor = cameraMode.Equals(MediaType.Photo) ? Constants.R255G255B255 : Constants.R255G28B5;
+            var highlightedColor = cameraMode.Equals(MediaType.Photo) ? Constants.R240G240B240 : Constants.R188G0B0;
+            var normalCircle = CircleBorder(50, normalColor);
+            var highlightedCircle = CircleBorder(50, highlightedColor);
 
-            _photoButton.BackgroundColor = cameraMode.Equals(MediaType.Photo) ? Constants.R217G217B217 : UIColor.White;
-            _photoButton.SetImage(circle, UIControlState.Normal);
-            _photoButton.Layer.BorderColor = color.CGColor;
+            _shotButton.BackgroundColor = cameraMode.Equals(MediaType.Photo) ? Constants.R217G217B217 : UIColor.White;
+            _shotButton.SetImage(normalCircle, UIControlState.Normal);
+            _shotButton.SetImage(highlightedCircle, UIControlState.Disabled);
+            _shotButton.SetImage(highlightedCircle, UIControlState.Highlighted);
+            _shotButton.Layer.BorderColor = normalColor.CGColor;
         }
 
         private void ToggleButtons(bool isEnabled)
         {
-            _photoButton.Enabled = isEnabled;
+            _shotButton.Enabled = isEnabled;
             _closeButton.Enabled = isEnabled;
             _swapCameraButton.Enabled = isEnabled;
             _photoTabButton.Enabled = isEnabled;

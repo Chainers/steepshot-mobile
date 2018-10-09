@@ -60,7 +60,7 @@ namespace Steepshot.iOS.Views
         private UIButton _photoTabButton;
         private UIButton _videoTabButton;
         private UIButton _swapCameraButton;
-        private UIButton _photoButton;
+        private UIButton _shotButton;
         private UIImageView _galleryButton;
         private MediaType _currentMode = MediaType.Photo;
         private NSLayoutConstraint _photoConstraint;
@@ -119,9 +119,9 @@ namespace Steepshot.iOS.Views
 
             _closeButton.TouchDown += GoBack;
             _flashButton.TouchDown += OnFlashTouch;
-            _photoButton.TouchDown += CaptureContent;
-            _photoButton.TouchUpInside += OnPhotoButtonUp;
-            _photoButton.TouchUpOutside += OnPhotoButtonUp;
+            _shotButton.TouchDown += CaptureContent;
+            _shotButton.TouchUpInside += OnPhotoButtonUp;
+            _shotButton.TouchUpOutside += OnPhotoButtonUp;
             _swapCameraButton.TouchDown += SwitchCameraButtonTapped;
             ((InteractivePopNavigationController)NavigationController).DidEnterBackgroundEvent += DidEnterBackground;
             _orientationChangeEventToken = NSNotificationCenter.DefaultCenter.AddObserver(UIDevice.OrientationDidChangeNotification, CheckDeviceOrientation);
@@ -146,7 +146,7 @@ namespace Steepshot.iOS.Views
                 }
 
                 _bezierPath = new UIBezierPath();
-                _bezierPath.AddArc(_photoButton.Center, radius, 3f * (float)Math.PI / 2f, 4.712327f, true);
+                _bezierPath.AddArc(_shotButton.Center, radius, 3f * (float)Math.PI / 2f, 4.712327f, true);
 
                 _sl = new CAShapeLayer();
                 _sl.LineWidth = lineWidth;
@@ -179,9 +179,9 @@ namespace Steepshot.iOS.Views
 
             _closeButton.TouchDown -= GoBack;
             _flashButton.TouchDown -= OnFlashTouch;
-            _photoButton.TouchDown -= CaptureContent;
-            _photoButton.TouchUpInside -= OnPhotoButtonUp;
-            _photoButton.TouchUpOutside -= OnPhotoButtonUp;
+            _shotButton.TouchDown -= CaptureContent;
+            _shotButton.TouchUpInside -= OnPhotoButtonUp;
+            _shotButton.TouchUpOutside -= OnPhotoButtonUp;
             _swapCameraButton.TouchDown -= SwitchCameraButtonTapped;
             ((InteractivePopNavigationController)NavigationController).DidEnterBackgroundEvent -= DidEnterBackground;
 
@@ -352,7 +352,7 @@ namespace Steepshot.iOS.Views
                         if (!arg.Result)
                         {
                             _enableCameraAccess.Hidden = false;
-                            _photoButton.Hidden = true;
+                            _shotButton.Hidden = true;
                             _flashButton.Hidden = true;
                             _swapCameraButton.Hidden = true;
                             _photoTabButton.Hidden = true;
