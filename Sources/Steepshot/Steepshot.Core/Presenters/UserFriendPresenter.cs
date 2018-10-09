@@ -87,10 +87,10 @@ namespace Steepshot.Core.Presenters
         public async Task<OperationResult<ListResponse<UserFriend>>> TryLoadNextUserFriendsAsync(string username)
         {
             if (IsLastReaded)
-                return null;
+                return new OperationResult<ListResponse<UserFriend>>(new OperationCanceledException());
 
             if (!FollowType.HasValue)
-                return null;
+                return new OperationResult<ListResponse<UserFriend>>(new OperationCanceledException());
 
             var request = new UserFriendsModel(username, FollowType.Value)
             {
