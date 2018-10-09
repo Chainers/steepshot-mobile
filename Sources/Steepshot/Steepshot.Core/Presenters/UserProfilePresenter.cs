@@ -82,7 +82,7 @@ namespace Steepshot.Core.Presenters
         public async Task<OperationResult<VoidResponse>> TryFollowAsync()
         {
             if (UserProfileResponse.FollowedChanging)
-                return null;
+                return new OperationResult<VoidResponse>(new OperationCanceledException());
 
             UserProfileResponse.FollowedChanging = true;
             NotifySourceChanged(nameof(TryFollowAsync), true);
