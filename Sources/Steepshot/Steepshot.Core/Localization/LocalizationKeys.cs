@@ -238,5 +238,6 @@
         TransferConfirmation,
         PowerUpDownConfirmation,
         Video,
+        EnableCameraAccess,
     }
 }

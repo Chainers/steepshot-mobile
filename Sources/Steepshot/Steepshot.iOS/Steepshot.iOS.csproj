@@ -254,7 +254,6 @@
     <InterfaceDefinition Include="Views\FeedViewController.xib" />
     <InterfaceDefinition Include="Views\PreLoginViewController.xib" />
     <InterfaceDefinition Include="Views\LoginViewController.xib" />
-    <InterfaceDefinition Include="Views\PhotoViewController.xib" />
     <InterfaceDefinition Include="Views\ProfileViewController.xib" />
     <InterfaceDefinition Include="Views\ImagePreviewViewController.xib" />
     <InterfaceDefinition Include="Views\FollowViewController.xib" />
@@ -321,9 +320,6 @@
       <DependentUpon>LoginViewController.cs</DependentUpon>
     </Compile>
     <Compile Include="Views\PhotoViewController.cs" />
-    <Compile Include="Views\PhotoViewController.designer.cs">
-      <DependentUpon>PhotoViewController.cs</DependentUpon>
-    </Compile>
     <Compile Include="Views\ProfileViewController.cs" />
     <Compile Include="Views\ProfileViewController.designer.cs">
       <DependentUpon>ProfileViewController.cs</DependentUpon>
@@ -452,6 +448,7 @@
     <Compile Include="Views\DescriptionViewControllerDesigner.cs" />
     <Compile Include="Helpers\CustomInputStream.cs" />
     <Compile Include="ViewControllers\InteractivePopNavigationController.cs" />
+    <Compile Include="Views\PhotoViewControllerDesigner.cs" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\ic_photo_holder.png" />
