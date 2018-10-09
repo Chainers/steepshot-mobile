@@ -163,7 +163,10 @@ namespace Steepshot.iOS.Views
             if (ImageAssets != null)
                 GetPostSize(ImageAssets[0].Item2.Size.Width, ImageAssets[0].Item2.Size.Height, ImageAssets.Count);
             else
-                GetPostSize(1080, 1080, 1);
+            {
+                var videoTrack = _videoAsset.TracksWithMediaType(AVMediaType.Video).First().NaturalSize;
+                GetPostSize(videoTrack.Width, videoTrack.Height, 1);
+            }
         }
 
         protected void GetPostSize(nfloat width, nfloat height, int listCount)

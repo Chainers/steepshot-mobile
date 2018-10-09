@@ -549,7 +549,7 @@ namespace Steepshot.iOS.Views
 
         private void StopLoading()
         {
-            ToogleButtons(true);
+            ToggleButtons(true);
             _videoLoader.StopAnimating();
         }
 
