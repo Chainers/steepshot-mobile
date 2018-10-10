@@ -1,5 +1,4 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using Android.Media;
 using Java.Lang;
 
@@ -16,16 +15,11 @@ namespace Steepshot.CameraGL.Encoder
 
         protected abstract void SignalEndOfInputStream();
 
-        private int totalDrains;
-        private long avgTime;
         public void DrainEncoder(bool endOfStream)
         {
-            var ss = DateTime.Now;
-            totalDrains++;
             if (endOfStream)
             {
                 SignalEndOfInputStream();
-                Debug.WriteLine(Type + " draint time " + avgTime / totalDrains);
             }
 
             while (true)
@@ -71,13 +65,12 @@ namespace Steepshot.CameraGL.Encoder
                             encodedData.Position(bufferInfo.Offset);
                             encodedData.Limit(bufferInfo.Offset + bufferInfo.Size);
                             Debug.WriteLine(Type + "        " + bufferInfo.PresentationTimeUs);
-                            MuxerWrapper.WriteSampleData(TrackIndex, encoderStatus, encodedData, bufferInfo);
+                            MuxerWrapper.WriteSampleData(TrackIndex, encodedData, bufferInfo);
                         }
                     }
-                    else
-                    {
-                        Codec.ReleaseOutputBuffer(encoderStatus, false);
-                    }
+
+                    Codec.ReleaseOutputBuffer(encoderStatus, false);
+
 
                     if ((bufferInfo.Flags & MediaCodecBufferFlags.EndOfStream) != 0)
                     {
@@ -85,13 +78,6 @@ namespace Steepshot.CameraGL.Encoder
                     }
                 }
             }
-
-            avgTime += (int)(DateTime.Now - ss).TotalMilliseconds;
-        }
-
-        public void ReleaseOutputBuffer(int bufferIndex)
-        {
-            Codec.ReleaseOutputBuffer(bufferIndex, false);
         }
 
         public virtual void Release()

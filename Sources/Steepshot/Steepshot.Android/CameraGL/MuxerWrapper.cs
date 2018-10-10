@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using Android.Media;
 using Android.OS;
 using Java.Lang;
 using Java.Nio;
 using Steepshot.CameraGL.Encoder;
 using Steepshot.CameraGL.Enums;
-using Exception = System.Exception;
 using File = Java.IO.File;
 using Object = Java.Lang.Object;
 using Thread = Java.Lang.Thread;
@@ -68,31 +68,11 @@ namespace Steepshot.CameraGL
             _handler.SendMessage(_handler.ObtainMessage((int)MuxerMessages.Stop));
         }
 
-        public void WriteSampleData(int trackIndex, int bufferIndex, ByteBuffer buffer, MediaCodec.BufferInfo bufferInfo)
+        public async void WriteSampleData(int trackIndex, ByteBuffer buffer, MediaCodec.BufferInfo bufferInfo)
         {
-            //lock (_readyFence)
-            //{
-            //    var indexTemp = -1;
-            //    while (indexTemp == -1)
-            //    {
-            //indexTemp =
             _encoders[trackIndex].Buffer.Add(buffer, bufferInfo);
-            _encoders[trackIndex].Encoder.ReleaseOutputBuffer(bufferIndex);
-            //        if (indexTemp == -1)
-            //        {
-            //            try
-            //            {
-            //                Monitor.Wait(_readyFence);
-            //            }
-            //            catch (InterruptedException e)
-            //            {
-            //                // ignore
-            //            }
-            //        }
-            //    }
-            //}
-
-            _handler.SendMessage(_handler.ObtainMessage((int)MuxerMessages.WriteSampleData, trackIndex, 0, bufferInfo));
+            await Task.Run(() =>
+            _handler.SendMessage(_handler.ObtainMessage((int)MuxerMessages.WriteSampleData, trackIndex, 0, bufferInfo)));
         }
 
         public bool IsMuxing()
@@ -132,17 +112,10 @@ namespace Steepshot.CameraGL
         {
             if (Muxer != null)
             {
-                try
-                {
-                    Muxer.Stop();
-                    Muxer.Release();
-                    Muxer = null;
-                    VideoRecorded?.Invoke(_path);
-                }
-                catch (Exception e)
-                {
-
-                }
+                Muxer.Stop();
+                Muxer.Release();
+                Muxer = null;
+                VideoRecorded?.Invoke(_path);
             }
         }
 
@@ -151,12 +124,7 @@ namespace Steepshot.CameraGL
             var buffer = _encoders[trackIndex].Buffer;
             var data = buffer.GetTailChunk(bufferInfo);
             Muxer.WriteSampleData(trackIndex, data, bufferInfo);
-
-            lock (_readyFence)
-            {
-                buffer.RemoveTail();
-                Monitor.Pulse(_readyFence);
-            }
+            buffer.RemoveTail();
         }
 
         public int AddTrack(BaseMediaEncoder encoder, MediaFormat format)

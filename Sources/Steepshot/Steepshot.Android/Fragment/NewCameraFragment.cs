@@ -52,7 +52,7 @@ namespace Steepshot.Fragment
         {
             _directory = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDcim);
             var muxerWrapper = new MuxerWrapper($"{_directory}/{Guid.NewGuid()}.mp4", MuxerOutputType.Mpeg4);
-            _videoEncoderConfig = new VideoEncoderConfig(muxerWrapper, 720, 720, "video/avc", 30, 10, 1350000);
+            _videoEncoderConfig = new VideoEncoderConfig(muxerWrapper, 720, 720, "video/avc", 30, 10, 2500000);
             _audioEncoderConfig = new AudioEncoderConfig(muxerWrapper, "audio/mp4a-latm", 44100, 1024, 64000);
             muxerWrapper.VideoRecorded = VideoRecorded;
         }

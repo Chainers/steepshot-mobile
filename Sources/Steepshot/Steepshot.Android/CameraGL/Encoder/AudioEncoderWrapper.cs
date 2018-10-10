@@ -100,7 +100,6 @@ namespace Steepshot.CameraGL.Encoder
 
         public void Run()
         {
-            Process.SetThreadPriority(ThreadPriority.UrgentAudio);
             Looper.Prepare();
 
             lock (_readyFence)

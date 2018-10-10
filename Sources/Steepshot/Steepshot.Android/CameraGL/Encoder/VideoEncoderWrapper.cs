@@ -116,7 +116,6 @@ namespace Steepshot.CameraGL.Encoder
 
         public void Run()
         {
-            Process.SetThreadPriority(ThreadPriority.Video);
             Looper.Prepare();
 
             lock (_readyFence)
