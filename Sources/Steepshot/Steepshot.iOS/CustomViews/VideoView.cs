@@ -64,7 +64,7 @@ namespace Steepshot.iOS.CustomViews
             _timerLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 20);
             _timerLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Top, 20);
 
-            var interval = new CMTime(1, 2);
+            var interval = new CMTime(1, 1);
             double timeLeft;
             Player.AddPeriodicTimeObserver(interval, CoreFoundation.DispatchQueue.MainQueue, (time) =>
             {
@@ -72,6 +72,7 @@ namespace Steepshot.iOS.CustomViews
                 {
                     timeLeft = item.Duration.Seconds - item.CurrentTime.Seconds;
                     _timerLabel.Text = TimeSpan.FromSeconds(timeLeft).ToString("mm\\:ss");
+                    Console.WriteLine("#timer test " + item.Duration.Seconds);
                 }
             });
         }
