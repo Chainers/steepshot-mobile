@@ -4,6 +4,9 @@ using CoreMedia;
 using Foundation;
 using ObjCRuntime;
 using UIKit;
+using PureLayout.Net;
+using CoreGraphics;
+using System.Threading.Tasks;
 
 namespace Steepshot.iOS.CustomViews
 {
@@ -11,9 +14,11 @@ namespace Steepshot.iOS.CustomViews
     {
         private const string ObserveKey = "status";
         private AVPlayerItem item;
-        private bool _isRegistered;
         private NSObject notificationToken;
+        private UILabel _timerLabel;
+        private bool _isRegistered;
         private bool _shouldPlay;
+        private bool _showTimer;
         private bool _looped;
         public AVPlayerLayer PlayerLayer => Layer as AVPlayerLayer;
         public Action OnVideoStop;
@@ -36,11 +41,39 @@ namespace Steepshot.iOS.CustomViews
             return new Class(typeof(AVPlayerLayer));
         }
 
-        public VideoView(bool isLoopNeeded)
+        public VideoView(bool isLoopNeeded, bool showTime)
         {
             Player = new AVPlayer();
             _looped = isLoopNeeded;
+            _showTimer = showTime;
             notificationToken = AVPlayerItem.Notifications.ObserveDidPlayToEndTime(HandleEventHandler);
+
+            if (_showTimer)
+                SetupTimer();
+        }
+
+        private void SetupTimer()
+        {
+            _timerLabel = new UILabel();
+            _timerLabel.Font = Helpers.Constants.Semibold14;
+            _timerLabel.TextColor = UIColor.White;
+            _timerLabel.UserInteractionEnabled = false;
+            _timerLabel.Hidden = false;
+            AddSubview(_timerLabel);
+
+            _timerLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 20);
+            _timerLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Top, 20);
+
+            var interval = new CMTime(1, 2);
+            double timeLeft;
+            Player.AddPeriodicTimeObserver(interval, CoreFoundation.DispatchQueue.MainQueue, (time) =>
+            {
+                if (item.Status == AVPlayerItemStatus.ReadyToPlay)
+                {
+                    timeLeft = item.Duration.Seconds - item.CurrentTime.Seconds;
+                    _timerLabel.Text = TimeSpan.FromSeconds(timeLeft).ToString("mm\\:ss");
+                }
+            });
         }
 
         private async void HandleNotification(NSNotification obj)
@@ -101,9 +134,11 @@ namespace Steepshot.iOS.CustomViews
         {
             _shouldPlay = true;
             if (Player.CurrentItem?.Status == AVPlayerItemStatus.ReadyToPlay &&
-               Player.Status == AVPlayerStatus.ReadyToPlay &&
-               PlayerLayer.ReadyForDisplay)
+                Player.Status == AVPlayerStatus.ReadyToPlay &&
+                PlayerLayer.ReadyForDisplay)
+            {
                 Player.Play();
+            }
         }
 
         public void Stop()
@@ -113,7 +148,9 @@ namespace Steepshot.iOS.CustomViews
             if (Player.CurrentItem?.Status == AVPlayerItemStatus.ReadyToPlay &&
                Player.Status == AVPlayerStatus.ReadyToPlay &&
                PlayerLayer.ReadyForDisplay)
+            {
                 Player.Pause();
+            }
         }
 
         protected override void Dispose(bool disposing)

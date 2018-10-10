@@ -289,7 +289,7 @@ namespace Steepshot.iOS.Cells
 
             _moreButton.TouchDown += FlagButton_TouchDown;
 
-            _videoView = new VideoView(true);
+            _videoView = new VideoView(true, true);
         }
 
         public nfloat UpdateCell(Post post, CellSizeHelper variables)
