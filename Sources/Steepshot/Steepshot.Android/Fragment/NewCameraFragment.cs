@@ -34,6 +34,7 @@ namespace Steepshot.Fragment
         private readonly VideoEncoderConfig _videoEncoderConfig;
         private readonly AudioEncoderConfig _audioEncoderConfig;
         private GradientDrawable _btnsBackground;
+        private float _fingerDist;
 
         [BindView(Resource.Id.top)] private RelativeLayout _topPanel;
         [BindView(Resource.Id.camera_preview_afl)] private AspectFrameLayout _aspectFrameLayout;
@@ -91,6 +92,7 @@ namespace Steepshot.Fragment
             _closeBtn.Click += CloseBtnOnClick;
             _flashBtn.Click += SetFlashButton;
             _revertBtn.Click += RevertBtnOnClick;
+            _glSurface.Touch += GlSurfaceOnTouch;
         }
 
         public override void OnDetach()
@@ -297,7 +299,6 @@ namespace Steepshot.Fragment
             SetUiEnable(false);
             _shotBtn.Visibility = ViewStates.Gone;
             _shotBtnLoading.Visibility = ViewStates.Visible;
-
             try
             {
                 _cameraManager.TakePicture(this, null, this);
@@ -371,6 +372,59 @@ namespace Steepshot.Fragment
                     //}
                 });
             });
+        }
+
+        private void GlSurfaceOnTouch(object sender, View.TouchEventArgs e)
+        {
+            SetUiEnable(false);
+            var camParams = _cameraManager?.Parameters;
+            if (camParams == null)
+                return;
+
+            var action = e.Event.Action;
+
+            if (e.Event.PointerCount > 1)
+            {
+                if (action == MotionEventActions.PointerDown)
+                {
+                    _fingerDist = GetFingerSpacing(e.Event);
+                }
+                else if (action == MotionEventActions.Move && camParams.IsZoomSupported)
+                {
+                    _cameraManager?.CancelAutoFocus();
+                    HandleZoom(e.Event, camParams);
+                }
+            }
+            SetUiEnable(true);
+
+            e.Handled = true;
+        }
+
+        private void HandleZoom(MotionEvent e, Camera.Parameters p)
+        {
+            var maxZoom = p.MaxZoom;
+            var zoom = p.Zoom;
+            var newDist = GetFingerSpacing(e);
+            if (newDist > _fingerDist)
+            {
+                if (zoom < maxZoom)
+                    zoom++;
+            }
+            else if (newDist < _fingerDist)
+            {
+                if (zoom > 0)
+                    zoom--;
+            }
+            _fingerDist = newDist;
+            p.Zoom = zoom;
+            _cameraManager?.SetParameters(p);
+        }
+
+        private float GetFingerSpacing(MotionEvent e)
+        {
+            var x = e.GetX(0) - e.GetX(1);
+            var y = e.GetY(0) - e.GetY(1);
+            return (float)Math.Sqrt(x * x + y * y);
         }
     }
 }

@@ -20,6 +20,7 @@ namespace Steepshot.CameraGL
     {
         public List<CameraInfo> SupportedCameras { get; }
         public CameraInfo CurrentCamera { get; private set; }
+        public Camera.Parameters Parameters => _camera?.GetParameters();
         public string[] SupportFlashModes { get; set; }
         public bool RecordingEnabled { get; private set; }
         private Camera _camera;
@@ -104,7 +105,7 @@ namespace Steepshot.CameraGL
                 _cameraConfig = CameraConfig.Video;
             }
 
-            var camParams = _camera.GetParameters();
+            var camParams = Parameters;
 
             if (_cameraConfig == CameraConfig.Photo)
             {
@@ -131,7 +132,7 @@ namespace Steepshot.CameraGL
             var nextModeInd = supportedModes.IndexOf(CurrentCamera.FlashMode) + 1;
             var nextMode = supportedModes[nextModeInd < supportedModes.Count ? nextModeInd : 0];
             CurrentCamera.FlashMode = nextMode;
-            var camParams = _camera.GetParameters();
+            var camParams = Parameters;
             camParams.FlashMode = CurrentCamera.FlashMode;
             _camera.SetParameters(camParams);
         }
@@ -150,7 +151,7 @@ namespace Steepshot.CameraGL
                 throw new RuntimeException("Unable to open camera");
             }
 
-            var camParams = _camera.GetParameters();
+            var camParams = Parameters;
             camParams.SetPreviewSize(camParams.PreferredPreviewSizeForVideo.Width,
                 camParams.PreferredPreviewSizeForVideo.Height);
 
@@ -193,7 +194,22 @@ namespace Steepshot.CameraGL
 
         public void TakePicture(Camera.IShutterCallback shutterCallback, Camera.IPictureCallback pictureCallbackRaw, Camera.IPictureCallback pictureCallbackJpeg)
         {
-            _camera.TakePicture(shutterCallback, pictureCallbackRaw, pictureCallbackJpeg);
+            _camera?.TakePicture(shutterCallback, pictureCallbackRaw, pictureCallbackJpeg);
+        }
+
+        public void AutoFocus(Camera.IAutoFocusCallback cb)
+        {
+            _camera?.AutoFocus(cb);
+        }
+
+        public void CancelAutoFocus()
+        {
+            _camera?.CancelAutoFocus();
+        }
+
+        public void SetParameters(Camera.Parameters parameters)
+        {
+            _camera?.SetParameters(parameters);
         }
 
         public void HandleSetSurfaceTexture(SurfaceTexture st)
@@ -221,7 +237,7 @@ namespace Steepshot.CameraGL
             if (_camera == null || RecordingEnabled)
                 return;
 
-            var camParams = _camera.GetParameters();
+            var camParams = Parameters;
             var info = new Camera.CameraInfo();
             Camera.GetCameraInfo(CurrentCamera.Index, info);
 
