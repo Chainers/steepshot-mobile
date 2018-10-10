@@ -14,7 +14,9 @@ namespace Steepshot.iOS.CustomViews
         private bool _isRegistered;
         private NSObject notificationToken;
         private bool _shouldPlay;
+        private bool _looped;
         public AVPlayerLayer PlayerLayer => Layer as AVPlayerLayer;
+        public Action OnVideoStop;
 
         public AVPlayer Player
         {
@@ -37,8 +39,8 @@ namespace Steepshot.iOS.CustomViews
         public VideoView(bool isLoopNeeded)
         {
             Player = new AVPlayer();
-            if (isLoopNeeded)
-                notificationToken = AVPlayerItem.Notifications.ObserveDidPlayToEndTime(HandleEventHandler);
+            _looped = isLoopNeeded;
+            notificationToken = AVPlayerItem.Notifications.ObserveDidPlayToEndTime(HandleEventHandler);
         }
 
         private async void HandleNotification(NSNotification obj)
@@ -51,7 +53,11 @@ namespace Steepshot.iOS.CustomViews
             if (e.Notification?.Object?.Handle == item?.Handle)
             {
                 await Player.SeekAsync(CMTime.Zero);
-                Play();
+
+                if (_looped)
+                    Play();
+                else
+                    Stop();
             }
         }
 
@@ -102,6 +108,7 @@ namespace Steepshot.iOS.CustomViews
 
         public void Stop()
         {
+            OnVideoStop?.Invoke();
             _shouldPlay = false;
             if (Player.CurrentItem?.Status == AVPlayerItemStatus.ReadyToPlay &&
                Player.Status == AVPlayerStatus.ReadyToPlay &&

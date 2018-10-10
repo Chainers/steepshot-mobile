@@ -36,7 +36,6 @@ namespace Steepshot.iOS.Views
         private PlagiarismResult _plagiarismResult;
         private nfloat _photoViewSide;
         private bool _isSpammer;
-        private bool _isVideoPlaying;
 
         protected List<Tuple<NSDictionary, UIImage>> ImageAssets;
         protected nfloat SeparatorMargin = 30;
@@ -220,6 +219,9 @@ namespace Steepshot.iOS.Views
             }
             else
             {
+                if (videoContainer != null)
+                    videoContainer.OnVideoStop += OnVideoStopped;
+
                 postPhotoButton.TouchDown += PostPhoto;
                 _titleTextViewDelegate.EditingStartedAction += _titleTextViewDelegate_EditingStartedAction;
                 _descriptionTextViewDelegate.EditingStartedAction += _descriptionTextViewDelegate_EditingStartedAction;
@@ -237,6 +239,9 @@ namespace Steepshot.iOS.Views
             collectionviewSource.CellAction -= CollectionCellAction;
             if (IsMovingFromParentViewController)
             {
+                if (videoContainer != null)
+                    videoContainer.OnVideoStop -= OnVideoStopped;
+
                 postPhotoButton.TouchDown -= PostPhoto;
                 _titleTextViewDelegate.EditingStartedAction = null;
                 _descriptionTextViewDelegate.EditingStartedAction = null;
@@ -268,18 +273,21 @@ namespace Steepshot.iOS.Views
 
         private void VideoViewTapped()
         {
-            if (_isVideoPlaying)
+            if (videoContainer.Player.TimeControlStatus == AVPlayerTimeControlStatus.Playing)
             {
-                videoContainer?.Stop();
+                videoContainer.Stop();
                 _statusImage.Image = UIImage.FromBundle("ic_play");
             }
             else
             {
-                videoContainer?.Play();
+                videoContainer.Play();
                 _statusImage.Image = UIImage.FromBundle("ic_pause");
             }
+        }
 
-            _isVideoPlaying = !_isVideoPlaying;
+        private void OnVideoStopped()
+        {
+            _statusImage.Image = UIImage.FromBundle("ic_play");
         }
 
         private void EditingStartedAction()
