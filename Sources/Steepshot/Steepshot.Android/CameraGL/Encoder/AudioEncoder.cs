@@ -1,28 +1,28 @@
 ﻿using Android.Media;
-using Java.Lang;
 
 namespace Steepshot.CameraGL.Encoder
 {
     public class AudioEncoder : BaseMediaEncoder
     {
         public override EncoderType Type => EncoderType.Audio;
+        public sealed override MediaFormat Format { get; }
 
         public AudioEncoder(AudioEncoderConfig config)
         {
             MuxerWrapper = config.MuxerWrapper;
-            BufferInfo = new MediaCodec.BufferInfo();
 
-            var format = MediaFormat.CreateAudioFormat(config.MimeType, config.SampleRate, 1);
-            format.SetInteger(MediaFormat.KeyAacProfile, (int)MediaCodecProfileType.Aacobjectlc);
-            format.SetInteger(MediaFormat.KeyChannelMask, (int)ChannelIn.Mono);
-            format.SetInteger(MediaFormat.KeyBitRate, config.Bitrate);
-            format.SetInteger(MediaFormat.KeyChannelCount, 1);
+            Format = MediaFormat.CreateAudioFormat(config.MimeType, config.SampleRate, 1);
+            Format.SetInteger(MediaFormat.KeyAacProfile, (int)MediaCodecProfileType.Aacobjectlc);
+            Format.SetInteger(MediaFormat.KeyChannelMask, (int)ChannelIn.Mono);
+            Format.SetInteger(MediaFormat.KeyBitRate, config.Bitrate);
+            Format.SetInteger(MediaFormat.KeyChannelCount, 1);
 
             Codec = MediaCodec.CreateEncoderByType(config.MimeType);
-            Codec.Configure(format, null, null, MediaCodecConfigFlags.Encode);
+            Codec.Configure(Format, null, null, MediaCodecConfigFlags.Encode);
             Codec.Start();
         }
 
+        private long _prevFrameTime;
         public void Poll(byte[] buffer, long presentationTime)
         {
             var inputBufferIndex = Codec.DequeueInputBuffer(TimeoutUsec);
@@ -31,7 +31,8 @@ namespace Steepshot.CameraGL.Encoder
                 var inputBuffer = Codec.GetInputBuffer(inputBufferIndex);
                 inputBuffer.Clear();
                 inputBuffer.Put(buffer);
-                Codec.QueueInputBuffer(inputBufferIndex, 0, buffer.Length, presentationTime, 0);
+                Codec.QueueInputBuffer(inputBufferIndex, 0, buffer.Length, presentationTime, MediaCodecBufferFlags.None);
+                _prevFrameTime = presentationTime;
             }
         }
 
@@ -42,7 +43,7 @@ namespace Steepshot.CameraGL.Encoder
             {
                 var inputBuffer = Codec.GetInputBuffer(inputBufferIndex);
                 inputBuffer.Clear();
-                Codec.QueueInputBuffer(inputBufferIndex, 0, 0, JavaSystem.NanoTime() / 1000L, MediaCodecBufferFlags.EndOfStream);
+                Codec.QueueInputBuffer(inputBufferIndex, 0, 0, _prevFrameTime, MediaCodecBufferFlags.EndOfStream);
             }
         }
     }

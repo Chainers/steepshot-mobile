@@ -1,4 +1,4 @@
-﻿namespace CameraTest.VideoRecordEnums
+﻿namespace Steepshot.CameraGL.Enums
 {
     public enum RecordingStatus
     {

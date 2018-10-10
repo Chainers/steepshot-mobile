@@ -1,10 +1,10 @@
 ﻿using Android.Graphics;
 using Android.Opengl;
 using Android.Util;
-using CameraTest.VideoRecordEnums;
 using Java.Lang;
 using Javax.Microedition.Khronos.Opengles;
 using Steepshot.CameraGL.Encoder;
+using Steepshot.CameraGL.Enums;
 using Steepshot.CameraGL.Gles;
 using EGLConfig = Javax.Microedition.Khronos.Egl.EGLConfig;
 
@@ -98,6 +98,9 @@ namespace Steepshot.CameraGL
                     default:
                         throw new RuntimeException("unknown status " + _recordingStatus);
                 }
+
+                _videoEncoderWrapper.SetTextureId(_textureId);
+                _videoEncoderWrapper.FrameAvailable(_surfaceTexture);
             }
             else
             {
@@ -107,7 +110,7 @@ namespace Steepshot.CameraGL
                     case RecordingStatus.Resumed:
                         Log.Debug(Tag, "STOP recording");
                         _videoEncoderWrapper.StopRecording();
-                        _recordingStatus = RecordingStatus.On;
+                        _recordingStatus = RecordingStatus.Off;
                         break;
                     case RecordingStatus.Off:
                         // yay
@@ -116,9 +119,6 @@ namespace Steepshot.CameraGL
                         throw new RuntimeException("unknown status " + _recordingStatus);
                 }
             }
-
-            _videoEncoderWrapper.SetTextureId(_textureId);
-            _videoEncoderWrapper.FrameAvailable(_surfaceTexture);
 
             if (_incomingWidth <= 0 || _incomingHeight <= 0)
             {

@@ -1,7 +1,9 @@
 using Android.Content;
 using Android.Media;
 using Android.Views;
+using Android.Webkit;
 using Com.Google.Android.Exoplayer2;
+using Com.Google.Android.Exoplayer2.Source;
 using Com.Google.Android.Exoplayer2.Source.Hls;
 using Com.Google.Android.Exoplayer2.Trackselection;
 using Com.Google.Android.Exoplayer2.Upstream;
@@ -20,8 +22,6 @@ namespace Steepshot.Utils.Media
         private MediaModel _media;
         private readonly Context _context;
         private static readonly DefaultBandwidthMeter BandwidthMeter = new DefaultBandwidthMeter();
-        private HlsMediaSource.Factory _extractorMediaSource;
-
 
         public VideoProducer(Context context, IMediaPerformer mediaPerformer)
         {
@@ -66,19 +66,29 @@ namespace Steepshot.Utils.Media
 
         public void Prepare()
         {
-            var userAgent = Util.GetUserAgent(_context, Constants.Steepshot);
-            var defaultHttpDataSourceFactory = new DefaultHttpDataSourceFactory(userAgent, BandwidthMeter, 30000, 30000, true);
-            var defaultDataSourceFactory = new DefaultDataSourceFactory(_context, null, defaultHttpDataSourceFactory);
-
-            _extractorMediaSource = new HlsMediaSource.Factory(defaultDataSourceFactory);
             var texture = (TextureView)_mediaPerformer;
             if (!texture.IsAvailable)
                 return;
+
             var surface = new Surface(texture.SurfaceTexture);
             _player.SetVideoSurface(surface);
+            _player.PlayWhenReady = true;
+
+            var userAgent = Util.GetUserAgent(_context, Constants.Steepshot);
+            var httpDataSourceFactory = new DefaultHttpDataSourceFactory(userAgent, BandwidthMeter, 30000, 30000, true);
+            var defaultDataSourceFactory = new DefaultDataSourceFactory(_context, null, httpDataSourceFactory);
 
             var mediaUri = Android.Net.Uri.Parse(_media.Url);
-            _player.Prepare(_extractorMediaSource.CreateMediaSource(mediaUri));
+            if (URLUtil.IsHttpUrl(_media.Url))
+            {
+                var hlsMediaSource = new HlsMediaSource.Factory(defaultDataSourceFactory);
+                _player.Prepare(hlsMediaSource.CreateMediaSource(mediaUri));
+            }
+            else
+            {
+                var extractorMediaSource = new ExtractorMediaSource.Factory(defaultDataSourceFactory);
+                _player.Prepare(extractorMediaSource.CreateMediaSource(mediaUri));
+            }
         }
 
         public void Release()

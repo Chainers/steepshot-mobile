@@ -77,6 +77,7 @@ namespace Steepshot.Fragment
 
         protected virtual async void InitData()
         {
+            VideoPreviewContainer.Visibility = ViewStates.Gone;
             if (_isSingleMode)
             {
                 Photos.Visibility = ViewStates.Gone;

@@ -1,4 +1,4 @@
-﻿namespace CameraTest.VideoRecordEnums
+﻿namespace Steepshot.CameraGL.Enums
 {
     public enum EncoderMessages
     {
@@ -7,6 +7,6 @@
         FrameAvailable,
         SetTextureId,
         UpdateSharedContext,
-        Quit
+        Poll
     }
 }

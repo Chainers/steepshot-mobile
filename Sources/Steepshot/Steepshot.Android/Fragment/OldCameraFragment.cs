@@ -287,7 +287,7 @@ namespace Steepshot.Fragment
             catch (Exception ex)
             {
                 DisposeVideoRecorder();
-                AppSettings.Logger.ErrorAsync(ex);
+                App.Logger.ErrorAsync(ex);
                 return false;
             }
         }

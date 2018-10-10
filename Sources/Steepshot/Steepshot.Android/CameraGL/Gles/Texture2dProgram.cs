@@ -2,6 +2,7 @@
 using Android.Util;
 using Java.Lang;
 using Java.Nio;
+using Steepshot.Utils;
 using String = System.String;
 
 namespace Steepshot.CameraGL.Gles
@@ -40,6 +41,7 @@ namespace Steepshot.CameraGL.Gles
         // - Bake the filter kernel into the shader, instead of passing it through a uniform
         //   array.  That, combined with loop unrolling, should reduce memory accesses.
         public static int KERNEL_SIZE = 9;
+        public float AspectRatio { get; set; } = 1;
 
         // Handles to the GL program and various components of it.
         private int _mProgramHandle;
@@ -207,8 +209,10 @@ namespace Steepshot.CameraGL.Gles
             GLES20.GlActiveTexture(GLES20.GlTexture0);
             GLES20.GlBindTexture(_mTextureTarget, textureId);
 
-            // Copy the model / view / projection matrix over.            
-            //Matrix.ScaleM(mvpMatrix, 0, 1, 1, 1);
+            // Copy the model / view / projection matrix over. 
+            if (AspectRatio > 1)
+                Matrix.TranslateM(mvpMatrix, 0, 0f, (Style.ScreenHeight - Style.ScreenWidth) / (2f * Style.ScreenHeight) - 1, 0f);
+            Matrix.ScaleM(mvpMatrix, 0, 1, AspectRatio, 1);
             GLES20.GlUniformMatrix4fv(_muMvpMatrixLoc, 1, false, mvpMatrix, 0);
 
             // Copy the texture transformation matrix over.

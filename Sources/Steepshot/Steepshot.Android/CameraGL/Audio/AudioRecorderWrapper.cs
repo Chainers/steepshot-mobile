@@ -1,9 +1,8 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using Android.Media;
+using Java.Lang;
 using Steepshot.CameraGL.Encoder;
-using Process = Android.OS.Process;
-using ThreadPriority = Android.OS.ThreadPriority;
 
 namespace Steepshot.CameraGL.Audio
 {
@@ -56,7 +55,6 @@ namespace Steepshot.CameraGL.Audio
             {
                 _encoderWrapper.StartRecording();
 
-                Process.SetThreadPriority(ThreadPriority.UrgentAudio);
                 if (_audioRecord.State != State.Initialized)
                     return;
 
@@ -65,7 +63,7 @@ namespace Steepshot.CameraGL.Audio
                 while (!ct.IsCancellationRequested)
                 {
                     _audioRecord.Read(_buffer, 0, _samplesPerFrame);
-                    _encoderWrapper.FrameAvailable(_buffer);
+                    _encoderWrapper.Poll(_buffer, JavaSystem.NanoTime() / 1000L);
                 }
             }, ct);
 

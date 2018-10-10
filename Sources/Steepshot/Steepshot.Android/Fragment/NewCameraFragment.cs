@@ -19,7 +19,6 @@ using Steepshot.CameraGL.Encoder;
 using Steepshot.CustomViews;
 using Steepshot.Utils;
 using Steepshot.Core;
-using Steepshot.Core.Utils;
 #pragma warning disable 618
 using Camera = Android.Hardware.Camera;
 #pragma warning restore 618
@@ -32,7 +31,6 @@ namespace Steepshot.Fragment
         private CameraConfig _cameraConfig;
         private CameraManager _cameraManager;
         private readonly File _directory;
-        private readonly MuxerWrapper _muxerWrapper;
         private readonly VideoEncoderConfig _videoEncoderConfig;
         private readonly AudioEncoderConfig _audioEncoderConfig;
         private GradientDrawable _btnsBackground;
@@ -53,9 +51,10 @@ namespace Steepshot.Fragment
         public NewCameraFragment()
         {
             _directory = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDcim);
-            _muxerWrapper = new MuxerWrapper($"{_directory}/{Guid.NewGuid()}.mp4", MuxerOutputType.Mpeg4);
-            _videoEncoderConfig = new VideoEncoderConfig(_muxerWrapper, 720, 720, "video/avc", 30, 5, 1350000);
-            _audioEncoderConfig = new AudioEncoderConfig(_muxerWrapper, "audio/mp4a-latm", 44100, 1024, 64000);
+            var muxerWrapper = new MuxerWrapper($"{_directory}/{Guid.NewGuid()}.mp4", MuxerOutputType.Mpeg4);
+            _videoEncoderConfig = new VideoEncoderConfig(muxerWrapper, 720, 720, "video/avc", 30, 10, 1350000);
+            _audioEncoderConfig = new AudioEncoderConfig(muxerWrapper, "audio/mp4a-latm", 44100, 1024, 64000);
+            muxerWrapper.VideoRecorded = VideoRecorded;
         }
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -127,7 +126,7 @@ namespace Steepshot.Fragment
 
             var shotBtnLoadingLytParams = (ViewGroup.MarginLayoutParams)_shotBtnLoading.LayoutParameters;
             shotBtnLoadingLytParams.Width = shotBtnLoadingLytParams.Height = (int)(shotBtnLytParams.Width / 1.5f);
-            shotBtnLoadingLytParams.BottomMargin = shotBtnLytParams.BottomMargin * 2;
+            shotBtnLoadingLytParams.BottomMargin = shotBtnLytParams.BottomMargin;
 
             _shotBtnLoading.LayoutParameters = shotBtnLoadingLytParams;
 
@@ -308,19 +307,23 @@ namespace Steepshot.Fragment
                 SetUiEnable(true);
                 _shotBtn.Visibility = ViewStates.Visible;
                 _shotBtnLoading.Visibility = ViewStates.Gone;
-                AppSettings.Logger.WarningAsync(ex);
+                App.Logger.WarningAsync(ex);
             }
         }
 
         private void OnVideoRecorded()
         {
+            _shotBtn.Visibility = ViewStates.Gone;
+            _shotBtnLoading.Visibility = ViewStates.Visible;
             if (_cameraManager.RecordingEnabled)
             {
                 _cameraManager.ToggleRecording();
-                ((BaseActivity)Activity).OpenNewContentFragment(new VideoPostCreateFragment(_muxerWrapper.Path));
             }
+        }
 
-            //_cameraManager.OnPause();
+        private void VideoRecorded(string path)
+        {
+            ((BaseActivity)Activity).OpenNewContentFragment(new VideoPostCreateFragment(path));
         }
 
         public void OnShutter()

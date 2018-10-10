@@ -1,7 +1,7 @@
 ﻿using System;
 using Android.OS;
-using CameraTest.VideoRecordEnums;
 using Java.Lang;
+using Steepshot.CameraGL.Enums;
 
 namespace Steepshot.CameraGL.Encoder
 {
@@ -32,6 +32,7 @@ namespace Steepshot.CameraGL.Encoder
                     break;
                 case EncoderMessages.StopRecording:
                     encoder.HandleStopRecording();
+                    Looper.MyLooper().Quit();
                     break;
                 case EncoderMessages.FrameAvailable:
                     var timestamp = ((long)inputMessage.Arg1 << 32) |
@@ -43,9 +44,6 @@ namespace Steepshot.CameraGL.Encoder
                     break;
                 case EncoderMessages.UpdateSharedContext:
                     encoder.HandleUpdateSharedContext((VideoEncoderConfig)inputMessage.Obj);
-                    break;
-                case EncoderMessages.Quit:
-                    Looper.MyLooper().Quit();
                     break;
                 default:
                     throw new RuntimeException("Unhandled msg what=" + what);

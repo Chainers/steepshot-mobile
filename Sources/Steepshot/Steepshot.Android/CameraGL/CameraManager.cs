@@ -82,7 +82,15 @@ namespace Steepshot.CameraGL
 
         public void ReConfigure(CameraInfo cameraInfo, VideoEncoderConfig videoConfig, AudioEncoderConfig audioConfig)
         {
+            var revertCamera = CurrentCamera != cameraInfo;
             CurrentCamera = cameraInfo;
+
+            if (revertCamera)
+            {
+                OnPause();
+                OnResume();
+            }
+
             if (videoConfig != null)
             {
                 _videoEncoderWrapper.Configure(videoConfig);
@@ -113,6 +121,8 @@ namespace Steepshot.CameraGL
                     camParams.FocusMode = Camera.Parameters.FocusModeContinuousVideo;
                 CameraUtils.ChooseFixedPreviewFps(camParams, 30000);
             }
+
+            _camera.SetParameters(camParams);
         }
 
         public void ToggleFlashMode()
@@ -197,6 +207,7 @@ namespace Steepshot.CameraGL
             {
                 throw new RuntimeException(ioe);
             }
+
             _camera.StartPreview();
         }
 
@@ -228,13 +239,9 @@ namespace Steepshot.CameraGL
         {
             _cameraOrientationEventListener.Disable();
             Release();
-
-            if (_isGlInitialized)
-            {
-                _gLView.QueueEvent(() =>
-                    _renderer?.NotifyPausing());
-                _gLView.OnPause();
-            }
+            _gLView.QueueEvent(() =>
+                _renderer?.NotifyPausing());
+            _gLView.OnPause();
         }
 
         public void OnResume()

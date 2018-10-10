@@ -87,6 +87,7 @@
     <Compile Include="CameraGL\CameraSurfaceRenderer.cs" />
     <Compile Include="CameraGL\CameraUtils.cs" />
     <Compile Include="CameraGL\CameraConfig.cs" />
+    <Compile Include="CameraGL\CircularBuffer.cs" />
     <Compile Include="CameraGL\Encoder\AudioEncoder.cs" />
     <Compile Include="CameraGL\Encoder\AudioEncoderConfig.cs" />
     <Compile Include="CameraGL\Encoder\AudioEncoderHandler.cs" />
@@ -97,6 +98,7 @@
     <Compile Include="CameraGL\Encoder\VideoEncoderConfig.cs" />
     <Compile Include="CameraGL\Encoder\VideoEncoderHandler.cs" />
     <Compile Include="CameraGL\Encoder\VideoEncoderWrapper.cs" />
+    <Compile Include="CameraGL\Enums\MuxerMessages.cs" />
     <Compile Include="CameraGL\Gles\Drawable2D.cs" />
     <Compile Include="CameraGL\Gles\EglCore.cs" />
     <Compile Include="CameraGL\Gles\EglSurfaceBase.cs" />
@@ -104,9 +106,10 @@
     <Compile Include="CameraGL\Gles\GlUtil.cs" />
     <Compile Include="CameraGL\Gles\Texture2dProgram.cs" />
     <Compile Include="CameraGL\Gles\WindowSurface.cs" />
+    <Compile Include="CameraGL\MuxerHandler.cs" />
     <Compile Include="CameraGL\MuxerWrapper.cs" />
-    <Compile Include="CameraGL\VideoRecordEnums\EncoderMessages.cs" />
-    <Compile Include="CameraGL\VideoRecordEnums\RecordingStatus.cs" />
+    <Compile Include="CameraGL\Enums\EncoderMessages.cs" />
+    <Compile Include="CameraGL\Enums\RecordingStatus.cs" />
     <Compile Include="CustomViews\AccurateMovementMethod.cs" />
     <Compile Include="CustomViews\ActionAlertDialog.cs" />
     <Compile Include="CustomViews\AutoLinkTextView.cs" />
@@ -115,6 +118,7 @@
     <Compile Include="CustomViews\CoinPickDialog.cs" />
     <Compile Include="CustomViews\ExpandableTextView.cs" />
     <Compile Include="CustomViews\MediaPager.cs" />
+    <Compile Include="CustomViews\RoundedRelativeLayout.cs" />
     <Compile Include="CustomViews\SuccessfullTrxDialog.cs" />
     <Compile Include="CustomViews\TouchableSpan.cs" />
     <Compile Include="CustomViews\WalletExtraDialog.cs" />

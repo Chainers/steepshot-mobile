@@ -88,10 +88,15 @@
                         android:background="@android:color/transparent"
                         android:src="@drawable/ic_rotate" />
                 </RelativeLayout>
+				<Steepshot.CustomViews.RoundedRelativeLayout
+					android:id="@+id/video_preview_container"
+					android:layout_width="match_parent"
+					android:layout_height="0dp">
 				<Steepshot.Utils.Media.MediaView
 					android:id="@+id/video_preview"
 					android:layout_width="match_parent"
-					android:layout_height="500dp" />
+					android:layout_height="match_parent" />
+				</Steepshot.CustomViews.RoundedRelativeLayout>
 			</RelativeLayout>
             <LinearLayout
                 android:id="@+id/description_container"

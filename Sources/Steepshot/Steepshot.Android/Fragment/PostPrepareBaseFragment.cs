@@ -48,6 +48,7 @@ namespace Steepshot.Fragment
         [BindView(Resource.Id.photo_preview)] protected CropView Preview;
         [BindView(Resource.Id.photo_preview_container)] protected RelativeLayout PreviewContainer;
         [BindView(Resource.Id.photos_layout)] protected RelativeLayout PhotosContainer;
+        [BindView(Resource.Id.video_preview_container)] protected RoundedRelativeLayout VideoPreviewContainer;
         [BindView(Resource.Id.video_preview)] protected MediaView VideoPreview;
         [BindView(Resource.Id.title)] protected EditText Title;
         [BindView(Resource.Id.title_layout)] protected RelativeLayout TitleContainer;

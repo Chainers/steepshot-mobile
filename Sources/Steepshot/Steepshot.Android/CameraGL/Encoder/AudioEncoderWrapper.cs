@@ -1,10 +1,12 @@
 ﻿using System.Threading;
 using Android.OS;
-using CameraTest.VideoRecordEnums;
 using Java.IO;
 using Java.Lang;
+using Steepshot.CameraGL.Enums;
 using Object = Java.Lang.Object;
+using Process = Android.OS.Process;
 using Thread = Java.Lang.Thread;
+using ThreadPriority = Android.OS.ThreadPriority;
 
 namespace Steepshot.CameraGL.Encoder
 {
@@ -55,10 +57,9 @@ namespace Steepshot.CameraGL.Encoder
         public void StopRecording()
         {
             _handler.SendMessage(_handler.ObtainMessage((int)EncoderMessages.StopRecording));
-            _handler.SendMessage(_handler.ObtainMessage((int)EncoderMessages.Quit));
         }
 
-        public void FrameAvailable(byte[] buffer)
+        public void FrameAvailable()
         {
             lock (_readyFence)
             {
@@ -68,14 +69,25 @@ namespace Steepshot.CameraGL.Encoder
                 }
             }
 
-            var timestamp = JavaSystem.NanoTime() / 1000L;
+            _handler.SendMessage(_handler.ObtainMessage((int)EncoderMessages.FrameAvailable));
+        }
+
+        public void Poll(byte[] buffer, long timestamp)
+        {
+            lock (_readyFence)
+            {
+                if (!_ready)
+                {
+                    return;
+                }
+            }
 
             if (timestamp == 0)
             {
                 return;
             }
 
-            _handler.SendMessage(_handler.ObtainMessage((int)EncoderMessages.FrameAvailable, (int)(timestamp >> 32), (int)timestamp, buffer));
+            _handler.SendMessage(_handler.ObtainMessage((int)EncoderMessages.Poll, (int)(timestamp >> 32), (int)timestamp, buffer));
         }
 
         public bool IsRecording()
@@ -88,6 +100,7 @@ namespace Steepshot.CameraGL.Encoder
 
         public void Run()
         {
+            Process.SetThreadPriority(ThreadPriority.UrgentAudio);
             Looper.Prepare();
 
             lock (_readyFence)
@@ -101,7 +114,6 @@ namespace Steepshot.CameraGL.Encoder
 
             lock (_readyFence)
             {
-                Monitor.Wait(_readyFence);
                 _ready = _running = false;
                 _handler = null;
             }
@@ -119,7 +131,12 @@ namespace Steepshot.CameraGL.Encoder
             }
         }
 
-        public void HandleFrameAvailable(byte[] buffer, long timestampNanos)
+        public void HandleFrameAvailable()
+        {
+            _audioEncoder.DrainEncoder(false);
+        }
+
+        public void HandlePoll(byte[] buffer, long timestampNanos)
         {
             _audioEncoder.Poll(buffer, timestampNanos);
             _audioEncoder.DrainEncoder(false);

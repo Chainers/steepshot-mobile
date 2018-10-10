@@ -1,10 +1,12 @@
 ﻿using System.Threading;
 using Android.Graphics;
 using Android.OS;
-using CameraTest.VideoRecordEnums;
 using Java.IO;
 using Java.Lang;
+using Steepshot.CameraGL.Enums;
 using Steepshot.CameraGL.Gles;
+using Steepshot.Utils;
+using Object = Java.Lang.Object;
 using Process = Android.OS.Process;
 using Thread = Java.Lang.Thread;
 using ThreadPriority = Android.OS.ThreadPriority;
@@ -64,7 +66,6 @@ namespace Steepshot.CameraGL.Encoder
         public void StopRecording()
         {
             _handler.SendMessage(_handler.ObtainMessage((int)EncoderMessages.StopRecording));
-            _handler.SendMessage(_handler.ObtainMessage((int)EncoderMessages.Quit));
         }
 
         public bool IsRecording()
@@ -129,7 +130,6 @@ namespace Steepshot.CameraGL.Encoder
 
             lock (_readyFence)
             {
-                Monitor.Wait(_readyFence);
                 _ready = _running = false;
                 _handler = null;
             }
@@ -149,7 +149,10 @@ namespace Steepshot.CameraGL.Encoder
             _inputWindowSurface = new WindowSurface(_eglCore, _videoEncoder.InputSurface, true);
             _inputWindowSurface.MakeCurrent();
 
-            _fullScreen = new FullFrameRect(new Texture2DProgram());
+            _fullScreen = new FullFrameRect(new Texture2DProgram
+            {
+                AspectRatio = Style.ScreenHeight / (float)Style.ScreenWidth
+            });
         }
 
         public void HandleFrameAvailable(float[] transform, long timestampNanos)
@@ -182,7 +185,10 @@ namespace Steepshot.CameraGL.Encoder
             _inputWindowSurface.Recreate(_eglCore);
             _inputWindowSurface.MakeCurrent();
 
-            _fullScreen = new FullFrameRect(new Texture2DProgram());
+            _fullScreen = new FullFrameRect(new Texture2DProgram
+            {
+                AspectRatio = Style.ScreenHeight / (float)Style.ScreenWidth
+            });
         }
 
         private void ReleaseEncoder()
