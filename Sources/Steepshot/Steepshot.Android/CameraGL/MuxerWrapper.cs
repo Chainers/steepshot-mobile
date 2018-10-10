@@ -20,7 +20,7 @@ namespace Steepshot.CameraGL
     {
         public Action<string> VideoRecorded;
         private MediaMuxer Muxer { get; set; }
-        private readonly string _path;
+        private string _path;
         private readonly Dictionary<int, (BaseMediaEncoder Encoder, CircularBuffer Buffer)> _encoders;
 
         private volatile MuxerHandler _handler;
@@ -28,13 +28,26 @@ namespace Steepshot.CameraGL
         private bool _ready;
         private bool _running;
 
-        public MuxerWrapper(string path, MuxerOutputType outputType)
+        public MuxerWrapper()
         {
+            _encoders = new Dictionary<int, (BaseMediaEncoder Encoder, CircularBuffer Buffer)>();
+        }
+
+        public void Reset(string path, MuxerOutputType outputType)
+        {
+            if (IsMuxing())
+            {
+                Stop();
+            }
+            else
+            {
+                ReleaseMuxer();
+            }
+
             var fs = new FileStream(path, FileMode.CreateNew);
             var file = new File(fs.Name);
             _path = fs.Name;
             Muxer = new MediaMuxer(file.ToString(), outputType);
-            _encoders = new Dictionary<int, (BaseMediaEncoder Encoder, CircularBuffer Buffer)>();
         }
 
         private void Start()
@@ -72,7 +85,7 @@ namespace Steepshot.CameraGL
         {
             _encoders[trackIndex].Buffer.Add(buffer, bufferInfo);
             await Task.Run(() =>
-            _handler.SendMessage(_handler.ObtainMessage((int)MuxerMessages.WriteSampleData, trackIndex, 0, bufferInfo)));
+            _handler.SendMessage(_handler.ObtainMessage((int)MuxerMessages.WriteSampleData, trackIndex, 0, bufferInfo))).ConfigureAwait(false);
         }
 
         public bool IsMuxing()
@@ -110,13 +123,15 @@ namespace Steepshot.CameraGL
 
         public void HandleStop()
         {
-            if (Muxer != null)
-            {
-                Muxer.Stop();
-                Muxer.Release();
-                Muxer = null;
-                VideoRecorded?.Invoke(_path);
-            }
+            Muxer?.Stop();
+            ReleaseMuxer();
+            VideoRecorded?.Invoke(_path);
+        }
+
+        private void ReleaseMuxer()
+        {
+            Muxer?.Release();
+            Muxer = null;
         }
 
         public void HandleWriteSampleData(int trackIndex, MediaCodec.BufferInfo bufferInfo)
@@ -139,7 +154,7 @@ namespace Steepshot.CameraGL
 
             lock (_encoders)
             {
-                _encoders.Add(trackIndex, (encoder, new CircularBuffer(encoder.Format, 40000)));
+                _encoders.Add(trackIndex, (encoder, new CircularBuffer(encoder.Format, 20000)));
                 if (_encoders.Any(x => x.Value.Encoder.Type == EncoderType.Video) && _encoders.Any(x => x.Value.Encoder.Type == EncoderType.Audio))
                 {
                     Start();

@@ -71,7 +71,6 @@ namespace Steepshot.CameraGL.Encoder
 
                     Codec.ReleaseOutputBuffer(encoderStatus, false);
 
-
                     if ((bufferInfo.Flags & MediaCodecBufferFlags.EndOfStream) != 0)
                     {
                         break;

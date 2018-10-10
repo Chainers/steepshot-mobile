@@ -276,6 +276,7 @@ namespace Steepshot.CameraGL
         {
             _cameraOrientationEventListener.Disable();
             _cameraHandler.InvalidateHandler();
+            Release();
         }
     }
 }

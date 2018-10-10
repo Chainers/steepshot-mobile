@@ -1,11 +1,16 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
+using Android;
+using Android.Content.PM;
 using Android.Graphics;
 using Android.Graphics.Drawables;
+using Android.Locations;
 using Android.Media;
 using Android.Opengl;
 using Android.OS;
 using Android.Provider;
+using Android.Runtime;
 using Android.Support.Design.Widget;
 using Android.Util;
 using Android.Views;
@@ -26,15 +31,20 @@ using Camera = Android.Hardware.Camera;
 namespace Steepshot.Fragment
 {
 #pragma warning disable 0649, 4014, 0618
-    public class NewCameraFragment : BaseFragment, Camera.IShutterCallback, Camera.IPictureCallback
+    public class NewCameraFragment : BaseFragment, Camera.IShutterCallback, Camera.IPictureCallback, ILocationListener
     {
         private CameraConfig _cameraConfig;
         private CameraManager _cameraManager;
         private readonly File _directory;
+        private readonly MuxerWrapper _muxerWrapper;
         private readonly VideoEncoderConfig _videoEncoderConfig;
         private readonly AudioEncoderConfig _audioEncoderConfig;
         private GradientDrawable _btnsBackground;
         private float _fingerDist;
+
+        private Location _currentLocation;
+        private LocationManager _locationManager;
+        private bool _isGpsEnable;
 
         [BindView(Resource.Id.top)] private RelativeLayout _topPanel;
         [BindView(Resource.Id.camera_preview_afl)] private AspectFrameLayout _aspectFrameLayout;
@@ -45,6 +55,7 @@ namespace Steepshot.Fragment
         [BindView(Resource.Id.shot_btn_loading)] private ProgressBar _shotBtnLoading;
         [BindView(Resource.Id.close)] private ImageButton _closeBtn;
         [BindView(Resource.Id.flash)] private ImageButton _flashBtn;
+        [BindView(Resource.Id.gps_button)] private ImageButton _gpsButton;
         [BindView(Resource.Id.revert)] private ImageButton _revertBtn;
 
 #pragma warning restore 0649
@@ -52,10 +63,10 @@ namespace Steepshot.Fragment
         public NewCameraFragment()
         {
             _directory = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDcim);
-            var muxerWrapper = new MuxerWrapper($"{_directory}/{Guid.NewGuid()}.mp4", MuxerOutputType.Mpeg4);
-            _videoEncoderConfig = new VideoEncoderConfig(muxerWrapper, 720, 720, "video/avc", 30, 10, 2500000);
-            _audioEncoderConfig = new AudioEncoderConfig(muxerWrapper, "audio/mp4a-latm", 44100, 1024, 64000);
-            muxerWrapper.VideoRecorded = VideoRecorded;
+            _muxerWrapper = new MuxerWrapper();
+            _videoEncoderConfig = new VideoEncoderConfig(_muxerWrapper, 720, 720, "video/avc", 30, 10, 2500000);
+            _audioEncoderConfig = new AudioEncoderConfig(_muxerWrapper, "audio/mp4a-latm", 44100, 1024, 64000);
+            _muxerWrapper.VideoRecorded = VideoRecorded;
         }
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -68,6 +79,7 @@ namespace Steepshot.Fragment
         public override void OnViewCreated(View view, Bundle savedInstanceState)
         {
             base.OnViewCreated(view, savedInstanceState);
+
             _btnsBackground = new GradientDrawable();
             _btnsBackground.SetCornerRadius(TypedValue.ApplyDimension(ComplexUnitType.Dip, 100, Activity.Resources.DisplayMetrics));
             _btnsBackground.SetColors(new int[] { Color.Black, Color.Black });
@@ -83,7 +95,8 @@ namespace Steepshot.Fragment
             _tabs.AddTab(_tabs.NewTab().SetText("Video"));
             _tabs.TabSelected += CameraModeChanged;
 
-            _closeBtn.Background = _flashBtn.Background = _revertBtn.Background = _btnsBackground;
+            _gpsButton.SetImageResource(Resource.Drawable.ic_gps_n);
+            _closeBtn.Background = _gpsButton.Background = _flashBtn.Background = _revertBtn.Background = _btnsBackground;
 
             SetGalleryIcon();
             UpdateUi();
@@ -93,6 +106,7 @@ namespace Steepshot.Fragment
             _flashBtn.Click += SetFlashButton;
             _revertBtn.Click += RevertBtnOnClick;
             _glSurface.Touch += GlSurfaceOnTouch;
+            _gpsButton.Click += GpsButtonOnClick;
         }
 
         public override void OnDetach()
@@ -115,6 +129,31 @@ namespace Steepshot.Fragment
             _cameraManager.ReConfigure(_cameraManager.CurrentCamera, _videoEncoderConfig,
                 _cameraConfig == CameraConfig.Photo ? null : _audioEncoderConfig);
             SetFlashButton(null, null);
+        }
+
+        public override void OnRequestPermissionsResult(int requestCode, string[] permissions, [GeneratedEnum] Permission[] grantResults)
+        {
+            if (requestCode == BaseActivity.CommonPermissionsRequestCode && !grantResults.Any(x => x != Permission.Granted))
+            {
+                _locationManager = (LocationManager)Context.GetSystemService(Android.Content.Context.LocationService);
+                var criteriaForLocationService = new Criteria { Accuracy = Accuracy.NoRequirement };
+                _locationManager.RequestLocationUpdates(0, 0, criteriaForLocationService, this, null);
+                GpsButtonOnClick(null, null);
+            }
+            base.OnRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
+
+        private void GpsButtonOnClick(object sender, EventArgs eventArgs)
+        {
+            SetUiEnable(false);
+
+            if (!((BaseActivity)Activity).RequestPermissions(BaseActivity.CommonPermissionsRequestCode, Manifest.Permission.AccessCoarseLocation, Manifest.Permission.AccessFineLocation))
+            {
+                _isGpsEnable = !_isGpsEnable;
+            }
+
+            _gpsButton.SetImageResource(_isGpsEnable ? Resource.Drawable.ic_gps : Resource.Drawable.ic_gps_n);
+            SetUiEnable(true);
         }
 
         private void UpdateUi()
@@ -141,6 +180,7 @@ namespace Steepshot.Fragment
                     _shotBtn.Background = new ColorDrawable(Style.R217G217B217);
                     _shotBtn.Color = Color.White;
                     _btnsBackground.Alpha = 205;
+                    _gpsButton.Visibility =
                     _flashBtn.Visibility = ViewStates.Visible;
                     _closeBtn.SetImageResource(Resource.Drawable.ic_close);
                     _flashBtn.SetImageResource(Resource.Drawable.ic_flash);
@@ -154,6 +194,7 @@ namespace Steepshot.Fragment
                     _shotBtn.Background = new ColorDrawable(Color.White);
                     _shotBtn.Color = Style.R255G34B5;
                     _btnsBackground.Alpha = 12;
+                    _gpsButton.Visibility =
                     _flashBtn.Visibility = ViewStates.Gone;
                     _closeBtn.SetImageResource(Resource.Drawable.ic_close_black);
                     _revertBtn.SetImageResource(Resource.Drawable.ic_revert_black);
@@ -170,7 +211,7 @@ namespace Steepshot.Fragment
 
         private void SetUiEnable(bool enable)
         {
-            _flashBtn.Enabled = _revertBtn.Enabled = _shotBtn.Enabled = enable;
+            _gpsButton.Enabled = _flashBtn.Enabled = _revertBtn.Enabled = _shotBtn.Enabled = enable;
         }
 
         private async void CameraModeChanged(object sender, TabLayout.TabSelectedEventArgs e)
@@ -268,6 +309,7 @@ namespace Steepshot.Fragment
                     _shotBtn.Pressed = true;
                     if (_cameraConfig == CameraConfig.Video && !_cameraManager.RecordingEnabled)
                     {
+                        _muxerWrapper.Reset($"{_directory}/{Guid.NewGuid()}.mp4", MuxerOutputType.Mpeg4);
                         var startTime = DateTime.Now;
                         _cameraManager.ToggleRecording();
                         while (_cameraManager.RecordingEnabled)
@@ -301,7 +343,11 @@ namespace Steepshot.Fragment
             _shotBtnLoading.Visibility = ViewStates.Visible;
             try
             {
-                _cameraManager.TakePicture(this, null, this);
+                var camParams = _cameraManager?.Parameters;
+                AddGps(camParams);
+                camParams?.SetRotation(_cameraManager.CurrentCamera.Rotation);
+                _cameraManager?.SetParameters(camParams);
+                _cameraManager?.TakePicture(this, null, this);
             }
             catch (Exception ex)
             {
@@ -309,6 +355,19 @@ namespace Steepshot.Fragment
                 _shotBtn.Visibility = ViewStates.Visible;
                 _shotBtnLoading.Visibility = ViewStates.Gone;
                 App.Logger.WarningAsync(ex);
+            }
+        }
+
+        private void AddGps(Camera.Parameters parameters)
+        {
+            if (_isGpsEnable && _currentLocation != null)
+            {
+                parameters.RemoveGpsData();
+                parameters.SetGpsLatitude(_currentLocation.Latitude);
+                parameters.SetGpsLongitude(_currentLocation.Longitude);
+                parameters.SetGpsAltitude(_currentLocation.Altitude);
+                parameters.SetGpsTimestamp(_currentLocation.Time);
+                parameters.SetGpsProcessingMethod(_currentLocation.Provider);
             }
         }
 
@@ -361,15 +420,6 @@ namespace Steepshot.Fragment
                 Activity.RunOnUiThread(() =>
                 {
                     ((BaseActivity)Activity).OpenNewContentFragment(new PreviewPostCreateFragment(model));
-                    //if (_progressBar != null)
-                    //{
-                    //    _progressBar.Visibility = ViewStates.Gone;
-                    //    _shotButton.Visibility = ViewStates.Visible;
-                    //    _flashButton.Enabled = true;
-                    //    _galleryButton.Enabled = true;
-                    //    _revertButton.Enabled = true;
-                    //    _closeButton.Enabled = true;
-                    //}
                 });
             });
         }
@@ -425,6 +475,29 @@ namespace Steepshot.Fragment
             var x = e.GetX(0) - e.GetX(1);
             var y = e.GetY(0) - e.GetY(1);
             return (float)Math.Sqrt(x * x + y * y);
+        }
+
+        public void OnLocationChanged(Location location)
+        {
+            if (_currentLocation == null)
+            {
+                _gpsButton.Visibility = ViewStates.Visible;
+                _gpsButton.SetImageResource(Resource.Drawable.ic_gps);
+            }
+            if (_currentLocation == null || _currentLocation.Accuracy > location.Accuracy)
+                _currentLocation = location;
+        }
+
+        public void OnProviderDisabled(string provider)
+        {
+        }
+
+        public void OnProviderEnabled(string provider)
+        {
+        }
+
+        public void OnStatusChanged(string provider, [GeneratedEnum] Availability status, Bundle extras)
+        {
         }
     }
 }
