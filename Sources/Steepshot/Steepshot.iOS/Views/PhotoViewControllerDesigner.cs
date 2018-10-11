@@ -84,6 +84,11 @@ namespace Steepshot.iOS.Views
             ToggleShotButton(MediaType.Photo);
             View.AddSubview(_shotButton);
 
+            _videoLoader.HidesWhenStopped = true;
+            _shotButton.AddSubview(_videoLoader);
+
+            _videoLoader.AutoCenterInSuperview();
+
             _closeButton.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 30);
             _closeButton.AutoPinEdgeToSuperviewEdge(ALEdge.Top, DeviceHelper.IsXDevice ? 64 : 20);
             _closeButton.AutoSetDimensionsToSize(new CGSize(40, 40));
