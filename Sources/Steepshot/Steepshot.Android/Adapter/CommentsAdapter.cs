@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
 using Android.Content;
 using Android.Graphics;
 using Android.Graphics.Drawables;
@@ -8,7 +10,6 @@ using Android.Views;
 using Android.Widget;
 using Refractored.Controls;
 using Square.Picasso;
-using Steepshot.Core.Extensions;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
@@ -21,6 +22,7 @@ using Steepshot.CustomViews;
 using AndroidSwipeLayout;
 using AndroidSwipeLayout.Adapters;
 using Steepshot.Base;
+using Steepshot.Core.Extensions;
 
 namespace Steepshot.Adapter
 {
@@ -33,7 +35,8 @@ namespace Steepshot.Adapter
         public Action<AutoLinkType, string> AutoLinkAction;
         public Action RootClickAction;
         public bool SwipeEnabled { get; set; } = true;
-
+        private readonly List<CommentViewHolder> _holders;
+        
         public override int ItemCount => _presenter.Count + 1;
 
         public CommentAdapter(Context context, CommentsPresenter presenter, Post post)
@@ -41,6 +44,7 @@ namespace Steepshot.Adapter
             _context = context;
             _presenter = presenter;
             _post = post;
+            _holders = new List<CommentViewHolder>();
         }
 
         public override void OnBindViewHolder(RecyclerView.ViewHolder holder, int position)
@@ -90,6 +94,7 @@ namespace Steepshot.Adapter
                         itemView.SwipeEnabled = App.User.HasPostingPermission;
                         itemView.Opening += SwipeLayoutOnOpening;
                         var vh = new CommentViewHolder(itemView, CommentAction, AutoLinkAction, RootClickAction);
+                        _holders.Add(vh);
                         return vh;
                     }
             }
@@ -98,6 +103,12 @@ namespace Steepshot.Adapter
         private void SwipeLayoutOnOpening(object sender, SwipeLayout.OpeningEventArgs e)
         {
             MItemManager.CloseAllExcept(e.Layout);
+        }
+
+        public override void OnDetachedFromRecyclerView(RecyclerView recyclerView)
+        {
+            base.OnDetachedFromRecyclerView(recyclerView);
+            _holders.ForEach(h=>h.OnDetached());
         }
     }
 
@@ -305,7 +316,11 @@ namespace Steepshot.Adapter
 
         public void UpdateData(Post post, Context context)
         {
+            if (_post != null)
+                _post.PropertyChanged -= PostOnPropertyChanged;
             _post = post;
+            _post.PropertyChanged += PostOnPropertyChanged;
+
             _author.Text = post.Author;
             _comment.SetText(post.Body, 5);
             _comment.Expanded = false;
@@ -313,7 +328,7 @@ namespace Steepshot.Adapter
             _rootView.Background = new ColorDrawable(_post.Editing ? Style.R254G249B229 : Color.White);
             SwitchActionsEnabled(!_post.Body.Equals(Core.Constants.DeletedPostText));
 
-            if (_post.Author == App.User.Login)
+            if (string.Equals(_post.Author, App.User.Login, StringComparison.OrdinalIgnoreCase))
             {
                 _flag.Visibility = ViewStates.Gone;
                 _edit.Visibility = _delete.Visibility = _post.CashoutTime < DateTime.Now ? ViewStates.Gone : ViewStates.Visible;
@@ -344,57 +359,16 @@ namespace Steepshot.Adapter
                 _likeOrFlag.ScaleX = 1f;
                 _likeOrFlag.ScaleY = 1f;
             }
-            if (!BasePostPresenter.IsEnableVote)
-            {
-                if (post.VoteChanging && (_isAnimationRuning == null || _isAnimationRuning.IsCanceled))
-                {
-                    LikeSetAsync(false);
-                }
-                else if (post.FlagChanging)
-                {
-                    LikeSetAsync(true);
-                }
-                else if (post.Vote || !post.Flag)
-                {
-                    _likeOrFlag.SetImageResource(post.Vote
-                        ? Resource.Drawable.ic_new_like_disabled
-                        : Resource.Drawable.ic_new_like);
-                }
-            }
-            else
-            {
-                if (post.Vote || !post.Flag)
-                {
-                    _likeOrFlag.SetImageResource(post.Vote
-                        ? Resource.Drawable.ic_new_like_filled
-                        : Resource.Drawable.ic_new_like_selected);
-                }
-                else
-                {
-                    _likeOrFlag.SetImageResource(Resource.Drawable.ic_flag_active);
-                }
-            }
 
-            if (post.NetLikes > 0)
-            {
-                _likes.Visibility = ViewStates.Visible;
-                _likes.Text = App.Localization.GetText(_post.NetLikes == 1 ? LocalizationKeys.Like : LocalizationKeys.Likes, post.NetLikes);
-            }
-            else
-            {
-                _likes.Visibility = ViewStates.Gone;
-            }
+            UpdateLikeAsync(post);
+            UpdateLikeCount(post);
+            UpdateFlagCount(post);
+            UpdateTotalPayoutReward(post);
+            _time.Text = post.Created.ToPostTime(App.Localization);
+        }
 
-            if (post.NetFlags > 0)
-            {
-                _flags.Visibility = ViewStates.Visible;
-                _flags.Text = App.Localization.GetText(_post.NetFlags == 1 ? LocalizationKeys.Flag : LocalizationKeys.Flags, post.NetFlags);
-            }
-            else
-            {
-                _flags.Visibility = ViewStates.Gone;
-            }
-
+        private void UpdateTotalPayoutReward(Post post)
+        {
             if (post.TotalPayoutReward > 0)
             {
                 _cost.Visibility = ViewStates.Visible;
@@ -404,13 +378,118 @@ namespace Steepshot.Adapter
             {
                 _cost.Visibility = ViewStates.Gone;
             }
-
-            _time.Text = post.Created.ToPostTime(App.Localization);
+        }
+        
+        private void UpdateFlagCount(Post post)
+        {
+            if (post.NetFlags > 0)
+            {
+                _flags.Visibility = ViewStates.Visible;
+                _flags.Text = App.Localization.GetText(post.NetFlags == 1 ? LocalizationKeys.Flag : LocalizationKeys.Flags, post.NetFlags);
+            }
+            else
+            {
+                _flags.Visibility = ViewStates.Gone;
+            }
         }
 
+        private void UpdateLikeCount(Post post)
+        {
+            if (post.NetLikes > 0)
+            {
+                _likes.Visibility = ViewStates.Visible;
+                _likes.Text = App.Localization.GetText(post.NetLikes == 1 ? LocalizationKeys.Like : LocalizationKeys.Likes, post.NetLikes);
+            }
+            else
+            {
+                _likes.Visibility = ViewStates.Gone;
+            }
+        }
+        
+        private async Task UpdateLikeAsync(Post post)
+        {
+            if (BasePostPresenter.IsEnableVote)
+            {
+                if (_isAnimationRuning != null && !_isAnimationRuning.IsCanceled)
+                {
+                    _isAnimationRuning.Cancel();
+                    _isAnimationRuning = null;
+                    _likeOrFlag.ScaleX = 1;
+                    _likeOrFlag.ScaleY = 1;
+                }
+
+                if (post.Vote)
+                    _likeOrFlag.SetImageResource(Resource.Drawable.ic_new_like_filled);
+                else if (post.Flag)
+                    _likeOrFlag.SetImageResource(Resource.Drawable.ic_flag_active);
+                else
+                    _likeOrFlag.SetImageResource(Resource.Drawable.ic_new_like_selected);
+            }
+            else
+            {
+                if (post.VoteChanging || post.FlagChanging)
+                {
+                    if (_isAnimationRuning == null || _isAnimationRuning.IsCanceled)
+                    {
+                        await LikeSetAsync(post.FlagChanging);
+                    }
+                }
+                else if (post.Vote)
+                {
+                    _likeOrFlag.SetImageResource(Resource.Drawable.ic_new_like_disabled);
+                }
+                else if (post.Flag)
+                {
+                    _likeOrFlag.SetImageResource(Resource.Drawable.ic_flag);
+                }
+                else
+                {
+                    _likeOrFlag.SetImageResource(Resource.Drawable.ic_new_like);
+                }
+            }
+        }
+        private async void PostOnPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            var post = sender as Post;
+            if (post == null || _post != post)
+                return;
+
+            switch (e.PropertyName)
+            {
+                case nameof(Post.Flag):
+                case nameof(Post.Vote):
+                case nameof(Post.FlagChanging):
+                case nameof(Post.VoteChanging):
+                {
+                    await UpdateLikeAsync(post);
+                    break;
+                }
+                case nameof(Post.NetLikes):
+                {
+                    UpdateLikeCount(post);
+                    break;
+                }
+                case nameof(Post.NetFlags):
+                {
+                    UpdateFlagCount(post);
+                    break;
+                }
+                case nameof(Post.TotalPayoutReward):
+                {
+                    UpdateTotalPayoutReward(post);
+                    break;
+                }
+            }
+        }
+        
         private void OnError()
         {
             Picasso.With(_context).Load(_post.Avatar).NoFade().Into(_avatar);
+        }
+        
+        public void OnDetached()
+        {
+            _post.PropertyChanged -= PostOnPropertyChanged;
         }
     }
 }

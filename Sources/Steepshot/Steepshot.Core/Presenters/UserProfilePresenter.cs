@@ -50,7 +50,7 @@ namespace Steepshot.Core.Presenters
             do
             {
                 var response = await RunAsSingleTaskAsync(SteepshotApiClient.GetUserPostsAsync, request)
-                    .ConfigureAwait(false);
+                    .ConfigureAwait(true);
                 isNeedRepeat = ResponseProcessing(response, ItemsLimit, out exception, nameof(TryLoadNextPostsAsync));
             } while (isNeedRepeat);
 

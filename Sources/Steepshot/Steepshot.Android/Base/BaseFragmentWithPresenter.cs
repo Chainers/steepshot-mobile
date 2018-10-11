@@ -23,8 +23,8 @@ namespace Steepshot.Base
 
         public override void OnDetach()
         {
-            Presenter.TasksCancel();
             base.OnDetach();
+            Presenter.TasksCancel();
         }
     }
 }

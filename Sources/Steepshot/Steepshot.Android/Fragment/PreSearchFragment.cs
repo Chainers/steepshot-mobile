@@ -349,12 +349,6 @@ namespace Steepshot.Fragment
             ViewCompat.SetElevation(_toolbar, BitmapUtils.DpToPixel(2, Resources));
         }
 
-        public override void OnDetach()
-        {
-            base.OnDetach();
-            Cheeseknife.Reset(this);
-        }
-
         private void OnClearClick(object sender, EventArgs e)
         {
             CustomTag = null;
@@ -735,6 +729,12 @@ namespace Steepshot.Fragment
 
             _currentButton = _activeButton;
             _hotButton.Enabled = _newButton.Enabled = _trendingButton.Enabled = true;
+        }
+
+        public override void OnDetach()
+        {
+            _postsList.SetAdapter(null);
+            base.OnDetach();
         }
     }
 }

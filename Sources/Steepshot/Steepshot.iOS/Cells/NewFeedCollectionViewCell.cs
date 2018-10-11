@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Linq;
 using CoreGraphics;
 using FFImageLoading.Work;
@@ -294,7 +295,11 @@ namespace Steepshot.iOS.Cells
 
         public nfloat UpdateCell(Post post, CellSizeHelper variables)
         {
+            if (_currentPost != null)
+                _currentPost.PropertyChanged -= PostOnPropertyChanged;
             _currentPost = post;
+            _currentPost.PropertyChanged += PostOnPropertyChanged;
+
             likesMargin = leftMargin;
 
             _avatarImage?.RemoveFromSuperview();
@@ -364,116 +369,17 @@ namespace Steepshot.iOS.Cells
                                                              2, LoadingPriority.Highest);
                 }
             }
-            if (_currentPost.TopLikersAvatars.Any() && !string.IsNullOrEmpty(_currentPost.TopLikersAvatars[0]))
-            {
-                _firstLikerImage?.RemoveFromSuperview();
-                _firstLikerImage = new UIImageView();
-                _contentView.AddSubview(_firstLikerImage);
-                _firstLikerImage.Layer.CornerRadius = likersCornerRadius;
-                _firstLikerImage.ClipsToBounds = true;
-                _firstLikerImage.ContentMode = UIViewContentMode.ScaleAspectFill;
-                _firstLikerImage.Frame = new CGRect(leftMargin, _photoScroll.Frame.Bottom + likersY, likersImageSide, likersImageSide);
-                _scheduledWorkfirst?.Cancel();
 
-                _scheduledWorkfirst = ImageLoader.Load(_currentPost.TopLikersAvatars[0],
-                                                        _firstLikerImage,
-                                                        placeHolder: "ic_noavatar.png",
-                                                       priority: LoadingPriority.Low);
-                likesMargin = _firstLikerImage.Frame.Right + likesMarginConst;
-            }
-            else if (_firstLikerImage != null)
-                _firstLikerImage.Hidden = true;
-
-            if (_currentPost.TopLikersAvatars.Count() >= 2 && !string.IsNullOrEmpty(_currentPost.TopLikersAvatars[1]))
-            {
-                _secondLikerImage?.RemoveFromSuperview();
-                _secondLikerImage = new UIImageView();
-                _contentView.AddSubview(_secondLikerImage);
-                _secondLikerImage.Layer.CornerRadius = likersCornerRadius;
-                _secondLikerImage.ClipsToBounds = true;
-                _secondLikerImage.ContentMode = UIViewContentMode.ScaleAspectFill;
-                _secondLikerImage.Frame = new CGRect(_firstLikerImage.Frame.Right - likersMargin, _photoScroll.Frame.Bottom + likersY, likersImageSide, likersImageSide);
-                _scheduledWorksecond?.Cancel();
-
-                _scheduledWorksecond = ImageLoader.Load(_currentPost.TopLikersAvatars[1],
-                                                        _secondLikerImage,
-                                                        placeHolder: "ic_noavatar.png",
-                                                        priority: LoadingPriority.Low);
-
-                likesMargin = _secondLikerImage.Frame.Right + likesMarginConst;
-            }
-            else if (_secondLikerImage != null)
-                _secondLikerImage.Hidden = true;
-
-            if (_currentPost.TopLikersAvatars.Count() >= 3 && !string.IsNullOrEmpty(_currentPost.TopLikersAvatars[2]))
-            {
-                _thirdLikerImage?.RemoveFromSuperview();
-                _thirdLikerImage = new UIImageView();
-                _contentView.AddSubview(_thirdLikerImage);
-                _thirdLikerImage.Layer.CornerRadius = likersCornerRadius;
-                _thirdLikerImage.ClipsToBounds = true;
-                _thirdLikerImage.ContentMode = UIViewContentMode.ScaleAspectFill;
-                _thirdLikerImage.Frame = new CGRect(_secondLikerImage.Frame.Right - likersMargin, _photoScroll.Frame.Bottom + likersY, likersImageSide, likersImageSide);
-                _scheduledWorkthird?.Cancel();
-
-                _scheduledWorkthird = ImageLoader.Load(_currentPost.TopLikersAvatars[2],
-                                                       _thirdLikerImage,
-                                                        placeHolder: "ic_noavatar.png",
-                                                       priority: LoadingPriority.Low);
-                likesMargin = _thirdLikerImage.Frame.Right + likesMarginConst;
-            }
-            else if (_thirdLikerImage != null)
-                _thirdLikerImage.Hidden = true;
-
-            nfloat flagMargin = 0;
-
-            if (_currentPost.NetLikes != 0)
-            {
-                _likes.Text = AppDelegate.Localization.GetText(LocalizationKeys.Likes, _currentPost.NetLikes);
-                var likesWidth = _likes.SizeThatFits(new CGSize(0, underPhotoPanelHeight));
-                _likes.Frame = new CGRect(likesMargin, _photoScroll.Frame.Bottom, likesWidth.Width, underPhotoPanelHeight);
-                flagMargin = flagsMarginConst;
-            }
-            else
-                _likes.Frame = new CGRect(likesMargin, _photoScroll.Frame.Bottom, 0, 0);
-
-            _likersTapView.Frame = new CGRect(leftMargin, _photoScroll.Frame.Bottom, _likes.Frame.Right - leftMargin, _likes.Frame.Height);
-
-            if (_currentPost.NetFlags != 0)
-            {
-                _flags.Text = AppDelegate.Localization.GetText(LocalizationKeys.Flags, _currentPost.NetFlags);
-                var flagsWidth = _flags.SizeThatFits(new CGSize(0, underPhotoPanelHeight));
-                _flags.Frame = new CGRect(likesMargin + _likes.Frame.Width + flagMargin, _photoScroll.Frame.Bottom, flagsWidth.Width, underPhotoPanelHeight);
-            }
-            else
-                _flags.Frame = new CGRect(likesMargin, _photoScroll.Frame.Bottom, 0, 0);
-
-            _like.Frame = new CGRect(_contentView.Frame.Width - likeButtonWidthConst, _photoScroll.Frame.Bottom, likeButtonWidthConst, underPhotoPanelHeight);
+            UpdateTopLikersAvatars(_currentPost);
+            UpdateLikeCount(_currentPost);
+            UpdateFlagCount(_currentPost);
 
             _sliderView.Frame = new CGRect(2, _photoScroll.Frame.Bottom - 5, UIScreen.MainScreen.Bounds.Width - 4, 70);
 
-            _like.Transform = CGAffineTransform.MakeScale(1f, 1f);
-            if (_currentPost.VoteChanging)
-                Animate();
-            else
-            {
-                _like.Layer.RemoveAllAnimations();
-                _like.LayoutIfNeeded();
-                if (BasePostPresenter.IsEnableVote)
-                    _like.Image = _currentPost.Vote ? UIImage.FromBundle("ic_like_active") : UIImage.FromBundle("ic_like");
-                else
-                    _like.Image = _currentPost.Vote ? UIImage.FromBundle("ic_like_active_disabled") : UIImage.FromBundle("ic_like_disabled");
-                _like.UserInteractionEnabled = true;
-            }
+            UpdateLike(_currentPost);
 
             _verticalSeparator.Frame = new CGRect(_contentView.Frame.Width - likeButtonWidthConst - 1, _photoScroll.Frame.Bottom + underPhotoPanelHeight / 2 - verticalSeparatorHeight / 2, 1, verticalSeparatorHeight);
-
-#if DEBUG
-            _rewards.Text = StringHelper.ToFormatedCurrencyString(_currentPost.TotalPayoutReward, AppDelegate.MainChain);
-            var rewardWidth = _rewards.SizeThatFits(new CGSize(0, underPhotoPanelHeight));
-            _rewards.Frame = new CGRect(_verticalSeparator.Frame.Left - rewardWidth.Width, _photoScroll.Frame.Bottom, rewardWidth.Width, underPhotoPanelHeight);
-#endif
-
+            UpdateTotalPayoutReward(_currentPost);
             _topSeparator.Frame = new CGRect(0, _photoScroll.Frame.Bottom + underPhotoPanelHeight, UIScreen.MainScreen.Bounds.Width, 1);
 
             _attributedLabel.SetText(variables.Text);
@@ -490,6 +396,175 @@ namespace Steepshot.iOS.Cells
             return _bottomSeparator.Frame.Bottom;
             //for constant size checking
             //var constantsSize = _bottomSeparator.Frame.Bottom - _attributedLabel.Frame.Height - _bodyImage.Frame.Height;
+        }
+
+
+        private void PostOnPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            var post = sender as Post;
+            if (post == null || _currentPost != post)
+                return;
+
+            switch (e.PropertyName)
+            {
+                case nameof(Post.Flag):
+                case nameof(Post.Vote):
+                case nameof(Post.FlagChanging):
+                case nameof(Post.VoteChanging):
+                    {
+                        UpdateLike(post);
+                        break;
+                    }
+                case nameof(Post.NetLikes):
+                    {
+                        UpdateLikeCount(post);
+                        break;
+                    }
+                case nameof(Post.NetFlags):
+                    {
+                        UpdateFlagCount(post);
+                        break;
+                    }
+                case nameof(Post.TotalPayoutReward):
+                    {
+                        UpdateTotalPayoutReward(post);
+                        break;
+                    }
+                case nameof(Post.TopLikersAvatars):
+                    {
+                        UpdateTopLikersAvatars(post);
+                        break;
+                    }
+            }
+        }
+
+        private void UpdateTotalPayoutReward(Post post)
+        {
+#if DEBUG
+            _rewards.Text = StringHelper.ToFormatedCurrencyString(post.TotalPayoutReward, AppDelegate.MainChain);
+            var rewardWidth = _rewards.SizeThatFits(new CGSize(0, underPhotoPanelHeight));
+            _rewards.Frame = new CGRect(_verticalSeparator.Frame.Left - rewardWidth.Width, _photoScroll.Frame.Bottom, rewardWidth.Width, underPhotoPanelHeight);
+#endif
+        }
+
+        private void UpdateFlagCount(Post post)
+        {
+            nfloat flagMargin = 0;
+            if (post.NetLikes != 0)
+                flagMargin = flagsMarginConst;
+
+            if (_currentPost.NetFlags != 0)
+            {
+                _flags.Text = AppDelegate.Localization.GetText(LocalizationKeys.Flags, _currentPost.NetFlags);
+                var flagsWidth = _flags.SizeThatFits(new CGSize(0, underPhotoPanelHeight));
+                _flags.Frame = new CGRect(likesMargin + _likes.Frame.Width + flagMargin, _photoScroll.Frame.Bottom, flagsWidth.Width, underPhotoPanelHeight);
+            }
+            else
+                _flags.Frame = new CGRect(likesMargin, _photoScroll.Frame.Bottom, 0, 0);
+
+            _like.Frame = new CGRect(_contentView.Frame.Width - likeButtonWidthConst, _photoScroll.Frame.Bottom, likeButtonWidthConst, underPhotoPanelHeight);
+        }
+
+        private void UpdateLikeCount(Post post)
+        {
+            if (post.NetLikes != 0)
+            {
+                _likes.Text = AppDelegate.Localization.GetText(LocalizationKeys.Likes, post.NetLikes);
+                var likesWidth = _likes.SizeThatFits(new CGSize(0, underPhotoPanelHeight));
+                _likes.Frame = new CGRect(likesMargin, _photoScroll.Frame.Bottom, likesWidth.Width, underPhotoPanelHeight);
+            }
+            else
+                _likes.Frame = new CGRect(likesMargin, _photoScroll.Frame.Bottom, 0, 0);
+
+            _likersTapView.Frame = new CGRect(leftMargin, _photoScroll.Frame.Bottom, _likes.Frame.Right - leftMargin, _likes.Frame.Height);
+        }
+
+        private void UpdateLike(Post post)
+        {
+            _like.Transform = CGAffineTransform.MakeScale(1f, 1f);
+            if (post.VoteChanging)
+            {
+                _like.Image = UIImage.FromBundle("ic_like_active");
+                Animate(0.4, 0, UIViewAnimationOptions.Autoreverse | UIViewAnimationOptions.Repeat | UIViewAnimationOptions.CurveEaseIn, () =>
+                {
+                    _like.Transform = CGAffineTransform.MakeScale(0.5f, 0.5f);
+                }, null);
+            }
+            else
+            {
+                _like.Layer.RemoveAllAnimations();
+                _like.LayoutIfNeeded();
+                if (BasePostPresenter.IsEnableVote)
+                    _like.Image = post.Vote ? UIImage.FromBundle("ic_like_active") : UIImage.FromBundle("ic_like");
+                else
+                    _like.Image = post.Vote ? UIImage.FromBundle("ic_like_active_disabled") : UIImage.FromBundle("ic_like_disabled");
+                _like.UserInteractionEnabled = true;
+            }
+        }
+
+        private void UpdateTopLikersAvatars(Post post)
+        {
+            if (post.TopLikersAvatars.Any() && !string.IsNullOrEmpty(post.TopLikersAvatars[0]))
+            {
+                _firstLikerImage?.RemoveFromSuperview();
+                _firstLikerImage = new UIImageView();
+                _contentView.AddSubview(_firstLikerImage);
+                _firstLikerImage.Layer.CornerRadius = likersCornerRadius;
+                _firstLikerImage.ClipsToBounds = true;
+                _firstLikerImage.ContentMode = UIViewContentMode.ScaleAspectFill;
+                _firstLikerImage.Frame = new CGRect(leftMargin, _photoScroll.Frame.Bottom + likersY, likersImageSide, likersImageSide);
+                _scheduledWorkfirst?.Cancel();
+
+                _scheduledWorkfirst = ImageLoader.Load(post.TopLikersAvatars[0],
+                    _firstLikerImage,
+                    placeHolder: "ic_noavatar.png",
+                    priority: LoadingPriority.Low);
+                likesMargin = _firstLikerImage.Frame.Right + likesMarginConst;
+            }
+            else if (_firstLikerImage != null)
+                _firstLikerImage.Hidden = true;
+
+            if (post.TopLikersAvatars.Count() >= 2 && !string.IsNullOrEmpty(post.TopLikersAvatars[1]))
+            {
+                _secondLikerImage?.RemoveFromSuperview();
+                _secondLikerImage = new UIImageView();
+                _contentView.AddSubview(_secondLikerImage);
+                _secondLikerImage.Layer.CornerRadius = likersCornerRadius;
+                _secondLikerImage.ClipsToBounds = true;
+                _secondLikerImage.ContentMode = UIViewContentMode.ScaleAspectFill;
+                _secondLikerImage.Frame = new CGRect(_firstLikerImage.Frame.Right - likersMargin, _photoScroll.Frame.Bottom + likersY, likersImageSide, likersImageSide);
+                _scheduledWorksecond?.Cancel();
+
+                _scheduledWorksecond = ImageLoader.Load(post.TopLikersAvatars[1],
+                    _secondLikerImage,
+                    placeHolder: "ic_noavatar.png",
+                    priority: LoadingPriority.Low);
+
+                likesMargin = _secondLikerImage.Frame.Right + likesMarginConst;
+            }
+            else if (_secondLikerImage != null)
+                _secondLikerImage.Hidden = true;
+
+
+            if (post.TopLikersAvatars.Count() >= 3 && !string.IsNullOrEmpty(post.TopLikersAvatars[2]))
+            {
+                _thirdLikerImage?.RemoveFromSuperview();
+                _thirdLikerImage = new UIImageView();
+                _contentView.AddSubview(_thirdLikerImage);
+                _thirdLikerImage.Layer.CornerRadius = likersCornerRadius;
+                _thirdLikerImage.ClipsToBounds = true;
+                _thirdLikerImage.ContentMode = UIViewContentMode.ScaleAspectFill;
+                _thirdLikerImage.Frame = new CGRect(_secondLikerImage.Frame.Right - likersMargin, _photoScroll.Frame.Bottom + likersY, likersImageSide, likersImageSide);
+                _scheduledWorkthird?.Cancel();
+
+                _scheduledWorkthird = ImageLoader.Load(post.TopLikersAvatars[2],
+                    _thirdLikerImage,
+                    placeHolder: "ic_noavatar.png",
+                    priority: LoadingPriority.Low);
+                likesMargin = _thirdLikerImage.Frame.Right + likesMarginConst;
+            }
+            else if (_thirdLikerImage != null)
+                _thirdLikerImage.Hidden = true;
         }
 
         private void BaseViewController_SliderAction(bool isSliderOpening)
@@ -528,18 +603,11 @@ namespace Steepshot.iOS.Cells
             CellAction?.Invoke(ActionType.More, _currentPost);
         }
 
-        private void Animate()
-        {
-            _like.Image = UIImage.FromBundle("ic_like_active");
-            Animate(0.4, 0, UIViewAnimationOptions.Autoreverse | UIViewAnimationOptions.Repeat | UIViewAnimationOptions.CurveEaseIn, () =>
-            {
-                _like.Transform = CGAffineTransform.MakeScale(0.5f, 0.5f);
-            }, null);
-        }
-
         public void ReleaseCell()
         {
             CellAction = null;
+            
+            _currentPost.PropertyChanged -= PostOnPropertyChanged;
             _photoScroll.Scrolled -= PhotoScroll_Scrolled;
             _like.RemoveGestureRecognizer(_liketap);
             _sliderView.LikeTap -= LikeTap;

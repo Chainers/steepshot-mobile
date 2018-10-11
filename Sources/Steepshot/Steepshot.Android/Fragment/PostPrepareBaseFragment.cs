@@ -146,13 +146,6 @@ namespace Steepshot.Fragment
             Model = new PreparePostModel(App.User.UserInfo, App.AppInfo.GetModel());
         }
 
-        public override void OnDetach()
-        {
-            base.OnDetach();
-            Cheeseknife.Reset(this);
-            GC.Collect(0);
-        }
-
         private void TagPickerFacadeOnSourceChanged(Status obj)
         {
             if (!IsInitialized)
@@ -448,6 +441,13 @@ namespace Steepshot.Fragment
             }
 
             return base.OnBackPressed();
+        }
+
+        public override void OnDetach()
+        {
+            LocalTagsList.SetAdapter(null);
+            TagsList.SetAdapter(null);
+            base.OnDetach();
         }
     }
 }

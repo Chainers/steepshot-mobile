@@ -1,12 +1,25 @@
 using System;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using Newtonsoft.Json;
 using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Models.Common
 {
-    public class Post
+    public class Post : INotifyPropertyChanged
     {
         private string _permlink;
+        private bool _voteChanging;
+        private bool _flagChanging;
+        private bool _flagNotificationWasShown = true;
+        private bool _showMask = true;
+
+        private int? _netLikes;
+        private int? _netFlags;
+        private double? _totalPayoutReward;
+        private bool? _flag;
+        private string[] _topLikersAvatars;
+        private bool? _vote;
 
         public string Body { get; set; }
 
@@ -30,11 +43,41 @@ namespace Steepshot.Core.Models.Common
 
         public int AuthorReputation { get; set; }
 
-        public int NetVotes { get; set; }
+        // public int NetVotes { get; set; }
 
-        public int NetLikes { get; set; }
+        public int NetLikes
+        {
+            get => _netLikes ?? 0;
+            set
+            {
+                if (_netLikes.HasValue && _netLikes != value)
+                {
+                    _netLikes = value;
+                    NotifyPropertyChanged();
+                }
+                else
+                {
+                    _netLikes = value;
+                }
+            }
+        }
 
-        public int NetFlags { get; set; }
+        public int NetFlags
+        {
+            get => _netFlags ?? 0;
+            set
+            {
+                if (_netFlags.HasValue && _netFlags != value)
+                {
+                    _netFlags = value;
+                    NotifyPropertyChanged();
+                }
+                else
+                {
+                    _netFlags = value;
+                }
+            }
+        }
 
         public int Children { get; set; }
 
@@ -48,11 +91,56 @@ namespace Steepshot.Core.Models.Common
 
         public double MaxAcceptedPayout { get; set; }
 
-        public double TotalPayoutReward { get; set; }
+        public double TotalPayoutReward
+        {
+            get => _totalPayoutReward ?? 0;
+            set
+            {
+                if (_totalPayoutReward.HasValue && _totalPayoutReward != value)
+                {
+                    _totalPayoutReward = value;
+                    NotifyPropertyChanged();
+                }
+                else
+                {
+                    _totalPayoutReward = value;
+                }
+            }
+        }
 
-        public bool Vote { get; set; }
+        public bool Vote
+        {
+            get => _vote ?? false;
+            set
+            {
+                if (_vote.HasValue && _vote != value)
+                {
+                    _vote = value;
+                    NotifyPropertyChanged();
+                }
+                else
+                {
+                    _vote = value;
+                }
+            }
+        }
 
-        public bool Flag { get; set; }
+        public bool Flag
+        {
+            get => _flag ?? false;
+            set
+            {
+                if (_flag.HasValue && _flag != value)
+                {
+                    _flag = value;
+                    NotifyPropertyChanged();
+                }
+                else
+                {
+                    _flag = value;
+                }
+            }
+        }
 
         public string[] Tags { get; set; }
 
@@ -60,7 +148,22 @@ namespace Steepshot.Core.Models.Common
 
         public string[] Resteemed { get; set; }
 
-        public string[] TopLikersAvatars { get; set; }
+        public string[] TopLikersAvatars
+        {
+            get => _topLikersAvatars;
+            set
+            {
+                if (_topLikersAvatars != null && _topLikersAvatars != value)
+                {
+                    _topLikersAvatars = value;
+                    NotifyPropertyChanged();
+                }
+                else
+                {
+                    _topLikersAvatars = value;
+                }
+            }
+        }
 
         public bool IsLowRated { get; set; }
 
@@ -70,15 +173,64 @@ namespace Steepshot.Core.Models.Common
 
         //system
         [JsonIgnore]
-        public bool VoteChanging { get; set; }
+        public bool VoteChanging
+        {
+            get => _voteChanging;
+            set
+            {
+                if (_voteChanging != value)
+                {
+                    _voteChanging = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+
         [JsonIgnore]
-        public bool FlagChanging { get; set; }
+        public bool FlagChanging
+        {
+            get => _flagChanging;
+            set
+            {
+                if (_flagChanging != value)
+                {
+                    _flagChanging = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+
         [JsonIgnore]
         public bool IsExpanded { get; set; }
+
         [JsonIgnore]
-        public bool FlagNotificationWasShown { get; set; } = true;
+        public bool FlagNotificationWasShown
+        {
+            get => _flagNotificationWasShown;
+            set
+            {
+                if (_flagNotificationWasShown != value)
+                {
+                    _flagNotificationWasShown = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+
         [JsonIgnore]
-        public bool ShowMask { get; set; } = true;
+        public bool ShowMask
+        {
+            get => _showMask;
+            set
+            {
+                if (_showMask != value)
+                {
+                    _showMask = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+
         [JsonIgnore]
         public bool IsComment { get; set; }
         [JsonIgnore]
@@ -96,5 +248,16 @@ namespace Steepshot.Core.Models.Common
                 return _permlink;
             }
         }
+
+        #region INotifyPropertyChanged
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        #endregion
     }
 }

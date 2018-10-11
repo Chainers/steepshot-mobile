@@ -1,17 +1,9 @@
-﻿using System;
-using System.Threading.Tasks;
-using Android.App;
+﻿using Android.App;
 using Android.Content.PM;
 using Android.OS;
 using Steepshot.Base;
 using Steepshot.Core;
-using Steepshot.Utils;
 using Android.Content;
-using Android.Runtime;
-using Steepshot.Core.Authorization;
-using Steepshot.Core.Localization;
-using Steepshot.Core.Utils;
-using Steepshot.Fragment;
 using Steepshot.Services;
 
 namespace Steepshot.Activity
@@ -25,14 +17,7 @@ namespace Steepshot.Activity
         {
             base.OnCreate(savedInstanceState);
 
-            AppDomain.CurrentDomain.UnhandledException -= OnCurrentDomainOnUnhandledExceptionAsync;
-            TaskScheduler.UnobservedTaskException -= OnTaskSchedulerOnUnobservedTaskException;
-            AndroidEnvironment.UnhandledExceptionRaiser -= OnUnhandledExceptionRaiser;
-
-            AppDomain.CurrentDomain.UnhandledException += OnCurrentDomainOnUnhandledExceptionAsync;
-            TaskScheduler.UnobservedTaskException += OnTaskSchedulerOnUnobservedTaskException;
-            AndroidEnvironment.UnhandledExceptionRaiser += OnUnhandledExceptionRaiser;
-
+           
             GAService.Instance.InitializeGAService(this);
 
             switch (Intent.Action)
@@ -62,34 +47,6 @@ namespace Steepshot.Activity
                     }
             }
             StartActivity(App.User.HasPostingPermission ? typeof(RootActivity) : typeof(GuestActivity));
-        }
-
-        private async void OnTaskSchedulerOnUnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs e)
-        {
-            await App.Logger.ErrorAsync(e.Exception);
-
-            this.ShowAlert(LocalizationKeys.UnexpectedError, Android.Widget.ToastLength.Short);
-        }
-
-        private async void OnCurrentDomainOnUnhandledExceptionAsync(object sender, UnhandledExceptionEventArgs e)
-        {
-            var ex = e.ExceptionObject as Exception;
-            if (ex != null)
-                ex = new Exception(e.ExceptionObject.ToString());
-
-            if (e.IsTerminating)
-                await App.Logger.FatalAsync(ex);
-            else
-                await App.Logger.ErrorAsync(ex);
-
-            this.ShowAlert(ex, Android.Widget.ToastLength.Short);
-        }
-
-        private async void OnUnhandledExceptionRaiser(object sender, RaiseThrowableEventArgs e)
-        {
-            await App.Logger.ErrorAsync(e.Exception);
-
-            this.ShowAlert(e.Exception, Android.Widget.ToastLength.Short);
         }
     }
 }

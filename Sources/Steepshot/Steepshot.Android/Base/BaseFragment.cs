@@ -1,6 +1,8 @@
-﻿using Android.Content;
+﻿using System;
+using Android.Content;
 using Android.OS;
 using Android.Views;
+using CheeseBind;
 using Steepshot.Activity;
 using Steepshot.CustomViews;
 using Steepshot.Fragment;
@@ -28,6 +30,7 @@ namespace Steepshot.Base
         {
             IsInitialized = false;
             base.OnDetach();
+            Cheeseknife.Reset(this);
         }
 
         public virtual bool OnBackPressed() => false;

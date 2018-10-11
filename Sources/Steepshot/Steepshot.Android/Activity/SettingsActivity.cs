@@ -248,9 +248,8 @@ namespace Steepshot.Activity
 
         protected override async void OnDestroy()
         {
-            base.OnDestroy();
             await SavePushSettingsAsync();
-            Cheeseknife.Reset(this);
+            base.OnDestroy();
         }
 
         private void OnLowRatedSwitcherOnCheckedChange(object sender, CompoundButton.CheckedChangeEventArgs e)

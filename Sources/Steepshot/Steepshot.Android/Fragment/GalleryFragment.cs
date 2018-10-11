@@ -98,15 +98,7 @@ namespace Steepshot.Fragment
 
             _pickedItems = new List<GalleryMediaModel>();
         }
-
-        public override void OnDetach()
-        {
-            base.OnDetach();
-            Cheeseknife.Reset(this);
-            GC.Collect(0);
-        }
-
-
+        
         private void NextBtnOnClick(object sender, EventArgs eventArgs)
         {
             if (!_preview.IsBitmapReady)
@@ -348,6 +340,12 @@ namespace Steepshot.Fragment
             {
                 _gallery = new GalleryMediaModel[0];
             }
+        }
+
+        public override void OnDetach()
+        {
+            _gridView.SetAdapter(null);
+            base.OnDetach();
         }
     }
 }

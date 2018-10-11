@@ -28,7 +28,7 @@ namespace Steepshot.Core.Presenters
 
             var result = await TaskHelper
                 .TryRunTaskAsync(SteepshotApiClient.GetPostInfoAsync, request, OnDisposeCts.Token)
-                .ConfigureAwait(false);
+                .ConfigureAwait(true);
 
             if (result.IsSuccess)
             {

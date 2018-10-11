@@ -198,39 +198,23 @@ namespace Steepshot.Core.Presenters
             if (post == null || post.VoteChanging || post.FlagChanging)
                 return new OperationResult<Post>(new OperationCanceledException());
 
-            post.VoteChanging = true;
             IsEnableVote = false;
-            NotifySourceChanged(nameof(TryVoteAsync), true);
+            post.VoteChanging = true;
 
             var wasFlaged = post.Flag;
             var request = new VoteModel(User.UserInfo, post, post.Vote ? VoteType.Down : VoteType.Up);
-            var response = await TaskHelper.TryRunTaskAsync(VoteAsync, request, OnDisposeCts.Token).ConfigureAwait(false);
+            var response = await TaskHelper.TryRunTaskAsync(VoteAsync, request, OnDisposeCts.Token).ConfigureAwait(true);
 
             if (response.IsSuccess)
             {
                 if (post.IsComment)
-                {
                     ChangeLike(post, wasFlaged);
-                }
                 else
-                {
                     CashManager.Add(response.Result);
-                }
-            }
-            else if (response.Exception is RequestException requestException)
-            {
-                //TODO:KOA: bad solution...
-                if (requestException.RawResponse.Contains(Constants.VotedInASimilarWaySteem) ||
-                    requestException.RawResponse.Contains(Constants.VotedInASimilarWayGolos))
-                {
-                    response.Exception = null;
-                    ChangeLike(post, wasFlaged);
-                }
             }
 
-            post.VoteChanging = false;
             IsEnableVote = true;
-            NotifySourceChanged(nameof(TryVoteAsync), true);
+            post.VoteChanging = false;
 
             return response;
         }
@@ -239,11 +223,22 @@ namespace Steepshot.Core.Presenters
         {
             var result = await DitchClient.VoteAsync(model, ct).ConfigureAwait(false);
             if (!result.IsSuccess)
-                return new OperationResult<Post>(result.Exception);
+            {
+                if (result.Exception is RequestException requestException && !string.IsNullOrEmpty(requestException.RawResponse)
+                    && (requestException.RawResponse.Contains(Constants.VotedInASimilarWaySteem) || requestException.RawResponse.Contains(Constants.VotedInASimilarWayGolos)))
+                {
+                    //try to update post
+                }
+                else
+                {
+                    return new OperationResult<Post>(result.Exception);
+                }
+            }
+
 
             var startDelay = DateTime.Now;
 
-            await SteepshotApiClient.TraceAsync($"post/@{model.Author}/{model.Permlink}/{model.Type.GetDescription()}", model.Login, result.Exception, $"@{model.Author}/{model.Permlink}", ct).ConfigureAwait(false);
+            await SteepshotApiClient.TraceAsync($"post/@{model.Author}/{model.Permlink}/{model.Type.GetDescription()}", model.Login, null, $"@{model.Author}/{model.Permlink}", ct).ConfigureAwait(false);
 
             OperationResult<Post> postInfo;
             if (model.IsComment) //TODO: << delete when comment update support will added on backend
@@ -283,13 +278,12 @@ namespace Steepshot.Core.Presenters
                 return new OperationResult<Post>(new OperationCanceledException());
 
             post.FlagNotificationWasShown = post.Flag;
-            post.FlagChanging = true;
             IsEnableVote = false;
-            NotifySourceChanged(nameof(TryFlagAsync), true);
+            post.FlagChanging = true;
 
             var wasVote = post.Vote;
             var request = new VoteModel(User.UserInfo, post, post.Flag ? VoteType.Down : VoteType.Flag);
-            var response = await TaskHelper.TryRunTaskAsync(VoteAsync, request, OnDisposeCts.Token).ConfigureAwait(false);
+            var response = await TaskHelper.TryRunTaskAsync(VoteAsync, request, OnDisposeCts.Token).ConfigureAwait(true);
 
             if (response.IsSuccess)
             {
@@ -302,20 +296,9 @@ namespace Steepshot.Core.Presenters
                     CashManager.Add(response.Result);
                 }
             }
-            else if (response.Exception is RequestException requestException)
-            {
-                //TODO:KOA: bad solution...
-                if (requestException.RawResponse.Contains(Constants.VotedInASimilarWaySteem) ||
-                    requestException.RawResponse.Contains(Constants.VotedInASimilarWayGolos))
-                {
-                    response.Exception = null;
-                    ChangeFlag(post, wasVote);
-                }
-            }
 
-            post.FlagChanging = false;
             IsEnableVote = true;
-            NotifySourceChanged(nameof(TryFlagAsync), true);
+            post.FlagChanging = false;
 
             return response;
         }

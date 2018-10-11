@@ -38,7 +38,7 @@ namespace Steepshot.Core.Presenters
             bool isNeedRepeat;
             do
             {
-                var response = await RunAsSingleTaskAsync(SteepshotApiClient.GetPostsAsync, request).ConfigureAwait(false);
+                var response = await RunAsSingleTaskAsync(SteepshotApiClient.GetPostsAsync, request).ConfigureAwait(true);
                 isNeedRepeat = ResponseProcessing(response, ItemsLimit, out exception, nameof(TryLoadNextTopPostsAsync));
             } while (isNeedRepeat);
 
@@ -64,7 +64,7 @@ namespace Steepshot.Core.Presenters
             bool isNeedRepeat;
             do
             {
-                var response = await RunAsSingleTaskAsync(SteepshotApiClient.GetPostsByCategoryAsync, request).ConfigureAwait(false);
+                var response = await RunAsSingleTaskAsync(SteepshotApiClient.GetPostsByCategoryAsync, request).ConfigureAwait(true);
                 isNeedRepeat = ResponseProcessing(response, ItemsLimit, out exception, nameof(TryGetSearchedPostsAsync));
             } while (isNeedRepeat);
 

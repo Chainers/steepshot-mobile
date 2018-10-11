@@ -10,6 +10,7 @@ using Android.Support.V4.Content;
 using Android.Support.V7.App;
 using Android.Views;
 using Android.Views.InputMethods;
+using CheeseBind;
 using Java.Lang;
 using Steepshot.Core.Utils;
 using Steepshot.Fragment;
@@ -68,6 +69,12 @@ namespace Steepshot.Base
             base.OnTrimMemory(level);
         }
 
+        protected override void OnDestroy()
+        {
+            base.OnDestroy();
+            Cheeseknife.Reset(this);
+        }
+        
         public void HideKeyboard()
         {
             if (CurrentFocus != null)
