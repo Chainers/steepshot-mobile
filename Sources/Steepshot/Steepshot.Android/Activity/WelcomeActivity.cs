@@ -55,13 +55,7 @@ namespace Steepshot.Activity
             _golosLogin.Click += GolosLogin;
             _regButton.Click += RegistrationClick;
         }
-
-        protected override void OnDestroy()
-        {
-            base.OnDestroy();
-            Cheeseknife.Reset(this);
-        }
-
+        
         private async void SteemLogin(object sender, EventArgs e)
         {
             _steemLoader.Visibility = ViewStates.Visible;

@@ -14,6 +14,7 @@ using Steepshot.iOS.ViewControllers;
 using Steepshot.iOS.CustomViews;
 using PureLayout.Net;
 using Steepshot.iOS.Helpers;
+using System.ComponentModel;
 
 namespace Steepshot.iOS.Cells
 {
@@ -234,8 +235,10 @@ namespace Steepshot.iOS.Cells
 
         public void UpdateCell(Post post)
         {
-            
+            if (_currentPost != null)
+                _currentPost.PropertyChanged -= PostOnPropertyChanged;
             _currentPost = post;
+            _currentPost.PropertyChanged += PostOnPropertyChanged;
 
             _scheduledWorkAvatar?.Cancel();
             if (!string.IsNullOrEmpty(_currentPost.Avatar))
@@ -248,30 +251,13 @@ namespace Steepshot.iOS.Cells
             _commentText.Text = post.Body;
 
             _like.Transform = CGAffineTransform.MakeScale(1f, 1f);
-            if (_currentPost.VoteChanging)
-                Animate();
-            else
-            {
-                _like.Layer.RemoveAllAnimations();
-                _like.LayoutIfNeeded();
-                if (BasePostPresenter.IsEnableVote)
-                    _like.Image = _currentPost.Vote ? UIImage.FromBundle("ic_comment_like_active") : UIImage.FromBundle("ic_comment_like_inactive");
-                else
-                    _like.Image = _currentPost.Vote ? UIImage.FromBundle("ic_comment_like_active_disabled") : UIImage.FromBundle("ic_comment_like_inactive_disabled");
-                _like.UserInteractionEnabled = true;
-            }
+
 
             if (_currentPost.Editing)
                 ContentView.BackgroundColor = UIColor.FromRGB(255, 235, 143).ColorWithAlpha(0.5f);
             else
                 ContentView.BackgroundColor = UIColor.White;
 
-            _likesLabel.Text = AppDelegate.Localization.GetText(_currentPost.NetLikes == 1 ? LocalizationKeys.Like : LocalizationKeys.Likes, _currentPost.NetLikes);
-            _flagsLabel.Text = AppDelegate.Localization.GetText(_currentPost.NetFlags == 1 ? LocalizationKeys.Flag : LocalizationKeys.Flags, _currentPost.NetFlags);
-            _costLabel.Text = StringHelper.ToFormatedCurrencyString(_currentPost.TotalPayoutReward, AppDelegate.MainChain);
-
-            _flagsLabel.Hidden = _currentPost.NetFlags == 0;
-            _likesLabel.Hidden = _currentPost.NetLikes == 0;
             _replyLabel.Hidden = _currentPost.Author == AppDelegate.User.Login || !AppDelegate.User.HasPostingPermission;
 
             if (_currentPost.Body != Core.Constants.DeletedPostText)
@@ -289,6 +275,84 @@ namespace Steepshot.iOS.Cells
             }
             else
                 RightButtons = new UIView[0];
+
+            UpdateLike(_currentPost);
+            UpdateLikeCount(_currentPost);
+            UpdateFlagCount(_currentPost);
+            UpdateTotalPayoutReward(_currentPost);
+        }
+
+        private void PostOnPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            var post = sender as Post;
+            if (post == null || _currentPost != post)
+                return;
+
+            switch (e.PropertyName)
+            {
+                case nameof(Post.Flag):
+                case nameof(Post.Vote):
+                case nameof(Post.FlagChanging):
+                case nameof(Post.VoteChanging):
+                    {
+                        UpdateLike(post);
+                        break;
+                    }
+                case nameof(Post.NetLikes):
+                    {
+                        UpdateLikeCount(post);
+                        break;
+                    }
+                case nameof(Post.NetFlags):
+                    {
+                        UpdateFlagCount(post);
+                        break;
+                    }
+                case nameof(Post.TotalPayoutReward):
+                    {
+                        UpdateTotalPayoutReward(post);
+                        break;
+                    }
+            }
+        }
+        
+        private void UpdateTotalPayoutReward(Post post)
+        {
+            _costLabel.Text = StringHelper.ToFormatedCurrencyString(post.TotalPayoutReward, AppDelegate.MainChain);
+        }
+
+        private void UpdateFlagCount(Post post)
+        {
+            _flagsLabel.Text = AppDelegate.Localization.GetText(post.NetFlags == 1 ? LocalizationKeys.Flag : LocalizationKeys.Flags, post.NetFlags);
+            _flagsLabel.Hidden = post.NetFlags == 0;
+        }
+
+        private void UpdateLikeCount(Post post)
+        {
+            _likesLabel.Text = AppDelegate.Localization.GetText(post.NetLikes == 1 ? LocalizationKeys.Like : LocalizationKeys.Likes, post.NetLikes);
+            _likesLabel.Hidden = post.NetLikes == 0;
+        }
+
+        private void UpdateLike(Post post)
+        {
+            if (post.VoteChanging)
+            {
+                _like.Image = UIImage.FromBundle("ic_comment_like_active");
+                Animate(0.4, 0, UIViewAnimationOptions.Autoreverse | UIViewAnimationOptions.Repeat | UIViewAnimationOptions.CurveEaseIn, () =>
+                {
+                    _like.Transform = CGAffineTransform.MakeScale(0.5f, 0.5f);
+                }, null);
+            }
+            else
+            {
+                _like.Layer.RemoveAllAnimations();
+                _like.LayoutIfNeeded();
+                if (BasePostPresenter.IsEnableVote)
+                    _like.Image = post.Vote ? UIImage.FromBundle("ic_comment_like_active") : UIImage.FromBundle("ic_comment_like_inactive");
+                else
+                    _like.Image = post.Vote ? UIImage.FromBundle("ic_comment_like_active_disabled") : UIImage.FromBundle("ic_comment_like_inactive_disabled");
+                _like.UserInteractionEnabled = true;
+            }
         }
 
         private void BaseViewController_SliderAction(bool isSliderOpening)
@@ -298,15 +362,6 @@ namespace Steepshot.iOS.Cells
                 RightButtons = rigthButtons;
                 _sliderView.Close();
             }
-        }
-
-        private void Animate()
-        {
-            _like.Image = UIImage.FromBundle("ic_comment_like_active");
-            Animate(0.4, 0, UIViewAnimationOptions.Autoreverse | UIViewAnimationOptions.Repeat | UIViewAnimationOptions.CurveEaseIn, () =>
-            {
-                _like.Transform = CGAffineTransform.MakeScale(0.5f, 0.5f);
-            }, null);
         }
 
         private void LikeTap()
@@ -320,7 +375,8 @@ namespace Steepshot.iOS.Cells
         {
 
             CellAction = null;
-
+            
+            _currentPost.PropertyChanged -= PostOnPropertyChanged;
             _replyLabel.RemoveGestureRecognizer(_replyTap);
             _profileTapView.RemoveGestureRecognizer(_tap);
             _costLabel.RemoveGestureRecognizer(_costTap);

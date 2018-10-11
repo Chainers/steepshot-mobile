@@ -79,14 +79,14 @@ namespace Steepshot.iOS
             return true;
         }
 
-        private void OnUnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs e)
+        private async void OnUnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs e)
         {
-            Logger.ErrorAsync(e.Exception);
+            await Logger.ErrorAsync(e.Exception);
         }
 
-        private void OnUnhandledException(object sender, UnhandledExceptionEventArgs e)
+        private async void OnUnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
-            Logger.ErrorAsync((Exception)e.ExceptionObject);
+            await Logger.ErrorAsync((Exception)e.ExceptionObject);
         }
 
         private void SetupFFImageLoading()

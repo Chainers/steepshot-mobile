@@ -126,14 +126,7 @@ namespace Steepshot.Fragment
             base.OnResume();
             ToggleTabBar(true);
         }
-
-        public override void OnDetach()
-        {
-            _searchFacade.TasksCancel();
-            base.OnDetach();
-            Cheeseknife.Reset(this);
-        }
-
+        
         private void OnClearClick(object sender, EventArgs e)
         {
             _searchView.Text = string.Empty;
@@ -309,6 +302,14 @@ namespace Steepshot.Fragment
             btSecond.SetTextColor(Style.R151G155B158);
 
             await GetTags(true, isLoaderNeeded);
+        }
+
+        public override void OnDetach()
+        {
+            _searchFacade.TasksCancel();
+            _categories.SetAdapter(null);
+            _users.SetAdapter(null);
+            base.OnDetach();
         }
     }
 }

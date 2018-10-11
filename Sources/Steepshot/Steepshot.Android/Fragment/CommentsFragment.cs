@@ -85,7 +85,7 @@ namespace Steepshot.Fragment
                 return;
 
             base.OnViewCreated(view, savedInstanceState);
-            
+
             _cancel.Text = App.Localization.GetText(LocalizationKeys.Cancel);
             _save.Text = App.Localization.GetText(LocalizationKeys.Save);
             _textInput.Hint = App.Localization.GetText(LocalizationKeys.PutYourComment);
@@ -158,9 +158,8 @@ namespace Steepshot.Fragment
 
         public override void OnDetach()
         {
-            CommentEditCancelBtnOnClick(null, null);
+            _comments.SetAdapter(null);
             base.OnDetach();
-            Cheeseknife.Reset(this);
         }
 
         private void OnBack(object sender, EventArgs e)

@@ -88,7 +88,7 @@ namespace Steepshot.Core.Tests.Stubs
 
                 if (!model.ShowLowRated)
                 {
-                    resp.Results = resp.Results.Where(i => i.AuthorReputation > 0 && i.NetVotes > 0).ToList();
+                    resp.Results = resp.Results.Where(i => i.AuthorReputation > 0).ToList();
                 }
 
                 if (!model.ShowNsfw)
@@ -127,7 +127,7 @@ namespace Steepshot.Core.Tests.Stubs
 
                 if (!request.ShowLowRated)
                 {
-                    resp.Results = resp.Results.Where(i => i.AuthorReputation > 0 && i.NetVotes > 0).ToList();
+                    resp.Results = resp.Results.Where(i => i.AuthorReputation > 0).ToList();
                 }
 
                 if (!request.ShowNsfw)
@@ -168,7 +168,7 @@ namespace Steepshot.Core.Tests.Stubs
 
                 if (!model.ShowLowRated)
                 {
-                    resp.Results = resp.Results.Where(i => i.AuthorReputation > 0 && i.NetVotes > 0).ToList();
+                    resp.Results = resp.Results.Where(i => i.AuthorReputation > 0).ToList();
                 }
                 if (!model.ShowNsfw)
                 {
@@ -221,7 +221,7 @@ namespace Steepshot.Core.Tests.Stubs
 
                 if (!model.ShowLowRated)
                 {
-                    resp.Results = resp.Results.Where(i => i.AuthorReputation > 0 && i.NetVotes > 0).ToList();
+                    resp.Results = resp.Results.Where(i => i.AuthorReputation > 0).ToList();
                 }
                 if (!model.ShowNsfw)
                 {

@@ -158,12 +158,6 @@ namespace Steepshot.Fragment
             ViewCompat.SetElevation(_toolbar, BitmapUtils.DpToPixel(2, Resources));
         }
 
-        public override void OnDetach()
-        {
-            base.OnDetach();
-            Cheeseknife.Reset(this);
-        }
-
         private void OnLogoClick(object sender, EventArgs e)
         {
             _feedList.ScrollToPosition(0);
@@ -338,6 +332,12 @@ namespace Steepshot.Fragment
             }
         }
 
+        public override void OnDetach()
+        {
+            _feedList.SetAdapter(null);
+            base.OnDetach();
+        }
+        
         private void CloseAction()
         {
             ClosePost();

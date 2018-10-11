@@ -58,13 +58,7 @@ namespace Steepshot.Activity
             _preSignInBtn.Click += SignInBtn_Click;
             _rootLayout.Click += HideKeyboard;
         }
-
-        protected override void OnDestroy()
-        {
-            base.OnDestroy();
-            Cheeseknife.Reset(this);
-        }
-
+        
         public override void OnBackPressed()
         {
             base.OnBackPressed();

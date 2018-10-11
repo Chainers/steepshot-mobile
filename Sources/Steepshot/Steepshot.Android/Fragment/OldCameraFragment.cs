@@ -185,13 +185,7 @@ namespace Steepshot.Fragment
             _holder.Dispose();
             _holder = null;
         }
-
-        public override void OnDetach()
-        {
-            base.OnDetach();
-            Cheeseknife.Reset(this);
-        }
-
+        
         private void FlashClick(object sender, EventArgs e)
         {
             _flashButton.Enabled = false;

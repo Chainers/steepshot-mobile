@@ -413,18 +413,7 @@ namespace Steepshot.Fragment
             IsSpammer = null;
             EnabledPost();
         }
-
-        public override void OnDetach()
-        {
-            if (IsBound)
-            {
-                Context.UnbindService(_jobServiceConnection);
-                IsBound = false;
-            }
-            CleanCash();
-            base.OnDetach();
-        }
-
+        
         private void CleanCash()
         {
             var files = Context.CacheDir.ListFiles();
@@ -470,6 +459,19 @@ namespace Steepshot.Fragment
 
             base.OnPause();
         }
+        
+        public override void OnDetach()
+        {
+            Photos.SetAdapter(null);
+            if (IsBound)
+            {
+                Context.UnbindService(_jobServiceConnection);
+                IsBound = false;
+            }
+            CleanCash();
+            base.OnDetach();
+        }
+
 
         #region Adapter
 
