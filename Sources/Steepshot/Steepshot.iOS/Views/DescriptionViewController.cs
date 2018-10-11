@@ -231,6 +231,7 @@ namespace Steepshot.iOS.Views
                 tagField.AddGestureRecognizer(_openTagsGestureRecognizer);
                 _resizeButton.AddGestureRecognizer(_zoomTap);
                 _rotateButton.AddGestureRecognizer(_rotateTap);
+                ((InteractivePopNavigationController)NavigationController).DidEnterBackgroundEvent += VideoViewTapped;
             }
         }
 
@@ -251,6 +252,7 @@ namespace Steepshot.iOS.Views
                 tagField.RemoveGestureRecognizer(_openTagsGestureRecognizer);
                 _resizeButton.RemoveGestureRecognizer(_zoomTap);
                 _rotateButton.RemoveGestureRecognizer(_rotateTap);
+                ((InteractivePopNavigationController)NavigationController).DidEnterBackgroundEvent -= VideoViewTapped;
             }
             videoContainer?.Stop();
             base.ViewWillDisappear(animated);
