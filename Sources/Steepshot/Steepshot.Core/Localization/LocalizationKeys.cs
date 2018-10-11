@@ -237,5 +237,7 @@
         PromoteConfirmation, 
         TransferConfirmation,
         PowerUpDownConfirmation,
+        Video,
+        EnableCameraAccess,
     }
 }

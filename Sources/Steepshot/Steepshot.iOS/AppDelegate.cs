@@ -27,7 +27,7 @@ namespace Steepshot.iOS
     [Register("AppDelegate")]
     public class AppDelegate : UIApplicationDelegate
     {
-        public static Autofac.IContainer Container { get; private set; }
+        public static IContainer Container { get; private set; }
         public static ILogService Logger { get; private set; }
         public static LocalizationManager Localization { get; private set; }
         public static User User { get; private set; }
@@ -41,7 +41,6 @@ namespace Steepshot.iOS
         {
             InitIoC();
 
-
             User = Container.GetUser();
             User.Load();
             MainChain = User.Chain;
@@ -51,7 +50,7 @@ namespace Steepshot.iOS
 
             SetupFFImageLoading();
 
-            Localization.UpdateAsync(CancellationToken.None);
+            var localitationUpdateTask = Localization.UpdateAsync(CancellationToken.None);
 
             GAService.Instance.InitializeGAService();
 
@@ -166,14 +165,16 @@ namespace Steepshot.iOS
 
         public override void DidEnterBackground(UIApplication application)
         {
-            // Use this method to release shared resources, save AppDelegate.User data, invalidate timers and store the application state.
-            // If your application supports background exection this method is called instead of WillTerminate when the AppDelegate.User quits.
+            ((InteractivePopNavigationController)((AppDelegate)UIApplication.SharedApplication.Delegate).Window.RootViewController).DidEnterBackground();
+
+            // Use this method to release shared resources, save AppSettings.User data, invalidate timers and store the application state.
+            // If your application supports background exection this method is called instead of WillTerminate when the AppSettings.User quits.
         }
 
         public override void WillEnterForeground(UIApplication application)
         {
             //Remake this: invoke WillEnterForeground() only for top view of stack
-            ((IWillEnterForeground)((InteractivePopNavigationController)((AppDelegate)UIApplication.SharedApplication.Delegate).Window.RootViewController).RootViewController).WillEnterForeground();
+            ((InteractivePopNavigationController)((AppDelegate)UIApplication.SharedApplication.Delegate).Window.RootViewController).WillEnterForeground();
 
             //((IWillEnterForeground)InitialViewController).WillEnterForeground();
             // Called as part of the transiton from background to active state.

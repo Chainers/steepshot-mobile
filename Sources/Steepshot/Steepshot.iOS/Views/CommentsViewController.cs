@@ -24,6 +24,7 @@ namespace Steepshot.iOS.Views
         private CommentsTextViewDelegate _commentsTextViewDelegate;
         private CommentsTableViewSource _tableSource;
         private readonly UIBarButtonItem _leftBarButton = new UIBarButtonItem();
+        private UINavigationController _navController;
         private readonly Post _post;
         private Post _postToEdit;
 
@@ -53,6 +54,8 @@ namespace Steepshot.iOS.Views
         {
             base.ViewDidLoad();
             View.BackgroundColor = UIColor.White;
+
+            _navController = TabBarController != null ? TabBarController.NavigationController : NavigationController;
 
             CreateView();
 
@@ -90,7 +93,7 @@ namespace Steepshot.iOS.Views
             _commentsTextViewDelegate.ChangedAction += CommentsTextViewDelegate_ChangedAction;
             _sendButton.TouchDown += CreateComment;
             _cancelButton.TouchDown += CancelTap;
-            
+            ((InteractivePopNavigationController)_navController).WillEnterForegroundEvent += WillEnterForeground;
             base.ViewWillAppear(animated);
         }
 
@@ -114,6 +117,8 @@ namespace Steepshot.iOS.Views
             
             if (IsMovingFromParentViewController)
                 CleanViewController();
+
+            ((InteractivePopNavigationController)_navController).WillEnterForegroundEvent -= WillEnterForeground;
             base.ViewWillDisappear(animated);
         }
         
