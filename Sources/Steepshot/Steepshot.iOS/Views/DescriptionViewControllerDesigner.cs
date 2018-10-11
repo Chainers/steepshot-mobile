@@ -230,11 +230,13 @@ namespace Steepshot.iOS.Views
                 videoContainer.ChangeItem(_videoUrl);
 
                 _statusImage = new UIImageView();
-                _statusImage.Image = UIImage.FromBundle("ic_play");
+                _statusImage.Image = UIImage.FromBundle("ic_pause");
                 videoContainer.AddSubview(_statusImage);
                 _statusImage.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom, 10);
                 _statusImage.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 10);
                 _statusImage.AutoSetDimensionsToSize(new CGSize(32, 32));
+
+                videoContainer.Play();
             }
         }
 
