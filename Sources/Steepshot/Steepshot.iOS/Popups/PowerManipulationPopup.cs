@@ -3,7 +3,6 @@ using Foundation;
 using PureLayout.Net;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Presenters;
-using Steepshot.Core.Utils;
 using Steepshot.iOS.CustomViews;
 using Steepshot.iOS.Helpers;
 using Steepshot.iOS.Views;
@@ -14,7 +13,22 @@ namespace Steepshot.iOS.Popups
 {
     public class PowerManipulationPopup
     {
-        public static void Create(UINavigationController controller, WalletPresenter _presenter, Action<bool> continuePowerDownCancellation)
+        private readonly UINavigationController _controller;
+        private readonly WalletPresenter _presenter;
+        private readonly Action<bool> _continuePowerDownCancellation;
+        private CustomAlertView _alert;
+        private UIButton _powerUpButton;
+        private UIButton _powerDownButton;
+        private UIButton _cancelPowerDownButton;
+
+        public PowerManipulationPopup(UINavigationController controller, WalletPresenter presenter, Action<bool> continuePowerDownCancellation)
+        {
+            _presenter = presenter;
+            _controller = controller;
+            _continuePowerDownCancellation = continuePowerDownCancellation;
+        }
+
+        public void Create()
         {
             var commonMargin = 20;
 
@@ -23,7 +37,7 @@ namespace Steepshot.iOS.Popups
             popup.Layer.CornerRadius = 20;
             popup.BackgroundColor = Constants.R250G250B250;
 
-            var _alert = new CustomAlertView(popup, controller);
+            _alert = new CustomAlertView(popup, _controller);
 
             var dialogWidth = UIScreen.MainScreen.Bounds.Width - 10 * 2;
             popup.AutoSetDimension(ALDimension.Width, dialogWidth);
@@ -31,7 +45,7 @@ namespace Steepshot.iOS.Popups
             var title = new UILabel();
             title.TextAlignment = UITextAlignment.Center;
             title.Font = Constants.Semibold14;
-            title.Text = "SELECT ACTION";
+            title.Text = AppDelegate.Localization.GetText(LocalizationKeys.SelectAction).ToUpper();
             popup.AddSubview(title);
             title.AutoPinEdgeToSuperviewEdge(ALEdge.Top, 24);
             title.AutoPinEdgeToSuperviewEdge(ALEdge.Right, commonMargin);
@@ -46,55 +60,55 @@ namespace Steepshot.iOS.Popups
             separator.AutoPinEdgeToSuperviewEdge(ALEdge.Right, commonMargin);
             separator.AutoSetDimension(ALDimension.Height, 1);
 
-            var powerUpButton = new UIButton();
-            powerUpButton.SetTitle(AppDelegate.Localization.GetText(LocalizationKeys.PowerUp), UIControlState.Normal);
-            powerUpButton.SetTitleColor(UIColor.Black, UIControlState.Normal);
-            powerUpButton.BackgroundColor = Constants.R255G255B255;
-            powerUpButton.Layer.CornerRadius = 25;
-            powerUpButton.Font = Constants.Semibold14;
-            powerUpButton.Layer.BorderWidth = 1;
-            powerUpButton.Layer.BorderColor = Constants.R245G245B245.CGColor;
-            popup.AddSubview(powerUpButton);
+            _powerUpButton = new UIButton();
+            _powerUpButton.SetTitle(AppDelegate.Localization.GetText(LocalizationKeys.PowerUp), UIControlState.Normal);
+            _powerUpButton.SetTitleColor(UIColor.Black, UIControlState.Normal);
+            _powerUpButton.BackgroundColor = Constants.R255G255B255;
+            _powerUpButton.Layer.CornerRadius = 25;
+            _powerUpButton.Font = Constants.Semibold14;
+            _powerUpButton.Layer.BorderWidth = 1;
+            _powerUpButton.Layer.BorderColor = Constants.R245G245B245.CGColor;
+            popup.AddSubview(_powerUpButton);
 
-            powerUpButton.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, separator, 20);
-            powerUpButton.AutoPinEdgeToSuperviewEdge(ALEdge.Right, commonMargin);
-            powerUpButton.AutoPinEdgeToSuperviewEdge(ALEdge.Left, commonMargin);
-            powerUpButton.AutoSetDimension(ALDimension.Height, 50);
+            _powerUpButton.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, separator, 20);
+            _powerUpButton.AutoPinEdgeToSuperviewEdge(ALEdge.Right, commonMargin);
+            _powerUpButton.AutoPinEdgeToSuperviewEdge(ALEdge.Left, commonMargin);
+            _powerUpButton.AutoSetDimension(ALDimension.Height, 50);
 
-            var powerDownButton = new UIButton();
-            powerDownButton.SetTitle(AppDelegate.Localization.GetText(LocalizationKeys.PowerDown), UIControlState.Normal);
-            powerDownButton.SetTitleColor(UIColor.Black, UIControlState.Normal);
-            powerDownButton.BackgroundColor = Constants.R255G255B255;
-            powerDownButton.Layer.CornerRadius = 25;
-            powerDownButton.Font = Constants.Semibold14;
-            powerDownButton.Layer.BorderWidth = 1;
-            powerDownButton.Layer.BorderColor = Constants.R245G245B245.CGColor;
-            popup.AddSubview(powerDownButton);
+            _powerDownButton = new UIButton();
+            _powerDownButton.SetTitle(AppDelegate.Localization.GetText(LocalizationKeys.PowerDown), UIControlState.Normal);
+            _powerDownButton.SetTitleColor(UIColor.Black, UIControlState.Normal);
+            _powerDownButton.BackgroundColor = Constants.R255G255B255;
+            _powerDownButton.Layer.CornerRadius = 25;
+            _powerDownButton.Font = Constants.Semibold14;
+            _powerDownButton.Layer.BorderWidth = 1;
+            _powerDownButton.Layer.BorderColor = Constants.R245G245B245.CGColor;
+            popup.AddSubview(_powerDownButton);
 
-            powerDownButton.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, powerUpButton, 10);
-            powerDownButton.AutoPinEdgeToSuperviewEdge(ALEdge.Left, commonMargin);
-            powerDownButton.AutoPinEdgeToSuperviewEdge(ALEdge.Right, commonMargin);
-            powerDownButton.AutoSetDimension(ALDimension.Height, 50);
+            _powerDownButton.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, _powerUpButton, 10);
+            _powerDownButton.AutoPinEdgeToSuperviewEdge(ALEdge.Left, commonMargin);
+            _powerDownButton.AutoPinEdgeToSuperviewEdge(ALEdge.Right, commonMargin);
+            _powerDownButton.AutoSetDimension(ALDimension.Height, 50);
 
             var showCancelPowerDown = _presenter.Balances[0].ToWithdraw > 0;
 
-            var cancelPowerDownButton = new UIButton();
+            _cancelPowerDownButton = new UIButton();
 
             if (showCancelPowerDown)
             {
-                cancelPowerDownButton.SetTitle(AppDelegate.Localization.GetText(LocalizationKeys.CancelPowerDown), UIControlState.Normal);
-                cancelPowerDownButton.SetTitleColor(UIColor.Black, UIControlState.Normal);
-                cancelPowerDownButton.BackgroundColor = Constants.R255G255B255;
-                cancelPowerDownButton.Layer.CornerRadius = 25;
-                cancelPowerDownButton.Font = Constants.Semibold14;
-                cancelPowerDownButton.Layer.BorderWidth = 1;
-                cancelPowerDownButton.Layer.BorderColor = Constants.R245G245B245.CGColor;
-                popup.AddSubview(cancelPowerDownButton);
+                _cancelPowerDownButton.SetTitle(AppDelegate.Localization.GetText(LocalizationKeys.CancelPowerDown), UIControlState.Normal);
+                _cancelPowerDownButton.SetTitleColor(UIColor.Black, UIControlState.Normal);
+                _cancelPowerDownButton.BackgroundColor = Constants.R255G255B255;
+                _cancelPowerDownButton.Layer.CornerRadius = 25;
+                _cancelPowerDownButton.Font = Constants.Semibold14;
+                _cancelPowerDownButton.Layer.BorderWidth = 1;
+                _cancelPowerDownButton.Layer.BorderColor = Constants.R245G245B245.CGColor;
+                popup.AddSubview(_cancelPowerDownButton);
 
-                cancelPowerDownButton.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, powerDownButton, 10);
-                cancelPowerDownButton.AutoPinEdgeToSuperviewEdge(ALEdge.Left, commonMargin);
-                cancelPowerDownButton.AutoPinEdgeToSuperviewEdge(ALEdge.Right, commonMargin);
-                cancelPowerDownButton.AutoSetDimension(ALDimension.Height, 50);
+                _cancelPowerDownButton.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, _powerDownButton, 10);
+                _cancelPowerDownButton.AutoPinEdgeToSuperviewEdge(ALEdge.Left, commonMargin);
+                _cancelPowerDownButton.AutoPinEdgeToSuperviewEdge(ALEdge.Right, commonMargin);
+                _cancelPowerDownButton.AutoSetDimension(ALDimension.Height, 50);
             }
 
             var bottomSeparator = new UIView();
@@ -102,9 +116,9 @@ namespace Steepshot.iOS.Popups
             popup.AddSubview(bottomSeparator);
 
             if (showCancelPowerDown)
-                bottomSeparator.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, cancelPowerDownButton, 26);
+                bottomSeparator.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, _cancelPowerDownButton, 26);
             else
-                bottomSeparator.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, powerDownButton, 26);
+                bottomSeparator.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, _powerDownButton, 26);
             bottomSeparator.AutoPinEdgeToSuperviewEdge(ALEdge.Left, commonMargin);
             bottomSeparator.AutoPinEdgeToSuperviewEdge(ALEdge.Right, commonMargin);
             bottomSeparator.AutoSetDimension(ALDimension.Height, 1);
@@ -125,28 +139,40 @@ namespace Steepshot.iOS.Popups
             cancelButton.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom, commonMargin);
             cancelButton.AutoSetDimension(ALDimension.Height, 50);
 
-            powerUpButton.TouchDown += (s, ev) =>
-            {
-                _alert.Close();
-                controller.PushViewController(new PowerManipulationViewController(_presenter, Core.Models.Enums.PowerAction.PowerUp), true);
-            };
-            powerDownButton.TouchDown += (s, ev) =>
-            {
-                _alert.Close();
-                controller.PushViewController(new PowerManipulationViewController(_presenter, Core.Models.Enums.PowerAction.PowerDown), true);
-            };
-            cancelPowerDownButton.TouchDown += (s, ev) =>
-            {
-                _alert.Close();
-                var at = new NSMutableAttributedString();
-                at.Append(new NSAttributedString(string.Format(AppDelegate.Localization.GetText(LocalizationKeys.CancelPowerDownAlert),
-                                                               _presenter.Balances[0].ToWithdraw.ToBalanceValueString())));
-
-                TransferDialogPopup.Create(controller, at, continuePowerDownCancellation);
-            };
+            _powerUpButton.TouchDown += OnPowerUpPressed;
+            _powerDownButton.TouchDown += OnPowerDownPressed;
+            _cancelPowerDownButton.TouchDown += OnCancelPowerDownPressed;
             cancelButton.TouchDown += (s, ev) => { _alert.Close(); };
 
             _alert.Show();
+        }
+
+        private void OnPowerUpPressed(object sender, EventArgs args)
+        {
+            _alert.Close();
+            _controller.PushViewController(new PowerManipulationViewController(_presenter, Core.Models.Enums.PowerAction.PowerUp), true);
+        }
+
+        private void OnPowerDownPressed(object sender, EventArgs args)
+        {
+            _alert.Close();
+            _controller.PushViewController(new PowerManipulationViewController(_presenter, Core.Models.Enums.PowerAction.PowerDown), true);
+        }
+
+        private void OnCancelPowerDownPressed(object sender, EventArgs args)
+        {
+            _alert.Close();
+            var at = new NSMutableAttributedString();
+            at.Append(new NSAttributedString(string.Format(AppDelegate.Localization.GetText(LocalizationKeys.CancelPowerDownAlert),
+                                                           _presenter.Balances[0].ToWithdraw.ToBalanceValueString())));
+            TransferDialogPopup.Create(_controller, at, _continuePowerDownCancellation);
+        }
+
+        public void CleanupPopup()
+        {
+            _powerUpButton.TouchDown -= OnPowerUpPressed;
+            _powerDownButton.TouchDown -= OnPowerDownPressed;
+            _cancelPowerDownButton.TouchDown -= OnCancelPowerDownPressed;
         }
     }
 }

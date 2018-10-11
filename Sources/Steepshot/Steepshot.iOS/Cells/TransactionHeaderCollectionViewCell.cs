@@ -15,7 +15,7 @@ namespace Steepshot.iOS.Cells
         {
             _line = new UIView
             {
-                BackgroundColor = UIColor.FromRGB(240, 240, 240)
+                BackgroundColor = Constants.R240G240B240
             };
             AddSubview(_line);
 

@@ -1,12 +1,12 @@
 ﻿using System;
 using CoreGraphics;
 using PureLayout.Net;
+using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Presenters;
-using Steepshot.Core.Utils;
 using Steepshot.iOS.Delegates;
-using Steepshot.iOS.Helpers;
+using Steepshot.iOS.Popups;
 using Steepshot.iOS.Views;
 using Steepshot.iOS.ViewSources;
 using UIKit;
@@ -16,12 +16,13 @@ namespace Steepshot.iOS.Cells
 {
     public class CardsContainerHeader : UICollectionReusableView
     {
-        private readonly UIView _cardBehind = new UIView();
-        private UICollectionView _cardsCollection;
-        private readonly UIPageControl _pageControl = new UIPageControl();
         private readonly CardCollectionViewFlowDelegate _cardsGridDelegate = new CardCollectionViewFlowDelegate();
-        private readonly UIButton transfer = new UIButton();
-        private readonly UIButton more = new UIButton();
+        private readonly UIView _cardBehind = new UIView();
+        private readonly UIPageControl _pageControl = new UIPageControl();
+        private readonly UIButton _transfer = new UIButton();
+        private readonly UIButton _more = new UIButton();
+        private PowerManipulationPopup _morePopup;
+        private UICollectionView _cardsCollection;
         private WalletPresenter _presenter;
 
         public WalletPresenter Presenter
@@ -50,9 +51,9 @@ namespace Steepshot.iOS.Cells
 
         public void ReloadCollection()
         {
-            more.Enabled = true;
-            transfer.Enabled = true;
-            Constants.CreateGradient(transfer, 25);
+            _more.Enabled = true;
+            _transfer.Enabled = true;
+            Constants.CreateGradient(_transfer, 25);
             _cardsCollection.UserInteractionEnabled = true;
             _cardsCollection.ReloadData();
             _pageControl.Pages = _presenter.Balances.Count;
@@ -71,9 +72,9 @@ namespace Steepshot.iOS.Cells
             var cardCenter = ((UIScreen.MainScreen.Bounds.Width - 20f * 2f) * cardProportion / 2) + 20;
             var cardBottom = ((UIScreen.MainScreen.Bounds.Width - 20f * 2f) * cardProportion) + 25;
 
-            _cardBehind.BackgroundColor = UIColor.FromRGB(255, 255, 255);
+            _cardBehind.BackgroundColor = Constants.R255G255B255;
             _cardBehind.Layer.CornerRadius = 16;
-            Constants.CreateShadowFromZeplin(_cardBehind, UIColor.FromRGB(0, 0, 0), 0.03f, 0, 1, 1, 0);
+            Constants.CreateShadowFromZeplin(_cardBehind, UIColor.Black, 0.03f, 0, 1, 1, 0);
             AddSubview(_cardBehind);
 
             _cardBehind.AutoPinEdgeToSuperviewEdge(ALEdge.Top, cardCenter);
@@ -86,7 +87,7 @@ namespace Steepshot.iOS.Cells
                 ScrollDirection = UICollectionViewScrollDirection.Horizontal,
                 ItemSize = cellSize,
                 MinimumLineSpacing = 10,
-                SectionInset = new UIEdgeInsets(0, 20, 0, 20),
+                SectionInset = new UIEdgeInsets(0, 20, 0, 20)
             })
             {
                 BackgroundColor = UIColor.Clear
@@ -114,63 +115,44 @@ namespace Steepshot.iOS.Cells
             _cardsCollection.ClipsToBounds = false;
 
             _pageControl.Pages = 5;
-            _pageControl.PageIndicatorTintColor = UIColor.FromRGB(0, 0, 0).ColorWithAlpha(0.1f);
-            _pageControl.CurrentPageIndicatorTintColor = UIColor.FromRGB(0, 0, 0).ColorWithAlpha(0.4f);
+            _pageControl.PageIndicatorTintColor = UIColor.Black.ColorWithAlpha(0.1f);
+            _pageControl.CurrentPageIndicatorTintColor = UIColor.Black.ColorWithAlpha(0.4f);
             _pageControl.UserInteractionEnabled = false;
             AddSubview(_pageControl);
 
             _pageControl.AutoPinEdgeToSuperviewEdge(ALEdge.Top, cardBottom);
             _pageControl.AutoAlignAxis(ALAxis.Vertical, _cardsCollection);
 
-            transfer.Enabled = false;
-            transfer.SetTitle("TRANSFER", UIControlState.Normal);
-            transfer.Font = Constants.Bold14;
-            transfer.SetTitleColor(UIColor.White, UIControlState.Normal);
-            transfer.Layer.CornerRadius = 25;
-            transfer.BackgroundColor = UIColor.FromRGB(230, 230, 230);
-            transfer.ClipsToBounds = true;
-            AddSubview(transfer);
+            _transfer.Enabled = false;
+            _transfer.SetTitle(AppDelegate.Localization.GetText(LocalizationKeys.Transfer).ToUpper(), UIControlState.Normal);
+            _transfer.Font = Constants.Bold14;
+            _transfer.SetTitleColor(UIColor.White, UIControlState.Normal);
+            _transfer.Layer.CornerRadius = 25;
+            _transfer.BackgroundColor = Constants.R230G230B230;
+            _transfer.ClipsToBounds = true;
+            AddSubview(_transfer);
 
-            transfer.TouchDown += (object sender, EventArgs e) =>
-            {
-                _navigationController.PushViewController(new TransferViewController(), true);
-            };
+            _transfer.TouchDown += OnTransferPressed;
 
-            transfer.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, _pageControl, 20);
-            transfer.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 20);
-            transfer.AutoSetDimension(ALDimension.Height, 50);
+            _transfer.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, _pageControl, 20);
+            _transfer.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 20);
+            _transfer.AutoSetDimension(ALDimension.Height, 50);
 
-            more.Enabled = false;
-            more.BackgroundColor = Constants.R250G250B250;
-            more.SetImage(UIImage.FromBundle("ic_more"), UIControlState.Normal);
-            more.Layer.CornerRadius = 25;
-            more.ClipsToBounds = true;
-            more.TouchDown += (object sender, EventArgs e) =>
-            {
-                Popups.PowerManipulationPopup.Create(_navigationController, _presenter, async (bool response) =>
-                {
-                    if (response)
-                    {
-                        var balance = _presenter.Balances[0];
-                        var model = new BalanceModel(0, balance.MaxDecimals, balance.CurrencyType)
-                        {
-                            UserInfo = balance.UserInfo
-                        };
+            _more.Enabled = false;
+            _more.BackgroundColor = Constants.R250G250B250;
+            _more.SetImage(UIImage.FromBundle("ic_more"), UIControlState.Normal);
+            _more.Layer.CornerRadius = 25;
+            _more.ClipsToBounds = true;
+            _more.TouchDown += OnMorePressed; 
+            AddSubview(_more);
 
-                        await _presenter.TryPowerUpOrDownAsync(model, PowerAction.CancelPowerDown);
-                        _presenter.UpdateWallet?.Invoke();
-                    }
-                });
-            };
-            AddSubview(more);
-
-            more.AutoAlignAxis(ALAxis.Horizontal, transfer);
-            more.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 20);
-            more.AutoPinEdge(ALEdge.Left, ALEdge.Right, transfer, 10);
-            more.AutoSetDimensionsToSize(new CGSize(50, 50));
+            _more.AutoAlignAxis(ALAxis.Horizontal, _transfer);
+            _more.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 20);
+            _more.AutoPinEdge(ALEdge.Left, ALEdge.Right, _transfer, 10);
+            _more.AutoSetDimensionsToSize(new CGSize(50, 50));
 
             var historyLabel = new UILabel();
-            historyLabel.Text = "Transaction history";
+            historyLabel.Text = AppDelegate.Localization.GetText(LocalizationKeys.TransactionHistory);
             historyLabel.Font = Constants.Regular20;
             historyLabel.TextColor = UIColor.Black;
 
@@ -179,6 +161,38 @@ namespace Steepshot.iOS.Cells
             historyLabel.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, _cardBehind, 27);
             historyLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 20);
             historyLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom);
+        }
+
+        private void OnTransferPressed(object sender, EventArgs e)
+        {
+            _navigationController.PushViewController(new TransferViewController(), true);
+        }
+
+        private void OnMorePressed(object sender, EventArgs e)
+        {
+            _morePopup = new PowerManipulationPopup(_navigationController, _presenter, CancellationHandler);
+            _morePopup.Create();
+        }
+
+        private async void CancellationHandler(bool response)
+        {
+            if (response)
+            {
+                var balance = _presenter.Balances[0];
+                var model = new BalanceModel(0, balance.MaxDecimals, balance.CurrencyType)
+                {
+                    UserInfo = balance.UserInfo
+                };
+
+                await _presenter.TryPowerUpOrDownAsync(model, PowerAction.CancelPowerDown);
+                _presenter.UpdateWallet?.Invoke();
+            }
+        }
+
+        public void ReleaseCell()
+        {
+            _transfer.TouchDown -= OnTransferPressed;
+            _morePopup?.CleanupPopup();
         }
     }
 }

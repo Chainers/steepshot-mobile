@@ -3,7 +3,6 @@ using CoreGraphics;
 using PureLayout.Net;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Presenters;
-using Steepshot.Core.Utils;
 using Steepshot.iOS.Cells;
 using Steepshot.iOS.CustomViews;
 using Steepshot.iOS.Delegates;
@@ -13,15 +12,20 @@ using Steepshot.iOS.ViewSources;
 using UIKit;
 using Steepshot.Core.Extensions;
 using System.Threading.Tasks;
+using Steepshot.Core.Models.Requests;
 
 namespace Steepshot.iOS.Views
 {
     public class WalletViewController : BaseViewControllerWithPresenter<WalletPresenter>
     {
-        private UICollectionView _historyCollection;
-        private TransferCollectionViewSource _historySource;
         private readonly UIActivityIndicatorView _loader = new UIActivityIndicatorView();
         private readonly UIRefreshControl _refreshControl = new UIRefreshControl();
+        private UICollectionView _historyCollection;
+        private TransferCollectionViewSource _historySource;
+
+        private UIButton _selectButton;
+        private UIActivityIndicatorView _claimLoader;
+        private CustomAlertView _claimAlert;
 
         public override void ViewDidLoad()
         {
@@ -48,8 +52,9 @@ namespace Steepshot.iOS.Views
         {
             if (IsMovingToParentViewController)
             {
-                _refreshControl.ValueChanged += OnRefresh;
                 Presenter.UpdateWallet += UpdateWallet;
+                _refreshControl.ValueChanged += OnRefresh;
+                _historySource.CellAction += OnHistoryCellAction;
             }
             base.ViewDidAppear(animated);
         }
@@ -59,8 +64,10 @@ namespace Steepshot.iOS.Views
             base.ViewDidDisappear(animated);
             if (IsMovingFromParentViewController)
             {
-                _refreshControl.ValueChanged -= OnRefresh;
                 Presenter.UpdateWallet -= UpdateWallet;
+                _historySource.Header?.ReleaseCell();
+                _historySource.CellAction -= OnHistoryCellAction;
+                _refreshControl.ValueChanged -= OnRefresh;
             }
         }
 
@@ -105,10 +112,10 @@ namespace Steepshot.iOS.Views
             _historyCollection = new UICollectionView(CGRect.Null, new UICollectionViewFlowLayout()
             {
                 MinimumLineSpacing = 0,
-                FooterReferenceSize = new CGSize(0, 0),
+                FooterReferenceSize = new CGSize(0, 0)
             })
             {
-                BackgroundColor = UIColor.Clear,
+                BackgroundColor = UIColor.Clear
             };
             _historyCollection.RegisterClassForCell(typeof(TransactionCollectionViewCell), nameof(TransactionCollectionViewCell));
             _historyCollection.RegisterClassForCell(typeof(TransactionShimmerCollectionViewCell), nameof(TransactionShimmerCollectionViewCell));
@@ -120,22 +127,21 @@ namespace Steepshot.iOS.Views
 
             _historySource = new TransferCollectionViewSource(Presenter, NavigationController);
 
-            _historySource.CellAction += (string obj) =>
-            {
-                if (obj == AppDelegate.User.Login)
-                    return;
-                var myViewController = new ProfileViewController();
-                myViewController.Username = obj;
-                NavigationController.PushViewController(myViewController, true);
-            };
-
             _historyCollection.Source = _historySource;
             _historyCollection.Delegate = new TransactionHistoryCollectionViewFlowDelegate(_historySource);
 
-            _historyCollection.AutoPinEdgeToSuperviewEdge(ALEdge.Top);
-            _historyCollection.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom);
-            _historyCollection.AutoPinEdgeToSuperviewEdge(ALEdge.Left);
-            _historyCollection.AutoPinEdgeToSuperviewEdge(ALEdge.Right);
+            _historyCollection.AutoPinEdgesToSuperviewEdges();
+        }
+
+        private void OnHistoryCellAction(string username)
+        {
+            if (username == AppDelegate.User.Login)
+                return;
+            var myViewController = new ProfileViewController
+            {
+                Username = username
+            };
+            NavigationController.PushViewController(myViewController, true);
         }
 
         private void SetBackButton()
@@ -161,7 +167,7 @@ namespace Steepshot.iOS.Views
             popup.Layer.CornerRadius = 20;
             popup.BackgroundColor = Constants.R250G250B250;
 
-            var _alert = new CustomAlertView(popup, NavigationController);
+            _claimAlert = new CustomAlertView(popup, NavigationController);
 
             var dialogWidth = UIScreen.MainScreen.Bounds.Width - 10 * 2;
             popup.AutoSetDimension(ALDimension.Width, dialogWidth);
@@ -172,7 +178,7 @@ namespace Steepshot.iOS.Views
             title.Lines = 2;
             title.TextAlignment = UITextAlignment.Center;
             title.Font = Constants.Light27;
-            title.Text = "Hello! It's time to collect rewards!";
+            title.Text = AppDelegate.Localization.GetText(LocalizationKeys.TimeToCollectRewards);
             popup.AddSubview(title);
             title.AutoPinEdgeToSuperviewEdge(ALEdge.Top, 32);
             title.AutoPinEdgeToSuperviewEdge(ALEdge.Right, commonMargin);
@@ -189,7 +195,7 @@ namespace Steepshot.iOS.Views
             steemAmountView.AutoPinEdgeToSuperviewEdge(ALEdge.Right, commonMargin);
 
             var steemAmountLabel = new UILabel();
-            steemAmountLabel.Text = "Steem";
+            steemAmountLabel.Text = CurrencyType.Steem.ToString();
             steemAmountLabel.Font = Constants.Semibold14;
             steemAmountView.AddSubview(steemAmountLabel);
 
@@ -219,7 +225,7 @@ namespace Steepshot.iOS.Views
             sbdAmountView.AutoPinEdgeToSuperviewEdge(ALEdge.Right, commonMargin);
 
             var sbdAmountLabel = new UILabel();
-            sbdAmountLabel.Text = "SBD";
+            sbdAmountLabel.Text = CurrencyType.Sbd.ToString().ToUpper();
             sbdAmountLabel.Font = Constants.Semibold14;
             sbdAmountView.AddSubview(sbdAmountLabel);
 
@@ -249,7 +255,7 @@ namespace Steepshot.iOS.Views
             spAmountView.AutoPinEdgeToSuperviewEdge(ALEdge.Right, commonMargin);
 
             var spAmountLabel = new UILabel();
-            spAmountLabel.Text = "Steem Power";
+            spAmountLabel.Text = CurrencyType.SteemPower.ToString();
             spAmountLabel.Font = Constants.Semibold14;
             spAmountView.AddSubview(spAmountLabel);
 
@@ -277,25 +283,25 @@ namespace Steepshot.iOS.Views
             separator.AutoPinEdgeToSuperviewEdge(ALEdge.Right, commonMargin);
             separator.AutoSetDimension(ALDimension.Height, 1);
 
-            var selectButton = new UIButton();
-            selectButton.SetTitle(AppDelegate.Localization.GetText(LocalizationKeys.ClaimRewards), UIControlState.Normal);
-            selectButton.SetTitle(string.Empty, UIControlState.Disabled);
-            selectButton.SetTitleColor(UIColor.White, UIControlState.Normal);
-            selectButton.Layer.CornerRadius = 25;
-            selectButton.Font = Constants.Bold14;
-            popup.AddSubview(selectButton);
+            _selectButton = new UIButton();
+            _selectButton.SetTitle(AppDelegate.Localization.GetText(LocalizationKeys.ClaimRewards), UIControlState.Normal);
+            _selectButton.SetTitle(string.Empty, UIControlState.Disabled);
+            _selectButton.SetTitleColor(UIColor.White, UIControlState.Normal);
+            _selectButton.Layer.CornerRadius = 25;
+            _selectButton.Font = Constants.Bold14;
+            popup.AddSubview(_selectButton);
 
-            selectButton.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, separator, 20);
-            selectButton.AutoPinEdgeToSuperviewEdge(ALEdge.Right, commonMargin);
-            selectButton.AutoPinEdgeToSuperviewEdge(ALEdge.Left, commonMargin);
-            selectButton.AutoSetDimension(ALDimension.Height, 50);
-            selectButton.LayoutIfNeeded();
+            _selectButton.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, separator, 20);
+            _selectButton.AutoPinEdgeToSuperviewEdge(ALEdge.Right, commonMargin);
+            _selectButton.AutoPinEdgeToSuperviewEdge(ALEdge.Left, commonMargin);
+            _selectButton.AutoSetDimension(ALDimension.Height, 50);
+            _selectButton.LayoutIfNeeded();
 
-            var loader = new UIActivityIndicatorView();
-            loader.ActivityIndicatorViewStyle = UIActivityIndicatorViewStyle.White;
+            _claimLoader = new UIActivityIndicatorView();
+            _claimLoader.ActivityIndicatorViewStyle = UIActivityIndicatorViewStyle.White;
 
-            selectButton.AddSubview(loader);
-            loader.AutoCenterInSuperview();
+            _selectButton.AddSubview(_claimLoader);
+            _claimLoader.AutoCenterInSuperview();
 
             var cancelButton = new UIButton();
             cancelButton.SetTitle(AppDelegate.Localization.GetText(LocalizationKeys.Close), UIControlState.Normal);
@@ -306,7 +312,7 @@ namespace Steepshot.iOS.Views
             cancelButton.Layer.BorderColor = Constants.R245G245B245.CGColor;
             popup.AddSubview(cancelButton);
 
-            cancelButton.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, selectButton, 10);
+            cancelButton.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, _selectButton, 10);
             cancelButton.AutoPinEdgeToSuperviewEdge(ALEdge.Left, commonMargin);
             cancelButton.AutoPinEdgeToSuperviewEdge(ALEdge.Right, commonMargin);
             cancelButton.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom, commonMargin);
@@ -314,30 +320,32 @@ namespace Steepshot.iOS.Views
 
             NavigationController.View.EndEditing(true);
 
-            selectButton.TouchDown += async (s, ev) =>
+            _selectButton.TouchDown += OnSelectButtonPressed;
+            cancelButton.TouchDown += (s, ev) => { _claimAlert.Close(); };
+
+            Constants.CreateGradient(_selectButton, 25);
+            Constants.CreateShadowFromZeplin(_selectButton, Constants.R231G72B0, 0.3f, 0, 10, 20, 0);
+            popup.BringSubviewToFront(_selectButton);
+            _claimAlert.Show();
+        }
+
+        private async void OnSelectButtonPressed(object sender, EventArgs e)
+        {
+            _selectButton.Enabled = false;
+            _claimLoader.StartAnimating();
+            var result = await Presenter.TryClaimRewardsAsync(Presenter.Balances[0]);
+            _claimLoader.StopAnimating();
+            _selectButton.Enabled = true;
+
+            if (result.IsSuccess)
             {
-                selectButton.Enabled = false;
-                loader.StartAnimating();
-                var result = await Presenter.TryClaimRewardsAsync(Presenter.Balances[0]);
-                loader.StopAnimating();
-                selectButton.Enabled = true;
-
-                if (result.IsSuccess)
-                {
-                    LoadDataAsync();
-                    _alert.Close();
-                }
-                else
-                {
-                    ShowAlert(result);
-                }
-            };
-            cancelButton.TouchDown += (s, ev) => { _alert.Close(); };
-
-            Constants.CreateGradient(selectButton, 25);
-            Constants.CreateShadowFromZeplin(selectButton, Constants.R231G72B0, 0.3f, 0, 10, 20, 0);
-            popup.BringSubviewToFront(selectButton);
-            _alert.Show();
+                LoadDataAsync();
+                _claimAlert.Close();
+            }
+            else
+            {
+                ShowAlert(result);
+            }
         }
     }
 }

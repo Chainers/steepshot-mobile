@@ -1,7 +1,5 @@
 ﻿using System;
-using CoreAnimation;
 using CoreGraphics;
-using Foundation;
 using PureLayout.Net;
 using Steepshot.iOS.CustomViews;
 using Steepshot.iOS.Helpers;
@@ -21,14 +19,11 @@ namespace Steepshot.iOS.Cells
             var sideMargin = DeviceHelper.IsSmallDevice ? 15 : 30;
 
             var background = new CustomView();
-            background.BackgroundColor = UIColor.FromRGB(230, 230, 230);
+            background.BackgroundColor = Constants.R230G230B230;
             background.Layer.CornerRadius = 16;
             ContentView.AddSubview(background);
 
-            background.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 60);
-            background.AutoPinEdgeToSuperviewEdge(ALEdge.Top, 5);
-            background.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 10);
-            background.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom, 5);
+            background.AutoPinEdgesToSuperviewEdges(new UIEdgeInsets(5, 60, 5, 10));
 
             var emptyBackground = new UIView();
             ContentView.AddSubview(emptyBackground);
@@ -53,16 +48,16 @@ namespace Steepshot.iOS.Cells
             _action.AutoPinEdgeToSuperviewEdge(ALEdge.Left);
             _action.AutoSetDimensionsToSize(new CGSize(80, 15));
 
-            var _to = new UIView();
-            _to.ClipsToBounds = true;
-            _to.Layer.CornerRadius = 7.5f;
-            _to.BackgroundColor = UIColor.White.ColorWithAlpha(0.5f);
-            leftContainer.AddSubview(_to);
+            var to = new UIView();
+            to.ClipsToBounds = true;
+            to.Layer.CornerRadius = 7.5f;
+            to.BackgroundColor = UIColor.White.ColorWithAlpha(0.5f);
+            leftContainer.AddSubview(to);
 
-            _to.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, _action, 10);
-            _to.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom);
-            _to.AutoPinEdgeToSuperviewEdge(ALEdge.Left);
-            _to.AutoSetDimensionsToSize(new CGSize(120, 15));
+            to.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, _action, 10);
+            to.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom);
+            to.AutoPinEdgeToSuperviewEdge(ALEdge.Left);
+            to.AutoSetDimensionsToSize(new CGSize(120, 15));
 
              _amount.ClipsToBounds = true;
             _amount.Layer.CornerRadius = 10f;
@@ -75,7 +70,7 @@ namespace Steepshot.iOS.Cells
             _amount.AutoPinEdgeToSuperviewEdge(ALEdge.Right, sideMargin);
 
             var circle = new UIView();
-            circle.BackgroundColor = UIColor.FromRGB(230, 230, 230);
+            circle.BackgroundColor = Constants.R230G230B230;
             circle.Layer.CornerRadius = 4;
             emptyBackground.AddSubview(circle);
 
@@ -84,7 +79,7 @@ namespace Steepshot.iOS.Cells
             circle.AutoAlignAxisToSuperviewAxis(ALAxis.Vertical);
 
             _topLine = new UIView();
-            _topLine.BackgroundColor = UIColor.FromRGB(240, 240, 240);
+            _topLine.BackgroundColor = Constants.R240G240B240;
             _topLine.Layer.CornerRadius = 1;
             emptyBackground.AddSubview(_topLine);
 
@@ -94,7 +89,7 @@ namespace Steepshot.iOS.Cells
             _topLine.AutoPinEdge(ALEdge.Bottom, ALEdge.Top, circle, -16);
 
             _bottomLine = new UIView();
-            _bottomLine.BackgroundColor = UIColor.FromRGB(240, 240, 240);
+            _bottomLine.BackgroundColor = Constants.R240G240B240;
             _bottomLine.Layer.CornerRadius = 1;
             emptyBackground.AddSubview(_bottomLine);
 
@@ -106,7 +101,7 @@ namespace Steepshot.iOS.Cells
             leftContainer.SubviewLayouted += () =>
             {
                 Constants.ApplyShimmer(_action);
-                Constants.ApplyShimmer(_to);
+                Constants.ApplyShimmer(to);
             };
 
             background.SubviewLayouted += () =>
