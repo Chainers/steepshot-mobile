@@ -77,7 +77,8 @@ namespace Steepshot.Core.Presenters
 
             try
             {
-                return await func(ts).ConfigureAwait(false);
+                return await func(ts)
+                    .ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -88,7 +89,8 @@ namespace Steepshot.Core.Presenters
                 if (!available)
                     return new OperationResult<TResult>(new ValidationException(LocalizationKeys.InternetUnavailable));
 
-                await LogService.ErrorAsync(ex).ConfigureAwait(false);
+                await LogService.ErrorAsync(ex)
+                    .ConfigureAwait(false);
                 return new OperationResult<TResult>(ex);
             }
             finally
@@ -126,7 +128,8 @@ namespace Steepshot.Core.Presenters
 
             try
             {
-                return await func(arg1, ts).ConfigureAwait(false);
+                return await func(arg1, ts)
+                    .ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -137,7 +140,8 @@ namespace Steepshot.Core.Presenters
                 if (!available)
                     return new OperationResult<TResult>(new ValidationException(LocalizationKeys.InternetUnavailable));
 
-                await LogService.ErrorAsync(ex).ConfigureAwait(false);
+                await LogService.ErrorAsync(ex)
+                    .ConfigureAwait(false);
                 return new OperationResult<TResult>(ex);
             }
             finally

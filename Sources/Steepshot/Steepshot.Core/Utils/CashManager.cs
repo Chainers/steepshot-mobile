@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Responses;
 
@@ -21,6 +22,26 @@ namespace Steepshot.Core.Utils
             }
         }
 
+        private static bool _isEnableVote = true;
+        public static bool SetEnableVote
+        {
+            set
+            {
+                _isEnableVote = value;
+                Post[] posts;
+                lock (PostsCash)
+                {
+                    if (PostsCash.Count == 0)
+                        return;
+
+                    posts = PostsCash.Select(v => v.Value.Item).ToArray();
+                }
+
+                foreach (var post in posts)
+                    post.IsEnableVote = _isEnableVote;
+            }
+        }
+
 
         #region Post
 
@@ -38,6 +59,8 @@ namespace Steepshot.Core.Utils
                     CopyPost(container.Item, item);
                     return container.Item;
                 }
+
+                item.IsEnableVote = _isEnableVote;
                 PostsCash.Add(item.Url, new Container<Post>(item));
                 return item;
             }

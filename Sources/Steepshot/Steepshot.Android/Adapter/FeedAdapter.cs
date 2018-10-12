@@ -132,7 +132,7 @@ namespace Steepshot.Adapter
         private readonly TextView _flags;
         private readonly ImageView _flagsIcon;
         private readonly TextView _cost;
-        private readonly ImageButton _likeOrFlag;
+        private readonly LikeOrFlagButton _likeOrFlag;
         private readonly ImageButton _likeScale;
         private readonly ImageButton _more;
         private readonly LinearLayout _topLikers;
@@ -143,7 +143,6 @@ namespace Steepshot.Adapter
         private readonly RelativeLayout _likeScaleContainer;
         private readonly LikeScaleBar _likeScaleBar;
         private readonly TextView _likeScalePower;
-        private CancellationSignal _isAnimationRuning;
 
         protected readonly Context Context;
         protected readonly ViewPager PhotosViewPager;
@@ -174,7 +173,7 @@ namespace Steepshot.Adapter
             _flags = itemView.FindViewById<TextView>(Resource.Id.flags);
             _flagsIcon = itemView.FindViewById<ImageView>(Resource.Id.flagIcon);
             _cost = itemView.FindViewById<TextView>(Resource.Id.cost);
-            _likeOrFlag = itemView.FindViewById<ImageButton>(Resource.Id.btn_like);
+            _likeOrFlag = itemView.FindViewById<LikeOrFlagButton>(Resource.Id.btn_like);
             _more = itemView.FindViewById<ImageButton>(Resource.Id.more);
             _topLikers = itemView.FindViewById<LinearLayout>(Resource.Id.top_likers);
             NsfwMask = itemView.FindViewById<RelativeLayout>(Resource.Id.nsfw_mask);
@@ -416,7 +415,7 @@ namespace Steepshot.Adapter
         {
             _moreActionsDialog.Dismiss();
 
-            if (!BasePostPresenter.IsEnableVote)
+            if (!Post.IsEnableVote)
                 return;
 
             _postAction.Invoke(ActionType.Flag, Post);
@@ -450,13 +449,6 @@ namespace Steepshot.Adapter
             _moreActionsDialog.Dismiss();
         }
 
-        private async Task LikeSetAsync(bool isFlag)
-        {
-            _isAnimationRuning?.Cancel();
-            _isAnimationRuning = new CancellationSignal();
-            await AnimationHelper.PulseLike(_likeOrFlag, isFlag, _isAnimationRuning);
-        }
-
         private void DoUserAction(object sender, EventArgs e)
         {
             _postAction?.Invoke(ActionType.Profile, Post);
@@ -479,7 +471,7 @@ namespace Steepshot.Adapter
 
         private void DoLikeAction(object sender, EventArgs e)
         {
-            if (!BasePostPresenter.IsEnableVote)
+            if (!Post.IsEnableVote)
                 return;
 
             if (_likeScaleContainer.Visibility == ViewStates.Visible)
@@ -500,7 +492,7 @@ namespace Steepshot.Adapter
 
         private void DoLikeScaleAction(object sender, View.LongClickEventArgs longClickEventArgs)
         {
-            if (!App.User.HasPostingPermission || !App.User.ShowVotingSlider || !BasePostPresenter.IsEnableVote || Post.Vote || Post.Flag || _isScalebarOpened)
+            if (!App.User.HasPostingPermission || !App.User.ShowVotingSlider || !Post.IsEnableVote || Post.Vote || Post.Flag || _isScalebarOpened)
                 return;
 
             BaseActivity.TouchEvent += TouchEvent;
@@ -552,21 +544,8 @@ namespace Steepshot.Adapter
 
             _title.UpdateText(Post, TagToExclude, TagFormat, MaxLines, Post.IsExpanded || PhotoPagerType == PostPagerType.PostScreen);
 
-            _commentSubtitle.Text = Post.Children == 0
-                ? App.Localization.GetText(LocalizationKeys.PostFirstComment)
-                : Post.Children == 1
-                    ? App.Localization.GetText(LocalizationKeys.SeeComment)
-                    : App.Localization.GetText(LocalizationKeys.ViewComments, Post.Children);
-
-            if (_isAnimationRuning != null && !_isAnimationRuning.IsCanceled && !Post.VoteChanging)
-            {
-                _isAnimationRuning.Cancel();
-                _isAnimationRuning = null;
-                _likeOrFlag.ScaleX = 1f;
-                _likeOrFlag.ScaleY = 1f;
-            }
-
-            UpdateLikeAsync(Post);
+            UpdateChildren(Post);
+            _likeOrFlag.UpdateLikeAsync(Post);
             UpdateLikeCount(Post);
             UpdateFlagCount(Post);
             UpdateTotalPayoutReward(Post);
@@ -642,46 +621,20 @@ namespace Steepshot.Adapter
             }
         }
 
-        private async Task UpdateLikeAsync(Post post)
+        private void UpdateChildren(Post post)
         {
-            if (BasePostPresenter.IsEnableVote)
+            switch (post.Children)
             {
-                if (_isAnimationRuning != null && !_isAnimationRuning.IsCanceled)
-                {
-                    _isAnimationRuning.Cancel();
-                    _isAnimationRuning = null;
-                    _likeOrFlag.ScaleX = 1;
-                    _likeOrFlag.ScaleY = 1;
-                }
+                case 0:
+                    _commentSubtitle.Text = App.Localization.GetText(LocalizationKeys.PostFirstComment);
+                    break;
+                case 1:
+                    _commentSubtitle.Text = App.Localization.GetText(LocalizationKeys.SeeComment);
+                    break;
+                default:
+                    _commentSubtitle.Text = App.Localization.GetText(LocalizationKeys.ViewComments, post.Children);
+                    break;
 
-                if (post.Vote)
-                    _likeOrFlag.SetImageResource(Resource.Drawable.ic_new_like_filled);
-                else if (post.Flag)
-                    _likeOrFlag.SetImageResource(Resource.Drawable.ic_flag_active);
-                else
-                    _likeOrFlag.SetImageResource(Resource.Drawable.ic_new_like_selected);
-            }
-            else
-            {
-                if (post.VoteChanging || post.FlagChanging)
-                {
-                    if (_isAnimationRuning == null || _isAnimationRuning.IsCanceled)
-                    {
-                        await LikeSetAsync(post.FlagChanging);
-                    }
-                }
-                else if (post.Vote)
-                {
-                    _likeOrFlag.SetImageResource(Resource.Drawable.ic_new_like_disabled);
-                }
-                else if (post.Flag)
-                {
-                    _likeOrFlag.SetImageResource(Resource.Drawable.ic_flag);
-                }
-                else
-                {
-                    _likeOrFlag.SetImageResource(Resource.Drawable.ic_new_like);
-                }
             }
         }
 
@@ -726,22 +679,23 @@ namespace Steepshot.Adapter
 
         private async void PostOnPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            var post = sender as Post;
-            if (post == null || Post != post)
+            var post = (Post)sender;
+            if (Post != post)
                 return;
 
             switch (e.PropertyName)
             {
+                case nameof(Post.IsEnableVote) when !post.FlagChanging && !post.VoteChanging:
                 case nameof(Post.Vote):
                 case nameof(Post.FlagChanging):
                 case nameof(Post.VoteChanging):
                     {
-                        await UpdateLikeAsync(post);
+                        await _likeOrFlag.UpdateLikeAsync(post);
                         break;
                     }
                 case nameof(Post.Flag):
                     {
-                        await UpdateLikeAsync(post);
+                        await _likeOrFlag.UpdateLikeAsync(post);
                         UpdateMask(post);
                         break;
                     }
@@ -769,6 +723,11 @@ namespace Steepshot.Adapter
                 case nameof(Post.TopLikersAvatars):
                     {
                         UpdateTopLikersAvatars(post);
+                        break;
+                    }
+                case nameof(Post.Children):
+                    {
+                        UpdateChildren(post);
                         break;
                     }
             }

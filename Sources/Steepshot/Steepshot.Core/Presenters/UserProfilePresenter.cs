@@ -68,7 +68,7 @@ namespace Steepshot.Core.Presenters
 
             var result = await TaskHelper
                 .TryRunTaskAsync(SteepshotApiClient.GetUserProfileAsync, req, OnDisposeCts.Token)
-                .ConfigureAwait(false);
+                .ConfigureAwait(true);
 
             if (result.IsSuccess)
             {
@@ -91,7 +91,7 @@ namespace Steepshot.Core.Presenters
             var request = new FollowModel(User.UserInfo, hasFollowed ? FollowType.UnFollow : FollowType.Follow, UserName);
             var result = await TaskHelper
                 .TryRunTaskAsync(DitchClient.FollowAsync, request, OnDisposeCts.Token)
-                .ConfigureAwait(false);
+                .ConfigureAwait(true);
 
             if (result.IsSuccess)
                 UserProfileResponse.HasFollowed = !hasFollowed;
@@ -104,7 +104,8 @@ namespace Steepshot.Core.Presenters
 
         public async Task<OperationResult<VoidResponse>> TryUpdateUserPostsAsync(string username)
         {
-            return await TaskHelper.TryRunTaskAsync(SteepshotApiClient.UpdateUserPostsAsync, username, OnDisposeCts.Token).ConfigureAwait(false);
+            return await TaskHelper.TryRunTaskAsync(SteepshotApiClient.UpdateUserPostsAsync, username, OnDisposeCts.Token)
+                .ConfigureAwait(false);
         }
 
         public override void Clear(bool isNotify)
@@ -120,9 +121,10 @@ namespace Steepshot.Core.Presenters
             {
                 response = await TaskHelper
                     .TryRunTaskAsync(SteepshotApiClient.CheckSubscriptionsAsync, User, OnDisposeCts.Token)
-                    .ConfigureAwait(false);
+                    .ConfigureAwait(true);
                 if (!response.IsSuccess)
-                    await Task.Delay(5000).ConfigureAwait(false);
+                    await Task.Delay(5000)
+                        .ConfigureAwait(true);
             } while (!response.IsSuccess);
 
             User.PushSettings = response.Result.EnumSubscriptions;
@@ -131,7 +133,8 @@ namespace Steepshot.Core.Presenters
 
         public async Task<OperationResult<object>> TrySubscribeForPushesAsync(PushNotificationsModel model)
         {
-            var trxResp = await TaskHelper.TryRunTaskAsync(DitchClient.GetVerifyTransactionAsync, model, OnDisposeCts.Token).ConfigureAwait(false);
+            var trxResp = await TaskHelper.TryRunTaskAsync(DitchClient.GetVerifyTransactionAsync, model, OnDisposeCts.Token)
+                .ConfigureAwait(false);
 
             if (!trxResp.IsSuccess)
                 return new OperationResult<object>(trxResp.Exception);

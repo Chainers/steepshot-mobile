@@ -12,7 +12,6 @@ using Android.Views;
 using Android.Views.InputMethods;
 using CheeseBind;
 using Java.Lang;
-using Steepshot.Core.Utils;
 using Steepshot.Fragment;
 
 namespace Steepshot.Base

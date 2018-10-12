@@ -84,16 +84,13 @@ namespace Steepshot.Fragment
 
             LoadNext();
         }
-        
+
         private void PresenterSourceChanged(Status status)
         {
             if (!IsInitialized)
                 return;
 
-            Activity.RunOnUiThread(() =>
-            {
-                _adapter.NotifyDataSetChanged();
-            });
+            _adapter.NotifyDataSetChanged();
         }
 
         private void GoBackClick(object sender, EventArgs e)

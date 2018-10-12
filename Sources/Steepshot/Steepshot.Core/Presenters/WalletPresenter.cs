@@ -48,7 +48,8 @@ namespace Steepshot.Core.Presenters
             if (!HasNext || Current == null)
                 return new ValidationException(string.Empty);
 
-            var exception = await TryUpdateAccountInfoAsync(Current).ConfigureAwait(false);
+            var exception = await TryUpdateAccountInfoAsync(Current)
+                .ConfigureAwait(false);
             if (exception == null)
                 HasNext = MoveNext();
 
@@ -85,7 +86,8 @@ namespace Steepshot.Core.Presenters
                 return response.Exception;
             }
 
-            var historyResp = await TaskHelper.TryRunTaskAsync(_ditchClient.GetAccountHistoryAsync, userInfo.Login, OnDisposeCts.Token).ConfigureAwait(false);
+            var historyResp = await TaskHelper.TryRunTaskAsync(_ditchClient.GetAccountHistoryAsync, userInfo.Login, OnDisposeCts.Token)
+                .ConfigureAwait(false);
             if (historyResp.IsSuccess)
             {
                 ConnectedUsers[userInfo.Id].AccountHistory = historyResp.Result;
@@ -98,7 +100,8 @@ namespace Steepshot.Core.Presenters
         public async Task<OperationResult<VoidResponse>> TryClaimRewardsAsync(BalanceModel balance)
         {
             var claimRewardsModel = new ClaimRewardsModel(balance.UserInfo, balance.RewardSteem, balance.RewardSp, balance.RewardSbd);
-            var result = await TaskHelper.TryRunTaskAsync(_ditchClient.ClaimRewardsAsync, claimRewardsModel, OnDisposeCts.Token).ConfigureAwait(false);
+            var result = await TaskHelper.TryRunTaskAsync(_ditchClient.ClaimRewardsAsync, claimRewardsModel, OnDisposeCts.Token)
+                .ConfigureAwait(false);
             if (result.IsSuccess)
             {
                 Balances.ForEach(x =>
@@ -109,7 +112,8 @@ namespace Steepshot.Core.Presenters
                         x.RewardSteem = x.RewardSbd = x.RewardSp = 0;
                     }
                 });
-                await TryUpdateAccountInfoAsync(balance.UserInfo).ConfigureAwait(false);
+                await TryUpdateAccountInfoAsync(balance.UserInfo)
+                    .ConfigureAwait(false);
             }
 
             return result;
@@ -117,7 +121,8 @@ namespace Steepshot.Core.Presenters
 
         public async Task<OperationResult<CurrencyRate[]>> TryGetCurrencyRatesAsync()
         {
-            var result = await TaskHelper.TryRunTaskAsync(_steepshotApiClient.GetCurrencyRatesAsync, OnDisposeCts.Token).ConfigureAwait(false);
+            var result = await TaskHelper.TryRunTaskAsync(_steepshotApiClient.GetCurrencyRatesAsync, OnDisposeCts.Token)
+                .ConfigureAwait(false);
             if (result.IsSuccess)
                 CurrencyRates = result.Result;
             return result;
@@ -144,7 +149,8 @@ namespace Steepshot.Core.Presenters
         public async Task<OperationResult<VoidResponse>> TryPowerUpOrDownAsync(BalanceModel balance, PowerAction powerAction)
         {
             var model = new PowerUpDownModel(balance, powerAction);
-            return await TaskHelper.TryRunTaskAsync(_ditchClient.PowerUpOrDownAsync, model, OnDisposeCts.Token).ConfigureAwait(false);
+            return await TaskHelper.TryRunTaskAsync(_ditchClient.PowerUpOrDownAsync, model, OnDisposeCts.Token)
+                .ConfigureAwait(false);
         }
 
         #region IEnumerator<UserInfo>

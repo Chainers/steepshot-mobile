@@ -46,7 +46,11 @@ namespace Steepshot.Core.Presenters
         public async Task<OperationResult<VoidResponse>> TryCreateCommentAsync(Post parentPost, string body)
         {
             var model = new CreateOrEditCommentModel(User.UserInfo, parentPost, body, _appInfo);
-            return await TaskHelper.TryRunTaskAsync(CreateOrEditCommentAsync, model, OnDisposeCts.Token).ConfigureAwait(false);
+            var response = await TaskHelper.TryRunTaskAsync(CreateOrEditCommentAsync, model, OnDisposeCts.Token)
+                .ConfigureAwait(true);
+            if (response.IsSuccess)
+                parentPost.Children++;
+            return response;
         }
 
         public async Task<OperationResult<VoidResponse>> TryEditCommentAsync(UserInfo userInfo, Post parentPost, Post post, string body, IAppInfo appInfo)
@@ -55,7 +59,8 @@ namespace Steepshot.Core.Presenters
                 return new OperationResult<VoidResponse>(new OperationCanceledException());
 
             var model = new CreateOrEditCommentModel(userInfo, parentPost, post, body, appInfo);
-            var response = await TaskHelper.TryRunTaskAsync(CreateOrEditCommentAsync, model, OnDisposeCts.Token).ConfigureAwait(false);
+            var response = await TaskHelper.TryRunTaskAsync(CreateOrEditCommentAsync, model, OnDisposeCts.Token)
+                .ConfigureAwait(true);
             if (response.IsSuccess)
                 post.Body = model.Body;
 
@@ -66,11 +71,14 @@ namespace Steepshot.Core.Presenters
         private async Task<OperationResult<VoidResponse>> CreateOrEditCommentAsync(CreateOrEditCommentModel model, CancellationToken ct)
         {
             if (!model.IsEditMode)
-                model.Beneficiaries = await SteepshotApiClient.GetBeneficiariesAsync(ct).ConfigureAwait(false);
+                model.Beneficiaries = await SteepshotApiClient.GetBeneficiariesAsync(ct)
+                    .ConfigureAwait(false);
 
-            var result = await DitchClient.CreateOrEditAsync(model, ct).ConfigureAwait(false);
+            var result = await DitchClient.CreateOrEditAsync(model, ct)
+                .ConfigureAwait(false);
             //log parent post to perform update
-            await SteepshotApiClient.TraceAsync($"post/@{model.ParentAuthor}/{model.ParentPermlink}/comment", model.Login, result.Exception, $"@{model.ParentAuthor}/{model.ParentPermlink}", ct).ConfigureAwait(false);
+            await SteepshotApiClient.TraceAsync($"post/@{model.ParentAuthor}/{model.ParentPermlink}/comment", model.Login, result.Exception, $"@{model.ParentAuthor}/{model.ParentPermlink}", ct)
+                .ConfigureAwait(false);
             return result;
         }
     }

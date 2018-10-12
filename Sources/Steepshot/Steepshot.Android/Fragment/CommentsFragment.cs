@@ -28,15 +28,11 @@ namespace Steepshot.Fragment
         private const string PostUrlExtraPath = "url";
         private const string PostNetVotesExtraPath = "count";
 
-        public const string ResultString = "result";
-        public const string CountString = "count";
-
         private readonly Post _post;
         private Post _editComment;
         private CommentAdapter _adapter;
         private bool _openKeyboard;
         private LinearLayoutManager _manager;
-        private int _counter;
         private GradientDrawable _textInputShape;
 
 #pragma warning disable 0649, 4014
@@ -150,10 +146,7 @@ namespace Steepshot.Fragment
             if (!IsInitialized)
                 return;
 
-            Activity.RunOnUiThread(() =>
-            {
-                _adapter.NotifyDataSetChanged();
-            });
+            _adapter.NotifyDataSetChanged();
         }
 
         public override void OnDetach()
@@ -213,11 +206,6 @@ namespace Steepshot.Fragment
 
                     Context.ShowAlert(exception, ToastLength.Short);
                     _comments.MoveToPosition(Presenter.Count);
-
-                    _counter++;
-
-                    Activity.Intent.PutExtra(ResultString, _post.Url);
-                    Activity.Intent.PutExtra(CountString, _counter);
                 }
                 else
                 {

@@ -20,7 +20,8 @@ namespace Steepshot.Core.Presenters
 
         public async Task<OperationResult<PromoteResponse>> FindPromoteBotAsync(PromoteRequest request)
         {
-            return await _steepshotApiClient.FindPromoteBotAsync(request, OnDisposeCts.Token).ConfigureAwait(false);
+            return await _steepshotApiClient.FindPromoteBotAsync(request, OnDisposeCts.Token)
+                .ConfigureAwait(false);
         }
     }
 }

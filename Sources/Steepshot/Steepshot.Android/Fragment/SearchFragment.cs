@@ -14,17 +14,13 @@ using Steepshot.Core.Extensions;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Common;
 using Steepshot.Utils;
-using Steepshot.Core.Models;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Facades;
-using Steepshot.Core.Utils;
 
 namespace Steepshot.Fragment
 {
     public sealed class SearchFragment : BaseFragment
     {
-        public const string SearchExtra = "SEARCH";
-
         private readonly Dictionary<SearchType, string> _prevQuery = new Dictionary<SearchType, string>
         {
             {SearchType.People, null},
@@ -126,7 +122,7 @@ namespace Steepshot.Fragment
             base.OnResume();
             ToggleTabBar(true);
         }
-        
+
         private void OnClearClick(object sender, EventArgs e)
         {
             _searchView.Text = string.Empty;
@@ -150,11 +146,8 @@ namespace Steepshot.Fragment
             if (!IsInitialized)
                 return;
 
-            Activity.RunOnUiThread(() =>
-            {
-                _peopleSpinner.Visibility = ViewStates.Gone;
-                _usersSearchAdapter.NotifyDataSetChanged();
-            });
+            _peopleSpinner.Visibility = ViewStates.Gone;
+            _usersSearchAdapter.NotifyDataSetChanged();
         }
 
         private void TagsPresenterSourceChanged(Status status)
@@ -162,11 +155,8 @@ namespace Steepshot.Fragment
             if (!IsInitialized)
                 return;
 
-            Activity.RunOnUiThread(() =>
-            {
-                _tagSpinner.Visibility = ViewStates.Gone;
-                _categoriesAdapter.NotifyDataSetChanged();
-            });
+            _tagSpinner.Visibility = ViewStates.Gone;
+            _categoriesAdapter.NotifyDataSetChanged();
         }
 
         private void OnSearchViewOnTextChanged(object sender, TextChangedEventArgs e)
@@ -194,8 +184,7 @@ namespace Steepshot.Fragment
                 return;
 
             ((BaseActivity)Activity).HideKeyboard();
-            Activity.Intent.PutExtra(SearchExtra, tag);
-            ((BaseActivity)Activity).OpenNewContentFragment(new PreSearchFragment());
+            ((BaseActivity)Activity).OpenNewContentFragment(new PreSearchFragment(tag));
         }
 
         private async void Follow(UserFriend userFriend)

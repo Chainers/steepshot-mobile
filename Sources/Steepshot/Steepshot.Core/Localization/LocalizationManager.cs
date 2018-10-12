@@ -62,7 +62,8 @@ namespace Steepshot.Core.Localization
             if (!available)
                 return;
 
-            var rez = await _httpClient.GetAsync<string>(string.Format(UpdateUrl, Model.Lang), token).ConfigureAwait(false);
+            var rez = await _httpClient.GetAsync<string>(string.Format(UpdateUrl, Model.Lang), token)
+                .ConfigureAwait(false);
             if (!rez.IsSuccess)
                 return;
 

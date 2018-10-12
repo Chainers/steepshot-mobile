@@ -196,7 +196,7 @@ namespace Steepshot.iOS.Cells
                 {
                     if (obj.State == UIGestureRecognizerState.Began)
                     {
-                        if (!BasePostPresenter.IsEnableVote || BaseViewController.IsSliderOpen)
+                        if (!_currentPost.IsEnableVote || BaseViewController.IsSliderOpen)
                             return;
                         rigthButtons = RightButtons;
                         RightButtons = new UIView[0];
@@ -284,12 +284,13 @@ namespace Steepshot.iOS.Cells
 
         private void PostOnPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            var post = sender as Post;
-            if (post == null || _currentPost != post)
+            var post = (Post)sender;
+            if (_currentPost != post)
                 return;
 
             switch (e.PropertyName)
             {
+                case nameof(Post.IsEnableVote) when !post.FlagChanging && !post.VoteChanging:
                 case nameof(Post.Flag):
                 case nameof(Post.Vote):
                 case nameof(Post.FlagChanging):
@@ -315,7 +316,7 @@ namespace Steepshot.iOS.Cells
                     }
             }
         }
-        
+
         private void UpdateTotalPayoutReward(Post post)
         {
             _costLabel.Text = StringHelper.ToFormatedCurrencyString(post.TotalPayoutReward, AppDelegate.MainChain);
@@ -347,7 +348,7 @@ namespace Steepshot.iOS.Cells
             {
                 _like.Layer.RemoveAllAnimations();
                 _like.LayoutIfNeeded();
-                if (BasePostPresenter.IsEnableVote)
+                if (post.IsEnableVote)
                     _like.Image = post.Vote ? UIImage.FromBundle("ic_comment_like_active") : UIImage.FromBundle("ic_comment_like_inactive");
                 else
                     _like.Image = post.Vote ? UIImage.FromBundle("ic_comment_like_active_disabled") : UIImage.FromBundle("ic_comment_like_inactive_disabled");
@@ -366,7 +367,7 @@ namespace Steepshot.iOS.Cells
 
         private void LikeTap()
         {
-            if (!BasePostPresenter.IsEnableVote)
+            if (!_currentPost.IsEnableVote)
                 return;
             CellAction?.Invoke(ActionType.Like, _currentPost);
         }
@@ -375,7 +376,7 @@ namespace Steepshot.iOS.Cells
         {
 
             CellAction = null;
-            
+
             _currentPost.PropertyChanged -= PostOnPropertyChanged;
             _replyLabel.RemoveGestureRecognizer(_replyTap);
             _profileTapView.RemoveGestureRecognizer(_tap);

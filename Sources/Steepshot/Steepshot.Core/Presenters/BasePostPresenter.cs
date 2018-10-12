@@ -18,12 +18,10 @@ namespace Steepshot.Core.Presenters
 {
     public class BasePostPresenter : ListPresenter<Post>, IDisposable
     {
-        public static bool IsEnableVote { get; set; }
         protected readonly BaseDitchClient DitchClient;
         protected readonly SteepshotApiClient SteepshotApiClient;
         protected readonly SteepshotClient SteepshotClient;
         protected readonly User User;
-
 
         public BasePostPresenter(IConnectionService connectionService, ILogService logService, BaseDitchClient ditchClient, SteepshotApiClient steepshotApiClient, User user, SteepshotClient steepshotClient)
             : base(connectionService, logService)
@@ -32,7 +30,6 @@ namespace Steepshot.Core.Presenters
             SteepshotApiClient = steepshotApiClient;
             User = user;
             SteepshotClient = steepshotClient;
-            IsEnableVote = true;
         }
 
         public async Task<OperationResult<VoidResponse>> TryDeletePostAsync(Post post)
@@ -41,7 +38,7 @@ namespace Steepshot.Core.Presenters
 
             var result = await TaskHelper
                 .TryRunTaskAsync(DeletePostOrCommentAsync, request, OnDisposeCts.Token)
-                .ConfigureAwait(false);
+                .ConfigureAwait(true);
 
             if (result.IsSuccess)
             {
@@ -68,21 +65,26 @@ namespace Steepshot.Core.Presenters
                 {
                     //log parent post to perform update
                     if (model.IsPost)
-                        await SteepshotApiClient.TraceAsync($"post/@{model.Author}/{model.Permlink}/delete", model.Login, operationResult.Exception, $"@{model.Author}/{model.Permlink}", ct).ConfigureAwait(false);
+                        await SteepshotApiClient.TraceAsync($"post/@{model.Author}/{model.Permlink}/delete", model.Login, operationResult.Exception, $"@{model.Author}/{model.Permlink}", ct)
+                            .ConfigureAwait(false);
                     else
-                        await SteepshotApiClient.TraceAsync($"post/@{model.ParentAuthor}/{model.ParentPermlink}/comment", model.Login, operationResult.Exception, $"@{model.ParentAuthor}/{model.ParentPermlink}", ct).ConfigureAwait(false);
+                        await SteepshotApiClient.TraceAsync($"post/@{model.ParentAuthor}/{model.ParentPermlink}/comment", model.Login, operationResult.Exception, $"@{model.ParentAuthor}/{model.ParentPermlink}", ct)
+                            .ConfigureAwait(false);
 
                     return operationResult;
                 }
             }
 
-            var result = await DitchClient.CreateOrEditAsync(model, ct).ConfigureAwait(false);
+            var result = await DitchClient.CreateOrEditAsync(model, ct)
+                .ConfigureAwait(false);
 
             //log parent post to perform update
             if (model.IsPost)
-                await SteepshotApiClient.TraceAsync($"post/@{model.Author}/{model.Permlink}/edit", model.Login, result.Exception, $"@{model.Author}/{model.Permlink}", ct).ConfigureAwait(false);
+                await SteepshotApiClient.TraceAsync($"post/@{model.Author}/{model.Permlink}/edit", model.Login, result.Exception, $"@{model.Author}/{model.Permlink}", ct)
+                    .ConfigureAwait(false);
             else
-                await SteepshotApiClient.TraceAsync($"post/@{model.ParentAuthor}/{model.ParentPermlink}/comment", model.Login, result.Exception, $"@{model.ParentAuthor}/{model.ParentPermlink}", ct).ConfigureAwait(false);
+                await SteepshotApiClient.TraceAsync($"post/@{model.ParentAuthor}/{model.ParentPermlink}/comment", model.Login, result.Exception, $"@{model.ParentAuthor}/{model.ParentPermlink}", ct)
+                    .ConfigureAwait(false);
 
             return result;
         }
@@ -92,9 +94,10 @@ namespace Steepshot.Core.Presenters
             var request = new DeleteModel(User.UserInfo, post, parentPost);
             var response = await TaskHelper
                 .TryRunTaskAsync(DeletePostOrCommentAsync, request, OnDisposeCts.Token)
-                .ConfigureAwait(false);
+                .ConfigureAwait(true);
             if (response.IsSuccess)
             {
+                parentPost.Children--;
                 lock (Items)
                     Items.Remove(post);
             }
@@ -198,8 +201,8 @@ namespace Steepshot.Core.Presenters
             if (post == null || post.VoteChanging || post.FlagChanging)
                 return new OperationResult<Post>(new OperationCanceledException());
 
-            IsEnableVote = false;
             post.VoteChanging = true;
+            CashManager.SetEnableVote = false;
 
             var wasFlaged = post.Flag;
             var request = new VoteModel(User.UserInfo, post, post.Vote ? VoteType.Down : VoteType.Up);
@@ -213,15 +216,16 @@ namespace Steepshot.Core.Presenters
                     CashManager.Add(response.Result);
             }
 
-            IsEnableVote = true;
             post.VoteChanging = false;
+            CashManager.SetEnableVote = true;
 
             return response;
         }
 
         private async Task<OperationResult<Post>> VoteAsync(VoteModel model, CancellationToken ct)
         {
-            var result = await DitchClient.VoteAsync(model, ct).ConfigureAwait(false);
+            var result = await DitchClient.VoteAsync(model, ct)
+                .ConfigureAwait(false);
             if (!result.IsSuccess)
             {
                 if (result.Exception is RequestException requestException && !string.IsNullOrEmpty(requestException.RawResponse)
@@ -238,7 +242,8 @@ namespace Steepshot.Core.Presenters
 
             var startDelay = DateTime.Now;
 
-            await SteepshotApiClient.TraceAsync($"post/@{model.Author}/{model.Permlink}/{model.Type.GetDescription()}", model.Login, null, $"@{model.Author}/{model.Permlink}", ct).ConfigureAwait(false);
+            await SteepshotApiClient.TraceAsync($"post/@{model.Author}/{model.Permlink}/{model.Type.GetDescription()}", model.Login, null, $"@{model.Author}/{model.Permlink}", ct)
+                .ConfigureAwait(false);
 
             OperationResult<Post> postInfo;
             if (model.IsComment) //TODO: << delete when comment update support will added on backend
@@ -253,12 +258,14 @@ namespace Steepshot.Core.Presenters
                     ShowLowRated = true,
                     ShowNsfw = true
                 };
-                postInfo = await SteepshotApiClient.GetPostInfoAsync(infoModel, ct).ConfigureAwait(false);
+                postInfo = await SteepshotApiClient.GetPostInfoAsync(infoModel, ct)
+                    .ConfigureAwait(false);
             }
 
             var delay = (int)(model.VoteDelay - (DateTime.Now - startDelay).TotalMilliseconds);
             if (delay > 100)
-                await Task.Delay(delay, ct).ConfigureAwait(false);
+                await Task.Delay(delay, ct)
+                    .ConfigureAwait(false);
 
             return postInfo;
         }
@@ -278,8 +285,8 @@ namespace Steepshot.Core.Presenters
                 return new OperationResult<Post>(new OperationCanceledException());
 
             post.FlagNotificationWasShown = post.Flag;
-            IsEnableVote = false;
             post.FlagChanging = true;
+            CashManager.SetEnableVote = false;
 
             var wasVote = post.Vote;
             var request = new VoteModel(User.UserInfo, post, post.Flag ? VoteType.Down : VoteType.Flag);
@@ -297,8 +304,8 @@ namespace Steepshot.Core.Presenters
                 }
             }
 
-            IsEnableVote = true;
             post.FlagChanging = false;
+            CashManager.SetEnableVote = true;
 
             return response;
         }
