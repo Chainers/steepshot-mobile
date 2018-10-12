@@ -18,13 +18,13 @@ using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
-using Steepshot.Core.Sentry;
 using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Clients
 {
     public class SteemClient : BaseDitchClient
     {
+        private static readonly SemaphoreSlim SemaphoreSlim = new SemaphoreSlim(1, 1);
         private readonly OperationManager _operationManager;
         private readonly ConfigManager _configManager;
 
@@ -42,52 +42,50 @@ namespace Steepshot.Core.Clients
             _operationManager = new OperationManager(httpManager);
         }
 
-        public override Task<bool> TryReconnectChainAsync(CancellationToken token)
+        public override async Task<bool> TryReconnectChainAsync(CancellationToken token)
         {
-            return Task.Run(() =>
+            if (EnableWrite)
+                return EnableWrite;
+
+            try
             {
-                if (EnableWrite)
+                await SemaphoreSlim.WaitAsync(token);
+
+                if (EnableWrite || token.IsCancellationRequested)
                     return EnableWrite;
 
-                var lockWasTaken = false;
-                try
+                await _configManager.UpdateAsync(ExtendedHttpClient, KnownChains.Steem, token)
+                     .ConfigureAwait(false);
+
+                var cUrls = _configManager.SteemNodeConfigs
+                    .Where(n => n.IsEnabled)
+                    .OrderBy(n => n.Order)
+                    .Select(n => n.Url)
+                    .ToArray();
+                foreach (var url in cUrls)
                 {
-                    Monitor.Enter(SyncConnection, ref lockWasTaken);
-                    if (!EnableWrite)
+                    if (token.IsCancellationRequested)
+                        break;
+
+                    var isConnected = await _operationManager.ConnectToAsync(url, token)
+                        .ConfigureAwait(false);
+                    if (isConnected)
                     {
-                        _configManager.UpdateAsync(ExtendedHttpClient, KnownChains.Steem, token).Wait(token);
-
-                        var cUrls = _configManager.SteemNodeConfigs
-                            .Where(n => n.IsEnabled)
-                            .OrderBy(n => n.Order)
-                            .Select(n => n.Url)
-                            .ToArray();
-                        foreach (var url in cUrls)
-                        {
-                            if (token.IsCancellationRequested)
-                                break;
-
-                            var isConnected = _operationManager.ConnectToAsync(url, token).Result;
-                            if (isConnected)
-                            {
-                                EnableWrite = true;
-                                break;
-                            }
-                        }
+                        EnableWrite = true;
+                        break;
                     }
                 }
-                catch (Exception ex)
-                {
-                    LogService.WarningAsync(ex).Wait(token);
-                }
-                finally
-                {
-                    if (lockWasTaken)
-                        Monitor.Exit(SyncConnection);
-                }
+            }
+            catch (Exception ex)
+            {
+                LogService.WarningAsync(ex).Wait(token);
+            }
+            finally
+            {
+                SemaphoreSlim.Release();
+            }
 
-                return EnableWrite;
-            }, token);
+            return EnableWrite;
         }
 
         #region Post requests
