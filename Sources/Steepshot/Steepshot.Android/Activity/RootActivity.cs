@@ -166,10 +166,9 @@ namespace Steepshot.Activity
 
         protected override void OnDestroy()
         {
-            base.OnDestroy();
             TabLayout.TabSelected -= OnTabLayoutOnTabSelected;
             TabLayout.TabReselected -= OnTabLayoutOnTabReselected;
-            Cheeseknife.Reset(this);
+            base.OnDestroy();
         }
 
         protected override void OnResume()

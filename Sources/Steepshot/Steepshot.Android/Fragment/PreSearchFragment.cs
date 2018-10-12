@@ -2,40 +2,32 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Android.Content;
 using Android.Graphics;
 using Android.OS;
 using Android.Support.Design.Widget;
 using Android.Support.Transitions;
 using Android.Support.V4.View;
-using Android.Support.V4.Widget;
 using Android.Support.V7.Widget;
 using Android.Util;
 using Android.Views;
 using Android.Widget;
 using CheeseBind;
-using Steepshot.Activity;
 using Steepshot.Adapter;
 using Steepshot.Base;
-using Steepshot.Core;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
-using Steepshot.Core.Models;
 using Steepshot.Core.Localization;
-using Steepshot.Interfaces;
 using Steepshot.Core.Models.Enums;
-using Steepshot.Core.Utils;
-using Steepshot.CustomViews;
-using OperationCanceledException = System.OperationCanceledException;
 
 namespace Steepshot.Fragment
 {
-    public sealed class PreSearchFragment : BaseFragmentWithPresenter<PreSearchPresenter>, ICanOpenPost
+    public sealed class PreSearchFragment : BasePostsFragment<PreSearchPresenter>
     {
         public const string IsGuestKey = "isGuest";
 
         private bool _isGuest;
+        private readonly bool _loadOnViewCreated;
         private TabOptions _tabOptions;
 
         private ScrollListener _scrollListner;
@@ -46,15 +38,12 @@ namespace Steepshot.Fragment
 
         private List<Button> _buttonsList;
         private int _bottomPadding;
-        private bool _isActivated;
-        private bool _isNeedToLoadPosts;
-        private RecyclerView.Adapter _adapter;
+        private RecyclerView.Adapter _rvAdapter;
 
         private Button _activeButton;
         private Button _currentButton;
 
 #pragma warning disable 0649, 4014
-        [BindView(Resource.Id.search_list)] private RecyclerView _postsList;
         [BindView(Resource.Id.search_view)] private TextView _searchView;
         [BindView(Resource.Id.loading_spinner)] private ProgressBar _spinner;
         [BindView(Resource.Id.trending_button)] private Button _trendingButton;
@@ -62,7 +51,6 @@ namespace Steepshot.Fragment
         [BindView(Resource.Id.new_button)] private Button _newButton;
         [BindView(Resource.Id.clear_button)] private Button _clearButton;
         [BindView(Resource.Id.btn_layout_switcher)] private ImageButton _switcher;
-        [BindView(Resource.Id.refresher)] private SwipeRefreshLayout _refresher;
         [BindView(Resource.Id.login)] private Button _loginButton;
         [BindView(Resource.Id.search_type)] private RelativeLayout _searchTypeLayout;
         [BindView(Resource.Id.toolbar)] private RelativeLayout _toolbarLayout;
@@ -74,14 +62,9 @@ namespace Steepshot.Fragment
         [BindView(Resource.Id.profile_login)] private TextView _viewTitle;
         [BindView(Resource.Id.search_toolbar)] private RelativeLayout _searchToolbarLayout;
         [BindView(Resource.Id.tag_toolbar)] private RelativeLayout _tagToolbarLayout;
-        [BindView(Resource.Id.post_prev_pager)] private ViewPager _postPager;
 #pragma warning restore 0649
 
-        private string CustomTag
-        {
-            get => Presenter.Tag;
-            set => Presenter.Tag = value;
-        }
+        private string _customTag;
 
         private PostPagerAdapter<PreSearchPresenter> _profilePagerAdapter;
         private PostPagerAdapter<PreSearchPresenter> ProfilePagerAdapter
@@ -90,7 +73,7 @@ namespace Steepshot.Fragment
             {
                 if (_profilePagerAdapter == null)
                 {
-                    _profilePagerAdapter = new PostPagerAdapter<PreSearchPresenter>(_postPager, Context, Presenter);
+                    _profilePagerAdapter = new PostPagerAdapter<PreSearchPresenter>(PostPager, Context, Presenter);
                     _profilePagerAdapter.PostAction += PostAction;
                     _profilePagerAdapter.AutoLinkAction += AutoLinkAction;
                     _profilePagerAdapter.CloseAction += CloseAction;
@@ -136,17 +119,22 @@ namespace Steepshot.Fragment
             }
             set
             {
-                if (value)
+                if (value && IsInitialized)
                 {
-                    var isLoaded = LoadPostsByTag();
-                    if (!isLoaded && !_isActivated)
+                    if (!string.IsNullOrEmpty(_customTag))
                     {
-                        if (Presenter != null)
-                            LoadPosts(null, false);
-                        else
-                            _isNeedToLoadPosts = true;
-                        _isActivated = true;
+                        _emptyQueryLabel.Visibility = ViewStates.Invisible;
+
+                        _viewTitle.Text = _searchView.Text = Presenter.Tag = _customTag;
+                        _searchView.SetTextColor(Style.R15G24B30);
+                        _clearButton.Visibility = ViewStates.Visible;
+                        _spinner.Visibility = ViewStates.Visible;
+
+                        _searchToolbarLayout.Visibility = ViewStates.Gone;
+                        _tagToolbarLayout.Visibility = ViewStates.Visible;
                     }
+
+                    GetPosts(false);
                 }
                 base.UserVisibleHint = value;
             }
@@ -157,22 +145,30 @@ namespace Steepshot.Fragment
             //This is fix for crashing when app killed in background
         }
 
+        public PreSearchFragment(string tag)
+        {
+            _customTag = tag;
+            _loadOnViewCreated = true;
+        }
+
+        public PreSearchFragment(bool isGuest = false)
+        {
+            _isGuest = isGuest;
+            _loadOnViewCreated = true;
+        }
+
+
         public override void OnCreate(Bundle savedInstanceState)
         {
+            base.OnCreate(savedInstanceState);
             if (savedInstanceState != null)
                 _isGuest = savedInstanceState.GetBoolean(IsGuestKey);
-            base.OnCreate(savedInstanceState);
         }
 
         public override void OnSaveInstanceState(Bundle outState)
         {
             outState.PutBoolean(IsGuestKey, _isGuest);
             base.OnSaveInstanceState(outState);
-        }
-
-        public PreSearchFragment(bool isGuest = false)
-        {
-            _isGuest = isGuest;
         }
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -188,99 +184,78 @@ namespace Steepshot.Fragment
 
         public override void OnViewCreated(View view, Bundle savedInstanceState)
         {
-            if (!IsInitialized)
-            {
-                base.OnViewCreated(view, savedInstanceState);
+            if (IsInitialized)
+                return;
 
-                if (App.User.HasPostingPermission)
-                    _loginButton.Visibility = ViewStates.Gone;
+            base.OnViewCreated(view, savedInstanceState);
 
-                Presenter.SourceChanged += PresenterSourceChanged;
+            if (App.User.HasPostingPermission)
+                _loginButton.Visibility = ViewStates.Gone;
 
-                _hotButton.Text = App.Localization.GetText(LocalizationKeys.Hot);
-                _newButton.Text = App.Localization.GetText(LocalizationKeys.New);
-                _trendingButton.Text = App.Localization.GetText(LocalizationKeys.Top);
-                _clearButton.Text = App.Localization.GetText(LocalizationKeys.Clear);
+            Presenter.SourceChanged += PresenterSourceChanged;
 
-                _buttonsList = new List<Button> { _newButton, _hotButton, _trendingButton };
-                _bottomPadding = (int)TypedValue.ApplyDimension(ComplexUnitType.Dip, 3, Resources.DisplayMetrics);
-                _currentButton = _hotButton;
-                _trendingButton.Typeface = Style.Regular;
-                _trendingButton.Click += OnTrendClick;
-                _hotButton.Typeface = Style.Semibold;
-                _hotButton.Click += OnTopClick;
-                _newButton.Typeface = Style.Regular;
-                _newButton.Click += OnNewClick;
-                _toolbar.OffsetChanged += OnToolbarOffsetChanged;
+            _hotButton.Text = App.Localization.GetText(LocalizationKeys.Hot);
+            _newButton.Text = App.Localization.GetText(LocalizationKeys.New);
+            _trendingButton.Text = App.Localization.GetText(LocalizationKeys.Top);
+            _clearButton.Text = App.Localization.GetText(LocalizationKeys.Clear);
 
-                _searchView.Text = App.Localization.GetText(LocalizationKeys.TapToSearch);
-                _searchView.Typeface = Style.Regular;
-                _clearButton.Typeface = Style.Regular;
-                _clearButton.Visibility = ViewStates.Gone;
-                _clearButton.Click += OnClearClick;
-                _loginButton.Typeface = Style.Semibold;
-                _loginButton.Text = App.Localization.GetText(LocalizationKeys.SignIn);
-                _loginButton.Click += OnLogin;
-                _scrollListner = new ScrollListener();
-                _scrollListner.ScrolledToBottom += ScrollListnerScrolledToBottom;
+            _buttonsList = new List<Button> { _newButton, _hotButton, _trendingButton };
+            _bottomPadding = (int)TypedValue.ApplyDimension(ComplexUnitType.Dip, 3, Resources.DisplayMetrics);
+            _currentButton = _hotButton;
+            _trendingButton.Typeface = Style.Regular;
+            _trendingButton.Click += OnTrendClick;
+            _hotButton.Typeface = Style.Semibold;
+            _hotButton.Click += OnTopClick;
+            _newButton.Typeface = Style.Regular;
+            _newButton.Click += OnNewClick;
+            _toolbar.OffsetChanged += OnToolbarOffsetChanged;
 
-                _linearLayoutManager = new LinearLayoutManager(Context);
-                _gridLayoutManager = new GridLayoutManager(Context, 3);
-                _feedSpanSizeLookup = new FeedSpanSizeLookup();
-                _gridLayoutManager.SetSpanSizeLookup(_feedSpanSizeLookup);
+            _searchView.Text = App.Localization.GetText(LocalizationKeys.TapToSearch);
+            _searchView.Typeface = Style.Regular;
+            _clearButton.Typeface = Style.Regular;
+            _clearButton.Visibility = ViewStates.Gone;
+            _clearButton.Click += OnClearClick;
+            _loginButton.Typeface = Style.Semibold;
+            _loginButton.Text = App.Localization.GetText(LocalizationKeys.SignIn);
+            _loginButton.Click += OnLogin;
+            _scrollListner = new ScrollListener();
+            _scrollListner.ScrolledToBottom += ScrollListnerScrolledToBottom;
 
-                _gridItemDecoration = new GridItemDecoration();
+            _linearLayoutManager = new LinearLayoutManager(Context);
+            _gridLayoutManager = new GridLayoutManager(Context, 3);
+            _feedSpanSizeLookup = new FeedSpanSizeLookup();
+            _gridLayoutManager.SetSpanSizeLookup(_feedSpanSizeLookup);
 
-                _tabOptions = App.NavigationManager.GetTabSettings(nameof(PreSearchFragment));
-                SwitchListAdapter(_tabOptions.IsGridView);
-                _postsList.AddOnScrollListener(_scrollListner);
+            _gridItemDecoration = new GridItemDecoration();
 
-                _postPager.SetClipToPadding(false);
-                _postPager.SetPadding(Style.PostPagerMargin * 2, 0, Style.PostPagerMargin * 2, 0);
-                _postPager.PageMargin = Style.PostPagerMargin;
-                _postPager.PageScrollStateChanged += PostPagerOnPageScrollStateChanged;
-                _postPager.PageScrolled += PostPagerOnPageScrolled;
-                _postPager.Adapter = ProfilePagerAdapter;
-                _postPager.SetPageTransformer(false, _profilePagerAdapter, (int)LayerType.None);
+            _tabOptions = App.NavigationManager.GetTabSettings(nameof(PreSearchFragment));
+            SwitchListAdapter(_tabOptions.IsGridView);
+            PostsList.AddOnScrollListener(_scrollListner);
 
-                _switcher.Click += OnSwitcherClick;
-                _refresher.Refresh += RefresherRefresh;
+            PostPager.SetClipToPadding(false);
+            PostPager.SetPadding(Style.PostPagerMargin * 2, 0, Style.PostPagerMargin * 2, 0);
+            PostPager.PageMargin = Style.PostPagerMargin;
+            PostPager.PageScrollStateChanged += PostPagerOnPageScrollStateChanged;
+            PostPager.PageScrolled += PostPagerOnPageScrolled;
+            PostPager.Adapter = ProfilePagerAdapter;
+            PostPager.SetPageTransformer(false, _profilePagerAdapter, (int)LayerType.None);
 
-                _emptyQueryLabel.Typeface = Style.Light;
-                _emptyQueryLabel.Text = App.Localization.GetText(LocalizationKeys.EmptyQuery);
+            _switcher.Click += OnSwitcherClick;
+            Refresher.Refresh += OnRefresh;
 
-                _searchToolbarLayout.Click += OnSearch;
+            _emptyQueryLabel.Typeface = Style.Light;
+            _emptyQueryLabel.Text = App.Localization.GetText(LocalizationKeys.EmptyQuery);
 
-                _viewTitle.Typeface = Style.Semibold;
-                _backButton.Visibility = ViewStates.Visible;
-                _backButton.Click += GoBackClick;
-                _panelSwitcher.Visibility = ViewStates.Gone;
-                _settings.Visibility = ViewStates.Gone;
-            }
+            _searchToolbarLayout.Click += OnSearch;
 
-            var isLoaded = LoadPostsByTag();
-            if (!isLoaded && savedInstanceState == null && _isNeedToLoadPosts)
-            {
-                _isNeedToLoadPosts = false;
-                LoadPosts(null, true);
-            }
+            _viewTitle.Typeface = Style.Semibold;
+            _backButton.Visibility = ViewStates.Visible;
+            _backButton.Click += GoBackClick;
+            _panelSwitcher.Visibility = ViewStates.Gone;
+            _settings.Visibility = ViewStates.Gone;
 
-            var postUrl = Activity?.Intent?.GetStringExtra(CommentsFragment.ResultString);
-            if (!string.IsNullOrWhiteSpace(postUrl))
-            {
-                var count = Activity.Intent.GetIntExtra(CommentsFragment.CountString, 0);
-                Activity.Intent.RemoveExtra(CommentsFragment.ResultString);
-                Activity.Intent.RemoveExtra(CommentsFragment.CountString);
-                var post = Presenter.FirstOrDefault(p => p.Url == postUrl);
-                post.Children += count;
-                _adapter.NotifyDataSetChanged();
-            }
-        }
-
-        public override void OnResume()
-        {
-            base.OnResume();
-            _adapter.NotifyDataSetChanged();
+            if (_loadOnViewCreated || UserVisibleHint)
+                UserVisibleHint = true;
         }
 
         private void PostPagerOnPageScrolled(object sender, ViewPager.PageScrolledEventArgs pageScrolledEventArgs)
@@ -288,9 +263,7 @@ namespace Steepshot.Fragment
             if (pageScrolledEventArgs.Position == Presenter.Count)
             {
                 if (!Presenter.IsLastReaded)
-                    LoadPosts(CustomTag, false);
-                else
-                    _profilePagerAdapter.NotifyDataSetChanged();
+                    GetPosts(false);
             }
         }
 
@@ -298,11 +271,11 @@ namespace Steepshot.Fragment
         {
             if (pageScrollStateChangedEventArgs.State == 0)
             {
-                _postsList.ScrollToPosition(_postPager.CurrentItem);
-                if (_postsList.GetLayoutManager() is GridLayoutManager manager)
+                PostsList.ScrollToPosition(PostPager.CurrentItem);
+                if (PostsList.GetLayoutManager() is GridLayoutManager manager)
                 {
-                    var positionToScroll = _postPager.CurrentItem + (_postPager.CurrentItem - manager.FindFirstVisibleItemPosition()) / 2;
-                    _postsList.ScrollToPosition(positionToScroll < Presenter.Count
+                    var positionToScroll = PostPager.CurrentItem + (PostPager.CurrentItem - manager.FindFirstVisibleItemPosition()) / 2;
+                    PostsList.ScrollToPosition(positionToScroll < Presenter.Count
                         ? positionToScroll
                         : Presenter.Count);
                 }
@@ -317,31 +290,83 @@ namespace Steepshot.Fragment
             OpenPost(post);
         }
 
-        public void OpenPost(Post post)
+        public override bool ClosePost()
         {
-            _postPager.SetCurrentItem(Presenter.IndexOf(post), false);
-            _profilePagerAdapter.NotifyDataSetChanged();
-            _postPager.Visibility = ViewStates.Visible;
-            _postsList.Visibility = ViewStates.Gone;
-        }
-
-        public bool ClosePost()
-        {
-            if (_postPager.Visibility == ViewStates.Visible)
+            if (base.ClosePost())
             {
-                _postPager.Visibility = ViewStates.Gone;
-                _postsList.Visibility = ViewStates.Visible;
-                _postsList.GetAdapter().NotifyDataSetChanged();
-                if (_postsList.GetAdapter() == ProfileGridAdapter)
-                {
-                    var seenItem = _postsList.FindViewHolderForAdapterPosition(_postPager.CurrentItem)?.ItemView
-                        .FindViewById(Resource.Id.grid_item_photo) as ImageView;
-                    if (seenItem != null)
-                        AnimationHelper.PulseGridItem(seenItem);
-                }
+                if (_rvAdapter == ProfileGridAdapter)
+                    ProfileGridAdapter.PulseAsync(ProfilePagerAdapter.CurrentPost, Presenter.OnDisposeCts.Token);
                 return true;
             }
+
             return false;
+        }
+
+        private void OnSwitcherClick(object sender, EventArgs e)
+        {
+            _switcher.Enabled = false;
+            _tabOptions.IsGridView = !(PostsList.GetLayoutManager() is GridLayoutManager);
+            App.NavigationManager.Save();
+            SwitchListAdapter(_tabOptions.IsGridView);
+            _switcher.Enabled = true;
+        }
+
+        private void SwitchListAdapter(bool isGridView)
+        {
+            if (isGridView)
+            {
+                _switcher.SetImageResource(Resource.Drawable.ic_grid_active);
+                PostsList.SetLayoutManager(_gridLayoutManager);
+                PostsList.AddItemDecoration(_gridItemDecoration);
+                _rvAdapter = ProfileGridAdapter;
+            }
+            else
+            {
+                _switcher.SetImageResource(Resource.Drawable.ic_grid);
+                PostsList.SetLayoutManager(_linearLayoutManager);
+                PostsList.RemoveItemDecoration(_gridItemDecoration);
+                _rvAdapter = ProfileFeedAdapter;
+            }
+            PostsList.SetAdapter(_rvAdapter);
+            PostsList.ScrollToPosition(_scrollListner.Position);
+        }
+
+        private void PresenterSourceChanged(Status status)
+        {
+            if (!IsInitialized)
+                return;
+
+            switch (status.Sender)
+            {
+                default:
+                    {
+                        if (Presenter.Count == 0)
+                        {
+                            _scrollListner.ClearPosition();
+                            _feedSpanSizeLookup.LastItemNumber = -1;
+                        }
+                        else
+                        {
+                            _feedSpanSizeLookup.LastItemNumber = Presenter.Count;
+                        }
+
+                        _rvAdapter.NotifyDataSetChanged();
+                        ProfilePagerAdapter.NotifyDataSetChanged();
+
+                        break;
+                    }
+            }
+        }
+
+        private async void OnRefresh(object sender, EventArgs e)
+        {
+            _spinner.Visibility = ViewStates.Gone;
+            await GetPosts(true);
+        }
+
+        private void OnLogin(object sender, EventArgs e)
+        {
+            OpenLogin();
         }
 
         private void OnToolbarOffsetChanged(object sender, AppBarLayout.OffsetChangedEventArgs e)
@@ -349,22 +374,16 @@ namespace Steepshot.Fragment
             ViewCompat.SetElevation(_toolbar, BitmapUtils.DpToPixel(2, Resources));
         }
 
-        public override void OnDetach()
-        {
-            base.OnDetach();
-            Cheeseknife.Reset(this);
-        }
-
         private void OnClearClick(object sender, EventArgs e)
         {
-            CustomTag = null;
+            Presenter.Tag = _customTag = null;
             _clearButton.Visibility = ViewStates.Gone;
             _searchView.Text = App.Localization.GetText(LocalizationKeys.TapToSearch);
             _searchView.SetTextColor(Style.R151G155B158);
             _spinner.Visibility = ViewStates.Visible;
             _emptyQueryLabel.Visibility = ViewStates.Invisible;
-            _refresher.Refreshing = false;
-            LoadPosts(null, true);
+            Refresher.Refreshing = false;
+            GetPosts(true);
         }
 
         private async void OnTrendClick(object sender, EventArgs e)
@@ -387,210 +406,7 @@ namespace Steepshot.Fragment
             ((BaseActivity)Activity).OpenNewContentFragment(new SearchFragment());
         }
 
-        private void OnSwitcherClick(object sender, EventArgs e)
-        {
-            _tabOptions.IsGridView = !(_postsList.GetLayoutManager() is GridLayoutManager);
-            App.NavigationManager.Save();
-            SwitchListAdapter(_tabOptions.IsGridView);
-        }
-
-        private void SwitchListAdapter(bool isGridView)
-        {
-            lock (_switcher)
-            {
-                if (isGridView)
-                {
-                    _switcher.SetImageResource(Resource.Drawable.ic_grid_active);
-                    _postsList.SetLayoutManager(_gridLayoutManager);
-                    _postsList.AddItemDecoration(_gridItemDecoration);
-                    _adapter = ProfileGridAdapter;
-                }
-                else
-                {
-                    _switcher.SetImageResource(Resource.Drawable.ic_grid);
-                    _postsList.SetLayoutManager(_linearLayoutManager);
-                    _postsList.RemoveItemDecoration(_gridItemDecoration);
-                    _adapter = ProfileFeedAdapter;
-                }
-                _adapter.NotifyDataSetChanged();
-                _postsList.SetAdapter(_adapter);
-                _postsList.ScrollToPosition(_scrollListner.Position);
-            }
-        }
-
-        private void OnLogin(object sender, EventArgs e)
-        {
-            OpenLogin();
-        }
-
-        private void GoBackClick(object sender, EventArgs e)
-        {
-            Activity.OnBackPressed();
-        }
-
-        private void PresenterSourceChanged(Status status)
-        {
-            if (!IsInitialized)
-                return;
-
-            Activity.RunOnUiThread(() =>
-            {
-                lock (_switcher)
-                {
-                    if (Presenter.Count == 0)
-                    {
-                        _scrollListner.ClearPosition();
-                        _feedSpanSizeLookup.LastItemNumber = -1;
-                    }
-                    else
-                    {
-                        _feedSpanSizeLookup.LastItemNumber = Presenter.Count;
-                    }
-                    _adapter.NotifyDataSetChanged();
-                    ProfilePagerAdapter.NotifyDataSetChanged();
-                }
-            });
-        }
-
-        private async void ScrollListnerScrolledToBottom()
-        {
-            await LoadPosts(CustomTag, false);
-        }
-
-        private async void RefresherRefresh(object sender, EventArgs e)
-        {
-            _spinner.Visibility = ViewStates.Gone;
-            await LoadPosts(CustomTag, true);
-        }
-
-        private async void PostAction(ActionType type, Post post)
-        {
-            if (post == null)
-                return;
-
-            switch (type)
-            {
-                case ActionType.Like:
-                    {
-                        if (App.User.HasPostingPermission)
-                        {
-                            var result = await Presenter.TryVoteAsync(post);
-                            if (!IsInitialized)
-                                return;
-
-                            if (result.IsSuccess && Activity is RootActivity root)
-                                root.TryUpdateProfile();
-
-                            Context.ShowAlert(result);
-                        }
-                        else
-                        {
-                            OpenLogin();
-                        }
-                        break;
-                    }
-                case ActionType.VotersLikes:
-                case ActionType.VotersFlags:
-                    {
-                        var isLikers = type == ActionType.VotersLikes;
-                        Activity.Intent.PutExtra(FeedFragment.PostUrlExtraPath, post.Url);
-                        Activity.Intent.PutExtra(FeedFragment.PostNetVotesExtraPath, isLikers ? post.NetLikes : post.NetFlags);
-                        Activity.Intent.PutExtra(VotersFragment.VotersType, isLikers);
-                        ((BaseActivity)Activity).OpenNewContentFragment(new VotersFragment());
-                        break;
-                    }
-                case ActionType.Comments:
-                    {
-                        if (post.Children == 0 && !App.User.HasPostingPermission)
-                        {
-                            OpenLogin();
-                            return;
-                        }
-
-                        ((BaseActivity)Activity).OpenNewContentFragment(new CommentsFragment(post, post.Children == 0));
-                        break;
-                    }
-                case ActionType.Profile:
-                    {
-                        if (App.User.Login != post.Author)
-                            ((BaseActivity)Activity).OpenNewContentFragment(new ProfileFragment(post.Author));
-                        break;
-                    }
-                case ActionType.Flag:
-                    {
-                        if (!App.User.HasPostingPermission)
-                            return;
-
-                        var result = await Presenter.TryFlagAsync(post);
-                        if (!IsInitialized)
-                            return;
-
-                        if (result.IsSuccess && Activity is RootActivity root)
-                            root.TryUpdateProfile();
-
-                        Context.ShowAlert(result);
-                        break;
-                    }
-                case ActionType.Hide:
-                    {
-                        Presenter.HidePost(post);
-                        break;
-                    }
-                case ActionType.Edit:
-                    {
-                        ((BaseActivity)Activity).OpenNewContentFragment(new PostEditFragment(post));
-                        ToggleTabBar(true);
-                        break;
-                    }
-                case ActionType.Delete:
-                    {
-                        var actionAlert = new ActionAlertDialog(Context,
-                            App.Localization.GetText(LocalizationKeys.DeleteAlertTitle),
-                            App.Localization.GetText(LocalizationKeys.DeleteAlertMessage),
-                            App.Localization.GetText(LocalizationKeys.Delete),
-                            App.Localization.GetText(LocalizationKeys.Cancel), AutoLinkAction);
-
-                        actionAlert.AlertAction += async () =>
-                        {
-                            var result = await Presenter.TryDeletePostAsync(post);
-                            if (!IsInitialized)
-                                return;
-                            Context.ShowAlert(result);
-                        };
-
-                        actionAlert.Show();
-                        break;
-                    }
-                case ActionType.Share:
-                    {
-                        var shareIntent = new Intent(Intent.ActionSend);
-                        shareIntent.SetType("text/plain");
-                        shareIntent.PutExtra(Intent.ExtraSubject, post.Title);
-                        shareIntent.PutExtra(Intent.ExtraText, string.Format(App.User.Chain == KnownChains.Steem ? Constants.SteemPostUrl : Constants.GolosPostUrl, post.Url));
-                        StartActivity(Intent.CreateChooser(shareIntent, App.Localization.GetText(LocalizationKeys.Sharepost)));
-                        break;
-                    }
-                case ActionType.Photo:
-                    {
-                        OpenPost(post);
-                        break;
-                    }
-                case ActionType.Promote:
-                    {
-                        var actionAlert = new PromoteAlertDialog(Context, post, AutoLinkAction);
-                        actionAlert.Window.RequestFeature(WindowFeatures.NoTitle);
-                        actionAlert.Show();
-                        break;
-                    }
-            }
-        }
-
-        private void CloseAction()
-        {
-            ClosePost();
-        }
-
-        private async Task LoadPosts(string tag, bool clearOld)
+        protected override async Task GetPosts(bool clearOld)
         {
             if (clearOld)
             {
@@ -599,7 +415,7 @@ namespace Steepshot.Fragment
             }
 
             Exception exception;
-            if (string.IsNullOrEmpty(tag))
+            if (string.IsNullOrEmpty(Presenter.Tag))
                 exception = await Presenter.TryLoadNextTopPostsAsync();
             else
                 exception = await Presenter.TryGetSearchedPostsAsync();
@@ -607,23 +423,14 @@ namespace Steepshot.Fragment
             if (!IsInitialized)
                 return;
 
-            if (exception is OperationCanceledException)
-                return;
-
             Context.ShowAlert(exception, ToastLength.Short);
 
             if (exception == null)
             {
-                _refresher.Refreshing = false;
+                Refresher.Refreshing = false;
                 _spinner.Visibility = ViewStates.Gone;
                 _emptyQueryLabel.Visibility = Presenter.Count > 0 ? ViewStates.Invisible : ViewStates.Visible;
             }
-        }
-
-        private void OpenLogin()
-        {
-            var intent = new Intent(Activity, typeof(WelcomeActivity));
-            StartActivity(intent);
         }
 
         private async Task SwitchSearchType(PostType postType)
@@ -632,7 +439,7 @@ namespace Steepshot.Fragment
                 return;
             _emptyQueryLabel.Visibility = ViewStates.Invisible;
             _spinner.Visibility = ViewStates.Visible;
-            _refresher.Refreshing = false;
+            Refresher.Refreshing = false;
 
             switch (postType)
             {
@@ -650,33 +457,9 @@ namespace Steepshot.Fragment
                     break;
             }
             Presenter.PostType = postType;
-            await LoadPosts(CustomTag, true);
+            await GetPosts(true);
             if (postType == Presenter.PostType)
                 _emptyQueryLabel.Visibility = Presenter.Count > 0 ? ViewStates.Invisible : ViewStates.Visible;
-        }
-
-        private bool LoadPostsByTag(string tag = null)
-        {
-            if (IsInitialized)
-            {
-                var selectedTag = tag ?? Activity?.Intent?.GetStringExtra(SearchFragment.SearchExtra);
-                _emptyQueryLabel.Visibility = ViewStates.Invisible;
-                if (!string.IsNullOrWhiteSpace(selectedTag) && selectedTag != CustomTag)
-                {
-                    Activity.Intent.RemoveExtra(SearchFragment.SearchExtra);
-                    _viewTitle.Text = _searchView.Text = Presenter.Tag = CustomTag = selectedTag;
-                    _searchView.SetTextColor(Style.R15G24B30);
-                    _clearButton.Visibility = ViewStates.Visible;
-                    _spinner.Visibility = ViewStates.Visible;
-
-                    _searchToolbarLayout.Visibility = ViewStates.Gone;
-                    _tagToolbarLayout.Visibility = ViewStates.Visible;
-
-                    LoadPosts(selectedTag, true);
-                    return true;
-                }
-            }
-            return false;
         }
 
         private async Task ButtonSwitchAnimation()
@@ -736,5 +519,6 @@ namespace Steepshot.Fragment
             _currentButton = _activeButton;
             _hotButton.Enabled = _newButton.Enabled = _trendingButton.Enabled = true;
         }
+
     }
 }

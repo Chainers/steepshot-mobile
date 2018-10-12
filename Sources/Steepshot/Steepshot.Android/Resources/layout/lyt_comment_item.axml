@@ -73,7 +73,7 @@
             android:layout_alignStart="@id/avatar"
             android:layout_below="@id/header"
             android:layout_marginTop="10dp">
-            <ImageButton
+            <Steepshot.CustomViews.LikeOrFlagButton
                 android:id="@+id/like_btn"
                 android:layout_width="40dp"
                 android:layout_height="40dp"

@@ -64,7 +64,9 @@ namespace Steepshot.Adapter
                 default:
                     var view = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.lyt_grid_item, parent, false);
                     view.LayoutParameters = new ViewGroup.LayoutParams(CellSize, CellSize);
-                    return new ImageViewHolder(view, Click);
+                    var vh = new ImageViewHolder(view, Context, Click);
+                    Holders.Add(vh);
+                    return vh;
             }
         }
 

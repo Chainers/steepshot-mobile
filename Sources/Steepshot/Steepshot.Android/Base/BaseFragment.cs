@@ -1,6 +1,8 @@
-﻿using Android.Content;
+﻿using System;
+using Android.Content;
 using Android.OS;
 using Android.Views;
+using CheeseBind;
 using Steepshot.Activity;
 using Steepshot.CustomViews;
 using Steepshot.Fragment;
@@ -28,6 +30,7 @@ namespace Steepshot.Base
         {
             IsInitialized = false;
             base.OnDetach();
+            Cheeseknife.Reset(this);
         }
 
         public virtual bool OnBackPressed() => false;
@@ -40,8 +43,7 @@ namespace Steepshot.Base
             switch (type)
             {
                 case AutoLinkType.Hashtag:
-                    Activity.Intent.PutExtra(SearchFragment.SearchExtra, link);
-                    ((BaseActivity)Activity).OpenNewContentFragment(new PreSearchFragment());
+                    ((BaseActivity)Activity).OpenNewContentFragment(new PreSearchFragment(link));
                     break;
                 case AutoLinkType.Mention:
                     ((BaseActivity)Activity).OpenNewContentFragment(new ProfileFragment(link));

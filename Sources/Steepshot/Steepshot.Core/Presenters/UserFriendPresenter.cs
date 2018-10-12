@@ -61,7 +61,7 @@ namespace Steepshot.Core.Presenters
             };
 
             var response = await RunAsSingleTaskAsync(_steepshotApiClient.GetPostVotersAsync, request)
-                .ConfigureAwait(false);
+                .ConfigureAwait(true);
 
             if (response.IsSuccess)
             {
@@ -87,10 +87,10 @@ namespace Steepshot.Core.Presenters
         public async Task<OperationResult<ListResponse<UserFriend>>> TryLoadNextUserFriendsAsync(string username)
         {
             if (IsLastReaded)
-                return null;
+                return new OperationResult<ListResponse<UserFriend>>(new OperationCanceledException());
 
             if (!FollowType.HasValue)
-                return null;
+                return new OperationResult<ListResponse<UserFriend>>(new OperationCanceledException());
 
             var request = new UserFriendsModel(username, FollowType.Value)
             {
@@ -100,7 +100,7 @@ namespace Steepshot.Core.Presenters
             };
 
             var response = await RunAsSingleTaskAsync(_steepshotApiClient.GetUserFriendsAsync, request)
-                .ConfigureAwait(false);
+                .ConfigureAwait(true);
 
             if (response.IsSuccess)
             {
@@ -137,7 +137,7 @@ namespace Steepshot.Core.Presenters
             };
 
             var response = await RunAsSingleTaskAsync(_steepshotApiClient.SearchUserAsync, request)
-                .ConfigureAwait(false);
+                .ConfigureAwait(true);
 
             if (response.IsSuccess)
             {
@@ -167,7 +167,7 @@ namespace Steepshot.Core.Presenters
 
             var hasFollowed = userFriend.HasFollowed;
             var request = new FollowModel(_user.UserInfo, hasFollowed ? Models.Enums.FollowType.UnFollow : Models.Enums.FollowType.Follow, userFriend.Author);
-            var result = await TaskHelper.TryRunTaskAsync(_ditchClient.FollowAsync, request, OnDisposeCts.Token).ConfigureAwait(false);
+            var result = await TaskHelper.TryRunTaskAsync(_ditchClient.FollowAsync, request, OnDisposeCts.Token).ConfigureAwait(true);
 
             if (result.IsSuccess)
                 userFriend.HasFollowed = !hasFollowed;

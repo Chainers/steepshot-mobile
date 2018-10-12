@@ -5,6 +5,7 @@ using Photos;
 using PureLayout.Net;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Utils;
+using Steepshot.iOS.CustomViews;
 using Steepshot.iOS.Helpers;
 using UIKit;
 
@@ -19,6 +20,7 @@ namespace Steepshot.iOS.Cells
         private UIView _selectFrame;
         private UIView _selectView;
         private UILabel _countLabel;
+        private readonly TriangleView _triangle = new TriangleView();
 
         public bool IsSelected
         {
@@ -31,6 +33,11 @@ namespace Steepshot.iOS.Cells
             _galleryImage = new UIImageView(new CGRect(Constants.CellSideSize - 15, 5, 10, 10));
             _galleryImage.Image = UIImage.FromBundle("ic_is_gallery");
             ContentView.AddSubview(_galleryImage);
+
+            ContentView.AddSubview(_triangle);
+            _triangle.AutoSetDimensionsToSize(new CGSize(10, 10));
+            _triangle.AutoPinEdgeToSuperviewEdge(ALEdge.Top, 5);
+            _triangle.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 5);
         }
 
         public void UpdateImage(PHImageManager cm, PHAsset photo, bool isCurrentlySelected, int count = 0, bool? isSelected = null)
@@ -129,8 +136,10 @@ namespace Steepshot.iOS.Cells
                                                       _bodyImage, 2,
                                                       LoadingPriority.Highest, microUrl: _currentPost.Media[0].Thumbnails.Micro);
             }
-            if (post.Media.Length > 1)
+            if (_currentPost.Media.Length > 1)
                 ContentView.BringSubviewToFront(_galleryImage);
+            if(MimeTypeHelper.IsVideo(_currentPost.Media[0].ContentType))
+                ContentView.BringSubviewToFront(_triangle);
         }
 
         public void UpdateCell(UIImage image)

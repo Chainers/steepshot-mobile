@@ -138,7 +138,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
                 <android.support.v7.widget.RecyclerView
-                    android:id="@+id/search_list"
+                    android:id="@+id/posts_list"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:clipToPadding="false" />

@@ -1,6 +1,7 @@
 ﻿using System;
 using CoreAnimation;
 using CoreGraphics;
+using Foundation;
 using UIKit;
 
 namespace Steepshot.iOS.Helpers
@@ -12,6 +13,15 @@ namespace Steepshot.iOS.Helpers
         private UIBezierPath _endPath;
         private const float endAngle = 4.712327f;
 
+        public int LineWidth
+        {
+            get => (int)_sl.LineWidth;
+            set
+            {
+                _sl.LineWidth = value;
+            }
+        }
+        
         public CircleFrame(UIImageView image,CGRect frameRect, int percents = 0)
         {
             Frame = frameRect;

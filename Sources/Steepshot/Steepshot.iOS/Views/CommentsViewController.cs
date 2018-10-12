@@ -24,6 +24,7 @@ namespace Steepshot.iOS.Views
         private CommentsTextViewDelegate _commentsTextViewDelegate;
         private CommentsTableViewSource _tableSource;
         private readonly UIBarButtonItem _leftBarButton = new UIBarButtonItem();
+        private UINavigationController _navController;
         private readonly Post _post;
         private Post _postToEdit;
 
@@ -54,6 +55,8 @@ namespace Steepshot.iOS.Views
             base.ViewDidLoad();
             View.BackgroundColor = UIColor.White;
 
+            _navController = TabBarController != null ? TabBarController.NavigationController : NavigationController;
+
             CreateView();
 
             _tableSource = new CommentsTableViewSource(Presenter, _post);
@@ -82,17 +85,15 @@ namespace Steepshot.iOS.Views
 
         public override void ViewWillAppear(bool animated)
         {
-            if (IsMovingToParentViewController)
-            {
-                Presenter.SourceChanged += SourceChanged;
-                _leftBarButton.Clicked += GoBack;
-                _tableSource.CellAction += CellAction;
-                _tableSource.TagAction += TagAction;
-                _saveButton.TouchDown += SaveTap;
-                _commentsTextViewDelegate.ChangedAction += CommentsTextViewDelegate_ChangedAction;
-                _sendButton.TouchDown += CreateComment;
-                _cancelButton.TouchDown += CancelTap;
-            }
+            Presenter.SourceChanged += SourceChanged;
+            _leftBarButton.Clicked += GoBack;
+            _tableSource.CellAction += CellAction;
+            _tableSource.TagAction += TagAction;
+            _saveButton.TouchDown += SaveTap;
+            _commentsTextViewDelegate.ChangedAction += CommentsTextViewDelegate_ChangedAction;
+            _sendButton.TouchDown += CreateComment;
+            _cancelButton.TouchDown += CancelTap;
+            ((InteractivePopNavigationController)_navController).WillEnterForegroundEvent += WillEnterForeground;
             base.ViewWillAppear(animated);
         }
 
@@ -104,20 +105,27 @@ namespace Steepshot.iOS.Views
                 _postToEdit.Editing = false;
                 _commentsTable.ReloadData();
             }*/
+            
+            Presenter.SourceChanged -= SourceChanged;
+            _leftBarButton.Clicked -= GoBack;
+            _tableSource.CellAction -= CellAction;
+            _tableSource.TagAction -= TagAction;
+            _saveButton.TouchDown -= SaveTap;
+            _commentsTextViewDelegate.ChangedAction = null;
+            _sendButton.TouchDown -= CreateComment;
+            _cancelButton.TouchDown -= CancelTap;
+            
             if (IsMovingFromParentViewController)
-            {
-                Presenter.SourceChanged -= SourceChanged;
-                _leftBarButton.Clicked -= GoBack;
-                _tableSource.CellAction -= CellAction;
-                _tableSource.TagAction -= TagAction;
-                _saveButton.TouchDown -= SaveTap;
-                _commentsTextViewDelegate.ChangedAction = null;
-                _sendButton.TouchDown -= CreateComment;
-                _cancelButton.TouchDown -= CancelTap;
-                _tableSource.FreeAllCells();
-                Presenter.TasksCancel();
-            }
+                CleanViewController();
+
+            ((InteractivePopNavigationController)_navController).WillEnterForegroundEvent -= WillEnterForeground;
             base.ViewWillDisappear(animated);
+        }
+        
+        public void CleanViewController()
+        {
+            _tableSource.FreeAllCells();
+            Presenter.TasksCancel();
         }
 
         private void SetBackButton()
@@ -404,11 +412,8 @@ namespace Steepshot.iOS.Views
             if (response.IsSuccess)
             {
                 CancelTap(null, null);
-
                 var exception = await Presenter.TryLoadNextCommentsAsync(_post);
-
                 ShowAlert(exception);
-                _post.Children++;
             }
             else
                 ShowAlert(response.Exception);
@@ -426,10 +431,6 @@ namespace Steepshot.iOS.Views
             }
 
             var result = await Presenter.TryDeleteCommentAsync(post, _post);
-
-            if (result.IsSuccess)
-                _post.Children--;
-
             ShowAlert(result);
         }
 

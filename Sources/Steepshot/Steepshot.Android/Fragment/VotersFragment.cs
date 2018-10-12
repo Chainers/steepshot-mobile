@@ -85,22 +85,12 @@ namespace Steepshot.Fragment
             LoadNext();
         }
 
-        public override void OnDetach()
-        {
-            base.OnDetach();
-            Cheeseknife.Reset(this);
-        }
-
-
         private void PresenterSourceChanged(Status status)
         {
             if (!IsInitialized)
                 return;
 
-            Activity.RunOnUiThread(() =>
-            {
-                _adapter.NotifyDataSetChanged();
-            });
+            _adapter.NotifyDataSetChanged();
         }
 
         private void GoBackClick(object sender, EventArgs e)
@@ -161,6 +151,12 @@ namespace Steepshot.Fragment
         {
             base.OnResume();
             _adapter.NotifyDataSetChanged();
+        }
+
+        public override void OnDetach()
+        {
+            _votersList.SetAdapter(null);
+            base.OnDetach();
         }
     }
 }

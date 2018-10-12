@@ -25,7 +25,7 @@ namespace Steepshot.Adapter
         private readonly ViewPager _pager;
         private readonly Context _context;
         private readonly List<PostViewHolder> _viewHolders;
-        
+
         private int _itemsCount;
         private View _loadingView;
         public Action<ActionType, Post> PostAction;
@@ -33,6 +33,8 @@ namespace Steepshot.Adapter
         public Action CloseAction;
 
         public int CurrentItem => _pager.CurrentItem;
+
+        public Post CurrentPost => _presenter[_pager.CurrentItem];
 
         public PostPagerAdapter(ViewPager pager, Context context, T presenter)
         {

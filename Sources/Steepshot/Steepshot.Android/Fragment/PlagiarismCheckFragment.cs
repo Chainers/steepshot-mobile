@@ -218,6 +218,12 @@ namespace Steepshot.Fragment
             TargetFragment.OnActivityResult(0, (int)Result.Ok, null);
             ((BaseActivity)Activity).OnBackPressed();
         }
+
+        public override void OnDetach()
+        {
+            _photos.SetAdapter(null);
+            base.OnDetach();
+        }
     }
 
     public class CustomClickableSpan : ClickableSpan

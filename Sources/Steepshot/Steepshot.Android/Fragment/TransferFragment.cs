@@ -258,18 +258,7 @@ namespace Steepshot.Fragment
                 OnRecipientChanged();
             }
         }
-
-        public override void OnDetach()
-        {
-            base.OnDetach();
-            _activityRoot.ViewTreeObserver.GlobalLayout -= OnKeyboardClosing;
-            _activityRoot.ViewTreeObserver.GlobalLayout -= OnKeyboardOpening;
-            _transferCoinName.ViewTreeObserver.GlobalLayout -= TokenLayedOut;
-            _transferFacade.TasksCancel();
-            Cheeseknife.Reset(this);
-            GC.Collect(0);
-        }
-
+        
         private void TokenLayedOut(object sender, EventArgs e)
         {
             _transferAmountEdit?.SetPadding(_transferAmountEdit.PaddingLeft, _transferAmountEdit.PaddingTop, ((View)_transferCoinName.Parent).Width, _transferAmountEdit.PaddingBottom);
@@ -693,6 +682,16 @@ namespace Steepshot.Fragment
                 return true;
             }
             return base.OnBackPressed();
+        }
+        
+        public override void OnDetach()
+        {
+            _activityRoot.ViewTreeObserver.GlobalLayout -= OnKeyboardClosing;
+            _activityRoot.ViewTreeObserver.GlobalLayout -= OnKeyboardOpening;
+            _transferCoinName.ViewTreeObserver.GlobalLayout -= TokenLayedOut;
+            _transferFacade.TasksCancel();
+            _recipientsList.SetAdapter(null);
+            base.OnDetach();
         }
     }
 }

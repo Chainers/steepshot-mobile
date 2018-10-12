@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
 using Android.Content;
 using Android.Graphics;
 using Android.Graphics.Drawables;
@@ -8,7 +10,6 @@ using Android.Views;
 using Android.Widget;
 using Refractored.Controls;
 using Square.Picasso;
-using Steepshot.Core.Extensions;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
@@ -21,6 +22,7 @@ using Steepshot.CustomViews;
 using AndroidSwipeLayout;
 using AndroidSwipeLayout.Adapters;
 using Steepshot.Base;
+using Steepshot.Core.Extensions;
 
 namespace Steepshot.Adapter
 {
@@ -33,6 +35,7 @@ namespace Steepshot.Adapter
         public Action<AutoLinkType, string> AutoLinkAction;
         public Action RootClickAction;
         public bool SwipeEnabled { get; set; } = true;
+        private readonly List<CommentViewHolder> _holders;
 
         public override int ItemCount => _presenter.Count + 1;
 
@@ -41,6 +44,7 @@ namespace Steepshot.Adapter
             _context = context;
             _presenter = presenter;
             _post = post;
+            _holders = new List<CommentViewHolder>();
         }
 
         public override void OnBindViewHolder(RecyclerView.ViewHolder holder, int position)
@@ -90,6 +94,7 @@ namespace Steepshot.Adapter
                         itemView.SwipeEnabled = App.User.HasPostingPermission;
                         itemView.Opening += SwipeLayoutOnOpening;
                         var vh = new CommentViewHolder(itemView, CommentAction, AutoLinkAction, RootClickAction);
+                        _holders.Add(vh);
                         return vh;
                     }
             }
@@ -98,6 +103,12 @@ namespace Steepshot.Adapter
         private void SwipeLayoutOnOpening(object sender, SwipeLayout.OpeningEventArgs e)
         {
             MItemManager.CloseAllExcept(e.Layout);
+        }
+
+        public override void OnDetachedFromRecyclerView(RecyclerView recyclerView)
+        {
+            base.OnDetachedFromRecyclerView(recyclerView);
+            _holders.ForEach(h => h.OnDetached());
         }
     }
 
@@ -184,7 +195,7 @@ namespace Steepshot.Adapter
         private readonly TextView _cost;
         private readonly TextView _reply;
         private readonly TextView _time;
-        private readonly ImageButton _likeOrFlag;
+        private readonly LikeOrFlagButton _likeOrFlag;
         private readonly ImageButton _flag;
         private readonly ImageButton _edit;
         private readonly ImageButton _delete;
@@ -192,7 +203,6 @@ namespace Steepshot.Adapter
         private readonly Action _rootAction;
         private readonly Context _context;
         private readonly RelativeLayout _rootView;
-        private CancellationSignal _isAnimationRuning;
 
         private Post _post;
 
@@ -205,7 +215,7 @@ namespace Steepshot.Adapter
             _likes = itemView.FindViewById<TextView>(Resource.Id.likes);
             _flags = itemView.FindViewById<TextView>(Resource.Id.flags);
             _cost = itemView.FindViewById<TextView>(Resource.Id.cost);
-            _likeOrFlag = itemView.FindViewById<ImageButton>(Resource.Id.like_btn);
+            _likeOrFlag = itemView.FindViewById<LikeOrFlagButton>(Resource.Id.like_btn);
             _reply = itemView.FindViewById<TextView>(Resource.Id.reply_btn);
             _time = itemView.FindViewById<TextView>(Resource.Id.time);
             _rootView = itemView.FindViewById<RelativeLayout>(Resource.Id.root_view);
@@ -238,13 +248,6 @@ namespace Steepshot.Adapter
             _reply.Visibility = App.User.HasPostingPermission ? ViewStates.Visible : ViewStates.Gone;
         }
 
-        private async Task LikeSetAsync(bool isFlag)
-        {
-            _isAnimationRuning?.Cancel();
-            _isAnimationRuning = new CancellationSignal();
-            await AnimationHelper.PulseLike(_likeOrFlag, isFlag, _isAnimationRuning);
-        }
-
         private void EditOnClick(object sender, EventArgs eventArgs)
         {
             _commentAction?.Invoke(ActionType.Edit, _post);
@@ -257,7 +260,7 @@ namespace Steepshot.Adapter
 
         private void DoFlagAction(object sender, EventArgs e)
         {
-            if (!BasePostPresenter.IsEnableVote)
+            if (!_post.IsEnableVote)
                 return;
 
             _commentAction?.Invoke(ActionType.Flag, _post);
@@ -286,7 +289,7 @@ namespace Steepshot.Adapter
 
         private void LikeOnClick(object sender, EventArgs e)
         {
-            if (!BasePostPresenter.IsEnableVote)
+            if (!_post.IsEnableVote)
                 return;
             _commentAction?.Invoke(_post.Flag ? ActionType.Flag : ActionType.Like, _post);
         }
@@ -305,7 +308,11 @@ namespace Steepshot.Adapter
 
         public void UpdateData(Post post, Context context)
         {
+            if (_post != null)
+                _post.PropertyChanged -= PostOnPropertyChanged;
             _post = post;
+            _post.PropertyChanged += PostOnPropertyChanged;
+
             _author.Text = post.Author;
             _comment.SetText(post.Body, 5);
             _comment.Expanded = false;
@@ -313,7 +320,7 @@ namespace Steepshot.Adapter
             _rootView.Background = new ColorDrawable(_post.Editing ? Style.R254G249B229 : Color.White);
             SwitchActionsEnabled(!_post.Body.Equals(Core.Constants.DeletedPostText));
 
-            if (_post.Author == App.User.Login)
+            if (string.Equals(_post.Author, App.User.Login, StringComparison.OrdinalIgnoreCase))
             {
                 _flag.Visibility = ViewStates.Gone;
                 _edit.Visibility = _delete.Visibility = _post.CashoutTime < DateTime.Now ? ViewStates.Gone : ViewStates.Visible;
@@ -337,64 +344,15 @@ namespace Steepshot.Adapter
                 Picasso.With(context).Load(Resource.Drawable.ic_holder).Into(_avatar);
             }
 
-            if (_isAnimationRuning != null && !_isAnimationRuning.IsCanceled && !post.VoteChanging)
-            {
-                _isAnimationRuning.Cancel();
-                _isAnimationRuning = null;
-                _likeOrFlag.ScaleX = 1f;
-                _likeOrFlag.ScaleY = 1f;
-            }
-            if (!BasePostPresenter.IsEnableVote)
-            {
-                if (post.VoteChanging && (_isAnimationRuning == null || _isAnimationRuning.IsCanceled))
-                {
-                    LikeSetAsync(false);
-                }
-                else if (post.FlagChanging)
-                {
-                    LikeSetAsync(true);
-                }
-                else if (post.Vote || !post.Flag)
-                {
-                    _likeOrFlag.SetImageResource(post.Vote
-                        ? Resource.Drawable.ic_new_like_disabled
-                        : Resource.Drawable.ic_new_like);
-                }
-            }
-            else
-            {
-                if (post.Vote || !post.Flag)
-                {
-                    _likeOrFlag.SetImageResource(post.Vote
-                        ? Resource.Drawable.ic_new_like_filled
-                        : Resource.Drawable.ic_new_like_selected);
-                }
-                else
-                {
-                    _likeOrFlag.SetImageResource(Resource.Drawable.ic_flag_active);
-                }
-            }
+            _likeOrFlag.UpdateLikeAsync(post);
+            UpdateLikeCount(post);
+            UpdateFlagCount(post);
+            UpdateTotalPayoutReward(post);
+            _time.Text = post.Created.ToPostTime(App.Localization);
+        }
 
-            if (post.NetLikes > 0)
-            {
-                _likes.Visibility = ViewStates.Visible;
-                _likes.Text = App.Localization.GetText(_post.NetLikes == 1 ? LocalizationKeys.Like : LocalizationKeys.Likes, post.NetLikes);
-            }
-            else
-            {
-                _likes.Visibility = ViewStates.Gone;
-            }
-
-            if (post.NetFlags > 0)
-            {
-                _flags.Visibility = ViewStates.Visible;
-                _flags.Text = App.Localization.GetText(_post.NetFlags == 1 ? LocalizationKeys.Flag : LocalizationKeys.Flags, post.NetFlags);
-            }
-            else
-            {
-                _flags.Visibility = ViewStates.Gone;
-            }
-
+        private void UpdateTotalPayoutReward(Post post)
+        {
             if (post.TotalPayoutReward > 0)
             {
                 _cost.Visibility = ViewStates.Visible;
@@ -404,13 +362,77 @@ namespace Steepshot.Adapter
             {
                 _cost.Visibility = ViewStates.Gone;
             }
+        }
 
-            _time.Text = post.Created.ToPostTime(App.Localization);
+        private void UpdateFlagCount(Post post)
+        {
+            if (post.NetFlags > 0)
+            {
+                _flags.Visibility = ViewStates.Visible;
+                _flags.Text = App.Localization.GetText(post.NetFlags == 1 ? LocalizationKeys.Flag : LocalizationKeys.Flags, post.NetFlags);
+            }
+            else
+            {
+                _flags.Visibility = ViewStates.Gone;
+            }
+        }
+
+        private void UpdateLikeCount(Post post)
+        {
+            if (post.NetLikes > 0)
+            {
+                _likes.Visibility = ViewStates.Visible;
+                _likes.Text = App.Localization.GetText(post.NetLikes == 1 ? LocalizationKeys.Like : LocalizationKeys.Likes, post.NetLikes);
+            }
+            else
+            {
+                _likes.Visibility = ViewStates.Gone;
+            }
+        }
+
+        private async void PostOnPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            var post = (Post)sender;
+            if (_post != post)
+                return;
+
+            switch (e.PropertyName)
+            {
+                case nameof(Post.IsEnableVote) when !post.FlagChanging && !post.VoteChanging:
+                case nameof(Post.Flag):
+                case nameof(Post.Vote):
+                case nameof(Post.FlagChanging):
+                case nameof(Post.VoteChanging):
+                    {
+                        await _likeOrFlag.UpdateLikeAsync(post);
+                        break;
+                    }
+                case nameof(Post.NetLikes):
+                    {
+                        UpdateLikeCount(post);
+                        break;
+                    }
+                case nameof(Post.NetFlags):
+                    {
+                        UpdateFlagCount(post);
+                        break;
+                    }
+                case nameof(Post.TotalPayoutReward):
+                    {
+                        UpdateTotalPayoutReward(post);
+                        break;
+                    }
+            }
         }
 
         private void OnError()
         {
             Picasso.With(_context).Load(_post.Avatar).NoFade().Into(_avatar);
+        }
+
+        public void OnDetached()
+        {
+            _post.PropertyChanged -= PostOnPropertyChanged;
         }
     }
 }

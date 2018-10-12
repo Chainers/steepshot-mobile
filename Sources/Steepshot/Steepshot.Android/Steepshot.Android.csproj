@@ -117,6 +117,7 @@
     <Compile Include="CustomViews\ClaimRewardsDialog.cs" />
     <Compile Include="CustomViews\CoinPickDialog.cs" />
     <Compile Include="CustomViews\ExpandableTextView.cs" />
+    <Compile Include="CustomViews\LikeOrFlagButton.cs" />
     <Compile Include="CustomViews\MediaPager.cs" />
     <Compile Include="CustomViews\RoundedRelativeLayout.cs" />
     <Compile Include="CustomViews\SuccessfullTrxDialog.cs" />
@@ -124,6 +125,7 @@
     <Compile Include="CustomViews\WalletExtraDialog.cs" />
     <Compile Include="Fragment\NewCameraFragment.cs" />
     <Compile Include="CustomViews\WheelPicker.cs" />
+    <Compile Include="Fragment\BasePostsFragment.cs" />
     <Compile Include="Fragment\PostCreateFragment.cs" />
     <Compile Include="Fragment\PreviewPostCreateFragment.cs" />
     <Compile Include="Fragment\PostCreateFragment_new.cs" />
@@ -180,7 +182,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Base\BaseActivity.cs" />
     <Compile Include="Base\BaseFragment.cs" />
-    <Compile Include="Utils\AnimationHelper.cs" />
     <Compile Include="Utils\AssetHelper.cs" />
     <Compile Include="Utils\CameraPreview.cs" />
     <Compile Include="CustomViews\CustomViewPager.cs" />

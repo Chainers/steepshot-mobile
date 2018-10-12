@@ -36,12 +36,6 @@ namespace Steepshot.Activity
                        .Into(_photo, OnSuccess, OnError);
         }
 
-        protected override void OnDestroy()
-        {
-            base.OnDestroy();
-            Cheeseknife.Reset(this);
-        }
-
         public void OnBitmapFailed(Drawable p0)
         {
         }

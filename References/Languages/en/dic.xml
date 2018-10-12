@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources version="16">
+<resources version="18">
     <!--obsolete-->
     <string obsolete="true" name="ResponseContentContainsHtml">Response content contains HTML: </string>
     <string obsolete="true" name="UnexpectedUrlFormat">Unexpected url format: </string>
@@ -296,6 +296,8 @@ About 6 inches away</string>
     <string name="ClaimYourRights">Claim your rights to this post</string>
     <string name="SimilarPhoto">Similar photo</string>
     <string name="Photo">Photo</string>
+    <string name="Video">Video</string>
+    <string name="EnableCameraAccess">Enable camera access</string>
 
     <string name="Each username segment should start with a letter">Each username segment should start with a letter</string>
     <string name="Account with this email already exists">Account with this email already exists</string>

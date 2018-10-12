@@ -19,7 +19,8 @@ namespace Steepshot.Core.Presenters
 
         public async Task<OperationResult<AccountInfoResponse>> TryGetAccountInfoAsync(string login)
         {
-            return await TaskHelper.TryRunTaskAsync(DitchClient.GetAccountInfoAsync, login, OnDisposeCts.Token).ConfigureAwait(false);
+            return await TaskHelper.TryRunTaskAsync(DitchClient.GetAccountInfoAsync, login, OnDisposeCts.Token)
+                .ConfigureAwait(false);
         }
     }
 }
