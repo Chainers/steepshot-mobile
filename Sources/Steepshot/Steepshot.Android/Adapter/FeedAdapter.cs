@@ -230,6 +230,11 @@ namespace Steepshot.Adapter
             _title.Click += OnTitleOnClick;
         }
 
+        public void Playback(bool shouldPlay)
+        {
+            ((PostPhotosPagerAdapter)PhotosViewPager.Adapter).Playback(shouldPlay);
+        }
+
         void PhotoAction(Post post)
         {
             HideScaleBar();

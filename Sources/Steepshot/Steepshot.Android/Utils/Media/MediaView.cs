@@ -114,6 +114,16 @@ namespace Steepshot.Utils.Media
         }
         #endregion
 
+        public void Play()
+        {
+            _mediaProducers[MediaType].Play();
+        }
+
+        public void Pause()
+        {
+            _mediaProducers[MediaType].Pause();
+        }
+
         public void DrawBuffer()
         {
             _handler.Post(() =>

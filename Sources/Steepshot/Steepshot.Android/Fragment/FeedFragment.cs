@@ -33,7 +33,7 @@ namespace Steepshot.Fragment
 
         private FeedAdapter<FeedPresenter> _adapter;
         private PostPagerAdapter<FeedPresenter> _postPagerAdapter;
-        private ScrollListener _scrollListner;
+        private FeedScrollListner _scrollListner;
 
 #pragma warning disable 0649, 4014
         [BindView(Resource.Id.feed_list)] private RecyclerView _feedList;
@@ -76,7 +76,7 @@ namespace Steepshot.Fragment
                 _browseButton.Click += GoToBrowseButtonClick;
                 _toolbar.OffsetChanged += OnToolbarOffsetChanged;
 
-                _scrollListner = new ScrollListener();
+                _scrollListner = new FeedScrollListner();
                 _scrollListner.ScrolledToBottom += LoadPosts;
 
                 _refresher.Refresh += OnRefresh;

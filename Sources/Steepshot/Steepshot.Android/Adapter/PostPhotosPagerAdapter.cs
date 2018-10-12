@@ -1,10 +1,11 @@
-﻿//#define MediaViewMode
+﻿#define MediaViewMode
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using Android.Content;
 using Android.Graphics.Drawables;
+using Android.Provider;
 using Android.Views;
 using Android.Widget;
 using Square.Picasso;
@@ -12,6 +13,7 @@ using Steepshot.Core.Extensions;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Utils;
 using Steepshot.Utils;
+using Steepshot.Utils.Media;
 using Object = Java.Lang.Object;
 
 namespace Steepshot.Adapter
@@ -76,6 +78,15 @@ namespace Steepshot.Adapter
                         break;
                 }
             }
+
+        public void Playback(bool shouldPlay)
+        {
+            var mediaView = _mediaViews[0];
+            if (shouldPlay)
+                mediaView.Play();
+            else
+                mediaView.Pause();
+        }
 #else
 
         private readonly List<ImageView> _mediaViews;
