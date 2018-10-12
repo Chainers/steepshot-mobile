@@ -43,8 +43,7 @@ namespace Steepshot.Base
             switch (type)
             {
                 case AutoLinkType.Hashtag:
-                    Activity.Intent.PutExtra(SearchFragment.SearchExtra, link);
-                    ((BaseActivity)Activity).OpenNewContentFragment(new PreSearchFragment());
+                    ((BaseActivity)Activity).OpenNewContentFragment(new PreSearchFragment(link));
                     break;
                 case AutoLinkType.Mention:
                     ((BaseActivity)Activity).OpenNewContentFragment(new ProfileFragment(link));

@@ -102,7 +102,8 @@ namespace Steepshot.Fragment
         {
             if (!IsInitialized)
                 return;
-            Activity.RunOnUiThread(() => { _adapter.NotifyDataSetChanged(); });
+
+            _adapter.NotifyDataSetChanged();
             App.ProfileUpdateType = ProfileUpdateType.OnlyInfo;
         }
 

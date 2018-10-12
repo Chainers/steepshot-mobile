@@ -36,7 +36,7 @@ namespace Steepshot.Adapter
         public Action RootClickAction;
         public bool SwipeEnabled { get; set; } = true;
         private readonly List<CommentViewHolder> _holders;
-        
+
         public override int ItemCount => _presenter.Count + 1;
 
         public CommentAdapter(Context context, CommentsPresenter presenter, Post post)
@@ -108,7 +108,7 @@ namespace Steepshot.Adapter
         public override void OnDetachedFromRecyclerView(RecyclerView recyclerView)
         {
             base.OnDetachedFromRecyclerView(recyclerView);
-            _holders.ForEach(h=>h.OnDetached());
+            _holders.ForEach(h => h.OnDetached());
         }
     }
 
@@ -195,7 +195,7 @@ namespace Steepshot.Adapter
         private readonly TextView _cost;
         private readonly TextView _reply;
         private readonly TextView _time;
-        private readonly ImageButton _likeOrFlag;
+        private readonly LikeOrFlagButton _likeOrFlag;
         private readonly ImageButton _flag;
         private readonly ImageButton _edit;
         private readonly ImageButton _delete;
@@ -203,7 +203,6 @@ namespace Steepshot.Adapter
         private readonly Action _rootAction;
         private readonly Context _context;
         private readonly RelativeLayout _rootView;
-        private CancellationSignal _isAnimationRuning;
 
         private Post _post;
 
@@ -216,7 +215,7 @@ namespace Steepshot.Adapter
             _likes = itemView.FindViewById<TextView>(Resource.Id.likes);
             _flags = itemView.FindViewById<TextView>(Resource.Id.flags);
             _cost = itemView.FindViewById<TextView>(Resource.Id.cost);
-            _likeOrFlag = itemView.FindViewById<ImageButton>(Resource.Id.like_btn);
+            _likeOrFlag = itemView.FindViewById<LikeOrFlagButton>(Resource.Id.like_btn);
             _reply = itemView.FindViewById<TextView>(Resource.Id.reply_btn);
             _time = itemView.FindViewById<TextView>(Resource.Id.time);
             _rootView = itemView.FindViewById<RelativeLayout>(Resource.Id.root_view);
@@ -249,13 +248,6 @@ namespace Steepshot.Adapter
             _reply.Visibility = App.User.HasPostingPermission ? ViewStates.Visible : ViewStates.Gone;
         }
 
-        private async Task LikeSetAsync(bool isFlag)
-        {
-            _isAnimationRuning?.Cancel();
-            _isAnimationRuning = new CancellationSignal();
-            await AnimationHelper.PulseLike(_likeOrFlag, isFlag, _isAnimationRuning);
-        }
-
         private void EditOnClick(object sender, EventArgs eventArgs)
         {
             _commentAction?.Invoke(ActionType.Edit, _post);
@@ -268,7 +260,7 @@ namespace Steepshot.Adapter
 
         private void DoFlagAction(object sender, EventArgs e)
         {
-            if (!BasePostPresenter.IsEnableVote)
+            if (!_post.IsEnableVote)
                 return;
 
             _commentAction?.Invoke(ActionType.Flag, _post);
@@ -297,7 +289,7 @@ namespace Steepshot.Adapter
 
         private void LikeOnClick(object sender, EventArgs e)
         {
-            if (!BasePostPresenter.IsEnableVote)
+            if (!_post.IsEnableVote)
                 return;
             _commentAction?.Invoke(_post.Flag ? ActionType.Flag : ActionType.Like, _post);
         }
@@ -352,15 +344,7 @@ namespace Steepshot.Adapter
                 Picasso.With(context).Load(Resource.Drawable.ic_holder).Into(_avatar);
             }
 
-            if (_isAnimationRuning != null && !_isAnimationRuning.IsCanceled && !post.VoteChanging)
-            {
-                _isAnimationRuning.Cancel();
-                _isAnimationRuning = null;
-                _likeOrFlag.ScaleX = 1f;
-                _likeOrFlag.ScaleY = 1f;
-            }
-
-            UpdateLikeAsync(post);
+            _likeOrFlag.UpdateLikeAsync(post);
             UpdateLikeCount(post);
             UpdateFlagCount(post);
             UpdateTotalPayoutReward(post);
@@ -379,7 +363,7 @@ namespace Steepshot.Adapter
                 _cost.Visibility = ViewStates.Gone;
             }
         }
-        
+
         private void UpdateFlagCount(Post post)
         {
             if (post.NetFlags > 0)
@@ -405,88 +389,47 @@ namespace Steepshot.Adapter
                 _likes.Visibility = ViewStates.Gone;
             }
         }
-        
-        private async Task UpdateLikeAsync(Post post)
-        {
-            if (BasePostPresenter.IsEnableVote)
-            {
-                if (_isAnimationRuning != null && !_isAnimationRuning.IsCanceled)
-                {
-                    _isAnimationRuning.Cancel();
-                    _isAnimationRuning = null;
-                    _likeOrFlag.ScaleX = 1;
-                    _likeOrFlag.ScaleY = 1;
-                }
 
-                if (post.Vote)
-                    _likeOrFlag.SetImageResource(Resource.Drawable.ic_new_like_filled);
-                else if (post.Flag)
-                    _likeOrFlag.SetImageResource(Resource.Drawable.ic_flag_active);
-                else
-                    _likeOrFlag.SetImageResource(Resource.Drawable.ic_new_like_selected);
-            }
-            else
-            {
-                if (post.VoteChanging || post.FlagChanging)
-                {
-                    if (_isAnimationRuning == null || _isAnimationRuning.IsCanceled)
-                    {
-                        await LikeSetAsync(post.FlagChanging);
-                    }
-                }
-                else if (post.Vote)
-                {
-                    _likeOrFlag.SetImageResource(Resource.Drawable.ic_new_like_disabled);
-                }
-                else if (post.Flag)
-                {
-                    _likeOrFlag.SetImageResource(Resource.Drawable.ic_flag);
-                }
-                else
-                {
-                    _likeOrFlag.SetImageResource(Resource.Drawable.ic_new_like);
-                }
-            }
-        }
         private async void PostOnPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            var post = sender as Post;
-            if (post == null || _post != post)
+            var post = (Post)sender;
+            if (_post != post)
                 return;
 
             switch (e.PropertyName)
             {
+                case nameof(Post.IsEnableVote) when !post.FlagChanging && !post.VoteChanging:
                 case nameof(Post.Flag):
                 case nameof(Post.Vote):
                 case nameof(Post.FlagChanging):
                 case nameof(Post.VoteChanging):
-                {
-                    await UpdateLikeAsync(post);
-                    break;
-                }
+                    {
+                        await _likeOrFlag.UpdateLikeAsync(post);
+                        break;
+                    }
                 case nameof(Post.NetLikes):
-                {
-                    UpdateLikeCount(post);
-                    break;
-                }
+                    {
+                        UpdateLikeCount(post);
+                        break;
+                    }
                 case nameof(Post.NetFlags):
-                {
-                    UpdateFlagCount(post);
-                    break;
-                }
+                    {
+                        UpdateFlagCount(post);
+                        break;
+                    }
                 case nameof(Post.TotalPayoutReward):
-                {
-                    UpdateTotalPayoutReward(post);
-                    break;
-                }
+                    {
+                        UpdateTotalPayoutReward(post);
+                        break;
+                    }
             }
         }
-        
+
         private void OnError()
         {
             Picasso.With(_context).Load(_post.Avatar).NoFade().Into(_avatar);
         }
-        
+
         public void OnDetached()
         {
             _post.PropertyChanged -= PostOnPropertyChanged;

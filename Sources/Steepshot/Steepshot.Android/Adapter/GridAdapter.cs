@@ -1,5 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using Android.Content;
+using Android.Graphics;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
@@ -18,6 +22,7 @@ namespace Steepshot.Adapter
     public class GridAdapter<T> : RecyclerView.Adapter where T : BasePostPresenter
     {
         protected readonly T Presenter;
+        protected readonly List<ImageViewHolder> Holders;
         protected readonly Context Context;
         public Action<Post> Click;
         protected readonly int CellSize;
@@ -35,6 +40,7 @@ namespace Steepshot.Adapter
             Context = context;
             CellSize = Style.ScreenWidth / 3 - 2; // [x+2][1+x+1][2+x]   
             Presenter = presenter;
+            Holders = new List<ImageViewHolder>(45);
             Presenter.SourceChanged += PresenterOnSourceChanged;
         }
 
@@ -42,7 +48,10 @@ namespace Steepshot.Adapter
         {
             foreach (var post in Presenter)
             {
-                Picasso.With(Context).Load(post.Media[0].GetImageProxy(CellSize)).Priority(Picasso.Priority.Low).MemoryPolicy(MemoryPolicy.NoCache).Fetch();
+                Picasso.With(Context).Load(post.Media[0].GetImageProxy(CellSize))
+                    .Priority(Picasso.Priority.Low)
+                    .MemoryPolicy(MemoryPolicy.NoCache)
+                    .Fetch();
             }
         }
 
@@ -67,7 +76,7 @@ namespace Steepshot.Adapter
                 return;
 
             var vh = (ImageViewHolder)holder;
-            vh.UpdateData(post, Context, CellSize);
+            vh.UpdateData(post, CellSize);
         }
 
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
@@ -81,7 +90,24 @@ namespace Steepshot.Adapter
                 default:
                     var view = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.lyt_grid_item, parent, false);
                     view.LayoutParameters = new ViewGroup.LayoutParams(CellSize, CellSize);
-                    return new ImageViewHolder(view, Click);
+                    var vh = new ImageViewHolder(view, Context, Click);
+                    Holders.Add(vh);
+                    return vh;
+            }
+        }
+
+        public async Task PulseAsync(Post post, CancellationToken token)
+        {
+            if (post == null)
+                return;
+
+            foreach (var vh in Holders.ToArray())
+            {
+                if (vh.IsBindTo(post))
+                {
+                    await vh.PulseAsync(token);
+                    return;
+                }
             }
         }
     }
@@ -95,10 +121,9 @@ namespace Steepshot.Adapter
         private readonly TextView _nsfwMaskMessage;
         private Post _post;
         private Context _context;
-        private MediaModel _mediaModel;
 
 
-        public ImageViewHolder(View itemView, Action<Post> click) : base(itemView)
+        public ImageViewHolder(View itemView, Context context, Action<Post> click) : base(itemView)
         {
             _click = click;
             _photo = itemView.FindViewById<ImageView>(Resource.Id.grid_item_photo);
@@ -107,6 +132,7 @@ namespace Steepshot.Adapter
             _nsfwMaskMessage = itemView.FindViewById<TextView>(Resource.Id.grid_item_nsfw_message);
 
             _nsfwMaskMessage.Typeface = Style.Light;
+            _context = context;
 
             _photo.Clickable = true;
             _photo.Click += OnClick;
@@ -117,23 +143,18 @@ namespace Steepshot.Adapter
             _click.Invoke(_post);
         }
 
-        public void UpdateData(Post post, Context context, int cellSize)
+        public void UpdateData(Post post, int cellSize)
         {
             _post = post;
-            _context = context;
 
-            _mediaModel = post.Media[0];
+            Picasso.With(_context).Load(_post.GetImageProxy(cellSize))
+                .Placeholder(Resource.Color.rgb244_244_246)
+                .NoFade()
+                .Priority(Picasso.Priority.High)
+                .Into(_photo, null, OnError);
 
-            if (_mediaModel != null)
-            {
-                Picasso.With(_context).Load(_mediaModel.GetImageProxy(cellSize))
-                    .Placeholder(Resource.Color.rgb244_244_246)
-                    .NoFade()
-                    .Priority(Picasso.Priority.High)
-                    .Into(_photo, null, OnError);
-            }
 
-            _gallery.Visibility = post.Media.Length > 1 ? ViewStates.Visible : ViewStates.Gone;
+            _gallery.Visibility = _post.Media.Length > 1 ? ViewStates.Visible : ViewStates.Gone;
 
             if (_post.ShowMask && (_post.IsNsfw || _post.IsLowRated) && _post.Author != App.User.Login)
             {
@@ -146,7 +167,36 @@ namespace Steepshot.Adapter
 
         private void OnError()
         {
-            Picasso.With(_context).Load(_mediaModel.Thumbnails.Mini).Placeholder(Resource.Color.rgb244_244_246).NoFade().Into(_photo);
+            Picasso
+                .With(_context)
+                .Load(_post.Media[0].Thumbnails.Mini)
+                .Placeholder(Resource.Color.rgb244_244_246)
+                .NoFade()
+                .Into(_photo);
+        }
+
+
+        public bool IsBindTo(Post post)
+        {
+            return string.Equals(post.Url, _post.Url, StringComparison.OrdinalIgnoreCase);
+        }
+
+        public async Task PulseAsync(CancellationToken token)
+        {
+            var animatedValue = 0;
+            var loop = 3;
+            do
+            {
+                _photo.SetColorFilter(Color.Argb(animatedValue, 255, 255, 255), PorterDuff.Mode.Multiply);
+                animatedValue += 40;
+                await Task.Delay(100, token);
+                if (animatedValue > 100)
+                {
+                    animatedValue = 0;
+                    loop--;
+                }
+            } while (loop > 0);
+            _photo.ClearColorFilter();
         }
     }
 }

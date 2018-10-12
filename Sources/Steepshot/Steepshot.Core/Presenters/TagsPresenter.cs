@@ -35,7 +35,7 @@ namespace Steepshot.Core.Presenters
             };
 
             var response = await RunAsSingleTaskAsync(_steepshotApiClient.SearchCategoriesAsync, request)
-                .ConfigureAwait(false);
+                .ConfigureAwait(true);
 
             if (response.IsSuccess)
             {
@@ -79,7 +79,7 @@ namespace Steepshot.Core.Presenters
 
 
             var response = await RunAsSingleTaskAsync(_steepshotApiClient.GetCategoriesAsync, request)
-                .ConfigureAwait(false);
+                .ConfigureAwait(true);
 
             if (response.IsSuccess)
             {

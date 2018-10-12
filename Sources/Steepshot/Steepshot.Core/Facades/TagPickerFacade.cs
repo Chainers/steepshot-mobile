@@ -66,7 +66,7 @@ namespace Steepshot.Core.Facades
             do
             {
                 var result = await _tagsPresenter.TryGetTopTagsAsync()
-                    .ConfigureAwait(false);
+                    .ConfigureAwait(true);
 
                 if (!result.IsSuccess)
                     return result.Exception;
@@ -93,7 +93,7 @@ namespace Steepshot.Core.Facades
 
             do
             {
-                var result = await _tagsPresenter.TryLoadNextAsync(tagFieldText).ConfigureAwait(false);
+                var result = await _tagsPresenter.TryLoadNextAsync(tagFieldText).ConfigureAwait(true);
 
                 if (!result.IsSuccess)
                     return result.Exception;

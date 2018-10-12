@@ -32,22 +32,26 @@ namespace Steepshot.Core.Sentry
 
         public async Task FatalAsync(Exception ex)
         {
-            await SendAsync(ex, "fatal").ConfigureAwait(false);
+            await SendAsync(ex, "fatal")
+                .ConfigureAwait(false);
         }
 
         public async Task ErrorAsync(Exception ex)
         {
-            await SendAsync(ex, "error").ConfigureAwait(false);
+            await SendAsync(ex, "error")
+                .ConfigureAwait(false);
         }
 
         public async Task WarningAsync(Exception ex)
         {
-            await SendAsync(ex, "warning").ConfigureAwait(false);
+            await SendAsync(ex, "warning")
+                .ConfigureAwait(false);
         }
 
         public async Task InfoAsync(Exception ex)
         {
-            await SendAsync(ex, "info").ConfigureAwait(false);
+            await SendAsync(ex, "info")
+                .ConfigureAwait(false);
         }
 
         private async Task SendAsync(Exception ex, string level)
@@ -68,7 +72,8 @@ namespace Steepshot.Core.Sentry
                 packet.Level = level;
                 packet.Extra = new ExceptionData(ex);
                 packet.Exceptions = SentryException.GetList(ex);
-                await SendAsync(packet, _dsn).ConfigureAwait(false);
+                await SendAsync(packet, _dsn)
+                    .ConfigureAwait(false);
             }
             catch
             {
@@ -104,7 +109,8 @@ namespace Steepshot.Core.Sentry
                 var json = JsonConvert.SerializeObject(packet, Formatting.Indented);
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
                 content.Headers.Add("X-Sentry-Auth", $"Sentry sentry_version={7},sentry_client=steepshot/1, sentry_timestamp={ts}, sentry_key={dsn.PublicKey}, sentry_secret={dsn.PrivateKey}");
-                await HttpClient.PostAsync(dsn.SentryUri, content).ConfigureAwait(false);
+                await HttpClient.PostAsync(dsn.SentryUri, content)
+                    .ConfigureAwait(false);
             }
             catch
             {

@@ -30,7 +30,8 @@ namespace Steepshot.Core.Utils
                 if (!available)
                     return new OperationResult<TResult>(new ValidationException(LocalizationKeys.InternetUnavailable));
 
-                return await func(ct).ConfigureAwait(false);
+                return await func(ct)
+                    .ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -41,7 +42,8 @@ namespace Steepshot.Core.Utils
                 if (!available)
                     return new OperationResult<TResult>(new ValidationException(LocalizationKeys.InternetUnavailable));
 
-                await _logService.ErrorAsync(ex).ConfigureAwait(false);
+                await _logService.ErrorAsync(ex)
+                    .ConfigureAwait(false);
 
                 return new OperationResult<TResult>(ex);
             }
@@ -55,7 +57,8 @@ namespace Steepshot.Core.Utils
                 if (!available)
                     return new OperationResult<TResult>(new ValidationException(LocalizationKeys.InternetUnavailable));
 
-                return await func(arg1, ct).ConfigureAwait(false);
+                return await func(arg1, ct)
+                    .ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -66,7 +69,8 @@ namespace Steepshot.Core.Utils
                 if (!available)
                     return new OperationResult<TResult>(new ValidationException(LocalizationKeys.InternetUnavailable));
 
-                await _logService.ErrorAsync(ex).ConfigureAwait(false);
+                await _logService.ErrorAsync(ex)
+                    .ConfigureAwait(false);
 
                 return new OperationResult<TResult>(ex);
             }
@@ -80,7 +84,8 @@ namespace Steepshot.Core.Utils
                 if (!available)
                     return new OperationResult<TResult>(new ValidationException(LocalizationKeys.InternetUnavailable));
 
-                return await func(arg1, arg2, ct).ConfigureAwait(false);
+                return await func(arg1, arg2, ct)
+                    .ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -91,7 +96,8 @@ namespace Steepshot.Core.Utils
                 if (!available)
                     return new OperationResult<TResult>(new ValidationException(LocalizationKeys.InternetUnavailable));
 
-                await _logService.ErrorAsync(ex).ConfigureAwait(false);
+                await _logService.ErrorAsync(ex)
+                    .ConfigureAwait(false);
 
                 return new OperationResult<TResult>(ex);
             }

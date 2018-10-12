@@ -404,11 +404,8 @@ namespace Steepshot.iOS.Views
             if (response.IsSuccess)
             {
                 CancelTap(null, null);
-
                 var exception = await Presenter.TryLoadNextCommentsAsync(_post);
-
                 ShowAlert(exception);
-                _post.Children++;
             }
             else
                 ShowAlert(response.Exception);
@@ -426,10 +423,6 @@ namespace Steepshot.iOS.Views
             }
 
             var result = await Presenter.TryDeleteCommentAsync(post, _post);
-
-            if (result.IsSuccess)
-                _post.Children--;
-
             ShowAlert(result);
         }
 

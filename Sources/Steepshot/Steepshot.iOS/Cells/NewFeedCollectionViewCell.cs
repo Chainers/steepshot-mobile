@@ -244,7 +244,7 @@ namespace Steepshot.iOS.Cells
                 {
                     if (obj.State == UIGestureRecognizerState.Began)
                     {
-                        if (!BasePostPresenter.IsEnableVote || BaseViewController.IsSliderOpen)
+                        if (!_currentPost.IsEnableVote || BaseViewController.IsSliderOpen)
                             return;
                         BaseViewController.IsSliderOpen = true;
                         _sliderView.Show(_contentView);
@@ -386,9 +386,7 @@ namespace Steepshot.iOS.Cells
             _attributedLabel.Frame = new CGRect(new CGPoint(leftMargin, _topSeparator.Frame.Bottom + 15),
                                                 new CGSize(UIScreen.MainScreen.Bounds.Width - leftMargin * 2, variables.TextHeight));
 
-            _comments.Text = _currentPost.Children == 0
-                ? AppDelegate.Localization.GetText(LocalizationKeys.PostFirstComment)
-                : AppDelegate.Localization.GetText(LocalizationKeys.ViewComments, _currentPost.Children);
+            UpdateChildren(_currentPost);
 
             _comments.Frame = new CGRect(leftMargin - 5, _attributedLabel.Frame.Bottom + 5, _comments.SizeThatFits(new CGSize(10, 20)).Width + 10, 20 + 10);
 
@@ -401,12 +399,13 @@ namespace Steepshot.iOS.Cells
 
         private void PostOnPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            var post = sender as Post;
-            if (post == null || _currentPost != post)
+            var post = (Post)sender;
+            if (_currentPost != post)
                 return;
 
             switch (e.PropertyName)
             {
+                case nameof(Post.IsEnableVote) when !post.FlagChanging && !post.VoteChanging:
                 case nameof(Post.Flag):
                 case nameof(Post.Vote):
                 case nameof(Post.FlagChanging):
@@ -435,6 +434,28 @@ namespace Steepshot.iOS.Cells
                         UpdateTopLikersAvatars(post);
                         break;
                     }
+                case nameof(Post.Children):
+                    {
+                        UpdateChildren(post);
+                        break;
+                    }
+            }
+        }
+
+        private void UpdateChildren(Post post)
+        {
+            switch (post.Children)
+            {
+                case 0:
+                    _comments.Text = AppDelegate.Localization.GetText(LocalizationKeys.PostFirstComment);
+                    break;
+                case 1:
+                    _comments.Text = AppDelegate.Localization.GetText(LocalizationKeys.SeeComment);
+                    break;
+                default:
+                    _comments.Text = AppDelegate.Localization.GetText(LocalizationKeys.ViewComments, post.Children);
+                    break;
+
             }
         }
 
@@ -494,7 +515,7 @@ namespace Steepshot.iOS.Cells
             {
                 _like.Layer.RemoveAllAnimations();
                 _like.LayoutIfNeeded();
-                if (BasePostPresenter.IsEnableVote)
+                if (post.IsEnableVote)
                     _like.Image = post.Vote ? UIImage.FromBundle("ic_like_active") : UIImage.FromBundle("ic_like");
                 else
                     _like.Image = post.Vote ? UIImage.FromBundle("ic_like_active_disabled") : UIImage.FromBundle("ic_like_disabled");
@@ -592,7 +613,7 @@ namespace Steepshot.iOS.Cells
 
         private void LikeTap()
         {
-            if (!BasePostPresenter.IsEnableVote)
+            if (!_currentPost.IsEnableVote)
                 return;
 
             CellAction?.Invoke(ActionType.Like, _currentPost);
@@ -606,7 +627,7 @@ namespace Steepshot.iOS.Cells
         public void ReleaseCell()
         {
             CellAction = null;
-            
+
             _currentPost.PropertyChanged -= PostOnPropertyChanged;
             _photoScroll.Scrolled -= PhotoScroll_Scrolled;
             _like.RemoveGestureRecognizer(_liketap);

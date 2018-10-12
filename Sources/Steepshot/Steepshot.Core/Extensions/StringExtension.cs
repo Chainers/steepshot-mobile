@@ -68,6 +68,11 @@ namespace Steepshot.Core.Extensions
             return $"{string.Format(Constants.ProxyForAvatars, width, height)}{link}";
         }
 
+        public static string GetImageProxy(this Post post, int width)
+        {
+            return GetImageProxy(post.Media[0], width);
+        }
+
         public static string GetImageProxy(this MediaModel mediaModel, int width)
         {
             var url = mediaModel.Url;

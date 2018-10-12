@@ -3,10 +3,8 @@ using System.Linq;
 using Android.OS;
 using Android.Support.V4.App;
 using Steepshot.Base;
-using Steepshot.Core.Authorization;
 using Steepshot.Core.Models.Common;
 using Steepshot.Fragment;
-using Steepshot.Core.Utils;
 
 namespace Steepshot.Adapter
 {
@@ -71,7 +69,7 @@ namespace Steepshot.Adapter
                             App.NavigationManager.SetTabSettings(nameof(ProfileFragment), new TabOptions());
                             App.NavigationManager.SetTabSettings($"User_{nameof(ProfileFragment)}", new TabOptions { IsGridView = true });
                         }
-                        frag = HostFragment.NewInstance(new ProfileFragment(App.User.Login));
+                        frag = HostFragment.NewInstance(new ProfileFragment());
                         break;
                     default:
                         frag = null;

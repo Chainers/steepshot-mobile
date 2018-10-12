@@ -24,13 +24,15 @@ namespace Steepshot.Core.Presenters
             if (!string.IsNullOrEmpty(memo))
                 transferModel.Memo = memo;
 
-            return await TaskHelper.TryRunTaskAsync(DitchClient.TransferAsync, transferModel, OnDisposeCts.Token).ConfigureAwait(false);
+            return await TaskHelper.TryRunTaskAsync(DitchClient.TransferAsync, transferModel, OnDisposeCts.Token)
+                .ConfigureAwait(false);
         }
 
         public async Task<OperationResult<VoidResponse>> TryPowerUpOrDownAsync(BalanceModel balance, PowerAction powerAction)
         {
             var model = new PowerUpDownModel(balance, powerAction);
-            return await TaskHelper.TryRunTaskAsync(DitchClient.PowerUpOrDownAsync, model, OnDisposeCts.Token).ConfigureAwait(false);
+            return await TaskHelper.TryRunTaskAsync(DitchClient.PowerUpOrDownAsync, model, OnDisposeCts.Token)
+                .ConfigureAwait(false);
         }
     }
 }

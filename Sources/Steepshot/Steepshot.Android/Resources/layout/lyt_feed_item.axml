@@ -137,7 +137,7 @@
             android:layout_centerVertical="true"
             android:src="@drawable/ic_flag"
             android:layout_toRightOf="@id/flags" />
-        <ImageButton
+        <Steepshot.CustomViews.LikeOrFlagButton
             android:id="@+id/btn_like"
             android:background="@android:color/transparent"
             android:layout_width="70dp"

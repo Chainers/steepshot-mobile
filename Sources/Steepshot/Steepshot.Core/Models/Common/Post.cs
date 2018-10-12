@@ -8,19 +8,6 @@ namespace Steepshot.Core.Models.Common
 {
     public class Post : INotifyPropertyChanged
     {
-        private string _permlink;
-        private bool _voteChanging;
-        private bool _flagChanging;
-        private bool _flagNotificationWasShown = true;
-        private bool _showMask = true;
-
-        private int? _netLikes;
-        private int? _netFlags;
-        private double? _totalPayoutReward;
-        private bool? _flag;
-        private string[] _topLikersAvatars;
-        private bool? _vote;
-
         public string Body { get; set; }
 
         public MediaModel[] Media { get; set; }
@@ -45,6 +32,7 @@ namespace Steepshot.Core.Models.Common
 
         // public int NetVotes { get; set; }
 
+        private int? _netLikes;
         public int NetLikes
         {
             get => _netLikes ?? 0;
@@ -62,6 +50,7 @@ namespace Steepshot.Core.Models.Common
             }
         }
 
+        private int? _netFlags;
         public int NetFlags
         {
             get => _netFlags ?? 0;
@@ -79,7 +68,23 @@ namespace Steepshot.Core.Models.Common
             }
         }
 
-        public int Children { get; set; }
+        private int? _children;
+        public int Children
+        {
+            get => _children ?? 0;
+            set
+            {
+                if (_children != null && _children != value)
+                {
+                    _children = value;
+                    NotifyPropertyChanged();
+                }
+                else
+                {
+                    _children = value;
+                }
+            }
+        }
 
         public DateTime Created { get; set; }
 
@@ -91,6 +96,7 @@ namespace Steepshot.Core.Models.Common
 
         public double MaxAcceptedPayout { get; set; }
 
+        private double? _totalPayoutReward;
         public double TotalPayoutReward
         {
             get => _totalPayoutReward ?? 0;
@@ -108,6 +114,7 @@ namespace Steepshot.Core.Models.Common
             }
         }
 
+        private bool? _vote;
         public bool Vote
         {
             get => _vote ?? false;
@@ -125,6 +132,7 @@ namespace Steepshot.Core.Models.Common
             }
         }
 
+        private bool? _flag;
         public bool Flag
         {
             get => _flag ?? false;
@@ -148,6 +156,7 @@ namespace Steepshot.Core.Models.Common
 
         public string[] Resteemed { get; set; }
 
+        private string[] _topLikersAvatars;
         public string[] TopLikersAvatars
         {
             get => _topLikersAvatars;
@@ -172,6 +181,7 @@ namespace Steepshot.Core.Models.Common
         public DateTime CashoutTime { get; set; }
 
         //system
+        private bool _voteChanging;
         [JsonIgnore]
         public bool VoteChanging
         {
@@ -186,6 +196,7 @@ namespace Steepshot.Core.Models.Common
             }
         }
 
+        private bool _flagChanging;
         [JsonIgnore]
         public bool FlagChanging
         {
@@ -203,6 +214,7 @@ namespace Steepshot.Core.Models.Common
         [JsonIgnore]
         public bool IsExpanded { get; set; }
 
+        private bool _flagNotificationWasShown = true;
         [JsonIgnore]
         public bool FlagNotificationWasShown
         {
@@ -217,6 +229,7 @@ namespace Steepshot.Core.Models.Common
             }
         }
 
+        private bool _showMask = true;
         [JsonIgnore]
         public bool ShowMask
         {
@@ -233,12 +246,29 @@ namespace Steepshot.Core.Models.Common
 
         [JsonIgnore]
         public bool IsComment { get; set; }
+
         [JsonIgnore]
         public bool Editing { get; set; }
+
         [JsonIgnore]
         public int PageIndex { get; set; }
 
+        private bool _isEnableVote = true;
+        [JsonIgnore]
+        public bool IsEnableVote
+        {
+            get => _isEnableVote;
+            set
+            {
+                if (_isEnableVote != value)
+                {
+                    _isEnableVote = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
 
+        private string _permlink;
         public string Permlink
         {
             get
