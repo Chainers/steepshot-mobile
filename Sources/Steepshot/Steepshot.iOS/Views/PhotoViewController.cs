@@ -45,8 +45,8 @@ namespace Steepshot.iOS.Views
         private AVCaptureVideoPreviewLayer _videoPreviewLayer;
         private AVCaptureFlashMode _flashMode = AVCaptureFlashMode.Auto;
         private AVCaptureMovieFileOutput _videoFileOutput;
-        private UIDeviceOrientation currentOrientation;
-        private UIDeviceOrientation orientationOnPhoto;
+        private UIDeviceOrientation _currentOrientation;
+        private UIDeviceOrientation _orientationOnCapturing;
         private NSObject _orientationChangeEventToken;
         private AVAuthorizationStatus _authorizationAudioStatus;
         private AVAssetExportSession exportSession;
@@ -213,6 +213,8 @@ namespace Steepshot.iOS.Views
 
         private void CaptureContent(object sender, EventArgs e)
         {
+            _orientationOnCapturing = _currentOrientation;
+
             switch (_currentMode)
             {
                 case MediaType.Photo:
@@ -223,7 +225,6 @@ namespace Steepshot.iOS.Views
                     var _photoSettings = AVCapturePhotoSettings.FromFormat(settingsDictionary);
                     if (_capturePhotoOutput.SupportedFlashModes.Length > 0 && _captureDeviceInput.Device.Position == AVCaptureDevicePosition.Back)
                         _photoSettings.FlashMode = _flashMode;
-                    orientationOnPhoto = currentOrientation;
                     _capturePhotoOutput.CapturePhoto(_photoSettings, this);
                     break;
                 case MediaType.Video:
@@ -287,18 +288,18 @@ namespace Steepshot.iOS.Views
                 switch (UIDevice.CurrentDevice.Orientation)
                 {
                     case UIDeviceOrientation.LandscapeLeft:
-                        currentOrientation = UIDeviceOrientation.LandscapeRight;
+                        _currentOrientation = UIDeviceOrientation.LandscapeRight;
                         break;
                     case UIDeviceOrientation.LandscapeRight:
-                        currentOrientation = UIDeviceOrientation.LandscapeLeft;
+                        _currentOrientation = UIDeviceOrientation.LandscapeLeft;
                         break;
                     default:
-                        currentOrientation = UIDevice.CurrentDevice.Orientation;
+                        _currentOrientation = UIDevice.CurrentDevice.Orientation;
                         break;
                 }
             }
             else
-                currentOrientation = UIDevice.CurrentDevice.Orientation;
+                _currentOrientation = UIDevice.CurrentDevice.Orientation;
         }
 
         private void OnFlashTouch(object sender, EventArgs e)
@@ -333,7 +334,7 @@ namespace Steepshot.iOS.Views
 
                 var x = ((float)inSampleSize.Width - Core.Constants.PhotoMaxSize * (float)deviceRatio) / 2f;
                 photo = ImageHelper.CropImage(photo, x, 0, Core.Constants.PhotoMaxSize * (float)deviceRatio, Core.Constants.PhotoMaxSize, inSampleSize);
-                SendPhotoToDescription(photo, orientationOnPhoto);
+                SendPhotoToDescription(photo, _orientationOnCapturing);
             }
             catch (Exception ex)
             {
@@ -613,9 +614,33 @@ namespace Steepshot.iOS.Views
                 TrackID = videoTrack.TrackID
             };
 
-            var t1 = CGAffineTransform.MakeTranslation(videoTrack.NaturalSize.Height, 0);
-            var t2 = CGAffineTransform.Rotate(t1, (nfloat)Math.PI / 2);
-            var finalTransform = t2;
+            nfloat tx = 0;
+            nfloat ty = 0;
+            nfloat angle = 0;
+            switch (_orientationOnCapturing)
+            {
+                case UIDeviceOrientation.Portrait:
+                    tx = videoTrack.NaturalSize.Height;
+                    angle = (nfloat)Math.PI / 2;
+                    break;
+                case UIDeviceOrientation.LandscapeLeft:
+                    break;
+                case UIDeviceOrientation.LandscapeRight:
+                    tx = ty = videoTrack.NaturalSize.Height;
+                    angle = (nfloat)Math.PI;
+                    break;
+                default:
+                    tx = videoTrack.NaturalSize.Height;
+                    angle = (nfloat)Math.PI / 2;
+                    break;
+                case UIDeviceOrientation.PortraitUpsideDown:
+                    ty = videoTrack.NaturalSize.Height;
+                    angle = -(nfloat)Math.PI / 2;
+                    break;
+            }
+
+            var t1 = CGAffineTransform.MakeTranslation(tx, ty);
+            var t2 = CGAffineTransform.Rotate(t1, angle);
             transformer.SetTransform(t2, CMTime.Zero);
 
             var audioMix = AVMutableAudioMix.Create();
