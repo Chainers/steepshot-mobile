@@ -275,6 +275,8 @@ namespace Steepshot.iOS.Views
             _photoTabButton.Enabled = isEnabled;
             _videoTabButton.Enabled = isEnabled;
             _galleryButton.UserInteractionEnabled = isEnabled;
+
+            NavigationController.InteractivePopGestureRecognizer.Enabled = isEnabled;
         }
     }
 }

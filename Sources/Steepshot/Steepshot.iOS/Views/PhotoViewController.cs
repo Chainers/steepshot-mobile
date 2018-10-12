@@ -168,7 +168,10 @@ namespace Steepshot.iOS.Views
         public override void ViewWillDisappear(bool animated)
         {
             if (_captureSession != null && _captureSession.Running)
+            {
+                _captureSession.CommitConfiguration();
                 _captureSession.StopRunning();
+            }
 
             NavigationController.SetNavigationBarHidden(false, false);
 
@@ -233,7 +236,7 @@ namespace Steepshot.iOS.Views
                         var outputFilePath = Path.Combine(Path.GetTempPath(), Path.ChangeExtension(outputFileName, "mov"));
 
                         _videoFileOutput?.StartRecordingToOutputFile(NSUrl.FromFilename(outputFilePath), this);
-                        _isRecording = !_isRecording;
+                        _isRecording = true;
                     }
                     break;
             }
@@ -252,7 +255,7 @@ namespace Steepshot.iOS.Views
                 _sl.RemoveAllAnimations();
                 _sl.Hidden = true;
                 _videoFileOutput?.StopRecording();
-                _isRecording = !_isRecording;
+                _isRecording = false;
             }
         }
 
@@ -547,7 +550,7 @@ namespace Steepshot.iOS.Views
             InvokeOnMainThread(() =>
             {
                 StopLoading();
-                NavigationController.PushViewController(descriptionViewController, true);
+                NavigationController?.PushViewController(descriptionViewController, true);
             });
         }
 
