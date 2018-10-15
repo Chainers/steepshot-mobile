@@ -105,7 +105,7 @@ namespace Steepshot.iOS.Views
         {
             SliderAction += ProfileViewController_SliderAction;
             if (!IsMovingToParentViewController)
-                collectionView.ReloadData();
+                HandleAction(new Status());
             else
             {
                 Presenter.SourceChanged += SourceChanged;
