@@ -39,6 +39,7 @@ namespace Steepshot.iOS.Helpers
         public static readonly UIColor R255G71B5 = UIColor.FromRGB(255, 71, 5);
         public static readonly UIColor R255G34B5 = UIColor.FromRGB(255, 34, 5);
         public static readonly UIColor R240G240B240 = UIColor.FromRGB(240, 240, 240);
+        public static readonly UIColor R230G230B230 = UIColor.FromRGB(230, 230, 230);
         public static readonly UIColor R255G0B0 = UIColor.FromRGB(255, 0, 0);
         public static readonly UIColor R74G144B226 = UIColor.FromRGB(74, 144, 226);
         public static readonly UIColor R255G255B255 = UIColor.FromRGB(255, 255, 255);
@@ -166,7 +167,7 @@ namespace Steepshot.iOS.Helpers
             animation.To = NSNumber.FromNFloat(viewToApplyShimmer.Frame.Size.Width);
             animation.RepeatCount = float.PositiveInfinity;
 
-            gradientLayer.AddAnimation(animation, "");
+            gradientLayer.AddAnimation(animation, string.Empty);
         }
     }
 

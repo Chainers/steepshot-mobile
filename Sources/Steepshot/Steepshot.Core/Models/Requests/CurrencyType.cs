@@ -1,4 +1,6 @@
-﻿namespace Steepshot.Core.Models.Requests
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Steepshot.Core.Models.Requests
 {
     public enum CurrencyType
     {
@@ -8,6 +10,8 @@
         Golos,
         Gbg,
         Vim,
-        Eos
+        Eos,
+        [Display(Name = "Steem Power")]
+        SteemPower
     }
 }

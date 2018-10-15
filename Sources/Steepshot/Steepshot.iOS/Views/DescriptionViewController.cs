@@ -220,7 +220,10 @@ namespace Steepshot.iOS.Views
             else
             {
                 if (videoContainer != null)
+                {
                     videoContainer.OnVideoStop += OnVideoStopped;
+                    ((InteractivePopNavigationController)NavigationController).DidEnterBackgroundEvent += VideoViewTapped;
+                }
 
                 postPhotoButton.TouchDown += PostPhoto;
                 _titleTextViewDelegate.EditingStartedAction += _titleTextViewDelegate_EditingStartedAction;
@@ -231,7 +234,6 @@ namespace Steepshot.iOS.Views
                 tagField.AddGestureRecognizer(_openTagsGestureRecognizer);
                 _resizeButton.AddGestureRecognizer(_zoomTap);
                 _rotateButton.AddGestureRecognizer(_rotateTap);
-                ((InteractivePopNavigationController)NavigationController).DidEnterBackgroundEvent += VideoViewTapped;
             }
         }
 
@@ -241,7 +243,10 @@ namespace Steepshot.iOS.Views
             if (IsMovingFromParentViewController)
             {
                 if (videoContainer != null)
+                {
                     videoContainer.OnVideoStop -= OnVideoStopped;
+                    ((InteractivePopNavigationController)NavigationController).DidEnterBackgroundEvent -= VideoViewTapped;
+                }
 
                 postPhotoButton.TouchDown -= PostPhoto;
                 _titleTextViewDelegate.EditingStartedAction = null;
@@ -252,7 +257,6 @@ namespace Steepshot.iOS.Views
                 tagField.RemoveGestureRecognizer(_openTagsGestureRecognizer);
                 _resizeButton.RemoveGestureRecognizer(_zoomTap);
                 _rotateButton.RemoveGestureRecognizer(_rotateTap);
-                ((InteractivePopNavigationController)NavigationController).DidEnterBackgroundEvent -= VideoViewTapped;
             }
             videoContainer?.Stop();
             base.ViewWillDisappear(animated);
@@ -276,15 +280,18 @@ namespace Steepshot.iOS.Views
         private void VideoViewTapped()
         {
             if (videoContainer.Player.TimeControlStatus == AVPlayerTimeControlStatus.Playing)
-            {
-                videoContainer.Stop();
-                _statusImage.Image = UIImage.FromBundle("ic_play");
-            }
+                StopVideo();
             else
             {
                 videoContainer.Play();
                 _statusImage.Image = UIImage.FromBundle("ic_pause");
             }
+        }
+
+        private void StopVideo()
+        {
+            videoContainer.Stop();
+            OnVideoStopped();
         }
 
         private void OnVideoStopped()

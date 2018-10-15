@@ -3,7 +3,6 @@ using CoreGraphics;
 using Foundation;
 using PureLayout.Net;
 using Steepshot.Core.Models.Responses;
-using Steepshot.Core.Utils;
 using Steepshot.iOS.Delegates;
 using Steepshot.iOS.Helpers;
 using UIKit;
@@ -28,7 +27,7 @@ namespace Steepshot.iOS.Cells
             }
             remove
             {
-                throw new NotImplementedException();
+                _to.Delegate = null;
             }
         }
 
@@ -43,10 +42,7 @@ namespace Steepshot.iOS.Cells
             background.Layer.CornerRadius = 16;
             ContentView.AddSubview(background);
 
-            background.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 60);
-            background.AutoPinEdgeToSuperviewEdge(ALEdge.Top, 5);
-            background.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 10);
-            background.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom, 5);
+            background.AutoPinEdgesToSuperviewEdges(new UIEdgeInsets(5, 60, 5, 10));
 
             var emptyBackground = new UIView();
             ContentView.AddSubview(emptyBackground);
@@ -92,7 +88,7 @@ namespace Steepshot.iOS.Cells
             _amount.AutoPinEdgeToSuperviewEdge(ALEdge.Right, sideMargin);
 
             var circle = new UIView();
-            circle.BackgroundColor = UIColor.FromRGB(230, 230, 230);
+            circle.BackgroundColor = Constants.R230G230B230;
             circle.Layer.CornerRadius = 4;
             emptyBackground.AddSubview(circle);
 
@@ -101,7 +97,7 @@ namespace Steepshot.iOS.Cells
             circle.AutoAlignAxisToSuperviewAxis(ALAxis.Vertical);
 
             _topLine = new UIView();
-            _topLine.BackgroundColor = UIColor.FromRGB(240, 240, 240);
+            _topLine.BackgroundColor = Constants.R240G240B240;
             _topLine.Layer.CornerRadius = 1;
             emptyBackground.AddSubview(_topLine);
 
@@ -111,7 +107,7 @@ namespace Steepshot.iOS.Cells
             _topLine.AutoPinEdge(ALEdge.Bottom, ALEdge.Top, circle, -16);
 
             _bottomLine = new UIView();
-            _bottomLine.BackgroundColor = UIColor.FromRGB(240, 240, 240);
+            _bottomLine.BackgroundColor = Constants.R240G240B240;
             _bottomLine.Layer.CornerRadius = 1;
             emptyBackground.AddSubview(_bottomLine);
 
@@ -128,21 +124,21 @@ namespace Steepshot.iOS.Cells
             _action.Text = transaction.Type.ToString();
             _amount.Text = transaction.Amount;
 
-            var _noLinkAttribute = new UIStringAttributes
+            var noLinkAttribute = new UIStringAttributes
             {
                 Font = Constants.Regular12,
-                ForegroundColor = Constants.R151G155B158,
+                ForegroundColor = Constants.R151G155B158
             };
 
             var at = new NSMutableAttributedString();
-            at.Append(new NSAttributedString(transaction.From.Equals(AppDelegate.User.Login) ? $"to " : $"from ", _noLinkAttribute));
+            at.Append(new NSAttributedString(transaction.From.Equals(AppDelegate.User.Login) ? $"to " : $"from ", noLinkAttribute));
             var login = transaction.From.Equals(AppDelegate.User.Login) ? transaction.To : transaction.From;
 
             var linkAttribute = new UIStringAttributes
             {
                 Font = Constants.Semibold12,
                 ForegroundColor = Constants.R255G34B5,
-                Link = new NSUrl(login),
+                Link = new NSUrl(login)
             };
 
             at.Append(new NSAttributedString($"@{login}", linkAttribute));

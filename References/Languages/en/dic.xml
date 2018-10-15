@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources version="18">
+<resources version="19">
     <!--obsolete-->
     <string obsolete="true" name="ResponseContentContainsHtml">Response content contains HTML: </string>
     <string obsolete="true" name="UnexpectedUrlFormat">Unexpected url format: </string>
@@ -323,6 +323,7 @@ About 6 inches away</string>
     <string name="RecievedTransfers">Recieved transfers</string>
     <string name="RewardsClaimed">Rewards successfully claimed!</string>
     <string name="TimeToClaimRewards">Hello. It's time to claim rewards!</string>
+    <string name="TimeToCollectRewards">Hello! It's time to collect rewards!</string>
     <string name="CancelPowerDown">Cancel power down</string>
     <string name="CancelPowerDownAlert">You are in the process of powering down the {0} Steem Power. Are you sure you want to cancel?</string>
     <string name="Yes">Yes</string>

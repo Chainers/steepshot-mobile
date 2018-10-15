@@ -210,6 +210,7 @@
         PowerHint,
         RecievedTransfers,
         TimeToClaimRewards,
+        TimeToCollectRewards,
         RewardsClaimed,
         CancelPowerDownAlert,
         Yes,
