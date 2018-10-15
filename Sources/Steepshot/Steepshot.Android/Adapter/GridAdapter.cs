@@ -153,8 +153,17 @@ namespace Steepshot.Adapter
                 .Priority(Picasso.Priority.High)
                 .Into(_photo, null, OnError);
 
-
-            _gallery.Visibility = _post.Media.Length > 1 ? ViewStates.Visible : ViewStates.Gone;
+            if (_post.Media[0].ContentType == MimeTypeHelper.GetMimeType(MimeTypeHelper.Mp4))
+            {
+                _gallery.Visibility = ViewStates.Visible;
+                Picasso
+                    .With(_context)
+                    .Load(Resource.Drawable.ic_play_arrow)
+                    .NoFade()
+                    .Into(_gallery);
+            }
+            else
+                _gallery.Visibility = _post.Media.Length > 1 ? ViewStates.Visible : ViewStates.Gone;
 
             if (_post.ShowMask && (_post.IsNsfw || _post.IsLowRated) && _post.Author != App.User.Login)
             {
