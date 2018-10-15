@@ -2,11 +2,9 @@
 using System.Threading.Tasks;
 using CoreGraphics;
 using Steepshot.Core.Localization;
-using Steepshot.Core.Models;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Presenters;
-using Steepshot.Core.Utils;
 using Steepshot.iOS.Cells;
 using Steepshot.iOS.ViewControllers;
 using UIKit;
@@ -15,9 +13,10 @@ namespace Steepshot.iOS.Views
 {
     public partial class PostViewController : BasePostController<SinglePostPresenter>
     {
-        private string _url;
+        private readonly string _url;
         private FeedCellBuilder _cell;
         private nfloat _tabBarHeight;
+        private readonly UIBarButtonItem _leftBarButton = new UIBarButtonItem();
 
         public PostViewController(string url)
         {
@@ -40,8 +39,6 @@ namespace Steepshot.iOS.Views
                                           UIScreen.MainScreen.Bounds.Height - NavigationController.NavigationBar.Frame.Height);
 
             _cell = new FeedCellBuilder(scrollView);
-            _cell.CellAction += CellAction;
-            _cell.TagAction += TagAction;
             SetBackButton();
         }
 
@@ -63,6 +60,11 @@ namespace Steepshot.iOS.Views
 
         public override void ViewWillAppear(bool animated)
         {
+            Presenter.SourceChanged += SourceChanged;
+            _cell.CellAction += CellAction;
+            _cell.TagAction += TagAction;
+            _leftBarButton.Clicked += GoBack;
+
             if (TabBarController != null)
             {
                 UIView.Animate(0.2, () =>
@@ -75,16 +77,27 @@ namespace Steepshot.iOS.Views
 
         public override void ViewWillDisappear(bool animated)
         {
+            Presenter.SourceChanged -= SourceChanged;
+            _cell.CellAction = null;
+            _cell.TagAction -= TagAction;
+            _leftBarButton.Clicked -= GoBack;
+
             if (TabBarController != null)
                 TabBarController.View.Frame = new CGRect(0, 0, TabBarController.View.Frame.Width, TabBarController.View.Frame.Height - _tabBarHeight);
-            Presenter.TasksCancel();
+
+            if(IsMovingFromParentViewController)
+            {
+                Presenter.TasksCancel();
+                _cell.ReleaseCell();
+            }
+
             base.ViewWillDisappear(animated);
         }
 
         private void SetBackButton()
         {
-            var leftBarButton = new UIBarButtonItem(UIImage.FromBundle("ic_back_arrow"), UIBarButtonItemStyle.Plain, GoBack);
-            NavigationItem.LeftBarButtonItem = leftBarButton;
+            _leftBarButton.Image = UIImage.FromBundle("ic_back_arrow");
+            NavigationItem.LeftBarButtonItem = _leftBarButton;
             NavigationController.NavigationBar.TintColor = Helpers.Constants.R15G24B30;
             NavigationItem.Title = AppDelegate.Localization.GetText(LocalizationKeys.SinglePost);
         }
@@ -136,7 +149,7 @@ namespace Steepshot.iOS.Views
             InvokeOnMainThread(HandleAction);
         }
 
-        void HandleAction()
+        private void HandleAction()
         {
             scrollView.Hidden = false;
             loader.StopAnimating();

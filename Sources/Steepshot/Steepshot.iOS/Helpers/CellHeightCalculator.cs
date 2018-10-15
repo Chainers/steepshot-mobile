@@ -3,9 +3,7 @@ using System.Text.RegularExpressions;
 using CoreGraphics;
 using Foundation;
 using Steepshot.Core.Extensions;
-using Steepshot.Core.Models;
 using Steepshot.Core.Models.Common;
-using Steepshot.Core.Utils;
 using Steepshot.iOS.Models;
 using UIKit;
 using Xamarin.TTTAttributedLabel;
@@ -64,6 +62,30 @@ namespace Steepshot.iOS.Helpers
             var textHeight = attributedLabel.SizeThatFits(new CGSize(UIScreen.MainScreen.Bounds.Width - 15 * 2, 0)).Height;
 
             return new CellSizeHelper(photoHeight, textHeight, at);
+        }
+
+        public static CGSize GetDescriptionPostSize(nfloat width, nfloat height, int listCount)
+        {
+            if (height > width)
+            {
+                var ratio = width / height;
+                if (listCount == 1)
+                {
+                    return new CGSize(UIScreen.MainScreen.Bounds.Width - Constants.DescriptionSeparatorMargin * 2, (UIScreen.MainScreen.Bounds.Width - Constants.DescriptionSeparatorMargin * 2) / ratio);
+                }
+                else
+                    return new CGSize(Constants.DescriptionCellSide * ratio, Constants.DescriptionCellSide);
+            }
+            else
+            {
+                var ratio = height / width;
+                if (listCount == 1)
+                {
+                    return new CGSize(UIScreen.MainScreen.Bounds.Width - 30, (UIScreen.MainScreen.Bounds.Width - 30) * ratio);
+                }
+                else
+                    return new CGSize(UIScreen.MainScreen.Bounds.Width - Constants.DescriptionSectionInset * 2, (UIScreen.MainScreen.Bounds.Width - Constants.DescriptionSectionInset * 2) * ratio);
+            }
         }
     }
 }

@@ -275,15 +275,18 @@ namespace Steepshot.iOS.Views
 
         private void VideoViewTapped()
         {
-            if (videoContainer.Player.TimeControlStatus == AVPlayerTimeControlStatus.Playing)
+            if (videoContainer != null)
             {
-                videoContainer.Stop();
-                _statusImage.Image = UIImage.FromBundle("ic_play");
-            }
-            else
-            {
-                videoContainer.Play();
-                _statusImage.Image = UIImage.FromBundle("ic_pause");
+                if (videoContainer.Player.TimeControlStatus == AVPlayerTimeControlStatus.Playing)
+                {
+                    videoContainer.Stop();
+                    _statusImage.Image = UIImage.FromBundle("ic_play");
+                }
+                else
+                {
+                    videoContainer.Play();
+                    _statusImage.Image = UIImage.FromBundle("ic_pause");
+                }
             }
         }
 
