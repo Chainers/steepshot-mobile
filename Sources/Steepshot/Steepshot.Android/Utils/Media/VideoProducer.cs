@@ -1,4 +1,5 @@
 using Android.Content;
+using Android.Graphics;
 using Android.Media;
 using Android.Views;
 using Android.Webkit;
@@ -64,7 +65,7 @@ namespace Steepshot.Utils.Media
             _player.PlayWhenReady = true;
         }
 
-        public void Prepare()
+        public void Prepare(SurfaceTexture surfaceTexture, int width, int height)
         {
             var texture = (TextureView)_mediaPerformer;
             if (!texture.IsAvailable)

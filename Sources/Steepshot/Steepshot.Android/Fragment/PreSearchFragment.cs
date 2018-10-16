@@ -30,7 +30,7 @@ namespace Steepshot.Fragment
         private readonly bool _loadOnViewCreated;
         private TabOptions _tabOptions;
 
-        private ScrollListener _scrollListner;
+        private FeedScrollListner _scrollListner;
         private LinearLayoutManager _linearLayoutManager;
         private GridLayoutManager _gridLayoutManager;
         private GridItemDecoration _gridItemDecoration;
@@ -218,7 +218,7 @@ namespace Steepshot.Fragment
             _loginButton.Typeface = Style.Semibold;
             _loginButton.Text = App.Localization.GetText(LocalizationKeys.SignIn);
             _loginButton.Click += OnLogin;
-            _scrollListner = new ScrollListener();
+            _scrollListner = new FeedScrollListner();
             _scrollListner.ScrolledToBottom += ScrollListnerScrolledToBottom;
 
             _linearLayoutManager = new LinearLayoutManager(Context);

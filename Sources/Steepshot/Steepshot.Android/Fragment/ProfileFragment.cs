@@ -26,7 +26,7 @@ namespace Steepshot.Fragment
     {
         private TabOptions _tabOptions;
 
-        private ScrollListener _scrollListner;
+        private FeedScrollListner _scrollListner;
         private LinearLayoutManager _linearLayoutManager;
         private GridLayoutManager _gridLayoutManager;
         private GridItemDecoration _gridItemDecoration;
@@ -169,7 +169,7 @@ namespace Steepshot.Fragment
                 _firstPostButton.Typeface = Style.Semibold;
                 _likePowerLabel.Typeface = Style.Semibold;
 
-                _scrollListner = new ScrollListener();
+                _scrollListner = new FeedScrollListner();
                 _scrollListner.ScrolledToBottom += ScrollListnerScrolledToBottom;
 
                 _linearLayoutManager = new LinearLayoutManager(Context);

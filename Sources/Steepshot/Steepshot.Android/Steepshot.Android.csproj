@@ -234,6 +234,7 @@
     <Compile Include="Holders\PromotePickerHolder.cs" />
     <Compile Include="Holders\PromoterFoundHolder.cs" />
     <Compile Include="Holders\PromoteMessageHolder.cs" />
+    <Compile Include="Utils\FeedScrollListner.cs" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\values-v21\styles.xml">

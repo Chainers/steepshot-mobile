@@ -96,7 +96,7 @@ namespace Steepshot.Utils.Media
         #region Texture
         public void OnSurfaceTextureAvailable(SurfaceTexture surface, int width, int height)
         {
-            _mediaProducers[MediaType].Prepare();
+            _mediaProducers[MediaType].Prepare(surface, width, height);
         }
 
         public bool OnSurfaceTextureDestroyed(SurfaceTexture surface)
@@ -113,6 +113,16 @@ namespace Steepshot.Utils.Media
         {
         }
         #endregion
+
+        public void Play()
+        {
+            _mediaProducers[MediaType].Play();
+        }
+
+        public void Pause()
+        {
+            _mediaProducers[MediaType].Pause();
+        }
 
         public void DrawBuffer()
         {

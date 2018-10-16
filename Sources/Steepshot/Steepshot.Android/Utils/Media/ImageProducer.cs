@@ -37,7 +37,7 @@ namespace Steepshot.Utils.Media
         {
         }
 
-        public void Prepare()
+        public void Prepare(SurfaceTexture surfaceTextureace, int width, int height)
         {
             _mediaPerformer.DrawBuffer();
         }
