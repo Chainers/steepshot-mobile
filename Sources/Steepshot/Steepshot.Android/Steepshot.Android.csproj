@@ -220,6 +220,9 @@
     <AndroidResource Include="Resources\layout\lyt_promote_picker.axml" />
     <AndroidResource Include="Resources\layout\lyt_promote_searching.axml" />
     <AndroidResource Include="Resources\layout\lyt_promote_message.axml" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_play_arrow.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_play_arrow.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_play_arrow.png" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\values-v21\styles.xml" />
