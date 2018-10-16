@@ -3,27 +3,23 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Android.App;
 using Android.Content;
 using Android.Graphics;
 using Android.Media;
 using Android.OS;
-using Android.Support.V4.Content;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
 using Java.IO;
-using Newtonsoft.Json;
 using Steepshot.Base;
 using Steepshot.Core;
 using Steepshot.Core.Exceptions;
-using Steepshot.Core.Jobs;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Database;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
-using Steepshot.Core.Utils;
-using Steepshot.Services;
 using Steepshot.Utils;
 
 namespace Steepshot.Fragment
@@ -31,17 +27,16 @@ namespace Steepshot.Fragment
     public class PostCreateFragment : PostPrepareBaseFragment
     {
         private readonly bool _isSingleMode;
-        private readonly PreparePostModel _tepmPost;
+        private readonly PreparePostModel _tempPost;
         private GalleryMediaAdapter _galleryAdapter;
-        private bool _isUploading = false;
+        private bool _isUploading;
 
         protected List<GalleryMediaModel> Media { get; }
-        protected bool IsPlagiarism { get; set; }
 
 
         public PostCreateFragment(List<GalleryMediaModel> media, PreparePostModel model) : this(media)
         {
-            _tepmPost = model;
+            _tempPost = model;
         }
 
         public PostCreateFragment(List<GalleryMediaModel> media)
@@ -51,7 +46,7 @@ namespace Steepshot.Fragment
         }
 
 
-        public override async void OnViewCreated(View view, Bundle savedInstanceState)
+        public override void OnViewCreated(View view, Bundle savedInstanceState)
         {
             if (IsInitialized)
                 return;
@@ -60,22 +55,22 @@ namespace Steepshot.Fragment
 
             _galleryAdapter = new GalleryMediaAdapter(Media);
 
-            if (_tepmPost != null)
+            if (_tempPost != null)
             {
-                Model.Media = _tepmPost.Media;
-                Model.Title = Title.Text = _tepmPost.Title;
-                Model.Description = Description.Text = _tepmPost.Description;
-                Model.Tags = _tepmPost.Tags;
+                Model.Media = _tempPost.Media;
+                Model.Title = Title.Text = _tempPost.Title;
+                Model.Description = Description.Text = _tempPost.Description;
+                Model.Tags = _tempPost.Tags;
 
-                for (var i = 0; i < _tepmPost.Tags.Length; i++)
-                    AddTag(_tepmPost.Tags[i]);
+                for (var i = 0; i < _tempPost.Tags.Length; i++)
+                    AddTag(_tempPost.Tags[i]);
             }
 
-            InitData();
-            await SearchTextChanged();
+            InitDataAsync();
+            SearchTextChangedAsync();
         }
 
-        protected virtual async void InitData()
+        protected virtual async Task InitDataAsync()
         {
             if (_isSingleMode)
             {
@@ -112,15 +107,16 @@ namespace Steepshot.Fragment
             if (!isSaved)
             {
                 Context.ShowAlert(LocalizationKeys.PhotoProcessingError, ToastLength.Long);
-                ((BaseActivity)Activity).OnBackPressed();
             }
 
-            await CheckOnSpam();
+            await CheckOnSpamAsync();
             if (!IsInitialized)
                 return;
 
             if (IsSpammer == true)
                 return;
+
+            await StartUploadMedia();
         }
 
         private void PreviewOnTouch(object sender, View.TouchEventArgs touchEventArgs)
@@ -342,12 +338,11 @@ namespace Steepshot.Fragment
         private async Task<OperationResult<UUIDModel>> UploadMedia(GalleryMediaModel model)
         {
             StreamConverter stream = null;
-            FileInputStream fileInputStream = null;
 
             try
             {
                 var photo = new Java.IO.File(model.TempPath);
-                fileInputStream = new FileInputStream(photo);
+                var fileInputStream = new FileInputStream(photo);
                 stream = new StreamConverter(fileInputStream, null);
 
                 var request = new UploadMediaModel(App.User.UserInfo, stream, System.IO.Path.GetExtension(model.TempPath));
@@ -454,7 +449,7 @@ namespace Steepshot.Fragment
 
             if (Media.Any(m => m.UploadState != UploadState.Ready))
             {
-                await CheckOnSpam();
+                await CheckOnSpamAsync();
                 if (IsSpammer == true || !IsInitialized)
                     return;
 
@@ -469,18 +464,46 @@ namespace Steepshot.Fragment
             }
             else
             {
-                await CheckForPlagiarism();
+                var operationResult = await Presenter.TryPreparePostAsync(Model);
+                if (!IsInitialized)
+                    return;
 
-                if (!IsPlagiarism)
+                if (operationResult.IsSuccess)
                 {
-                    var isCreated = await TryCreateOrEditPost();
-                    if (isCreated)
-                        Activity.ShowAlert(LocalizationKeys.PostDelay, ToastLength.Long);
+                    if (operationResult.Result.Plagiarism.IsPlagiarism)
+                    {
+                        var fragment = new PlagiarismCheckFragment(Media, _galleryAdapter, operationResult.Result.Plagiarism);
+                        fragment.SetTargetFragment(this, 0);
+                        ((BaseActivity)Activity).OpenNewContentFragment(fragment);
+                        PostButton.Text = App.Localization.GetText(LocalizationKeys.PublishButtonText);
+                        return;
+                    }
                 }
+
+                await TryCreateOrEditPost();
             }
         }
 
-        protected async Task CheckOnSpam()
+        protected override void OnPostSuccess()
+        {
+            Activity.ShowAlert(LocalizationKeys.PostDelay, ToastLength.Long);
+        }
+
+        public override async void OnActivityResult(int requestCode, int resultCode, Intent data)
+        {
+            switch (resultCode)
+            {
+                case (int)Result.Ok:
+                    EnablePostAndEdit(false, true);
+                    await TryCreateOrEditPost();
+                    break;
+                case (int)Result.Canceled:
+                    EnabledPost();
+                    break;
+            }
+        }
+
+        protected async Task CheckOnSpamAsync()
         {
             try
             {
@@ -526,26 +549,6 @@ namespace Steepshot.Fragment
 
             IsSpammer = null;
             EnabledPost();
-        }
-       
-        private async Task CheckForPlagiarism()
-        {
-            IsPlagiarism = false;
-            var plagiarismCheck = await Presenter.TryCheckForPlagiarismAsync(Model);
-
-            if (plagiarismCheck.IsSuccess)
-            {
-                if (plagiarismCheck.Result.plagiarism.IsPlagiarism)
-                {
-                    IsPlagiarism = true;
-
-                    var fragment = new PlagiarismCheckFragment(Media, _galleryAdapter, plagiarismCheck.Result.plagiarism);
-                    fragment.SetTargetFragment(this, 0);
-                    ((BaseActivity)Activity).OpenNewContentFragment(fragment);
-
-                    PostButton.Text = App.Localization.GetText(LocalizationKeys.PublishButtonText);
-                }
-            }
         }
 
         public override void OnDetach()

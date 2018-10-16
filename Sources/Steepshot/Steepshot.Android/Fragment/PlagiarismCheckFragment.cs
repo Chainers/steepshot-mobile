@@ -14,46 +14,43 @@ using CheeseBind;
 using Steepshot.Base;
 using Steepshot.Core;
 using Steepshot.Core.Localization;
-using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Presenters;
-using Steepshot.Core.Utils;
 using Steepshot.Utils;
 
 namespace Steepshot.Fragment
 {
-    public class PlagiarismCheckFragment : BaseFragmentWithPresenter<PostDescriptionPresenter>
+    public sealed class PlagiarismCheckFragment : BaseFragmentWithPresenter<PostDescriptionPresenter>
     {
-        private readonly List<GalleryMediaModel> media;
-        private readonly PreparePostModel postModel;
-        private readonly Plagiarism model;
-        private RecyclerView.Adapter adapter;
-        private Android.Net.Uri guidelinesUri;
+        private readonly List<GalleryMediaModel> _media;
+        private readonly Plagiarism _model;
+        private readonly RecyclerView.Adapter _adapter;
+        private Android.Net.Uri _guidelinesUri;
 
 #pragma warning disable 0649, 4014
-        [BindView(Resource.Id.btn_back)] protected ImageButton _backButton;
-        [BindView(Resource.Id.page_title)] protected TextView _pageTitle;
-        [BindView(Resource.Id.guidelines)] protected TextView _guidelines;
-        [BindView(Resource.Id.scroll_container)] protected ScrollView _descriptionScrollContainer;
-        [BindView(Resource.Id.photos_layout)] protected RelativeLayout _photosContainer;
-        [BindView(Resource.Id.photos)] protected RecyclerView _photos;
-        [BindView(Resource.Id.photo_preview_container)] protected RelativeLayout _previewContainer;
-        [BindView(Resource.Id.photo_preview)] protected ImageView _preview;
-        [BindView(Resource.Id.plagiarism_title)] protected TextView _plagiarismTitle;
-        [BindView(Resource.Id.plagiarism_description)] protected TextView _plagiarismDescription;
-        [BindView(Resource.Id.btn_cancel)] protected Button _cancelPublishing;
-        [BindView(Resource.Id.cancel_loading_spinner)] protected ProgressBar _cancelSpinner;
-        [BindView(Resource.Id.btn_continue)] protected Button _continuePublishing;
-        [BindView(Resource.Id.continue_loading_spinner)] protected ProgressBar _continueSpinner;
-        [BindView(Resource.Id.toolbar)] protected LinearLayout _topPanel;
-        [BindView(Resource.Id.root_layout)] protected RelativeLayout _rootLayout;
+        [BindView(Resource.Id.btn_back)] private ImageButton _backButton;
+        [BindView(Resource.Id.page_title)] private TextView _pageTitle;
+        [BindView(Resource.Id.guidelines)] private TextView _guidelines;
+        [BindView(Resource.Id.scroll_container)] private ScrollView _descriptionScrollContainer;
+        [BindView(Resource.Id.photos_layout)] private RelativeLayout _photosContainer;
+        [BindView(Resource.Id.photos)] private RecyclerView _photos;
+        [BindView(Resource.Id.photo_preview_container)] private RelativeLayout _previewContainer;
+        [BindView(Resource.Id.photo_preview)] private ImageView _preview;
+        [BindView(Resource.Id.plagiarism_title)] private TextView _plagiarismTitle;
+        [BindView(Resource.Id.plagiarism_description)] private TextView _plagiarismDescription;
+        [BindView(Resource.Id.btn_cancel)] private Button _cancelPublishing;
+        [BindView(Resource.Id.cancel_loading_spinner)] private ProgressBar _cancelSpinner;
+        [BindView(Resource.Id.btn_continue)] private Button _continuePublishing;
+        [BindView(Resource.Id.continue_loading_spinner)] private ProgressBar _continueSpinner;
+        [BindView(Resource.Id.toolbar)] private LinearLayout _topPanel;
+        [BindView(Resource.Id.root_layout)] private RelativeLayout _rootLayout;
 
 
         public PlagiarismCheckFragment(List<GalleryMediaModel> media, RecyclerView.Adapter adapter, Plagiarism model)
         {
-            this.media = media;
-            this.adapter = adapter;
-            this.model = model;
+            _media = media;
+            _adapter = adapter;
+            _model = model;
         }
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -86,7 +83,7 @@ namespace Steepshot.Fragment
             _cancelPublishing.Typeface = Style.Semibold;
             _continuePublishing.Typeface = Style.Semibold;
 
-            guidelinesUri = Android.Net.Uri.Parse(Constants.Guide);
+            _guidelinesUri = Android.Net.Uri.Parse(Constants.Guide);
 
             _topPanel.BringToFront();
 
@@ -98,12 +95,12 @@ namespace Steepshot.Fragment
             _cancelPublishing.Click += CancelPublishing;
             _continuePublishing.Click += ContinuePublishing;
 
-            if (media.Count > 1)
+            if (_media.Count > 1)
             {
                 _photos.Visibility = ViewStates.Visible;
                 _previewContainer.Visibility = ViewStates.Gone;
                 _photos.SetLayoutManager(new LinearLayoutManager(Activity, LinearLayoutManager.Horizontal, false));
-                _photos.SetAdapter(adapter);
+                _photos.SetAdapter(_adapter);
                 _photos.AddItemDecoration(new ListItemDecoration((int)TypedValue.ApplyDimension(ComplexUnitType.Dip, 10, Resources.DisplayMetrics)));
             }
             else
@@ -114,14 +111,14 @@ namespace Steepshot.Fragment
 
                 var margin = (int)BitmapUtils.DpToPixel(15, Resources);
 
-                if (media[0].PreparedBitmap != null)
+                if (_media[0].PreparedBitmap != null)
                 {
-                    var previewSize = BitmapUtils.CalculateImagePreviewSize(media[0].Parameters, Style.ScreenWidth - margin * 2);
+                    var previewSize = BitmapUtils.CalculateImagePreviewSize(_media[0].Parameters, Style.ScreenWidth - margin * 2);
                     var layoutParams = new RelativeLayout.LayoutParams(previewSize.Width, previewSize.Height);
                     layoutParams.SetMargins(margin, 0, margin, margin);
                     _previewContainer.LayoutParameters = layoutParams;
 
-                    _preview.SetImageBitmap(media[0].PreparedBitmap);
+                    _preview.SetImageBitmap(_media[0].PreparedBitmap);
                 }
             }
 
@@ -132,7 +129,7 @@ namespace Steepshot.Fragment
             CustomClickableSpan clickableSpan;
             SpannableString spannableTitle;
 
-            if (model.PlagiarismUsername == App.User.Login)
+            if (_model.PlagiarismUsername == App.User.Login)
             {
                 plagiarismText = App.Localization.GetText(LocalizationKeys.SelfPlagiarism, similarText);
 
@@ -145,7 +142,7 @@ namespace Steepshot.Fragment
             }
             else
             {
-                var author = $"@{model.PlagiarismUsername}";
+                var author = $"@{_model.PlagiarismUsername}";
                 plagiarismText = App.Localization.GetText(LocalizationKeys.PhotoPlagiarism, similarText, author);
 
                 spannableTitle = new SpannableString(plagiarismText);
@@ -191,20 +188,20 @@ namespace Steepshot.Fragment
 
         private void OpenGuidelines(object sender, EventArgs e)
         {
-            var browserIntent = new Intent(Intent.ActionView, guidelinesUri);
+            var browserIntent = new Intent(Intent.ActionView, _guidelinesUri);
             StartActivity(browserIntent);
         }
 
         private void OpenSimilar(View obj)
         {
-            var link = $"@{model.PlagiarismUsername}/{model.PlagiarismPermlink}";
+            var link = $"@{_model.PlagiarismUsername}/{_model.PlagiarismPermlink}";
 
             ((BaseActivity)Activity).OpenNewContentFragment(new PostViewFragment(link));
         }
 
         private void OpenProfile(View obj)
         {
-            ((BaseActivity)Activity).OpenNewContentFragment(new ProfileFragment(model.PlagiarismUsername));
+            ((BaseActivity)Activity).OpenNewContentFragment(new ProfileFragment(_model.PlagiarismUsername));
         }
 
         private void CancelPublishing(object sender, EventArgs e)

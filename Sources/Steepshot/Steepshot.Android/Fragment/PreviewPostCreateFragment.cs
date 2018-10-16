@@ -15,7 +15,7 @@ namespace Steepshot.Fragment
             : base(new List<GalleryMediaModel> { media }) { }
 
 
-        protected override void InitData()
+        protected override async Task InitDataAsync()
         {
             Photos.Visibility = ViewStates.Gone;
             PreviewContainer.Visibility = ViewStates.Visible;
@@ -32,7 +32,7 @@ namespace Steepshot.Fragment
             RatioBtn.Click += RatioBtnOnClick;
             RotateBtn.Click += RotateBtnOnClick;
 
-            CheckOnSpam();
+            await CheckOnSpamAsync();
         }
 
         private void PreviewOnTouch(object sender, View.TouchEventArgs touchEventArgs)

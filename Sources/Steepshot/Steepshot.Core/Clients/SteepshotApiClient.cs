@@ -5,8 +5,6 @@ using Ditch.Core.JsonRpc;
 using Steepshot.Core.Interfaces;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
-using Steepshot.Core.Models.Responses;
-using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Clients
 {
@@ -16,16 +14,6 @@ namespace Steepshot.Core.Clients
         public SteepshotApiClient(ExtendedHttpClient extendedHttpClient, ILogService logService, string baseUrl)
             : base(extendedHttpClient, logService, baseUrl)
         {
-        }
-
-        public async Task<OperationResult<PreparePostResponse>> CheckPostForPlagiarismAsync(PreparePostModel model, CancellationToken ct)
-        {
-            var result = await PreparePostAsync(model, ct).ConfigureAwait(false);
-
-            if (!result.IsSuccess)
-                return new OperationResult<PreparePostResponse>(result.Exception);
-
-            return result;
         }
 
         public async Task<OperationResult<UploadMediaStatusModel>> GetMediaStatusAsync(UUIDModel model, CancellationToken ct)

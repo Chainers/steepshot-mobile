@@ -669,15 +669,15 @@ namespace Steepshot.iOS.Views
             {
                 if (!skipPlagiarismCheck)
                 {
-                    var plagiarismCheck = Presenter.TryCheckForPlagiarismAsync(model).Result;
+                    var plagiarismCheck = Presenter.TryPreparePostAsync(model).Result;
                     if (plagiarismCheck.IsSuccess)
                     {
-                        if (plagiarismCheck.Result.plagiarism.IsPlagiarism)
+                        if (plagiarismCheck.Result.Plagiarism.IsPlagiarism)
                         {
                             InvokeOnMainThread(() =>
                             {
                                 _plagiarismResult = new PlagiarismResult();
-                                var plagiarismViewController = new PlagiarismViewController(ImageAssets, plagiarismCheck.Result.plagiarism, _plagiarismResult);
+                                var plagiarismViewController = new PlagiarismViewController(ImageAssets, plagiarismCheck.Result.Plagiarism, _plagiarismResult);
                                 NavigationController.PushViewController(plagiarismViewController, true);
                             });
 
