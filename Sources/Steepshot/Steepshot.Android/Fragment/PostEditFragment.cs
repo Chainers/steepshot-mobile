@@ -62,7 +62,7 @@ namespace Steepshot.Fragment
                 Preview.Touch += PreviewOnTouch;
             }
 
-            SearchTextChanged();
+            SearchTextChangedAsync();
         }
 
         protected override async Task OnPostAsync()

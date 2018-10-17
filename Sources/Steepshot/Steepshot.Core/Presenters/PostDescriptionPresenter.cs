@@ -43,9 +43,9 @@ namespace Steepshot.Core.Presenters
                 .ConfigureAwait(false);
         }
 
-        public async Task<OperationResult<PreparePostResponse>> TryCheckForPlagiarismAsync(PreparePostModel model)
+        public async Task<OperationResult<PreparePostResponse>> TryPreparePostAsync(PreparePostModel model)
         {
-            return await TaskHelper.TryRunTaskAsync(_steepshotApiClient.CheckPostForPlagiarismAsync, model, OnDisposeCts.Token)
+            return await TaskHelper.TryRunTaskAsync(_steepshotApiClient.PreparePostAsync, model, OnDisposeCts.Token)
                 .ConfigureAwait(false);
         }
 

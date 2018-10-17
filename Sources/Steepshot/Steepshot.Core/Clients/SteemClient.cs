@@ -351,10 +351,6 @@ namespace Steepshot.Core.Clients
         #region Get
         public override async Task<OperationResult<string>> GetVerifyTransactionAsync(AuthorizedWifModel model, CancellationToken ct)
         {
-            var results = Validate(model);
-            if (results != null)
-                return new OperationResult<string>(results);
-
             var keys = ToKeyArr(model.PostingKey);
             if (keys == null)
                 return new OperationResult<string>(new ValidationException(LocalizationKeys.WrongPrivatePostingKey));

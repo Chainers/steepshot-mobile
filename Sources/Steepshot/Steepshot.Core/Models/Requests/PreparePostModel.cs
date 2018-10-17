@@ -4,6 +4,7 @@ using Ditch.Core;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Common;
 using System.Diagnostics;
+using System.Linq;
 using Steepshot.Core.Authorization;
 using Steepshot.Core.Utils;
 
@@ -70,7 +71,8 @@ namespace Steepshot.Core.Models.Requests
             {
                 foreach (var item in value)
                 {
-                    item.Url = item.Url.Replace("http:", "https:");
+                    if (item != null && !string.IsNullOrEmpty(item.Url))
+                        item.Url = item.Url.Replace("http:", "https:");
                 }
                 _media = value;
             }

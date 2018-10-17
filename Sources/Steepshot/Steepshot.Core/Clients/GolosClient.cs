@@ -357,10 +357,6 @@ namespace Steepshot.Core.Clients
 
         public override async Task<OperationResult<string>> GetVerifyTransactionAsync(AuthorizedWifModel model, CancellationToken ct)
         {
-            var results = Validate(model);
-            if (results != null)
-                return new OperationResult<string>(results);
-
             var isConnected = await TryReconnectChainAsync(ct).ConfigureAwait(false);
             if (!isConnected)
                 return new OperationResult<string>(new ValidationException(LocalizationKeys.EnableConnectToBlockchain));
