@@ -16,6 +16,7 @@ namespace Steepshot.iOS.CustomViews
         private AVPlayerItem item;
         private NSObject notificationToken;
         private UILabel _timerLabel;
+        private UIActivityIndicatorView _videoLoader;
         private bool _isRegistered;
         private bool _shouldPlay;
         private bool _showTimer;
@@ -61,8 +62,15 @@ namespace Steepshot.iOS.CustomViews
             _timerLabel.Hidden = false;
             AddSubview(_timerLabel);
 
+            _videoLoader = new UIActivityIndicatorView();
+            _videoLoader.Color = UIColor.DarkGray;
+            _videoLoader.HidesWhenStopped = true;
+            AddSubview(_videoLoader);
+            _videoLoader.StartAnimating();
+
             _timerLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 20);
             _timerLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Top, 20);
+            _videoLoader.AutoCenterInSuperview();
 
             var interval = new CMTime(1, 1);
             double timeLeft;
@@ -138,6 +146,7 @@ namespace Steepshot.iOS.CustomViews
                 Player.Status == AVPlayerStatus.ReadyToPlay &&
                 PlayerLayer.ReadyForDisplay)
             {
+                _videoLoader?.StopAnimating();
                 Player.Play();
             }
         }
