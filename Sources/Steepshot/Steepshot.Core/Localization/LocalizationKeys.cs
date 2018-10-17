@@ -72,7 +72,7 @@
         FlagMessage,
         DeleteAlertTitle,
         DeleteAlertMessage,
-        PowerOfLike,
+        Mana,
         TitleForAcceptToS,
         PostDelay,
         SignInButtonText,
