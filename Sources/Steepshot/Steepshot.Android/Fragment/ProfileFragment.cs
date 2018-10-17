@@ -515,7 +515,7 @@ namespace Steepshot.Fragment
                 case ActionType.LikePower:
                     var avatar = PostsList.FindViewById(Resource.Id.profile_image);
                     avatar.Enabled = false;
-                    _likePowerLabel.Text = App.Localization.GetText(LocalizationKeys.PowerOfLike, Presenter.UserProfileResponse.VotingPower);
+                    _likePowerLabel.Text = App.Localization.GetText(LocalizationKeys.Mana, Presenter.UserProfileResponse.VotingPower);
                     _likePowerLabel.Visibility = ViewStates.Visible;
                     await Task.Delay(1000);
                     _likePowerLabel.Visibility = ViewStates.Gone;
