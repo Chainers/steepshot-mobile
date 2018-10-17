@@ -98,7 +98,7 @@ namespace Steepshot.CameraGL.Gles
             };
                 EGLContext context = EGL14.EglCreateContext(_mEglDisplay, config, sharedContext,
                         attrib2List, 0);
-                checkEglError("eglCreateContext");
+                CheckEglError("eglCreateContext");
                 _mEglConfig = config;
                 _mEglContext = context;
                 _mGlVersion = 2;
@@ -220,7 +220,7 @@ namespace Steepshot.CameraGL.Gles
         };
             EGLSurface eglSurface = EGL14.EglCreateWindowSurface(_mEglDisplay, _mEglConfig, surface,
                     surfaceAttribs, 0);
-            checkEglError("eglCreateWindowSurface");
+            CheckEglError("eglCreateWindowSurface");
             if (eglSurface == null)
             {
                 throw new RuntimeException("surface was null");
@@ -240,7 +240,7 @@ namespace Steepshot.CameraGL.Gles
         };
             EGLSurface eglSurface = EGL14.EglCreatePbufferSurface(_mEglDisplay, _mEglConfig,
                     surfaceAttribs, 0);
-            checkEglError("eglCreatePbufferSurface");
+            CheckEglError("eglCreatePbufferSurface");
             if (eglSurface == null)
             {
                 throw new RuntimeException("surface was null");
@@ -360,7 +360,7 @@ namespace Steepshot.CameraGL.Gles
         /**
          * Checks for EGL errors.  Throws an exception if an error has been raised.
          */
-        private void checkEglError(string msg)
+        private void CheckEglError(string msg)
         {
             int error;
             if ((error = EGL14.EglGetError()) != EGL14.EglSuccess)

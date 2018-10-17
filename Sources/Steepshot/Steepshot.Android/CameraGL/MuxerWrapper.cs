@@ -1,176 +1,137 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Android.Media;
-using Android.OS;
 using Java.Lang;
-using Java.Nio;
+using Steepshot.Base;
 using Steepshot.CameraGL.Encoder;
-using Steepshot.CameraGL.Enums;
+using Exception = Java.Lang.Exception;
 using File = Java.IO.File;
-using Object = Java.Lang.Object;
-using Thread = Java.Lang.Thread;
 
 namespace Steepshot.CameraGL
 {
-    public class MuxerWrapper : Object, IRunnable
+    public class MuxerWrapper
     {
-        public Action<string> VideoRecorded;
+        public event Action<string> MuxingFinished;
         private MediaMuxer Muxer { get; set; }
         private string _path;
-        private readonly Dictionary<int, (BaseMediaEncoder Encoder, CircularBuffer Buffer)> _encoders;
+        private File _outPutFile;
+        private MuxerOutputType _muxerOutputType;
+        private readonly Dictionary<BaseMediaEncoder, int> _encoders;
+        private CancellationTokenSource _muxerCts;
 
-        private volatile MuxerHandler _handler;
-        private readonly object _readyFence = new object();
-        private bool _ready;
-        private bool _running;
+        private event Action WriteOutput;
 
         public MuxerWrapper()
         {
-            _encoders = new Dictionary<int, (BaseMediaEncoder Encoder, CircularBuffer Buffer)>();
+            _encoders = new Dictionary<BaseMediaEncoder, int>();
+            WriteOutput += OnWriteOutput;
         }
 
         public void Reset(string path, MuxerOutputType outputType)
         {
-            if (IsMuxing())
-            {
-                Stop();
-            }
-            else
-            {
-                ReleaseMuxer();
-            }
-
-            var fs = new FileStream(path, FileMode.CreateNew);
-            var file = new File(fs.Name);
-            _path = fs.Name;
-            Muxer = new MediaMuxer(file.ToString(), outputType);
+            Release();
+            _path = path;
+            _muxerOutputType = outputType;
         }
 
-        private void Start()
+        public void Interrupt()
         {
-            lock (_readyFence)
+            _muxerCts?.Cancel();
+        }
+
+        public void AddTrack(BaseMediaEncoder encoder)
+        {
+            lock (_encoders)
             {
-                if (_running)
+                if (Muxer == null)
                 {
-                    return;
+                    _outPutFile = new File(_path);
+                    Muxer = new MediaMuxer(_outPutFile.ToString(), _muxerOutputType);
                 }
-                _running = true;
-                new Thread(this).Start();
-                while (!_ready)
+
+                if (_encoders.Any(x => x.Key.Type == encoder.Type))
+                    throw new IllegalArgumentException("You already added track of this type");
+
+                var trackIndex = Muxer.AddTrack(encoder.OutputFormat);
+                _encoders.Add(encoder, trackIndex);
+
+                if (_encoders.Any(x => x.Key.Type == EncoderType.Video) &&
+                    _encoders.Any(x => x.Key.Type == EncoderType.Audio))
                 {
                     try
                     {
-                        Monitor.Wait(_readyFence);
+                        _muxerCts = new CancellationTokenSource();
+                        WriteOutput?.Invoke();
                     }
-                    catch (InterruptedException)
+                    catch (Exception e)
                     {
-                        // ignore
+                        App.Logger.WarningAsync(e);
                     }
                 }
             }
-
-            _handler.SendMessage(_handler.ObtainMessage((int)MuxerMessages.Start));
         }
 
-        private void Stop()
+        private void OnWriteOutput()
         {
-            _handler.SendMessage(_handler.ObtainMessage((int)MuxerMessages.Stop));
-        }
-
-        public async void WriteSampleData(int trackIndex, ByteBuffer buffer, MediaCodec.BufferInfo bufferInfo)
-        {
-            _encoders[trackIndex].Buffer.Add(buffer, bufferInfo);
-            await Task.Run(() =>
-            _handler.SendMessage(_handler.ObtainMessage((int)MuxerMessages.WriteSampleData, trackIndex, 0, bufferInfo))).ConfigureAwait(false);
-        }
-
-        public bool IsMuxing()
-        {
-            lock (_readyFence)
+            Task.Run(() =>
             {
-                return _running;
-            }
-        }
-
-        public void Run()
-        {
-            Looper.Prepare();
-
-            lock (_readyFence)
-            {
-                _handler = new MuxerHandler(this);
-                _ready = true;
-                Monitor.Pulse(_readyFence);
-            }
-
-            Looper.Loop();
-
-            lock (_readyFence)
-            {
-                _ready = _running = false;
-                _handler = null;
-            }
-        }
-
-        public void HandleStart()
-        {
-            Muxer.Start();
-        }
-
-        public void HandleStop()
-        {
-            Muxer?.Stop();
-            ReleaseMuxer();
-            VideoRecorded?.Invoke(_path);
-        }
-
-        private void ReleaseMuxer()
-        {
-            Muxer?.Release();
-            Muxer = null;
-        }
-
-        public void HandleWriteSampleData(int trackIndex, MediaCodec.BufferInfo bufferInfo)
-        {
-            var buffer = _encoders[trackIndex].Buffer;
-            var data = buffer.GetTailChunk(bufferInfo);
-            Muxer.WriteSampleData(trackIndex, data, bufferInfo);
-            buffer.RemoveTail();
-        }
-
-        public int AddTrack(BaseMediaEncoder encoder, MediaFormat format)
-        {
-            if (IsMuxing())
-                throw new IllegalStateException("Muxer already started");
-
-            if (_encoders.Any(x => x.Value.Encoder.Type == encoder.Type))
-                throw new IllegalArgumentException("You haver already registered encoder with the same type.");
-
-            var trackIndex = Muxer.AddTrack(format);
-
-            lock (_encoders)
-            {
-                _encoders.Add(trackIndex, (encoder, new CircularBuffer(encoder.Format, 20000)));
-                if (_encoders.Any(x => x.Value.Encoder.Type == EncoderType.Video) && _encoders.Any(x => x.Value.Encoder.Type == EncoderType.Audio))
+                Muxer.Start();
+                try
                 {
-                    Start();
-                }
-            }
+                    Parallel.ForEach(_encoders.Keys, encoder =>
+                    {
+                        var index = encoder.CircularBuffer.GetFirstIndex();
+                        if (index < 0)
+                            return;
 
-            return trackIndex;
+                        var info = new MediaCodec.BufferInfo();
+
+                        do
+                        {
+                            if (_muxerCts.IsCancellationRequested)
+                            {
+                                OnErrorOrInterrupt();
+                                return;
+                            }
+
+                            var buf = encoder.CircularBuffer.GetChunk(index, info);
+                            Muxer.WriteSampleData(_encoders[encoder], buf, info);
+                            index = encoder.CircularBuffer.GetNextIndex(index);
+                        } while (index >= 0);
+                    });
+
+                    MuxingFinished?.Invoke(_path);
+                }
+                catch
+                {
+                    OnErrorOrInterrupt();
+                    MuxingFinished?.Invoke(null);
+                }
+                finally
+                {
+                    Muxer.Stop();
+                    Release();
+                }
+            }, _muxerCts.Token).ConfigureAwait(false);
         }
 
-        public void StopTrack(BaseMediaEncoder encoder)
+        private void OnErrorOrInterrupt()
         {
-            lock (_encoders)
+            _outPutFile.Delete();
+            Release();
+        }
+
+        private void Release()
+        {
+            _encoders.Clear();
+
+            if (Muxer != null)
             {
-                _encoders.Remove(encoder.TrackIndex);
-                if (_encoders.Count == 0)
-                    Stop();
+                Muxer.Release();
+                Muxer = null;
             }
         }
     }

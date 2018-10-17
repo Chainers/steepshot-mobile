@@ -81,23 +81,19 @@
     <Compile Include="CameraGL\AspectFrameLayout.cs" />
     <Compile Include="CameraGL\Audio\AudioRecorderConfig.cs" />
     <Compile Include="CameraGL\Audio\AudioRecorderWrapper.cs" />
-    <Compile Include="CameraGL\CameraHandler.cs" />
+    <Compile Include="CameraGL\ByteBufferExtensions.cs" />
     <Compile Include="CameraGL\CameraInfo.cs" />
     <Compile Include="CameraGL\CameraManager.cs" />
-    <Compile Include="CameraGL\CameraSurfaceRenderer.cs" />
     <Compile Include="CameraGL\CameraUtils.cs" />
     <Compile Include="CameraGL\CameraConfig.cs" />
-    <Compile Include="CameraGL\CircularBuffer.cs" />
+    <Compile Include="CameraGL\CircularEncoderBuffer.cs" />
     <Compile Include="CameraGL\Encoder\AudioEncoder.cs" />
     <Compile Include="CameraGL\Encoder\AudioEncoderConfig.cs" />
-    <Compile Include="CameraGL\Encoder\AudioEncoderHandler.cs" />
-    <Compile Include="CameraGL\Encoder\AudioEncoderWrapper.cs" />
+    <Compile Include="CameraGL\Encoder\BaseEncoderConfig.cs" />
     <Compile Include="CameraGL\Encoder\BaseMediaEncoder.cs" />
     <Compile Include="CameraGL\Encoder\EncoderType.cs" />
     <Compile Include="CameraGL\Encoder\VideoEncoder.cs" />
     <Compile Include="CameraGL\Encoder\VideoEncoderConfig.cs" />
-    <Compile Include="CameraGL\Encoder\VideoEncoderHandler.cs" />
-    <Compile Include="CameraGL\Encoder\VideoEncoderWrapper.cs" />
     <Compile Include="CameraGL\Enums\MuxerMessages.cs" />
     <Compile Include="CameraGL\Gles\Drawable2D.cs" />
     <Compile Include="CameraGL\Gles\EglCore.cs" />
@@ -106,7 +102,6 @@
     <Compile Include="CameraGL\Gles\GlUtil.cs" />
     <Compile Include="CameraGL\Gles\Texture2dProgram.cs" />
     <Compile Include="CameraGL\Gles\WindowSurface.cs" />
-    <Compile Include="CameraGL\MuxerHandler.cs" />
     <Compile Include="CameraGL\MuxerWrapper.cs" />
     <Compile Include="CameraGL\Enums\EncoderMessages.cs" />
     <Compile Include="CameraGL\Enums\RecordingStatus.cs" />
@@ -721,9 +716,6 @@
       <HintPath>..\packages\FastAndroidCamera.2.0.0\lib\MonoAndroid403\FastAndroidCamera.dll</HintPath>
     </Reference>
     <Reference Include="Java.Interop" />
-    <Reference Include="Naxam.WheelPicker, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Naxam.WheelPicker.1.1.2\lib\MonoAndroid10\Naxam.WheelPicker.dll</HintPath>
-    </Reference>
     <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.11.0.2\lib\netstandard2.0\Newtonsoft.Json.dll</HintPath>
     </Reference>

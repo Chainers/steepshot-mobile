@@ -1,34 +1,56 @@
 ﻿using Android.Media;
 using Android.Views;
+using Java.Lang;
 
 namespace Steepshot.CameraGL.Encoder
 {
     public class VideoEncoder : BaseMediaEncoder
     {
         public override EncoderType Type => EncoderType.Video;
-        public sealed override MediaFormat Format { get; }
+        public override CircularEncoderBuffer CircularBuffer { get; protected set; }
+        public sealed override MediaFormat Format { get; protected set; }
+        public Surface InputSurface { get; private set; }
 
-        public Surface InputSurface { get; }
-
-        public VideoEncoder(VideoEncoderConfig config)
+        public override void Configure(BaseEncoderConfig config)
         {
-            MuxerWrapper = config.MuxerWrapper;
+            if (!(config is VideoEncoderConfig))
+                throw new IllegalArgumentException("You must provide video config for this encoder");
 
-            Format = MediaFormat.CreateVideoFormat(config.MimeType, config.Width, config.Height);
+            base.Configure(config);
+        }
+
+        protected override void InitCodec()
+        {
+            Release();
+
+            var videoConfig = (VideoEncoderConfig)Config;
+            Muxer = videoConfig.MuxerWrapper;
+            CircularBuffer = new CircularEncoderBuffer(videoConfig.Bitrate, videoConfig.FrameRate, Config.BufferSizeSec);
+
+            Format = MediaFormat.CreateVideoFormat(videoConfig.MimeType, videoConfig.Width, videoConfig.Height);
             Format.SetInteger(MediaFormat.KeyColorFormat, (int)MediaCodecCapabilities.Formatsurface);
-            Format.SetInteger(MediaFormat.KeyBitRate, config.BitRate);
-            Format.SetInteger(MediaFormat.KeyFrameRate, config.FrameRate);
-            Format.SetInteger(MediaFormat.KeyIFrameInterval, config.IframeInterval);
+            Format.SetInteger(MediaFormat.KeyBitRate, videoConfig.Bitrate);
+            Format.SetInteger(MediaFormat.KeyFrameRate, videoConfig.FrameRate);
+            Format.SetInteger(MediaFormat.KeyIFrameInterval, videoConfig.IframeInterval);
+            Format.SetInteger(MediaFormat.KeyProfile, 0x08);
+            Format.SetInteger(MediaFormat.KeyLevel, 0x100);
 
-            Codec = MediaCodec.CreateEncoderByType(config.MimeType);
+            Codec = MediaCodec.CreateEncoderByType(videoConfig.MimeType);
             Codec.Configure(Format, null, null, MediaCodecConfigFlags.Encode);
+
             InputSurface = Codec.CreateInputSurface();
-            Codec.Start();
         }
 
         protected override void SignalEndOfInputStream()
         {
             Codec.SignalEndOfInputStream();
+        }
+
+        protected override void Release()
+        {
+            base.Release();
+            InputSurface?.Release();
+            InputSurface = null;
         }
     }
 }

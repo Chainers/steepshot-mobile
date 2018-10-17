@@ -1,15 +1,17 @@
-﻿using Android.Opengl;
+﻿using System.IO;
+using Android.Graphics;
+using Android.Opengl;
 using Android.Util;
 using Java.Lang;
 using Java.Nio;
-using File = Java.IO.File;
+using Matrix = Android.Graphics.Matrix;
 using String = System.String;
 
 namespace Steepshot.CameraGL.Gles
 {
     public class EglSurfaceBase
     {
-        protected static readonly String Tag = "EglSurfaceBase";
+        private static readonly String Tag = "EglSurfaceBase";
 
         // EglCore object we're associated with.  It may be associated with multiple surfaces.
         protected EglCore MEglCore;
@@ -143,7 +145,7 @@ namespace Steepshot.CameraGL.Gles
          * <p>
          * Expects that this object's EGL surface is current.
          */
-        public void SaveFrame(File file)
+        public byte[] GetFrame()
         {
             if (!MEglCore.IsCurrent(_mEglSurface))
             {
@@ -160,30 +162,36 @@ namespace Steepshot.CameraGL.Gles
             //
             // Making this even more interesting is the upside-down nature of GL, which means
             // our output will look upside down relative to what appears on screen if the
-            // typical GL conventions are used.
-
-            String filename = file.ToString();
-
-            int width = GetWidth();
-            int height = GetHeight();
-            ByteBuffer buf = ByteBuffer.AllocateDirect(width * height * 4);
+            // typical GL conventions are used.            
+            var width = GetWidth();
+            var height = GetHeight();
+            var bufferSize = width * height * 4;
+            var buf = ByteBuffer.AllocateDirect(bufferSize);
             buf.Order(ByteOrder.LittleEndian);
-            GLES20.GlReadPixels(0, 0, width, height,
-                    GLES20.GlRgba, GLES20.GlUnsignedByte, buf);
+            GLES20.GlReadPixels(0, 0, width, height, GLES20.GlRgba, GLES20.GlUnsignedByte, buf);
             GlUtil.CheckGlError("glReadPixels");
             buf.Rewind();
 
-            //Stream bos = null;
-            //    try {
-            //        bos = new OutputStreamWriter(new FileStream(filename, FileMode.Create));
-            //        Bitmap bmp = Bitmap.CreateBitmap(width, height, Bitmap.Config.Argb8888);
-            //bmp.CopyPixelsFromBuffer(buf);
-            //        bmp.Compress(Bitmap.CompressFormat.Png, 90, bos);
-            //        bmp.Recycle();
-            //    } finally {
-            //        if (bos != null) bos.Close();
-            //    }
-            Log.Debug(Tag, "Saved " + width + "x" + height + " frame as '" + filename + "'");
+            byte[] data;
+            using (var ms = new MemoryStream())
+            {
+                using (var tmpBmp = Bitmap.CreateBitmap(width, height, Bitmap.Config.Argb8888))
+                {
+                    tmpBmp.CopyPixelsFromBuffer(buf);
+                    var transform = new Matrix();
+                    transform.PreScale(1f, -1f);
+                    using (var resultBmp = Bitmap.CreateBitmap(tmpBmp, 0, 0, width, height, transform, true))
+                    {
+                        resultBmp.Compress(Bitmap.CompressFormat.Jpeg, 100, ms);
+                        resultBmp.Recycle();
+                    }
+                    tmpBmp.Recycle();
+                }
+
+                data = ms.GetBuffer();
+            }
+
+            return data;
         }
     }
 }

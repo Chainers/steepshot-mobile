@@ -7,7 +7,6 @@ using Android.Graphics;
 using Android.Graphics.Drawables;
 using Android.Locations;
 using Android.Media;
-using Android.Opengl;
 using Android.OS;
 using Android.Provider;
 using Android.Runtime;
@@ -41,6 +40,8 @@ namespace Steepshot.Fragment
         private readonly AudioEncoderConfig _audioEncoderConfig;
         private GradientDrawable _btnsBackground;
         private float _fingerDist;
+        private readonly int _maxVideoDurationMs = Constants.VideoMaxDuration * 1000 / 2;
+        private DateTime _recordingStart;
 
         private Location _currentLocation;
         private LocationManager _locationManager;
@@ -48,7 +49,7 @@ namespace Steepshot.Fragment
 
         [BindView(Resource.Id.top)] private RelativeLayout _topPanel;
         [BindView(Resource.Id.camera_preview_afl)] private AspectFrameLayout _aspectFrameLayout;
-        [BindView(Resource.Id.camera_preview_surface)] private GLSurfaceView _glSurface;
+        [BindView(Resource.Id.camera_preview_surface)] private SurfaceView _surface;
         [BindView(Resource.Id.tabs)] private TabLayout _tabs;
         [BindView(Resource.Id.gallery_icon)] private CircleImageView _galleryBtn;
         [BindView(Resource.Id.shot_btn)] private CameraShotButton _shotBtn;
@@ -64,9 +65,9 @@ namespace Steepshot.Fragment
         {
             _directory = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDcim);
             _muxerWrapper = new MuxerWrapper();
-            _videoEncoderConfig = new VideoEncoderConfig(_muxerWrapper, 720, 720, "video/avc", 30, 10, 2500000);
-            _audioEncoderConfig = new AudioEncoderConfig(_muxerWrapper, "audio/mp4a-latm", 44100, 1024, 64000);
-            _muxerWrapper.VideoRecorded = VideoRecorded;
+            _videoEncoderConfig = new VideoEncoderConfig(_muxerWrapper, 720, 720, "video/avc", 30, 2, 3000000, Constants.VideoMaxDuration);
+            _audioEncoderConfig = new AudioEncoderConfig(_muxerWrapper, "audio/mp4a-latm", 44100, 2048, 128000, ChannelIn.Mono, Constants.VideoMaxDuration);
+            _muxerWrapper.MuxingFinished += VideoRecorded;
         }
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -84,7 +85,7 @@ namespace Steepshot.Fragment
             _btnsBackground.SetCornerRadius(TypedValue.ApplyDimension(ComplexUnitType.Dip, 100, Activity.Resources.DisplayMetrics));
             _btnsBackground.SetColors(new int[] { Color.Black, Color.Black });
 
-            _cameraManager = new CameraManager(Activity, _glSurface)
+            _cameraManager = new CameraManager(Activity, _surface)
             {
                 SupportFlashModes = new[]
                     {Camera.Parameters.FlashModeAuto, Camera.Parameters.FlashModeOn, Camera.Parameters.FlashModeOff}
@@ -105,7 +106,8 @@ namespace Steepshot.Fragment
             _closeBtn.Click += CloseBtnOnClick;
             _flashBtn.Click += SetFlashButton;
             _revertBtn.Click += RevertBtnOnClick;
-            _glSurface.Touch += GlSurfaceOnTouch;
+            _galleryBtn.Click += GalleryBtnOnClick;
+            _surface.Touch += SurfaceOnTouch;
             _gpsButton.Click += GpsButtonOnClick;
         }
 
@@ -113,13 +115,13 @@ namespace Steepshot.Fragment
         {
             base.OnDetach();
             Cheeseknife.Reset(this);
-            _cameraManager.OnDestroyed();
         }
 
         public override void OnPause()
         {
             base.OnPause();
             _cameraManager.OnPause();
+            _muxerWrapper.Interrupt();
         }
 
         public override void OnResume()
@@ -211,7 +213,7 @@ namespace Steepshot.Fragment
 
         private void SetUiEnable(bool enable)
         {
-            _gpsButton.Enabled = _flashBtn.Enabled = _revertBtn.Enabled = _shotBtn.Enabled = enable;
+            _tabs.Enabled = _gpsButton.Enabled = _flashBtn.Enabled = _revertBtn.Enabled = _shotBtn.Enabled = enable;
         }
 
         private async void CameraModeChanged(object sender, TabLayout.TabSelectedEventArgs e)
@@ -301,6 +303,12 @@ namespace Steepshot.Fragment
             SetUiEnable(true);
         }
 
+        private void GalleryBtnOnClick(object sender, EventArgs e)
+        {
+            SetUiEnable(false);
+            ((BaseActivity)Activity).OpenNewContentFragment(new GalleryFragment());
+        }
+
         private async void ShotBtnOnTouch(object sender, View.TouchEventArgs e)
         {
             switch (e.Event.Action)
@@ -310,19 +318,19 @@ namespace Steepshot.Fragment
                     if (_cameraConfig == CameraConfig.Video && !_cameraManager.RecordingEnabled)
                     {
                         _muxerWrapper.Reset($"{_directory}/{Guid.NewGuid()}.mp4", MuxerOutputType.Mpeg4);
-                        var startTime = DateTime.Now;
                         _cameraManager.ToggleRecording();
+                        _recordingStart = DateTime.Now;
                         while (_cameraManager.RecordingEnabled)
                         {
-                            var elapsedTime = DateTime.Now - startTime;
-                            _shotBtn.Progress = (float)(100 * elapsedTime.TotalSeconds / Constants.VideoMaxDuration);
-                            if (elapsedTime.TotalSeconds >= Constants.VideoMaxDuration)
+                            var elapsedTime = DateTime.Now - _recordingStart;
+                            _shotBtn.Progress = (float)(100 * elapsedTime.TotalMilliseconds / _maxVideoDurationMs);
+                            if (elapsedTime.TotalMilliseconds >= _maxVideoDurationMs)
                             {
                                 _shotBtn.Touch -= ShotBtnOnTouch;
-                                OnVideoRecorded();
+                                FinishRecording();
                                 return;
                             }
-                            await Task.Delay(100);
+                            await Task.Delay(25);
                         }
                     }
                     break;
@@ -331,7 +339,7 @@ namespace Steepshot.Fragment
                     if (_cameraConfig == CameraConfig.Photo)
                         TakePhoto();
                     else
-                        OnVideoRecorded();
+                        FinishRecording();
                     break;
             }
         }
@@ -371,13 +379,20 @@ namespace Steepshot.Fragment
             }
         }
 
-        private void OnVideoRecorded()
+        private void FinishRecording()
         {
-            _shotBtn.Visibility = ViewStates.Gone;
-            _shotBtnLoading.Visibility = ViewStates.Visible;
-            if (_cameraManager.RecordingEnabled)
+            if ((DateTime.Now - _recordingStart).TotalSeconds < Constants.VideoMinDuration)
             {
-                _cameraManager.ToggleRecording();
+                if (_cameraManager.RecordingEnabled)
+                    _cameraManager.ToggleRecording();
+                _shotBtn.Progress = 0;
+            }
+            else
+            {
+                _shotBtn.Visibility = ViewStates.Gone;
+                _shotBtnLoading.Visibility = ViewStates.Visible;
+                if (_cameraManager.RecordingEnabled)
+                    _cameraManager.ToggleRecording(true);
             }
         }
 
@@ -424,7 +439,7 @@ namespace Steepshot.Fragment
             });
         }
 
-        private void GlSurfaceOnTouch(object sender, View.TouchEventArgs e)
+        private void SurfaceOnTouch(object sender, View.TouchEventArgs e)
         {
             SetUiEnable(false);
             var camParams = _cameraManager?.Parameters;

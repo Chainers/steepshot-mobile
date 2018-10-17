@@ -6,48 +6,59 @@ using Android.Graphics;
 using Android.Hardware;
 using Android.Media;
 using Android.Opengl;
+using Android.Views;
+using Java.IO;
 using Java.Lang;
 using Steepshot.CameraGL.Audio;
 using Steepshot.CameraGL.Encoder;
+using Steepshot.CameraGL.Gles;
 using Steepshot.Utils;
 using Camera = Android.Hardware.Camera;
-using Exception = Java.Lang.Exception;
 using Object = Java.Lang.Object;
+using ThreadPriority = Android.OS.ThreadPriority;
+using VideoEncoder = Steepshot.CameraGL.Encoder.VideoEncoder;
 
 namespace Steepshot.CameraGL
 {
-    public class CameraManager : Object, SurfaceTexture.IOnFrameAvailableListener
+    public class CameraManager : Object, SurfaceTexture.IOnFrameAvailableListener, ISurfaceHolderCallback
     {
         public List<CameraInfo> SupportedCameras { get; }
         public CameraInfo CurrentCamera { get; private set; }
         public Camera.Parameters Parameters => _camera?.GetParameters();
         public string[] SupportFlashModes { get; set; }
-        public bool RecordingEnabled { get; private set; }
         private Camera _camera;
         private CameraConfig _cameraConfig;
         private readonly CameraOrientationEventListener _cameraOrientationEventListener;
-        private readonly CameraHandler _cameraHandler;
-        private readonly GLSurfaceView _gLView;
-        private readonly VideoEncoderWrapper _videoEncoderWrapper;
-        private readonly AudioEncoderWrapper _audioEncoderWrapper;
-        private readonly CameraSurfaceRenderer _renderer;
-        private readonly AudioRecorderWrapper _audioRecorderWrapper;
-        private bool _isGlInitialized;
-        private int _cameraPreviewWidth;
-        private int _cameraPreviewHeight;
+        private readonly SurfaceView _surface;
 
-        public CameraManager(Context context, GLSurfaceView gLView)
+        public bool RecordingEnabled { get; private set; }
+
+        private EglCore _eglCore;
+        private WindowSurface _displaySurface;
+        private SurfaceTexture _cameraTexture;
+        private Texture2DProgram _texture2DProgram;
+        private FullFrameRect _fullFrame;
+        private WindowSurface _encoderSurface;
+        private bool _encoderHasSurface;
+        private readonly float[] _tmpMatrix = new float[16];
+        private int _textureId;
+        private int _previewWidth;
+        private int _previewHeight;
+        private int _encoderWidth;
+        private int _encoderHeight;
+
+        private readonly VideoEncoder _videoEncoder;
+        private readonly AudioRecorderWrapper _audioRecorder;
+
+        public CameraManager(Context context, SurfaceView surface)
         {
-            _gLView = gLView;
+            Android.OS.Process.SetThreadPriority(ThreadPriority.Video);
+            _surface = surface;
 
             _cameraOrientationEventListener = new CameraOrientationEventListener(context, SensorDelay.Normal);
-            _cameraHandler = new CameraHandler(this);
 
-            _videoEncoderWrapper = new VideoEncoderWrapper();
-            _renderer = new CameraSurfaceRenderer(_cameraHandler, _videoEncoderWrapper);
-
-            _audioEncoderWrapper = new AudioEncoderWrapper();
-            _audioRecorderWrapper = new AudioRecorderWrapper();
+            _videoEncoder = new VideoEncoder();
+            _audioRecorder = new AudioRecorderWrapper();
 
             SupportedCameras = new List<CameraInfo>();
 
@@ -67,18 +78,8 @@ namespace Steepshot.CameraGL
 
             CurrentCamera = SupportedCameras.Find(x => x.Info.Facing == CameraFacing.Back);
             _cameraOrientationEventListener.OrientationChanged += CameraOrientationEventListenerOnOrientationChanged;
-        }
 
-        private void InitGl()
-        {
-            if (_isGlInitialized)
-                return;
-
-            _gLView.SetEGLContextClientVersion(2); // select GLES 2.0 
-            _gLView.SetRenderer(_renderer);
-            _gLView.RenderMode = Rendermode.WhenDirty;
-
-            _isGlInitialized = true;
+            _surface.Holder.AddCallback(this);
         }
 
         public void ReConfigure(CameraInfo cameraInfo, VideoEncoderConfig videoConfig, AudioEncoderConfig audioConfig)
@@ -94,14 +95,19 @@ namespace Steepshot.CameraGL
 
             if (videoConfig != null)
             {
-                _videoEncoderWrapper.Configure(videoConfig);
+                if (_videoEncoder.Config != videoConfig)
+                {
+                    _videoEncoder.Configure(videoConfig);
+                    _encoderWidth = videoConfig.Width;
+                    _encoderHeight = videoConfig.Height;
+                }
+
                 _cameraConfig = CameraConfig.Photo;
             }
 
             if (audioConfig != null)
             {
-                _audioEncoderWrapper.Configure(audioConfig);
-                _audioRecorderWrapper.Configure(new AudioRecorderConfig(_audioEncoderWrapper, ChannelIn.Mono, Encoding.Pcm16bit));
+                _audioRecorder.Configure(new AudioRecorderConfig(audioConfig, Encoding.Pcm16bit));
                 _cameraConfig = CameraConfig.Video;
             }
 
@@ -110,16 +116,18 @@ namespace Steepshot.CameraGL
             if (_cameraConfig == CameraConfig.Photo)
             {
                 camParams.SetRecordingHint(false);
-                if (camParams.SupportedFocusModes.Contains(Camera.Parameters.FocusModeAuto))
-                    camParams.FocusMode = Camera.Parameters.FocusModeAuto;
-                else if (camParams.SupportedFocusModes.Contains(Camera.Parameters.FocusModeContinuousPicture))
+                if (camParams.SupportedFocusModes.Contains(Camera.Parameters.FocusModeContinuousPicture))
                     camParams.FocusMode = Camera.Parameters.FocusModeContinuousPicture;
+                else if (camParams.SupportedFocusModes.Contains(Camera.Parameters.FocusModeAuto))
+                    camParams.FocusMode = Camera.Parameters.FocusModeAuto;
             }
             else
             {
                 camParams.SetRecordingHint(true);
                 if (camParams.SupportedFocusModes.Contains(Camera.Parameters.FocusModeContinuousVideo))
                     camParams.FocusMode = Camera.Parameters.FocusModeContinuousVideo;
+                else if (camParams.SupportedFocusModes.Contains(Camera.Parameters.FocusModeAuto))
+                    camParams.FocusMode = Camera.Parameters.FocusModeAuto;
                 CameraUtils.ChooseFixedPreviewFps(camParams, 30000);
             }
 
@@ -152,8 +160,9 @@ namespace Steepshot.CameraGL
             }
 
             var camParams = Parameters;
-            camParams.SetPreviewSize(camParams.PreferredPreviewSizeForVideo.Width,
-                camParams.PreferredPreviewSizeForVideo.Height);
+            CameraUtils.ChoosePreviewSize(camParams, 1280, 720);
+            _previewWidth = camParams.PreviewSize.Width;
+            _previewHeight = camParams.PreviewSize.Height;
 
             var supportedFlashModes = camParams.SupportedFlashModes;
 
@@ -165,9 +174,6 @@ namespace Steepshot.CameraGL
             }
 
             _camera.SetParameters(camParams);
-
-            _cameraPreviewWidth = camParams.PreviewSize.Width;
-            _cameraPreviewHeight = camParams.PreviewSize.Height;
 
             _camera.SetDisplayOrientation(90);
         }
@@ -182,24 +188,29 @@ namespace Steepshot.CameraGL
             }
         }
 
-        public void ToggleRecording()
+        public void ToggleRecording(bool saveIfFinish = false)
         {
-            RecordingEnabled = !RecordingEnabled;
-            _gLView.QueueEvent(() =>
+            RecordingEnabled = _videoEncoder.ChangeRecordingState(saveIfFinish);
+            if (RecordingEnabled)
             {
-                _renderer.ChangeRecordingState(RecordingEnabled);
-            });
-            _audioRecorderWrapper.ChangeRecordingState(RecordingEnabled);
+                _encoderSurface = new WindowSurface(_eglCore, _videoEncoder.InputSurface, true);
+                _encoderHasSurface = true;
+            }
+            else
+            {
+                _encoderSurface?.ReleaseEglSurface();
+                _encoderSurface?.Release();
+                _encoderSurface = null;
+                _encoderHasSurface = false;
+            }
+            _audioRecorder.ChangeRecordingState(RecordingEnabled);
         }
 
         public void TakePicture(Camera.IShutterCallback shutterCallback, Camera.IPictureCallback pictureCallbackRaw, Camera.IPictureCallback pictureCallbackJpeg)
         {
-            _camera?.TakePicture(shutterCallback, pictureCallbackRaw, pictureCallbackJpeg);
-        }
-
-        public void AutoFocus(Camera.IAutoFocusCallback cb)
-        {
-            _camera?.AutoFocus(cb);
+            var data = _displaySurface.GetFrame();
+            pictureCallbackJpeg?.OnPictureTaken(data, _camera);
+            //_camera?.TakePicture(shutterCallback, pictureCallbackRaw, pictureCallbackJpeg);
         }
 
         public void CancelAutoFocus()
@@ -212,24 +223,30 @@ namespace Steepshot.CameraGL
             _camera?.SetParameters(parameters);
         }
 
-        public void HandleSetSurfaceTexture(SurfaceTexture st)
-        {
-            st.SetOnFrameAvailableListener(this);
-            try
-            {
-                _camera.SetPreviewTexture(st);
-            }
-            catch (Exception ioe)
-            {
-                throw new RuntimeException(ioe);
-            }
-
-            _camera.StartPreview();
-        }
-
         public void OnFrameAvailable(SurfaceTexture surfaceTexture)
         {
-            _gLView.RequestRender();
+            if (_eglCore == null)
+                return;
+
+            _displaySurface.MakeCurrent();
+            _cameraTexture.UpdateTexImage();
+            _cameraTexture.GetTransformMatrix(_tmpMatrix);
+
+            GLES20.GlViewport(0, 0, _surface.Width, _surface.Height);
+            _texture2DProgram.AspectRatio = 1;
+            _fullFrame.DrawFrame(_textureId, _tmpMatrix);
+            _displaySurface.SwapBuffers();
+
+            if (_encoderHasSurface)
+            {
+                _encoderSurface.MakeCurrent();
+                GLES20.GlViewport(0, 0, _encoderWidth, _encoderHeight);
+                _texture2DProgram.AspectRatio = _previewWidth / (float)_previewHeight;
+                _fullFrame.DrawFrame(_textureId, _tmpMatrix);
+                _videoEncoder.FrameAvailable();
+                _encoderSurface.SetPresentationTime(_cameraTexture.Timestamp);
+                _encoderSurface.SwapBuffers();
+            }
         }
 
         private void CameraOrientationEventListenerOnOrientationChanged(int orientation)
@@ -255,28 +272,81 @@ namespace Steepshot.CameraGL
         {
             _cameraOrientationEventListener.Disable();
             Release();
-            _gLView.QueueEvent(() =>
-                _renderer?.NotifyPausing());
-            _gLView.OnPause();
+
+            _videoEncoder?.Stop(true);
+
+            if (_cameraTexture != null)
+            {
+                _cameraTexture.Release();
+                _cameraTexture = null;
+            }
+            if (_displaySurface != null)
+            {
+                _displaySurface.Release();
+                _displaySurface = null;
+            }
+            if (_fullFrame != null)
+            {
+                _fullFrame.Release(false);
+                _fullFrame = null;
+            }
+            if (_eglCore != null)
+            {
+                _eglCore.Release();
+                _eglCore = null;
+            }
         }
 
         public void OnResume()
         {
-            InitGl();
             OpenCamera();
-            _gLView.QueueEvent(() =>
-            {
-                _renderer.SetCameraPreviewSize(_cameraPreviewWidth, _cameraPreviewHeight);
-            });
-            _gLView.OnResume();
+
+            if (_eglCore != null)
+                StartPreview();
+            else if (_surface.Holder.Surface.IsValid)
+                SurfaceCreated(_surface.Holder);
+
             _cameraOrientationEventListener.Enable();
         }
 
-        public void OnDestroyed()
+        public void SurfaceChanged(ISurfaceHolder holder, Format format, int width, int height)
         {
-            _cameraOrientationEventListener.Disable();
-            _cameraHandler.InvalidateHandler();
-            Release();
+        }
+
+        public void SurfaceCreated(ISurfaceHolder holder)
+        {
+            _eglCore = new EglCore(null, EglCore.FlagRecordable);
+            _displaySurface = new WindowSurface(_eglCore, holder.Surface, false);
+            _displaySurface.MakeCurrent();
+
+            _texture2DProgram = new Texture2DProgram();
+            _fullFrame = new FullFrameRect(_texture2DProgram);
+            _textureId = _fullFrame.CreateTextureObject();
+            _cameraTexture = new SurfaceTexture(_textureId);
+            _cameraTexture.SetOnFrameAvailableListener(this);
+
+            StartPreview();
+        }
+
+        private void StartPreview()
+        {
+            if (_camera != null)
+            {
+                try
+                {
+                    _camera.SetPreviewTexture(_cameraTexture);
+                }
+                catch (IOException ioe)
+                {
+                    throw new RuntimeException(ioe);
+                }
+
+                _camera.StartPreview();
+            }
+        }
+
+        public void SurfaceDestroyed(ISurfaceHolder holder)
+        {
         }
     }
 }

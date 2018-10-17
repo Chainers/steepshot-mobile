@@ -2,7 +2,8 @@
 using System.Threading.Tasks;
 using Android.Media;
 using Java.Lang;
-using Steepshot.CameraGL.Encoder;
+using AudioEncoder = Steepshot.CameraGL.Encoder.AudioEncoder;
+using ThreadPriority = Android.OS.ThreadPriority;
 
 namespace Steepshot.CameraGL.Audio
 {
@@ -10,7 +11,7 @@ namespace Steepshot.CameraGL.Audio
     {
         private AudioRecorderConfig Config { get; set; }
         private AudioRecord _audioRecord;
-        private AudioEncoderWrapper _encoderWrapper;
+        private AudioEncoder _audioEncoder;
         private CancellationTokenSource _cts;
         private byte[] _buffer;
         private int _samplesPerFrame;
@@ -40,7 +41,6 @@ namespace Steepshot.CameraGL.Audio
 
         private async void StartRecording(CancellationToken ct)
         {
-            _encoderWrapper = Config.AudioEncoderWrapper;
             _samplesPerFrame = Config.SamplesPerFrame;
             var bufferSize = AudioRecord.GetMinBufferSize(Config.SampleRate, Config.ChanelConfig, Config.AudioFormat);
             if (bufferSize < 0)
@@ -49,21 +49,26 @@ namespace Steepshot.CameraGL.Audio
             }
 
             _buffer = new byte[_samplesPerFrame];
-            _audioRecord = new AudioRecord(AudioSource.Mic, Config.SampleRate, ChannelIn.Mono, Config.AudioFormat, bufferSize);
+            _audioRecord = new AudioRecord(AudioSource.Camcorder, Config.SampleRate, Config.ChanelConfig, Config.AudioFormat, bufferSize);
+
+            _audioEncoder = new AudioEncoder();
+            _audioEncoder.Configure(Config.AudioEncoderConfig);
+            _audioEncoder.Start();
+
+            if (_audioRecord.State != State.Initialized)
+                return;
+
+            _audioRecord.StartRecording();
 
             await Task.Run(() =>
             {
-                _encoderWrapper.StartRecording();
-
-                if (_audioRecord.State != State.Initialized)
-                    return;
-
-                _audioRecord.StartRecording();
+                Android.OS.Process.SetThreadPriority(ThreadPriority.UrgentAudio);
 
                 while (!ct.IsCancellationRequested)
                 {
                     _audioRecord.Read(_buffer, 0, _samplesPerFrame);
-                    _encoderWrapper.Poll(_buffer, JavaSystem.NanoTime() / 1000L);
+                    _audioEncoder.Poll(_buffer, JavaSystem.NanoTime() / 1000L);
+                    _audioEncoder.DrainEncoder(false);
                 }
             }, ct);
 
@@ -72,7 +77,7 @@ namespace Steepshot.CameraGL.Audio
 
         private void StopRecording()
         {
-            _encoderWrapper.StopRecording();
+            _audioEncoder.Stop(true);
             _audioRecord.Stop();
             _audioRecord.Release();
             _audioRecord = null;

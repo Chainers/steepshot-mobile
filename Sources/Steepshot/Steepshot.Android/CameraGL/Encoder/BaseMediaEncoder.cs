@@ -1,17 +1,138 @@
-﻿using System.Diagnostics;
+﻿using System.Threading;
 using Android.Media;
+using Android.OS;
 using Java.Lang;
+using Object = Java.Lang.Object;
+using Thread = Java.Lang.Thread;
 
 namespace Steepshot.CameraGL.Encoder
 {
-    public abstract class BaseMediaEncoder
+    public abstract class BaseMediaEncoder : Object, IRunnable
     {
-        public abstract MediaFormat Format { get; }
+        public BaseEncoderConfig Config { get; protected set; }
+        public abstract MediaFormat Format { get; protected set; }
         public abstract EncoderType Type { get; }
+        public abstract CircularEncoderBuffer CircularBuffer { get; protected set; }
+        public MediaFormat OutputFormat { get; private set; }
         protected int TimeoutUsec => 0;
         protected MediaCodec Codec;
-        protected MuxerWrapper MuxerWrapper;
-        public int TrackIndex;
+        protected MuxerWrapper Muxer;
+
+        protected Handler Handler;
+        protected readonly object Lock = new object();
+        protected bool Ready;
+        protected bool Running;
+
+        public virtual void Start()
+        {
+            InitCodec();
+
+            lock (Lock)
+            {
+                if (Running)
+                {
+                    return;
+                }
+
+                Running = true;
+                new Thread(this).Start();
+                while (!Ready)
+                {
+                    try
+                    {
+                        Monitor.Wait(Lock);
+                    }
+                    catch (InterruptedException)
+                    {
+                        // ignore
+                    }
+                }
+            }
+
+            Handler.Post(() =>
+            {
+                Codec.Start();
+            });
+        }
+
+        public virtual void Stop(bool save = false)
+        {
+            lock (Lock)
+            {
+                if (!Ready)
+                {
+                    return;
+                }
+            }
+
+            Handler.Post(() =>
+            {
+                if (save)
+                {
+                    DrainEncoder(true);
+                    Muxer.MuxingFinished += MuxingFinished;
+                    Muxer.AddTrack(this);
+                    Looper.MyLooper().Quit();
+                    return;
+                }
+
+                Release();
+                Looper.MyLooper().Quit();
+            });
+        }
+
+        protected void MuxingFinished(string path)
+        {
+            Muxer.MuxingFinished -= MuxingFinished;
+            Release();
+        }
+
+        public void FrameAvailable()
+        {
+            Handler.Post(() =>
+            {
+                DrainEncoder(false);
+            });
+        }
+
+        public void Run()
+        {
+            Looper.Prepare();
+            Handler = new Handler();
+            lock (Lock)
+            {
+                Ready = true;
+                Monitor.Pulse(Lock);
+            }
+
+            Looper.Loop();
+
+            lock (Lock)
+            {
+                Ready = Running = false;
+                Handler = null;
+            }
+        }
+
+        private bool IsRunning()
+        {
+            lock (Lock)
+            {
+                return Running;
+            }
+        }
+
+        public bool ChangeRecordingState(bool saveIfFinish)
+        {
+            if (IsRunning())
+            {
+                Stop(saveIfFinish);
+                return false;
+            }
+
+            Start();
+            return true;
+        }
 
         protected abstract void SignalEndOfInputStream();
 
@@ -35,14 +156,7 @@ namespace Steepshot.CameraGL.Encoder
                 }
                 else if (encoderStatus == (int)MediaCodecInfoState.OutputFormatChanged)
                 {
-                    if (MuxerWrapper.IsMuxing())
-                    {
-                        throw new RuntimeException("format changed twice");
-                    }
-
-                    var newFormat = Codec.OutputFormat;
-
-                    TrackIndex = MuxerWrapper.AddTrack(this, newFormat);
+                    OutputFormat = Codec.OutputFormat;
                 }
                 else if (encoderStatus >= 0)
                 {
@@ -60,13 +174,9 @@ namespace Steepshot.CameraGL.Encoder
 
                     if (bufferInfo.Size != 0)
                     {
-                        if (MuxerWrapper.IsMuxing())
-                        {
-                            encodedData.Position(bufferInfo.Offset);
-                            encodedData.Limit(bufferInfo.Offset + bufferInfo.Size);
-                            Debug.WriteLine(Type + "        " + bufferInfo.PresentationTimeUs);
-                            MuxerWrapper.WriteSampleData(TrackIndex, encodedData, bufferInfo);
-                        }
+                        encodedData.Position(bufferInfo.Offset);
+                        encodedData.Limit(bufferInfo.Offset + bufferInfo.Size);
+                        CircularBuffer.Add(encodedData, (int)bufferInfo.Flags, bufferInfo.PresentationTimeUs);
                     }
 
                     Codec.ReleaseOutputBuffer(encoderStatus, false);
@@ -79,7 +189,22 @@ namespace Steepshot.CameraGL.Encoder
             }
         }
 
-        public virtual void Release()
+        protected abstract void InitCodec();
+
+        public virtual void Configure(BaseEncoderConfig config)
+        {
+            lock (Lock)
+            {
+                if (Running)
+                {
+                    Stop();
+                }
+            }
+
+            Config = config;
+        }
+
+        protected virtual void Release()
         {
             if (Codec != null)
             {
@@ -88,7 +213,11 @@ namespace Steepshot.CameraGL.Encoder
                 Codec = null;
             }
 
-            MuxerWrapper.StopTrack(this);
+            if (CircularBuffer != null)
+            {
+                CircularBuffer.Release();
+                CircularBuffer = null;
+            }
         }
     }
 }
