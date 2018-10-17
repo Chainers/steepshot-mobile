@@ -413,7 +413,7 @@ namespace Steepshot.iOS.Views
                         AppDelegate.User.WatchedUsers.Remove(_userData.Username);
 
                     if (powerText != null)
-                        powerText.Text = AppDelegate.Localization.GetText(LocalizationKeys.PowerOfLike, _userData.VotingPower);
+                        powerText.Text = AppDelegate.Localization.GetText(LocalizationKeys.Mana, _userData.VotingPower);
 
                     if (!_refreshControl.Refreshing)
                     {
