@@ -56,25 +56,9 @@ namespace Steepshot.Core.Models.Requests
         [JsonProperty]
         public bool ShowFooter { get; }
 
-        private MediaModel[] _media;
-
         [JsonProperty]
         [Required(ErrorMessage = nameof(LocalizationKeys.EmptyFileField))]
-        public MediaModel[] Media
-        {
-            get
-            {
-                return _media;
-            }
-            set
-            {
-                foreach (var item in value)
-                {
-                    item.Url = item.Url.Replace("http:", "https:");
-                }
-                _media = value;
-            }
-        }
+        public MediaModel[] Media { get; set; }
 
         [JsonProperty]
         [Required(ErrorMessage = nameof(LocalizationKeys.EmptyTitleField))]
