@@ -111,7 +111,7 @@ About 6 inches away</string>
     <string name="FlagMessage">You sent a complaint to this post.</string>
     <string name="DeleteAlertTitle">Are you sure you want to delete this post?</string>
     <string name="DeleteAlertMessage">This action can not be undone.</string>
-    <string name="PowerOfLike">Mana {0}%</string>
+    <string name="Mana">Mana {0}%</string>
     <string name="TitleForAcceptToS">By pressing any of the buttons you agree with our &lt;a href=\"https://steepshot.org/terms-of-service\"&gt;Terms of Service&lt;/a&gt; &amp; &lt;a href=\"https://steepshot.org/privacy-policy\"&gt;Privacy policy&lt;/a&gt;</string>
     <string name="PostDelay">Post has been successfully created. If you don't see the post in your profile, please give it a few minutes to sync from the blockchain</string>
     <string name="SignInButtonText">Sign in with {0}</string>
