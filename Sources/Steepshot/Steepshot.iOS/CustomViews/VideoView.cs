@@ -115,6 +115,9 @@ namespace Steepshot.iOS.CustomViews
             if (_isRegistered)
             {
                 item?.RemoveObserver(this, (NSString)ObserveKey);
+                item?.RemoveObserver(this, (NSString)ObserveBufferEmptyKey);
+                item?.RemoveObserver(this, (NSString)ObserveLikelyToKeepUpKey);
+                item?.RemoveObserver(this, (NSString)ObserveBufferFullKey);
                 _isRegistered = false;
             }
 
