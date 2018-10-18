@@ -34,11 +34,9 @@ namespace Steepshot.iOS.Views
         private UIImageView _statusImage;
         private TimeSpan _postingLimit;
         private PlagiarismResult _plagiarismResult;
-        private nfloat _photoViewSide;
         private bool _isSpammer;
 
         protected List<Tuple<NSDictionary, UIImage>> ImageAssets;
-        protected nfloat SeparatorMargin = 30;
         protected int photoMargin;
 
         protected UIScrollView mainScroll;
@@ -160,37 +158,11 @@ namespace Steepshot.iOS.Views
         protected virtual void GetPostSize()
         {
             if (ImageAssets != null)
-                GetPostSize(ImageAssets[0].Item2.Size.Width, ImageAssets[0].Item2.Size.Height, ImageAssets.Count);
+                _cellSize = CellHeightCalculator.GetDescriptionPostSize(ImageAssets[0].Item2.Size.Width, ImageAssets[0].Item2.Size.Height, ImageAssets.Count);
             else
             {
                 var videoTrack = _videoAsset.TracksWithMediaType(AVMediaType.Video).First().NaturalSize;
-                GetPostSize(videoTrack.Width, videoTrack.Height, 1);
-            }
-        }
-
-        protected void GetPostSize(nfloat width, nfloat height, int listCount)
-        {
-            if (height > width)
-            {
-                var ratio = width / height;
-                if (listCount == 1)
-                {
-                    photoMargin = 15;
-                    _cellSize = new CGSize(UIScreen.MainScreen.Bounds.Width - SeparatorMargin * 2, (UIScreen.MainScreen.Bounds.Width - SeparatorMargin * 2) / ratio);
-                }
-                else
-                    _cellSize = new CGSize(cellSide * ratio, cellSide);
-            }
-            else
-            {
-                var ratio = height / width;
-                if (listCount == 1)
-                {
-                    photoMargin = 15;
-                    _cellSize = new CGSize(UIScreen.MainScreen.Bounds.Width - photoMargin * 2, (UIScreen.MainScreen.Bounds.Width - photoMargin * 2) * ratio);
-                }
-                else
-                    _cellSize = new CGSize(UIScreen.MainScreen.Bounds.Width - sectionInset * 2, (UIScreen.MainScreen.Bounds.Width - sectionInset * 2) * ratio);
+                _cellSize = CellHeightCalculator.GetDescriptionPostSize(videoTrack.Width, videoTrack.Height, 1);
             }
         }
 
