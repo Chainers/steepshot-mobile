@@ -13,9 +13,13 @@ namespace Steepshot.iOS.CustomViews
     public class VideoView : UIView
     {
         private const string ObserveKey = "status";
+        private const string ObserveBufferEmptyKey = "playbackBufferEmpty";
+        private const string ObserveLikelyToKeepUpKey = "playbackLikelyToKeepUp";
+        private const string ObserveBufferFullKey = "playbackBufferFull";
         private AVPlayerItem item;
         private NSObject notificationToken;
         private UILabel _timerLabel;
+        private UIActivityIndicatorView _videoLoader;
         private bool _isRegistered;
         private bool _shouldPlay;
         private bool _showTimer;
@@ -61,8 +65,15 @@ namespace Steepshot.iOS.CustomViews
             _timerLabel.Hidden = false;
             AddSubview(_timerLabel);
 
+            _videoLoader = new UIActivityIndicatorView();
+            _videoLoader.Color = UIColor.DarkGray;
+            _videoLoader.HidesWhenStopped = true;
+            AddSubview(_videoLoader);
+            _videoLoader.StartAnimating();
+
             _timerLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 20);
             _timerLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Top, 20);
+            _videoLoader.AutoCenterInSuperview();
 
             var interval = new CMTime(1, 1);
             double timeLeft;
@@ -72,7 +83,6 @@ namespace Steepshot.iOS.CustomViews
                 {
                     timeLeft = item.Duration.Seconds - item.CurrentTime.Seconds;
                     _timerLabel.Text = TimeSpan.FromSeconds(timeLeft).ToString("mm\\:ss");
-                    Console.WriteLine("#timer test " + item.Duration.Seconds);
                 }
             });
         }
@@ -112,6 +122,9 @@ namespace Steepshot.iOS.CustomViews
             {
                 item = new AVPlayerItem(url);
                 item.AddObserver(this, (NSString)ObserveKey, NSKeyValueObservingOptions.OldNew, Handle);
+                item.AddObserver(this, (NSString)ObserveBufferEmptyKey, NSKeyValueObservingOptions.OldNew, Handle);
+                item.AddObserver(this, (NSString)ObserveLikelyToKeepUpKey, NSKeyValueObservingOptions.OldNew, Handle);
+                item.AddObserver(this, (NSString)ObserveBufferFullKey, NSKeyValueObservingOptions.OldNew, Handle);
                 _isRegistered = true;
                 Player.ReplaceCurrentItemWithPlayerItem(item);
             }
@@ -121,14 +134,29 @@ namespace Steepshot.iOS.CustomViews
 
         public override void ObserveValue(NSString keyPath, NSObject ofObject, NSDictionary change, IntPtr context)
         {
-            if (_isRegistered)
+            switch (keyPath)
             {
-                item?.RemoveObserver(this, (NSString)ObserveKey);
-                _isRegistered = false;
-            }
+                case ObserveBufferEmptyKey:
+                    _videoLoader?.StartAnimating();
+                    break;
+                case ObserveLikelyToKeepUpKey:
+                case ObserveBufferFullKey:
+                    _videoLoader?.StopAnimating();
+                    break;
+                default:
+                    if (_isRegistered)
+                    {
+                        item?.RemoveObserver(this, (NSString)ObserveKey);
+                        _isRegistered = false;
+                    }
 
-            if (_shouldPlay)
-                Player.Play();
+                    if (_shouldPlay)
+                    {
+                        _videoLoader?.StartAnimating();
+                        Player.Play();
+                    }
+                    break;
+            }
         }
 
         public void Play()
@@ -138,6 +166,7 @@ namespace Steepshot.iOS.CustomViews
                 Player.Status == AVPlayerStatus.ReadyToPlay &&
                 PlayerLayer.ReadyForDisplay)
             {
+                _videoLoader?.StopAnimating();
                 Player.Play();
             }
         }
