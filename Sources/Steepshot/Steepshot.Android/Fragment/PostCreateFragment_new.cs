@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Android.App;
 using Android.Content;
 using Android.Graphics;
 using Android.Media;
@@ -20,7 +21,6 @@ using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Database;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
-using Steepshot.Core.Utils;
 using Steepshot.Services;
 using Steepshot.Utils;
 
@@ -83,11 +83,11 @@ namespace Steepshot.Fragment
             _jobServiceConnection = new JobServiceConnection(this);
             Context.BindService(new Intent(Context, typeof(JobService)), _jobServiceConnection, Bind.AutoCreate);
 
-            InitData();
-            await SearchTextChanged();
+            InitDataAsync();
+            await SearchTextChangedAsync();
         }
 
-        protected virtual async void InitData()
+        protected virtual async Task InitDataAsync()
         {
             if (_isSingleMode)
             {
@@ -124,17 +124,13 @@ namespace Steepshot.Fragment
             if (!isSaved)
             {
                 Context.ShowAlert(LocalizationKeys.PhotoProcessingError, ToastLength.Long);
-                ((BaseActivity)Activity).OnBackPressed();
             }
 
-            await CheckOnSpam();
+            await CheckOnSpamAsync();
             if (!IsInitialized)
                 return;
 
             if (IsSpammer == true)
-                return;
-
-            if (!IsInitialized)
                 return;
 
             _jobId = StartUploadMedia();
@@ -155,7 +151,7 @@ namespace Steepshot.Fragment
                     for (var i = 0; i < Media.Count; i++)
                     {
                         var model = Media[i];
-                        
+
                         if (!string.IsNullOrEmpty(model.TempPath))
                             continue;
 
@@ -328,7 +324,6 @@ namespace Steepshot.Fragment
                 {
                     JobService.DeleteJob(_jobId);
                     Activity.ShowAlert(LocalizationKeys.PhotoUploadError, ToastLength.Long);
-                    ((BaseActivity)Activity).OnBackPressed();
                     return;
                 }
 
@@ -351,22 +346,46 @@ namespace Steepshot.Fragment
             } while (state != JobState.Ready);
 
 
-            await CheckForPlagiarism();
-
+            var operationResult = await Presenter.TryPreparePostAsync(Model);
             if (!IsInitialized)
                 return;
 
-            if (!IsPlagiarism)
+            if (operationResult.IsSuccess)
             {
-                var isCreated = await TryCreateOrEditPost();
-                if (isCreated)
-                    Activity.ShowAlert(LocalizationKeys.PostDelay, ToastLength.Long);
+                if (operationResult.Result.Plagiarism.IsPlagiarism)
+                {
+                    var fragment = new PlagiarismCheckFragment(Media, _galleryAdapter, operationResult.Result.Plagiarism);
+                    fragment.SetTargetFragment(this, 0);
+                    ((BaseActivity)Activity).OpenNewContentFragment(fragment);
+                    PostButton.Text = App.Localization.GetText(LocalizationKeys.PublishButtonText);
+                    return;
+                }
+            }
 
-                JobService.DeleteJob(_jobId);
+            await TryCreateOrEditPost();
+        }
+
+        protected override void OnPostSuccess()
+        {
+            Activity.ShowAlert(LocalizationKeys.PostDelay, ToastLength.Long);
+            JobService.DeleteJob(_jobId);
+        }
+
+        public override async void OnActivityResult(int requestCode, int resultCode, Intent data)
+        {
+            switch (resultCode)
+            {
+                case (int)Result.Ok:
+                    EnablePostAndEdit(false, true);
+                    await TryCreateOrEditPost();
+                    break;
+                case (int)Result.Canceled:
+                    EnabledPost();
+                    break;
             }
         }
 
-        protected async Task CheckOnSpam()
+        protected async Task CheckOnSpamAsync()
         {
             try
             {
@@ -413,35 +432,6 @@ namespace Steepshot.Fragment
             IsSpammer = null;
             EnabledPost();
         }
-        
-        private void CleanCash()
-        {
-            var files = Context.CacheDir.ListFiles();
-            foreach (var file in files)
-                if (file.Path.EndsWith(Constants.Steepshot))
-                    file.Delete();
-        }
-
-        private async Task CheckForPlagiarism()
-        {
-            IsPlagiarism = false;
-            var plagiarismCheck = await Presenter.TryCheckForPlagiarismAsync(Model);
-
-            if (plagiarismCheck.IsSuccess)
-            {
-                if (plagiarismCheck.Result.plagiarism.IsPlagiarism)
-                {
-                    IsPlagiarism = true;
-
-                    var fragment = new PlagiarismCheckFragment(Media, _galleryAdapter, plagiarismCheck.Result.plagiarism);
-                    fragment.SetTargetFragment(this, 0);
-                    ((BaseActivity)Activity).OpenNewContentFragment(fragment);
-
-                    PostButton.Text = App.Localization.GetText(LocalizationKeys.PublishButtonText);
-                }
-            }
-        }
-
 
         public override void OnResume()
         {
@@ -459,12 +449,13 @@ namespace Steepshot.Fragment
 
             base.OnPause();
         }
-        
+
         public override void OnDetach()
         {
             Photos.SetAdapter(null);
             if (IsBound)
             {
+                JobService.DeleteJob(_jobId);
                 Context.UnbindService(_jobServiceConnection);
                 IsBound = false;
             }
@@ -472,6 +463,13 @@ namespace Steepshot.Fragment
             base.OnDetach();
         }
 
+        private void CleanCash()
+        {
+            var files = Context.CacheDir.ListFiles();
+            foreach (var file in files)
+                if (file.Path.EndsWith(Constants.Steepshot))
+                    file.Delete();
+        }
 
         #region Adapter
 

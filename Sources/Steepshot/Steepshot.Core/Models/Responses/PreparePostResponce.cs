@@ -11,6 +11,6 @@ namespace Steepshot.Core.Models.Responses
         public Beneficiary[] Beneficiaries { get; set; }
 
         [JsonProperty("is_plagiarism")]
-        public Plagiarism plagiarism { get; set; }
+        public Plagiarism Plagiarism { get; set; }
     }
 }

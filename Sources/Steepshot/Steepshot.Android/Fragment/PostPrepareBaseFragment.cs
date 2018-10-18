@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Android.App;
 using Android.Content;
 using Android.OS;
 using Android.Support.V7.Widget;
@@ -19,12 +18,10 @@ using Steepshot.Base;
 using Steepshot.Core.Extensions;
 using Steepshot.Core.Facades;
 using Steepshot.Core.Localization;
-using Steepshot.Core.Models;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Presenters;
-using Steepshot.Core.Utils;
 using Steepshot.CustomViews;
 using Steepshot.Utils;
 using Steepshot.Utils.Media;
@@ -254,20 +251,6 @@ namespace Steepshot.Fragment
             //todo nothing
         }
 
-        public override void OnActivityResult(int requestCode, int resultCode, Intent data)
-        {
-            if (resultCode == (int)Result.Ok)
-            {
-                EnablePostAndEdit(false, true);
-                TryCreateOrEditPost();
-            }
-            else if (resultCode == (int)Result.Canceled)
-            {
-                EnabledPost();
-                EnablePostAndEdit(true, true);
-            }
-        }
-
         private void TagLabelOnClick(object sender, EventArgs e)
         {
             AnimateTagsLayout(true);
@@ -381,11 +364,11 @@ namespace Steepshot.Fragment
         {
             Activity?.RunOnUiThread(async () =>
             {
-                await SearchTextChanged();
+                await SearchTextChangedAsync();
             });
         }
 
-        protected async Task SearchTextChanged()
+        protected async Task SearchTextChangedAsync()
         {
             var text = TagEdit.Text;
 

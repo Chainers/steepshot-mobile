@@ -194,24 +194,21 @@ namespace Steepshot.Activity
 
         private void OnSubscriptionsUpdated()
         {
-            RunOnUiThread(() =>
-            {
-                _notificationUpvotesSwitch.Checked = _pushSettings.HasFlag(PushSettings.Upvote);
-                _notificationCommentsUpvotesSwitch.Checked = _pushSettings.HasFlag(PushSettings.UpvoteComment);
-                _notificationFollowingSwitch.Checked = _pushSettings.HasFlag(PushSettings.Follow);
-                _notificationCommentsSwitch.Checked = _pushSettings.HasFlag(PushSettings.Comment);
-                _notificationPostingSwitch.Checked = _pushSettings.HasFlag(PushSettings.User);
-                _notificationTransferSwitch.Checked = _pushSettings.HasFlag(PushSettings.Transfer);
+            _notificationUpvotesSwitch.Checked = _pushSettings.HasFlag(PushSettings.Upvote);
+            _notificationCommentsUpvotesSwitch.Checked = _pushSettings.HasFlag(PushSettings.UpvoteComment);
+            _notificationFollowingSwitch.Checked = _pushSettings.HasFlag(PushSettings.Follow);
+            _notificationCommentsSwitch.Checked = _pushSettings.HasFlag(PushSettings.Comment);
+            _notificationPostingSwitch.Checked = _pushSettings.HasFlag(PushSettings.User);
+            _notificationTransferSwitch.Checked = _pushSettings.HasFlag(PushSettings.Transfer);
 
-                _notificationUpvotesSwitch.CheckedChange += NotificationChange;
-                _notificationCommentsUpvotesSwitch.CheckedChange += NotificationChange;
-                _notificationFollowingSwitch.CheckedChange += NotificationChange;
-                _notificationCommentsSwitch.CheckedChange += NotificationChange;
-                _notificationPostingSwitch.CheckedChange += NotificationChange;
-                _notificationTransferSwitch.CheckedChange += NotificationChange;
+            _notificationUpvotesSwitch.CheckedChange += NotificationChange;
+            _notificationCommentsUpvotesSwitch.CheckedChange += NotificationChange;
+            _notificationFollowingSwitch.CheckedChange += NotificationChange;
+            _notificationCommentsSwitch.CheckedChange += NotificationChange;
+            _notificationPostingSwitch.CheckedChange += NotificationChange;
+            _notificationTransferSwitch.CheckedChange += NotificationChange;
 
-                EnableNotificationSwitch(true);
-            });
+            EnableNotificationSwitch(true);
         }
 
         private void EnableNotificationSwitch(bool isenabled)
