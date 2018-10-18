@@ -19,7 +19,7 @@ namespace Steepshot.Fragment
 
         [BindView(Resource.Id.ratio_switch)] protected ImageButton RatioBtn;
         [BindView(Resource.Id.rotate)] protected ImageButton RotateBtn;
-        [BindView(Resource.Id.video_preview)] protected MediaView VideoPreview;
+        [BindView(Resource.Id.video_preview)] protected MediaView MediaView;
 
         #endregion
 
@@ -53,8 +53,8 @@ namespace Steepshot.Fragment
                     mediaModel
                 };
 
-                VideoPreview.Visibility = ViewStates.Invisible;
-                VideoPreview.MediaSource = mediaModel;
+                MediaView.Visibility = ViewStates.Invisible;
+                MediaView.MediaSource = mediaModel;
             }
             else
             {

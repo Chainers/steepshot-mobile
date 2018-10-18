@@ -12,6 +12,7 @@ using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.CustomViews;
 using Steepshot.Utils;
+using Steepshot.Utils.Media;
 
 namespace Steepshot.Fragment
 {
@@ -21,7 +22,7 @@ namespace Steepshot.Fragment
 #pragma warning disable 0649, 4014
 
         [BindView(Resource.Id.photos)] protected RecyclerView Photos;
-        [BindView(Resource.Id.photo_preview)] protected CropView Preview;
+        [BindView(Resource.Id.video_preview)] protected MediaView MediaView;
         [BindView(Resource.Id.media_preview_container)] protected RoundedRelativeLayout PreviewContainer;
 
 #pragma warning restore 0649, 4014
@@ -54,21 +55,17 @@ namespace Steepshot.Fragment
             }
             else
             {
-                Preview.Visibility = ViewStates.Visible;
+                MediaView.Visibility = ViewStates.Visible;
                 PreviewContainer.Visibility = ViewStates.Visible;
+                PreviewContainer.Radius = Style.CornerRadius5;
+
                 var margin = (int)BitmapUtils.DpToPixel(15, Resources);
                 var previewSize = BitmapUtils.CalculateImagePreviewSize(_editPost.Media[0].Size.Width, _editPost.Media[0].Size.Height, Style.ScreenWidth - margin * 2, int.MaxValue);
                 var layoutParams = new RelativeLayout.LayoutParams(previewSize.Width, previewSize.Height);
                 layoutParams.SetMargins(margin, 0, margin, margin);
                 PreviewContainer.LayoutParameters = layoutParams;
-                PreviewContainer.Radius = Style.CornerRadius5;
 
-                var url = _editPost.Media[0].Thumbnails.Mini;
-                Picasso.With(Activity).Load(url).CenterCrop()
-                    .Resize(PreviewContainer.LayoutParameters.Width, PreviewContainer.LayoutParameters.Height)
-                    .Into(Preview);
-
-                Preview.Touch += PreviewOnTouch;
+                MediaView.MediaSource = _editPost.Media[0];
             }
 
             await OnTagSearchQueryChanged();
@@ -83,12 +80,6 @@ namespace Steepshot.Fragment
             Model.Tags = LocalTagsAdapter.LocalTags.ToArray();
             await TryCreateOrEditPostAsync();
         }
-
-        protected void PreviewOnTouch(object sender, View.TouchEventArgs touchEventArgs)
-        {
-            DescriptionScrollContainer.OnTouchEvent(touchEventArgs.Event);
-        }
-
 
         private void SetEditPost()
         {
