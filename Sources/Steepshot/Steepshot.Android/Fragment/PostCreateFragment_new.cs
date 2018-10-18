@@ -12,6 +12,7 @@ using Android.Support.V4.Content;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
+using CheeseBind;
 using Newtonsoft.Json;
 using Steepshot.Base;
 using Steepshot.Core;
@@ -21,6 +22,7 @@ using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Database;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
+using Steepshot.CustomViews;
 using Steepshot.Services;
 using Steepshot.Utils;
 
@@ -28,6 +30,14 @@ namespace Steepshot.Fragment
 {
     public class PostCreateFragment_new : PostPrepareBaseFragment, IJobServiceContainer
     {
+        #region BindView
+
+        [BindView(Resource.Id.photos)] protected RecyclerView Photos;
+        [BindView(Resource.Id.photo_preview)] protected CropView Preview;
+        [BindView(Resource.Id.media_preview_container)] protected RoundedRelativeLayout PreviewContainer;
+
+        #endregion
+
         private readonly bool _isSingleMode;
         private readonly PreparePostModel _tepmPost;
         private GalleryMediaAdapter _galleryAdapter;
@@ -84,18 +94,15 @@ namespace Steepshot.Fragment
             Context.BindService(new Intent(Context, typeof(JobService)), _jobServiceConnection, Bind.AutoCreate);
 
             InitDataAsync();
-            await SearchTextChangedAsync();
+            OnTagSearchQueryChanged();
         }
 
         protected virtual async Task InitDataAsync()
         {
             if (_isSingleMode)
             {
-                Photos.Visibility = ViewStates.Gone;
                 PreviewContainer.Visibility = ViewStates.Visible;
-                Preview.CornerRadius = Style.CornerRadius5;
-                RatioBtn.Visibility = ViewStates.Gone;
-                RotateBtn.Visibility = ViewStates.Gone;
+                PreviewContainer.Radius = Style.CornerRadius5;
 
                 var previewSize = BitmapUtils.CalculateImagePreviewSize(Media[0].Parameters, Style.ScreenWidth - Style.Margin15 * 2);
                 var layoutParams = new RelativeLayout.LayoutParams(previewSize.Width, previewSize.Height);
@@ -109,7 +116,6 @@ namespace Steepshot.Fragment
             else
             {
                 Photos.Visibility = ViewStates.Visible;
-                PreviewContainer.Visibility = ViewStates.Gone;
                 Photos.SetLayoutManager(new LinearLayoutManager(Activity, LinearLayoutManager.Horizontal, false));
                 Photos.AddItemDecoration(new ListItemDecoration(Style.Margin10));
                 Photos.LayoutParameters.Height = Style.GalleryHorizontalHeight;
@@ -362,7 +368,7 @@ namespace Steepshot.Fragment
                 }
             }
 
-            await TryCreateOrEditPost();
+            await TryCreateOrEditPostAsync();
         }
 
         protected override void OnPostSuccess()
@@ -377,7 +383,7 @@ namespace Steepshot.Fragment
             {
                 case (int)Result.Ok:
                     EnablePostAndEdit(false, true);
-                    await TryCreateOrEditPost();
+                    await TryCreateOrEditPostAsync();
                     break;
                 case (int)Result.Canceled:
                     EnabledPost();

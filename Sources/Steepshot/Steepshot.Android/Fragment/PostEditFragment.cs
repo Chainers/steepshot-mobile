@@ -5,17 +5,28 @@ using Android.Support.V7.Widget;
 using Android.Util;
 using Android.Views;
 using Android.Widget;
+using CheeseBind;
 using Square.Picasso;
 using Steepshot.Base;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
-using Steepshot.Core.Utils;
+using Steepshot.CustomViews;
 using Steepshot.Utils;
 
 namespace Steepshot.Fragment
 {
     public class PostEditFragment : PostPrepareBaseFragment
     {
+        #region BindView
+#pragma warning disable 0649, 4014
+
+        [BindView(Resource.Id.photos)] protected RecyclerView Photos;
+        [BindView(Resource.Id.photo_preview)] protected CropView Preview;
+        [BindView(Resource.Id.media_preview_container)] protected RoundedRelativeLayout PreviewContainer;
+
+#pragma warning restore 0649, 4014
+        #endregion
+
         private readonly Post _editPost;
         private MediaAdapter _galleryAdapter;
 
@@ -24,7 +35,7 @@ namespace Steepshot.Fragment
             _editPost = post;
         }
 
-        public override void OnViewCreated(View view, Bundle savedInstanceState)
+        public override async void OnViewCreated(View view, Bundle savedInstanceState)
         {
             if (IsInitialized)
                 return;
@@ -34,25 +45,23 @@ namespace Steepshot.Fragment
 
             SetEditPost();
 
-            RatioBtn.Visibility = RotateBtn.Visibility = ViewStates.Gone;
             if (_editPost.Media.Length > 1)
             {
                 Photos.Visibility = ViewStates.Visible;
-                PreviewContainer.Visibility = ViewStates.Gone;
                 Photos.SetLayoutManager(new LinearLayoutManager(Activity, LinearLayoutManager.Horizontal, false));
                 Photos.SetAdapter(_galleryAdapter);
                 Photos.AddItemDecoration(new ListItemDecoration((int)TypedValue.ApplyDimension(ComplexUnitType.Dip, 10, Resources.DisplayMetrics)));
             }
             else
             {
-                Photos.Visibility = ViewStates.Gone;
+                Preview.Visibility = ViewStates.Visible;
                 PreviewContainer.Visibility = ViewStates.Visible;
                 var margin = (int)BitmapUtils.DpToPixel(15, Resources);
                 var previewSize = BitmapUtils.CalculateImagePreviewSize(_editPost.Media[0].Size.Width, _editPost.Media[0].Size.Height, Style.ScreenWidth - margin * 2, int.MaxValue);
                 var layoutParams = new RelativeLayout.LayoutParams(previewSize.Width, previewSize.Height);
                 layoutParams.SetMargins(margin, 0, margin, margin);
                 PreviewContainer.LayoutParameters = layoutParams;
-                Preview.CornerRadius = Style.CornerRadius5;
+                PreviewContainer.Radius = Style.CornerRadius5;
 
                 var url = _editPost.Media[0].Thumbnails.Mini;
                 Picasso.With(Activity).Load(url).CenterCrop()
@@ -62,7 +71,7 @@ namespace Steepshot.Fragment
                 Preview.Touch += PreviewOnTouch;
             }
 
-            SearchTextChangedAsync();
+            await OnTagSearchQueryChanged();
         }
 
         protected override async Task OnPostAsync()
@@ -72,7 +81,7 @@ namespace Steepshot.Fragment
             Model.Title = Title.Text;
             Model.Description = Description.Text;
             Model.Tags = LocalTagsAdapter.LocalTags.ToArray();
-            TryCreateOrEditPost();
+            await TryCreateOrEditPostAsync();
         }
 
         protected void PreviewOnTouch(object sender, View.TouchEventArgs touchEventArgs)
@@ -155,7 +164,7 @@ namespace Steepshot.Fragment
                 var url = model.Thumbnails.Micro;
                 Picasso.With(ItemView.Context).Load(url).Into(_image);
             }
-        }        
+        }
 
         #endregion
 

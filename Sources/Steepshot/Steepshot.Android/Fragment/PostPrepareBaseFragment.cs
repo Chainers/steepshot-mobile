@@ -22,31 +22,17 @@ using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Presenters;
-using Steepshot.CustomViews;
 using Steepshot.Utils;
-using Steepshot.Utils.Media;
 
 namespace Steepshot.Fragment
 {
     public abstract class PostPrepareBaseFragment : BaseFragmentWithPresenter<PostDescriptionPresenter>
     {
-        #region Fields
+        #region BindView
 
-        private SelectedTagsAdapter _localTagsAdapter;
-        private PostSearchTagsAdapter _postSearchTagsAdapter;
-        private TagPickerFacade _tagPickerFacade;
-
-#pragma warning disable 0649, 4014
         [BindView(Resource.Id.btn_back)] protected ImageButton BackButton;
         [BindView(Resource.Id.root_layout)] protected RelativeLayout RootLayout;
-        [BindView(Resource.Id.photos)] protected RecyclerView Photos;
-        [BindView(Resource.Id.ratio_switch)] protected ImageButton RatioBtn;
-        [BindView(Resource.Id.rotate)] protected ImageButton RotateBtn;
-        [BindView(Resource.Id.photo_preview)] protected CropView Preview;
-        [BindView(Resource.Id.photo_preview_container)] protected RelativeLayout PreviewContainer;
         [BindView(Resource.Id.photos_layout)] protected RelativeLayout PhotosContainer;
-        [BindView(Resource.Id.video_preview_container)] protected RoundedRelativeLayout VideoPreviewContainer;
-        [BindView(Resource.Id.video_preview)] protected MediaView VideoPreview;
         [BindView(Resource.Id.title)] protected EditText Title;
         [BindView(Resource.Id.title_layout)] protected RelativeLayout TitleContainer;
         [BindView(Resource.Id.description)] protected EditText Description;
@@ -66,10 +52,11 @@ namespace Steepshot.Fragment
         [BindView(Resource.Id.page_title)] protected TextView PageTitle;
         [BindView(Resource.Id.toolbar)] protected LinearLayout TopPanel;
 
-        [BindView(Resource.Id.tags_layout)] protected LinearLayout TagsContainer;
-        [BindView(Resource.Id.top_margin_tags_layout)] protected RelativeLayout TopMarginTagsLayout;
-
         #endregion
+
+        private SelectedTagsAdapter _localTagsAdapter;
+        private PostSearchTagsAdapter _postSearchTagsAdapter;
+        private TagPickerFacade _tagPickerFacade;
 
         #region Properties
 
@@ -214,12 +201,12 @@ namespace Steepshot.Fragment
             EnabledPost();
         }
 
-        protected void TryAgainAction(object o, DialogClickEventArgs dialogClickEventArgs)
+        protected async void TryAgainAction(object o, DialogClickEventArgs dialogClickEventArgs)
         {
-            TryCreateOrEditPost();
+            await TryCreateOrEditPostAsync();
         }
 
-        protected async Task<bool> TryCreateOrEditPost()
+        protected async Task<bool> TryCreateOrEditPostAsync()
         {
             if (Model.Media == null)
                 return false;
@@ -364,11 +351,11 @@ namespace Steepshot.Fragment
         {
             Activity?.RunOnUiThread(async () =>
             {
-                await SearchTextChangedAsync();
+                await OnTagSearchQueryChanged();
             });
         }
 
-        protected async Task SearchTextChangedAsync()
+        protected async Task OnTagSearchQueryChanged()
         {
             var text = TagEdit.Text;
 
@@ -381,9 +368,9 @@ namespace Steepshot.Fragment
 
             Exception exception = null;
             if (text.Length == 0)
-                exception = await _tagPickerFacade.TryGetTopTagsAsync();
+                exception = await _tagPickerFacade.TryGetTopTagsAsync().ConfigureAwait(true);
             else if (text.Length > 1)
-                exception = await _tagPickerFacade.TryLoadNextAsync(text);
+                exception = await _tagPickerFacade.TryLoadNextAsync(text).ConfigureAwait(true);
 
             if (IsInitialized)
                 return;

@@ -133,14 +133,14 @@ namespace Steepshot.Activity
             intent.RemoveExtra(SharingPhotoData);
             if (uri != null)
             {
-                var galleryModel = new GalleryMediaModel
-                {
-                    Path = BitmapUtils.GetUriRealPath(this, uri)
-                };
+                var path = BitmapUtils.GetUriRealPath(this, uri);
+                var fileProvider = App.Container.GetFileProvider();
+                var mimeType = fileProvider.GetMimeType(path);
+                var galleryModel = new GalleryMediaModel(path, mimeType);
                 OpenNewContentFragment(new PreviewPostCreateFragment(galleryModel));
             }
         }
-        
+
         protected override void OnNewIntent(Intent intent)
         {
             base.OnNewIntent(intent);

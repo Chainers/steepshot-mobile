@@ -23,6 +23,8 @@ using Steepshot.CameraGL.Encoder;
 using Steepshot.CustomViews;
 using Steepshot.Utils;
 using Steepshot.Core;
+using Steepshot.Core.Extensions;
+using Steepshot.Core.Models.Database;
 #pragma warning disable 618
 using Camera = Android.Hardware.Camera;
 #pragma warning restore 618
@@ -398,7 +400,18 @@ namespace Steepshot.Fragment
 
         private void VideoRecorded(string path)
         {
-            ((BaseActivity)Activity).OpenNewContentFragment(new VideoPostCreateFragment(path));
+            var fp = App.Container.GetFileProvider();
+            var mimeType = fp.GetMimeType(path);
+            var model = new GalleryMediaModel(path, mimeType);
+            model.TempPath = path;
+            model.UploadState = UploadState.ReadyToUpload;
+            model.Parameters = new MediaParameters()
+            {
+                Width = _videoEncoderConfig.Width,
+                Height = _videoEncoderConfig.Height,
+            };
+
+            ((BaseActivity)Activity).OpenNewContentFragment(new PreviewPostCreateFragment(model));
         }
 
         public void OnShutter()
@@ -427,10 +440,9 @@ namespace Steepshot.Fragment
                     bitmap.Compress(Bitmap.CompressFormat.Jpeg, 100, rotationStream);
                 }
 
-                var model = new GalleryMediaModel
-                {
-                    Path = photoUri
-                };
+                var fp = App.Container.GetFileProvider();
+                var mimeType = fp.GetMimeType(photoUri);
+                var model = new GalleryMediaModel(photoUri, mimeType);
 
                 Activity.RunOnUiThread(() =>
                 {

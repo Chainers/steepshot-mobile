@@ -36,6 +36,11 @@ namespace Steepshot.Core.Extensions
         {
             return container.Resolve<IConnectionService>();
         }
+        
+        public static IFileProvider GetFileProvider(this IContainer container)
+        {
+            return container.Resolve<IFileProvider>();
+        }
 
         public static ILogService GetLogger(this IContainer container)
         {

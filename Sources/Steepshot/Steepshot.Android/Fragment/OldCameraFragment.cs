@@ -19,6 +19,7 @@ using CheeseBind;
 using Refractored.Controls;
 using Steepshot.Base;
 using Steepshot.Core.Exceptions;
+using Steepshot.Core.Extensions;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Utils;
 using Steepshot.CustomViews;
@@ -572,10 +573,9 @@ namespace Steepshot.Fragment
                     bitmap.Compress(Bitmap.CompressFormat.Jpeg, 100, rotationStream);
                 }
 
-                var model = new GalleryMediaModel
-                {
-                    Path = photoUri
-                };
+                var fp = App.Container.GetFileProvider();
+                var mimeType = fp.GetMimeType(photoUri);
+                var model = new GalleryMediaModel(photoUri, mimeType);
 
                 Activity.RunOnUiThread(() =>
                 {

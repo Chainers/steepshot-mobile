@@ -3,7 +3,6 @@ using Android.Graphics;
 using Newtonsoft.Json;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Database;
-using Steepshot.Core.Utils;
 using Steepshot.CustomViews;
 
 namespace Steepshot.Utils
@@ -47,7 +46,7 @@ namespace Steepshot.Utils
         }
 
         [JsonProperty]
-        public ImageParameters Parameters { get; set; }
+        public MediaParameters Parameters { get; set; }
 
         public Bitmap PreparedBitmap { get; set; }
 
@@ -60,5 +59,22 @@ namespace Steepshot.Utils
         public UUIDModel UploadMediaUuid { get; set; }
 
         public UploadState UploadState { get; set; }
+
+        public string MimeType { get; set; }
+
+
+        public GalleryMediaModel(string path, string mimeType)
+        {
+            Path = path;
+            MimeType = mimeType;
+        }
+
+        public GalleryMediaModel(long id, string path, string mimeType, string bucket, int orientation)
+        : this(path, mimeType)
+        {
+            Id = id;
+            Bucket = bucket;
+            Orientation = orientation;
+        }
     }
 }

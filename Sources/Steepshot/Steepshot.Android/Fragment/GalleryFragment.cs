@@ -98,7 +98,7 @@ namespace Steepshot.Fragment
 
             _pickedItems = new List<GalleryMediaModel>();
         }
-        
+
         private void NextBtnOnClick(object sender, EventArgs eventArgs)
         {
             if (!_preview.IsBitmapReady)
@@ -219,7 +219,7 @@ namespace Steepshot.Fragment
             {
                 if (_prevSelected != null)
                     _prevSelected.Parameters = _preview.DrawableImageParameters.Copy();
-               
+
                 _prevSelected = model;
 
                 if (!_pickedItems.Contains(model))
@@ -308,7 +308,8 @@ namespace Steepshot.Fragment
                 MediaStore.Images.ImageColumns.Id,
                 MediaStore.Images.ImageColumns.Data,
                 MediaStore.Images.ImageColumns.BucketDisplayName,
-                MediaStore.Images.ImageColumns.Orientation
+                MediaStore.Images.ImageColumns.Orientation,
+                MediaStore.Images.ImageColumns.MimeType
             };
 
             var orderBy = $"{MediaStore.Images.ImageColumns.DateTaken} DESC";
@@ -320,19 +321,20 @@ namespace Steepshot.Fragment
                 var idColumnIndex = cursor.GetColumnIndex(MediaStore.Images.ImageColumns.Id);
                 var dataColumnIndex = cursor.GetColumnIndex(MediaStore.Images.ImageColumns.Data);
                 var oriColumnIndex = cursor.GetColumnIndex(MediaStore.Images.ImageColumns.Orientation);
-                var bucketDisplayName = cursor.GetColumnIndex(MediaStore.Images.ImageColumns.BucketDisplayName);
+                var bucketDisplayNameIndex = cursor.GetColumnIndex(MediaStore.Images.ImageColumns.BucketDisplayName);
+                var mimeTypeIndex = cursor.GetColumnIndex(MediaStore.Images.ImageColumns.MimeType);
                 _gallery = new GalleryMediaModel[count];
 
                 for (var i = 0; i < count; i++)
                 {
                     cursor.MoveToPosition(i);
-                    _gallery[i] = new GalleryMediaModel
-                    {
-                        Id = cursor.GetLong(idColumnIndex),
-                        Path = cursor.GetString(dataColumnIndex),
-                        Bucket = cursor.GetString(bucketDisplayName),
-                        Orientation = cursor.GetInt(oriColumnIndex)
-                    };
+
+                    var id = cursor.GetLong(idColumnIndex);
+                    var path = cursor.GetString(dataColumnIndex);
+                    var bucket = cursor.GetString(bucketDisplayNameIndex);
+                    var orientation = cursor.GetInt(oriColumnIndex);
+                    var mimeType = cursor.GetString(mimeTypeIndex);
+                    _gallery[i] = new GalleryMediaModel(id, path, mimeType, bucket, orientation);
                 }
                 cursor.Close();
             }

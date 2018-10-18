@@ -9,9 +9,7 @@ using Android.Provider;
 using Android.Views;
 using System.Collections.Generic;
 using System.Reflection;
-using Java.Lang;
 using Steepshot.Core.Models.Common;
-using Steepshot.Core.Utils;
 using Steepshot.CustomViews;
 using Environment = Android.OS.Environment;
 using File = Java.IO.File;
@@ -278,7 +276,7 @@ namespace Steepshot.Utils
             bitmap = null;
         }
 
-        public static FrameSize CalculateImagePreviewSize(ImageParameters param, int maxWidth, int maxHeight = int.MaxValue)
+        public static FrameSize CalculateImagePreviewSize(MediaParameters param, int maxWidth, int maxHeight = int.MaxValue)
         {
             var bounds = param.CropBounds;
             var w = (int)Math.Max(Math.Round((bounds.Right - bounds.Left) / param.Scale), 0);

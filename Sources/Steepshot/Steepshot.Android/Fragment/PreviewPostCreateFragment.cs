@@ -4,22 +4,33 @@ using System.Linq;
 using System.Threading.Tasks;
 using Android.Views;
 using Android.Widget;
+using CheeseBind;
 using Steepshot.Core.Localization;
+using Steepshot.Core.Models.Common;
+using Steepshot.Core.Utils;
 using Steepshot.Utils;
+using Steepshot.Utils.Media;
 
 namespace Steepshot.Fragment
 {
     public class PreviewPostCreateFragment : PostCreateFragment
     {
+        #region BindView
+
+        [BindView(Resource.Id.ratio_switch)] protected ImageButton RatioBtn;
+        [BindView(Resource.Id.rotate)] protected ImageButton RotateBtn;
+        [BindView(Resource.Id.video_preview)] protected MediaView VideoPreview;
+
+        #endregion
+
         public PreviewPostCreateFragment(GalleryMediaModel media)
             : base(new List<GalleryMediaModel> { media }) { }
 
 
         protected override async Task InitDataAsync()
         {
-            Photos.Visibility = ViewStates.Gone;
             PreviewContainer.Visibility = ViewStates.Visible;
-            Preview.CornerRadius = Style.CornerRadius5;
+            PreviewContainer.Radius = Style.CornerRadius5;
 
             var margin = Style.Margin15;
 
@@ -27,10 +38,35 @@ namespace Steepshot.Fragment
             layoutParams.SetMargins(margin, 0, margin, margin);
             PreviewContainer.LayoutParameters = layoutParams;
 
-            Preview.SetImage(Media[0]);
-            Preview.Touch += PreviewOnTouch;
-            RatioBtn.Click += RatioBtnOnClick;
-            RotateBtn.Click += RotateBtnOnClick;
+            var media = Media[0];
+            if (MimeTypeHelper.IsVideo(media.MimeType))
+            {
+                var mediaModel = new MediaModel
+                {
+                    Url = media.TempPath,
+                    ContentType = media.MimeType,
+                    Size = new FrameSize(media.Parameters.Height, media.Parameters.Width)
+                };
+
+                Model.Media = new[]
+                {
+                    mediaModel
+                };
+
+                VideoPreview.Visibility = ViewStates.Invisible;
+                VideoPreview.MediaSource = mediaModel;
+            }
+            else
+            {
+                RatioBtn.Visibility = ViewStates.Visible;
+                RotateBtn.Visibility = ViewStates.Visible;
+                Preview.Visibility = ViewStates.Visible;
+
+                Preview.SetImage(media);
+                Preview.Touch += PreviewOnTouch;
+                RatioBtn.Click += RatioBtnOnClick;
+                RotateBtn.Click += RotateBtnOnClick;
+            }
 
             await CheckOnSpamAsync();
         }

@@ -11,7 +11,6 @@ using Android.Views.Animations;
 using Newtonsoft.Json;
 using Square.Picasso;
 using Steepshot.Base;
-using Steepshot.Core.Utils;
 using Steepshot.Utils;
 using Math = System.Math;
 using Uri = Android.Net.Uri;
@@ -39,7 +38,7 @@ namespace Steepshot.CustomViews
         private const float MaximumOverscale = 0.2f;
 
         private CropViewGrid _grid;
-        private ImageParameters _drawableImageParameters;
+        private MediaParameters _drawableImageParameters;
 
         private GalleryMediaModel _media;
         private Drawable _drawable;
@@ -71,7 +70,7 @@ namespace Steepshot.CustomViews
         #region MyRegion
 
         private CropViewGrid Grid => _grid ?? (_grid = new CropViewGrid());
-        public ImageParameters DrawableImageParameters
+        public MediaParameters DrawableImageParameters
         {
             get
             {
@@ -80,7 +79,7 @@ namespace Steepshot.CustomViews
             }
             private set => _drawableImageParameters = value;
         }
-        public float CornerRadius { get; set; }
+
         public bool UseStrictBounds
         {
             set
@@ -100,7 +99,7 @@ namespace Steepshot.CustomViews
                 }
             }
         }
-        private void Configure(ScaleType scaleType, ImageParameters parameters, float minRatio, float maxRatio, float defaultRatio)
+        private void Configure(ScaleType scaleType, MediaParameters parameters, float minRatio, float maxRatio, float defaultRatio)
         {
             _minimumRatio = minRatio;
             _maximumRatio = maxRatio;
@@ -110,7 +109,7 @@ namespace Steepshot.CustomViews
             {
                 _displayDrawableLeft = 0;
                 _displayDrawableTop = 0;
-                _drawableImageParameters = new ImageParameters();
+                _drawableImageParameters = new MediaParameters();
 
                 if (_media != null)
                     _drawableImageParameters.Rotation = _media.Orientation;
@@ -503,7 +502,7 @@ namespace Steepshot.CustomViews
                 return;
 
             var path = new Path();
-            path.AddRoundRect(new RectF(0, 0, canvas.Width, canvas.Height), CornerRadius, CornerRadius, Path.Direction.Cw);
+            path.AddRect(new RectF(0, 0, canvas.Width, canvas.Height), Path.Direction.Cw);
             canvas.ClipPath(path);
 
             GetDisplayDrawableBounds(_drawableImageParameters.PreviewBounds);
@@ -759,7 +758,7 @@ namespace Steepshot.CustomViews
         }
     }
 
-    public class ImageParameters
+    public class MediaParameters
     {
         public float Scale { get; set; }
 
@@ -771,12 +770,17 @@ namespace Steepshot.CustomViews
         [JsonConverter(typeof(RectFConverter))]
         public Rect CropBounds { get; set; }
 
-        public ImageParameters()
+        public int Width { get; set; }
+
+        public int Height { get; set; }
+
+
+        public MediaParameters()
         {
             PreviewBounds = new RectF();
         }
 
-        public ImageParameters Copy() => new ImageParameters
+        public MediaParameters Copy() => new MediaParameters
         {
             Scale = Scale,
             Rotation = Rotation,

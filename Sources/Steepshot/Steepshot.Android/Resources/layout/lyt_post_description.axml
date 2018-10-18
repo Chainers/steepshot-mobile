@@ -52,17 +52,21 @@
                 android:layout_height="wrap_content">
                 <android.support.v7.widget.RecyclerView
                     android:id="@+id/photos"
+                    android:visibility="gone"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="15dp"
                     android:layout_marginBottom="30dp"
                     android:background="@android:color/transparent" />
-                <RelativeLayout
-                    android:id="@+id/photo_preview_container"
+                <Steepshot.CustomViews.RoundedRelativeLayout
+                    android:id="@+id/media_preview_container"
+                    android:visibility="gone"
                     android:layout_width="match_parent"
                     android:layout_height="0dp">
+
                     <Steepshot.CustomViews.CropView
                         android:id="@+id/photo_preview"
+                        android:visibility="gone"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:layout_centerHorizontal="true"
@@ -75,6 +79,7 @@
                         android:layout_alignParentLeft="true"
                         android:layout_marginLeft="10dp"
                         android:layout_marginBottom="10dp"
+						android:visibility="gone"
                         android:background="@android:color/transparent"
                         android:src="@drawable/ic_ratio" />
                     <ImageButton
@@ -85,17 +90,15 @@
                         android:layout_toRightOf="@id/ratio_switch"
                         android:layout_marginLeft="10dp"
                         android:layout_marginBottom="10dp"
+                        android:visibility="gone"
                         android:background="@android:color/transparent"
                         android:src="@drawable/ic_rotate" />
-                </RelativeLayout>
-				<Steepshot.CustomViews.RoundedRelativeLayout
-					android:id="@+id/video_preview_container"
-					android:layout_width="match_parent"
-					android:layout_height="0dp">
-				<Steepshot.Utils.Media.MediaView
+					
+					<Steepshot.Utils.Media.MediaView
 					android:id="@+id/video_preview"
+					android:visibility="gone"
 					android:layout_width="match_parent"
-					android:layout_height="match_parent" />
+					android:layout_height="match_parent"/>
 				</Steepshot.CustomViews.RoundedRelativeLayout>
 			</RelativeLayout>
             <LinearLayout

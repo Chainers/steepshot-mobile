@@ -8,7 +8,7 @@ namespace Steepshot.CustomViews
 {
     public class RoundedRelativeLayout : RelativeLayout
     {
-        public int Radius { get; set; }
+        public float Radius { get; set; }
         public RoundedRelativeLayout(Context context, IAttributeSet attrs) : base(context, attrs)
         {
             SetWillNotDraw(false);

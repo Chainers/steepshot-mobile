@@ -124,7 +124,6 @@
     <Compile Include="Fragment\PostPrepareBaseFragment.cs" />
     <Compile Include="Fragment\PowerUpDownFragment.cs" />
     <Compile Include="Fragment\TransferFragment.cs" />
-    <Compile Include="Fragment\VideoPostCreateFragment.cs" />
     <Compile Include="Fragment\WalletFragment.cs" />
     <Compile Include="Integration\InstagramModule.cs" />
     <Compile Include="Services\JobService.cs" />

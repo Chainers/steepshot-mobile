@@ -30,7 +30,6 @@ namespace Steepshot.Utils
         public static readonly float MaxPostHeight;
         public static readonly float Density;
         public static readonly float CornerRadius5;
-        public static readonly float CornerRadius8;
         public static readonly int PostPagerMargin;
 
         public static readonly int GalleryHorizontalScreenWidth;
@@ -75,7 +74,6 @@ namespace Steepshot.Utils
             GalleryHorizontalHeight = (int)(160 * Density);
             KeyboardVisibilityThreshold = (int)(128 * Density);
             CornerRadius5 = 5 * Density;
-            CornerRadius8 = 8 * Density;
             Margin10 = (int)(10 * Density);
             Margin15 = (int)(15 * Density);
         }
