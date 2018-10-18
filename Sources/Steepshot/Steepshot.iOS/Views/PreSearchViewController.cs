@@ -110,8 +110,8 @@ namespace Steepshot.iOS.Views
         public override void ViewWillAppear(bool animated)
         {
             if (!IsMovingToParentViewController)
-                collectionView.ReloadData();
-            
+                HandleAction();
+
             loginButton.TouchDown += LoginTapped;
             hotButton.TouchDown += HotButton_TouchDown;
             topButton.TouchDown += TopButton_TouchDown;

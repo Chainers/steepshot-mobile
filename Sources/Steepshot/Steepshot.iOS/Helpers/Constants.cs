@@ -81,6 +81,10 @@ namespace Steepshot.iOS.Helpers
             ForegroundColor = R255G0B0,
         };
 
+        public const float DescriptionSeparatorMargin = 30;
+        public const int DescriptionCellSide = 160;
+        public const int DescriptionSectionInset = 15;
+
         public static void CreateGradient(UIView view, nfloat cornerRadius, GradientType gradientType = GradientType.Orange)
         {
             var gradient = new CAGradientLayer();
