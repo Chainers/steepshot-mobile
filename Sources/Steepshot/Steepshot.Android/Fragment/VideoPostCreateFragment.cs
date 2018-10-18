@@ -24,10 +24,10 @@ namespace Steepshot.Fragment
 
             base.OnViewCreated(view, savedInstanceState);
 
-            InitData();
+            InitDataAsync();
         }
 
-        protected override void InitData()
+        protected override async Task InitDataAsync()
         {
             Photos.Visibility = ViewStates.Gone;
             PreviewContainer.Visibility = ViewStates.Gone;
@@ -47,7 +47,7 @@ namespace Steepshot.Fragment
                 Size = new FrameSize(720, 720)
             };
 
-            CheckOnSpam();
+            CheckOnSpamAsync();
         }
 
         protected override async Task OnPostAsync()

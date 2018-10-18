@@ -39,9 +39,6 @@
     <AndroidTlsProvider>btls</AndroidTlsProvider>
     <AndroidLinkMode>None</AndroidLinkMode>
     <AndroidUseSharedRuntime>true</AndroidUseSharedRuntime>
-    <AotAssemblies>false</AotAssemblies>
-    <EnableLLVM>false</EnableLLVM>
-    <BundleAssemblies>false</BundleAssemblies>
     <AndroidEnableMultiDex>true</AndroidEnableMultiDex>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -230,6 +227,7 @@
     <Compile Include="Holders\PromoterFoundHolder.cs" />
     <Compile Include="Holders\PromoteMessageHolder.cs" />
     <Compile Include="Utils\FeedScrollListner.cs" />
+    <Compile Include="Adapter\GalleryMediaAdapter.cs" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\values-v21\styles.xml">

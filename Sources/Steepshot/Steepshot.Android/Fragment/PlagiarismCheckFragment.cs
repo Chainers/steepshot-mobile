@@ -11,6 +11,7 @@ using Android.Util;
 using Android.Views;
 using Android.Widget;
 using CheeseBind;
+using Steepshot.Adapter;
 using Steepshot.Base;
 using Steepshot.Core;
 using Steepshot.Core.Localization;
@@ -24,7 +25,7 @@ namespace Steepshot.Fragment
     {
         private readonly List<GalleryMediaModel> _media;
         private readonly Plagiarism _model;
-        private readonly RecyclerView.Adapter _adapter;
+        private RecyclerView.Adapter _adapter;
         private Android.Net.Uri _guidelinesUri;
 
 #pragma warning disable 0649, 4014
@@ -46,10 +47,9 @@ namespace Steepshot.Fragment
         [BindView(Resource.Id.root_layout)] private RelativeLayout _rootLayout;
 
 
-        public PlagiarismCheckFragment(List<GalleryMediaModel> media, RecyclerView.Adapter adapter, Plagiarism model)
+        public PlagiarismCheckFragment(List<GalleryMediaModel> media, Plagiarism model)
         {
             _media = media;
-            _adapter = adapter;
             _model = model;
         }
 
@@ -60,6 +60,7 @@ namespace Steepshot.Fragment
                 InflatedView = inflater.Inflate(Resource.Layout.lyt_plagiarism, null);
                 Cheeseknife.Bind(this, InflatedView);
             }
+            _adapter = new GalleryMediaAdapter(_media);
 
             return InflatedView;
         }

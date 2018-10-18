@@ -12,6 +12,7 @@ using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
 using Java.IO;
+using Steepshot.Adapter;
 using Steepshot.Base;
 using Steepshot.Core;
 using Steepshot.Core.Exceptions;
@@ -52,8 +53,6 @@ namespace Steepshot.Fragment
                 return;
 
             base.OnViewCreated(view, savedInstanceState);
-
-            _galleryAdapter = new GalleryMediaAdapter(Media);
 
             if (_tempPost != null)
             {
@@ -98,6 +97,7 @@ namespace Steepshot.Fragment
                 Photos.AddItemDecoration(new ListItemDecoration(Style.Margin10));
                 Photos.LayoutParameters.Height = Style.GalleryHorizontalHeight;
 
+                _galleryAdapter = new GalleryMediaAdapter(Media);
                 Photos.SetAdapter(_galleryAdapter);
             }
 
@@ -473,7 +473,7 @@ namespace Steepshot.Fragment
                 {
                     if (operationResult.Result.Plagiarism.IsPlagiarism)
                     {
-                        var fragment = new PlagiarismCheckFragment(Media, _galleryAdapter, operationResult.Result.Plagiarism);
+                        var fragment = new PlagiarismCheckFragment(Media, operationResult.Result.Plagiarism);
                         fragment.SetTargetFragment(this, 0);
                         ((BaseActivity)Activity).OpenNewContentFragment(fragment);
                         PostButton.Text = App.Localization.GetText(LocalizationKeys.PublishButtonText);
@@ -566,72 +566,5 @@ namespace Steepshot.Fragment
                 if (file.Path.EndsWith(Constants.Steepshot))
                     file.Delete();
         }
-
-        #region Adapter
-
-        private class GalleryMediaAdapter : RecyclerView.Adapter
-        {
-            private readonly List<GalleryMediaModel> _gallery;
-
-            public GalleryMediaAdapter(List<GalleryMediaModel> gallery)
-            {
-                _gallery = gallery;
-            }
-
-            public override void OnBindViewHolder(RecyclerView.ViewHolder holder, int position)
-            {
-                var galleryHolder = (GalleryMediaViewHolder)holder;
-                galleryHolder?.Update(_gallery[position]);
-            }
-
-            public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
-            {
-                var maxWidth = Style.GalleryHorizontalScreenWidth;
-                var maxHeight = Style.GalleryHorizontalHeight;
-
-                var previewSize = BitmapUtils.CalculateImagePreviewSize(_gallery[0].Parameters, maxWidth, maxHeight);
-
-                var cardView = new CardView(parent.Context)
-                {
-                    LayoutParameters = new FrameLayout.LayoutParams(previewSize.Width, previewSize.Height),
-                    Radius = BitmapUtils.DpToPixel(5, parent.Resources)
-                };
-                var image = new ImageView(parent.Context)
-                {
-                    Id = Resource.Id.photo,
-                    LayoutParameters = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MatchParent, ViewGroup.LayoutParams.MatchParent)
-                };
-                image.SetScaleType(ImageView.ScaleType.FitXy);
-                cardView.AddView(image);
-                return new GalleryMediaViewHolder(cardView);
-            }
-
-            public override int ItemCount => _gallery.Count;
-        }
-
-        private class GalleryMediaViewHolder : RecyclerView.ViewHolder
-        {
-            private readonly ImageView _image;
-            public GalleryMediaViewHolder(View itemView) : base(itemView)
-            {
-                _image = itemView.FindViewById<ImageView>(Resource.Id.photo);
-            }
-
-            public void Update(GalleryMediaModel model)
-            {
-                BitmapUtils.ReleaseBitmap(_image.Drawable);
-
-                _image.SetImageBitmap(null);
-                _image.SetImageResource(Style.R245G245B245);
-
-                if (!string.IsNullOrEmpty(model.TempPath))
-                {
-                    var bitmap = BitmapUtils.DecodeSampledBitmapFromFile(ItemView.Context, Android.Net.Uri.Parse(model.TempPath), Style.GalleryHorizontalScreenWidth, Style.GalleryHorizontalHeight);
-                    _image.SetImageBitmap(bitmap);
-                }
-            }
-        }
-
-        #endregion
     }
 }

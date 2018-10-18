@@ -354,7 +354,7 @@ namespace Steepshot.Fragment
             {
                 if (operationResult.Result.Plagiarism.IsPlagiarism)
                 {
-                    var fragment = new PlagiarismCheckFragment(Media, _galleryAdapter, operationResult.Result.Plagiarism);
+                    var fragment = new PlagiarismCheckFragment(Media, operationResult.Result.Plagiarism);
                     fragment.SetTargetFragment(this, 0);
                     ((BaseActivity)Activity).OpenNewContentFragment(fragment);
                     PostButton.Text = App.Localization.GetText(LocalizationKeys.PublishButtonText);
