@@ -3,23 +3,23 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Android.Content;
 using Android.Graphics;
+using Android.Graphics.Drawables;
 using Android.OS;
 using Android.Provider;
-using Android.Runtime;
 using Android.Util;
 using Android.Views;
+using Java.Lang;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Utils;
 
 namespace Steepshot.Utils.Media
 {
-    public class MediaView : TextureView, TextureView.ISurfaceTextureListener, IMediaPerformer
+    public class MediaView : TextureView, TextureView.ISurfaceTextureListener
     {
-        private Handler _handler = new Handler(Looper.MainLooper);
-        private Bitmap _buffer;
         private Dictionary<MediaType, IMediaProducer> _mediaProducers;
-        public MediaType MediaType { get; private set; }
+        private MediaType MediaType { get; set; }
         private MediaModel _mediaSource;
+        private bool _playBack;
         public MediaModel MediaSource
         {
             get => _mediaSource;
@@ -28,7 +28,6 @@ namespace Steepshot.Utils.Media
                 if (_mediaSource != value)
                 {
                     _mediaSource = value;
-                    ReleaseBuffer();
 
                     var mimeType = _mediaSource.ContentType;
                     if (string.IsNullOrEmpty(mimeType))
@@ -45,11 +44,14 @@ namespace Steepshot.Utils.Media
                     {
                         MediaType = MediaType.Image;
                     }
-                    _mediaProducers[MediaType].Init(_mediaSource);
+
+                    //_mediaProducers[MediaType].
                 }
             }
         }
         public Action<MediaType> OnClick;
+        private volatile Handler _mainHandler;
+        private volatile Handler _renderHandler;
 
         #region Initializations
         public MediaView(Context context) : base(context)
@@ -62,33 +64,24 @@ namespace Steepshot.Utils.Media
             Init();
         }
 
-        public MediaView(Context context, IAttributeSet attrs, int defStyleAttr) : base(context, attrs, defStyleAttr)
-        {
-            Init();
-        }
-
-        public MediaView(Context context, IAttributeSet attrs, int defStyleAttr, int defStyleRes) : base(context, attrs, defStyleAttr, defStyleRes)
-        {
-            Init();
-        }
-
-        protected MediaView(IntPtr javaReference, JniHandleOwnership transfer) : base(javaReference, transfer)
-        {
-            Init();
-        }
-
         private void Init()
         {
-            _mediaProducers = new Dictionary<MediaType, IMediaProducer>();
-            _mediaProducers.Add(MediaType.Image, new ImageProducer(Context, this));
-            _mediaProducers.Add(MediaType.Video, new VideoProducer(Context, this));
+            _mainHandler = new Handler(Looper.MainLooper);
+            _mediaProducers = new Dictionary<MediaType, IMediaProducer>
+            {
+                {MediaType.Image, new ImageProducer(Context)},
+                {MediaType.Video, new VideoProducer()}
+            };
+            _mediaProducers[MediaType.Image].Draw += OnDraw;
+            _mediaProducers[MediaType.Image].PreDraw += OnPreDraw;
             SurfaceTextureListener = this;
             Click += MediaViewClick;
+            StartRenderThread();
         }
 
         private void MediaViewClick(object sender, EventArgs e)
         {
-            _mediaProducers[MediaType].Play();
+            //_mediaProducers[MediaType].Play();
             OnClick?.Invoke(MediaType);
         }
         #endregion
@@ -96,13 +89,22 @@ namespace Steepshot.Utils.Media
         #region Texture
         public void OnSurfaceTextureAvailable(SurfaceTexture surface, int width, int height)
         {
-            _mediaProducers[MediaType].Prepare(surface, width, height);
+            _mainHandler?.Post(() =>
+            {
+                if (_playBack)
+                    _mediaProducers[MediaType].Play();
+                else
+                    _mediaProducers[MediaType].Prepare(MediaSource, surface);
+            });
         }
 
         public bool OnSurfaceTextureDestroyed(SurfaceTexture surface)
         {
-            _mediaProducers[MediaType].Release();
-            return true;
+            _mainHandler?.Post(() =>
+            {
+                _mediaProducers[MediaType].Stop();
+            });
+            return false;
         }
 
         public void OnSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height)
@@ -116,7 +118,13 @@ namespace Steepshot.Utils.Media
 
         public void Play()
         {
-            _mediaProducers[MediaType].Play();
+            _mainHandler?.Post(() =>
+            {
+                if (IsAvailable)
+                    _mediaProducers[MediaType].Play();
+                else
+                    _playBack = true;
+            });
         }
 
         public void Pause()
@@ -124,96 +132,62 @@ namespace Steepshot.Utils.Media
             _mediaProducers[MediaType].Pause();
         }
 
-        public void DrawBuffer()
+        private void OnDraw(WeakReference<Bitmap> weakBmp)
         {
-            _handler.Post(() =>
+            _renderHandler?.Post(() =>
             {
-                if (!IsAvailable) return;
+                if (!IsAvailable)
+                    return;
+
+                if (!weakBmp.TryGetTarget(out var bitmap))
+                    return;
+
+                using (var matr = new Matrix())
+                {
+                    var scale = bitmap.Width < Width ? Width / (float)bitmap.Width : bitmap.Width / (float)Width;
+                    matr.PostScale(scale, scale);
+                    var scaledW = bitmap.Width * scale;
+                    var scaledH = bitmap.Height * scale;
+                    matr.PostTranslate(scaledW > Width ? (Width - scaledW) / 2 : 0,
+                        scaledH > Height ? (Height - scaledH) / 2 : 0);
+                    var canvas = LockCanvas();
+                    canvas.DrawColor(Color.White);
+                    canvas.DrawBitmap(bitmap, matr, null);
+                    UnlockCanvasAndPost(canvas);
+                    System.Diagnostics.Debug.WriteLine(Runtime.GetRuntime().TotalMemory() / 1000000 + " MB");
+                }
+            });
+        }
+
+        private void OnPreDraw(ColorDrawable cdr)
+        {
+            _renderHandler?.Post(() =>
+            {
+                if (!IsAvailable)
+                    return;
+
                 var canvas = LockCanvas();
-                canvas.DrawColor(Style.R245G245B245);
-                if (_buffer?.Handle != IntPtr.Zero && _buffer != null && !_buffer.IsRecycled)
-                {
-                    canvas.DrawBitmap(_buffer, 0, 0, null);
-                }
+                canvas.DrawColor(cdr.Color);
                 UnlockCanvasAndPost(canvas);
-                Invalidate();
+                cdr.Dispose();
             });
         }
 
-        public Task<bool> PrepareBufferAsync(Bitmap bitmap)
+        private void StartRenderThread()
         {
-            return Task.Run(async () =>
+            Task.Run(() =>
             {
-                try
-                {
-                    var frameWidth = LayoutParameters.Width;
-                    var frameHeight = LayoutParameters.Height;
-                    var imageWidh = bitmap.Width;
-                    var imageHeight = bitmap.Height;
+                Looper.Prepare();
 
+                _renderHandler = new Handler();
 
-                    if (frameWidth == imageWidh && frameHeight == imageHeight)
-                    {
-                        ReleaseBuffer();
-                        _buffer = bitmap;
-                        return true;
-                    }
-
-                    var dW = (float)frameWidth / imageWidh;
-                    var dH = (float)frameHeight / imageHeight;
-                    var delta = Math.Max(dW, dH);
-
-                    var x = 0;
-                    var newWidh = imageWidh;
-
-                    if (dH > dW)
-                    {
-                        newWidh = (int)Math.Round(frameWidth * imageHeight / (float)frameHeight);
-                        newWidh = Math.Min(newWidh, imageWidh);
-                        x = (int)((imageWidh - newWidh) / 2.0);
-                    }
-
-                    var y = 0;
-                    var newHeight = imageHeight;
-
-                    if (dW > dH)
-                    {
-                        newHeight = (int)Math.Round(frameHeight * imageWidh / (float)frameWidth);
-                        newHeight = Math.Min(newHeight, imageHeight);
-                        y = (int)((imageHeight - newHeight) / 2.0);
-                    }
-
-                    var matrix = new Matrix();
-                    matrix.PostScale(delta, delta);
-
-                    ReleaseBuffer();
-                    _buffer = Bitmap.CreateBitmap(bitmap, x, y, newWidh, newHeight, matrix, true);
-                    BitmapUtils.ReleaseBitmap(bitmap);
-
-                    return true;
-                }
-                catch (Java.Lang.OutOfMemoryError e)
-                {
-                    ReleaseBuffer();
-                    GC.Collect(GC.MaxGeneration);
-                    return await PrepareBufferAsync(bitmap);
-                }
-                catch (Exception e)
-                {
-                    return false;
-                }
+                Looper.Loop();
             });
-        }
-
-        public void ReleaseBuffer()
-        {
-            BitmapUtils.ReleaseBitmap(_buffer);
         }
 
         protected override void Dispose(bool disposing)
         {
             _mediaProducers[MediaType].Release();
-            ReleaseBuffer();
             base.Dispose(disposing);
         }
     }

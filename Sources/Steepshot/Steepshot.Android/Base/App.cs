@@ -19,6 +19,7 @@ using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Utils;
 using Steepshot.Utils;
+using Steepshot.Utils.Media;
 
 namespace Steepshot.Base
 {
@@ -44,6 +45,8 @@ namespace Steepshot.Base
         {
         }
 
+        public static VideoPlayerManager VideoPlayerManager;
+            
         public override void OnCreate()
         {
             base.OnCreate();
@@ -68,7 +71,7 @@ namespace Steepshot.Base
             SettingsManager = Container.GetSettingsManager();
             NavigationManager = Container.GetNavigationManager();
             AppInfo = Container.GetAppInfo();
-
+            VideoPlayerManager = new VideoPlayerManager(ApplicationContext);
             InitPicassoCache();
 
             InitPushes();

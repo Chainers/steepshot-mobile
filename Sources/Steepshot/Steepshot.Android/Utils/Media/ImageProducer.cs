@@ -1,32 +1,33 @@
-﻿using Android.Content;
+﻿using System;
+using Android.Content;
 using Android.Graphics;
 using Android.Graphics.Drawables;
 using Square.Picasso;
 using Steepshot.Core.Extensions;
 using Steepshot.Core.Models.Common;
-using Steepshot.Core.Utils;
 
 namespace Steepshot.Utils.Media
 {
     public class ImageProducer : Java.Lang.Object, IMediaProducer, ITarget
     {
-        private readonly IMediaPerformer _mediaPerformer;
         private readonly Context _context;
         private MediaModel _media;
+        public event Action<WeakReference<Bitmap>> Draw;
+        public event Action<ColorDrawable> PreDraw;
 
-
-        public ImageProducer(Context context, IMediaPerformer mediaPerformer)
+        public ImageProducer(Context context)
         {
             _context = context;
-            _mediaPerformer = mediaPerformer;
         }
 
-
-        public void Init(MediaModel media)
+        public virtual void Prepare(MediaModel media, SurfaceTexture st)
         {
+            if (media == null)
+                return;
+
             _media = media;
             Picasso.With(_context)
-                .Load(_media.GetImageProxy(Style.ScreenWidth))
+                .Load(media.GetImageProxy(Style.ScreenWidth))
                 .Placeholder(new ColorDrawable(Style.R245G245B245))
                 .NoFade()
                 .Priority(Picasso.Priority.High)
@@ -37,12 +38,15 @@ namespace Steepshot.Utils.Media
         {
         }
 
-        public void Prepare(SurfaceTexture surfaceTextureace, int width, int height)
+        public virtual void Pause()
         {
-            _mediaPerformer.DrawBuffer();
         }
 
-        public void Release()
+        public void Stop()
+        {
+        }
+
+        public virtual void Release()
         {
         }
 
@@ -53,18 +57,15 @@ namespace Steepshot.Utils.Media
                 .Into(this);
         }
 
-        public async void OnBitmapLoaded(Bitmap p0, Picasso.LoadedFrom p1)
+        public void OnBitmapLoaded(Bitmap p0, Picasso.LoadedFrom p1)
         {
-            await _mediaPerformer.PrepareBufferAsync(p0.Copy(Bitmap.Config.Argb8888, true));
-            _mediaPerformer.DrawBuffer();
+            var weakBmp = new WeakReference<Bitmap>(p0);
+            Draw?.Invoke(weakBmp);
         }
 
         public void OnPrepareLoad(Drawable p0)
         {
-        }
-
-        public void Pause()
-        {
+            PreDraw?.Invoke((ColorDrawable)p0);
         }
     }
 }
