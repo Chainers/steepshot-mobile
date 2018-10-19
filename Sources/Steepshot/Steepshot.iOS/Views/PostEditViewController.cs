@@ -86,7 +86,7 @@ namespace Steepshot.iOS.Views
             }
         }
 
-        protected override async void OnPostAsync(bool skipPreparationSteps)
+        protected override async Task OnPostAsync(bool skipPreparationSteps)
         {
             EnablePostAndEdit(false);
 
@@ -114,7 +114,7 @@ namespace Steepshot.iOS.Views
                     model.Tags = tags.ToArray();
                     model.Media = post.Media;
 
-                    CreateOrEditPost(true);
+                    CreateOrEditPostAsync(true);
                 }
                 catch (Exception ex)
                 {

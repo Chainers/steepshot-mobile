@@ -27,9 +27,8 @@ namespace Steepshot.iOS.Views
 {
     public partial class DescriptionViewController : BaseViewControllerWithPresenter<PostDescriptionPresenter>
     {
-        protected const int cellSide = 160;
-        protected const int sectionInset = 15;
         private const int _photoSize = 900;
+        private const int maxUploadRetry = 1;
 
         private UIImageView _statusImage;
         private TimeSpan _postingLimit;
@@ -53,7 +52,7 @@ namespace Steepshot.iOS.Views
 
         protected Post post;
         protected PreparePostModel model;
-        protected ManualResetEvent mre;
+        protected ManualResetEvent mre = new ManualResetEvent(false);
         protected LocalTagsCollectionViewFlowDelegate collectionViewDelegate;
         protected LocalTagsCollectionViewSource collectionviewSource;
 
@@ -87,7 +86,7 @@ namespace Steepshot.iOS.Views
         private UITapGestureRecognizer _videoViewTap;
 
         public bool _isFromCamera => ImageAssets?.Count == 1 && ImageAssets[0]?.Item1 == null;
-        
+        private Task<List<MediaModel>> MediaResults;
 
         public DescriptionViewController() { }
 
@@ -126,7 +125,7 @@ namespace Steepshot.iOS.Views
             tagsCollectionView.RegisterClassForCell(typeof(LocalTagCollectionViewCell), nameof(LocalTagCollectionViewCell));
             tagsCollectionView.RegisterNibForCell(UINib.FromName(nameof(LocalTagCollectionViewCell), NSBundle.MainBundle), nameof(LocalTagCollectionViewCell));
             collectionviewSource = new LocalTagsCollectionViewSource(editMode);
-            collectionViewDelegate = new LocalTagsCollectionViewFlowDelegate(collectionviewSource, UIScreen.MainScreen.Bounds.Width - SeparatorMargin * 2);
+            collectionViewDelegate = new LocalTagsCollectionViewFlowDelegate(collectionviewSource, UIScreen.MainScreen.Bounds.Width - Constants.DescriptionSeparatorMargin * 2);
             tagsCollectionView.Source = collectionviewSource;
             tagsCollectionView.Delegate = collectionViewDelegate;
             tagsCollectionView.BackgroundColor = UIColor.White;
@@ -136,6 +135,9 @@ namespace Steepshot.iOS.Views
 
             if (!editMode)
                 CheckOnSpam(false);
+
+            if (!_isFromCamera)
+                MediaResults = GetMediaResults();
         }
 
         protected override void KeyBoardUpNotification(NSNotification notification)
@@ -173,14 +175,9 @@ namespace Steepshot.iOS.Views
             NavigationController.PushViewController(new TagsPickerViewController(collectionviewSource, collectionViewDelegate), true);
         }
 
-        public override void ViewWillAppear(bool animated)
+        public async override void ViewWillAppear(bool animated)
         {
             base.ViewWillAppear(animated);
-
-            if (_plagiarismResult != null && _plagiarismResult.Continue && !IsMovingToParentViewController)
-            {
-                OnPostAsync(true);
-            }
 
             collectionviewSource.CellAction += CollectionCellAction;
 
@@ -204,6 +201,11 @@ namespace Steepshot.iOS.Views
                 _resizeButton.AddGestureRecognizer(_zoomTap);
                 _rotateButton.AddGestureRecognizer(_rotateTap);
                 ((InteractivePopNavigationController)NavigationController).DidEnterBackgroundEvent += VideoViewTapped;
+            }
+
+            if (_plagiarismResult != null && _plagiarismResult.Continue && !IsMovingToParentViewController)
+            {
+                await OnPostAsync(true);
             }
         }
 
@@ -311,58 +313,31 @@ namespace Steepshot.iOS.Views
             RemoveFocusFromTextFields();
         }
 
-        private async Task<OperationResult<MediaModel>> UploadVideo()
+        private async Task<List<MediaModel>> GetMediaResults()
         {
-            Stream stream = null;
-            try
-            {
-                stream = new CustomInputStream(new NSInputStream(_videoUrl));
-                var request = new UploadMediaModel(AppDelegate.User.UserInfo, stream, ".mp4");
-                var serverResult = await Presenter.TryUploadMediaAsync(request);
-                if (!serverResult.IsSuccess)
-                    return new OperationResult<MediaModel>(serverResult.Exception);
+            List<Task<OperationResult<MediaModel>>> uploadTasks = new List<Task<OperationResult<MediaModel>>>();
 
-                var uuidModel = serverResult.Result;
-                var done = false;
-                do
+            if (_mediaType == MediaType.Photo)
+            {
+                for (int i = 0; i < ImageAssets.Count; i++)
                 {
-                    var state = await Presenter.TryGetMediaStatusAsync(uuidModel);
-                    if (state.IsSuccess)
-                    {
-                        switch (state.Result.Code)
-                        {
-                            case UploadMediaCode.Done:
-                                done = true;
-                                break;
-
-                            case UploadMediaCode.FailedToProcess:
-                            case UploadMediaCode.FailedToUpload:
-                            case UploadMediaCode.FailedToSave:
-                                return new OperationResult<MediaModel>(new Exception(state.Result.Message));
-
-                            default:
-                                await Task.Delay(3000);
-                                break;
-                        }
-                    }
-                } while (!done);
-
-                return await Presenter.TryGetMediaResultAsync(uuidModel);
+                    var stream = await PreparePhoto(ImageAssets[i].Item2, ImageAssets[i].Item1);
+                    uploadTasks.Add(UploadMedia(stream));
+                }
             }
-            catch (Exception ex)
+            else
             {
-                return new OperationResult<MediaModel>(new InternalException(LocalizationKeys.PhotoProcessingError, ex));
+                var stream = new CustomInputStream(new NSInputStream(_videoUrl));
+                uploadTasks.Add(UploadMedia(stream));
             }
-            finally
-            {
-                stream?.Dispose();
-            }
+
+            await Task.WhenAll(uploadTasks);
+            return uploadTasks.Select(x => x.Result.Result).ToList();
         }
 
-        private async Task<OperationResult<MediaModel>> UploadPhoto(UIImage photo, NSDictionary metadata)
+        private Task<Stream> PreparePhoto(UIImage photo, NSDictionary metadata)
         {
-            Stream stream = null;
-            try
+            return Task.Run(() =>
             {
                 var compression = 1f;
                 var maxCompression = 0.1f;
@@ -378,88 +353,70 @@ namespace Steepshot.iOS.Views
 
                 if (metadata != null)
                 {
-                    //exif setup
-                    var editedExifData = RemakeMetadata(metadata, photo);
+                    var editedExifData = MetadataHelper.RemakeMetadata(metadata, photo);
                     var newImageDataWithExif = new NSMutableData();
                     var imageDestination = CGImageDestination.Create(newImageDataWithExif, "public.jpeg", 0);
                     imageDestination.AddImage(new UIImage(byteArray).CGImage, editedExifData);
                     imageDestination.Close();
-                    stream = newImageDataWithExif.AsStream();
+                    return newImageDataWithExif.AsStream();
                 }
                 else
-                    stream = byteArray.AsStream();
+                    return byteArray.AsStream();
+            });
+        }
 
-                var request = new UploadMediaModel(AppDelegate.User.UserInfo, stream, _imageExtension);
-                var serverResult = await Presenter.TryUploadMediaAsync(request);
-                if (!serverResult.IsSuccess)
-                    return new OperationResult<MediaModel>(serverResult.Exception);
-
-                var uuidModel = serverResult.Result;
-                var done = false;
+        private async Task<OperationResult<MediaModel>> UploadMedia(Stream stream)
+        {
+            using (stream)
+            {
+                var request = new UploadMediaModel(AppDelegate.User.UserInfo, stream, _mediaType == MediaType.Photo ? _imageExtension : ".mp4");
+                OperationResult<UUIDModel> uploadResult;
+                int uploadRetry = 0;
                 do
                 {
-                    var state = await Presenter.TryGetMediaStatusAsync(uuidModel);
-                    if (state.IsSuccess)
-                    {
-                        switch (state.Result.Code)
-                        {
-                            case UploadMediaCode.Done:
-                                done = true;
-                                break;
+                    uploadRetry++;
+                    uploadResult = await Presenter.TryUploadMediaAsync(request).ConfigureAwait(false);
+                } while (uploadRetry < maxUploadRetry && !uploadResult.IsSuccess);
 
-                            case UploadMediaCode.FailedToProcess:
-                            case UploadMediaCode.FailedToUpload:
-                            case UploadMediaCode.FailedToSave:
-                                return new OperationResult<MediaModel>(new Exception(state.Result.Message));
+                OperationResult<UploadMediaStatusModel> statusResult;
 
-                            default:
-                                await Task.Delay(3000);
-                                break;
-                        }
-                    }
-                } while (!done);
+                if (uploadResult.IsSuccess)
+                    statusResult = await GetMediaStatus(uploadResult.Result).ConfigureAwait(false);
+                else
+                    return new OperationResult<MediaModel>(uploadResult.Exception);
 
-                return await Presenter.TryGetMediaResultAsync(uuidModel);
-            }
-            catch (Exception ex)
-            {
-                return new OperationResult<MediaModel>(new InternalException(LocalizationKeys.PhotoProcessingError, ex));
-            }
-            finally
-            {
-                stream?.Flush();
-                stream?.Dispose();
+                if (statusResult.IsSuccess && statusResult.Result.Code == UploadMediaCode.Done)
+                    return await Presenter.TryGetMediaResultAsync(uploadResult.Result);
+                else
+                    return new OperationResult<MediaModel>(statusResult.Exception);
             }
         }
 
-        private NSDictionary RemakeMetadata(NSDictionary metadata, UIImage photo)
+        private async Task<OperationResult<UploadMediaStatusModel>> GetMediaStatus(UUIDModel uuidModel)
         {
-            var keys = new List<object>();
-            var values = new List<object>();
-
-            foreach (var item in metadata)
+            var done = false;
+            OperationResult<UploadMediaStatusModel> state;
+            do
             {
-                keys.Add(item.Key);
-                switch (item.Key.ToString())
+                state = await Presenter.TryGetMediaStatusAsync(uuidModel).ConfigureAwait(false);
+                if (state.IsSuccess)
                 {
-                    case "Orientation":
-                        values.Add(new NSNumber(1));
-                        break;
-                    case "PixelHeight":
-                        values.Add(photo.Size.Height);
-                        break;
-                    case "PixelWidth":
-                        values.Add(photo.Size.Width);
-                        break;
-                    case "{TIFF}":
-                        values.Add(RemakeMetadata((NSDictionary)item.Value, photo));
-                        break;
-                    default:
-                        values.Add(item.Value);
-                        break;
+                    switch (state.Result.Code)
+                    {
+                        case UploadMediaCode.Done:
+                        case UploadMediaCode.FailedToProcess:
+                        case UploadMediaCode.FailedToUpload:
+                        case UploadMediaCode.FailedToSave:
+                            done = true;
+                            break;
+                        default:
+                            await Task.Delay(3000).ConfigureAwait(false);
+                            break;
+                    }
                 }
-            }
-            return NSDictionary.FromObjectsAndKeys(values.ToArray(), keys.ToArray());
+            } while (!done);
+
+            return state;
         }
 
         private async Task CheckOnSpam(bool disableEditing)
@@ -517,20 +474,18 @@ namespace Steepshot.iOS.Views
             postPhotoButton.SetTitle(AppDelegate.Localization.GetText(LocalizationKeys.PublishButtonText).ToUpper(), UIControlState.Normal);
         }
 
-        private void PostPhoto(object sender, EventArgs e)
+        private async void PostPhoto(object sender, EventArgs e)
         {
             if (string.IsNullOrEmpty(titleTextField.Text))
             {
                 ShowAlert(LocalizationKeys.EmptyTitleField);
                 return;
             }
-
             RemoveFocusFromTextFields();
-
-            OnPostAsync(false);
+            await OnPostAsync(false);
         }
 
-        protected virtual async void OnPostAsync(bool skipPreparationSteps)
+        protected virtual async Task OnPostAsync(bool skipPreparationSteps)
         {
             if (!skipPreparationSteps)
             {
@@ -549,144 +504,69 @@ namespace Steepshot.iOS.Views
                 ImageAssets.Add(new Tuple<NSDictionary, UIImage>(null, croppedPhoto));
             }
 
-            await Task.Run(() =>
+            if (MediaResults == null)
+                MediaResults = GetMediaResults();
+
+            await MediaResults;
+
+            var mediaResults = MediaResults.Result;
+
+            if (!mediaResults.Any(l => l == null))
             {
-                try
+                model = new PreparePostModel(AppDelegate.User.UserInfo, AppDelegate.AppInfo.GetModel())
                 {
-                    var shouldReturn = false;
-                    string title = null;
-                    string description = null;
-                    IList<string> tags = null;
+                    Title = titleTextField.Text,
+                    Description = titleTextField.Text,
+                    Device = "iOS",
+                    Tags = collectionviewSource.LocalTags.ToArray(),
+                    Media = mediaResults.ToArray(),
+                };
+                await CreateOrEditPostAsync(skipPreparationSteps);
+            }
 
-                    InvokeOnMainThread(() =>
-                    {
-                        title = titleTextField.Text;
-                        description = descriptionTextField.Text;
-                        tags = collectionviewSource.LocalTags;
-                    });
-
-                    mre = new ManualResetEvent(false);
-
-                    if (!skipPreparationSteps)
-                    {
-                        var photoUploadRetry = false;
-                        OperationResult<MediaModel>[] photoUploadResponse;
-                        if(_mediaType == MediaType.Photo)
-                            photoUploadResponse = new OperationResult<MediaModel>[ImageAssets.Count];
-                        else
-                            photoUploadResponse = new OperationResult<MediaModel>[1];
-                        do
-                        {
-                            photoUploadRetry = false;
-                            if (_mediaType == MediaType.Photo)
-                            {
-                                for (int i = 0; i < ImageAssets.Count; i++)
-                                {
-                                    photoUploadResponse[i] = UploadPhoto(ImageAssets[i].Item2, ImageAssets[i].Item1).Result;
-                                }
-                            }
-                            else
-                                photoUploadResponse[0] = UploadVideo().Result;
-
-                            if (photoUploadResponse.Any(r => r.IsSuccess == false))
-                            {
-                                InvokeOnMainThread(() =>
-                                {
-                                    //Remake this
-                                    ShowDialog(photoUploadResponse[0].Exception, LocalizationKeys.Cancel,
-                                        LocalizationKeys.Retry, (arg) =>
-                                        {
-                                            shouldReturn = true;
-                                            mre.Set();
-                                        }, (arg) =>
-                                        {
-                                            photoUploadRetry = true;
-                                            mre.Set();
-                                        });
-                                });
-
-                                mre.Reset();
-                                mre.WaitOne();
-                            }
-                        } while (photoUploadRetry);
-
-                        if (shouldReturn)
-                            return;
-
-                        model = new PreparePostModel(AppDelegate.User.UserInfo, AppDelegate.AppInfo.GetModel())
-                        {
-                            Title = title,
-                            Description = description,
-                            Device = "iOS",
-
-                            Tags = tags.ToArray(),
-                            Media = photoUploadResponse.Select(r => r.Result).ToArray(),
-                        };
-                    }
-
-                    CreateOrEditPost(skipPreparationSteps);
-                }
-                catch (Exception ex)
-                {
-                    AppDelegate.Logger.WarningAsync(ex);
-                }
-                finally
-                {
-                    InvokeOnMainThread(() => { EnablePostAndEdit(true); });
-                }
-            });
+            EnablePostAndEdit(true);
         }
 
-        protected void CreateOrEditPost(bool skipPlagiarismCheck)
+        protected async Task CreateOrEditPostAsync(bool skipPlagiarismCheck)
         {
             var pushToBlockchainRetry = false;
             do
             {
                 if (!skipPlagiarismCheck)
                 {
-                    var plagiarismCheck = Presenter.TryPreparePostAsync(model).Result;
+                    var plagiarismCheck = await Presenter.TryPreparePostAsync(model).ConfigureAwait(true);
                     if (plagiarismCheck.IsSuccess)
                     {
                         if (plagiarismCheck.Result.Plagiarism.IsPlagiarism)
                         {
-                            InvokeOnMainThread(() =>
-                            {
-                                _plagiarismResult = new PlagiarismResult();
-                                var plagiarismViewController = new PlagiarismViewController(ImageAssets, plagiarismCheck.Result.Plagiarism, _plagiarismResult);
-                                NavigationController.PushViewController(plagiarismViewController, true);
-                            });
-
+                            _plagiarismResult = new PlagiarismResult();
+                            var plagiarismViewController = new PlagiarismViewController(ImageAssets, plagiarismCheck.Result.Plagiarism, _plagiarismResult);
+                            NavigationController.PushViewController(plagiarismViewController, true);
                             return;
                         }
                     }
                 }
 
                 pushToBlockchainRetry = false;
-                var response = Presenter.TryCreateOrEditPostAsync(model).Result;
+                var response = await Presenter.TryCreateOrEditPostAsync(model).ConfigureAwait(true);
                 if (!(response != null && response.IsSuccess))
                 {
-                    InvokeOnMainThread(() =>
-                    {
-                        ShowDialog(response.Exception, LocalizationKeys.Cancel, LocalizationKeys.Retry,
-                            (arg) => { mre.Set(); }, (arg) =>
+                    ShowDialog(response.Exception, LocalizationKeys.Cancel, LocalizationKeys.Retry,
+                           (arg) => { mre.Set(); }, (arg) =>
                             {
                                 pushToBlockchainRetry = true;
                                 mre.Set();
                             });
-                    });
 
                     mre.Reset();
-                    mre.WaitOne();
+                    await Task.Run(() => { mre.WaitOne(); });
                 }
                 else
                 {
-                    InvokeOnMainThread(() =>
-                    {
-                        ShouldProfileUpdate = true;
-                        NavigationController.ViewControllers = new UIViewController[]
-                            {NavigationController.ViewControllers[0], this};
-                        NavigationController.PopViewController(false);
-                    });
+                    ShouldProfileUpdate = true;
+                    NavigationController.ViewControllers = new UIViewController[]
+                        {NavigationController.ViewControllers[0], this};
+                    NavigationController.PopViewController(false);
                 }
             } while (pushToBlockchainRetry);
         }
