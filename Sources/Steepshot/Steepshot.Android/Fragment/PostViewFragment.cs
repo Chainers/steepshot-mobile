@@ -33,6 +33,7 @@ namespace Steepshot.Fragment
         private PostViewHolder _postViewHolder;
         private PostViewHolder PostViewHolder => _postViewHolder ?? (_postViewHolder = new PostViewHolder(InflatedView, PostAction, AutoLinkAction, null, Style.ScreenWidth, Style.ScreenWidth));
         private readonly string _url;
+
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
             if (!IsInitialized)

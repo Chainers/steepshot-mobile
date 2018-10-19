@@ -147,7 +147,8 @@ namespace Steepshot.Adapter
         {
             _post = post;
 
-            Picasso.With(_context).Load(_post.GetImageProxy(cellSize))
+            Picasso.With(_context)
+                .Load(_post.GetImageProxy(cellSize))
                 .Placeholder(Resource.Color.rgb244_244_246)
                 .NoFade()
                 .Priority(Picasso.Priority.High)

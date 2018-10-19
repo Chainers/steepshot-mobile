@@ -168,11 +168,17 @@ namespace Steepshot.Adapter
         {
             _post = post;
             if (!string.IsNullOrEmpty(_post.Avatar))
-                Picasso.With(context).Load(_post.Avatar.GetImageProxy(_avatar.LayoutParameters.Width, _avatar.LayoutParameters.Height)).
-                    Placeholder(Resource.Drawable.ic_holder).
-                    Priority(Picasso.Priority.Low).Into(_avatar, null, OnPicassoError);
+            {
+                Picasso.With(context)
+                    .Load(_post.Avatar.GetImageProxy(_avatar.LayoutParameters.Width, _avatar.LayoutParameters.Height))
+                    .Placeholder(Resource.Drawable.ic_holder)
+                    .Priority(Picasso.Priority.Low)
+                    .Into(_avatar, null, OnPicassoError);
+            }
             else
+            {
                 Picasso.With(context).Load(Resource.Drawable.ic_holder).Into(_avatar);
+            }
 
             _author.Text = post.Author;
             _time.Text = post.Created.ToPostTime(App.Localization);

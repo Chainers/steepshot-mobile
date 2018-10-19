@@ -29,11 +29,13 @@ namespace Steepshot.Activity
 
             path = Intent.GetStringExtra(PhotoExtraPath);
             if (!string.IsNullOrWhiteSpace(path))
+            {
                 Picasso.With(this)
                        .Load(path)
                        .NoFade()
                        .Resize(Style.ScreenWidth, 0)
                        .Into(_photo, OnSuccess, OnError);
+            }
         }
 
         public void OnBitmapFailed(Drawable p0)

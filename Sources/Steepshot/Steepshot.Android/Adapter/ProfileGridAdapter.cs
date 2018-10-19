@@ -226,13 +226,18 @@ namespace Steepshot.Adapter
             _userAvatar = profile.ProfileImage;
             if (!string.IsNullOrEmpty(_userAvatar))
             {
-                Picasso.With(_context).Load(_userAvatar.GetImageProxy(_profileImage.LayoutParameters.Width, _profileImage.LayoutParameters.Height))
-                      .Placeholder(Resource.Drawable.ic_holder)
-                      .NoFade()
-                      .Into(_profileImage, null, OnError);
+                Picasso.With(_context)
+                    .Load(_userAvatar.GetImageProxy(_profileImage.LayoutParameters.Width, _profileImage.LayoutParameters.Height))
+                    .Placeholder(Resource.Drawable.ic_holder)
+                    .NoFade()
+                    .Into(_profileImage, null, OnError);
             }
             else
-                Picasso.With(_context).Load(Resource.Drawable.ic_holder).Into(_profileImage);
+            {
+                Picasso.With(_context)
+                      .Load(Resource.Drawable.ic_holder)
+                      .Into(_profileImage);
+            }
 
             _transferButton.Visibility = App.User.HasPostingPermission ? ViewStates.Visible : ViewStates.Gone;
 

@@ -1,8 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using Android.Graphics;
+using Android.Media;
+using Android.Provider;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
+using Steepshot.Core.Utils;
 using Steepshot.Utils;
 
 namespace Steepshot.Adapter
@@ -64,7 +67,9 @@ namespace Steepshot.Adapter
 
             if (!string.IsNullOrEmpty(model.TempPath))
             {
-                var bitmap = BitmapUtils.DecodeSampledBitmapFromFile(ItemView.Context, Android.Net.Uri.Parse(model.TempPath), Style.GalleryHorizontalScreenWidth, Style.GalleryHorizontalHeight);
+                Bitmap bitmap = MimeTypeHelper.IsVideo(model.MimeType)
+                    ? ThumbnailUtils.CreateVideoThumbnail(model.TempPath, ThumbnailKind.FullScreenKind)
+                    : BitmapUtils.DecodeSampledBitmapFromFile(ItemView.Context, Android.Net.Uri.Parse(model.TempPath), Style.GalleryHorizontalScreenWidth, Style.GalleryHorizontalHeight);
                 _image.SetImageBitmap(bitmap);
             }
         }

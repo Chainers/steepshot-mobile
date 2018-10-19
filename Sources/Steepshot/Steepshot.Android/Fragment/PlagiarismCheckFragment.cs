@@ -2,7 +2,10 @@
 using System.Collections.Generic;
 using Android.App;
 using Android.Content;
+using Android.Graphics;
+using Android.Media;
 using Android.OS;
+using Android.Provider;
 using Android.Support.V7.Widget;
 using Android.Text;
 using Android.Text.Method;
@@ -17,6 +20,7 @@ using Steepshot.Core;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Presenters;
+using Steepshot.Core.Utils;
 using Steepshot.Utils;
 
 namespace Steepshot.Fragment
@@ -25,7 +29,7 @@ namespace Steepshot.Fragment
     {
         private readonly List<GalleryMediaModel> _media;
         private readonly Plagiarism _model;
-        private RecyclerView.Adapter _adapter;
+        private GalleryMediaAdapter _adapter;
         private Android.Net.Uri _guidelinesUri;
 
 #pragma warning disable 0649, 4014
@@ -112,14 +116,13 @@ namespace Steepshot.Fragment
 
                 var margin = (int)BitmapUtils.DpToPixel(15, Resources);
 
-                if (_media[0].PreparedBitmap != null)
+                var model = _media[0];
+                if (!string.IsNullOrEmpty(model.TempPath))
                 {
-                    var previewSize = BitmapUtils.CalculateImagePreviewSize(_media[0].Parameters, Style.ScreenWidth - margin * 2);
-                    var layoutParams = new RelativeLayout.LayoutParams(previewSize.Width, previewSize.Height);
-                    layoutParams.SetMargins(margin, 0, margin, margin);
-                    _previewContainer.LayoutParameters = layoutParams;
-
-                    _preview.SetImageBitmap(_media[0].PreparedBitmap);
+                    Bitmap bitmap = MimeTypeHelper.IsVideo(model.MimeType)
+                        ? ThumbnailUtils.CreateVideoThumbnail(model.TempPath, ThumbnailKind.FullScreenKind)
+                        : BitmapUtils.DecodeSampledBitmapFromFile(Context, Android.Net.Uri.Parse(model.TempPath), Style.ScreenWidth - margin * 2, Style.ScreenWidth - margin * 2);
+                    _preview.SetImageBitmap(bitmap);
                 }
             }
 
