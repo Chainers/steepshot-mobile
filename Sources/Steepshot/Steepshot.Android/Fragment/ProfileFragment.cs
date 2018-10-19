@@ -307,7 +307,6 @@ namespace Steepshot.Fragment
 
             switch (status.Sender)
             {
-                case nameof(UserProfilePresenter.TryFollowAsync) when status.IsChanged:
                 case nameof(UserProfilePresenter.TryGetUserInfoAsync) when status.IsChanged:
                     {
                         _firstPostButton.Visibility = ProfileId == App.User.Login
@@ -315,6 +314,9 @@ namespace Steepshot.Fragment
                                                       && Presenter.UserProfileResponse.HiddenPostCount == 0
                                 ? ViewStates.Visible
                                 : ViewStates.Gone;
+                        
+                        ProfilePagerAdapter.NotifyDataSetChanged();
+
                         break;
                     }
                 default:

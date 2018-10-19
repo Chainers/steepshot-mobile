@@ -1,4 +1,6 @@
 using System;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using Newtonsoft.Json;
 
 namespace Steepshot.Core.Models.Responses
@@ -24,8 +26,9 @@ namespace Steepshot.Core.Models.Responses
     ///   "website": "http://www.google.com",
     ///   "estimated_balance": "3.92"
     /// }
-    public class UserProfileResponse : IFollowable
+    public class UserProfileResponse : IFollowable, INotifyPropertyChanged
     {
+        private bool _followedChanging;
         public int PostingRewards { get; set; }
         public int CurationRewards { get; set; }
         public DateTime LastAccountUpdate { get; set; }
@@ -52,8 +55,30 @@ namespace Steepshot.Core.Models.Responses
 
         //system
         [JsonIgnore]
-        public bool FollowedChanging { get; set; }
+        public bool FollowedChanging
+        {
+            get => _followedChanging;
+            set
+            {
+                if (_followedChanging != value)
+                {
+                    _followedChanging = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
 
         public string Key => Username;
+
+        #region INotifyPropertyChanged
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        #endregion
     }
 }

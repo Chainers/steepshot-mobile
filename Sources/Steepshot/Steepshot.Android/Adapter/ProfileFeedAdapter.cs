@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Android.Content;
 using Android.Support.V7.Widget;
 using Android.Views;
@@ -12,6 +13,7 @@ namespace Steepshot.Adapter
     {
         public Action<ActionType> ProfileAction;
         private readonly bool _isHeaderNeeded;
+        private readonly List<HeaderViewHolder> _headerViewHolders;
 
         public override int ItemCount
         {
@@ -25,6 +27,7 @@ namespace Steepshot.Adapter
 
         public ProfileFeedAdapter(Context context, UserProfilePresenter presenter, bool isHeaderNeeded = true) : base(context, presenter)
         {
+            _headerViewHolders = new List<HeaderViewHolder>();
             _isHeaderNeeded = isHeaderNeeded;
         }
 
@@ -43,6 +46,7 @@ namespace Steepshot.Adapter
                 case ViewType.Header:
                     var headerView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.lyt_profile_header, parent, false);
                     var headerVh = new HeaderViewHolder(headerView, Context, ProfileAction);
+                    _headerViewHolders.Add(headerVh);
                     return headerVh;
                 case ViewType.Loader:
                     var loaderView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.loading_item, parent, false);
@@ -62,6 +66,12 @@ namespace Steepshot.Adapter
             if (Presenter.Count < position)
                 return (int)ViewType.Loader;
             return (int)ViewType.Cell;
+        }
+
+        public override void OnDetachedFromRecyclerView(RecyclerView recyclerView)
+        {
+            _headerViewHolders.ForEach(h => h.OnDetached());
+            base.OnDetachedFromRecyclerView(recyclerView);
         }
     }
 }

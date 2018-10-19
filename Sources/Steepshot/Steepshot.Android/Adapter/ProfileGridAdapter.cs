@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
 using Android.Content;
 using Android.Graphics;
 using Android.Graphics.Drawables;
@@ -10,6 +12,7 @@ using Square.Picasso;
 using Steepshot.Base;
 using Steepshot.Core.Extensions;
 using Steepshot.Core.Localization;
+using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Presenters;
@@ -23,7 +26,7 @@ namespace Steepshot.Adapter
     {
         public Action<ActionType> ProfileAction;
         private readonly bool _isHeaderNeeded;
-
+        private readonly List<HeaderViewHolder> _headerViewHolders;
 
         public override int ItemCount
         {
@@ -35,8 +38,9 @@ namespace Steepshot.Adapter
         }
 
 
-        public ProfileGridAdapter(Context context, UserProfilePresenter presenter, bool isHeaderNeeded = true) : base(context, presenter)
+        public ProfileGridAdapter(Context context, UserProfilePresenter presenter,  bool isHeaderNeeded = true) : base(context, presenter)
         {
+            _headerViewHolders = new List<HeaderViewHolder>();
             _isHeaderNeeded = isHeaderNeeded;
         }
 
@@ -44,9 +48,13 @@ namespace Steepshot.Adapter
         public override void OnBindViewHolder(RecyclerView.ViewHolder holder, int position)
         {
             if (position == 0 && _isHeaderNeeded)
+            {
                 ((HeaderViewHolder)holder).UpdateHeader(Presenter.UserProfileResponse);
+            }
             else
+            {
                 base.OnBindViewHolder(holder, _isHeaderNeeded ? position - 1 : position);
+            }
         }
 
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
@@ -54,19 +62,30 @@ namespace Steepshot.Adapter
             switch ((ViewType)viewType)
             {
                 case ViewType.Header:
-                    var headerView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.lyt_profile_header, parent, false);
-                    var headerVh = new HeaderViewHolder(headerView, Context, ProfileAction);
-                    return headerVh;
+                    {
+                        var headerView = LayoutInflater.From(parent.Context)
+                            .Inflate(Resource.Layout.lyt_profile_header, parent, false);
+                        var vh = new HeaderViewHolder(headerView, Context, ProfileAction);
+                        _headerViewHolders.Add(vh);
+                        return vh;
+                    }
                 case ViewType.Loader:
-                    var loaderView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.loading_item, parent, false);
-                    var loaderVh = new LoaderViewHolder(loaderView);
-                    return loaderVh;
+                    {
+                        var loaderView = LayoutInflater.From(parent.Context)
+                            .Inflate(Resource.Layout.loading_item, parent, false);
+                        var loaderVh = new LoaderViewHolder(loaderView);
+                        return loaderVh;
+                    }
+
                 default:
-                    var view = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.lyt_grid_item, parent, false);
-                    view.LayoutParameters = new ViewGroup.LayoutParams(CellSize, CellSize);
-                    var vh = new ImageViewHolder(view, Context, Click);
-                    Holders.Add(vh);
-                    return vh;
+                    {
+                        var view = LayoutInflater.From(parent.Context)
+                              .Inflate(Resource.Layout.lyt_grid_item, parent, false);
+                        view.LayoutParameters = new ViewGroup.LayoutParams(CellSize, CellSize);
+                        var vh = new ImageViewHolder(view, Context, Click);
+                        Holders.Add(vh);
+                        return vh;
+                    }
             }
         }
 
@@ -77,6 +96,12 @@ namespace Steepshot.Adapter
             if (Presenter.Count < position)
                 return (int)ViewType.Loader;
             return (int)ViewType.Cell;
+        }
+
+        public override void OnDetachedFromRecyclerView(RecyclerView recyclerView)
+        {
+            _headerViewHolders.ForEach(h => h.OnDetached());
+            base.OnDetachedFromRecyclerView(recyclerView);
         }
     }
 
@@ -222,7 +247,11 @@ namespace Steepshot.Adapter
             if (profile == null)
                 return;
 
+            if (_profile != null)
+                _profile.PropertyChanged -= UserProfileOnPropertyChanged;
             _profile = profile;
+            _profile.PropertyChanged += UserProfileOnPropertyChanged;
+
             _userAvatar = profile.ProfileImage;
             if (!string.IsNullOrEmpty(_userAvatar))
             {
@@ -249,36 +278,7 @@ namespace Steepshot.Adapter
             }
             else
             {
-                if (profile.FollowedChanging)
-                {
-                    _followBtnBackground.SetColors(new int[] { Style.R255G121B4, Style.R255G22B5 });
-                    _followBtnBackground.SetOrientation(GradientDrawable.Orientation.LeftRight);
-                    _followBtnBackground.SetStroke(0, Color.White);
-                    _followButton.Text = string.Empty;
-                    _followButton.SetTextColor(Color.White);
-                    _followButton.Enabled = false;
-                    _loadingSpinner.Visibility = ViewStates.Visible;
-                }
-                else
-                {
-                    if (profile.HasFollowed)
-                    {
-                        _followBtnBackground.SetColors(new int[] { Color.White, Color.White });
-                        _followBtnBackground.SetStroke(3, Style.R244G244B246);
-                        _followButton.Text = App.Localization.GetText(LocalizationKeys.Unfollow);
-                        _followButton.SetTextColor(Style.R15G24B30);
-                    }
-                    else
-                    {
-                        _followBtnBackground.SetColors(new int[] { Style.R255G121B4, Style.R255G22B5 });
-                        _followBtnBackground.SetOrientation(GradientDrawable.Orientation.LeftRight);
-                        _followBtnBackground.SetStroke(0, Color.White);
-                        _followButton.Text = App.Localization.GetText(LocalizationKeys.Follow);
-                        _followButton.SetTextColor(Color.White);
-                    }
-                    _followButton.Enabled = true;
-                    _loadingSpinner.Visibility = ViewStates.Gone;
-                }
+                UpdateFollow(profile);
             }
 
             if (!string.IsNullOrEmpty(profile.Name))
@@ -323,9 +323,64 @@ namespace Steepshot.Adapter
             _balance.Text = StringHelper.ToFormatedCurrencyString(profile.EstimatedBalance, App.MainChain);
         }
 
+        private void UpdateFollow(UserProfileResponse profile)
+        {
+            if (profile.FollowedChanging)
+            {
+                _followBtnBackground.SetColors(new int[] { Style.R255G121B4, Style.R255G22B5 });
+                _followBtnBackground.SetOrientation(GradientDrawable.Orientation.LeftRight);
+                _followBtnBackground.SetStroke(0, Color.White);
+                _followButton.Text = string.Empty;
+                _followButton.SetTextColor(Color.White);
+                _followButton.Enabled = false;
+                _loadingSpinner.Visibility = ViewStates.Visible;
+            }
+            else
+            {
+                if (profile.HasFollowed)
+                {
+                    _followBtnBackground.SetColors(new int[] { Color.White, Color.White });
+                    _followBtnBackground.SetStroke(3, Style.R244G244B246);
+                    _followButton.Text = App.Localization.GetText(LocalizationKeys.Unfollow);
+                    _followButton.SetTextColor(Style.R15G24B30);
+                }
+                else
+                {
+                    _followBtnBackground.SetColors(new int[] { Style.R255G121B4, Style.R255G22B5 });
+                    _followBtnBackground.SetOrientation(GradientDrawable.Orientation.LeftRight);
+                    _followBtnBackground.SetStroke(0, Color.White);
+                    _followButton.Text = App.Localization.GetText(LocalizationKeys.Follow);
+                    _followButton.SetTextColor(Color.White);
+                }
+                _followButton.Enabled = true;
+                _loadingSpinner.Visibility = ViewStates.Gone;
+            }
+        }
+        
+        private void UserProfileOnPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            var userProfileResponse = (UserProfileResponse)sender;
+            if (_profile != userProfileResponse)
+                return;
+
+            switch (e.PropertyName)
+            {
+                case nameof(Post.VoteChanging):
+                    {
+                        UpdateFollow(userProfileResponse);
+                        break;
+                    }
+            }
+        }
+        
         private void OnError()
         {
             Picasso.With(_context).Load(_userAvatar).Placeholder(Resource.Drawable.ic_holder).NoFade().Into(_profileImage);
+        }
+
+        public void OnDetached()
+        {
+            _profile.PropertyChanged -= UserProfileOnPropertyChanged;
         }
     }
 }
