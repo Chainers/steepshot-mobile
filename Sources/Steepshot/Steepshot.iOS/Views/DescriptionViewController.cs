@@ -22,6 +22,7 @@ using Steepshot.Core.Exceptions;
 using Steepshot.iOS.CustomViews;
 using AVFoundation;
 using Steepshot.iOS.Delegates;
+using CoreMedia;
 
 namespace Steepshot.iOS.Views
 {
@@ -85,7 +86,7 @@ namespace Steepshot.iOS.Views
         private UITapGestureRecognizer _zoomTap;
         private UITapGestureRecognizer _videoViewTap;
 
-        public bool _isFromCamera => ImageAssets?.Count == 1 && ImageAssets[0]?.Item1 == null;
+        public bool _isFromCamera => ImageAssets?.Count == 1 && ImageAssets[0]?.Item1 == null && _mediaType.Equals(MediaType.Photo);
         private Task<List<MediaModel>> MediaResults;
 
         public DescriptionViewController() { }
@@ -540,6 +541,22 @@ namespace Steepshot.iOS.Views
                         if (plagiarismCheck.Result.Plagiarism.IsPlagiarism)
                         {
                             _plagiarismResult = new PlagiarismResult();
+
+                            if (_mediaType == MediaType.Video)
+                            {
+                                var assetIG = new AVAssetImageGenerator(_videoAsset)
+                                {
+                                    AppliesPreferredTrackTransform = true,
+                                    ApertureMode = AVAssetImageGenerator.ApertureModeEncodedPixels
+                                };
+
+                                var cmTime = new CMTime(0, 30);
+                                var thumbnailImageRef = assetIG.CopyCGImageAtTime(cmTime, out var time, out var error);
+                                var firstFrame = new UIImage(thumbnailImageRef);
+                                ImageAssets = new List<Tuple<NSDictionary, UIImage>>();
+                                ImageAssets.Add(new Tuple<NSDictionary, UIImage>(null, firstFrame));
+                            }
+
                             var plagiarismViewController = new PlagiarismViewController(ImageAssets, plagiarismCheck.Result.Plagiarism, _plagiarismResult);
                             NavigationController.PushViewController(plagiarismViewController, true);
                             return;
