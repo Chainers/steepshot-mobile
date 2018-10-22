@@ -219,7 +219,7 @@ namespace Steepshot.iOS.Views
             }
             else
             {
-                videoContainer = new VideoView(false, false);
+                videoContainer = new VideoView(true, false);
                 videoContainer.ClipsToBounds = true;
                 videoContainer.Layer.CornerRadius = 8;
                 mainScroll.AddSubview(videoContainer);
@@ -228,13 +228,6 @@ namespace Steepshot.iOS.Views
                 videoContainer.AutoPinEdgeToSuperviewEdge(ALEdge.Top, 15f);
                 videoContainer.AutoSetDimensionsToSize(new CGSize(_cellSize.Width, _cellSize.Height));
                 videoContainer.ChangeItem(_videoUrl);
-
-                _statusImage = new UIImageView();
-                _statusImage.Image = UIImage.FromBundle("ic_pause");
-                videoContainer.AddSubview(_statusImage);
-                _statusImage.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom, 10);
-                _statusImage.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 10);
-                _statusImage.AutoSetDimensionsToSize(new CGSize(32, 32));
 
                 videoContainer.Play();
             }

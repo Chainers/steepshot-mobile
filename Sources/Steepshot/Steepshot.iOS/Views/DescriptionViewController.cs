@@ -31,7 +31,6 @@ namespace Steepshot.iOS.Views
         private const int _photoSize = 900;
         private const int maxUploadRetry = 1;
 
-        private UIImageView _statusImage;
         private TimeSpan _postingLimit;
         private PlagiarismResult _plagiarismResult;
         private bool _isSpammer;
@@ -84,7 +83,6 @@ namespace Steepshot.iOS.Views
         private UITapGestureRecognizer _openTagsGestureRecognizer;
         private UITapGestureRecognizer _rotateTap;
         private UITapGestureRecognizer _zoomTap;
-        private UITapGestureRecognizer _videoViewTap;
 
         public bool _isFromCamera => ImageAssets?.Count == 1 && ImageAssets[0]?.Item1 == null && _mediaType.Equals(MediaType.Photo);
         private Task<List<MediaModel>> MediaResults;
@@ -114,7 +112,6 @@ namespace Steepshot.iOS.Views
             _openTagsGestureRecognizer = new UITapGestureRecognizer(OpenTagPicker);
             _rotateTap = new UITapGestureRecognizer(RotateTap);
             _zoomTap = new UITapGestureRecognizer(ZoomTap);
-            _videoViewTap = new UITapGestureRecognizer(VideoViewTapped);
 
             SetupMainScroll();
 
@@ -189,19 +186,16 @@ namespace Steepshot.iOS.Views
             }
             else
             {
-                if (videoContainer != null)
-                    videoContainer.OnVideoStop += OnVideoStopped;
-
                 postPhotoButton.TouchDown += PostPhoto;
                 _titleTextViewDelegate.EditingStartedAction += _titleTextViewDelegate_EditingStartedAction;
                 _descriptionTextViewDelegate.EditingStartedAction += _descriptionTextViewDelegate_EditingStartedAction;
                 _leftBarButton.Clicked += GoBack;
                 View.AddGestureRecognizer(_viewTap);
-                videoContainer?.AddGestureRecognizer(_videoViewTap);
                 tagField.AddGestureRecognizer(_openTagsGestureRecognizer);
                 _resizeButton.AddGestureRecognizer(_zoomTap);
                 _rotateButton.AddGestureRecognizer(_rotateTap);
                 ((InteractivePopNavigationController)NavigationController).DidEnterBackgroundEvent += VideoViewTapped;
+                ((InteractivePopNavigationController)NavigationController).WillEnterForegroundEvent += VideoViewTapped;
             }
 
             if (_plagiarismResult != null && _plagiarismResult.Continue && !IsMovingToParentViewController)
@@ -215,19 +209,16 @@ namespace Steepshot.iOS.Views
             collectionviewSource.CellAction -= CollectionCellAction;
             if (IsMovingFromParentViewController)
             {
-                if (videoContainer != null)
-                    videoContainer.OnVideoStop -= OnVideoStopped;
-
                 postPhotoButton.TouchDown -= PostPhoto;
                 _titleTextViewDelegate.EditingStartedAction = null;
                 _descriptionTextViewDelegate.EditingStartedAction = null;
                 _leftBarButton.Clicked -= GoBack;
                 View.RemoveGestureRecognizer(_viewTap);
-                videoContainer?.RemoveGestureRecognizer(_videoViewTap);
                 tagField.RemoveGestureRecognizer(_openTagsGestureRecognizer);
                 _resizeButton.RemoveGestureRecognizer(_zoomTap);
                 _rotateButton.RemoveGestureRecognizer(_rotateTap);
                 ((InteractivePopNavigationController)NavigationController).DidEnterBackgroundEvent -= VideoViewTapped;
+                ((InteractivePopNavigationController)NavigationController).WillEnterForegroundEvent -= VideoViewTapped;
             }
             videoContainer?.Stop();
             base.ViewWillDisappear(animated);
@@ -255,19 +246,12 @@ namespace Steepshot.iOS.Views
                 if (videoContainer.Player.TimeControlStatus == AVPlayerTimeControlStatus.Playing)
                 {
                     videoContainer.Stop();
-                    _statusImage.Image = UIImage.FromBundle("ic_play");
                 }
                 else
                 {
                     videoContainer.Play();
-                    _statusImage.Image = UIImage.FromBundle("ic_pause");
                 }
             }
-        }
-
-        private void OnVideoStopped()
-        {
-            _statusImage.Image = UIImage.FromBundle("ic_play");
         }
 
         private void EditingStartedAction()
