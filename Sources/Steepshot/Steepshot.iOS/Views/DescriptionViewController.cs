@@ -29,7 +29,6 @@ namespace Steepshot.iOS.Views
     public partial class DescriptionViewController : BaseViewControllerWithPresenter<PostDescriptionPresenter>
     {
         private const int _photoSize = 900;
-        private const int maxUploadRetry = 1;
 
         private TimeSpan _postingLimit;
         private PlagiarismResult _plagiarismResult;
@@ -306,21 +305,18 @@ namespace Steepshot.iOS.Views
             {
                 for (int i = 0; i < ImageAssets.Count; i++)
                 {
-                    var stream = await PreparePhoto(ImageAssets[i].Item2, ImageAssets[i].Item1);
-                    uploadTasks.Add(UploadMedia(stream));
+                    var byteArray = await PreparePhoto(ImageAssets[i].Item2, ImageAssets[i].Item1);
+                    uploadTasks.Add(UploadMedia(byteArray));
                 }
             }
             else
-            {
-                var stream = new CustomInputStream(new NSInputStream(_videoUrl));
-                uploadTasks.Add(UploadMedia(stream));
-            }
+                uploadTasks.Add(UploadMedia(null));
 
             await Task.WhenAll(uploadTasks);
             return uploadTasks.Select(x => x.Result.Result).ToList();
         }
 
-        private Task<Stream> PreparePhoto(UIImage photo, NSDictionary metadata)
+        private Task<NSData> PreparePhoto(UIImage photo, NSDictionary metadata)
         {
             return Task.Run(() =>
             {
@@ -343,38 +339,40 @@ namespace Steepshot.iOS.Views
                     var imageDestination = CGImageDestination.Create(newImageDataWithExif, "public.jpeg", 0);
                     imageDestination.AddImage(new UIImage(byteArray).CGImage, editedExifData);
                     imageDestination.Close();
-                    return newImageDataWithExif.AsStream();
+                    return newImageDataWithExif;
                 }
                 else
-                    return byteArray.AsStream();
+                    return byteArray;
             });
         }
 
-        private async Task<OperationResult<MediaModel>> UploadMedia(Stream stream)
+        private async Task<OperationResult<MediaModel>> UploadMedia(NSData byteArray)
         {
-            using (stream)
+            OperationResult<UUIDModel> uploadResult;
+            do
             {
+                Stream stream;
+                if (byteArray == null)
+                    stream = new CustomInputStream(new NSInputStream(_videoUrl));
+                else
+                    stream = byteArray.AsStream();
+
                 var request = new UploadMediaModel(AppDelegate.User.UserInfo, stream, _mediaType == MediaType.Photo ? _imageExtension : ".mp4");
-                OperationResult<UUIDModel> uploadResult;
-                int uploadRetry = 0;
-                do
-                {
-                    uploadRetry++;
-                    uploadResult = await Presenter.TryUploadMediaAsync(request).ConfigureAwait(false);
-                } while (uploadRetry < maxUploadRetry && !uploadResult.IsSuccess);
+                uploadResult = await Presenter.TryUploadMediaAsync(request).ConfigureAwait(false);
+                stream.Dispose();
+            } while (!uploadResult.IsSuccess);
 
-                OperationResult<UploadMediaStatusModel> statusResult;
+            OperationResult<UploadMediaStatusModel> statusResult;
 
-                if (uploadResult.IsSuccess)
-                    statusResult = await GetMediaStatus(uploadResult.Result).ConfigureAwait(false);
-                else
-                    return new OperationResult<MediaModel>(uploadResult.Exception);
+            if (uploadResult.IsSuccess)
+                statusResult = await GetMediaStatus(uploadResult.Result).ConfigureAwait(false);
+            else
+                return new OperationResult<MediaModel>(uploadResult.Exception);
 
-                if (statusResult.IsSuccess && statusResult.Result.Code == UploadMediaCode.Done)
-                    return await Presenter.TryGetMediaResultAsync(uploadResult.Result);
-                else
-                    return new OperationResult<MediaModel>(statusResult.Exception);
-            }
+            if (statusResult.IsSuccess && statusResult.Result.Code == UploadMediaCode.Done)
+                return await Presenter.TryGetMediaResultAsync(uploadResult.Result);
+            else
+                return new OperationResult<MediaModel>(statusResult.Exception);
         }
 
         private async Task<OperationResult<UploadMediaStatusModel>> GetMediaStatus(UUIDModel uuidModel)
