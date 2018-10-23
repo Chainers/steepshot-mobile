@@ -29,6 +29,8 @@ namespace Steepshot.iOS.Views
 
         protected override void SourceChanged(Status status)
         {
+            if (status.Sender == nameof(Presenter.HidePost))
+                StopPlayingVideo(sliderCollection, feedCollection);
             InvokeOnMainThread(HandleAction);
         }
 
@@ -131,22 +133,7 @@ namespace Steepshot.iOS.Views
 
         public override void ViewWillDisappear(bool animated)
         {
-            if (sliderCollection.Hidden)
-            {
-                foreach (var item in feedCollection.IndexPathsForVisibleItems)
-                {
-                    if (feedCollection.CellForItem(item) is NewFeedCollectionViewCell cell)
-                        cell.Cell.Playback(false);
-                }
-            }
-            else
-            {
-                foreach (var item in sliderCollection.IndexPathsForVisibleItems)
-                {
-                    if (sliderCollection.CellForItem(item) is SliderFeedCollectionViewCell cell)
-                        cell.Playback(false);
-                }
-            }
+            StopPlayingVideo(sliderCollection, feedCollection);
 
             if (IsMovingFromParentViewController)
             {

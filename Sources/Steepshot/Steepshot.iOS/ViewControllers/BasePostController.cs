@@ -9,6 +9,7 @@ using Steepshot.Core.Models;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
+using Steepshot.iOS.Cells;
 using Steepshot.iOS.CustomViews;
 using Steepshot.iOS.Views;
 using UIKit;
@@ -91,6 +92,26 @@ namespace Steepshot.iOS.ViewControllers
             AppDelegate.User.Save();
 
             Presenter.HidePost(post);
+        }
+
+        protected void StopPlayingVideo(UICollectionView sliderCollection, UICollectionView feedCollection)
+        {
+            if (sliderCollection.Hidden)
+            {
+                foreach (var item in feedCollection.IndexPathsForVisibleItems)
+                {
+                    if (feedCollection.CellForItem(item) is NewFeedCollectionViewCell cell)
+                        cell.Cell.Playback(false);
+                }
+            }
+            else
+            {
+                foreach (var item in sliderCollection.IndexPathsForVisibleItems)
+                {
+                    if (sliderCollection.CellForItem(item) is SliderFeedCollectionViewCell cell)
+                        cell.Playback(false);
+                }
+            }
         }
 
         protected async Task FlagPhoto(Post post)

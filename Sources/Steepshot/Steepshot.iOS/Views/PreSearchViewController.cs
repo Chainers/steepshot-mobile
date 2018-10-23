@@ -144,24 +144,8 @@ namespace Steepshot.iOS.Views
         public override void ViewWillDisappear(bool animated)
         {
             NavigationController.SetNavigationBarHidden(false, false);
+            StopPlayingVideo(sliderCollection, collectionView);
 
-            if (sliderCollection.Hidden)
-            {
-                foreach (var item in collectionView.IndexPathsForVisibleItems)
-                {
-                    if (collectionView.CellForItem(item) is NewFeedCollectionViewCell cell)
-                        cell.Cell.Playback(false);
-                }
-            }
-            else
-            {
-                foreach (var item in sliderCollection.IndexPathsForVisibleItems)
-                {
-                    if (sliderCollection.CellForItem(item) is SliderFeedCollectionViewCell cell)
-                        cell.Playback(false);
-                }
-            }
-            
             loginButton.TouchDown -= LoginTapped;
             hotButton.TouchDown -= HotButton_TouchDown;
             topButton.TouchDown -= TopButton_TouchDown;
@@ -437,6 +421,8 @@ namespace Steepshot.iOS.Views
 
         protected override void SourceChanged(Status status)
         {
+            if (status.Sender == nameof(Presenter.HidePost))
+                StopPlayingVideo(sliderCollection, collectionView);
             InvokeOnMainThread(HandleAction);
         }
 
