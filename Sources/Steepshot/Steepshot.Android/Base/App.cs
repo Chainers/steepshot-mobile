@@ -28,7 +28,7 @@ namespace Steepshot.Base
     {
         public static ProfileUpdateType ProfileUpdateType = ProfileUpdateType.None;
 
-        public static Autofac.IContainer Container { get; private set; }
+        public static IContainer Container { get; private set; }
         public static ILogService Logger { get; private set; }
         public static LocalizationManager Localization { get; private set; }
         public static User User { get; private set; }
@@ -38,7 +38,7 @@ namespace Steepshot.Base
         public static KnownChains MainChain { get; set; }
 
 
-        public static Square.Picasso.LruCache Cache;
+        public static LruCache Cache;
 
         public App(IntPtr javaReference, JniHandleOwnership transfer)
             : base(javaReference, transfer)
@@ -46,7 +46,7 @@ namespace Steepshot.Base
         }
 
         public static VideoPlayerManager VideoPlayerManager;
-            
+
         public override void OnCreate()
         {
             base.OnCreate();
@@ -71,7 +71,7 @@ namespace Steepshot.Base
             SettingsManager = Container.GetSettingsManager();
             NavigationManager = Container.GetNavigationManager();
             AppInfo = Container.GetAppInfo();
-            VideoPlayerManager = new VideoPlayerManager(ApplicationContext);
+            VideoPlayerManager = Container.GetVideoPlayerManager(Context, Constants.VideoCacheSize);
             InitPicassoCache();
 
             InitPushes();
@@ -112,7 +112,7 @@ namespace Steepshot.Base
         {
             if (Cache == null)
             {
-                Cache = new Square.Picasso.LruCache(this);
+                Cache = new LruCache(this);
                 var d = new Picasso.Builder(this);
                 d.MemoryCache(Cache);
                 Picasso.SetSingletonInstance(d.Build());
@@ -128,7 +128,7 @@ namespace Steepshot.Base
                 builder.RegisterInstance(assetManagerssets)
                     .As<Android.Content.Res.AssetManager>()
                     .SingleInstance();
-                builder.RegisterModule<Steepshot.Utils.IocModule>();
+                builder.RegisterModule<Utils.IocModule>();
 
                 Container = builder.Build();
             }

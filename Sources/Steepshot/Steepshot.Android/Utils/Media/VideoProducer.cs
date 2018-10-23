@@ -1,40 +1,56 @@
 using System;
+using Android.Content;
 using Android.Graphics;
-using Android.Graphics.Drawables;
+using Android.Webkit;
+using Com.Google.Android.Exoplayer2;
 using Steepshot.Base;
 using Steepshot.Core.Models.Common;
 
 namespace Steepshot.Utils.Media
 {
-    public class VideoProducer : Java.Lang.Object, IMediaProducer
+    public class VideoProducer : ImageProducer
     {
-        public event Action<WeakReference<Bitmap>> Draw;
-        public event Action<ColorDrawable> PreDraw;
+        public TimeSpan Duration => TimeSpan.FromTicks(_player?.Duration * 10000L ?? 0);
+        public TimeSpan CurrentPosition => TimeSpan.FromTicks(_player?.CurrentPosition * 10000L ?? 0);
+        public event Action Ready;
         private VideoPlayer _player;
 
-        public void Prepare(MediaModel media, SurfaceTexture st)
+        public VideoProducer(Context context) : base(context)
         {
-            _player = App.VideoPlayerManager.GetFreePlayer();
-            _player?.Prepare(st, media);
         }
 
-        public void Play()
+        public override void Prepare(SurfaceTexture st, MediaModel media)
+        {
+            if (URLUtil.IsHttpUrl(media.Url) || URLUtil.IsHttpsUrl(media.Url))
+                base.Prepare(st, media);
+            _player = App.VideoPlayerManager.GetFreePlayer();
+            _player.StateChanged += PlayerOnStateChanged;
+            _player.Prepare(st, media);
+        }
+
+        public override void Play()
         {
             _player?.Play();
         }
 
-        public void Pause()
+        public override void Pause()
         {
             _player?.Pause();
         }
 
-        public void Stop()
+        public override void Stop()
         {
-            _player?.Stop();
+            if (_player != null)
+            {
+                _player.Stop();
+                _player.StateChanged -= PlayerOnStateChanged;
+            }
         }
 
-        public void Release()
+        private void PlayerOnStateChanged(int state)
         {
+            if (state == Player.StateReady)
+                Ready?.Invoke();
         }
     }
 }

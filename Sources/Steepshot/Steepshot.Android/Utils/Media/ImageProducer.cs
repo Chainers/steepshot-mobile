@@ -20,7 +20,7 @@ namespace Steepshot.Utils.Media
             _context = context;
         }
 
-        public virtual void Prepare(MediaModel media, SurfaceTexture st)
+        public virtual void Prepare(SurfaceTexture st, MediaModel media)
         {
             if (media == null)
                 return;
@@ -34,25 +34,9 @@ namespace Steepshot.Utils.Media
                 .Into(this);
         }
 
-        public void Play()
-        {
-        }
-
-        public virtual void Pause()
-        {
-        }
-
-        public void Stop()
-        {
-        }
-
-        public virtual void Release()
-        {
-        }
-
         public void OnBitmapFailed(Drawable p0)
         {
-            Picasso.With(_context).Load(_media.Url).NoFade()
+            Picasso.With(_context).Load(_media.Thumbnails.Micro).NoFade()
                 .Priority(Picasso.Priority.High)
                 .Into(this);
         }
@@ -66,6 +50,18 @@ namespace Steepshot.Utils.Media
         public void OnPrepareLoad(Drawable p0)
         {
             PreDraw?.Invoke((ColorDrawable)p0);
+        }
+
+        public virtual void Play()
+        {
+        }
+
+        public virtual void Pause()
+        {
+        }
+
+        public virtual void Stop()
+        {
         }
     }
 }

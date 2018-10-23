@@ -1,17 +1,17 @@
 ﻿using Autofac;
 using Steepshot.Core.Interfaces;
 using Steepshot.Services;
+using Steepshot.Utils.Media;
 
 namespace Steepshot.Utils
 {
-    public class IocModule : Steepshot.Core.Utils.IocModule
+    public class IocModule : Core.Utils.IocModule
     {
         protected override void Load(ContainerBuilder builder)
         {
             base.Load(builder);
             Services(builder);
             Utils(builder);
-
         }
 
         public void Services(ContainerBuilder builder)
@@ -37,6 +37,9 @@ namespace Steepshot.Utils
 
             builder.RegisterType<FileProvider>()
                 .As<IFileProvider>()
+                .SingleInstance();
+
+            builder.RegisterType<VideoPlayerManager>()
                 .SingleInstance();
         }
     }

@@ -55,5 +55,16 @@ namespace Steepshot.Base
                     break;
             }
         }
+
+        public override bool UserVisibleHint
+        {
+            get => base.UserVisibleHint;
+            set
+            {
+                if (value)
+                    App.VideoPlayerManager.ReleasePlayers();
+                base.UserVisibleHint = value;
+            }
+        }
     }
 }
