@@ -8,6 +8,7 @@ using Com.Google.Android.Exoplayer2.Source;
 using Com.Google.Android.Exoplayer2.Source.Hls;
 using Com.Google.Android.Exoplayer2.Trackselection;
 using Com.Google.Android.Exoplayer2.Upstream;
+using Com.Google.Android.Exoplayer2.Upstream.Cache;
 using Com.Google.Android.Exoplayer2.Util;
 using Steepshot.Core;
 using Steepshot.Core.Models.Common;
@@ -15,26 +16,28 @@ using Object = Java.Lang.Object;
 
 namespace Steepshot.Utils.Media
 {
-    public class VideoPlayer : Object, IPlayerEventListener, IDisposable
+    public class VideoPlayer : Object, IPlayerEventListener
     {
         public int State => _player.PlaybackState;
+        public long Duration => _player.Duration;
+        public long CurrentPosition => _player.CurrentPosition;
+        public event Action<int> StateChanged;
 
         private readonly Context _context;
+        private readonly SimpleCache _cache;
         private readonly DefaultBandwidthMeter _defaultBandwidthMeter;
-        private readonly DefaultTrackSelector _defaultTrackSelector;
-        private readonly DefaultRenderersFactory _defaultRenderersFactory;
         private readonly SimpleExoPlayer _player;
+        private IDataSourceFactory _dataSourceFactory;
+        private IMediaSource _mediaSource;
 
-        private readonly object _lock = new object();
-
-        public VideoPlayer(Context context)
+        public VideoPlayer(Context context, SimpleCache cache)
         {
             _context = context;
+            _cache = cache;
             _defaultBandwidthMeter = new DefaultBandwidthMeter();
-            _defaultTrackSelector = new DefaultTrackSelector(_defaultBandwidthMeter);
-            _defaultRenderersFactory = new DefaultRenderersFactory(context);
-
-            _player = ExoPlayerFactory.NewSimpleInstance(_defaultRenderersFactory, _defaultTrackSelector);
+            var defaultTrackSelector = new DefaultTrackSelector(_defaultBandwidthMeter);
+            var defaultRenderersFactory = new DefaultRenderersFactory(context);
+            _player = ExoPlayerFactory.NewSimpleInstance(defaultRenderersFactory, defaultTrackSelector);
             _player.RepeatMode = 1;
             _player.AddListener(this);
         }
@@ -42,25 +45,26 @@ namespace Steepshot.Utils.Media
         public void Prepare(SurfaceTexture st, MediaModel model)
         {
             var userAgent = Util.GetUserAgent(_context, Constants.Steepshot);
-            var httpDataSourceFactory = new DefaultHttpDataSourceFactory(userAgent, _defaultBandwidthMeter, 30000, 30000, true);
-            var defaultDataSourceFactory = new DefaultDataSourceFactory(_context, null, httpDataSourceFactory);
-
-            IMediaSource mediaSource;
             var mediaUri = Android.Net.Uri.Parse(model.Url);
             if (URLUtil.IsHttpUrl(model.Url) || URLUtil.IsHttpsUrl(model.Url))
             {
-                var hlsMediaSource = new HlsMediaSource.Factory(defaultDataSourceFactory);
-                mediaSource = hlsMediaSource.CreateMediaSource(mediaUri);                
+                var httpDataSourceFactory = new DefaultHttpDataSourceFactory(userAgent, _defaultBandwidthMeter, 30000, 30000, true);
+                var fileDataSourceFactory = new FileDataSourceFactory();
+                var cacheDataSinkFactory = new CacheDataSinkFactory(_cache, Constants.VideoMaxUploadSize);
+                _dataSourceFactory = new CacheDataSourceFactory(_cache, httpDataSourceFactory, fileDataSourceFactory, cacheDataSinkFactory, CacheDataSource.FlagBlockOnCache | CacheDataSource.FlagIgnoreCacheOnError, null);
+                var hlsMediaSource = new HlsMediaSource.Factory(_dataSourceFactory);
+                _mediaSource = hlsMediaSource.CreateMediaSource(mediaUri);
             }
             else
             {
-                var extractorMediaSource = new ExtractorMediaSource.Factory(defaultDataSourceFactory);
-                mediaSource = extractorMediaSource.CreateMediaSource(mediaUri);                
+                _dataSourceFactory = new DefaultDataSourceFactory(_context, userAgent);
+                var extractorMediaSource = new ExtractorMediaSource.Factory(_dataSourceFactory);
+                _mediaSource = extractorMediaSource.CreateMediaSource(mediaUri);
             }
-            _player.Prepare(mediaSource);
 
             var surface = new Surface(st);
             _player.SetVideoSurface(surface);
+            _player.Prepare(_mediaSource);
         }
 
         public void Play()
@@ -75,14 +79,15 @@ namespace Steepshot.Utils.Media
 
         public void Stop()
         {
-            _player.Stop();
+            Pause();
+            _player.Stop(true);
         }
 
-        public void Dispose()
+        protected override void Dispose(bool disposing)
         {
-            _player.Stop();
+            base.Dispose(disposing);
+            Stop();
             _player.Release();
-            _player.Dispose();
         }
 
         public void OnLoadingChanged(bool p0)
@@ -102,7 +107,7 @@ namespace Steepshot.Utils.Media
 
         public void OnPlayerStateChanged(bool p0, int p1)
         {
-
+            StateChanged?.Invoke(p1);
         }
 
         public void OnPositionDiscontinuity(int p0)

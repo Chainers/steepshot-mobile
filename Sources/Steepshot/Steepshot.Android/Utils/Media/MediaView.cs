@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Android.Animation;
 using Android.Content;
 using Android.Graphics;
 using Android.Graphics.Drawables;
@@ -8,52 +9,37 @@ using Android.OS;
 using Android.Provider;
 using Android.Util;
 using Android.Views;
-using Java.Lang;
+using Android.Widget;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Utils;
 
 namespace Steepshot.Utils.Media
 {
-    public class MediaView : TextureView, TextureView.ISurfaceTextureListener
+    public class MediaView : FrameLayout, TextureView.ISurfaceTextureListener
     {
-        private Dictionary<MediaType, IMediaProducer> _mediaProducers;
-        private MediaType MediaType { get; set; }
+        public Action<MediaType> OnClick;
         private MediaModel _mediaSource;
-        private bool _playBack;
         public MediaModel MediaSource
         {
-            get => _mediaSource;
             set
             {
                 if (_mediaSource != value)
                 {
                     _mediaSource = value;
-
                     var mimeType = _mediaSource.ContentType;
-                    if (string.IsNullOrEmpty(mimeType))
-                    {
-                        var extension = _mediaSource.Url.Substring(_mediaSource.Url.LastIndexOf('.'));
-                        mimeType = MimeTypeHelper.GetMimeType(extension);
-                    }
-
-                    if (mimeType.StartsWith("video") || mimeType.StartsWith("audio"))
-                    {
-                        MediaType = MediaType.Video;
-                    }
-                    else
-                    {
-                        MediaType = MediaType.Image;
-                    }
-
-                    //_mediaProducers[MediaType].
+                    MediaType = MimeTypeHelper.IsVideo(mimeType) ? MediaType.Video : MediaType.Image;
                 }
             }
         }
-        public Action<MediaType> OnClick;
-        private volatile Handler _mainHandler;
-        private volatile Handler _renderHandler;
 
-        #region Initializations
+        private Handler _mainHandler;
+        private Paint _durationPaint;
+        private Dictionary<MediaType, IMediaProducer> _mediaProducers;
+        private MediaType MediaType { get; set; }
+        private TextureView _videoView;
+        private ImageView _imageView;
+        private bool _playBack;
+
         public MediaView(Context context) : base(context)
         {
             Init();
@@ -66,35 +52,120 @@ namespace Steepshot.Utils.Media
 
         private void Init()
         {
+            SetWillNotDraw(false);
+            LayoutTransition = new LayoutTransition();
+            _durationPaint = new Paint(PaintFlags.AntiAlias)
+            {
+                Color = Color.White,
+                TextSize = TypedValue.ApplyDimension(ComplexUnitType.Dip, 14, Context.Resources.DisplayMetrics)
+            };
             _mainHandler = new Handler(Looper.MainLooper);
             _mediaProducers = new Dictionary<MediaType, IMediaProducer>
+                    {
+                        {MediaType.Image, new ImageProducer(Context)},
+                        {MediaType.Video, new VideoProducer(Context)}
+                    };
+
+            _mediaProducers[MediaType.Image].Draw += Draw;
+            _mediaProducers[MediaType.Image].PreDraw += PreDraw;
+            _mediaProducers[MediaType.Video].Draw += Draw;
+            _mediaProducers[MediaType.Video].PreDraw += PreDraw;
+            ((VideoProducer)_mediaProducers[MediaType.Video]).Ready += OnReady;
+
+            _imageView = new ImageView(Context)
             {
-                {MediaType.Image, new ImageProducer(Context)},
-                {MediaType.Video, new VideoProducer()}
+                LayoutParameters =
+                    new LayoutParams(ViewGroup.LayoutParams.MatchParent, ViewGroup.LayoutParams.MatchParent)
             };
-            _mediaProducers[MediaType.Image].Draw += OnDraw;
-            _mediaProducers[MediaType.Image].PreDraw += OnPreDraw;
-            SurfaceTextureListener = this;
-            Click += MediaViewClick;
-            StartRenderThread();
+            _imageView.SetScaleType(ImageView.ScaleType.CenterCrop);
+
+            _videoView = new TextureView(Context)
+            {
+                LayoutParameters =
+                    new LayoutParams(ViewGroup.LayoutParams.MatchParent, ViewGroup.LayoutParams.MatchParent)
+            };
+
+            AddView(_imageView);
+            AddView(_videoView);
+
+            _videoView.SurfaceTextureListener = this;
         }
 
-        private void MediaViewClick(object sender, EventArgs e)
+        private async void OnReady()
         {
-            //_mediaProducers[MediaType].Play();
-            OnClick?.Invoke(MediaType);
+            if (_playBack && MediaType == MediaType.Video)
+            {
+                _videoView.BringToFront();
+                while (_playBack)
+                {
+                    Invalidate();
+                    await Task.Delay(100);
+                }
+            }
         }
-        #endregion
 
-        #region Texture
+        public override void Draw(Canvas canvas)
+        {
+            base.Draw(canvas);
+            if (MediaType == MediaType.Video && _playBack)
+            {
+                var videoProd = (VideoProducer)_mediaProducers[MediaType.Video];
+                if (videoProd.Duration.TotalSeconds > 0)
+                {
+                    var leftTime = (videoProd.Duration - videoProd.CurrentPosition).ToString(@"mm\:ss");
+                    var textRect = new Rect();
+                    _durationPaint.GetTextBounds(leftTime, 0, leftTime.Length, textRect);
+                    canvas.DrawText(leftTime, Width - textRect.Width() - Style.Margin15, textRect.Height() + Style.Margin15, _durationPaint);
+                }
+            }
+        }
+
+        public void Play()
+        {
+            _mainHandler?.Post(() =>
+            {
+                _playBack = true;
+                if (MediaType == MediaType.Video && _videoView.IsAvailable)
+                {
+                    _mediaProducers[MediaType]?.Play();
+                }
+                else
+                {
+                    _imageView.BringToFront();
+                }
+            });
+        }
+
+        public void Pause()
+        {
+            _mainHandler?.Post(() =>
+            {
+                _playBack = false;
+                _imageView.BringToFront();
+                _mediaProducers[MediaType].Stop();
+            });
+        }
+
+        private void Draw(WeakReference<Bitmap> weakBmp)
+        {
+            if (!weakBmp.TryGetTarget(out var bitmap))
+                return;
+
+            _imageView.SetImageBitmap(bitmap);
+        }
+
+        private void PreDraw(ColorDrawable cdr)
+        {
+            _imageView.SetImageDrawable(cdr);
+        }
+
         public void OnSurfaceTextureAvailable(SurfaceTexture surface, int width, int height)
         {
             _mainHandler?.Post(() =>
             {
+                _mediaProducers[MediaType]?.Prepare(surface, _mediaSource);
                 if (_playBack)
-                    _mediaProducers[MediaType].Play();
-                else
-                    _mediaProducers[MediaType].Prepare(MediaSource, surface);
+                    _mediaProducers[MediaType]?.Play();
             });
         }
 
@@ -103,8 +174,9 @@ namespace Steepshot.Utils.Media
             _mainHandler?.Post(() =>
             {
                 _mediaProducers[MediaType].Stop();
+                _imageView.BringToFront();
             });
-            return false;
+            return true;
         }
 
         public void OnSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height)
@@ -113,82 +185,6 @@ namespace Steepshot.Utils.Media
 
         public void OnSurfaceTextureUpdated(SurfaceTexture surface)
         {
-        }
-        #endregion
-
-        public void Play()
-        {
-            _mainHandler?.Post(() =>
-            {
-                if (IsAvailable)
-                    _mediaProducers[MediaType].Play();
-                else
-                    _playBack = true;
-            });
-        }
-
-        public void Pause()
-        {
-            _mediaProducers[MediaType].Pause();
-        }
-
-        private void OnDraw(WeakReference<Bitmap> weakBmp)
-        {
-            _renderHandler?.Post(() =>
-            {
-                if (!IsAvailable)
-                    return;
-
-                if (!weakBmp.TryGetTarget(out var bitmap))
-                    return;
-
-                using (var matr = new Matrix())
-                {
-                    var scale = bitmap.Width < Width ? Width / (float)bitmap.Width : bitmap.Width / (float)Width;
-                    matr.PostScale(scale, scale);
-                    var scaledW = bitmap.Width * scale;
-                    var scaledH = bitmap.Height * scale;
-                    matr.PostTranslate(scaledW > Width ? (Width - scaledW) / 2 : 0,
-                        scaledH > Height ? (Height - scaledH) / 2 : 0);
-                    var canvas = LockCanvas();
-                    canvas.DrawColor(Color.White);
-                    canvas.DrawBitmap(bitmap, matr, null);
-                    UnlockCanvasAndPost(canvas);
-                    System.Diagnostics.Debug.WriteLine(Runtime.GetRuntime().TotalMemory() / 1000000 + " MB");
-                }
-            });
-        }
-
-        private void OnPreDraw(ColorDrawable cdr)
-        {
-            _renderHandler?.Post(() =>
-            {
-                if (!IsAvailable)
-                    return;
-
-                var canvas = LockCanvas();
-                canvas.DrawColor(cdr.Color);
-                UnlockCanvasAndPost(canvas);
-                cdr.Dispose();
-            });
-        }
-
-        private void StartRenderThread()
-        {
-            Task.Run(() =>
-            {
-                Looper.Prepare();
-
-                _renderHandler = new Handler();
-
-                Looper.Loop();
-            });
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            _mediaProducers[MediaType].Release();
-            base.Dispose(disposing);
         }
     }
 }

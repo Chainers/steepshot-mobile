@@ -59,7 +59,7 @@ namespace Steepshot.Core
         public const double MinBid = 0.5;
         public const double MaxBid = 130;
 
-
+        public static long VideoCacheSize = 104857600;
         public static int ImageMaxUploadSize = 10485760;  // 10 mb
         public static int ImageMinWidth = 420;
         public static int ImageMinHeight = 420;

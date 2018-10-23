@@ -55,6 +55,7 @@ namespace Steepshot.Fragment
 
                 MediaView.Visibility = ViewStates.Visible;
                 MediaView.MediaSource = mediaModel;
+                MediaView.Play();
             }
             else
             {

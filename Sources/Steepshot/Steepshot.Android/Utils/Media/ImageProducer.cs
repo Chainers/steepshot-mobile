@@ -3,7 +3,6 @@ using Android.Content;
 using Android.Graphics;
 using Android.Graphics.Drawables;
 using Square.Picasso;
-using Steepshot.Core.Extensions;
 using Steepshot.Core.Models.Common;
 
 namespace Steepshot.Utils.Media
@@ -20,13 +19,13 @@ namespace Steepshot.Utils.Media
             _context = context;
         }
 
-        public virtual void Prepare(MediaModel media, SurfaceTexture st)
+        public virtual void Prepare(SurfaceTexture st, MediaModel media)
         {
             if (media == null)
                 return;
 
             _media = media;
-            
+
             Picasso.With(_context)
                 .LoadWithProxy(media, Style.ScreenWidth)
                 .Placeholder(new ColorDrawable(Style.R245G245B245))
@@ -35,26 +34,10 @@ namespace Steepshot.Utils.Media
                 .Into(this);
         }
 
-        public void Play()
-        {
-        }
-
-        public virtual void Pause()
-        {
-        }
-
-        public void Stop()
-        {
-        }
-
-        public virtual void Release()
-        {
-        }
-
         public void OnBitmapFailed(Drawable p0)
         {
             Picasso.With(_context)
-                .Load(_media.Url)
+                .Load(_media.Thumbnails.Mini)
                 .NoFade()
                 .Priority(Picasso.Priority.High)
                 .Into(this);
@@ -69,6 +52,24 @@ namespace Steepshot.Utils.Media
         public void OnPrepareLoad(Drawable p0)
         {
             PreDraw?.Invoke((ColorDrawable)p0);
+        }
+
+        public virtual void Play()
+        {
+            Picasso.With(_context)
+                .LoadWithProxy(_media, Style.ScreenWidth)
+                .Placeholder(new ColorDrawable(Style.R245G245B245))
+                .NoFade()
+                .Priority(Picasso.Priority.High)
+                .Into(this);
+        }
+
+        public virtual void Pause()
+        {
+        }
+
+        public virtual void Stop()
+        {
         }
     }
 }

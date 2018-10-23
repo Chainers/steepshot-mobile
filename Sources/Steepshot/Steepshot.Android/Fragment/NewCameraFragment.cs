@@ -402,13 +402,15 @@ namespace Steepshot.Fragment
         {
             var fp = App.Container.GetFileProvider();
             var mimeType = fp.GetMimeType(path);
-            var model = new GalleryMediaModel(path, mimeType);
-            model.TempPath = path;
-            model.UploadState = UploadState.ReadyToUpload;
-            model.Parameters = new MediaParameters()
+            var model = new GalleryMediaModel(path, mimeType)
             {
-                Width = _videoEncoderConfig.Width,
-                Height = _videoEncoderConfig.Height,
+                TempPath = path,
+                UploadState = UploadState.ReadyToUpload,
+                Parameters = new MediaParameters
+                {
+                    Width = _videoEncoderConfig.Width,
+                    Height = _videoEncoderConfig.Height,
+                }
             };
 
             ((BaseActivity)Activity).OpenNewContentFragment(new PreviewPostCreateFragment(model));

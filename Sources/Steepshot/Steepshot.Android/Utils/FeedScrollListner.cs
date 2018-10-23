@@ -17,11 +17,9 @@ namespace Steepshot.Utils
             InvokeScrolledToPosition(lastPos);
 
             var childCount = lytManager.ChildCount;
-            var recycleViewCenter = recyclerView.Height / 2;
 
-            var distance = int.MaxValue;
+            var maxVisibility = 70;
             Android.Views.View centerChild = null;
-
             for (int i = 0; i < childCount; i++)
             {
                 var child = lytManager.GetChildAt(i);
@@ -29,15 +27,22 @@ namespace Steepshot.Utils
                 if (!(recyclerView.FindViewHolderForAdapterPosition(lytManager.GetPosition(child)) is FeedViewHolder))
                     continue;
 
-                var viewHolderCenter = child.Top + child.Height / 2;
-                var distanceToCenter = Math.Abs(recycleViewCenter - viewHolderCenter);
+                int visibilityPercent;
+                if (child.Top >= recyclerView.Top)
+                    visibilityPercent = (int)(100 * (Math.Min(recyclerView.Bottom, child.Bottom) - child.Top) / (float)child.Height);
+                else if (child.Bottom <= recyclerView.Bottom)
+                    visibilityPercent = (int)(100 * (child.Bottom - Math.Max(recyclerView.Top, child.Top)) / (float)child.Height);
+                else
+                    continue;
 
-                if (distance > distanceToCenter)
+
+                if (visibilityPercent > maxVisibility)
                 {
                     centerChild = child;
-                    distance = distanceToCenter;
+                    maxVisibility = visibilityPercent;
                 }
             }
+
             if (centerChild != null)
             {
                 var newCenterViewHolder = lytManager.GetPosition(centerChild);
