@@ -9,9 +9,7 @@ using Android.Views;
 using Android.Widget;
 using Square.Picasso;
 using Steepshot.Base;
-using Steepshot.Core.Extensions;
 using Steepshot.Core.Localization;
-using Steepshot.Core.Models;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
@@ -48,7 +46,8 @@ namespace Steepshot.Adapter
         {
             foreach (var post in Presenter)
             {
-                Picasso.With(Context).Load(post.Media[0].GetImageProxy(CellSize))
+                Picasso.With(Context)
+                    .LoadWithProxy(post.Media[0], CellSize)
                     .Priority(Picasso.Priority.Low)
                     .MemoryPolicy(MemoryPolicy.NoCache)
                     .Fetch();
@@ -116,7 +115,7 @@ namespace Steepshot.Adapter
     {
         private readonly Action<Post> _click;
         private readonly ImageView _photo;
-        private readonly ImageView _gallery;
+        private readonly ImageView _mediaTypeIc;
         private readonly RelativeLayout _nsfwMask;
         private readonly TextView _nsfwMaskMessage;
         private Post _post;
@@ -127,7 +126,7 @@ namespace Steepshot.Adapter
         {
             _click = click;
             _photo = itemView.FindViewById<ImageView>(Resource.Id.grid_item_photo);
-            _gallery = itemView.FindViewById<ImageView>(Resource.Id.gallery);
+            _mediaTypeIc = itemView.FindViewById<ImageView>(Resource.Id.media_type_ic);
             _nsfwMask = itemView.FindViewById<RelativeLayout>(Resource.Id.grid_item_nsfw);
             _nsfwMaskMessage = itemView.FindViewById<TextView>(Resource.Id.grid_item_nsfw_message);
 
@@ -147,8 +146,10 @@ namespace Steepshot.Adapter
         {
             _post = post;
 
+            _photo.SetImageResource(Resource.Color.rgb244_244_246);
+
             Picasso.With(_context)
-                .Load(_post.GetImageProxy(cellSize))
+                .LoadWithProxy(_post, cellSize)
                 .Placeholder(Resource.Color.rgb244_244_246)
                 .NoFade()
                 .Priority(Picasso.Priority.High)
@@ -156,19 +157,19 @@ namespace Steepshot.Adapter
 
             if (_post.Media.Length > 1)
             {
-                _gallery.SetImageResource(Resource.Drawable.ic_gallery);
-                _gallery.Visibility = ViewStates.Visible;
+                _mediaTypeIc.SetImageResource(Resource.Drawable.ic_gallery);
+                _mediaTypeIc.Visibility = ViewStates.Visible;
             }
             else
             {
                 if (_post.Media[0].ContentType == MimeTypeHelper.GetMimeType(MimeTypeHelper.Mp4))
                 {
-                    _gallery.SetImageResource(Resource.Drawable.ic_play_arrow);
-                    _gallery.Visibility = ViewStates.Visible;
+                    _mediaTypeIc.SetImageResource(Resource.Drawable.ic_play_arrow);
+                    _mediaTypeIc.Visibility = ViewStates.Visible;
                 }
                 else
                 {
-                    _gallery.Visibility = ViewStates.Gone;
+                    _mediaTypeIc.Visibility = ViewStates.Gone;
                 }
             }
 
@@ -183,8 +184,7 @@ namespace Steepshot.Adapter
 
         private void OnError()
         {
-            Picasso
-                .With(_context)
+            Picasso.With(_context)
                 .Load(_post.Media[0].Thumbnails.Mini)
                 .Placeholder(Resource.Color.rgb244_244_246)
                 .NoFade()

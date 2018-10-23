@@ -2,20 +2,20 @@
 using CoreGraphics;
 using FFImageLoading;
 using FFImageLoading.Work;
-using Steepshot.Core.Extensions;
 using Steepshot.Core.Models.Common;
-using Steepshot.Core.Utils;
 using UIKit;
 
 namespace Steepshot.iOS.Helpers
 {
     public static class ImageLoader
     {
-        public static IScheduledWork Load(string url, UIImageView view, int retry = 0, LoadingPriority priority = LoadingPriority.Normal, string placeHolder = "", string microUrl = null, CGSize size = new CGSize())
+        public static IScheduledWork Load(string link, UIImageView view, int retry = 0, LoadingPriority priority = LoadingPriority.Normal, string placeHolder = "", string microUrl = null, CGSize size = new CGSize())
         {
             var width = (int)((size.Width == 0 ? view.Frame.Size.Width : size.Width) * UIScreen.MainScreen.Scale);
 
-            return ImageService.Instance.LoadUrl(url.GetImageProxy(width, width), TimeSpan.FromDays(5))
+            var url = string.Format(Steepshot.Core.Constants.ProxyForAvatars, width, width, link);
+
+            return ImageService.Instance.LoadUrl(url, TimeSpan.FromDays(5))
                          .Retry(retry)
                          .FadeAnimation(false)
                          .LoadingPlaceholder(placeHolder)
@@ -37,7 +37,14 @@ namespace Steepshot.iOS.Helpers
 
         public static void Preload(MediaModel mediaModel, nfloat width)
         {
-            ImageService.Instance.LoadUrl(mediaModel.GetImageProxy((int)(width * Constants.ScreenScale)), TimeSpan.FromDays(5))
+            var link = mediaModel.Url;
+            if (!string.IsNullOrEmpty(mediaModel.ContentType) && mediaModel.ContentType.StartsWith("video"))
+                link = mediaModel.Thumbnails.Mini;
+
+            var widthpx = (int)(width * Constants.ScreenScale);
+            var url = string.Format(Steepshot.Core.Constants.ProxyForAvatars, widthpx, widthpx, link);
+
+            ImageService.Instance.LoadUrl(url, TimeSpan.FromDays(5))
                                  .WithCache(FFImageLoading.Cache.CacheType.All)
                                  .WithPriority(LoadingPriority.Low)
                                  .Error((error) =>

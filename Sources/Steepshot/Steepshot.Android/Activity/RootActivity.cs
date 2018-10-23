@@ -310,11 +310,19 @@ namespace Steepshot.Activity
 
             var profileTab = TabLayout.GetTabAt(TabLayout.TabCount - 1);
             if (!string.IsNullOrEmpty(Presenter.UserProfileResponse?.ProfileImage))
-                Picasso.With(this).Load(Presenter.UserProfileResponse.ProfileImage).NoFade().Resize(size, size).CenterCrop()
-                    .Placeholder(Resource.Drawable.ic_holder).Into(avatar,
-                        () => { profileTab.SetIcon(BitmapUtils.GetViewDrawable(votingPowerFrame)); }, null);
+            {
+                Picasso.With(this)
+                    .LoadWithProxy(Presenter.UserProfileResponse.ProfileImage, size, size)
+                    .NoFade()
+                    .Resize(size, size)
+                    .CenterCrop()
+                    .Placeholder(Resource.Drawable.ic_holder)
+                    .Into(avatar, () => { profileTab.SetIcon(BitmapUtils.GetViewDrawable(votingPowerFrame)); }, null);
+            }
             else
+            {
                 profileTab.SetIcon(BitmapUtils.GetViewDrawable(votingPowerFrame));
+            }
         }
 
         protected void CheckForNewFeatures()

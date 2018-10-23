@@ -258,7 +258,7 @@ namespace Steepshot.Fragment
                 OnRecipientChanged();
             }
         }
-        
+
         private void TokenLayedOut(object sender, EventArgs e)
         {
             _transferAmountEdit?.SetPadding(_transferAmountEdit.PaddingLeft, _transferAmountEdit.PaddingTop, ((View)_transferCoinName.Parent).Width, _transferAmountEdit.PaddingBottom);
@@ -348,23 +348,26 @@ namespace Steepshot.Fragment
 
             if (_transferFacade.Recipient != null)
             {
+                _recipientAvatar.SetImageResource(Resource.Drawable.ic_holder);
+
                 if (!string.IsNullOrEmpty(_transferFacade.Recipient.Avatar))
+                {
                     Picasso.With(Activity)
-                        .Load(_transferFacade.Recipient.Avatar.GetImageProxy(_recipientAvatar.LayoutParameters.Width, _recipientAvatar.LayoutParameters.Height))
+                        .LoadWithProxy(_transferFacade.Recipient.Avatar, _recipientAvatar.LayoutParameters.Width, _recipientAvatar.LayoutParameters.Height)
                         .Placeholder(Resource.Drawable.ic_holder)
                         .NoFade()
                         .Priority(Picasso.Priority.Normal)
                         .Into(_recipientAvatar, null, () =>
                         {
                             Picasso.With(Activity)
-                                .Load(_transferFacade.Recipient.Avatar.GetImageProxy(_recipientAvatar.LayoutParameters.Width, _recipientAvatar.LayoutParameters.Height))
+                                .Load(_transferFacade.Recipient.Avatar)
                                 .Placeholder(Resource.Drawable.ic_holder)
                                 .NoFade()
                                 .Priority(Picasso.Priority.Normal)
                                 .Into(_recipientAvatar);
                         });
-                else
-                    Picasso.With(Activity).Load(Resource.Drawable.ic_holder).Into(_recipientAvatar);
+                }
+
                 _recipientAvatar.Visibility = ViewStates.Visible;
 
                 Activity.RunOnUiThread(() =>
@@ -683,7 +686,7 @@ namespace Steepshot.Fragment
             }
             return base.OnBackPressed();
         }
-        
+
         public override void OnDetach()
         {
             _activityRoot.ViewTreeObserver.GlobalLayout -= OnKeyboardClosing;

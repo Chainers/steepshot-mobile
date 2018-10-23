@@ -51,15 +51,16 @@ namespace Steepshot.Holders
         {
             _promoterLogin.Text = $"@{promoteInfo.Bot.Author}";
 
+            _promoterAvatar.SetImageResource(Resource.Drawable.ic_holder);
             if (!string.IsNullOrEmpty(promoteInfo.Bot.Avatar))
+            {
                 Picasso.With(_context)
-                    .Load(promoteInfo.Bot.Avatar.GetImageProxy(_promoterAvatar.LayoutParameters.Width, _promoterAvatar.LayoutParameters.Height))
+                    .LoadWithProxy(promoteInfo.Bot.Avatar, _promoterAvatar.LayoutParameters.Width, _promoterAvatar.LayoutParameters.Height)
                     .Placeholder(Resource.Drawable.ic_holder)
                     .NoFade()
                     .Priority(Picasso.Priority.Normal)
                     .Into(_promoterAvatar, null, null);
-            else
-                Picasso.With(_context).Load(Resource.Drawable.ic_holder).Into(_promoterAvatar);
+            }
 
             var expectedUpvoteTime = promoteInfo.ExpectedUpvoteTime;
             var timer = new Timer(obj =>

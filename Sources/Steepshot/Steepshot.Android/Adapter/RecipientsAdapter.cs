@@ -80,23 +80,25 @@ namespace Steepshot.Adapter
         public void UpdateData(UserFriend profile)
         {
             _profile = profile;
+            _recipientAvatar.SetImageResource(Resource.Drawable.ic_holder);
+
             if (!string.IsNullOrEmpty(profile.Avatar))
+            {
                 Picasso.With(ItemView.Context)
-                    .Load(profile.Avatar.GetImageProxy(_recipientAvatar.LayoutParameters.Width, _recipientAvatar.LayoutParameters.Height))
+                    .LoadWithProxy(profile.Avatar, _recipientAvatar.LayoutParameters.Width, _recipientAvatar.LayoutParameters.Height)
                     .Placeholder(Resource.Drawable.ic_holder)
                     .NoFade()
                     .Priority(Picasso.Priority.Normal)
                     .Into(_recipientAvatar, null, () =>
                          {
                              Picasso.With(ItemView.Context)
-                                 .Load(profile.Avatar.GetImageProxy(_recipientAvatar.LayoutParameters.Width, _recipientAvatar.LayoutParameters.Height))
+                                 .Load(profile.Avatar)
                                  .Placeholder(Resource.Drawable.ic_holder)
                                  .NoFade()
                                  .Priority(Picasso.Priority.Normal)
                                  .Into(_recipientAvatar);
                          });
-            else
-                Picasso.With(ItemView.Context).Load(Resource.Drawable.ic_holder).Into(_recipientAvatar);
+            }
 
             _recipientLogin.Text = profile.Author;
             _recipientName.Text = profile.Name;

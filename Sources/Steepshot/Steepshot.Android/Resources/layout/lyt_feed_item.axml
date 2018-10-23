@@ -70,7 +70,7 @@
             android:layout_width="match_parent"
             android:layout_height="250dp" />
         <ImageView
-            android:id="@+id/gallery"
+            android:id="@+id/media_type_ic"
             android:layout_width="16dp"
             android:layout_height="16dp"
             android:layout_alignParentTop="true"

@@ -127,14 +127,13 @@ namespace Steepshot.Fragment
                 var cardView = new CardView(parent.Context)
                 {
                     LayoutParameters = new FrameLayout.LayoutParams(previewSize.Width, previewSize.Height),
-                    Radius = BitmapUtils.DpToPixel(5, parent.Resources)
+                    Radius = Style.CornerRadius5
                 };
-                var image = new ImageView(parent.Context)
+                var image = new MediaView(parent.Context)
                 {
                     Id = Resource.Id.photo,
                     LayoutParameters = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MatchParent, ViewGroup.LayoutParams.MatchParent)
                 };
-                image.SetScaleType(ImageView.ScaleType.FitXy);
                 cardView.AddView(image);
                 return new MediaViewHolder(cardView);
             }
@@ -144,16 +143,15 @@ namespace Steepshot.Fragment
 
         private class MediaViewHolder : RecyclerView.ViewHolder
         {
-            private readonly ImageView _image;
+            private readonly MediaView _mediaView;
             public MediaViewHolder(View itemView) : base(itemView)
             {
-                _image = itemView.FindViewById<ImageView>(Resource.Id.photo);
+                _mediaView = itemView.FindViewById<MediaView>(Resource.Id.photo);
             }
 
             public void Update(MediaModel model)
             {
-                var url = model.Thumbnails.Micro;
-                Picasso.With(ItemView.Context).Load(url).Into(_image);
+                _mediaView.MediaSource = model;
             }
         }
 

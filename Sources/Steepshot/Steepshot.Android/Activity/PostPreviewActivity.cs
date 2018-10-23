@@ -31,9 +31,8 @@ namespace Steepshot.Activity
             if (!string.IsNullOrWhiteSpace(path))
             {
                 Picasso.With(this)
-                       .Load(path)
+                       .LoadWithProxy(path, Style.ScreenWidth, Style.ScreenWidth)
                        .NoFade()
-                       .Resize(Style.ScreenWidth, 0)
                        .Into(_photo, OnSuccess, OnError);
             }
         }
@@ -57,7 +56,10 @@ namespace Steepshot.Activity
 
         private void OnError()
         {
-            Picasso.With(this).Load(path).NoFade().Into(this);
+            Picasso.With(this).
+                Load(path).
+                NoFade().
+                Into(this);
         }
     }
 }

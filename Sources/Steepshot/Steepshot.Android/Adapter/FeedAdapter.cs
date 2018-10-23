@@ -64,7 +64,7 @@ namespace Steepshot.Adapter
                 foreach (var media in post.Media.Where(i => !string.IsNullOrEmpty(i.ContentType) && i.ContentType.StartsWith("image")))
                 {
                     Picasso.With(Context)
-                        .Load(media.GetImageProxy(Style.ScreenWidth))
+                        .LoadWithProxy(media, Style.ScreenWidth)
                         .Priority(Picasso.Priority.Low)
                         .MemoryPolicy(MemoryPolicy.NoCache)
                         .Fetch();
@@ -161,7 +161,6 @@ namespace Steepshot.Adapter
 
             _avatar = itemView.FindViewById<CircleImageView>(Resource.Id.profile_image);
             _author = itemView.FindViewById<TextView>(Resource.Id.author_name);
-            itemView.FindViewById<ImageView>(Resource.Id.gallery);
             PhotosViewPager = itemView.FindViewById<ViewPager>(Resource.Id.post_photos_pager);
             _pagerTabLayout = ItemView.FindViewById<TabLayout>(Resource.Id.dot_selector);
             _pagerTabLayout.SetupWithViewPager(PhotosViewPager, true);
@@ -526,19 +525,14 @@ namespace Steepshot.Adapter
             _time.Text = Post.Created.ToPostTime(App.Localization);
             _author.Text = Post.Author;
 
+            _avatar.SetImageResource(Resource.Drawable.ic_holder);
             if (!string.IsNullOrEmpty(Post.Avatar))
             {
                 Picasso.With(Context)
-                    .Load(Post.Avatar.GetImageProxy(_avatar.LayoutParameters.Width, _avatar.LayoutParameters.Height))
+                    .LoadWithProxy(Post.Avatar, _avatar.LayoutParameters.Width, _avatar.LayoutParameters.Height)
                     .Placeholder(Resource.Drawable.ic_holder)
                     .Priority(Picasso.Priority.Low)
-                    .Into(_avatar, null,
-                        () => Picasso.With(Context).Load(Post.Avatar).Placeholder(Resource.Drawable.ic_holder).NoFade()
-                            .Into(_avatar));
-            }
-            else
-            {
-                Picasso.With(context).Load(Resource.Drawable.ic_holder).Into(_avatar);
+                    .Into(_avatar, null, () => Picasso.With(Context).Load(Post.Avatar).Placeholder(Resource.Drawable.ic_holder).NoFade().Into(_avatar));
             }
 
             var height = Post.Media[0].OptimalPhotoSize(Style.ScreenWidth, 130 * Style.Density, Style.MaxPostHeight);
@@ -666,17 +660,14 @@ namespace Steepshot.Adapter
                 _topLikers.AddView(topLikersAvatar, layoutParams);
                 var avatarUrl = post.TopLikersAvatars[i];
 
+                topLikersAvatar.SetImageResource(Resource.Drawable.ic_holder);
                 if (!string.IsNullOrEmpty(avatarUrl))
                 {
                     Picasso.With(Context)
-                        .Load(avatarUrl.GetImageProxy(topLikersSize, topLikersSize))
+                        .LoadWithProxy(avatarUrl, topLikersSize, topLikersSize)
                         .Placeholder(Resource.Drawable.ic_holder)
-                        .Priority(Picasso.Priority.Low).Into(topLikersAvatar, null,
-                            () => { Picasso.With(Context).Load(Resource.Drawable.ic_holder).Into(topLikersAvatar); });
-                }
-                else
-                {
-                    Picasso.With(Context).Load(Resource.Drawable.ic_holder).Into(topLikersAvatar);
+                        .Priority(Picasso.Priority.Low)
+                        .Into(topLikersAvatar, null, () => { Picasso.With(Context).Load(avatarUrl).Into(topLikersAvatar); });
                 }
             }
         }

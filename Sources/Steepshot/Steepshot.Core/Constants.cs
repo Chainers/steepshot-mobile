@@ -37,7 +37,7 @@ namespace Steepshot.Core
 
         public const int PhotoMaxSize = 1200;
         public const string DeletedPostText = "*deleted*";
-        public const string ProxyForAvatars = "https://steemitimages.com/{0}x{1}/";
+        public const string ProxyForAvatars = "https://steemitimages.com/{0}x{1}/{2}";
 
         public static readonly HashSet<string> SupportedListBots = new HashSet<string>
         {

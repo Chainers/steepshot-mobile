@@ -39,7 +39,9 @@ namespace Steepshot.Utils
                 _result.Payload.AdditionalData?.Keys();
                 var largeIconUrl = _result.Payload.AdditionalData?.Get("large_icon").ToString();
                 if (!string.IsNullOrEmpty(largeIconUrl))
-                    largeIcon = Picasso.With(this).Load(largeIconUrl).Get();
+                    largeIcon = Picasso.With(this)
+                        .LoadWithProxy(largeIconUrl, 300, 300)
+                        .Get();
             }
             catch (System.Exception ex)
             {
@@ -47,11 +49,13 @@ namespace Steepshot.Utils
             }
             finally
             {
-                builder.SetSmallIcon(Resource.Drawable.ic_stat_onesignal_default)
-                    .SetContentTitle(_result.Payload.Title)
-                    .SetContentText(_result.Payload.Body)
-                    .SetGroup(Build.VERSION.SdkInt >= BuildVersionCodes.N ? "steepshot" : null)
-                    .SetLargeIcon(largeIcon ?? BitmapFactory.DecodeResource(Resources, Resource.Drawable.ic_holder));
+                builder.SetSmallIcon(Resource.Drawable.ic_stat_onesignal_default);
+                builder.SetContentTitle(_result.Payload.Title);
+                builder.SetContentText(_result.Payload.Body);
+                builder.SetLargeIcon(largeIcon ?? BitmapFactory.DecodeResource(Resources, Resource.Drawable.ic_holder));
+
+                if (Build.VERSION.SdkInt >= BuildVersionCodes.N)
+                    builder.SetGroup("steepshot");
             }
             return builder;
         }

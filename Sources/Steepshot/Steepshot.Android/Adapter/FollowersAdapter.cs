@@ -146,17 +146,15 @@ namespace Steepshot.Adapter
 
                 _friendLogin.Text = userFriends.Author;
 
+                _friendAvatar.SetImageResource(Resource.Drawable.ic_holder);
                 if (!string.IsNullOrEmpty(_userFriends.Avatar))
                 {
-                    Picasso.With(_context).Load(_userFriends.Avatar.GetImageProxy(_friendAvatar.LayoutParameters.Width, _friendAvatar.LayoutParameters.Height))
+                    Picasso.With(_context)
+                        .LoadWithProxy(_userFriends.Avatar, _friendAvatar.LayoutParameters.Width, _friendAvatar.LayoutParameters.Height)
                        .Placeholder(Resource.Drawable.ic_holder)
                        .NoFade()
                        .Priority(Picasso.Priority.Normal)
                        .Into(_friendAvatar, null, OnError);
-                }
-                else
-                {
-                    Picasso.With(_context).Load(Resource.Drawable.ic_holder).Into(_friendAvatar);
                 }
 
                 _followButton.Visibility = App.User.Login == _friendLogin.Text
@@ -209,7 +207,10 @@ namespace Steepshot.Adapter
 
             private void OnError()
             {
-                Picasso.With(_context).Load(_userFriends.Avatar).NoFade().Into(_friendAvatar);
+                Picasso.With(_context)
+                    .Load(_userFriends.Avatar)
+                    .NoFade()
+                    .Into(_friendAvatar);
             }
         }
     }

@@ -8,7 +8,7 @@
         android:layout_height="match_parent"
         android:scaleType="centerCrop" />
     <ImageView
-        android:id="@+id/gallery"
+        android:id="@+id/media_type_ic"
         android:layout_width="15dp"
         android:layout_height="15dp"
         android:layout_alignParentTop="true"

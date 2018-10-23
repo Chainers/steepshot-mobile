@@ -67,19 +67,21 @@ namespace Steepshot.Base
                 ? di.GolosTestWif
                 : di.SteemTestWif;
 #endif            
+            _profileImage.SetImageResource(Resource.Drawable.ic_holder);
+
             if (!string.IsNullOrEmpty(ProfileImageUrl))
-                Picasso.With(this).Load(ProfileImageUrl.GetImageProxy(_profileImage.LayoutParameters.Width, _profileImage.LayoutParameters.Height))
+                Picasso.With(this)
+                    .LoadWithProxy(ProfileImageUrl, _profileImage.LayoutParameters.Width, _profileImage.LayoutParameters.Height)
                        .Placeholder(Resource.Drawable.ic_holder)
                        .NoFade()
                        .Priority(Picasso.Priority.Normal)
-                       .Into(_profileImage, null, () =>
-                        Picasso.With(this).Load(ProfileImageUrl).NoFade().Into(_profileImage));
+                       .Into(_profileImage, null, () => Picasso.With(this).Load(ProfileImageUrl).NoFade().Into(_profileImage));
 
             _buttonScanDefaultView.Click += OnButtonScanDefaultViewOnClick;
             _signInBtn.Click += SignIn;
             _rootLayout.Click += HideKeyboard;
         }
-        
+
         public override void OnRequestPermissionsResult(int requestCode, string[] permissions, [GeneratedEnum] Permission[] grantResults)
         {
             if (requestCode == CommonPermissionsRequestCode && !grantResults.Any(x => x != Permission.Granted))

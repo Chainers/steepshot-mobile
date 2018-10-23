@@ -38,7 +38,7 @@ namespace Steepshot.Adapter
         }
 
 
-        public ProfileGridAdapter(Context context, UserProfilePresenter presenter,  bool isHeaderNeeded = true) : base(context, presenter)
+        public ProfileGridAdapter(Context context, UserProfilePresenter presenter, bool isHeaderNeeded = true) : base(context, presenter)
         {
             _headerViewHolders = new List<HeaderViewHolder>();
             _isHeaderNeeded = isHeaderNeeded;
@@ -253,19 +253,15 @@ namespace Steepshot.Adapter
             _profile.PropertyChanged += UserProfileOnPropertyChanged;
 
             _userAvatar = profile.ProfileImage;
+
+            _profileImage.SetImageResource(Resource.Drawable.ic_holder);
             if (!string.IsNullOrEmpty(_userAvatar))
             {
                 Picasso.With(_context)
-                    .Load(_userAvatar.GetImageProxy(_profileImage.LayoutParameters.Width, _profileImage.LayoutParameters.Height))
+                    .LoadWithProxy(_userAvatar, _profileImage.LayoutParameters.Width, _profileImage.LayoutParameters.Height)
                     .Placeholder(Resource.Drawable.ic_holder)
                     .NoFade()
                     .Into(_profileImage, null, OnError);
-            }
-            else
-            {
-                Picasso.With(_context)
-                      .Load(Resource.Drawable.ic_holder)
-                      .Into(_profileImage);
             }
 
             _transferButton.Visibility = App.User.HasPostingPermission ? ViewStates.Visible : ViewStates.Gone;
@@ -356,7 +352,7 @@ namespace Steepshot.Adapter
                 _loadingSpinner.Visibility = ViewStates.Gone;
             }
         }
-        
+
         private void UserProfileOnPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             var userProfileResponse = (UserProfileResponse)sender;
@@ -372,10 +368,14 @@ namespace Steepshot.Adapter
                     }
             }
         }
-        
+
         private void OnError()
         {
-            Picasso.With(_context).Load(_userAvatar).Placeholder(Resource.Drawable.ic_holder).NoFade().Into(_profileImage);
+            Picasso.With(_context)
+                .Load(_userAvatar)
+                .Placeholder(Resource.Drawable.ic_holder)
+                .NoFade()
+                .Into(_profileImage);
         }
 
         public void OnDetached()

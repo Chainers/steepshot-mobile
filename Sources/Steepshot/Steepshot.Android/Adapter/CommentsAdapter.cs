@@ -167,17 +167,16 @@ namespace Steepshot.Adapter
         public void UpdateData(Post post, Context context)
         {
             _post = post;
+
+            _avatar.SetImageResource(Resource.Drawable.ic_holder);
+
             if (!string.IsNullOrEmpty(_post.Avatar))
             {
                 Picasso.With(context)
-                    .Load(_post.Avatar.GetImageProxy(_avatar.LayoutParameters.Width, _avatar.LayoutParameters.Height))
+                    .LoadWithProxy(_post.Avatar, _avatar.LayoutParameters.Width, _avatar.LayoutParameters.Height)
                     .Placeholder(Resource.Drawable.ic_holder)
                     .Priority(Picasso.Priority.Low)
                     .Into(_avatar, null, OnPicassoError);
-            }
-            else
-            {
-                Picasso.With(context).Load(Resource.Drawable.ic_holder).Into(_avatar);
             }
 
             _author.Text = post.Author;
@@ -187,7 +186,11 @@ namespace Steepshot.Adapter
 
         private void OnPicassoError()
         {
-            Picasso.With(_context).Load(_post.Avatar).Placeholder(Resource.Drawable.ic_holder).NoFade().Into(_avatar);
+            Picasso.With(_context)
+                .Load(_post.Avatar)
+                .Placeholder(Resource.Drawable.ic_holder)
+                .NoFade()
+                .Into(_avatar);
         }
     }
 
@@ -337,17 +340,15 @@ namespace Steepshot.Adapter
                 _edit.Visibility = _delete.Visibility = ViewStates.Gone;
             }
 
+            _avatar.SetImageResource(Resource.Drawable.ic_holder);
             if (!string.IsNullOrEmpty(_post.Avatar))
             {
-                Picasso.With(_context).Load(_post.Avatar.GetImageProxy(_avatar.LayoutParameters.Width, _avatar.LayoutParameters.Height))
+                Picasso.With(_context)
+                    .LoadWithProxy(_post.Avatar, _avatar.LayoutParameters.Width, _avatar.LayoutParameters.Height)
                        .Placeholder(Resource.Drawable.ic_holder)
                        .NoFade()
                        .Priority(Picasso.Priority.Normal)
                        .Into(_avatar, null, OnError);
-            }
-            else
-            {
-                Picasso.With(context).Load(Resource.Drawable.ic_holder).Into(_avatar);
             }
 
             _likeOrFlag.UpdateLikeAsync(post);
@@ -433,7 +434,10 @@ namespace Steepshot.Adapter
 
         private void OnError()
         {
-            Picasso.With(_context).Load(_post.Avatar).NoFade().Into(_avatar);
+            Picasso.With(_context)
+                .Load(_post.Avatar)
+                .NoFade()
+                .Into(_avatar);
         }
 
         public void OnDetached()

@@ -26,8 +26,9 @@ namespace Steepshot.Utils.Media
                 return;
 
             _media = media;
+            
             Picasso.With(_context)
-                .Load(media.GetImageProxy(Style.ScreenWidth))
+                .LoadWithProxy(media, Style.ScreenWidth)
                 .Placeholder(new ColorDrawable(Style.R245G245B245))
                 .NoFade()
                 .Priority(Picasso.Priority.High)
@@ -52,7 +53,9 @@ namespace Steepshot.Utils.Media
 
         public void OnBitmapFailed(Drawable p0)
         {
-            Picasso.With(_context).Load(_media.Url).NoFade()
+            Picasso.With(_context)
+                .Load(_media.Url)
+                .NoFade()
                 .Priority(Picasso.Priority.High)
                 .Into(this);
         }
