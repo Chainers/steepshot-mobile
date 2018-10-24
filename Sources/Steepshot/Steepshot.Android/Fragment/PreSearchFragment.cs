@@ -66,22 +66,6 @@ namespace Steepshot.Fragment
 
         private string _customTag;
 
-        private PostPagerAdapter<PreSearchPresenter> _profilePagerAdapter;
-        private PostPagerAdapter<PreSearchPresenter> ProfilePagerAdapter
-        {
-            get
-            {
-                if (_profilePagerAdapter == null)
-                {
-                    _profilePagerAdapter = new PostPagerAdapter<PreSearchPresenter>(PostPager, Context, Presenter);
-                    _profilePagerAdapter.PostAction += PostAction;
-                    _profilePagerAdapter.AutoLinkAction += AutoLinkAction;
-                    _profilePagerAdapter.CloseAction += CloseAction;
-                }
-                return _profilePagerAdapter;
-            }
-        }
-
         private FeedAdapter<PreSearchPresenter> _profileFeedAdapter;
         private FeedAdapter<PreSearchPresenter> ProfileFeedAdapter
         {
@@ -232,14 +216,6 @@ namespace Steepshot.Fragment
             SwitchListAdapter(_tabOptions.IsGridView);
             PostsList.AddOnScrollListener(_scrollListner);
 
-            PostPager.SetClipToPadding(false);
-            PostPager.SetPadding(Style.PostPagerMargin * 2, 0, Style.PostPagerMargin * 2, 0);
-            PostPager.PageMargin = Style.PostPagerMargin;
-            PostPager.PageScrollStateChanged += PostPagerOnPageScrollStateChanged;
-            PostPager.PageScrolled += PostPagerOnPageScrolled;
-            PostPager.Adapter = ProfilePagerAdapter;
-            PostPager.SetPageTransformer(false, _profilePagerAdapter, (int)LayerType.None);
-
             _switcher.Click += OnSwitcherClick;
             Refresher.Refresh += OnRefresh;
 
@@ -267,39 +243,12 @@ namespace Steepshot.Fragment
             }
         }
 
-        private void PostPagerOnPageScrollStateChanged(object sender, ViewPager.PageScrollStateChangedEventArgs pageScrollStateChangedEventArgs)
-        {
-            if (pageScrollStateChangedEventArgs.State == 0)
-            {
-                PostsList.ScrollToPosition(PostPager.CurrentItem);
-                if (PostsList.GetLayoutManager() is GridLayoutManager manager)
-                {
-                    var positionToScroll = PostPager.CurrentItem + (PostPager.CurrentItem - manager.FindFirstVisibleItemPosition()) / 2;
-                    PostsList.ScrollToPosition(positionToScroll < Presenter.Count
-                        ? positionToScroll
-                        : Presenter.Count);
-                }
-            }
-        }
-
         private void FeedPhotoClick(Post post)
         {
             if (post == null)
                 return;
 
             OpenPost(post);
-        }
-
-        public override bool ClosePost()
-        {
-            if (base.ClosePost())
-            {
-                if (_rvAdapter == ProfileGridAdapter)
-                    ProfileGridAdapter.PulseAsync(ProfilePagerAdapter.CurrentPost, Presenter.OnDisposeCts.Token);
-                return true;
-            }
-
-            return false;
         }
 
         private void OnSwitcherClick(object sender, EventArgs e)
@@ -350,8 +299,7 @@ namespace Steepshot.Fragment
                             _feedSpanSizeLookup.LastItemNumber = Presenter.Count;
                         }
 
-                        _rvAdapter.NotifyDataSetChanged();
-                        ProfilePagerAdapter.NotifyDataSetChanged();
+                        _rvAdapter.NotifyDataSetChanged();                        
 
                         break;
                     }

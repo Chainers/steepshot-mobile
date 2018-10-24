@@ -16,9 +16,6 @@ using Steepshot.Utils;
 using Android.Support.Design.Widget;
 using Refractored.Controls;
 using Steepshot.Core.Extensions;
-using Steepshot.Core.Models;
-using System.Threading.Tasks;
-using Android.OS;
 using Android.Support.V4.View;
 using Steepshot.Base;
 using Steepshot.Core.Localization;
@@ -240,7 +237,7 @@ namespace Steepshot.Adapter
             {
                 _postAction.Invoke(ActionType.Photo, Post);
             }
-            else
+            else if (!MimeTypeHelper.IsVideo(post.Media[PhotosViewPager.CurrentItem].ContentType))
             {
                 var intent = new Intent(Context, typeof(PostPreviewActivity));
                 intent.PutExtra(PostPreviewActivity.PhotoExtraPath, post.Media[PhotosViewPager.CurrentItem].Url);
@@ -538,8 +535,6 @@ namespace Steepshot.Adapter
             var height = Post.Media[0].OptimalPhotoSize(Style.ScreenWidth, 130 * Style.Density, Style.MaxPostHeight);
             PhotosViewPager.LayoutParameters.Height = height;
             ((PostPhotosPagerAdapter)PhotosViewPager.Adapter).UpdateData(Post);
-
-            _title.UpdateText(Post, TagToExclude, TagFormat, MaxLines, Post.IsExpanded || PhotoPagerType == PostPagerType.PostScreen);
 
             _title.UpdateText(Post, TagToExclude, TagFormat, MaxLines, Post.IsExpanded || PhotoPagerType == PostPagerType.PostScreen);
 

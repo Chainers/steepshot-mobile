@@ -8,7 +8,6 @@ using Android.Widget;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Presenters;
-using Steepshot.Core.Utils;
 using Steepshot.CustomViews;
 using Steepshot.Utils;
 using Object = Java.Lang.Object;
@@ -34,8 +33,6 @@ namespace Steepshot.Adapter
 
         public int CurrentItem => _pager.CurrentItem;
 
-        public Post CurrentPost => _presenter[_pager.CurrentItem];
-
         public PostPagerAdapter(ViewPager pager, Context context, T presenter)
         {
             _pager = pager;
@@ -45,6 +42,16 @@ namespace Steepshot.Adapter
             _viewHolders.AddRange(Enumerable.Repeat<PostViewHolder>(null, CachedPagesCount));
             _itemsCount = 0;
             _pageOffset = BitmapUtils.DpToPixel(20, _context.Resources);
+            _pager.PageScrolled += PagerOnPageScrolled;
+        }
+
+        private void PagerOnPageScrolled(object sender, ViewPager.PageScrolledEventArgs e)
+        {
+            for (int i = CurrentItem - 2; i <= CurrentItem + 2; i++)
+            {
+                if (i < 0 || i >= _presenter.Count || _presenter[i] == null) continue;
+                _viewHolders?[i % CachedPagesCount]?.Playback(i == CurrentItem);
+            }
         }
 
         public override Object InstantiateItem(ViewGroup container, int position)
@@ -67,7 +74,8 @@ namespace Steepshot.Adapter
             {
                 var itemView = LayoutInflater.From(_context)
                     .Inflate(Resource.Layout.lyt_post_view_item, container, false);
-                vh = new PostViewHolder(itemView, PostAction, AutoLinkAction, CloseAction, Style.ScreenWidth, Style.PagerScreenWidth);
+                vh = new PostViewHolder(itemView, PostAction, AutoLinkAction, CloseAction, Style.ScreenWidth,
+                    Style.PagerScreenWidth);
                 _viewHolders[reusePosition] = vh;
                 container.AddView(vh.ItemView);
             }
@@ -169,12 +177,7 @@ namespace Steepshot.Adapter
             var closeButton = itemView.FindViewById<ImageButton>(Resource.Id.close);
             closeButton.Click += CloseButtonOnClick;
 
-            var postHeader = itemView.FindViewById<RelativeLayout>(Resource.Id.title);
-            var postFooter = itemView.FindViewById<LinearLayout>(Resource.Id.footer);
-            postHeader.SetLayerType(LayerType.Hardware, null);
-            postFooter.SetLayerType(LayerType.Hardware, null);
-
-            ((MediaPager)PhotosViewPager).Radius = (int)BitmapUtils.DpToPixel(10, Context.Resources);
+            ((MediaPager)PhotosViewPager).Radius = Style.Margin10;
 
             NsfwMask.ViewTreeObserver.GlobalLayout += ViewTreeObserverOnGlobalLayout;
         }

@@ -1,5 +1,4 @@
-﻿using System;
-using Android.Content;
+﻿using Android.Content;
 using Android.OS;
 using Android.Views;
 using CheeseBind;
@@ -31,6 +30,7 @@ namespace Steepshot.Base
             IsInitialized = false;
             base.OnDetach();
             Cheeseknife.Reset(this);
+            App.VideoPlayerManager.ReleasePlayers();
         }
 
         public virtual bool OnBackPressed() => false;

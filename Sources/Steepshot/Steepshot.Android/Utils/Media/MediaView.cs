@@ -17,7 +17,7 @@ namespace Steepshot.Utils.Media
 {
     public class MediaView : FrameLayout, TextureView.ISurfaceTextureListener
     {
-        public Action<MediaType> OnClick;
+        public MediaType MediaType { get; private set; }
         private MediaModel _mediaSource;
         public MediaModel MediaSource
         {
@@ -35,7 +35,6 @@ namespace Steepshot.Utils.Media
         private Handler _mainHandler;
         private Paint _durationPaint;
         private Dictionary<MediaType, IMediaProducer> _mediaProducers;
-        private MediaType MediaType { get; set; }
         private TextureView _videoView;
         private ImageView _imageView;
         private bool _playBack;
@@ -52,6 +51,7 @@ namespace Steepshot.Utils.Media
 
         private void Init()
         {
+            Clickable = true;
             SetWillNotDraw(false);
             LayoutTransition = new LayoutTransition();
             _durationPaint = new Paint(PaintFlags.AntiAlias)
@@ -99,7 +99,7 @@ namespace Steepshot.Utils.Media
                 while (_playBack)
                 {
                     Invalidate();
-                    await Task.Delay(100);
+                    await Task.Delay(50);
                 }
             }
         }
@@ -142,7 +142,7 @@ namespace Steepshot.Utils.Media
             {
                 _playBack = false;
                 _imageView.BringToFront();
-                _mediaProducers[MediaType].Stop();
+                _mediaProducers[MediaType].Pause();
             });
         }
 

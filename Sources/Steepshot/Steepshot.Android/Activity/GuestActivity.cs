@@ -35,8 +35,7 @@ namespace Steepshot.Activity
             if (fragments?.Count > 0)
             {
                 var lastFragment = fragments.Last();
-                if (lastFragment is ICanOpenPost openPostFrg && openPostFrg.ClosePost() ||
-                    lastFragment is BaseFragment baseFrg && baseFrg.OnBackPressed())
+                if (lastFragment is BaseFragment baseFrg && baseFrg.OnBackPressed())
                     return;
             }
 

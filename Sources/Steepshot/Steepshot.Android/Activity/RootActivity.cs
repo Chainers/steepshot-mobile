@@ -23,11 +23,9 @@ using Steepshot.Fragment;
 using Steepshot.Interfaces;
 using Steepshot.Utils;
 using Steepshot.Core.Extensions;
-using Steepshot.Core.Utils;
 using System.Linq;
 using Android;
 using Android.Runtime;
-using Newtonsoft.Json.Linq;
 using Steepshot.Core;
 using WebSocketSharp;
 
@@ -154,8 +152,7 @@ namespace Steepshot.Activity
             if (fragments?.Count > 0)
             {
                 var lastFragment = fragments.Last();
-                if (lastFragment is ICanOpenPost openPostFrg && openPostFrg.ClosePost() ||
-                    lastFragment is BaseFragment baseFrg && baseFrg.OnBackPressed())
+                if (lastFragment is BaseFragment baseFrg && baseFrg.OnBackPressed())
                     return;
             }
 
@@ -216,9 +213,6 @@ namespace Steepshot.Activity
             {
                 var hostFragment = _adapter.GetItem(TabLayout.SelectedTabPosition) as HostFragment;
                 hostFragment?.Clear();
-                var fragments = hostFragment?.ChildFragmentManager.Fragments;
-                if (fragments != null && fragments[fragments.Count - 1] is ICanOpenPost fragment)
-                    fragment.ClosePost();
             }
         }
 

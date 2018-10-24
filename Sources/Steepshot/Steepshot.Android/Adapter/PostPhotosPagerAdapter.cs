@@ -1,6 +1,5 @@
 ﻿using System;
 using Android.Content;
-using Android.Provider;
 using Android.Views;
 using Steepshot.Core.Models.Common;
 using Steepshot.Utils.Media;
@@ -49,7 +48,7 @@ namespace Steepshot.Adapter
             if (mediaView == null)
             {
                 mediaView = new MediaView(_context) { LayoutParameters = container.LayoutParameters };
-                mediaView.OnClick += MediaClick;
+                mediaView.Click += MediaClick;
                 _mediaViews[reusePosition] = mediaView;
             }
 
@@ -58,19 +57,17 @@ namespace Steepshot.Adapter
             return mediaView;
         }
 
-        private void MediaClick(MediaType mediaType)
+        private void MediaClick(object sender, EventArgs e)
         {
-            switch (mediaType)
-            {
-                case MediaType.Image:
-                    _photoAction?.Invoke(_post);
-                    break;
-            }
+            _photoAction?.Invoke(_post);
         }
 
         public void Playback(bool shouldPlay)
         {
             var mediaView = _mediaViews[0];
+            if (mediaView == null)
+                return;
+
             if (shouldPlay)
                 mediaView.Play();
             else

@@ -58,12 +58,6 @@
         android:textSize="14sp"
         android:layout_alignParentBottom="true"
         android:text="Create first photo" />
-    <android.support.v4.view.ViewPager
-        android:id="@+id/post_prev_pager"
-        android:background="@android:color/white"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="gone" />
     <ProgressBar
         android:id="@+id/loading_spinner"
         android:layout_width="wrap_content"

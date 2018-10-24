@@ -5,7 +5,6 @@ using Android.Content;
 using Android.Graphics;
 using Android.OS;
 using Android.Support.Design.Widget;
-using Android.Support.V4.View;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
@@ -25,7 +24,7 @@ namespace Steepshot.Fragment
     public sealed class ProfileFragment : BasePostsFragment<UserProfilePresenter>
     {
         private TabOptions _tabOptions;
-
+        protected override int PositionOffset => 1;
         private FeedScrollListner _scrollListner;
         private LinearLayoutManager _linearLayoutManager;
         private GridLayoutManager _gridLayoutManager;
@@ -34,8 +33,8 @@ namespace Steepshot.Fragment
         private RecyclerView.Adapter _rvAdapter;
         private Dialog _moreActionsDialog;
         private readonly bool _loadOnViewCreated;
-        private bool isSubscribed;
-        private bool isSubscription;
+        private bool _isSubscribed;
+        private bool _isSubscription;
 
 #pragma warning disable 0649, 4014
         [BindView(Resource.Id.btn_back)] private ImageButton _backButton;
@@ -49,22 +48,6 @@ namespace Steepshot.Fragment
         [BindView(Resource.Id.first_post)] private Button _firstPostButton;
         [BindView(Resource.Id.like_power)] private TextView _likePowerLabel;
 #pragma warning restore 0649
-
-        private PostPagerAdapter<UserProfilePresenter> _profilePagerAdapter;
-        private PostPagerAdapter<UserProfilePresenter> ProfilePagerAdapter
-        {
-            get
-            {
-                if (_profilePagerAdapter == null)
-                {
-                    _profilePagerAdapter = new PostPagerAdapter<UserProfilePresenter>(PostPager, Context, Presenter);
-                    _profilePagerAdapter.PostAction += PostAction;
-                    _profilePagerAdapter.AutoLinkAction += AutoLinkAction;
-                    _profilePagerAdapter.CloseAction += CloseAction;
-                }
-                return _profilePagerAdapter;
-            }
-        }
 
         private ProfileFeedAdapter _profileFeedAdapter;
         private ProfileFeedAdapter ProfileFeedAdapter
@@ -187,14 +170,6 @@ namespace Steepshot.Fragment
 
                 PostsList.AddOnScrollListener(_scrollListner);
 
-                PostPager.SetClipToPadding(false);
-                PostPager.SetPadding(Style.PostPagerMargin * 2, 0, Style.PostPagerMargin * 2, 0);
-                PostPager.PageMargin = Style.PostPagerMargin;
-                PostPager.PageScrollStateChanged += PostPagerOnPageScrollStateChanged;
-                PostPager.PageScrolled += PostPagerOnPageScrolled;
-                PostPager.Adapter = ProfilePagerAdapter;
-                PostPager.SetPageTransformer(false, _profilePagerAdapter, (int)LayerType.None);
-
                 Refresher.Refresh += OnRefresh;
                 _settings.Click += OnSettingsClick;
                 _login.Click += OnLoginClick;
@@ -227,29 +202,20 @@ namespace Steepshot.Fragment
             }
         }
 
-        private void PostPagerOnPageScrolled(object sender, ViewPager.PageScrolledEventArgs pageScrolledEventArgs)
-        {
-            if (pageScrolledEventArgs.Position == Presenter.Count)
-            {
-                if (!Presenter.IsLastReaded)
-                    GetPosts(false);
-            }
-        }
-
-        private void PostPagerOnPageScrollStateChanged(object sender, ViewPager.PageScrollStateChangedEventArgs pageScrollStateChangedEventArgs)
-        {
-            if (pageScrollStateChangedEventArgs.State == 0)
-            {
-                PostsList.ScrollToPosition(PostPager.CurrentItem + 1);
-                if (PostsList.GetLayoutManager() is GridLayoutManager manager)
-                {
-                    var positionToScroll = PostPager.CurrentItem + (PostPager.CurrentItem - manager.FindFirstVisibleItemPosition()) / 2;
-                    PostsList.ScrollToPosition(positionToScroll < Presenter.Count
-                        ? positionToScroll
-                        : Presenter.Count);
-                }
-            }
-        }
+        //private void PostPagerOnPageScrollStateChanged(object sender, ViewPager.PageScrollStateChangedEventArgs pageScrollStateChangedEventArgs)
+        //{
+        //    if (pageScrollStateChangedEventArgs.State == 0)
+        //    {
+        //        PostsList.ScrollToPosition(PostPager.CurrentItem + 1);
+        //        if (PostsList.GetLayoutManager() is GridLayoutManager manager)
+        //        {
+        //            var positionToScroll = PostPager.CurrentItem + (PostPager.CurrentItem - manager.FindFirstVisibleItemPosition()) / 2;
+        //            PostsList.ScrollToPosition(positionToScroll < Presenter.Count
+        //                ? positionToScroll
+        //                : Presenter.Count);
+        //        }
+        //    }
+        //}
 
         private void FeedPhotoClick(Post post)
         {
@@ -257,18 +223,6 @@ namespace Steepshot.Fragment
                 return;
 
             OpenPost(post);
-        }
-
-        public override bool ClosePost()
-        {
-            if (base.ClosePost())
-            {
-                if (_rvAdapter == ProfileGridAdapter)
-                    ProfileGridAdapter.PulseAsync(ProfilePagerAdapter.CurrentPost, Presenter.OnDisposeCts.Token);
-                return true;
-            }
-
-            return false;
         }
 
         private void OnSwitcherClick(object sender, EventArgs e)
@@ -314,17 +268,12 @@ namespace Steepshot.Fragment
                                                       && Presenter.UserProfileResponse.HiddenPostCount == 0
                                 ? ViewStates.Visible
                                 : ViewStates.Gone;
-                        
-                        ProfilePagerAdapter.NotifyDataSetChanged();
-
                         break;
                     }
                 default:
                     {
                         _profileSpanSizeLookup.LastItemNumber = Presenter.Count;
                         _rvAdapter.NotifyDataSetChanged();
-                        ProfilePagerAdapter.NotifyDataSetChanged();
-
                         break;
                     }
             }
@@ -366,14 +315,14 @@ namespace Steepshot.Fragment
 
         private void MoreOnClick(object sender, EventArgs eventArgs)
         {
-            if (!isSubscription)
+            if (!_isSubscription)
             {
                 var inflater = (LayoutInflater)Context.GetSystemService(Context.LayoutInflaterService);
                 using (var dialogView = inflater.Inflate(Resource.Layout.lyt_profile_popup, null))
                 {
                     dialogView.SetMinimumWidth((int)(Style.ScreenWidth * 0.8));
                     var pushes = dialogView.FindViewById<Button>(Resource.Id.pushes);
-                    if (isSubscribed)
+                    if (_isSubscribed)
                     {
                         pushes.SetTextColor(Style.R255G34B5);
                         pushes.Text = App.Localization.GetText(LocalizationKeys.UnwatchUser);
@@ -407,20 +356,20 @@ namespace Steepshot.Fragment
         private async void PushesOnClick(object sender, EventArgs eventArgs)
         {
             _moreActionsDialog.Dismiss();
-            var model = new PushNotificationsModel(App.User.UserInfo, !isSubscribed)
+            var model = new PushNotificationsModel(App.User.UserInfo, !_isSubscribed)
             {
                 WatchedUser = ProfileId
             };
 
-            isSubscription = true;
+            _isSubscription = true;
 
             var result = await Presenter.TrySubscribeForPushesAsync(model);
             if (result.IsSuccess)
             {
-                isSubscribed = !isSubscribed;
+                _isSubscribed = !_isSubscribed;
             }
 
-            isSubscription = false;
+            _isSubscription = false;
         }
 
         private void CancelDialog(object sender, EventArgs e)
@@ -459,7 +408,7 @@ namespace Steepshot.Fragment
                 {
                     _listLayout.Visibility = ViewStates.Visible;
                     _more.Enabled = true;
-                    isSubscribed = Presenter.UserProfileResponse.IsSubscribed;
+                    _isSubscribed = Presenter.UserProfileResponse.IsSubscribed;
                     break;
                 }
 

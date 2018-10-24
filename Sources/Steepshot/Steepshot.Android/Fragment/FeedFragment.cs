@@ -23,7 +23,6 @@ namespace Steepshot.Fragment
         public const string PostNetVotesExtraPath = "count";
 
         private FeedAdapter<FeedPresenter> _adapter;
-        private PostPagerAdapter<FeedPresenter> _postPagerAdapter;
         private FeedScrollListner _scrollListner;
 
 #pragma warning disable 0649, 4014
@@ -73,20 +72,6 @@ namespace Steepshot.Fragment
                 PostsList.SetLayoutManager(new LinearLayoutManager(Android.App.Application.Context));
                 PostsList.AddOnScrollListener(_scrollListner);
 
-                PostPager.SetClipToPadding(false);
-                PostPager.SetPadding(Style.PostPagerMargin * 2, 0, Style.PostPagerMargin * 2, 0);
-                PostPager.PageMargin = Style.PostPagerMargin;
-                PostPager.PageScrollStateChanged += PostPagerOnPageScrollStateChanged;
-                PostPager.PageScrolled += PostPagerOnPageScrolled;
-
-                _postPagerAdapter = new PostPagerAdapter<FeedPresenter>(PostPager, Context, Presenter);
-                _postPagerAdapter.PostAction += PostAction;
-                _postPagerAdapter.AutoLinkAction += AutoLinkAction;
-                _postPagerAdapter.CloseAction += CloseAction;
-
-                PostPager.Adapter = _postPagerAdapter;
-                PostPager.SetPageTransformer(false, _postPagerAdapter, (int)LayerType.None);
-
                 _emptyQueryLabel.Typeface = Style.Light;
                 _emptyQueryLabel.Text = App.Localization.GetText(LocalizationKeys.EmptyCategory);
 
@@ -102,10 +87,7 @@ namespace Steepshot.Fragment
 
         public override bool UserVisibleHint
         {
-            get
-            {
-                return base.UserVisibleHint;
-            }
+            get => base.UserVisibleHint;
             set
             {
                 if (value && IsInitialized)
@@ -120,30 +102,6 @@ namespace Steepshot.Fragment
         {
             base.OnResume();
             _adapter.NotifyDataSetChanged();
-        }
-
-        private void PostPagerOnPageScrolled(object sender, ViewPager.PageScrolledEventArgs pageScrolledEventArgs)
-        {
-            if (pageScrolledEventArgs.Position == Presenter.Count)
-            {
-                if (!Presenter.IsLastReaded)
-                    GetPosts(false);
-            }
-        }
-
-        private void PostPagerOnPageScrollStateChanged(object sender, ViewPager.PageScrollStateChangedEventArgs pageScrollStateChangedEventArgs)
-        {
-            if (pageScrollStateChangedEventArgs.State == 0)
-            {
-                PostsList.ScrollToPosition(PostPager.CurrentItem);
-                if (PostsList.GetLayoutManager() is GridLayoutManager manager)
-                {
-                    var positionToScroll = PostPager.CurrentItem + (PostPager.CurrentItem - manager.FindFirstVisibleItemPosition()) / 2;
-                    PostsList.ScrollToPosition(positionToScroll < Presenter.Count
-                        ? positionToScroll
-                        : Presenter.Count);
-                }
-            }
         }
 
         private void OnToolbarOffsetChanged(object sender, AppBarLayout.OffsetChangedEventArgs e)
@@ -166,8 +124,6 @@ namespace Steepshot.Fragment
                 default:
                     {
                         _adapter.NotifyDataSetChanged();
-                        _postPagerAdapter.NotifyDataSetChanged();
-
                         break;
                     }
             }

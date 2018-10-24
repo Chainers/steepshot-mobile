@@ -119,6 +119,7 @@
     <Compile Include="CustomViews\WheelPicker.cs" />
     <Compile Include="Fragment\BasePostsFragment.cs" />
     <Compile Include="Fragment\PostCreateFragment.cs" />
+    <Compile Include="Fragment\PostPagerFragment.cs" />
     <Compile Include="Fragment\PreviewPostCreateFragment.cs" />
     <Compile Include="Fragment\PostCreateFragment_new.cs" />
     <Compile Include="Fragment\PostPrepareBaseFragment.cs" />
@@ -171,7 +172,6 @@
     <Compile Include="Adapter\TagsAdapter.cs" />
     <AndroidEnvironment Include="environment.txt" />
     <Compile Include="Fragment\CameraFragment.cs" />
-    <Compile Include="Interfaces\ICanOpenPost.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Base\BaseActivity.cs" />
     <Compile Include="Base\BaseFragment.cs" />
@@ -931,6 +931,9 @@
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\drawable-xxhdpi\ic_flash_auto.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\layout\lyt_post_pager_fragment.axml" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <Import Project="..\packages\Xamarin.Build.Download.0.4.2\build\Xamarin.Build.Download.targets" Condition="Exists('..\packages\Xamarin.Build.Download.0.4.2\build\Xamarin.Build.Download.targets')" />

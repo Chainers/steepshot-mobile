@@ -1,6 +1,7 @@
 ﻿using System;
 using Android.Content;
 using Android.Graphics;
+using Android.Runtime;
 using Android.Views;
 using Android.Webkit;
 using Com.Google.Android.Exoplayer2;
@@ -29,6 +30,10 @@ namespace Steepshot.Utils.Media
         private readonly SimpleExoPlayer _player;
         private IDataSourceFactory _dataSourceFactory;
         private IMediaSource _mediaSource;
+
+        public VideoPlayer(IntPtr handle, JniHandleOwnership transfer) : base(handle, transfer)
+        {
+        }
 
         public VideoPlayer(Context context, SimpleCache cache)
         {

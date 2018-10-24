@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Android.Content;
-using Android.Support.V4.View;
 using Android.Support.V4.Widget;
 using Android.Support.V7.Widget;
 using Android.Views;
@@ -14,23 +13,21 @@ using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Presenters;
 using Steepshot.CustomViews;
-using Steepshot.Interfaces;
 using Steepshot.Utils;
 
 namespace Steepshot.Fragment
 {
-    public abstract class BasePostsFragment<T> : BaseFragmentWithPresenter<T>, ICanOpenPost
+    public abstract class BasePostsFragment<T> : BaseFragmentWithPresenter<T>
         where T : BasePostPresenter
     {
-
+        protected virtual int PositionOffset => 0;
 #pragma warning disable 0649, 4014
         [BindView(Resource.Id.posts_list)] protected RecyclerView PostsList;
-        [BindView(Resource.Id.post_prev_pager)] protected ViewPager PostPager;
         [BindView(Resource.Id.refresher)] protected SwipeRefreshLayout Refresher;
 #pragma warning restore 0649
-        
+
         protected string ProfileId = App.User.Login;
-        
+
         protected async void ScrollListnerScrolledToBottom()
         {
             await GetPosts(false);
@@ -164,32 +161,34 @@ namespace Steepshot.Fragment
             }
         }
 
-        public void OpenPost(Post post)
+        protected void OpenPost(Post post)
         {
-            PostPager.SetCurrentItem(Presenter.IndexOf(post), false);
-            PostPager.Visibility = ViewStates.Visible;
-            PostsList.Visibility = ViewStates.Gone;
+            var pagerFragment = new PostPagerFragment(Presenter, post, PostAction, GetPosts);
+            pagerFragment.Close += Close;
+            ((BaseActivity)Activity).OpenNewContentFragment(pagerFragment);
+        }
+
+        private void Close(int currentPost)
+        {
+            var lytManager = PostsList.GetLayoutManager();
+            if (lytManager is GridLayoutManager gridLayoutManager)
+            {
+                var positionToScroll = currentPost + (currentPost - gridLayoutManager.FindFirstVisibleItemPosition()) / 2;
+                PostsList.Post(() =>
+                gridLayoutManager.ScrollToPosition(positionToScroll < Presenter.Count
+                    ? positionToScroll
+                    : Presenter.Count));
+            }
+            else if (lytManager is LinearLayoutManager linearLayoutManager)
+            {
+                PostsList.Post(() =>
+                    linearLayoutManager.ScrollToPosition(currentPost + PositionOffset));
+            }
         }
 
         protected void GoBackClick(object sender, EventArgs e)
         {
             Activity.OnBackPressed();
-        }
-
-        protected void CloseAction()
-        {
-            ClosePost();
-        }
-
-        public virtual bool ClosePost()
-        {
-            if (PostPager.Visibility == ViewStates.Visible)
-            {
-                PostPager.Visibility = ViewStates.Gone;
-                PostsList.Visibility = ViewStates.Visible;
-                return true;
-            }
-            return false;
         }
 
         public override void OnDetach()
