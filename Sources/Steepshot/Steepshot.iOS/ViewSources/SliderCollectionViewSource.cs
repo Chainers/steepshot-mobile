@@ -21,6 +21,7 @@ namespace Steepshot.iOS.ViewSources
         private readonly BasePostPresenter _presenter;
         private readonly SliderCollectionViewFlowDelegate _flowDelegate;
         private readonly List<SliderFeedCollectionViewCell> _feedCellsList = new List<SliderFeedCollectionViewCell>();
+        public NSIndexPath playingIndex;
 
         public SliderCollectionViewSource(BasePostPresenter presenter, SliderCollectionViewFlowDelegate flowDelegate)
         {
@@ -61,6 +62,12 @@ namespace Steepshot.iOS.ViewSources
                 }
                 if (!_feedCellsList.Any(c => c.Handle == cell.Handle))
                     _feedCellsList.Add(cell);
+
+                if (indexPath == playingIndex)
+                {
+                    playingIndex = null;
+                    cell.Playback(true);
+                }
                 return cell;
             }
         }

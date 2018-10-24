@@ -26,6 +26,7 @@ namespace Steepshot.iOS.Views
         private UIRefreshControl _refreshControl;
         private bool _isFeedRefreshing;
         private SliderCollectionViewFlowDelegate _sliderGridDelegate;
+        private SliderCollectionViewSource _sliderCollectionViewSource;
 
         protected override void SourceChanged(Status status)
         {
@@ -89,7 +90,7 @@ namespace Steepshot.iOS.Views
             _sliderGridDelegate = new SliderCollectionViewFlowDelegate(sliderCollection, Presenter);
             _sliderGridDelegate.ScrolledToBottom += ScrolledToBottom;
 
-            var _sliderCollectionViewSource = new SliderCollectionViewSource(Presenter, _sliderGridDelegate);
+            _sliderCollectionViewSource = new SliderCollectionViewSource(Presenter, _sliderGridDelegate);
 
             sliderCollection.DecelerationRate = UIScrollView.DecelerationRateFast;
             sliderCollection.ShowsHorizontalScrollIndicator = false;
@@ -206,7 +207,9 @@ namespace Steepshot.iOS.Views
             sliderCollection.Hidden = false;
             _sliderGridDelegate.GenerateVariables();
             sliderCollection.ReloadData();
-            sliderCollection.ScrollToItem(NSIndexPath.FromRowSection(Presenter.IndexOf(post), 0), UICollectionViewScrollPosition.CenteredHorizontally, false);
+            var index = NSIndexPath.FromRowSection(Presenter.IndexOf(post), 0);
+            sliderCollection.ScrollToItem(index, UICollectionViewScrollPosition.CenteredHorizontally, false);
+            _sliderCollectionViewSource.playingIndex = index;
         }
 
         public bool ClosePost()

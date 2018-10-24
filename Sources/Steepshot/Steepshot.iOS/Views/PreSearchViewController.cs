@@ -298,7 +298,9 @@ namespace Steepshot.iOS.Views
             sliderCollection.Hidden = false;
             _sliderGridDelegate.GenerateVariables();
             sliderCollection.ReloadData();
-            sliderCollection.ScrollToItem(NSIndexPath.FromRowSection(Presenter.IndexOf(post), 0), UICollectionViewScrollPosition.CenteredHorizontally, false);
+            var index = NSIndexPath.FromRowSection(Presenter.IndexOf(post), 0);
+            sliderCollection.ScrollToItem(index, UICollectionViewScrollPosition.CenteredHorizontally, false);
+            _sliderCollectionViewSource.playingIndex = index;
 
             foreach (var item in collectionView.IndexPathsForVisibleItems)
             {

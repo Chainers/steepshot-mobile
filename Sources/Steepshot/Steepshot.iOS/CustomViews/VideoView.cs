@@ -145,6 +145,8 @@ namespace Steepshot.iOS.CustomViews
                 case ObserveLikelyToKeepUpKey:
                 case ObserveBufferFullKey:
                     _videoLoader?.StopAnimating();
+                    if (_shouldPlay)
+                        Player.Play();
                     break;
                 default:
                     if (_isRegistered)
