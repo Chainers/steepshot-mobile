@@ -697,13 +697,10 @@ namespace Steepshot.iOS.Cells
 
         public void Playback(bool shouldPlay)
         {
-            if (_videoView.Player.Status == AVPlayerStatus.ReadyToPlay)
-            {
-                if (shouldPlay)
-                    _videoView.Play();
-                else
-                    _videoView.Stop();
-            }
+            if (shouldPlay)
+                _videoView.Play();
+            else
+                _videoView.Stop();
         }
 
         private void LikeTap()
