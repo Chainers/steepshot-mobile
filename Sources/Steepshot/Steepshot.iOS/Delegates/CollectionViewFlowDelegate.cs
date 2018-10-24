@@ -50,7 +50,7 @@ namespace Steepshot.iOS.Delegates
 
         protected DateTime previousScrollMoment;
         protected nfloat previousScrollY = 0;
-        public double velocity;
+        //public double velocity;
 
         public override void Scrolled(UIScrollView scrollView)
         {
@@ -58,11 +58,11 @@ namespace Steepshot.iOS.Delegates
             var y = scrollView.ContentOffset.Y;
             var elapsed = d.Subtract(previousScrollMoment).TotalMilliseconds;
             var distance = y - previousScrollY;
-            velocity = Math.Abs(distance / elapsed);
+            //velocity = Math.Abs(distance / elapsed);
             previousScrollMoment = d;
             previousScrollY = y;
 
-            if (velocity < 0.8 && _collection.IndexPathsForVisibleItems.Length > 0)
+            if (_collection.IndexPathsForVisibleItems.Length > 0)
             {
                 var attributes = new List<UICollectionViewLayoutAttributes>();
 
