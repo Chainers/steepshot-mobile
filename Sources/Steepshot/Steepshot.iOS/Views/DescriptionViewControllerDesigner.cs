@@ -118,10 +118,10 @@ namespace Steepshot.iOS.Views
                 photoTitleSeparator.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, videoContainer, 15f);
             }
 
-            photoTitleSeparator.AutoPinEdgeToSuperviewEdge(ALEdge.Left, SeparatorMargin);
-            photoTitleSeparator.AutoPinEdgeToSuperviewEdge(ALEdge.Right, SeparatorMargin);
+            photoTitleSeparator.AutoPinEdgeToSuperviewEdge(ALEdge.Left, Constants.DescriptionSeparatorMargin);
+            photoTitleSeparator.AutoPinEdgeToSuperviewEdge(ALEdge.Right, Constants.DescriptionSeparatorMargin);
             photoTitleSeparator.AutoSetDimension(ALDimension.Height, 1f);
-            photoTitleSeparator.AutoSetDimension(ALDimension.Width, UIScreen.MainScreen.Bounds.Width - SeparatorMargin * 2);
+            photoTitleSeparator.AutoSetDimension(ALDimension.Width, UIScreen.MainScreen.Bounds.Width - Constants.DescriptionSeparatorMargin * 2);
 
             titleTextField.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, photoTitleSeparator, 17f);
             titleTextField.AutoPinEdge(ALEdge.Left, ALEdge.Left, photoTitleSeparator, -5f);
@@ -219,7 +219,7 @@ namespace Steepshot.iOS.Views
             }
             else
             {
-                videoContainer = new VideoView(false, false);
+                videoContainer = new VideoView(true, false);
                 videoContainer.ClipsToBounds = true;
                 videoContainer.Layer.CornerRadius = 8;
                 mainScroll.AddSubview(videoContainer);
@@ -228,13 +228,6 @@ namespace Steepshot.iOS.Views
                 videoContainer.AutoPinEdgeToSuperviewEdge(ALEdge.Top, 15f);
                 videoContainer.AutoSetDimensionsToSize(new CGSize(_cellSize.Width, _cellSize.Height));
                 videoContainer.ChangeItem(_videoUrl);
-
-                _statusImage = new UIImageView();
-                _statusImage.Image = UIImage.FromBundle("ic_pause");
-                videoContainer.AddSubview(_statusImage);
-                _statusImage.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom, 10);
-                _statusImage.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 10);
-                _statusImage.AutoSetDimensionsToSize(new CGSize(32, 32));
 
                 videoContainer.Play();
             }
@@ -262,7 +255,7 @@ namespace Steepshot.iOS.Views
             {
                 ScrollDirection = UICollectionViewScrollDirection.Horizontal,
                 ItemSize = _cellSize,
-                SectionInset = new UIEdgeInsets(0, sectionInset, 0, sectionInset),
+                SectionInset = new UIEdgeInsets(0, Constants.DescriptionSectionInset, 0, Constants.DescriptionSectionInset),
                 MinimumInteritemSpacing = 10,
             });
             photoCollection.BackgroundColor = UIColor.White;

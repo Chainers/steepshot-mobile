@@ -139,7 +139,7 @@ namespace Steepshot.iOS.Views
             NavigationController.NavigationBar.Translucent = false;
         }
 
-        protected virtual void GetPostSize()
+        private void GetPostSize()
         {
             if (ImageAssets != null)
                 _cellSize = CellHeightCalculator.GetDescriptionPostSize(ImageAssets[0].Item2.Size.Width, ImageAssets[0].Item2.Size.Height, ImageAssets.Count);

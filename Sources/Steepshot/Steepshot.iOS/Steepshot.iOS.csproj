@@ -450,6 +450,7 @@
     <Compile Include="ViewControllers\InteractivePopNavigationController.cs" />
     <Compile Include="Views\PhotoViewControllerDesigner.cs" />
     <Compile Include="CustomViews\TriangleView.cs" />
+    <Compile Include="Helpers\MetadataHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\ic_photo_holder.png" />

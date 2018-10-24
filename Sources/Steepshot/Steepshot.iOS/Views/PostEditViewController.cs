@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System;
 using System.Threading;
 using UIKit;
+using Steepshot.iOS.Helpers;
 
 namespace Steepshot.iOS.Views
 {
@@ -32,7 +33,7 @@ namespace Steepshot.iOS.Views
 
         protected override void GetPostSize()
         {
-            GetPostSize(post.Media[0].Size.Width, post.Media[0].Size.Height, post.Media.Count());
+            _cellSize = CellHeightCalculator.GetDescriptionPostSize(post.Media[0].Size.Width, post.Media[0].Size.Height, post.Media.Count());
         }
 
         protected override void SetImage()
@@ -85,7 +86,7 @@ namespace Steepshot.iOS.Views
             }
         }
 
-        protected override async void OnPostAsync(bool skipPreparationSteps)
+        protected override async Task OnPostAsync(bool skipPreparationSteps)
         {
             EnablePostAndEdit(false);
 
@@ -113,7 +114,7 @@ namespace Steepshot.iOS.Views
                     model.Tags = tags.ToArray();
                     model.Media = post.Media;
 
-                    CreateOrEditPost(true);
+                    CreateOrEditPostAsync(true);
                 }
                 catch (Exception ex)
                 {
