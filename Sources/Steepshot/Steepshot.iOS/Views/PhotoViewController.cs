@@ -372,6 +372,11 @@ namespace Steepshot.iOS.Views
                     });
                 });
             }
+            else if (authorizationAudioStatus != AVAuthorizationStatus.Authorized)
+            {
+                AVCaptureDevice.RequestAccessForMediaTypeAsync(AVMediaType.Audio);
+                InitializeCamera();
+            }
             else
                 InitializeCamera();
         }
