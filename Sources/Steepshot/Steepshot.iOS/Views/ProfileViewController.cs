@@ -228,6 +228,7 @@ namespace Steepshot.iOS.Views
                 NavigationItem.LeftBarButtonItem = _leftBarButton;
 
                 _settingsButton.Image = UIImage.FromBundle("ic_more");
+                _settingsButton.Enabled = AppDelegate.User.HasPostingPermission;
                 _settingsButton.TintColor = Constants.R151G155B158;
                 NavigationItem.RightBarButtonItems = new UIBarButtonItem[] { _settingsButton, _switchButton };
             }
