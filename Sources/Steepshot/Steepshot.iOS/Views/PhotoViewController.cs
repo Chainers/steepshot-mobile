@@ -347,6 +347,9 @@ namespace Steepshot.iOS.Views
             var authorizationVideoStatus = AVCaptureDevice.GetAuthorizationStatus(AVMediaType.Video);
             var authorizationAudioStatus = AVCaptureDevice.GetAuthorizationStatus(AVMediaType.Audio);
 
+            if (authorizationAudioStatus != AVAuthorizationStatus.Authorized)
+                AVCaptureDevice.RequestAccessForMediaTypeAsync(AVMediaType.Audio);
+
             if (authorizationVideoStatus != AVAuthorizationStatus.Authorized)
             {
                 AVCaptureDevice.RequestAccessForMediaTypeAsync(AVMediaType.Video).ContinueWith((arg) =>
@@ -364,18 +367,9 @@ namespace Steepshot.iOS.Views
                             _pointerView.Hidden = true;
                         }
                         else
-                        {
-                            if (authorizationAudioStatus != AVAuthorizationStatus.Authorized)
-                                AVCaptureDevice.RequestAccessForMediaTypeAsync(AVMediaType.Audio);
                             InitializeCamera();
-                        }
                     });
                 });
-            }
-            else if (authorizationAudioStatus != AVAuthorizationStatus.Authorized)
-            {
-                AVCaptureDevice.RequestAccessForMediaTypeAsync(AVMediaType.Audio);
-                InitializeCamera();
             }
             else
                 InitializeCamera();
