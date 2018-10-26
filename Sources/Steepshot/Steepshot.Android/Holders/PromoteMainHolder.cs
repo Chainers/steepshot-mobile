@@ -118,22 +118,23 @@ namespace Steepshot.Holders
         private void SetBalance()
         {
             if (_accountInfo == null)
-            {
-                _balanceLabel.Visibility = ViewStates.Gone;
-                _balanceLoader.Visibility = ViewStates.Visible;
-                _maxBtn.Enabled = false;
-            }
+                ToggleBalanceControlls(false);
             else
             {
                 Balances = _accountInfo.Balances;
                 var balance = Balances?.Find(x => x.CurrencyType == PickedCoin);
                 _balanceLabel.Text = $"{App.Localization.GetText(LocalizationKeys.Balance)}: {balance?.Value}";
 
-                _balanceLabel.Visibility = ViewStates.Visible;
-                _balanceLoader.Visibility = ViewStates.Gone;
-                _maxBtn.Enabled = true;
+                ToggleBalanceControlls(true);
             }
             CoinSelected();
+        }
+
+        public void ToggleBalanceControlls(bool enabled)
+        {
+            _balanceLabel.Visibility = enabled ? ViewStates.Visible : ViewStates.Gone;
+            _balanceLoader.Visibility = enabled ? ViewStates.Gone : ViewStates.Visible;
+            _maxBtn.Enabled = enabled;
         }
 
         private void CoinSelected()
