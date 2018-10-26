@@ -193,7 +193,7 @@ namespace Steepshot.Activity
             {
                 _prevTab.Select();
 
-                if (!RequestPermissions(CommonPermissionsRequestCode, Manifest.Permission.Camera, Manifest.Permission.ReadExternalStorage, Manifest.Permission.WriteExternalStorage))
+                if (!RequestPermissions(CommonPermissionsRequestCode, Manifest.Permission.Camera, Manifest.Permission.RecordAudio, Manifest.Permission.ReadExternalStorage, Manifest.Permission.WriteExternalStorage))
                 {
                     var intent = new Intent(this, typeof(CameraActivity));
                     StartActivity(intent);

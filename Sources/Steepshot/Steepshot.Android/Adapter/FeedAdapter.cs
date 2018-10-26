@@ -532,7 +532,7 @@ namespace Steepshot.Adapter
                     .Into(_avatar, null, () => Picasso.With(Context).Load(Post.Avatar).Placeholder(Resource.Drawable.ic_holder).NoFade().Into(_avatar));
             }
 
-            var height = Post.Media[0].OptimalPhotoSize(Style.ScreenWidth, 130 * Style.Density, Style.MaxPostHeight);
+            var height = Post.Media[0].OptimalPhotoSize(PhotosViewPager.LayoutParameters.Width, 130 * Style.Density, Style.MaxPostHeight);
             PhotosViewPager.LayoutParameters.Height = height;
             ((PostPhotosPagerAdapter)PhotosViewPager.Adapter).UpdateData(Post);
 

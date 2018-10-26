@@ -164,10 +164,9 @@ namespace Steepshot.Fragment
         {
             var lytParams = (RelativeLayout.LayoutParams)_aspectFrameLayout.LayoutParameters;
             var shotBtnLytParams = (ViewGroup.MarginLayoutParams)_shotBtn.LayoutParameters;
-            var margin = (int)TypedValue.ApplyDimension(ComplexUnitType.Dip, 10, Activity.Resources.DisplayMetrics);
             var availableSpace = Style.ScreenHeight - Style.ScreenWidth - _topPanel.LayoutParameters.Height - _tabs.LayoutParameters.Height;
-            shotBtnLytParams.Width = Math.Min(shotBtnLytParams.Width, availableSpace - margin * 2);
-            shotBtnLytParams.BottomMargin = availableSpace - shotBtnLytParams.Width - margin;
+            shotBtnLytParams.Width = Math.Min(shotBtnLytParams.Width, availableSpace - Style.Margin10 * 2);
+            shotBtnLytParams.BottomMargin = availableSpace / 2 - shotBtnLytParams.Width / 2 + Style.Margin10;
 
             var shotBtnLoadingLytParams = (ViewGroup.MarginLayoutParams)_shotBtnLoading.LayoutParameters;
             shotBtnLoadingLytParams.Width = shotBtnLoadingLytParams.Height = (int)(shotBtnLytParams.Width / 1.5f);
@@ -301,6 +300,10 @@ namespace Steepshot.Fragment
             var cameraInfo = _cameraManager.SupportedCameras.Find(x => x.Info.Facing != _cameraManager.CurrentCamera.Info.Facing);
             _cameraManager.ReConfigure(cameraInfo, _videoEncoderConfig,
                 _cameraConfig == CameraConfig.Photo ? null : _audioEncoderConfig);
+            _flashBtn.Visibility = _cameraConfig == CameraConfig.Photo &&
+                                   (_cameraManager.Parameters?.SupportedFlashModes?.Intersect(_cameraManager.SupportFlashModes).Any() ?? false)
+                                    ? ViewStates.Visible
+                                    : ViewStates.Gone;
             SetFlashButton(null, null);
             SetUiEnable(true);
         }
@@ -315,6 +318,7 @@ namespace Steepshot.Fragment
         {
             switch (e.Event.Action)
             {
+                case MotionEventActions.Down:
                 case MotionEventActions.Move:
                     _shotBtn.Pressed = true;
                     if (_cameraConfig == CameraConfig.Video && !_cameraManager.RecordingEnabled)

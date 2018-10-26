@@ -15,7 +15,6 @@ using Steepshot.CameraGL.Gles;
 using Steepshot.Utils;
 using Camera = Android.Hardware.Camera;
 using Object = Java.Lang.Object;
-using ThreadPriority = Android.OS.ThreadPriority;
 using VideoEncoder = Steepshot.CameraGL.Encoder.VideoEncoder;
 
 namespace Steepshot.CameraGL
@@ -52,7 +51,6 @@ namespace Steepshot.CameraGL
 
         public CameraManager(Context context, SurfaceView surface)
         {
-            Android.OS.Process.SetThreadPriority(ThreadPriority.Video);
             _surface = surface;
 
             _cameraOrientationEventListener = new CameraOrientationEventListener(context, SensorDelay.Normal);
@@ -136,7 +134,10 @@ namespace Steepshot.CameraGL
 
         public void ToggleFlashMode()
         {
-            var supportedModes = _camera.GetParameters().SupportedFlashModes.Intersect(SupportFlashModes.ToList()).ToList();
+            var supportedModes = Parameters.SupportedFlashModes?.Intersect(SupportFlashModes.ToList()).ToList();
+            if (supportedModes == null)
+                return;
+
             var nextModeInd = supportedModes.IndexOf(CurrentCamera.FlashMode) + 1;
             var nextMode = supportedModes[nextModeInd < supportedModes.Count ? nextModeInd : 0];
             CurrentCamera.FlashMode = nextMode;
@@ -166,7 +167,7 @@ namespace Steepshot.CameraGL
 
             var supportedFlashModes = camParams.SupportedFlashModes;
 
-            if (supportedFlashModes.Count > 0)
+            if (supportedFlashModes?.Count > 0)
             {
                 if (string.IsNullOrEmpty(CurrentCamera.FlashMode))
                     CurrentCamera.FlashMode = supportedFlashModes[0];
@@ -208,9 +209,9 @@ namespace Steepshot.CameraGL
 
         public void TakePicture(Camera.IShutterCallback shutterCallback, Camera.IPictureCallback pictureCallbackRaw, Camera.IPictureCallback pictureCallbackJpeg)
         {
-            var data = _displaySurface.GetFrame();
-            pictureCallbackJpeg?.OnPictureTaken(data, _camera);
-            //_camera?.TakePicture(shutterCallback, pictureCallbackRaw, pictureCallbackJpeg);
+            //var data = _displaySurface.GetFrame();
+            //pictureCallbackJpeg?.OnPictureTaken(data, _camera);
+            _camera?.TakePicture(shutterCallback, pictureCallbackRaw, pictureCallbackJpeg);
         }
 
         public void CancelAutoFocus()

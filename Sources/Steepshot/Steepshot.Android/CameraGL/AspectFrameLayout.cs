@@ -52,10 +52,10 @@ namespace Steepshot.CameraGL
             {
                 initialHeight = (int)(initialWidth / _targetAspect);
             }
-            else
-            {
-                initialWidth = (int)(initialHeight * _targetAspect);
-            }
+            //else
+            //{
+            //    initialWidth = (int)(initialHeight * _targetAspect);
+            //}
 
             initialWidth += horizPadding;
             initialHeight += vertPadding;
