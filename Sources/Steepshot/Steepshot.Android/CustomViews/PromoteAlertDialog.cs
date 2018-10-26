@@ -57,8 +57,14 @@ namespace Steepshot.CustomViews
             ShowEvent += OnShowEvent;
         }
 
-        private async void OnShowEvent(object sender, EventArgs e)
+        private void OnShowEvent(object sender, EventArgs e)
         {
+            UpdateAccountInfo();
+        }
+
+        private async void UpdateAccountInfo()
+        {
+            _adapter.MainHolder.ToggleBalanceControlls(false);
             var response = await _presenter.TryGetAccountInfoAsync(App.User.Login);
             if (response.IsSuccess)
             {
@@ -152,6 +158,7 @@ namespace Steepshot.CustomViews
                     break;
                 case Pages.Messages:
                     _pager.SetCurrentItem((int)Pages.Main, false);
+                    UpdateAccountInfo();
                     break;
             }
         }
