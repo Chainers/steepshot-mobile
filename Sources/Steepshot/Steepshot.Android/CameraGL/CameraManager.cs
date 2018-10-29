@@ -45,6 +45,7 @@ namespace Steepshot.CameraGL
         private int _previewHeight;
         private int _encoderWidth;
         private int _encoderHeight;
+        private int _orientation;
 
         private readonly VideoEncoder _videoEncoder;
         private readonly AudioRecorderWrapper _audioRecorder;
@@ -209,9 +210,26 @@ namespace Steepshot.CameraGL
 
         public void TakePicture(Camera.IShutterCallback shutterCallback, Camera.IPictureCallback pictureCallbackRaw, Camera.IPictureCallback pictureCallbackJpeg)
         {
+            SetOrientation();
             //var data = _displaySurface.GetFrame();
             //pictureCallbackJpeg?.OnPictureTaken(data, _camera);
             _camera?.TakePicture(shutterCallback, pictureCallbackRaw, pictureCallbackJpeg);
+        }
+
+        private void SetOrientation()
+        {
+            var camParams = Parameters;
+            var info = new Camera.CameraInfo();
+            Camera.GetCameraInfo(CurrentCamera.Index, info);
+
+            var orientation = (_orientation + 45) / 90 * 90;
+            var rotation = info.Facing == Camera.CameraInfo.CameraFacingFront
+                ? (info.Orientation - orientation + 360) % 360
+                : (info.Orientation + orientation) % 360;
+
+            CurrentCamera.Rotation = rotation;
+            camParams.SetRotation(rotation);
+            _camera.SetParameters(camParams);
         }
 
         public void CancelAutoFocus()
@@ -231,6 +249,7 @@ namespace Steepshot.CameraGL
 
             _displaySurface.MakeCurrent();
             _cameraTexture.UpdateTexImage();
+            var timestamp = JavaSystem.NanoTime();
             _cameraTexture.GetTransformMatrix(_tmpMatrix);
 
             GLES20.GlViewport(0, 0, _surface.Width, _surface.Height);
@@ -245,28 +264,14 @@ namespace Steepshot.CameraGL
                 _texture2DProgram.AspectRatio = _previewWidth / (float)_previewHeight;
                 _fullFrame.DrawFrame(_textureId, _tmpMatrix);
                 _videoEncoder.FrameAvailable();
-                _encoderSurface.SetPresentationTime(_cameraTexture.Timestamp);
+                _encoderSurface.SetPresentationTime(timestamp);
                 _encoderSurface.SwapBuffers();
             }
         }
 
         private void CameraOrientationEventListenerOnOrientationChanged(int orientation)
         {
-            if (_camera == null || RecordingEnabled)
-                return;
-
-            var camParams = Parameters;
-            var info = new Camera.CameraInfo();
-            Camera.GetCameraInfo(CurrentCamera.Index, info);
-
-            orientation = (orientation + 45) / 90 * 90;
-            var rotation = info.Facing == Camera.CameraInfo.CameraFacingFront
-                ? (info.Orientation - orientation + 360) % 360
-                : (info.Orientation + orientation) % 360;
-
-            CurrentCamera.Rotation = rotation;
-            camParams.SetRotation(rotation);
-            _camera.SetParameters(camParams);
+            _orientation = orientation;
         }
 
         public void OnPause()
