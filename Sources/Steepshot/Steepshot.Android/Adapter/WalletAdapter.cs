@@ -31,7 +31,7 @@ namespace Steepshot.Adapter
         private readonly View _headerView;
         private readonly WalletFacade _walletFacade;
 
-        public override int ItemCount => _currentWallet.IsHistoryLoaded ? _currentWallet.AccountHistory.Length + 1 : 5;
+        public override int ItemCount => _currentWallet.IsHistoryLoaded ? _currentWallet.AccountHistory.Count + 1 : 5;
 
 
         public WalletAdapter(View headerView, WalletFacade walletFacade)
@@ -197,13 +197,13 @@ namespace Steepshot.Adapter
             _autoLinkAction?.Invoke(type, link);
         }
 
-        public void UpdateData(AccountHistoryResponse transaction, bool headItem)
+        public void UpdateData(AccountHistoryItem transaction, bool headItem)
         {
             _date.Visibility = headItem ? ViewStates.Visible : ViewStates.Gone;
             _date.Text = transaction.DateTime.ToString("dd MMM yyyy", CultureInfo.GetCultureInfo("en-US"));
             _trxType.Text = transaction.Type.ToString();
             _recipient.AutoLinkText = $"{(transaction.From.Equals(App.User.Login) ? $"to @{transaction.To}" : $"from @{transaction.From}")}";
-            if (transaction.Type == AccountHistoryResponse.OperationType.ClaimReward)
+            if (transaction.Type == AccountHistoryItem.OperationType.ClaimReward)
             {
                 _tokenOne.Text = CurrencyType.Steem.ToString().ToUpper();
                 _tokenOneValue.Text = transaction.RewardSteem;

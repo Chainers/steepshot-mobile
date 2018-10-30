@@ -38,6 +38,7 @@ namespace Steepshot.Fragment
         [BindView(Resource.Id.trx_history)] private RecyclerView _trxHistory;
 #pragma warning restore 0649
 
+        private ScrollListener _scrollListner;
         private WalletFacade _walletFacade;
         private UserInfo _prevUser;
         private GradientDrawable _transferBtnBg;
@@ -87,8 +88,12 @@ namespace Steepshot.Fragment
 
             await _walletFacade.TryGetCurrencyRatesAsync().ConfigureAwait(true);
 
+            _scrollListner = new ScrollListener();
+            _scrollListner.ScrolledToBottom += OnScrolledToBottom;
+
             _trxHistory.SetAdapter(_walletAdapter);
             _trxHistory.AddItemDecoration(new Adapter.DividerItemDecoration(Activity));
+            _trxHistory.AddOnScrollListener(_scrollListner);
 
             var walletPagerIndicator = walletCardsLayout.FindViewById<TabLayout>(Resource.Id.page_indicator);
             var pageOffset = (int)TypedValue.ApplyDimension(ComplexUnitType.Dip, 20, Resources.DisplayMetrics);
@@ -136,6 +141,12 @@ namespace Steepshot.Fragment
             _backBtn.Click += BackOnClick;
 
             _walletFacade.TryUpdateWallets();
+        }
+
+        private async void OnScrolledToBottom()
+        {
+            await _walletFacade.TryGetAccountHistoryAsync(_walletFacade.SelectedWallet, true);
+          
         }
 
         private void BackOnClick(object sender, EventArgs e)
@@ -233,7 +244,7 @@ namespace Steepshot.Fragment
 
         private async void TryUpdateBalance(UserInfo userInfo, BalanceModel balance)
         {
-            var result = await _walletFacade.TryUpdateWallet(userInfo);
+            var result = await _walletFacade.TryLoadWallet(userInfo);
 
             if (result.IsSuccess)
             {

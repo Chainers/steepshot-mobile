@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -67,7 +68,7 @@ namespace Steepshot.Core.Presenters
         }
 
 
-        public async Task<OperationResult<AccountHistoryResponse[]>> TryGetAccountHistoryAsync(AccountHistoryModel model, KnownChains chain)
+        public async Task<OperationResult<AccountHistoryResponse>> TryGetAccountHistoryAsync(AccountHistoryModel model, KnownChains chain)
         {
             BaseDitchClient ditchClient;
             switch (chain)
@@ -130,20 +131,22 @@ namespace Steepshot.Core.Presenters
 
     public class WalletModel : INotifyPropertyChanged
     {
-        public AccountHistoryResponse[] AccountHistory = new AccountHistoryResponse[0];
+        public List<AccountHistoryItem> AccountHistory = new List<AccountHistoryItem>();
         public readonly UserInfo UserInfo;
-        public bool IsHistoryLoaded = false;
-
+        public bool IsHistoryLoaded => HistoryStartId != ulong.MaxValue;
+        public ulong HistoryStartId = ulong.MaxValue;
 
         public WalletModel(UserInfo userInfo)
         {
             UserInfo = userInfo;
         }
 
-        public void Update(AccountHistoryResponse[] result)
+        public void Update(AccountHistoryResponse response)
         {
-            IsHistoryLoaded = true;
-            AccountHistory = AccountHistory.Union(result).ToArray();
+            HistoryStartId = Math.Min(HistoryStartId, response.StartId);
+
+            AccountHistory = AccountHistory.Union(response.Items).OrderByDescending(i=>i.Id).ToList();
+
             NotifyPropertyChanged(nameof(AccountHistory));
         }
 

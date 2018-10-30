@@ -50,7 +50,7 @@ namespace Steepshot.Core.Facades
                 return _balances;
             }
         }
-        
+
         private CurrencyRate[] _currencyRates;
 
         public int BalanceCount => Balances.Length;
@@ -109,23 +109,19 @@ namespace Steepshot.Core.Facades
             TransferPresenter = transferPresenter;
             _userManager = userManager;
         }
-        
+
         public async Task TryUpdateWallets()
         {
             foreach (var wallet in Wallets)
-                await TryUpdateWallet(wallet.UserInfo)
+                await TryLoadWallet(wallet.UserInfo)
                     .ConfigureAwait(true);
         }
 
-        public async Task<OperationResult<AccountInfoResponse>> TryUpdateWallet(UserInfo userInfo)
+        public async Task<OperationResult<AccountInfoResponse>> TryLoadWallet(UserInfo userInfo)
         {
             var walletModel = Wallets.First(w => w.UserInfo.Id == userInfo.Id);
 
-            var model = new AccountHistoryModel(userInfo.Login);
-            var hResult = await WalletPresenter.TryGetAccountHistoryAsync(model, userInfo.Chain)
-                .ConfigureAwait(true);
-            if (hResult.IsSuccess)
-                walletModel.Update(hResult.Result);
+            await TryGetAccountHistoryAsync(walletModel);
 
             var result = await WalletPresenter.TryUpdateAccountInfoAsync(userInfo)
                 .ConfigureAwait(true);
@@ -133,20 +129,22 @@ namespace Steepshot.Core.Facades
             return result;
         }
 
-        public async Task<OperationResult<AccountHistoryResponse[]>> TryGetAccountHistoryAsync(UserInfo userInfo)
+        public async Task TryGetAccountHistoryAsync(WalletModel model, bool isLoop = false, bool readNext = true)
         {
+            var args = new AccountHistoryModel(model.UserInfo.Login, readNext ? model.HistoryStartId : ulong.MaxValue);
 
-            var model = new AccountHistoryModel(userInfo.Login);
-            var result = await WalletPresenter.TryGetAccountHistoryAsync(model, userInfo.Chain)
-                .ConfigureAwait(false);
-
-            if (result.IsSuccess)
+            bool isChanged = false;
+            do
             {
-                Wallets[userInfo.Id].AccountHistory = result.Result;
-                return null;
-            }
+                var result = await WalletPresenter.TryGetAccountHistoryAsync(args, model.UserInfo.Chain)
+                    .ConfigureAwait(true);
 
-            return result;
+                if (result.IsSuccess)
+                {
+                    model.Update(result.Result);
+                    isChanged = result.Result.Count > 0;
+                }
+            } while (isLoop && !isChanged);
         }
 
         public async Task TryGetCurrencyRatesAsync()

@@ -8,9 +8,7 @@ namespace Steepshot.Core.Models.Requests
         public readonly string Account;
         public readonly ulong Start;
         public readonly uint Limit;
-        
-        public AccountHistoryModel(string account)
-        : this(account, ulong.MaxValue, 1000) { }
+
 
         public AccountHistoryModel(string account, ulong start)
         : this(account, start, 1000) { }

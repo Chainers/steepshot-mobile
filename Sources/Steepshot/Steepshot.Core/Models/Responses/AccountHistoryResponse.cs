@@ -2,7 +2,18 @@
 
 namespace Steepshot.Core.Models.Responses
 {
-    public class AccountHistoryResponse : IComparable<AccountHistoryResponse>
+    public class AccountHistoryResponse
+    {
+        public AccountHistoryItem[] Items { get; internal set; }
+
+        public uint StartId { get; internal set; }
+
+        public uint EndId { get; internal set; }
+
+        public int Count => Items.Length;
+    }
+
+    public class AccountHistoryItem : IComparable<AccountHistoryItem>, IEquatable<AccountHistoryItem>
     {
         public uint Id { get; set; }
         public DateTime DateTime { get; set; }
@@ -25,11 +36,35 @@ namespace Steepshot.Core.Models.Responses
 
         #region IComparable
 
-        public int CompareTo(AccountHistoryResponse other)
+        public int CompareTo(AccountHistoryItem other)
         {
             return Id.CompareTo(other.Id);
         }
 
         #endregion IComparable
+
+        #region IEquatable
+
+        public bool Equals(AccountHistoryItem other)
+        {
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
+            return Id == other.Id;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((AccountHistoryItem)obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return (int)Id;
+        }
+
+        #endregion IEquatable
     }
 }

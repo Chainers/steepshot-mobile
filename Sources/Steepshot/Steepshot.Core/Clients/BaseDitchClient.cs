@@ -57,7 +57,7 @@ namespace Steepshot.Core.Clients
 
         public abstract Task<OperationResult<AccountInfoResponse>> GetAccountInfoAsync(string userName, CancellationToken ct);
 
-        public abstract Task<OperationResult<AccountHistoryResponse[]>> GetAccountHistoryAsync(AccountHistoryModel model, CancellationToken ct);
+        public abstract Task<OperationResult<AccountHistoryResponse>> GetAccountHistoryAsync(AccountHistoryModel model, CancellationToken ct);
 
         public abstract Task<bool> TryReconnectChainAsync(CancellationToken token);
 
