@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Steepshot.Core.Authorization;
 using Steepshot.Core.Models.Enums;
 
 namespace Steepshot.Core.Models.Requests
@@ -17,14 +18,11 @@ namespace Steepshot.Core.Models.Requests
         public PowerAction PowerAction { get; set; }
 
 
-        public PowerUpDownModel(Common.BalanceModel model, PowerAction powerAction)
-            : base(model.UserInfo)
+        public PowerUpDownModel(UserInfo userInfo)
+            : base(userInfo)
         {
-            From = model.UserInfo.Login;
-            To = model.UserInfo.Login;
-            Value = model.Value;
-            CurrencyType = model.CurrencyType;
-            PowerAction = powerAction;
+            From = userInfo.Login;
+            To = userInfo.Login;
         }
     }
 }

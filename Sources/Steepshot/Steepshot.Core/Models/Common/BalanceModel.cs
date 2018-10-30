@@ -1,17 +1,17 @@
-﻿using Steepshot.Core.Authorization;
+﻿using System;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using Steepshot.Core.Models.Requests;
 
 namespace Steepshot.Core.Models.Common
 {
-    public class BalanceModel
+    public class BalanceModel : INotifyPropertyChanged
     {
-        public UserInfo UserInfo { get; set; }
+        public double Value { get; private set; }
 
-        public double Value { get; }
+        public byte MaxDecimals { get; private set; }
 
-        public byte MaxDecimals { get; }
-
-        public CurrencyType CurrencyType { get; }
+        public CurrencyType CurrencyType { get; private set; }
 
         public double EffectiveSp { get; set; }
 
@@ -27,11 +27,37 @@ namespace Steepshot.Core.Models.Common
 
         public double ToWithdraw { get; set; }
 
+
         public BalanceModel(double value, byte maxDecimals, CurrencyType currencyType)
         {
             Value = value;
             MaxDecimals = maxDecimals;
             CurrencyType = currencyType;
         }
+        
+        public void Update(BalanceModel model)
+        {
+            Value = model.Value;
+            EffectiveSp = model.EffectiveSp;
+            RewardSteem = model.RewardSteem;
+            RewardSp = model.RewardSp;
+            RewardSbd = model.RewardSbd;
+            DelegatedToMe = model.DelegatedToMe;
+            DelegatedByMe = model.DelegatedByMe;
+            ToWithdraw = model.ToWithdraw;
+
+            NotifyPropertyChanged(nameof(BalanceModel));
+        }
+
+        #region INotifyPropertyChanged
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        #endregion
     }
 }

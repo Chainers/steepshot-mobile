@@ -11,12 +11,13 @@ using Android.Widget;
 using CheeseBind;
 using Steepshot.Activity;
 using Steepshot.Base;
+using Steepshot.Core.Authorization;
 using Steepshot.Core.Extensions;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
+using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Presenters;
-using Steepshot.Core.Utils;
 using Steepshot.CustomViews;
 using Steepshot.Utils;
 
@@ -41,14 +42,16 @@ namespace Steepshot.Fragment
 #pragma warning restore 0649
 
         private readonly BalanceModel _balance;
+        private readonly UserInfo _userInfo;
         private readonly PowerAction _powerAction;
         private SpannableString _tokenValueOne;
         private SpannableString _tokenValueTwo;
         private string _powerActionText;
         private double _powerAmount;
 
-        public PowerUpDownFragment(BalanceModel balance, PowerAction action)
+        public PowerUpDownFragment(UserInfo userInfo, BalanceModel balance, PowerAction action)
         {
+            _userInfo = userInfo;
             _balance = balance;
             _powerAction = action;
         }
@@ -66,7 +69,7 @@ namespace Steepshot.Fragment
 
         protected override void CreatePresenter()
         {
-            Presenter = App.Container.GetPresenter<TransferPresenter>(_balance.UserInfo.Chain);
+            Presenter = App.Container.GetPresenter<TransferPresenter>(_userInfo.Chain);
         }
 
         public override void OnViewCreated(View view, Bundle savedInstanceState)
@@ -202,11 +205,11 @@ namespace Steepshot.Fragment
             if (_powerAmount <= 0)
                 return;
 
-            if (string.IsNullOrEmpty(_balance.UserInfo.ActiveKey))
+            if (string.IsNullOrEmpty(_userInfo.ActiveKey))
             {
                 var intent = new Intent(Activity, typeof(ActiveSignInActivity));
-                intent.PutExtra(ActiveSignInActivity.ActiveSignInUserName, _balance.UserInfo.Login);
-                intent.PutExtra(ActiveSignInActivity.ActiveSignInChain, (int)_balance.UserInfo.Chain);
+                intent.PutExtra(ActiveSignInActivity.ActiveSignInUserName, _userInfo.Login);
+                intent.PutExtra(ActiveSignInActivity.ActiveSignInChain, (int)_userInfo.Chain);
                 StartActivityForResult(intent, ActiveSignInActivity.ActiveKeyRequestCode);
                 return;
             }
@@ -235,12 +238,14 @@ namespace Steepshot.Fragment
             _powerBtnLoader.Visibility = ViewStates.Visible;
             _powerBtn.Text = string.Empty;
 
-            var model = new BalanceModel(_powerAmount, _balance.MaxDecimals, _balance.CurrencyType)
+            var model = new PowerUpDownModel(_userInfo)
             {
-                UserInfo = _balance.UserInfo
+                Value = _powerAmount,
+                CurrencyType = _balance.CurrencyType,
+                PowerAction = _powerAction
             };
 
-            var response = await Presenter.TryPowerUpOrDownAsync(model, _powerAction);
+            var response = await Presenter.TryPowerUpOrDownAsync(model);
 
             if (!IsInitialized || IsDetached)
                 return;

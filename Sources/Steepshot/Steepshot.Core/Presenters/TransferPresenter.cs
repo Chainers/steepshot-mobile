@@ -4,9 +4,7 @@ using Steepshot.Core.Authorization;
 using Steepshot.Core.Clients;
 using Steepshot.Core.Interfaces;
 using Steepshot.Core.Models.Common;
-using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Models.Requests;
-using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Presenters
 {
@@ -28,9 +26,8 @@ namespace Steepshot.Core.Presenters
                 .ConfigureAwait(false);
         }
 
-        public async Task<OperationResult<VoidResponse>> TryPowerUpOrDownAsync(BalanceModel balance, PowerAction powerAction)
+        public async Task<OperationResult<VoidResponse>> TryPowerUpOrDownAsync(PowerUpDownModel model)
         {
-            var model = new PowerUpDownModel(balance, powerAction);
             return await TaskHelper.TryRunTaskAsync(DitchClient.PowerUpOrDownAsync, model, OnDisposeCts.Token)
                 .ConfigureAwait(false);
         }

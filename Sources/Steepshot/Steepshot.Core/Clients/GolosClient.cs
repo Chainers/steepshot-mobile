@@ -474,7 +474,7 @@ namespace Steepshot.Core.Clients
                 PublicPostingKeys = acc.Posting.KeyAuths.Select(i => i.Key.Data).ToArray(),
                 PublicActiveKeys = acc.Active.KeyAuths.Select(i => i.Key.Data).ToArray(),
                 Metadata = JsonConvert.DeserializeObject<AccountMetadata>(acc.JsonMetadata),
-                Balances = new List<BalanceModel>
+                Balances = new[]
                 {
                     new BalanceModel(acc.Balance.ToDouble(), 3, CurrencyType.Golos)
                     {
@@ -514,7 +514,7 @@ namespace Steepshot.Core.Clients
             WithdrawVestingOperation.OperationName
         };
 
-        public override async Task<OperationResult<AccountHistoryResponse[]>> GetAccountHistoryAsync(string userName, CancellationToken ct)
+        public override async Task<OperationResult<AccountHistoryResponse[]>> GetAccountHistoryAsync(AccountHistoryModel model, CancellationToken ct)
         {
             var isConnected = await TryReconnectChainAsync(ct).ConfigureAwait(false);
             if (!isConnected)
@@ -522,7 +522,7 @@ namespace Steepshot.Core.Clients
 
             var result = new OperationResult<AccountHistoryResponse[]>();
 
-            var resp = await _operationManager.GetAccountHistoryAsync(userName, ulong.MaxValue, 1000, ct).ConfigureAwait(false);
+            var resp = await _operationManager.GetAccountHistoryAsync(model.Account, model.Start, model.Limit, ct).ConfigureAwait(false);
             if (resp.IsError)
             {
                 result.Exception = new RequestException(resp);
@@ -553,6 +553,7 @@ namespace Steepshot.Core.Clients
                         var typed = (TransferOperation)baseOperation;
                         return new AccountHistoryResponse
                         {
+                            Id = arg.Key,
                             DateTime = arg.Value.Timestamp,
                             Type = AccountHistoryResponse.OperationType.Transfer,
                             From = typed.From,
@@ -566,6 +567,7 @@ namespace Steepshot.Core.Clients
                         var typed = (TransferToVestingOperation)baseOperation;
                         return new AccountHistoryResponse
                         {
+                            Id = arg.Key,
                             DateTime = arg.Value.Timestamp,
                             Type = AccountHistoryResponse.OperationType.PowerUp,
                             From = typed.From,
@@ -578,6 +580,7 @@ namespace Steepshot.Core.Clients
                         var typed = (WithdrawVestingOperation)baseOperation;
                         return new AccountHistoryResponse
                         {
+                            Id = arg.Key,
                             DateTime = arg.Value.Timestamp,
                             Type = AccountHistoryResponse.OperationType.PowerDown,
                             From = typed.Account,

@@ -10,27 +10,29 @@ using Android.Widget;
 using Ditch.Core.JsonRpc;
 using Steepshot.Base;
 using Steepshot.Core;
+using Steepshot.Core.Authorization;
 using Steepshot.Core.Extensions;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
-using Steepshot.Core.Utils;
 using Steepshot.Utils;
 
 namespace Steepshot.CustomViews
 {
     public class ClaimRewardsDialog : BottomSheetDialog
     {
-        public Func<BalanceModel, Task<OperationResult<VoidResponse>>> Claim;
+        public Func<UserInfo, BalanceModel, Task<OperationResult<VoidResponse>>> Claim;
         private readonly BalanceModel _balance;
+        private readonly UserInfo _userInfo;
         private TextView _title;
         private ProgressBar _claimSpinner;
         private RelativeLayout _claimBtnContainer;
         private Button _claimBtn;
 
-        public ClaimRewardsDialog(Context context, BalanceModel balance) : this(context)
+        public ClaimRewardsDialog(Context context, UserInfo userInfo, BalanceModel balance) : this(context)
         {
             _balance = balance;
+            _userInfo = userInfo;
         }
 
         private ClaimRewardsDialog(Context context) : base(context)
@@ -68,7 +70,7 @@ namespace Steepshot.CustomViews
                 tokenThreeValue.Typeface = Style.Semibold;
                 tokenThreeValue.Text = _balance.RewardSbd.ToBalanceValueString();
 
-                switch (_balance.UserInfo.Chain)
+                switch (_userInfo.Chain)
                 {
                     case KnownChains.Steem:
                         tokenOne.Text = CurrencyType.Steem.ToString().ToUpper();
@@ -116,7 +118,7 @@ namespace Steepshot.CustomViews
 
             _claimBtn.Text = string.Empty;
             _claimSpinner.Visibility = ViewStates.Visible;
-            var result = await Claim.Invoke(_balance);
+            var result = await Claim.Invoke(_userInfo, _balance);
             if (result.IsSuccess)
             {
                 _title.Text = App.Localization.GetText(LocalizationKeys.RewardsClaimed);

@@ -8,9 +8,10 @@ using Android.Views;
 using Android.Widget;
 using IO.SuperCharge.ShimmerLayoutLib;
 using Steepshot.Base;
+using Steepshot.Core.Facades;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
-using Steepshot.Core.Utils;
+using Steepshot.Core.Presenters;
 using Steepshot.CustomViews;
 using Steepshot.Utils;
 
@@ -26,32 +27,58 @@ namespace Steepshot.Adapter
         }
 
         public Action<AutoLinkType, string> AutoLinkAction;
-        private AccountHistoryResponse[] _accountHistory;
+        private WalletModel _currentWallet;
         private readonly View _headerView;
+        private readonly WalletFacade _walletFacade;
 
-        public WalletAdapter(View headerView)
+        public override int ItemCount => _currentWallet.IsHistoryLoaded ? _currentWallet.AccountHistory.Length + 1 : 5;
+
+
+        public WalletAdapter(View headerView, WalletFacade walletFacade)
         {
             _headerView = headerView;
+            _walletFacade = walletFacade;
+            _currentWallet = _walletFacade.SelectedWallet;
+
+            _currentWallet.PropertyChanged += OnPropertyChanged;
+            _walletFacade.PropertyChanged += OnPropertyChanged;
         }
 
-        public void SetAccountHistory(AccountHistoryResponse[] accountHistory)
-        {
-            if (_accountHistory == accountHistory)
-                return;
 
-            _accountHistory = accountHistory;
+        private void OnPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            switch (e.PropertyName)
+            {
+                case nameof(WalletFacade.Selected):
+                    {
+                        if (_currentWallet != _walletFacade.SelectedWallet)
+                        {
+                            if (_currentWallet != null)
+                                _currentWallet.PropertyChanged -= OnPropertyChanged;
+
+                            _currentWallet = _walletFacade.SelectedWallet;
+                            _currentWallet.PropertyChanged += OnPropertyChanged;
+                        }
+
+                        break;
+                    }
+            }
+            
             NotifyDataSetChanged();
         }
 
-        public override int ItemCount => _accountHistory?.Length + 1 ?? 5;
 
         public override void OnBindViewHolder(RecyclerView.ViewHolder holder, int position)
         {
             switch (holder)
             {
                 case TrxHistoryHolder trxHolder:
-                    trxHolder.UpdateData(_accountHistory[position - 1], position == 1 || _accountHistory[position - 1].DateTime.Date != _accountHistory[position - 2].DateTime.Date);
-                    return;
+                    {
+                        var aacH = _currentWallet.AccountHistory[position - 1];
+                        var headItem = position == 1 || aacH.DateTime.Date != _currentWallet.AccountHistory[position - 2].DateTime.Date;
+                        trxHolder.UpdateData(aacH, headItem);
+                        return;
+                    }
                 case TrxHistoryShimmerHolder trxShimmerHolder:
                     trxShimmerHolder.Animate();
                     return;
@@ -60,7 +87,7 @@ namespace Steepshot.Adapter
 
         public override int GetItemViewType(int position)
         {
-            if (_accountHistory == null && position != 0)
+            if (!_currentWallet.IsHistoryLoaded && position != 0)
                 return (int)WalletAdapterHolders.TrxHistoryShimmer;
 
             return position == 0 ? (int)WalletAdapterHolders.WalletCards : (int)WalletAdapterHolders.TrxHistory;

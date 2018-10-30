@@ -2,8 +2,9 @@
 
 namespace Steepshot.Core.Models.Responses
 {
-    public class AccountHistoryResponse
+    public class AccountHistoryResponse : IComparable<AccountHistoryResponse>
     {
+        public uint Id { get; set; }
         public DateTime DateTime { get; set; }
         public OperationType Type { get; set; }
         public string From { get; set; }
@@ -21,5 +22,14 @@ namespace Steepshot.Core.Models.Responses
             PowerDown,
             ClaimReward
         }
+
+        #region IComparable
+
+        public int CompareTo(AccountHistoryResponse other)
+        {
+            return Id.CompareTo(other.Id);
+        }
+
+        #endregion IComparable
     }
 }

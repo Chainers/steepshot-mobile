@@ -15,21 +15,19 @@ using Ditch.Core.JsonRpc;
 using Steepshot.Activity;
 using Steepshot.Adapter;
 using Steepshot.Base;
-using Steepshot.Core;
 using Steepshot.Core.Authorization;
 using Steepshot.Core.Extensions;
+using Steepshot.Core.Facades;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Models.Requests;
-using Steepshot.Core.Presenters;
-using Steepshot.Core.Utils;
 using Steepshot.CustomViews;
 using Steepshot.Utils;
 
 namespace Steepshot.Fragment
 {
-    public class WalletFragment : BaseFragmentWithPresenter<WalletPresenter>
+    public class WalletFragment : BaseFragment
     {
         public const int WalletFragmentPowerUpOrDownRequestCode = 230;
 
@@ -40,29 +38,25 @@ namespace Steepshot.Fragment
         [BindView(Resource.Id.trx_history)] private RecyclerView _trxHistory;
 #pragma warning restore 0649
 
-        private int _pageOffset, _transferBtnFullWidth, _transferBtnCollapsedWidth;
-        private float _cardRatio;
-
+        private WalletFacade _walletFacade;
         private UserInfo _prevUser;
         private GradientDrawable _transferBtnBg;
-        private RelativeLayout _walletCardsLayout;
         private ViewPager _walletPager;
         private LinearLayout _actions;
-        private TabLayout _walletPagerIndicator;
         private Button _transferBtn;
         private ImageButton _moreBtn;
         private TextView _trxHistoryTitle;
 
         private WalletAdapter _walletAdapter;
-        private WalletAdapter WalletAdapter => _walletAdapter ?? (_walletAdapter = new WalletAdapter(_walletCardsLayout));
 
-        private WalletPagerAdapter _walletPagerAdapter;
-        private WalletPagerAdapter WalletPagerAdapter => _walletPagerAdapter ?? (_walletPagerAdapter = new WalletPagerAdapter(_walletPager, Presenter));
-
-        public override async void OnCreate(Bundle savedInstanceState)
+        public override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
-            await Presenter.TryGetCurrencyRatesAsync();
+
+            if (_walletFacade == null)
+            {
+                _walletFacade = App.Container.GetFacade<WalletFacade>(App.MainChain);
+            }
         }
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -76,70 +70,72 @@ namespace Steepshot.Fragment
             return InflatedView;
         }
 
-        public override void OnViewCreated(View view, Bundle savedInstanceState)
+        public override async void OnViewCreated(View view, Bundle savedInstanceState)
         {
             if (IsInitialized)
                 return;
 
             base.OnViewCreated(view, savedInstanceState);
+
             ToggleTabBar(true);
-            _pageOffset = (int)TypedValue.ApplyDimension(ComplexUnitType.Dip, 20, Resources.DisplayMetrics);
 
             _trxHistory.SetLayoutManager(new LinearLayoutManager(Activity));
-            _walletCardsLayout = (RelativeLayout)LayoutInflater.From(Activity).Inflate(Resource.Layout.lyt_wallet_cards, _trxHistory, false);
-            _trxHistory.SetAdapter(WalletAdapter);
+
+            var walletCardsLayout = (RelativeLayout)LayoutInflater.From(Activity).Inflate(Resource.Layout.lyt_wallet_cards, _trxHistory, false);
+            _walletAdapter = new WalletAdapter(walletCardsLayout, _walletFacade);
+            _walletAdapter.AutoLinkAction += AutoLinkAction;
+
+            await _walletFacade.TryGetCurrencyRatesAsync().ConfigureAwait(true);
+
+            _trxHistory.SetAdapter(_walletAdapter);
             _trxHistory.AddItemDecoration(new Adapter.DividerItemDecoration(Activity));
 
-            _walletPager = _walletCardsLayout.FindViewById<ViewPager>(Resource.Id.wallet_pager);
-            _actions = _walletCardsLayout.FindViewById<LinearLayout>(Resource.Id.actions);
-            _walletPagerIndicator = _walletCardsLayout.FindViewById<TabLayout>(Resource.Id.page_indicator);
-            _transferBtn = _walletCardsLayout.FindViewById<Button>(Resource.Id.transfer_btn);
-            _moreBtn = _walletCardsLayout.FindViewById<ImageButton>(Resource.Id.more);
-            _trxHistoryTitle = _walletCardsLayout.FindViewById<TextView>(Resource.Id.trx_history_title);
+            var walletPagerIndicator = walletCardsLayout.FindViewById<TabLayout>(Resource.Id.page_indicator);
+            var pageOffset = (int)TypedValue.ApplyDimension(ComplexUnitType.Dip, 20, Resources.DisplayMetrics);
+            var cardRatio = TypedValue.ApplyDimension(ComplexUnitType.Dip, 335, Resources.DisplayMetrics) / TypedValue.ApplyDimension(ComplexUnitType.Dip, 190, Resources.DisplayMetrics);
 
-            _cardRatio = TypedValue.ApplyDimension(ComplexUnitType.Dip, 335, Resources.DisplayMetrics) / TypedValue.ApplyDimension(ComplexUnitType.Dip, 190, Resources.DisplayMetrics);
+            _walletPager = walletCardsLayout.FindViewById<ViewPager>(Resource.Id.wallet_pager);
             _walletPager.LayoutParameters.Width = Style.ScreenWidth;
-            _walletPager.LayoutParameters.Height = (int)((_walletPager.LayoutParameters.Width - _pageOffset * 1.5) / _cardRatio);
+            _walletPager.LayoutParameters.Height = (int)((_walletPager.LayoutParameters.Width - pageOffset * 1.5) / cardRatio);
             _walletPager.RequestLayout();
 
             _walletPager.SetClipToPadding(false);
-            _walletPager.SetPadding(_pageOffset, 0, _pageOffset, 0);
-            _walletPager.PageMargin = _pageOffset / 2;
-            _walletPagerIndicator.SetupWithViewPager(_walletPager, true);
-            _walletPager.Adapter = WalletPagerAdapter;
+            _walletPager.SetPadding(pageOffset, 0, pageOffset, 0);
+            _walletPager.PageMargin = pageOffset / 2;
+            _walletPager.Adapter = new WalletPagerAdapter(_walletPager, _walletFacade);
 
+            _walletPager.PageScrolled += OnPageScrolled;
+            _walletPager.PageSelected += OnPageSelected;
+            walletPagerIndicator.SetupWithViewPager(_walletPager, true);
+
+            _transferBtn = walletCardsLayout.FindViewById<Button>(Resource.Id.transfer_btn);
+            _transferBtn.Text = App.Localization.GetText(LocalizationKeys.Transfer);
+            _transferBtn.Click += TransferBtnOnClick;
+
+            _moreBtn = walletCardsLayout.FindViewById<ImageButton>(Resource.Id.more);
+            _moreBtn.Click += MoreBtnOnClick;
+
+            _trxHistoryTitle = walletCardsLayout.FindViewById<TextView>(Resource.Id.trx_history_title);
+            _trxHistoryTitle.Typeface = Style.Semibold;
+            _trxHistoryTitle.Text = App.Localization.GetText(LocalizationKeys.TransactionHistory);
+
+            _actions = walletCardsLayout.FindViewById<LinearLayout>(Resource.Id.actions);
             var actionsLytParams = (RelativeLayout.LayoutParams)_actions.LayoutParameters;
             actionsLytParams.TopMargin = (int)(_walletPager.LayoutParameters.Height / 2f);
 
-            var pagerLytParams = (LinearLayout.LayoutParams)_walletPagerIndicator.LayoutParameters;
+            var pagerLytParams = (LinearLayout.LayoutParams)walletPagerIndicator.LayoutParameters;
             pagerLytParams.TopMargin = actionsLytParams.TopMargin;
 
             _transferBtnBg = new GradientDrawable(GradientDrawable.Orientation.LeftRight, new int[] { Style.R255G121B4, Style.R255G22B5 });
             _transferBtnBg.SetCornerRadius(TypedValue.ApplyDimension(ComplexUnitType.Dip, 25, Resources.DisplayMetrics));
 
             _fragmentTitle.Typeface = Style.Semibold;
-            _trxHistoryTitle.Typeface = Style.Semibold;
-
             _fragmentTitle.Text = App.Localization.GetText(LocalizationKeys.Wallet);
-            _trxHistoryTitle.Text = App.Localization.GetText(LocalizationKeys.TransactionHistory);
-            _transferBtn.Text = App.Localization.GetText(LocalizationKeys.Transfer);
 
-            _walletPager.PageScrolled += WalletPagerOnPageScrolled;
-            WalletPagerAdapter.OnPageTransforming += OnPageTransforming;
-            WalletAdapter.AutoLinkAction += AutoLinkAction;
-            _transferBtn.Click += TransferBtnOnClick;
-            _trxHistory.ViewTreeObserver.GlobalLayout += RecyclerLayedOut;
-            _moreBtn.Click += MoreBtnOnClick;
             _claimBtn.Click += ClaimBtnOnClick;
             _backBtn.Click += BackOnClick;
-        }
 
-        private void RecyclerLayedOut(object sender, EventArgs e)
-        {
-            _transferBtnFullWidth = _transferBtn.Width;
-            var moreBtnLytParams = (RelativeLayout.LayoutParams)_moreBtn.LayoutParameters;
-            _transferBtnCollapsedWidth = _transferBtnFullWidth - moreBtnLytParams.Width - moreBtnLytParams.LeftMargin;
-            _transferBtn.ViewTreeObserver.GlobalLayout -= RecyclerLayedOut;
+            _walletFacade.TryUpdateWallets();
         }
 
         private void BackOnClick(object sender, EventArgs e)
@@ -147,61 +143,20 @@ namespace Steepshot.Fragment
             ((BaseActivity)Activity).OnBackPressed();
         }
 
-        private void WalletPagerOnPageScrolled(object sender, ViewPager.PageScrolledEventArgs e)
+        private void OnPageSelected(object sender, ViewPager.PageSelectedEventArgs e)
         {
-            if (e.Position == Presenter.Balances.Count)
-            {
-                _transferBtn.Enabled = false;
-                _claimBtn.Enabled = false;
-                _transferBtnBg.SetColors(new int[] { Style.R230G230B230, Style.R230G230B230 });
-                WalletAdapter.SetAccountHistory(null);
-                LoadNextAccount();
-            }
-            else
-            {
-                _transferBtn.Enabled = true;
-                _claimBtn.Enabled = true;
-                _transferBtnBg.SetColors(new int[] { Style.R255G121B4, Style.R255G22B5 });
-            }
-
-            _transferBtn.Background = _transferBtnBg;
-
-            if (_walletPager.CurrentItem < Presenter.Balances.Count &&
-                Presenter.Balances[_walletPager.CurrentItem].UserInfo != _prevUser)
-            {
-                _prevUser = Presenter.Balances[_walletPager.CurrentItem].UserInfo;
-                if (Presenter.ConnectedUsers.ContainsKey(_prevUser.Id))
-                {
-                    _trxHistory.Post(() =>
-                        _walletAdapter.SetAccountHistory(_prevUser.AccountHistory));
-                }
-            }
+            _walletFacade.Selected = e.Position;
         }
-
-        private void LoadNextAccount() => Task.Run(async () =>
-        {
-            var currAcc = Presenter.Current;
-            if (currAcc == null)
-                return;
-
-            Presenter.SetClient(App.Container, currAcc.Chain);
-
-            var exception = await Presenter.TryLoadNextAccountInfoAsync();
-            if (exception == null && IsInitialized && !IsDetached)
-                Activity.RunOnUiThread(() =>
-                {
-                    WalletPagerAdapter?.NotifyDataSetChanged();
-                });
-        });
 
         private void TransferBtnOnClick(object sender, EventArgs e)
         {
-            ((BaseActivity)Activity).OpenNewContentFragment(new TransferFragment(Presenter.Balances[_walletPager.CurrentItem].UserInfo, Presenter.Balances[_walletPager.CurrentItem].CurrencyType));
+            var fragment = new TransferFragment(_walletFacade.SelectedWallet.UserInfo, _walletFacade.SelectedBalance.CurrencyType);
+            ((BaseActivity)Activity).OpenNewContentFragment(fragment);
         }
 
         private void MoreBtnOnClick(object sender, EventArgs e)
         {
-            var moreDialog = new WalletExtraDialog(Activity, Presenter.Balances[_walletPager.CurrentItem]);
+            var moreDialog = new WalletExtraDialog(Activity, _walletFacade.SelectedBalance);
             moreDialog.ExtraAction += ExtraAction;
             moreDialog.Show();
         }
@@ -212,43 +167,48 @@ namespace Steepshot.Fragment
             {
                 case PowerAction.PowerUp:
                 case PowerAction.PowerDown:
-                    var powerUpOrDownFrag = new PowerUpDownFragment(Presenter.Balances[_walletPager.CurrentItem], action);
-                    powerUpOrDownFrag.SetTargetFragment(this, WalletFragmentPowerUpOrDownRequestCode);
-                    ((BaseActivity)Activity).OpenNewContentFragment(powerUpOrDownFrag);
-                    break;
-                case PowerAction.CancelPowerDown:
-                    var alertAction = new ActionAlertDialog(Activity, string.Format(App.Localization.GetText(LocalizationKeys.CancelPowerDownAlert), Presenter.Balances[_walletPager.CurrentItem].ToWithdraw.ToBalanceValueString()),
-                        string.Empty, App.Localization.GetText(LocalizationKeys.Yes),
-                                      App.Localization.GetText(LocalizationKeys.No), AutoLinkAction);
-                    alertAction.AlertAction += () =>
                     {
-                        var userInfo = Presenter.Balances[_walletPager.CurrentItem].UserInfo;
-                        if (string.IsNullOrEmpty(userInfo.ActiveKey))
+                        var powerUpOrDownFrag = new PowerUpDownFragment(_walletFacade.SelectedWallet.UserInfo, _walletFacade.SelectedBalance, action);
+                        powerUpOrDownFrag.SetTargetFragment(this, WalletFragmentPowerUpOrDownRequestCode);
+                        ((BaseActivity)Activity).OpenNewContentFragment(powerUpOrDownFrag);
+                        break;
+                    }
+                case PowerAction.CancelPowerDown:
+                    {
+                        var alertAction = new ActionAlertDialog(Activity, string.Format(App.Localization.GetText(LocalizationKeys.CancelPowerDownAlert), _walletFacade.SelectedBalance.ToWithdraw.ToBalanceValueString()),
+                            string.Empty, App.Localization.GetText(LocalizationKeys.Yes),
+                            App.Localization.GetText(LocalizationKeys.No), AutoLinkAction);
+                        alertAction.AlertAction += () =>
                         {
-                            var intent = new Intent(Activity, typeof(ActiveSignInActivity));
-                            intent.PutExtra(ActiveSignInActivity.ActiveSignInUserName, userInfo.Login);
-                            intent.PutExtra(ActiveSignInActivity.ActiveSignInChain, (int)userInfo.Chain);
-                            StartActivityForResult(intent, ActiveSignInActivity.ActiveKeyRequestCode);
-                            return;
-                        }
+                            var userInfo = _walletFacade.SelectedWallet.UserInfo;
+                            if (string.IsNullOrEmpty(userInfo.ActiveKey))
+                            {
+                                var intent = new Intent(Activity, typeof(ActiveSignInActivity));
+                                intent.PutExtra(ActiveSignInActivity.ActiveSignInUserName, userInfo.Login);
+                                intent.PutExtra(ActiveSignInActivity.ActiveSignInChain, (int)userInfo.Chain);
+                                StartActivityForResult(intent, ActiveSignInActivity.ActiveKeyRequestCode);
+                                return;
+                            }
 
-                        CancelPowerDown();
-                    };
-                    alertAction.Show();
-                    break;
+                            CancelPowerDown();
+                        };
+                        alertAction.Show();
+                        break;
+                    }
             }
         }
 
         private async void CancelPowerDown()
         {
-            var balance = Presenter.Balances[_walletPager.CurrentItem];
-            var model = new BalanceModel(0, balance.MaxDecimals, balance.CurrencyType)
+            var model = new PowerUpDownModel(_walletFacade.SelectedWallet.UserInfo)
             {
-                UserInfo = balance.UserInfo
+                Value = 0,
+                CurrencyType = _walletFacade.SelectedBalance.CurrencyType,
+                PowerAction = PowerAction.CancelPowerDown
             };
 
-            await Presenter.TryPowerUpOrDownAsync(model, PowerAction.CancelPowerDown);
-            TryUpdateBalance(balance);
+            await _walletFacade.TransferPresenter.TryPowerUpOrDownAsync(model);
+            TryUpdateBalance(_walletFacade.SelectedWallet.UserInfo, _walletFacade.SelectedBalance);
         }
 
         public override void OnActivityResult(int requestCode, int resultCode, Intent data)
@@ -258,8 +218,11 @@ namespace Steepshot.Fragment
                 switch (requestCode)
                 {
                     case WalletFragmentPowerUpOrDownRequestCode:
-                        TryUpdateBalance(Presenter.Balances[_walletPager.CurrentItem]);
-                        break;
+                        {
+                            //Intent data?
+                            TryUpdateBalance(_walletFacade.SelectedWallet.UserInfo, _walletFacade.SelectedBalance);
+                            break;
+                        }
                     case ActiveSignInActivity.ActiveKeyRequestCode:
                         CancelPowerDown();
                         break;
@@ -268,16 +231,15 @@ namespace Steepshot.Fragment
             base.OnActivityResult(requestCode, resultCode, data);
         }
 
-        private async void TryUpdateBalance(BalanceModel balance)
+        private async void TryUpdateBalance(UserInfo userInfo, BalanceModel balance)
         {
-            var exception = await Presenter.TryUpdateAccountInfoAsync(balance.UserInfo);
-            if (exception == null)
+            var result = await _walletFacade.TryUpdateWallet(userInfo);
+
+            if (result.IsSuccess)
             {
-                WalletPagerAdapter.NotifyItemChanged(_walletPager.CurrentItem);
-                WalletAdapter.SetAccountHistory(balance.UserInfo.AccountHistory);
-                var hasClaimRewards = Presenter.Balances[_walletPager.CurrentItem].RewardSteem > 0 ||
-                                      Presenter.Balances[_walletPager.CurrentItem].RewardSp > 0 ||
-                                      Presenter.Balances[_walletPager.CurrentItem].RewardSbd > 0;
+                var hasClaimRewards = balance.RewardSteem > 0 ||
+                                     balance.RewardSp > 0 ||
+                                     balance.RewardSbd > 0;
                 _claimBtn.Visibility = hasClaimRewards ? ViewStates.Visible : ViewStates.Gone;
             }
         }
@@ -289,39 +251,51 @@ namespace Steepshot.Fragment
 
         private void DoClaimReward()
         {
-            var claimRewardsDialog = new ClaimRewardsDialog(Activity, Presenter.Balances[_walletPager.CurrentItem]);
+            var claimRewardsDialog = new ClaimRewardsDialog(Activity, _walletFacade.SelectedWallet.UserInfo, _walletFacade.SelectedBalance);
             claimRewardsDialog.Claim += Claim;
             claimRewardsDialog.Show();
         }
 
-        private async Task<OperationResult<VoidResponse>> Claim(BalanceModel balance)
+        private async Task<OperationResult<VoidResponse>> Claim(UserInfo userInfo, BalanceModel balance)
         {
-            var result = await Presenter.TryClaimRewardsAsync(balance);
+            var result = await _walletFacade.WalletPresenter.TryClaimRewardsAsync(userInfo, balance);
             if (result.IsSuccess)
                 _claimBtn.Visibility = ViewStates.Gone;
             return result;
         }
 
-        private void OnPageTransforming(TokenCardHolder fromCard, TokenCardHolder toCard, float progress)
+        private float _pLast = 0;
+        private void OnPageScrolled(object sender, ViewPager.PageScrolledEventArgs e)
         {
-            var fromHasMore = fromCard.Balance.CurrencyType == CurrencyType.Steem ||
-                              fromCard.Balance.CurrencyType == CurrencyType.Golos;
+            if (_walletFacade.Balances.Length <= e.Position + 1)
+                return;
 
-            var toHasMore = toCard.Balance.CurrencyType == CurrencyType.Steem ||
-                            toCard.Balance.CurrencyType == CurrencyType.Golos;
+            if (Math.Abs(_pLast - e.PositionOffset) < 0.01)
+                return;
+
+            _pLast = e.PositionOffset;
+
+            var fB = _walletFacade.Balances[e.Position];
+            var tB = _walletFacade.Balances[e.Position + 1];
+
+            var fromHasMore = fB.CurrencyType == CurrencyType.Steem ||
+                              fB.CurrencyType == CurrencyType.Golos;
+
+            var toHasMore = tB.CurrencyType == CurrencyType.Steem ||
+                            tB.CurrencyType == CurrencyType.Golos;
 
             if (fromHasMore && !toHasMore || !fromHasMore && toHasMore)
             {
-                _transferBtn.LayoutParameters.Width = _transferBtnFullWidth - (int)((_transferBtnFullWidth - _transferBtnCollapsedWidth) * progress);
+                var w = Style.WalletBtnTransferMaxWidth - (Style.WalletBtnTransferMaxWidth - Style.WalletBtnTransferMinWidth) * _pLast;
+
+                _transferBtn.LayoutParameters.Width = (int)w;
                 _transferBtn.RequestLayout();
-                _moreBtn.Alpha = progress;
+
+                _moreBtn.Alpha = _pLast;
             }
 
-            var fromHasClaimRewards = fromCard.Balance.RewardSteem > 0 || fromCard.Balance.RewardSp > 0 ||
-                                      fromCard.Balance.RewardSbd > 0;
-
-            var toHasClaimRewards = toCard.Balance.RewardSteem > 0 || toCard.Balance.RewardSp > 0 ||
-                                    toCard.Balance.RewardSbd > 0;
+            var fromHasClaimRewards = fB.RewardSteem > 0 || fB.RewardSp > 0 || fB.RewardSbd > 0;
+            var toHasClaimRewards = tB.RewardSteem > 0 || tB.RewardSp > 0 || tB.RewardSbd > 0;
 
             if (!fromHasClaimRewards && !toHasClaimRewards)
             {
@@ -331,7 +305,7 @@ namespace Steepshot.Fragment
 
             if (fromHasClaimRewards && !toHasClaimRewards || !fromHasClaimRewards)
             {
-                _claimBtn.Alpha = 1 - progress;
+                _claimBtn.Alpha = 1 - _pLast;
                 _claimBtn.Visibility = _claimBtn.Alpha <= 0.1 ? ViewStates.Gone : ViewStates.Visible;
             }
             else
@@ -340,8 +314,10 @@ namespace Steepshot.Fragment
             }
         }
 
+
         public override void OnDetach()
         {
+            _walletFacade.TasksCancel();
             _trxHistory.SetAdapter(null);
             base.OnDetach();
         }
