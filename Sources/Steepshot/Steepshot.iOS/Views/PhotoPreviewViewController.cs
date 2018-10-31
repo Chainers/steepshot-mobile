@@ -77,7 +77,7 @@ namespace Steepshot.iOS.Views
             var smartAlbums = PHAssetCollection.FetchAssetCollections(PHAssetCollectionType.SmartAlbum, PHAssetCollectionSubtype.AlbumRegular, null)
                                                .Cast<PHAssetCollection>();
             albums.AddRange(smartAlbums);
-            fetchOptions.Predicate = NSPredicate.FromFormat("mediaType == %d", FromObject(PHAssetMediaType.Image));
+            fetchOptions.Predicate = NSPredicate.FromFormat("mediaType == %d || mediaType == %d", FromObject(PHAssetMediaType.Image), FromObject(PHAssetMediaType.Video));
 
             foreach (var item in albums)
             {

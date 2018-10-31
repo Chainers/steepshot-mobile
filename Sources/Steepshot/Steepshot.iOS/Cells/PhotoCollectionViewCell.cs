@@ -20,6 +20,7 @@ namespace Steepshot.iOS.Cells
         private UIView _selectFrame;
         private UIView _selectView;
         private UILabel _countLabel;
+        private UILabel _duration;
         private readonly TriangleView _triangle = new TriangleView();
 
         public bool IsSelected
@@ -40,12 +41,12 @@ namespace Steepshot.iOS.Cells
             _triangle.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 5);
         }
 
-        public void UpdateImage(PHImageManager cm, PHAsset photo, bool isCurrentlySelected, int count = 0, bool? isSelected = null)
+        public void UpdateImage(PHImageManager cm, PHAsset asset, bool isCurrentlySelected, int count = 0, bool? isSelected = null)
         {
             if (_bodyImage == null)
                 CreateImageView();
 
-            if (_selectView == null)
+            if (_selectView == null && asset.MediaType == PHAssetMediaType.Video)
             {
                 _selectView = new UIView(new CGRect(ContentView.Frame.Right - 38, 8, 30, 30));
                 _selectView.Layer.BorderColor = UIColor.White.CGColor;
@@ -68,6 +69,25 @@ namespace Steepshot.iOS.Cells
             }
             _countLabel.Text = (count + 1).ToString();
 
+            if (asset.MediaType == PHAssetMediaType.Video)
+            {
+                if (_duration == null)
+                {
+                    _duration = new UILabel();
+                    _duration.Font = Constants.Semibold14;
+                    _duration.TextColor = UIColor.White;
+                    _duration.BackgroundColor = UIColor.Black.ColorWithAlpha(0.5f);
+                    _duration.UserInteractionEnabled = false;
+                    ContentView.AddSubview(_duration);
+                    _duration.AutoPinEdgeToSuperviewEdge(ALEdge.Top);
+                    _duration.AutoPinEdgeToSuperviewEdge(ALEdge.Right);
+                }
+                _duration.Text = $" {TimeSpan.FromSeconds(asset.Duration).ToString("mm\\:ss")} ";
+                _duration.Hidden = false;
+            }
+            else
+                if (_duration != null)
+                _duration.Hidden = true;
 
             if (_selectFrame == null)
             {
@@ -82,7 +102,7 @@ namespace Steepshot.iOS.Cells
 
             ManageSelector(isSelected);
 
-            cm.RequestImageForAsset(photo, new CGSize(200, 200),
+            cm.RequestImageForAsset(asset, new CGSize(200, 200),
                                                  PHImageContentMode.AspectFill, new PHImageRequestOptions() { Synchronous = true }, (img, info) =>
                                        {
                                            _bodyImage.Image = img;
