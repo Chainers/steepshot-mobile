@@ -111,6 +111,7 @@ namespace Steepshot.Fragment
 
             _walletPager.PageScrolled += OnPageScrolled;
             _walletPager.PageSelected += OnPageSelected;
+            _walletPager.PageScrollStateChanged += OnPageScrollStateChanged;
             walletPagerIndicator.SetupWithViewPager(_walletPager, true);
 
             _transferBtn = walletCardsLayout.FindViewById<Button>(Resource.Id.transfer_btn);
@@ -143,20 +144,15 @@ namespace Steepshot.Fragment
             _walletFacade.TryUpdateWallets();
         }
 
+
         private async void OnScrolledToBottom()
         {
             await _walletFacade.TryGetAccountHistoryAsync(_walletFacade.SelectedWallet, true);
-          
         }
 
         private void BackOnClick(object sender, EventArgs e)
         {
             ((BaseActivity)Activity).OnBackPressed();
-        }
-
-        private void OnPageSelected(object sender, ViewPager.PageSelectedEventArgs e)
-        {
-            _walletFacade.Selected = e.Position;
         }
 
         private void TransferBtnOnClick(object sender, EventArgs e)
@@ -275,55 +271,100 @@ namespace Steepshot.Fragment
             return result;
         }
 
-        private float _pLast = 0;
+        #region ViewPager animation + events
+
+        private float _progress = -1;
+        private ScrollState _scrollState = ScrollState.Idle;
         private void OnPageScrolled(object sender, ViewPager.PageScrolledEventArgs e)
         {
-            if (_walletFacade.Balances.Length <= e.Position + 1)
+            float progress;
+            if (_scrollState == ScrollState.Idle)
+                progress = (float)Math.Round(e.PositionOffset, 0);
+            else
+                progress = (float)Math.Round(e.PositionOffset, 2);
+
+            if (Math.Abs(_progress - progress) < 0.01)
                 return;
 
-            if (Math.Abs(_pLast - e.PositionOffset) < 0.01)
-                return;
+            _progress = progress;
 
-            _pLast = e.PositionOffset;
-
-            var fB = _walletFacade.Balances[e.Position];
-            var tB = _walletFacade.Balances[e.Position + 1];
-
-            var fromHasMore = fB.CurrencyType == CurrencyType.Steem ||
-                              fB.CurrencyType == CurrencyType.Golos;
-
-            var toHasMore = tB.CurrencyType == CurrencyType.Steem ||
-                            tB.CurrencyType == CurrencyType.Golos;
-
-            if (fromHasMore && !toHasMore || !fromHasMore && toHasMore)
+            if (e.Position + 1 < _walletFacade.BalanceCount)
             {
-                var w = Style.WalletBtnTransferMaxWidth - (Style.WalletBtnTransferMaxWidth - Style.WalletBtnTransferMinWidth) * _pLast;
+                AnimateButton(e.Position, _progress);
+            }
+            else
+            {
+                _progress = 1;
+                AnimateButton(e.Position - 1, _progress);
+            }
+        }
+
+        private void OnPageSelected(object sender, ViewPager.PageSelectedEventArgs e)
+        {
+            _walletFacade.Selected = e.Position;
+            if (_progress == -1)//firstrun
+                AnimateButton(0, 0);
+        }
+
+        private void OnPageScrollStateChanged(object sender, ViewPager.PageScrollStateChangedEventArgs e)
+        {
+            _scrollState = (ScrollState)e.State;
+        }
+
+        private void AnimateButton(int position, float progress)
+        {
+            var fB = _walletFacade.Balances[position];
+            var tB = _walletFacade.Balances[position + 1];
+
+            var isFromHasMore = fB.CurrencyType == CurrencyType.Steem ||
+                                fB.CurrencyType == CurrencyType.Golos;
+
+            var isToHasMore = tB.CurrencyType == CurrencyType.Steem ||
+                              tB.CurrencyType == CurrencyType.Golos;
+
+            if (isFromHasMore && !isToHasMore)
+            {
+                var w = Style.WalletBtnTransferMinWidth + (Style.WalletBtnTransferMaxWidth - Style.WalletBtnTransferMinWidth) * progress;
 
                 _transferBtn.LayoutParameters.Width = (int)w;
                 _transferBtn.RequestLayout();
 
-                _moreBtn.Alpha = _pLast;
+                _moreBtn.Alpha = 1 - progress;
+            }
+            else if (!isFromHasMore && isToHasMore)
+            {
+                var w = Style.WalletBtnTransferMaxWidth - (Style.WalletBtnTransferMaxWidth - Style.WalletBtnTransferMinWidth) * progress;
+
+                _transferBtn.LayoutParameters.Width = (int)w;
+                _transferBtn.RequestLayout();
+
+                _moreBtn.Alpha = progress;
             }
 
-            var fromHasClaimRewards = fB.RewardSteem > 0 || fB.RewardSp > 0 || fB.RewardSbd > 0;
-            var toHasClaimRewards = tB.RewardSteem > 0 || tB.RewardSp > 0 || tB.RewardSbd > 0;
+            var isFromHasRewards = fB.RewardSteem > 0 || fB.RewardSp > 0 || fB.RewardSbd > 0;
+            var isToHasRewards = tB.RewardSteem > 0 || tB.RewardSp > 0 || tB.RewardSbd > 0;
 
-            if (!fromHasClaimRewards && !toHasClaimRewards)
-            {
-                _claimBtn.Visibility = ViewStates.Gone;
-                return;
-            }
+            _claimBtn.Alpha = isFromHasRewards
+                ? !isToHasRewards
+                    ? 1 - progress
+                    : 1
+                : isToHasRewards
+                    ? progress
+                    : 0;
 
-            if (fromHasClaimRewards && !toHasClaimRewards || !fromHasClaimRewards)
+            if (_claimBtn.Alpha <= 0.1)
             {
-                _claimBtn.Alpha = 1 - _pLast;
-                _claimBtn.Visibility = _claimBtn.Alpha <= 0.1 ? ViewStates.Gone : ViewStates.Visible;
+                if (_claimBtn.Visibility != ViewStates.Gone)
+                    _claimBtn.Visibility = ViewStates.Gone;
             }
             else
             {
-                _claimBtn.Visibility = ViewStates.Visible;
+                if (_claimBtn.Visibility != ViewStates.Visible)
+                    _claimBtn.Visibility = ViewStates.Visible;
             }
         }
+
+        #endregion
 
 
         public override void OnDetach()
