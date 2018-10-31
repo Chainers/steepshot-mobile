@@ -75,7 +75,7 @@ namespace Steepshot.iOS.Views
                                                  .Cast<PHAssetCollection>();
             albums.AddRange(allAlbums);
             var smartAlbums = PHAssetCollection.FetchAssetCollections(PHAssetCollectionType.SmartAlbum, PHAssetCollectionSubtype.AlbumRegular, null)
-                                               .Cast<PHAssetCollection>();
+                                               .Cast<PHAssetCollection>().Where(a => !a.LocalizedTitle.Equals("Recently Deleted"));
             albums.AddRange(smartAlbums);
             fetchOptions.Predicate = NSPredicate.FromFormat("mediaType == %d || mediaType == %d", FromObject(PHAssetMediaType.Image), FromObject(PHAssetMediaType.Video));
 
@@ -111,6 +111,8 @@ namespace Steepshot.iOS.Views
 
             _titleLabel.Text = sortedAlbums.FirstOrDefault()?.Item1;
             source.UpdateFetchResult(sortedAlbums.FirstOrDefault()?.Item2);
+
+            ButtonsHidden(true);
         }
 
         public override void ViewWillAppear(bool animated)
@@ -180,10 +182,17 @@ namespace Steepshot.iOS.Views
 
         private void CellAction(ActionType type, Tuple<NSIndexPath, PHAsset> photo)
         {
-            if (type == ActionType.Close)
+            switch (type)
             {
-                ShowAlert(Core.Localization.LocalizationKeys.PickedPhotosLimit);
-                return;
+                case ActionType.Close:
+                    ShowAlert(Core.Localization.LocalizationKeys.PickedPhotosLimit);
+                    return;
+                case ActionType.Hide:
+                    ButtonsHidden(true);
+                    break;
+                default:
+                    ButtonsHidden(false);
+                    break;
             }
 
             photoCollection.UserInteractionEnabled = false;
@@ -193,6 +202,16 @@ namespace Steepshot.iOS.Views
             var pickOptions = new PHImageRequestOptions() { ResizeMode = PHImageRequestOptionsResizeMode.Exact, DeliveryMode = PHImageRequestOptionsDeliveryMode.HighQualityFormat, NetworkAccessAllowed = true };
             var imageSize = ImageHelper.CalculateInSampleSize(new CGSize(photo.Item2.PixelWidth, photo.Item2.PixelHeight), Core.Constants.PhotoMaxSize, Core.Constants.PhotoMaxSize);
             _m.RequestImageForAsset(photo.Item2, imageSize, PHImageContentMode.Default, pickOptions, PickImage);
+        }
+
+        private void ButtonsHidden(bool value)
+        {
+            rotate.Hidden = value;
+            resize.Hidden = value;
+            multiSelect.Hidden = value;
+            topArrow.Hidden = value;
+            bottomArrow.Hidden = value;
+            //_cropView.ScrollEnabled = !value;
         }
 
         private void PickImage(UIImage img, NSDictionary info)

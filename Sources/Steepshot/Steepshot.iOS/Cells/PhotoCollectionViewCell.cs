@@ -19,8 +19,10 @@ namespace Steepshot.iOS.Cells
         private UIImageView _galleryImage;
         private UIView _selectFrame;
         private UIView _selectView;
+        private UIView _disabledMask;
         private UILabel _countLabel;
         private UILabel _duration;
+        private PHAssetMediaType _mediaType;
         private readonly TriangleView _triangle = new TriangleView();
 
         public bool IsSelected
@@ -46,7 +48,7 @@ namespace Steepshot.iOS.Cells
             if (_bodyImage == null)
                 CreateImageView();
 
-            var mediaType = asset.MediaType;
+            _mediaType = asset.MediaType;
 
             if (_duration == null)
             {
@@ -61,8 +63,18 @@ namespace Steepshot.iOS.Cells
                 _duration.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom);
             }
 
-            _duration.Text = mediaType == PHAssetMediaType.Video ? $" {TimeSpan.FromSeconds(asset.Duration).ToString("mm\\:ss")} " : string.Empty;
-            _duration.Hidden = mediaType == PHAssetMediaType.Image;
+            _duration.Text = _mediaType == PHAssetMediaType.Video ? $" {TimeSpan.FromSeconds(asset.Duration).ToString("mm\\:ss")} " : string.Empty;
+            _duration.Hidden = _mediaType == PHAssetMediaType.Image;
+
+            if (_disabledMask == null)
+            {
+                _disabledMask = new UIView();
+                _disabledMask.BackgroundColor = UIColor.Black.ColorWithAlpha(0.4f);
+                _disabledMask.Hidden = true;
+                _disabledMask.UserInteractionEnabled = true;
+                ContentView.AddSubview(_disabledMask);
+                _disabledMask.AutoPinEdgesToSuperviewEdges();
+            }
 
             if (_selectView == null)
             {
@@ -83,7 +95,6 @@ namespace Steepshot.iOS.Cells
                 _countLabel.TextColor = UIColor.White;
                 _selectView.AddSubview(_countLabel);
                 _countLabel.AutoCenterInSuperview();
-
             }
             _countLabel.Text = (count + 1).ToString();
 
@@ -97,8 +108,10 @@ namespace Steepshot.iOS.Cells
                 ContentView.AddSubview(_selectFrame);
             }
             _selectFrame.Hidden = !isCurrentlySelected;
+            
+            ManageSelector(_mediaType == PHAssetMediaType.Image ? isSelected : null);
 
-            ManageSelector(isSelected);
+            _disabledMask.Hidden = isSelected == null || _mediaType == PHAssetMediaType.Image;
 
             cm.RequestImageForAsset(asset, new CGSize(200, 200),
                                                  PHImageContentMode.AspectFill, new PHImageRequestOptions() { Synchronous = true }, (img, info) =>
