@@ -13,7 +13,7 @@ namespace Steepshot.iOS.ViewSources
     {
         private readonly WalletPresenter _presenter;
         private readonly UINavigationController _controller;
-        public List<IGrouping<DateTime, AccountHistoryResponse>> GroupedHistory = new List<IGrouping<DateTime, AccountHistoryResponse>>();
+        public List<IGrouping<DateTime, AccountHistoryItem>> GroupedHistory = new List<IGrouping<DateTime, AccountHistoryItem>>();
         public event Action<string> CellAction;
         public CardsContainerHeader Header;
 
@@ -58,7 +58,7 @@ namespace Steepshot.iOS.ViewSources
 
             var isFirst = indexPath.Section - 1 == 0 && indexPath.Row == 0;
             var isLast = indexPath.Section - 1 == GroupedHistory.Count() - 1 && indexPath.Row == GroupedHistory[indexPath.Section - 1].Count() - 1;
-            if (transaction.Type == AccountHistoryResponse.OperationType.ClaimReward)
+            if (transaction.Type == AccountHistoryItem.OperationType.ClaimReward)
             {
                 var cell = (ClaimTransactionCollectionViewCell)collectionView.DequeueReusableCell(nameof(ClaimTransactionCollectionViewCell), indexPath);
                 cell.UpdateCard(transaction, isFirst, isLast);

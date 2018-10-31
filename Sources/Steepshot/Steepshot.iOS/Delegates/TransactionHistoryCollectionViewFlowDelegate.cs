@@ -24,7 +24,7 @@ namespace Steepshot.iOS.Delegates
                 return new CGSize(UIScreen.MainScreen.Bounds.Width, 86);
 
             var transaction = _source.GroupedHistory[indexPath.Section - 1].ElementAt(indexPath.Row);
-            if (transaction.Type == AccountHistoryResponse.OperationType.ClaimReward)
+            if (transaction.Type == AccountHistoryItem.OperationType.ClaimReward)
                 return new CGSize(UIScreen.MainScreen.Bounds.Width, 194);
             return new CGSize(UIScreen.MainScreen.Bounds.Width, 86);
         }
