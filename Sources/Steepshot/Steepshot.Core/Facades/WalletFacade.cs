@@ -113,11 +113,11 @@ namespace Steepshot.Core.Facades
         public async Task TryUpdateWallets()
         {
             foreach (var wallet in Wallets)
-                await TryLoadWallet(wallet.UserInfo)
+                await TryUpdateWallet(wallet.UserInfo)
                     .ConfigureAwait(true);
         }
 
-        public async Task<OperationResult<AccountInfoResponse>> TryLoadWallet(UserInfo userInfo)
+        public async Task<OperationResult<AccountInfoResponse>> TryUpdateWallet(UserInfo userInfo)
         {
             var walletModel = Wallets.First(w => w.UserInfo.Id == userInfo.Id);
 

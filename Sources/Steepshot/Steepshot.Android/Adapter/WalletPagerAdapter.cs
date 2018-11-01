@@ -127,8 +127,6 @@ namespace Steepshot.Adapter
 
         public void UpdateData(int position)
         {
-            var cr = _walletFacade.GetCurrencyRate(_walletFacade.SelectedBalance.CurrencyType);
-
             var i = position;
             position %= CachedPagesCount;
 
@@ -140,7 +138,9 @@ namespace Steepshot.Adapter
                     continue;
                 }
 
-                _holders[position]?.UpdateData(wallet.UserInfo, wallet.UserInfo.AccountInfo.Balances[i], cr, position);
+                var balance = wallet.UserInfo.AccountInfo.Balances[i];
+                var cr = _walletFacade.GetCurrencyRate(balance.CurrencyType);
+                _holders[position]?.UpdateData(wallet.UserInfo, balance, cr, position);
                 break;
             }
         }

@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Linq;
 using CoreGraphics;
-using Foundation;
 using PureLayout.Net;
 using Steepshot.iOS.ViewControllers;
 using UIKit;
@@ -13,68 +11,101 @@ namespace Steepshot.iOS.CustomViews
         Bottom
     }
 
-    public class CustomAlertView : UIGestureRecognizerDelegate
+    public class CustomAlertView : UIView
     {
-        private UIViewController controller;
-        private UIView popup;
-        private UIView dialog;
-        private nfloat targetY;
+        private readonly UIViewController _controller;
+        private readonly nfloat _targetY;
+        protected readonly UIView Subview;
 
-        public CustomAlertView(UIView view, UIViewController controller, AnimationType animationType = AnimationType.Bottom)
+        public override CGRect Frame => new CGRect(0, 0, UIScreen.MainScreen.Bounds.Width, UIScreen.MainScreen.Bounds.Height);
+        public override UIColor BackgroundColor => UIColor.Black.ColorWithAlpha(0.0f);
+        public override bool UserInteractionEnabled => true;
+
+        public CustomAlertView(UIViewController controller, UIView view)
         {
-            CloseKeyboard(controller.View.Subviews);
-            dialog = view;
-            this.controller = controller;
+            _controller = controller;
 
-            popup = new UIView();
-            popup.Frame = new CGRect(0, 0, UIScreen.MainScreen.Bounds.Width, UIScreen.MainScreen.Bounds.Height);
-            popup.BackgroundColor = UIColor.Black.ColorWithAlpha(0.0f);
-            popup.UserInteractionEnabled = true;
-
-            popup.AddSubview(dialog);
-
-            var touchOutsideRecognizer = new UITapGestureRecognizer(() => { Close(); });
-            touchOutsideRecognizer.CancelsTouchesInView = false;
-            touchOutsideRecognizer.Delegate = this;
-            popup.AddGestureRecognizer(touchOutsideRecognizer);
+            var touchOutsideRecognizer = new UITapGestureRecognizer(Close)
+            {
+                CancelsTouchesInView = false,
+                Delegate = new CustomUiGestureRecognizerDelegate(_controller, this)
+            };
+            base.AddGestureRecognizer(touchOutsideRecognizer);
 
             // view centering
-            dialog.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom, 34);
-            dialog.AutoAlignAxisToSuperviewAxis(ALAxis.Vertical);
-
-            targetY = dialog.Frame.Y;
+            view.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom, 34);
+            view.AutoAlignAxisToSuperviewAxis(ALAxis.Vertical);
+            _targetY = view.Frame.Y;
+            Subview = view;
+            base.AddSubview(view);
         }
 
         public void Close()
         {
-            UIView.Animate(0.3, () =>
-            {
-                popup.BackgroundColor = UIColor.Black.ColorWithAlpha(0.0f);
-                dialog.Transform = CGAffineTransform.Translate(CGAffineTransform.MakeIdentity(), 0, UIScreen.MainScreen.Bounds.Bottom);
-            }, () =>
-            {
-                if (controller is InteractivePopNavigationController interactiveController)
-                    interactiveController.IsPushingViewController = false;
-                popup.RemoveFromSuperview();
-            });
+            Animate(0.3, CloseAnimation, CloseCompletion);
         }
 
-        public bool Hidden
+        private void CloseCompletion()
         {
-            get
+            if (_controller is InteractivePopNavigationController interactiveController)
+                interactiveController.IsPushingViewController = false;
+            RemoveFromSuperview();
+        }
+
+        private void CloseAnimation()
+        {
+            BackgroundColor = UIColor.Black.ColorWithAlpha(0.0f);
+            Subview.Transform = CGAffineTransform.Translate(CGAffineTransform.MakeIdentity(), 0, UIScreen.MainScreen.Bounds.Bottom);
+        }
+
+        public void Show(AnimationType animationType = AnimationType.Bottom)
+        {
+            if (_controller is InteractivePopNavigationController interactiveController)
+                interactiveController.IsPushingViewController = true;
+
+            _controller.View.AddSubview(this);
+
+            switch (animationType)
             {
-                return popup.Hidden;
+                case AnimationType.Bottom:
+                    Subview.Transform = CGAffineTransform.Translate(CGAffineTransform.MakeIdentity(), 0, UIScreen.MainScreen.Bounds.Bottom);
+                    Animate(0.3, ShowAnimation, ShowCompletion);
+                    break;
             }
-            set
-            {
-                popup.Hidden = value;
-            }
+        }
+
+        private void ShowCompletion()
+        {
+            Animate(0.1, TransformAnimation);
+        }
+
+        private void TransformAnimation()
+        {
+            Subview.Transform = CGAffineTransform.Translate(CGAffineTransform.MakeIdentity(), 0, _targetY);
+        }
+
+        private void ShowAnimation()
+        {
+            BackgroundColor = UIColor.Black.ColorWithAlpha(0.5f);
+            Subview.Transform = CGAffineTransform.Translate(CGAffineTransform.MakeIdentity(), 0, _targetY - 10);
+        }
+    }
+
+    public class CustomUiGestureRecognizerDelegate : UIGestureRecognizerDelegate
+    {
+        private readonly CustomAlertView _popup;
+
+        public CustomUiGestureRecognizerDelegate(UIViewController controller, CustomAlertView popup)
+        {
+            _popup = popup;
+            CloseKeyboard(controller.View.Subviews);
         }
 
         private static void CloseKeyboard(UIView[] subviews)
         {
             if (subviews.Length == 0)
                 return;
+
             foreach (var item in subviews)
             {
                 CloseKeyboard(item.Subviews);
@@ -83,36 +114,9 @@ namespace Steepshot.iOS.CustomViews
             }
         }
 
-        public void Show(AnimationType animationType = AnimationType.Bottom)
-        {
-            if (controller is InteractivePopNavigationController interactiveController)
-                interactiveController.IsPushingViewController = true;
-
-            controller.View.AddSubview(popup);
-
-            switch (animationType)
-            {
-                case AnimationType.Bottom:
-                    dialog.Transform = CGAffineTransform.Translate(CGAffineTransform.MakeIdentity(), 0, UIScreen.MainScreen.Bounds.Bottom);
-
-                    UIView.Animate(0.3, () =>
-                    {
-                        popup.BackgroundColor = UIColor.Black.ColorWithAlpha(0.5f);
-                        dialog.Transform = CGAffineTransform.Translate(CGAffineTransform.MakeIdentity(), 0, targetY - 10);
-                    }, () =>
-                    {
-                        UIView.Animate(0.1, () =>
-                        {
-                            dialog.Transform = CGAffineTransform.Translate(CGAffineTransform.MakeIdentity(), 0, targetY);
-                        });
-                    });
-                    break;
-            }
-        }
-
         public override bool ShouldReceiveTouch(UIGestureRecognizer recognizer, UITouch touch)
         {
-            return (touch.View == popup);
+            return touch.View.Equals(_popup);
         }
     }
 }

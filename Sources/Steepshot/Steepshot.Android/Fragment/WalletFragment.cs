@@ -240,7 +240,7 @@ namespace Steepshot.Fragment
 
         private async void TryUpdateBalance(UserInfo userInfo, BalanceModel balance)
         {
-            var result = await _walletFacade.TryLoadWallet(userInfo);
+            var result = await _walletFacade.TryUpdateWallet(userInfo);
 
             if (result.IsSuccess)
             {

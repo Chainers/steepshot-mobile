@@ -1,12 +1,11 @@
 ﻿using System;
 using CoreGraphics;
 using PureLayout.Net;
+using Steepshot.Core.Facades;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
-using Steepshot.Core.Presenters;
-using Steepshot.Core.Utils;
+using Steepshot.Core.Models.Requests;
 using Steepshot.iOS.Delegates;
-using Steepshot.iOS.Helpers;
 using Steepshot.iOS.Views;
 using Steepshot.iOS.ViewSources;
 using UIKit;
@@ -20,18 +19,18 @@ namespace Steepshot.iOS.Cells
         private UICollectionView _cardsCollection;
         private readonly UIPageControl _pageControl = new UIPageControl();
         private readonly CardCollectionViewFlowDelegate _cardsGridDelegate = new CardCollectionViewFlowDelegate();
-        private readonly UIButton transfer = new UIButton();
-        private readonly UIButton more = new UIButton();
-        private WalletPresenter _presenter;
+        private readonly UIButton _transfer = new UIButton();
+        private readonly UIButton _more = new UIButton();
+        private WalletFacade _walletFacade;
 
-        public WalletPresenter Presenter
+        public WalletFacade WalletFacade
         {
             set
             {
-                if (_presenter == null)
+                if (_walletFacade == null)
                 {
-                    _presenter = value;
-                    _cardsCollection.Source = new CardsCollectionViewSource(_presenter);
+                    _walletFacade = value;
+                    _cardsCollection.Source = new CardsCollectionViewSource(_walletFacade);
                     _cardsCollection.Delegate = _cardsGridDelegate;
                 }
             }
@@ -50,12 +49,12 @@ namespace Steepshot.iOS.Cells
 
         public void ReloadCollection()
         {
-            more.Enabled = true;
-            transfer.Enabled = true;
-            Constants.CreateGradient(transfer, 25);
+            _more.Enabled = true;
+            _transfer.Enabled = true;
+            Constants.CreateGradient(_transfer, 25);
             _cardsCollection.UserInteractionEnabled = true;
             _cardsCollection.ReloadData();
-            _pageControl.Pages = _presenter.Balances.Count;
+            _pageControl.Pages = _walletFacade.BalanceCount;
         }
 
         protected CardsContainerHeader(IntPtr handle) : base(handle)
@@ -92,7 +91,6 @@ namespace Steepshot.iOS.Cells
                 BackgroundColor = UIColor.Clear
             };
 
-            _cardsCollection.RegisterClassForCell(typeof(CardShimmerCollectionView), nameof(CardShimmerCollectionView));
             _cardsCollection.RegisterClassForCell(typeof(CardCollectionViewCell), nameof(CardCollectionViewCell));
             AddSubview(_cardsCollection);
 
@@ -122,52 +120,36 @@ namespace Steepshot.iOS.Cells
             _pageControl.AutoPinEdgeToSuperviewEdge(ALEdge.Top, cardBottom);
             _pageControl.AutoAlignAxis(ALAxis.Vertical, _cardsCollection);
 
-            transfer.Enabled = false;
-            transfer.SetTitle("TRANSFER", UIControlState.Normal);
-            transfer.Font = Constants.Bold14;
-            transfer.SetTitleColor(UIColor.White, UIControlState.Normal);
-            transfer.Layer.CornerRadius = 25;
-            transfer.BackgroundColor = UIColor.FromRGB(230, 230, 230);
-            transfer.ClipsToBounds = true;
-            AddSubview(transfer);
+            _transfer.Enabled = false;
+            _transfer.SetTitle("TRANSFER", UIControlState.Normal);
+            _transfer.Font = Constants.Bold14;
+            _transfer.SetTitleColor(UIColor.White, UIControlState.Normal);
+            _transfer.Layer.CornerRadius = 25;
+            _transfer.BackgroundColor = UIColor.FromRGB(230, 230, 230);
+            _transfer.ClipsToBounds = true;
+            AddSubview(_transfer);
 
-            transfer.TouchDown += (object sender, EventArgs e) =>
+            _transfer.TouchDown += (object sender, EventArgs e) =>
             {
                 _navigationController.PushViewController(new TransferViewController(), true);
             };
 
-            transfer.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, _pageControl, 20);
-            transfer.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 20);
-            transfer.AutoSetDimension(ALDimension.Height, 50);
+            _transfer.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, _pageControl, 20);
+            _transfer.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 20);
+            _transfer.AutoSetDimension(ALDimension.Height, 50);
 
-            more.Enabled = false;
-            more.BackgroundColor = Constants.R250G250B250;
-            more.SetImage(UIImage.FromBundle("ic_more"), UIControlState.Normal);
-            more.Layer.CornerRadius = 25;
-            more.ClipsToBounds = true;
-            more.TouchDown += (object sender, EventArgs e) =>
-            {
-                Popups.PowerManipulationPopup.Create(_navigationController, _presenter, async (bool response) =>
-                {
-                    if (response)
-                    {
-                        var balance = _presenter.Balances[0];
-                        var model = new BalanceModel(0, balance.MaxDecimals, balance.CurrencyType)
-                        {
-                            UserInfo = balance.UserInfo
-                        };
+            _more.Enabled = false;
+            _more.BackgroundColor = Constants.R250G250B250;
+            _more.SetImage(UIImage.FromBundle("ic_more"), UIControlState.Normal);
+            _more.Layer.CornerRadius = 25;
+            _more.ClipsToBounds = true;
+            _more.TouchDown += OnTouchDown;
+            AddSubview(_more);
 
-                        await _presenter.TryPowerUpOrDownAsync(model, PowerAction.CancelPowerDown);
-                        _presenter.UpdateWallet?.Invoke();
-                    }
-                });
-            };
-            AddSubview(more);
-
-            more.AutoAlignAxis(ALAxis.Horizontal, transfer);
-            more.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 20);
-            more.AutoPinEdge(ALEdge.Left, ALEdge.Right, transfer, 10);
-            more.AutoSetDimensionsToSize(new CGSize(50, 50));
+            _more.AutoAlignAxis(ALAxis.Horizontal, _transfer);
+            _more.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 20);
+            _more.AutoPinEdge(ALEdge.Left, ALEdge.Right, _transfer, 10);
+            _more.AutoSetDimensionsToSize(new CGSize(50, 50));
 
             var historyLabel = new UILabel();
             historyLabel.Text = "Transaction history";
@@ -179,6 +161,30 @@ namespace Steepshot.iOS.Cells
             historyLabel.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, _cardBehind, 27);
             historyLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 20);
             historyLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom);
+        }
+
+        private void OnTouchDown(object sender, EventArgs e)
+        {
+            var popup = new Popups.PowerManipulationPopup(_navigationController, _walletFacade, ContinuePowerDownCancellation);
+            popup.Show();
+        }
+
+        private async void ContinuePowerDownCancellation(bool response)
+        {
+            if (response)
+            {
+                var balance = _walletFacade.SelectedBalance;
+                var userInfo = _walletFacade.SelectedWallet.UserInfo;
+                var model = new PowerUpDownModel(userInfo)
+                {
+                    CurrencyType = balance.CurrencyType,
+                    Value = 0,
+                    PowerAction = PowerAction.CancelPowerDown
+                };
+
+                await _walletFacade.TransferPresenter.TryPowerUpOrDownAsync(model).ConfigureAwait(true);
+                await _walletFacade.TryUpdateWallet(userInfo).ConfigureAwait(true);
+            }
         }
     }
 }
