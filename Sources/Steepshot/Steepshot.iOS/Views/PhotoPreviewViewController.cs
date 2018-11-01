@@ -202,19 +202,21 @@ namespace Steepshot.iOS.Views
                     break;
             }
 
-            photoCollection.UserInteractionEnabled = false;
-            NavigationItem.RightBarButtonItem.Enabled = false;
-
             if (asset.Item2.MediaType == PHAssetMediaType.Image)
             {
+                photoCollection.UserInteractionEnabled = false;
+                NavigationItem.RightBarButtonItem.Enabled = false;
                 pickedPhoto = asset;
                 previousPhotoLocalIdentifier = source.CurrentlySelectedItem?.Item2?.LocalIdentifier;
                 var pickOptions = new PHImageRequestOptions() { ResizeMode = PHImageRequestOptionsResizeMode.Exact, DeliveryMode = PHImageRequestOptionsDeliveryMode.HighQualityFormat, NetworkAccessAllowed = true };
                 var imageSize = ImageHelper.CalculateInSampleSize(new CGSize(asset.Item2.PixelWidth, asset.Item2.PixelHeight), Core.Constants.PhotoMaxSize, Core.Constants.PhotoMaxSize);
+
                 _m.RequestImageForAsset(asset.Item2, imageSize, PHImageContentMode.Default, pickOptions, PickImage);
             }
             else
             {
+                _cropView.ImageView.Hidden = true;
+                _cropView.VideoView.Hidden = false;
                 _m.RequestAvAsset(asset.Item2, null, HandlePHImageManagerRequestAvAssetHandler);
             }
         }
@@ -223,12 +225,7 @@ namespace Steepshot.iOS.Views
         {
             var urlAsset = asset as AVUrlAsset;
             _cropView.VideoView.ChangeItem(urlAsset.Url);
-            _cropView.VideoView.Hidden = false;
             _cropView.VideoView.Play();
-            _cropView.ImageView.Hidden = true;
-
-            photoCollection.UserInteractionEnabled = true;
-            NavigationItem.RightBarButtonItem.Enabled = true;
         }
 
         private void ButtonsHidden(bool value)
@@ -260,6 +257,7 @@ namespace Steepshot.iOS.Views
 
             _cropView.VideoView.Stop();
             _cropView.VideoView.Hidden = true;
+            _cropView.ImageView.Hidden = false;
 
             _cropView.ImageView.Image = img;
 

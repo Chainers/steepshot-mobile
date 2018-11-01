@@ -34,6 +34,7 @@ namespace Steepshot.iOS.CustomViews
             MaximumZoomScale = 4f;
             ViewForZoomingInScrollView += (UIScrollView sv) => { return ImageView; };
             AddSubview(ImageView);
+            AddSubview(VideoView);
             ContentSize = new CGSize(UIScreen.MainScreen.Bounds.Width, UIScreen.MainScreen.Bounds.Width);
             DidZoom += (t, u) =>
             {
