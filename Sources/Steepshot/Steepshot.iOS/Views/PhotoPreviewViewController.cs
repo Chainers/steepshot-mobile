@@ -22,7 +22,7 @@ namespace Steepshot.iOS.Views
     {
         private readonly PHImageManager _m;
         private CropView _cropView;
-        private VideoView _videoView;
+        //private VideoView _videoView;
         private PhotoCollectionViewSource source;
         private PhotoCollectionViewFlowDelegate delegateP;
         private string previousPhotoLocalIdentifier;
@@ -69,10 +69,10 @@ namespace Steepshot.iOS.Views
 
             _cropView = new CropView(new CGRect(0, 0, UIScreen.MainScreen.Bounds.Width, UIScreen.MainScreen.Bounds.Width));
 
-            _videoView = new VideoView(false, false);
-            _videoView.Frame = new CGRect(0, 0, UIScreen.MainScreen.Bounds.Width, UIScreen.MainScreen.Bounds.Width);
-            _videoView.Hidden = true;
-            _videoView.BackgroundColor = UIColor.Cyan.ColorWithAlpha(0.5f);
+            //_videoView = new VideoView(false, false);
+            //_videoView.Frame = new CGRect(0, 0, UIScreen.MainScreen.Bounds.Width, UIScreen.MainScreen.Bounds.Width);
+            //_videoView.Hidden = true;
+            //_videoView.BackgroundColor = UIColor.Cyan.ColorWithAlpha(0.5f);
 
             var albums = new List<PHAssetCollection>();
             var sortedAlbums = new List<Tuple<string, PHFetchResult>>();
@@ -113,7 +113,6 @@ namespace Steepshot.iOS.Views
 
             cropBackgroundView.BackgroundColor = Constants.R245G245B245;
             cropBackgroundView.AddSubview(_cropView);
-            cropBackgroundView.AddSubview(_videoView);
             NavigationController.NavigationBar.Translucent = false;
             SetBackButton();
 
@@ -203,13 +202,11 @@ namespace Steepshot.iOS.Views
                     break;
             }
 
-            _cropView.Hidden = asset.Item2.MediaType != PHAssetMediaType.Image;
-            _videoView.Hidden = asset.Item2.MediaType != PHAssetMediaType.Video;
+            photoCollection.UserInteractionEnabled = false;
+            NavigationItem.RightBarButtonItem.Enabled = false;
 
             if (asset.Item2.MediaType == PHAssetMediaType.Image)
             {
-                photoCollection.UserInteractionEnabled = false;
-                NavigationItem.RightBarButtonItem.Enabled = false;
                 pickedPhoto = asset;
                 previousPhotoLocalIdentifier = source.CurrentlySelectedItem?.Item2?.LocalIdentifier;
                 var pickOptions = new PHImageRequestOptions() { ResizeMode = PHImageRequestOptionsResizeMode.Exact, DeliveryMode = PHImageRequestOptionsDeliveryMode.HighQualityFormat, NetworkAccessAllowed = true };
@@ -218,17 +215,20 @@ namespace Steepshot.iOS.Views
             }
             else
             {
-                var cachingManager = new PHCachingImageManager();
-                cachingManager.RequestAvAsset(asset.Item2, null, HandlePHImageManagerRequestAvAssetHandler);
-
+                _m.RequestAvAsset(asset.Item2, null, HandlePHImageManagerRequestAvAssetHandler);
             }
         }
 
         private void HandlePHImageManagerRequestAvAssetHandler(AVAsset asset, AVAudioMix audioMix, NSDictionary info)
         {
             var urlAsset = asset as AVUrlAsset;
-            _videoView.ChangeItem(urlAsset.Url);
-            _videoView.Play();
+            _cropView.VideoView.ChangeItem(urlAsset.Url);
+            _cropView.VideoView.Hidden = false;
+            _cropView.VideoView.Play();
+            _cropView.ImageView.Hidden = true;
+
+            photoCollection.UserInteractionEnabled = true;
+            NavigationItem.RightBarButtonItem.Enabled = true;
         }
 
         private void ButtonsHidden(bool value)
@@ -258,7 +258,10 @@ namespace Steepshot.iOS.Views
                 _cropView.orientation = UIImageOrientation.Up;
             _cropView.AdjustImageViewSize(img);
 
-            _cropView.imageView.Image = img;
+            _cropView.VideoView.Stop();
+            _cropView.VideoView.Hidden = true;
+
+            _cropView.ImageView.Image = img;
 
             if (source.MultiPickMode)
             {
@@ -336,10 +339,10 @@ namespace Steepshot.iOS.Views
             if (source.MultiPickMode)
             {
                 multiSelect.Image = UIImage.FromBundle("ic_multiselect_active");
-                if (_cropView.imageView.Frame.Width < _cropView.Frame.Width)
-                    _cropView.Frame = new CGRect((_cropView.Frame.Width - _cropView.imageView.Frame.Width) / 2, _cropView.Frame.Location.Y, _cropView.imageView.Frame.Width, _cropView.Frame.Height);
-                if (_cropView.imageView.Frame.Height < _cropView.Frame.Height)
-                    _cropView.Frame = new CGRect(_cropView.Frame.Location.X, (_cropView.Frame.Height - _cropView.imageView.Frame.Height) / 2, _cropView.Frame.Width, _cropView.imageView.Frame.Height);
+                if (_cropView.ImageView.Frame.Width < _cropView.Frame.Width)
+                    _cropView.Frame = new CGRect((_cropView.Frame.Width - _cropView.ImageView.Frame.Width) / 2, _cropView.Frame.Location.Y, _cropView.ImageView.Frame.Width, _cropView.Frame.Height);
+                if (_cropView.ImageView.Frame.Height < _cropView.Frame.Height)
+                    _cropView.Frame = new CGRect(_cropView.Frame.Location.X, (_cropView.Frame.Height - _cropView.ImageView.Frame.Height) / 2, _cropView.Frame.Width, _cropView.ImageView.Frame.Height);
 
                 _cropView.ApplyRightScale();
                 _cropView.SetScrollViewInsets();
@@ -470,12 +473,12 @@ namespace Steepshot.iOS.Views
                     currentPhoto.Scale = _cropView.ZoomScale;
                     currentPhoto.OriginalImageSize = _cropView.originalImageSize;
                     currentPhoto.Orientation = _cropView.orientation;
-                    currentPhoto.Image = _cropView.imageView.Image;
+                    currentPhoto.Image = _cropView.ImageView.Image;
                 }
             }
             else
             {
-                source.ImageAssets[0].Image = _cropView.imageView.Image;
+                source.ImageAssets[0].Image = _cropView.ImageView.Image;
                 _cropView.ApplyCriticalScale();
             }
         }

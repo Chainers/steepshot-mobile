@@ -231,7 +231,7 @@ namespace Steepshot.iOS.Views
             {
                 RotatePhotoIfNeeded();
                 _cropView.AdjustImageViewSize(ImageAssets[0].Item2);
-                _cropView.imageView.Image = ImageAssets[0].Item2;
+                _cropView.ImageView.Image = ImageAssets[0].Item2;
                 _cropView.ApplyCriticalScale();
                 _cropView.ZoomTap(true, false);
                 _cropView.SetScrollViewInsets();
@@ -622,7 +622,7 @@ namespace Steepshot.iOS.Views
             _cropView.RotateTap();
 
             ImageAssets.RemoveAt(0);
-            ImageAssets.Add(new Tuple<NSDictionary, UIImage>(null, _cropView.imageView.Image));
+            ImageAssets.Add(new Tuple<NSDictionary, UIImage>(null, _cropView.ImageView.Image));
             _cropView.ApplyCriticalScale();
         }
 

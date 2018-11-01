@@ -10,25 +10,30 @@ namespace Steepshot.iOS.CustomViews
     public class CropView : UIScrollView
     {
         public CGSize originalImageSize;
-        public UIImageView imageView;
         public UIImageOrientation orientation = UIImageOrientation.Up;
         private UIBezierPath _path;
         private CAShapeLayer _shapeLayer = new CAShapeLayer();
         private readonly UIColor _strokeColor = UIColor.FromRGB(210, 210, 210);
         private const int _linesCount = 9;
 
+        public UIImageView ImageView { get; set; }
+        public VideoView VideoView { get; set; }
+
         public CropView(CGRect _frame)
         {
-            imageView = new UIImageView(_frame);
-            imageView.ContentMode = UIViewContentMode.ScaleAspectFit;
+            ImageView = new UIImageView(_frame);
+            ImageView.ContentMode = UIViewContentMode.ScaleAspectFit;
+            VideoView = new VideoView(_frame, false, false);
+            VideoView.ContentMode = UIViewContentMode.ScaleAspectFit;
+            VideoView.Hidden = true;
 
             BackgroundColor = Constants.R245G245B245;
             Frame = _frame;
             Bounces = false;
             MinimumZoomScale = 1f;
             MaximumZoomScale = 4f;
-            ViewForZoomingInScrollView += (UIScrollView sv) => { return imageView; };
-            AddSubview(imageView);
+            ViewForZoomingInScrollView += (UIScrollView sv) => { return ImageView; };
+            AddSubview(ImageView);
             ContentSize = new CGSize(UIScreen.MainScreen.Bounds.Width, UIScreen.MainScreen.Bounds.Width);
             DidZoom += (t, u) =>
             {
@@ -63,7 +68,7 @@ namespace Steepshot.iOS.CustomViews
             MinimumZoomScale = 1;
             ZoomScale = 1;
             ContentSize = originalImageSize;
-            imageView.Frame = new CGRect(new CGPoint(0, 0), originalImageSize);
+            ImageView.Frame = new CGRect(new CGPoint(0, 0), originalImageSize);
         }
 
         public void SetScrollViewInsets()
@@ -105,9 +110,9 @@ namespace Steepshot.iOS.CustomViews
 
         public void RotateTap()
         {
-            imageView.Image = ImageHelper.RotateImage(imageView.Image, UIImageOrientation.Right);
+            ImageView.Image = ImageHelper.RotateImage(ImageView.Image, UIImageOrientation.Right);
             SaveOrientation();
-            AdjustImageViewSize(imageView.Image);
+            AdjustImageViewSize(ImageView.Image);
             SetScrollViewInsets();
         }
 
@@ -184,7 +189,7 @@ namespace Steepshot.iOS.CustomViews
 
             if (photo.OriginalImageSize.Width == 0 && photo.OriginalImageSize.Height == 0)
             {
-                scaledImageSize = imageView.Frame.Size;
+                scaledImageSize = ImageView.Frame.Size;
                 offset = ContentOffset;
             }
             else
@@ -206,7 +211,7 @@ namespace Steepshot.iOS.CustomViews
             }
             else
             {
-                cropWidth = imageView.Frame.Width * ratio2;
+                cropWidth = ImageView.Frame.Width * ratio2;
             }
 
             if ((int)scaledImageSize.Height >= (int)Frame.Height)
