@@ -17,13 +17,10 @@ namespace Steepshot.iOS.CustomViews
         private readonly nfloat _targetY;
         protected readonly UIView Subview;
 
-        public override CGRect Frame => new CGRect(0, 0, UIScreen.MainScreen.Bounds.Width, UIScreen.MainScreen.Bounds.Height);
-        public override UIColor BackgroundColor => UIColor.Black.ColorWithAlpha(0.0f);
-        public override bool UserInteractionEnabled => true;
-
         public CustomAlertView(UIViewController controller, UIView view)
         {
             _controller = controller;
+            Subview = view;
 
             var touchOutsideRecognizer = new UITapGestureRecognizer(Close)
             {
@@ -32,12 +29,16 @@ namespace Steepshot.iOS.CustomViews
             };
             base.AddGestureRecognizer(touchOutsideRecognizer);
 
+            base.Frame = new CGRect(0, 0, UIScreen.MainScreen.Bounds.Width, UIScreen.MainScreen.Bounds.Height);
+            base.BackgroundColor = UIColor.Black.ColorWithAlpha(0.0f);
+            base.UserInteractionEnabled = true;
+
+            base.AddSubview(view);
+
             // view centering
             view.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom, 34);
             view.AutoAlignAxisToSuperviewAxis(ALAxis.Vertical);
             _targetY = view.Frame.Y;
-            Subview = view;
-            base.AddSubview(view);
         }
 
         public void Close()
