@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using AVFoundation;
 using CoreGraphics;
 using Foundation;
 using ImageIO;
@@ -21,6 +22,7 @@ namespace Steepshot.iOS.Views
     {
         private readonly PHImageManager _m;
         private CropView _cropView;
+        private VideoView _videoView;
         private PhotoCollectionViewSource source;
         private PhotoCollectionViewFlowDelegate delegateP;
         private string previousPhotoLocalIdentifier;
@@ -67,6 +69,11 @@ namespace Steepshot.iOS.Views
 
             _cropView = new CropView(new CGRect(0, 0, UIScreen.MainScreen.Bounds.Width, UIScreen.MainScreen.Bounds.Width));
 
+            _videoView = new VideoView(false, false);
+            _videoView.Frame = new CGRect(0, 0, UIScreen.MainScreen.Bounds.Width, UIScreen.MainScreen.Bounds.Width);
+            _videoView.Hidden = true;
+            _videoView.BackgroundColor = UIColor.Cyan.ColorWithAlpha(0.5f);
+
             var albums = new List<PHAssetCollection>();
             var sortedAlbums = new List<Tuple<string, PHFetchResult>>();
             var fetchOptions = new PHFetchOptions();
@@ -106,6 +113,7 @@ namespace Steepshot.iOS.Views
 
             cropBackgroundView.BackgroundColor = Constants.R245G245B245;
             cropBackgroundView.AddSubview(_cropView);
+            cropBackgroundView.AddSubview(_videoView);
             NavigationController.NavigationBar.Translucent = false;
             SetBackButton();
 
@@ -180,7 +188,7 @@ namespace Steepshot.iOS.Views
             NavigationItem.RightBarButtonItem.Enabled = true;
         }
 
-        private void CellAction(ActionType type, Tuple<NSIndexPath, PHAsset> photo)
+        private void CellAction(ActionType type, Tuple<NSIndexPath, PHAsset> asset)
         {
             switch (type)
             {
@@ -195,13 +203,32 @@ namespace Steepshot.iOS.Views
                     break;
             }
 
-            photoCollection.UserInteractionEnabled = false;
-            NavigationItem.RightBarButtonItem.Enabled = false;
-            pickedPhoto = photo;
-            previousPhotoLocalIdentifier = source.CurrentlySelectedItem?.Item2?.LocalIdentifier;
-            var pickOptions = new PHImageRequestOptions() { ResizeMode = PHImageRequestOptionsResizeMode.Exact, DeliveryMode = PHImageRequestOptionsDeliveryMode.HighQualityFormat, NetworkAccessAllowed = true };
-            var imageSize = ImageHelper.CalculateInSampleSize(new CGSize(photo.Item2.PixelWidth, photo.Item2.PixelHeight), Core.Constants.PhotoMaxSize, Core.Constants.PhotoMaxSize);
-            _m.RequestImageForAsset(photo.Item2, imageSize, PHImageContentMode.Default, pickOptions, PickImage);
+            _cropView.Hidden = asset.Item2.MediaType != PHAssetMediaType.Image;
+            _videoView.Hidden = asset.Item2.MediaType != PHAssetMediaType.Video;
+
+            if (asset.Item2.MediaType == PHAssetMediaType.Image)
+            {
+                photoCollection.UserInteractionEnabled = false;
+                NavigationItem.RightBarButtonItem.Enabled = false;
+                pickedPhoto = asset;
+                previousPhotoLocalIdentifier = source.CurrentlySelectedItem?.Item2?.LocalIdentifier;
+                var pickOptions = new PHImageRequestOptions() { ResizeMode = PHImageRequestOptionsResizeMode.Exact, DeliveryMode = PHImageRequestOptionsDeliveryMode.HighQualityFormat, NetworkAccessAllowed = true };
+                var imageSize = ImageHelper.CalculateInSampleSize(new CGSize(asset.Item2.PixelWidth, asset.Item2.PixelHeight), Core.Constants.PhotoMaxSize, Core.Constants.PhotoMaxSize);
+                _m.RequestImageForAsset(asset.Item2, imageSize, PHImageContentMode.Default, pickOptions, PickImage);
+            }
+            else
+            {
+                var cachingManager = new PHCachingImageManager();
+                cachingManager.RequestAvAsset(asset.Item2, null, HandlePHImageManagerRequestAvAssetHandler);
+
+            }
+        }
+
+        private void HandlePHImageManagerRequestAvAssetHandler(AVAsset asset, AVAudioMix audioMix, NSDictionary info)
+        {
+            var urlAsset = asset as AVUrlAsset;
+            _videoView.ChangeItem(urlAsset.Url);
+            _videoView.Play();
         }
 
         private void ButtonsHidden(bool value)
@@ -211,7 +238,6 @@ namespace Steepshot.iOS.Views
             multiSelect.Hidden = value;
             topArrow.Hidden = value;
             bottomArrow.Hidden = value;
-            //_cropView.ScrollEnabled = !value;
         }
 
         private void PickImage(UIImage img, NSDictionary info)
