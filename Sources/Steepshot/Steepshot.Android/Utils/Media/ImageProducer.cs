@@ -36,11 +36,7 @@ namespace Steepshot.Utils.Media
 
         public void OnBitmapFailed(Drawable p0)
         {
-            Picasso.With(_context)
-                .Load(_media.Thumbnails.Mini)
-                .NoFade()
-                .Priority(Picasso.Priority.High)
-                .Into(this);
+            Prepare(null, _media);
         }
 
         public void OnBitmapLoaded(Bitmap p0, Picasso.LoadedFrom p1)

@@ -17,11 +17,15 @@ namespace Steepshot.Utils
 
         public long Id { get; set; }
 
+        public DateTime DateTaken { get; set; }
+
         public string Path { get; set; }
 
         public string Bucket { get; set; }
 
         public int Orientation { get; set; }
+
+        public TimeSpan Duration { get; set; }
 
         public bool Selected
         {
@@ -69,12 +73,14 @@ namespace Steepshot.Utils
             MimeType = mimeType;
         }
 
-        public GalleryMediaModel(long id, string path, string mimeType, string bucket, int orientation)
+        public GalleryMediaModel(long id, DateTime dateTaken, string path, string mimeType, string bucket, int orientation, TimeSpan duration)
         : this(path, mimeType)
         {
             Id = id;
+            DateTaken = dateTaken;
             Bucket = bucket;
             Orientation = orientation;
+            Duration = duration;
         }
     }
 }

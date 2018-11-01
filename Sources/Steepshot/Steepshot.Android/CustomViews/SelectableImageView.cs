@@ -6,6 +6,7 @@ using Steepshot.Utils;
 using System.Threading.Tasks;
 using Android.Graphics.Drawables;
 using Android.OS;
+using Steepshot.Core.Utils;
 using Handler = Android.OS.Handler;
 
 namespace Steepshot.CustomViews
@@ -16,12 +17,15 @@ namespace Steepshot.CustomViews
         private readonly Handler _handler = new Handler(Looper.MainLooper);
         private Paint _selectionPaint;
         private Paint _whitePaint;
+        private Paint _blackPaint;
         private static readonly Drawable DefaultColor = new ColorDrawable(Style.R245G245B245);
         private readonly BitmapFactory.Options _options;
+        private readonly float _orderTextSize;
+        private readonly float _durationTextSize;
 
         private Paint SelectionPaint => _selectionPaint ?? (_selectionPaint = new Paint(PaintFlags.AntiAlias) { Color = Style.R255G81B4, StrokeWidth = BitmapUtils.DpToPixel(6, Context.Resources) });
-        private Paint WhitePaint => _whitePaint ?? (_whitePaint = new Paint(PaintFlags.AntiAlias) { Color = Color.White, StrokeWidth = BitmapUtils.DpToPixel(1, Context.Resources), TextSize = BitmapUtils.DpToPixel(16, Context.Resources), TextAlign = Paint.Align.Center });
-
+        private Paint WhitePaint => _whitePaint ?? (_whitePaint = new Paint(PaintFlags.AntiAlias) { Color = Color.White, StrokeWidth = BitmapUtils.DpToPixel(1, Context.Resources) });
+        private Paint BlackPaint => _blackPaint ?? (_blackPaint = new Paint(PaintFlags.AntiAlias) { Color = Color.Argb(125, 0, 0, 0), StrokeWidth = BitmapUtils.DpToPixel(1, Context.Resources) });
 
         public SelectableImageView(Context context) : base(context)
         {
@@ -31,12 +35,34 @@ namespace Steepshot.CustomViews
             {
                 InPreferredConfig = Bitmap.Config.Rgb565
             };
+            _orderTextSize = BitmapUtils.DpToPixel(16, Context.Resources);
+            _durationTextSize = BitmapUtils.DpToPixel(10, Context.Resources);
         }
 
 
         public override void Draw(Canvas canvas)
         {
             base.Draw(canvas);
+
+            if (MimeTypeHelper.IsVideo(_model.MimeType))
+            {
+                var duration = _model.Duration.ToString(@"mm\:ss");
+                var bounds = new Rect();
+                WhitePaint.StrokeWidth = 1;
+                WhitePaint.TextAlign = Paint.Align.Right;
+                WhitePaint.TextSize = _durationTextSize;
+                WhitePaint.GetTextBounds(duration, 0, duration.Length, bounds);
+                var x = Width - bounds.Width() * 2 + SelectionPaint.StrokeWidth * 2;
+                var y = Height - bounds.Height() * 2 - SelectionPaint.StrokeWidth / 2;
+                canvas.DrawRect(x, y, Width, Height, BlackPaint);
+                canvas.DrawText(duration, Width - SelectionPaint.StrokeWidth, Height - SelectionPaint.StrokeWidth, WhitePaint);
+                if (_model.MultySelect)
+                {
+                    canvas.DrawRect(0, 0, Width, Height, BlackPaint);
+                    return;
+                }
+            }
+
             if (_model.Selected)
             {
                 SelectionPaint.SetStyle(Paint.Style.Stroke);
@@ -55,6 +81,8 @@ namespace Steepshot.CustomViews
                     canvas.DrawCircle(x, y, radius, SelectionPaint);
                     WhitePaint.StrokeWidth = 1;
                     WhitePaint.SetStyle(Paint.Style.Fill);
+                    WhitePaint.TextAlign = Paint.Align.Center;
+                    WhitePaint.TextSize = _orderTextSize;
                     canvas.DrawText(_model.SelectionPosition.ToString(), x, y - (WhitePaint.Descent() + WhitePaint.Ascent()) / 2f, WhitePaint);
                 }
                 else
@@ -80,7 +108,9 @@ namespace Steepshot.CustomViews
         {
             return Task.Run(() =>
             {
-                var thumbnail = MediaStore.Images.Thumbnails.GetThumbnail(Context.ContentResolver, model.Id, ThumbnailKind.MiniKind, _options);
+                var thumbnail = MimeTypeHelper.IsVideo(model.MimeType) ?
+                    MediaStore.Video.Thumbnails.GetThumbnail(Context.ContentResolver, model.Id, VideoThumbnailKind.MiniKind, _options) :
+                    MediaStore.Images.Thumbnails.GetThumbnail(Context.ContentResolver, model.Id, ThumbnailKind.MiniKind, _options);
                 if (thumbnail == null || _model == null || model.Id != _model.Id)
                     return;
 

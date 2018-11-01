@@ -17,6 +17,12 @@
             android:layout_height="match_parent"
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true" />
+		<Steepshot.Utils.Media.EditMediaView
+			android:id="@+id/video_preview"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+		    android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"/>
         <ImageButton
             android:id="@+id/ratio_switch"
             android:layout_width="40dp"

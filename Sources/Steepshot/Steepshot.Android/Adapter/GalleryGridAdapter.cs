@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Steepshot.CustomViews;
@@ -12,14 +13,14 @@ namespace Steepshot.Adapter
         private const int ColumnCount = 3;
 
         private readonly int _cellSize;
-        private GalleryMediaModel[] _media;
+        private List<GalleryMediaModel> _media;
 
         public GalleryGridAdapter()
         {
             _cellSize = Style.ScreenWidth / ColumnCount - 2;
         }
 
-        public void SetMedia(GalleryMediaModel[] media)
+        public void SetMedia(List<GalleryMediaModel> media)
         {
             _media = media;
             NotifyDataSetChanged();
@@ -40,7 +41,7 @@ namespace Steepshot.Adapter
             return new GalleryGridViewHolder(view, OnItemSelected);
         }
 
-        public override int ItemCount => _media?.Length ?? 0;
+        public override int ItemCount => _media?.Count ?? 0;
     }
 
     public class GalleryGridViewHolder : RecyclerView.ViewHolder

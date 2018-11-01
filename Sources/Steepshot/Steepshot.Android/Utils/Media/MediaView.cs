@@ -19,7 +19,7 @@ namespace Steepshot.Utils.Media
     {
         public MediaType MediaType { get; private set; }
         private MediaModel _mediaSource;
-        public MediaModel MediaSource
+        public virtual MediaModel MediaSource
         {
             set
             {
@@ -32,11 +32,11 @@ namespace Steepshot.Utils.Media
             }
         }
 
-        private Handler _mainHandler;
+        protected Handler MainHandler;
+        protected Dictionary<MediaType, IMediaProducer> MediaProducers;
+        protected TextureView VideoView;
+        protected ImageView ImageView;
         private Paint _durationPaint;
-        private Dictionary<MediaType, IMediaProducer> _mediaProducers;
-        private TextureView _videoView;
-        private ImageView _imageView;
         private bool _playBack;
 
         public MediaView(Context context) : base(context)
@@ -59,43 +59,43 @@ namespace Steepshot.Utils.Media
                 Color = Color.White,
                 TextSize = TypedValue.ApplyDimension(ComplexUnitType.Dip, 14, Context.Resources.DisplayMetrics)
             };
-            _mainHandler = new Handler(Looper.MainLooper);
-            _mediaProducers = new Dictionary<MediaType, IMediaProducer>
+            MainHandler = new Handler(Looper.MainLooper);
+            MediaProducers = new Dictionary<MediaType, IMediaProducer>
                     {
                         {MediaType.Image, new ImageProducer(Context)},
                         {MediaType.Video, new VideoProducer(Context)}
                     };
 
-            _mediaProducers[MediaType.Image].Draw += Draw;
-            _mediaProducers[MediaType.Image].PreDraw += PreDraw;
-            _mediaProducers[MediaType.Video].Draw += Draw;
-            _mediaProducers[MediaType.Video].PreDraw += PreDraw;
-            ((VideoProducer)_mediaProducers[MediaType.Video]).Ready += OnReady;
+            MediaProducers[MediaType.Image].Draw += Draw;
+            MediaProducers[MediaType.Image].PreDraw += PreDraw;
+            MediaProducers[MediaType.Video].Draw += Draw;
+            MediaProducers[MediaType.Video].PreDraw += PreDraw;
+            ((VideoProducer)MediaProducers[MediaType.Video]).Ready += OnReady;
 
-            _imageView = new ImageView(Context)
+            ImageView = new ImageView(Context)
             {
                 LayoutParameters =
                     new LayoutParams(ViewGroup.LayoutParams.MatchParent, ViewGroup.LayoutParams.MatchParent)
             };
-            _imageView.SetScaleType(ImageView.ScaleType.CenterCrop);
+            ImageView.SetScaleType(ImageView.ScaleType.CenterCrop);
 
-            _videoView = new TextureView(Context)
+            VideoView = new TextureView(Context)
             {
                 LayoutParameters =
                     new LayoutParams(ViewGroup.LayoutParams.MatchParent, ViewGroup.LayoutParams.MatchParent)
             };
 
-            AddView(_imageView);
-            AddView(_videoView);
+            AddView(ImageView);
+            AddView(VideoView);
 
-            _videoView.SurfaceTextureListener = this;
+            VideoView.SurfaceTextureListener = this;
         }
 
         private async void OnReady()
         {
             if (_playBack && MediaType == MediaType.Video)
             {
-                _videoView.BringToFront();
+                VideoView.BringToFront();
                 while (_playBack)
                 {
                     Invalidate();
@@ -109,7 +109,7 @@ namespace Steepshot.Utils.Media
             base.Draw(canvas);
             if (MediaType == MediaType.Video && _playBack)
             {
-                var videoProd = (VideoProducer)_mediaProducers[MediaType.Video];
+                var videoProd = (VideoProducer)MediaProducers[MediaType.Video];
                 if (videoProd.Duration.TotalSeconds > 0)
                 {
                     var leftTime = (videoProd.Duration - videoProd.CurrentPosition).ToString(@"mm\:ss");
@@ -122,27 +122,36 @@ namespace Steepshot.Utils.Media
 
         public void Play()
         {
-            _mainHandler?.Post(() =>
+            MainHandler?.Post(() =>
             {
                 _playBack = true;
-                if (MediaType == MediaType.Video && _videoView.IsAvailable)
+                if (MediaType == MediaType.Video && VideoView.IsAvailable)
                 {
-                    _mediaProducers[MediaType]?.Play();
+                    MediaProducers[MediaType]?.Play();
                 }
                 else
                 {
-                    _imageView.BringToFront();
+                    ImageView.BringToFront();
                 }
             });
         }
 
         public void Pause()
         {
-            _mainHandler?.Post(() =>
+            MainHandler?.Post(() =>
             {
                 _playBack = false;
-                _imageView.BringToFront();
-                _mediaProducers[MediaType].Pause();
+                ImageView.BringToFront();
+                MediaProducers[MediaType].Pause();
+            });
+        }
+
+        public void Stop()
+        {
+            MainHandler?.Post(() =>
+            {
+                _playBack = false;
+                MediaProducers[MediaType].Stop();
             });
         }
 
@@ -151,30 +160,33 @@ namespace Steepshot.Utils.Media
             if (!weakBmp.TryGetTarget(out var bitmap))
                 return;
 
-            _imageView.SetImageBitmap(bitmap);
+            ImageView.SetImageBitmap(bitmap);
         }
 
         private void PreDraw(ColorDrawable cdr)
         {
-            _imageView.SetImageDrawable(cdr);
+            ImageView.SetImageDrawable(cdr);
         }
 
         public void OnSurfaceTextureAvailable(SurfaceTexture surface, int width, int height)
         {
-            _mainHandler?.Post(() =>
+            MainHandler?.Post(() =>
             {
-                _mediaProducers[MediaType]?.Prepare(surface, _mediaSource);
+                if (!MediaProducers.ContainsKey(MediaType))
+                    return;
+
+                MediaProducers[MediaType]?.Prepare(surface, _mediaSource);
                 if (_playBack)
-                    _mediaProducers[MediaType]?.Play();
+                    MediaProducers[MediaType]?.Play();
             });
         }
 
         public bool OnSurfaceTextureDestroyed(SurfaceTexture surface)
         {
-            _mainHandler?.Post(() =>
+            MainHandler?.Post(() =>
             {
-                _mediaProducers[MediaType].Stop();
-                _imageView.BringToFront();
+                MediaProducers[MediaType].Stop();
+                ImageView.BringToFront();
             });
             return true;
         }

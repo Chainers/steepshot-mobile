@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Android.Database;
 using Android.OS;
 using Android.Provider;
 using Android.Support.V7.Widget;
@@ -10,9 +11,11 @@ using CheeseBind;
 using Steepshot.Adapter;
 using Steepshot.Base;
 using Steepshot.Core.Localization;
+using Steepshot.Core.Models.Common;
 using Steepshot.Core.Utils;
 using Steepshot.CustomViews;
 using Steepshot.Utils;
+using Steepshot.Utils.Media;
 
 namespace Steepshot.Fragment
 {
@@ -30,6 +33,7 @@ namespace Steepshot.Fragment
         [BindView(Resource.Id.arrow_back)] private ImageButton _backBtn;
         [BindView(Resource.Id.arrow_next)] private ImageButton _nextBtn;
         [BindView(Resource.Id.photo_preview)] private CropView _preview;
+        [BindView(Resource.Id.video_preview)] private EditMediaView _vpreview;
         [BindView(Resource.Id.photos_grid)] private CoordinatorRecyclerView _gridView;
 #pragma warning restore 0649
 
@@ -39,11 +43,11 @@ namespace Steepshot.Fragment
 
         private const byte MaxPhotosAllowed = 7;
 
-        private GalleryMediaModel[] _gallery;
+        private List<GalleryMediaModel> _gallery;
         private List<GalleryMediaModel> _pickedItems;
         private GalleryMediaModel _prevSelected;
         private bool _multiSelect;
-        private string[] _buckets;
+        private List<string> _buckets;
         private string _selectedBucket;
 
         private GalleryGridAdapter _gridAdapter;
@@ -197,7 +201,32 @@ namespace Steepshot.Fragment
                 return;
             }
 
-            if (!_preview.IsBitmapReady)
+            var isVideo = MimeTypeHelper.IsVideo(model.MimeType);
+            if (isVideo)
+            {
+                if (_multiSelect)
+                    return;
+
+                _ratioBtn.Visibility = _rotateBtn.Visibility = _multiselectBtn.Visibility = ViewStates.Gone;
+
+                _vpreview.Stop();
+                _vpreview.MediaSource = new MediaModel
+                {
+                    Url = model.Path,
+                    ContentType = model.MimeType
+                };
+                _vpreview.Play();
+                _preview.Visibility = ViewStates.Gone;
+                _vpreview.Visibility = ViewStates.Visible;
+            }
+            else
+            {
+                _ratioBtn.Visibility = _rotateBtn.Visibility = _multiselectBtn.Visibility = ViewStates.Visible;
+                _preview.Visibility = ViewStates.Visible;
+                _vpreview.Visibility = ViewStates.Gone;
+            }
+
+            if (!isVideo && !_preview.IsBitmapReady)
                 return;
 
             if (_coordinator.SwitchToWhole())
@@ -275,11 +304,13 @@ namespace Steepshot.Fragment
 
             var set = pos == 0
                 ? _gallery
-                : _gallery.Where(i => i.Bucket.Equals(_selectedBucket, StringComparison.OrdinalIgnoreCase)).ToArray();
+                : _gallery.FindAll(i => i.Bucket.Equals(_selectedBucket, StringComparison.OrdinalIgnoreCase));
+
+            set.Sort((x, y) => -x.DateTaken.CompareTo(y.DateTaken));
 
             _gridAdapter.SetMedia(set);
 
-            if (set.Length > 0 && _pickedItems.Count == 0 || !_multiSelect)
+            if (set.Count > 0 && _pickedItems.Count == 0 || !_multiSelect)
                 OnItemSelected(set[0], 0);
         }
 
@@ -287,61 +318,96 @@ namespace Steepshot.Fragment
         {
             string[] columns = { $"DISTINCT {MediaStore.Images.ImageColumns.BucketDisplayName}" };
 
-            var cursor = Activity.ContentResolver.Query(MediaStore.Images.Media.ExternalContentUri, columns, null, null, null);
-            var count = cursor.Count;
-            _buckets = new string[count + 1];
-            _buckets[0] = App.Localization.GetText(LocalizationKeys.Gallery);
+            var imagesCursor = Activity.ContentResolver.Query(MediaStore.Images.Media.ExternalContentUri, columns, null, null, null);
+            var videosCursor = Activity.ContentResolver.Query(MediaStore.Video.Media.ExternalContentUri, columns, null, null, null);
+            _buckets = new List<string> { App.Localization.GetText(LocalizationKeys.Gallery) };
+            MergeBuckets(imagesCursor, videosCursor);
+        }
 
-            var dataColumnIndex = cursor.GetColumnIndex(MediaStore.Images.ImageColumns.BucketDisplayName);
-            for (var i = 0; i < count; i++)
+        private void MergeBuckets(params ICursor[] cursors)
+        {
+            foreach (var cursor in cursors)
             {
-                cursor.MoveToPosition(i);
-                _buckets[i + 1] = cursor.GetString(dataColumnIndex);
+                var count = cursor.Count;
+                var dataColumnIndex = cursor.GetColumnIndex(MediaStore.Images.ImageColumns.BucketDisplayName);
+                for (var i = 0; i < count; i++)
+                {
+                    cursor.MoveToPosition(i);
+                    var bucket = cursor.GetString(dataColumnIndex);
+                    if (!_buckets.Contains(bucket))
+                        _buckets.Add(bucket);
+                }
+                cursor.Close();
             }
-            cursor.Close();
         }
 
         private void InitGalery()
         {
-            string[] columns =
+            _gallery = new List<GalleryMediaModel>();
+
+            string[] imageColumns =
             {
                 MediaStore.Images.ImageColumns.Id,
                 MediaStore.Images.ImageColumns.Data,
+                MediaStore.Images.ImageColumns.DateTaken,
                 MediaStore.Images.ImageColumns.BucketDisplayName,
-                MediaStore.Images.ImageColumns.Orientation,
-                MediaStore.Images.ImageColumns.MimeType
+                MediaStore.Images.ImageColumns.MimeType,
+                MediaStore.Images.ImageColumns.Orientation
             };
 
-            var orderBy = $"{MediaStore.Images.ImageColumns.DateTaken} DESC";
-            var cursor = Activity.ContentResolver.Query(MediaStore.Images.Media.ExternalContentUri, columns, null, null, orderBy);
+            var imagesCursor = Activity.ContentResolver.Query(MediaStore.Images.Media.ExternalContentUri, imageColumns, null, null, null);
 
-            if (cursor != null)
+            string[] videoColumns =
             {
-                var count = cursor.Count;
-                var idColumnIndex = cursor.GetColumnIndex(MediaStore.Images.ImageColumns.Id);
-                var dataColumnIndex = cursor.GetColumnIndex(MediaStore.Images.ImageColumns.Data);
-                var oriColumnIndex = cursor.GetColumnIndex(MediaStore.Images.ImageColumns.Orientation);
-                var bucketDisplayNameIndex = cursor.GetColumnIndex(MediaStore.Images.ImageColumns.BucketDisplayName);
-                var mimeTypeIndex = cursor.GetColumnIndex(MediaStore.Images.ImageColumns.MimeType);
-                _gallery = new GalleryMediaModel[count];
+                MediaStore.Video.VideoColumns.Id,
+                MediaStore.Video.VideoColumns.Data,
+                MediaStore.Video.VideoColumns.DateTaken,
+                MediaStore.Video.VideoColumns.BucketDisplayName,
+                MediaStore.Video.VideoColumns.MimeType,
+                MediaStore.Video.VideoColumns.Duration
+            };
 
-                for (var i = 0; i < count; i++)
+            var videosCursor = Activity.ContentResolver.Query(MediaStore.Video.Media.ExternalContentUri, videoColumns, null, null, null);
+
+            MergeMediaCursors(imagesCursor, videosCursor);
+        }
+
+        private void MergeMediaCursors(params ICursor[] cursors)
+        {
+            foreach (var cursor in cursors)
+            {
+                if (cursor?.Count > 0)
                 {
-                    cursor.MoveToPosition(i);
+                    var count = cursor.Count;
+                    var idColumnIndex = cursor.GetColumnIndex(MediaStore.Images.ImageColumns.Id);
+                    var dataColumnIndex = cursor.GetColumnIndex(MediaStore.Images.ImageColumns.Data);
+                    var dateTakenColumnIndex = cursor.GetColumnIndex(MediaStore.Images.ImageColumns.DateTaken);
+                    var oriColumnIndex = cursor.GetColumnIndex(MediaStore.Images.ImageColumns.Orientation);
+                    var durationColumnIndex = cursor.GetColumnIndex(MediaStore.Video.VideoColumns.Duration);
+                    var bucketDisplayNameIndex = cursor.GetColumnIndex(MediaStore.Images.ImageColumns.BucketDisplayName);
+                    var mimeTypeIndex = cursor.GetColumnIndex(MediaStore.Images.ImageColumns.MimeType);
 
-                    var id = cursor.GetLong(idColumnIndex);
-                    var path = cursor.GetString(dataColumnIndex);
-                    var bucket = cursor.GetString(bucketDisplayNameIndex);
-                    var orientation = cursor.GetInt(oriColumnIndex);
-                    var mimeType = cursor.GetString(mimeTypeIndex);
-                    _gallery[i] = new GalleryMediaModel(id, path, mimeType, bucket, orientation);
+                    for (var i = 0; i < count; i++)
+                    {
+                        cursor.MoveToPosition(i);
+
+                        var id = cursor.GetLong(idColumnIndex);
+                        var path = cursor.GetString(dataColumnIndex);
+                        var date = new DateTime(cursor.GetLong(dateTakenColumnIndex));
+                        var bucket = cursor.GetString(bucketDisplayNameIndex);
+                        var mimeType = cursor.GetString(mimeTypeIndex);
+                        var isVideo = MimeTypeHelper.IsVideo(mimeType);
+                        var orientation = isVideo ? 0 : cursor.GetInt(oriColumnIndex);
+                        var duration = TimeSpan.FromMilliseconds(isVideo ? cursor.GetLong(durationColumnIndex) : 0);
+                        _gallery.Add(new GalleryMediaModel(id, date, path, mimeType, bucket, orientation, duration));
+                    }
+
+                    cursor.Close();
                 }
-                cursor.Close();
             }
-            else
-            {
-                _gallery = new GalleryMediaModel[0];
-            }
+
+            _gallery.Sort((x, y) =>
+                -x.DateTaken.CompareTo(y.DateTaken));
         }
 
         public override void OnDetach()

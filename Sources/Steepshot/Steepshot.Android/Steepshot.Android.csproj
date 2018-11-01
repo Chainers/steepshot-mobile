@@ -89,6 +89,7 @@
     <Compile Include="CameraGL\Encoder\BaseEncoderConfig.cs" />
     <Compile Include="CameraGL\Encoder\BaseMediaEncoder.cs" />
     <Compile Include="CameraGL\Encoder\EncoderType.cs" />
+    <Compile Include="CameraGL\Encoder\VideoEditorEncoder.cs" />
     <Compile Include="CameraGL\Encoder\VideoEncoder.cs" />
     <Compile Include="CameraGL\Encoder\VideoEncoderConfig.cs" />
     <Compile Include="CameraGL\Enums\MuxerMessages.cs" />
@@ -102,6 +103,7 @@
     <Compile Include="CameraGL\MuxerWrapper.cs" />
     <Compile Include="CameraGL\Enums\EncoderMessages.cs" />
     <Compile Include="CameraGL\Enums\RecordingStatus.cs" />
+    <Compile Include="CameraGL\VideoEditor.cs" />
     <Compile Include="CustomViews\AccurateMovementMethod.cs" />
     <Compile Include="CustomViews\ActionAlertDialog.cs" />
     <Compile Include="CustomViews\AutoLinkTextView.cs" />
@@ -133,6 +135,7 @@
     <Compile Include="Utils\FileProvider.cs" />
     <Compile Include="Utils\IocExtensions.cs" />
     <Compile Include="Utils\IocModule.cs" />
+    <Compile Include="Utils\Media\EditMediaView.cs" />
     <Compile Include="Utils\Media\ImageProducer.cs" />
     <Compile Include="Utils\Media\IMediaProducer.cs" />
     <Compile Include="Utils\Media\MediaView.cs" />
