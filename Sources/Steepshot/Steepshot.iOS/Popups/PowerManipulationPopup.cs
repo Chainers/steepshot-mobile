@@ -23,8 +23,8 @@ namespace Steepshot.iOS.Popups
             var commonMargin = 20;
 
             base.ClipsToBounds = true;
-            this.Layer.CornerRadius = 20;
-            this.BackgroundColor = Constants.R250G250B250;
+            base.Layer.CornerRadius = 20;
+            base.BackgroundColor = Constants.R250G250B250;
 
             var dialogWidth = UIScreen.MainScreen.Bounds.Width - 10 * 2;
             this.AutoSetDimension(ALDimension.Width, dialogWidth);
@@ -35,7 +35,7 @@ namespace Steepshot.iOS.Popups
                 Font = Constants.Semibold14,
                 Text = "SELECT ACTION"
             };
-            this.AddSubview(title);
+            base.AddSubview(title);
             title.AutoPinEdgeToSuperviewEdge(ALEdge.Top, 24);
             title.AutoPinEdgeToSuperviewEdge(ALEdge.Right, commonMargin);
             title.AutoPinEdgeToSuperviewEdge(ALEdge.Left, commonMargin);
@@ -44,7 +44,7 @@ namespace Steepshot.iOS.Popups
             {
                 BackgroundColor = Constants.R245G245B245
             };
-            this.AddSubview(separator);
+            base.AddSubview(separator);
             separator.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, title, 26);
             separator.AutoPinEdgeToSuperviewEdge(ALEdge.Left, commonMargin);
             separator.AutoPinEdgeToSuperviewEdge(ALEdge.Right, commonMargin);
@@ -60,7 +60,7 @@ namespace Steepshot.iOS.Popups
             PowerUpButton.Layer.BorderColor = Constants.R245G245B245.CGColor;
             PowerUpButton.SetTitle(AppDelegate.Localization.GetText(LocalizationKeys.PowerUp), UIControlState.Normal);
             PowerUpButton.SetTitleColor(UIColor.Black, UIControlState.Normal);
-            this.AddSubview(PowerUpButton);
+            base.AddSubview(PowerUpButton);
             PowerUpButton.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, separator, 20);
             PowerUpButton.AutoPinEdgeToSuperviewEdge(ALEdge.Right, commonMargin);
             PowerUpButton.AutoPinEdgeToSuperviewEdge(ALEdge.Left, commonMargin);
@@ -76,7 +76,7 @@ namespace Steepshot.iOS.Popups
             PowerDownButton.Layer.BorderColor = Constants.R245G245B245.CGColor;
             PowerDownButton.SetTitle(AppDelegate.Localization.GetText(LocalizationKeys.PowerDown), UIControlState.Normal);
             PowerDownButton.SetTitleColor(UIColor.Black, UIControlState.Normal);
-            this.AddSubview(PowerDownButton);
+            base.AddSubview(PowerDownButton);
             PowerDownButton.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, PowerUpButton, 10);
             PowerDownButton.AutoPinEdgeToSuperviewEdge(ALEdge.Left, commonMargin);
             PowerDownButton.AutoPinEdgeToSuperviewEdge(ALEdge.Right, commonMargin);
@@ -95,7 +95,7 @@ namespace Steepshot.iOS.Popups
                 CancelPowerDownButton.Font = Constants.Semibold14;
                 CancelPowerDownButton.Layer.BorderWidth = 1;
                 CancelPowerDownButton.Layer.BorderColor = Constants.R245G245B245.CGColor;
-                this.AddSubview(CancelPowerDownButton);
+                base.AddSubview(CancelPowerDownButton);
 
                 CancelPowerDownButton.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, PowerDownButton, 10);
                 CancelPowerDownButton.AutoPinEdgeToSuperviewEdge(ALEdge.Left, commonMargin);
@@ -105,7 +105,7 @@ namespace Steepshot.iOS.Popups
 
             var bottomSeparator = new UIView();
             bottomSeparator.BackgroundColor = Constants.R245G245B245;
-            this.AddSubview(bottomSeparator);
+            base.AddSubview(bottomSeparator);
 
             if (showCancelPowerDown)
                 bottomSeparator.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, CancelPowerDownButton, 26);
@@ -123,7 +123,7 @@ namespace Steepshot.iOS.Popups
             CancelButton.BackgroundColor = Constants.R255G255B255;
             CancelButton.Layer.BorderWidth = 1;
             CancelButton.Layer.BorderColor = Constants.R245G245B245.CGColor;
-            this.AddSubview(CancelButton);
+            base.AddSubview(CancelButton);
 
             CancelButton.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, bottomSeparator, 20);
             CancelButton.AutoPinEdgeToSuperviewEdge(ALEdge.Left, commonMargin);
