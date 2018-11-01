@@ -20,7 +20,7 @@ namespace Steepshot.iOS.Delegates
 
         public override CGSize GetSizeForItem(UICollectionView collectionView, UICollectionViewLayout layout, NSIndexPath indexPath)
         {
-            if (_source.GroupedHistory.Length == 0)
+            if (_source.GroupedHistory == null)
                 return new CGSize(UIScreen.MainScreen.Bounds.Width, 86);
 
             var transaction = _source.GroupedHistory[indexPath.Section - 1].ElementAt(indexPath.Row);

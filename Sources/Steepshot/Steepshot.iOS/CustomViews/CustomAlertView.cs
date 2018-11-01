@@ -22,10 +22,12 @@ namespace Steepshot.iOS.CustomViews
             _controller = controller;
             Subview = view;
 
+            CloseKeyboard(controller.View.Subviews);
+
             var touchOutsideRecognizer = new UITapGestureRecognizer(Close)
             {
                 CancelsTouchesInView = false,
-                Delegate = new CustomUiGestureRecognizerDelegate(_controller, this)
+                Delegate = new CustomUiGestureRecognizerDelegate(this)
             };
             base.AddGestureRecognizer(touchOutsideRecognizer);
 
@@ -90,17 +92,7 @@ namespace Steepshot.iOS.CustomViews
             BackgroundColor = UIColor.Black.ColorWithAlpha(0.5f);
             Subview.Transform = CGAffineTransform.Translate(CGAffineTransform.MakeIdentity(), 0, _targetY - 10);
         }
-    }
 
-    public class CustomUiGestureRecognizerDelegate : UIGestureRecognizerDelegate
-    {
-        private readonly CustomAlertView _popup;
-
-        public CustomUiGestureRecognizerDelegate(UIViewController controller, CustomAlertView popup)
-        {
-            _popup = popup;
-            CloseKeyboard(controller.View.Subviews);
-        }
 
         private static void CloseKeyboard(UIView[] subviews)
         {
@@ -113,6 +105,17 @@ namespace Steepshot.iOS.CustomViews
                 if (item.IsFirstResponder)
                     item.ResignFirstResponder();
             }
+        }
+
+    }
+
+    public class CustomUiGestureRecognizerDelegate : UIGestureRecognizerDelegate
+    {
+        private readonly CustomAlertView _popup;
+
+        public CustomUiGestureRecognizerDelegate(CustomAlertView popup)
+        {
+            _popup = popup;
         }
 
         public override bool ShouldReceiveTouch(UIGestureRecognizer recognizer, UITouch touch)

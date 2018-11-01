@@ -20,15 +20,14 @@ namespace Steepshot.iOS.Popups
 
         public PowerManipulationUiView(WalletFacade walletFacade)
         {
-            var view = new UIView();
             var commonMargin = 20;
 
-            view.ClipsToBounds = true;
-            view.Layer.CornerRadius = 20;
-            view.BackgroundColor = Constants.R250G250B250;
+            base.ClipsToBounds = true;
+            this.Layer.CornerRadius = 20;
+            this.BackgroundColor = Constants.R250G250B250;
 
             var dialogWidth = UIScreen.MainScreen.Bounds.Width - 10 * 2;
-            view.AutoSetDimension(ALDimension.Width, dialogWidth);
+            this.AutoSetDimension(ALDimension.Width, dialogWidth);
 
             var title = new UILabel
             {
@@ -36,21 +35,20 @@ namespace Steepshot.iOS.Popups
                 Font = Constants.Semibold14,
                 Text = "SELECT ACTION"
             };
+            this.AddSubview(title);
             title.AutoPinEdgeToSuperviewEdge(ALEdge.Top, 24);
             title.AutoPinEdgeToSuperviewEdge(ALEdge.Right, commonMargin);
             title.AutoPinEdgeToSuperviewEdge(ALEdge.Left, commonMargin);
-            view.AddSubview(title);
 
             var separator = new UIView
             {
                 BackgroundColor = Constants.R245G245B245
             };
+            this.AddSubview(separator);
             separator.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, title, 26);
             separator.AutoPinEdgeToSuperviewEdge(ALEdge.Left, commonMargin);
             separator.AutoPinEdgeToSuperviewEdge(ALEdge.Right, commonMargin);
             separator.AutoSetDimension(ALDimension.Height, 1);
-            view.AddSubview(separator);
-
 
             PowerUpButton = new UIButton
             {
@@ -62,11 +60,11 @@ namespace Steepshot.iOS.Popups
             PowerUpButton.Layer.BorderColor = Constants.R245G245B245.CGColor;
             PowerUpButton.SetTitle(AppDelegate.Localization.GetText(LocalizationKeys.PowerUp), UIControlState.Normal);
             PowerUpButton.SetTitleColor(UIColor.Black, UIControlState.Normal);
+            this.AddSubview(PowerUpButton);
             PowerUpButton.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, separator, 20);
             PowerUpButton.AutoPinEdgeToSuperviewEdge(ALEdge.Right, commonMargin);
             PowerUpButton.AutoPinEdgeToSuperviewEdge(ALEdge.Left, commonMargin);
             PowerUpButton.AutoSetDimension(ALDimension.Height, 50);
-            view.AddSubview(PowerUpButton);
 
             PowerDownButton = new UIButton
             {
@@ -78,11 +76,11 @@ namespace Steepshot.iOS.Popups
             PowerDownButton.Layer.BorderColor = Constants.R245G245B245.CGColor;
             PowerDownButton.SetTitle(AppDelegate.Localization.GetText(LocalizationKeys.PowerDown), UIControlState.Normal);
             PowerDownButton.SetTitleColor(UIColor.Black, UIControlState.Normal);
+            this.AddSubview(PowerDownButton);
             PowerDownButton.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, PowerUpButton, 10);
             PowerDownButton.AutoPinEdgeToSuperviewEdge(ALEdge.Left, commonMargin);
             PowerDownButton.AutoPinEdgeToSuperviewEdge(ALEdge.Right, commonMargin);
             PowerDownButton.AutoSetDimension(ALDimension.Height, 50);
-            view.AddSubview(PowerDownButton);
 
             var showCancelPowerDown = walletFacade.SelectedBalance.ToWithdraw > 0;
 
@@ -97,7 +95,7 @@ namespace Steepshot.iOS.Popups
                 CancelPowerDownButton.Font = Constants.Semibold14;
                 CancelPowerDownButton.Layer.BorderWidth = 1;
                 CancelPowerDownButton.Layer.BorderColor = Constants.R245G245B245.CGColor;
-                view.AddSubview(CancelPowerDownButton);
+                this.AddSubview(CancelPowerDownButton);
 
                 CancelPowerDownButton.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, PowerDownButton, 10);
                 CancelPowerDownButton.AutoPinEdgeToSuperviewEdge(ALEdge.Left, commonMargin);
@@ -107,7 +105,7 @@ namespace Steepshot.iOS.Popups
 
             var bottomSeparator = new UIView();
             bottomSeparator.BackgroundColor = Constants.R245G245B245;
-            view.AddSubview(bottomSeparator);
+            this.AddSubview(bottomSeparator);
 
             if (showCancelPowerDown)
                 bottomSeparator.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, CancelPowerDownButton, 26);
@@ -125,7 +123,7 @@ namespace Steepshot.iOS.Popups
             CancelButton.BackgroundColor = Constants.R255G255B255;
             CancelButton.Layer.BorderWidth = 1;
             CancelButton.Layer.BorderColor = Constants.R245G245B245.CGColor;
-            view.AddSubview(CancelButton);
+            this.AddSubview(CancelButton);
 
             CancelButton.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, bottomSeparator, 20);
             CancelButton.AutoPinEdgeToSuperviewEdge(ALEdge.Left, commonMargin);
