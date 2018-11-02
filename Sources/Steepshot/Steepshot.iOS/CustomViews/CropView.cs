@@ -35,7 +35,7 @@ namespace Steepshot.iOS.CustomViews
             ViewForZoomingInScrollView += (UIScrollView sv) => { return ImageView; };
             AddSubview(ImageView);
             AddSubview(VideoView);
-            ContentSize = new CGSize(UIScreen.MainScreen.Bounds.Width, UIScreen.MainScreen.Bounds.Width);
+            ContentSize = new CGSize(Constants.ScreenWidth, Constants.ScreenWidth);
             DidZoom += (t, u) =>
             {
                 SetScrollViewInsets();
@@ -54,15 +54,15 @@ namespace Steepshot.iOS.CustomViews
 
         public void AdjustImageViewSize(UIImage img)
         {
-            var w = img.Size.Width / Core.Constants.PhotoMaxSize * UIScreen.MainScreen.Bounds.Width;
-            var h = img.Size.Height / Core.Constants.PhotoMaxSize * UIScreen.MainScreen.Bounds.Width;
+            var w = img.Size.Width / Core.Constants.PhotoMaxSize * Constants.ScreenWidth;
+            var h = img.Size.Height / Core.Constants.PhotoMaxSize * Constants.ScreenWidth;
             originalContentSize = new CGSize(w, h);
 
-            if (originalContentSize.Width < UIScreen.MainScreen.Bounds.Width && originalContentSize.Height < UIScreen.MainScreen.Bounds.Width)
+            if (originalContentSize.Width < Constants.ScreenWidth && originalContentSize.Height < Constants.ScreenWidth)
             {
                 originalContentSize = ImageHelper.CalculateInSampleSize(originalContentSize,
-                                                          (float)UIScreen.MainScreen.Bounds.Width,
-                                                          (float)UIScreen.MainScreen.Bounds.Width, true);
+                                                          (float)Constants.ScreenWidth,
+                                                          (float)Constants.ScreenWidth, true);
             }
 
             ContentInset = new UIEdgeInsets(0, 0, 0, 0);
@@ -74,7 +74,7 @@ namespace Steepshot.iOS.CustomViews
 
         public void AdjustVideoViewSize(CGSize assetSize)
         {
-            var contentSide = UIScreen.MainScreen.Bounds.Width;
+            var contentSide = Constants.ScreenWidth;
             var w = assetSize.Width / Core.Constants.PhotoMaxSize * contentSide;
             var h = assetSize.Height / Core.Constants.PhotoMaxSize * contentSide;
             originalContentSize = new CGSize(w, h);

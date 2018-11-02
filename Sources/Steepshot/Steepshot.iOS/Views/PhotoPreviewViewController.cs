@@ -230,22 +230,6 @@ namespace Steepshot.iOS.Views
             _cropView.VideoView.Play();
         }
 
-        private UIInterfaceOrientation OrientationForAsset(AVAsset asset)
-        {
-            var videoTrack = asset.TracksWithMediaType(AVMediaType.Video).First();
-            var size = videoTrack.NaturalSize;
-            var txf = videoTrack.PreferredTransform;
-            
-            if (size.Width == txf.x0 && size.Height == txf.y0)
-                return UIInterfaceOrientation.LandscapeRight;
-            else if (txf.x0 == 0 && txf.y0 == 0)
-                return UIInterfaceOrientation.LandscapeLeft;
-            else if (txf.x0 == 0 && txf.y0 == size.Width)
-                return UIInterfaceOrientation.PortraitUpsideDown;
-            else
-                return UIInterfaceOrientation.Portrait;
-        }
-
         private void ButtonsHidden(bool value)
         {
             rotate.Hidden = value;
