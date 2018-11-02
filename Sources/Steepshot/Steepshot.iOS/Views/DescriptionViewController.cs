@@ -482,7 +482,7 @@ namespace Steepshot.iOS.Views
 
             if (_isFromCamera && !skipPreparationSteps)
             {
-                var croppedPhoto = _cropView.CropImage(new SavedPhoto(null, ImageAssets[0].Item2, _cropView.ContentOffset) { OriginalImageSize = _cropView.originalImageSize, Scale = _cropView.ZoomScale });
+                var croppedPhoto = _cropView.CropImage(new SavedPhoto(null, ImageAssets[0].Item2, _cropView.ContentOffset) { OriginalImageSize = _cropView.originalContentSize, Scale = _cropView.ZoomScale });
                 ImageAssets.RemoveAt(0);
                 ImageAssets.Add(new Tuple<NSDictionary, UIImage>(null, croppedPhoto));
             }

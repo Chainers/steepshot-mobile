@@ -22,7 +22,6 @@ namespace Steepshot.iOS.Views
     {
         private readonly PHImageManager _m;
         private CropView _cropView;
-        //private VideoView _videoView;
         private PhotoCollectionViewSource source;
         private PhotoCollectionViewFlowDelegate delegateP;
         private string previousPhotoLocalIdentifier;
@@ -68,11 +67,6 @@ namespace Steepshot.iOS.Views
             photoCollection.Delegate = delegateP;
 
             _cropView = new CropView(new CGRect(0, 0, UIScreen.MainScreen.Bounds.Width, UIScreen.MainScreen.Bounds.Width));
-
-            //_videoView = new VideoView(false, false);
-            //_videoView.Frame = new CGRect(0, 0, UIScreen.MainScreen.Bounds.Width, UIScreen.MainScreen.Bounds.Width);
-            //_videoView.Hidden = true;
-            //_videoView.BackgroundColor = UIColor.Cyan.ColorWithAlpha(0.5f);
 
             var albums = new List<PHAssetCollection>();
             var sortedAlbums = new List<Tuple<string, PHFetchResult>>();
@@ -215,17 +209,39 @@ namespace Steepshot.iOS.Views
             }
             else
             {
-                _cropView.ImageView.Hidden = true;
-                _cropView.VideoView.Hidden = false;
-                _m.RequestAvAsset(asset.Item2, null, HandlePHImageManagerRequestAvAssetHandler);
+                _m.RequestAvAsset(asset.Item2, null, PickVideo);
             }
         }
 
-        private void HandlePHImageManagerRequestAvAssetHandler(AVAsset asset, AVAudioMix audioMix, NSDictionary info)
+        private void PickVideo(AVAsset asset, AVAudioMix audioMix, NSDictionary info)
         {
             var urlAsset = asset as AVUrlAsset;
+            var orientation = OrientationForAsset(asset);
+            InvokeOnMainThread(() =>
+            {
+                _cropView.AdjustVideoViewSize(asset.NaturalSize, orientation);
+                _cropView.VideoView.Hidden = false;
+                _cropView.ImageView.Hidden = true;
+                _cropView.SetScrollViewInsets();
+            });
             _cropView.VideoView.ChangeItem(urlAsset.Url);
             _cropView.VideoView.Play();
+        }
+
+        private UIInterfaceOrientation OrientationForAsset(AVAsset asset)
+        {
+            var videoTrack = asset.TracksWithMediaType(AVMediaType.Video).First();
+            var size = videoTrack.NaturalSize;
+            var txf = videoTrack.PreferredTransform;
+            
+            if (size.Width == txf.x0 && size.Height == txf.y0)
+                return UIInterfaceOrientation.LandscapeRight;
+            else if (txf.x0 == 0 && txf.y0 == 0)
+                return UIInterfaceOrientation.LandscapeLeft;
+            else if (txf.x0 == 0 && txf.y0 == size.Width)
+                return UIInterfaceOrientation.PortraitUpsideDown;
+            else
+                return UIInterfaceOrientation.Portrait;
         }
 
         private void ButtonsHidden(bool value)
@@ -241,7 +257,7 @@ namespace Steepshot.iOS.Views
         {
             var previousZoomScale = _cropView.ZoomScale;
             var previousOffset = _cropView.ContentOffset;
-            var previousOriginalSize = _cropView.originalImageSize;
+            var previousOriginalSize = _cropView.originalContentSize;
             var previousOrientation = _cropView.orientation;
 
             var currentPhoto = source.ImageAssets.FirstOrDefault(a => a.Asset.LocalIdentifier == pickedPhoto.Item2.LocalIdentifier);
@@ -253,11 +269,11 @@ namespace Steepshot.iOS.Views
             }
             else
                 _cropView.orientation = UIImageOrientation.Up;
-            _cropView.AdjustImageViewSize(img);
 
             _cropView.VideoView.Stop();
-            _cropView.VideoView.Hidden = true;
+            _cropView.AdjustImageViewSize(img);
             _cropView.ImageView.Hidden = false;
+            _cropView.VideoView.Hidden = true;
 
             _cropView.ImageView.Image = img;
 
@@ -422,7 +438,7 @@ namespace Steepshot.iOS.Views
             {
                 currentPhoto.Offset = _cropView.ContentOffset;
                 currentPhoto.Scale = _cropView.ZoomScale;
-                currentPhoto.OriginalImageSize = _cropView.originalImageSize;
+                currentPhoto.OriginalImageSize = _cropView.originalContentSize;
                 currentPhoto.Orientation = _cropView.orientation;
             }
 
@@ -469,7 +485,7 @@ namespace Steepshot.iOS.Views
                 {
                     currentPhoto.Offset = _cropView.ContentOffset;
                     currentPhoto.Scale = _cropView.ZoomScale;
-                    currentPhoto.OriginalImageSize = _cropView.originalImageSize;
+                    currentPhoto.OriginalImageSize = _cropView.originalContentSize;
                     currentPhoto.Orientation = _cropView.orientation;
                     currentPhoto.Image = _cropView.ImageView.Image;
                 }
