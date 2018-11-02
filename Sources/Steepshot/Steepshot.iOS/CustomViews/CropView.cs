@@ -72,30 +72,26 @@ namespace Steepshot.iOS.CustomViews
             ImageView.Frame = new CGRect(new CGPoint(0, 0), originalContentSize);
         }
 
-        public void AdjustVideoViewSize(CGSize assetSize, UIInterfaceOrientation orientation)
+        public void AdjustVideoViewSize(CGSize assetSize)
         {
-            var w = assetSize.Width / Core.Constants.PhotoMaxSize * UIScreen.MainScreen.Bounds.Width;
-            var h = assetSize.Height / Core.Constants.PhotoMaxSize * UIScreen.MainScreen.Bounds.Width;
-            var isPortrait = orientation == UIInterfaceOrientation.Portrait || orientation == UIInterfaceOrientation.PortraitUpsideDown;
-            originalContentSize = isPortrait ? new CGSize(h, w) : new CGSize(w, h);
+            var contentSide = UIScreen.MainScreen.Bounds.Width;
+            var w = assetSize.Width / Core.Constants.PhotoMaxSize * contentSide;
+            var h = assetSize.Height / Core.Constants.PhotoMaxSize * contentSide;
+            originalContentSize = new CGSize(w, h);
 
-            if (originalContentSize.Width < UIScreen.MainScreen.Bounds.Width && originalContentSize.Height < UIScreen.MainScreen.Bounds.Width)
+            if (originalContentSize.Width < contentSide && originalContentSize.Height < contentSide)
+                originalContentSize = ImageHelper.CalculateInSampleSize(originalContentSize, (float)contentSide, (float)contentSide, true);
+
+            if (originalContentSize.Width < contentSide)
             {
-                originalContentSize = ImageHelper.CalculateInSampleSize(originalContentSize,
-                                                          (float)UIScreen.MainScreen.Bounds.Width,
-                                                          (float)UIScreen.MainScreen.Bounds.Width, true);
+                var reqWidth = contentSide / originalContentSize.Width * originalContentSize.Height;
+                originalContentSize = new CGSize(contentSide, reqWidth);
             }
 
-            if (!isPortrait && originalContentSize.Height < UIScreen.MainScreen.Bounds.Width)
+            if (originalContentSize.Height < contentSide)
             {
-                var reqWidth = UIScreen.MainScreen.Bounds.Width / originalContentSize.Height * originalContentSize.Width;
-                originalContentSize = new CGSize(reqWidth, UIScreen.MainScreen.Bounds.Width);
-            }
-
-            if (isPortrait && originalContentSize.Width < UIScreen.MainScreen.Bounds.Width)
-            {
-                var reqWidth = UIScreen.MainScreen.Bounds.Width / originalContentSize.Width * originalContentSize.Height;
-                originalContentSize = new CGSize(UIScreen.MainScreen.Bounds.Width, reqWidth);
+                var reqHeight = contentSide / originalContentSize.Height * originalContentSize.Width;
+                originalContentSize = new CGSize(reqHeight, contentSide);
             }
 
             ContentSize = originalContentSize;

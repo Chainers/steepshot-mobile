@@ -216,13 +216,15 @@ namespace Steepshot.iOS.Views
         private void PickVideo(AVAsset asset, AVAudioMix audioMix, NSDictionary info)
         {
             var urlAsset = asset as AVUrlAsset;
-            var orientation = OrientationForAsset(asset);
+            var track = asset.TracksWithMediaType(AVMediaType.Video).First();
+            var dimensions = CGAffineTransform.CGRectApplyAffineTransform(new CGRect(0, 0, track.NaturalSize.Width, track.NaturalSize.Height), track.PreferredTransform);
             InvokeOnMainThread(() =>
             {
-                _cropView.AdjustVideoViewSize(asset.NaturalSize, orientation);
+                _cropView.AdjustVideoViewSize(new CGSize(dimensions.Width, dimensions.Height));
                 _cropView.VideoView.Hidden = false;
                 _cropView.ImageView.Hidden = true;
-                _cropView.SetScrollViewInsets();
+                NavigationItem.RightBarButtonItem.Enabled = true;
+                photoCollection.UserInteractionEnabled = true;
             });
             _cropView.VideoView.ChangeItem(urlAsset.Url);
             _cropView.VideoView.Play();
