@@ -259,6 +259,12 @@
     <AndroidResource Include="Resources\drawable-xxhdpi\ic_play_arrow.png" />
     <AndroidResource Include="Resources\drawable-xhdpi\ic_play_arrow.png" />
     <AndroidResource Include="Resources\drawable-mdpi\ic_play_arrow.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_soundOff.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_soundOff.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_soundOff.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_soundOn.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_soundOn.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_soundOn.png" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\values-v21\styles.xml" />

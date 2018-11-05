@@ -140,6 +140,9 @@ namespace Steepshot.Adapter
         private readonly RelativeLayout _likeScaleContainer;
         private readonly LikeScaleBar _likeScaleBar;
         private readonly TextView _likeScalePower;
+        private readonly FrameLayout _volumeLayout;
+        private readonly Button _volumeButton;
+        private readonly ImageView _volumeIcon;
 
         protected readonly Context Context;
         protected readonly ViewPager PhotosViewPager;
@@ -181,6 +184,9 @@ namespace Steepshot.Adapter
             _likeScaleBar = itemView.FindViewById<LikeScaleBar>(Resource.Id.like_scale);
             _likeScalePower = itemView.FindViewById<TextView>(Resource.Id.like_scale_power);
             _likeScale = itemView.FindViewById<ImageButton>(Resource.Id.btn_like_scale);
+            _volumeLayout = itemView.FindViewById<FrameLayout>(Resource.Id.volume_ic_lyt);
+            _volumeButton = itemView.FindViewById<Button>(Resource.Id.video_volume_button);
+            _volumeIcon = itemView.FindViewById<ImageView>(Resource.Id.volume_ic);
 
             _author.Typeface = Style.Semibold;
             _time.Typeface = Style.Regular;
@@ -219,6 +225,7 @@ namespace Steepshot.Adapter
             _nsfwMaskCloseButton.Click += NsfwMaskCloseButtonOnClick;
             _nsfwMaskActionButton.Click += NsfwMaskActionButtonOnClick;
             _more.Click += DoMoreAction;
+            _volumeButton.Click += VolumeAction;
             _title.LinkClick += autoLinkAction;
             _more.Visibility = App.User.HasPostingPermission ? ViewStates.Visible : ViewStates.Invisible;
 
@@ -228,6 +235,11 @@ namespace Steepshot.Adapter
         public void Playback(bool shouldPlay)
         {
             ((PostPhotosPagerAdapter)PhotosViewPager.Adapter).Playback(shouldPlay);
+        }
+
+        private void VolumeAction(object sender, EventArgs e)
+        {
+
         }
 
         void PhotoAction(Post post)

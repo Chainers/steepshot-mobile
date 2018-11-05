@@ -87,6 +87,25 @@
             app:tabMaxWidth="10dp"
             app:tabGravity="center"
             app:tabIndicatorHeight="0dp" />
+        <FrameLayout
+            android:id="@+id/volume_ic_lyt"
+            android:layout_width="wrap_content" 
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentBottom="true"
+            android:visibility="gone">          
+            <Button 
+                android:id="@+id/video_volume_button"  
+                android:layout_width="60dp"         
+                android:layout_height="60dp" />
+            <ImageView
+                android:id="@+id/volume_ic"
+                android:layout_width="32dp"  
+                android:layout_height="32dp"
+                android:scaleType="fitXY"
+                android:src="@drawable/ic_soundon" 
+                android:layout_gravity="center"/>
+        </FrameLayout>
     </RelativeLayout>
     <include
         layout="@layout/lyt_nsfw_mask"
