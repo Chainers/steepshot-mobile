@@ -23,7 +23,7 @@ namespace Steepshot.iOS.CustomViews
         {
             ImageView = new UIImageView(_frame);
             ImageView.ContentMode = UIViewContentMode.ScaleAspectFit;
-            VideoView = new VideoView(_frame, false, false);
+            VideoView = new VideoView(_frame, true, false);
             VideoView.ContentMode = UIViewContentMode.ScaleAspectFit;
             VideoView.Hidden = true;
 

@@ -198,6 +198,8 @@ namespace Steepshot.iOS.Views
                     break;
             }
 
+            _cropView.PinchGestureRecognizer.Enabled = asset.Item2.MediaType == PHAssetMediaType.Image;
+
             if (asset.Item2.MediaType == PHAssetMediaType.Image)
             {
                 photoCollection.UserInteractionEnabled = false;
