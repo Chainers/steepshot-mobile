@@ -38,9 +38,11 @@ namespace Steepshot.iOS.Views
         private readonly UITapGestureRecognizer rotateTap;
         private readonly UITapGestureRecognizer zoomTap;
         private readonly UITapGestureRecognizer multiselectTap;
+        private readonly PHAssetMediaType assetMediaType;
 
-        public PhotoPreviewViewController()
+        public PhotoPreviewViewController(PHAssetMediaType mediaType)
         {
+            assetMediaType = mediaType;
             _m = new PHImageManager();
             rotateTap = new UITapGestureRecognizer(RotateTap);
             zoomTap = new UITapGestureRecognizer(ZoomTap);
@@ -78,7 +80,7 @@ namespace Steepshot.iOS.Views
             var smartAlbums = PHAssetCollection.FetchAssetCollections(PHAssetCollectionType.SmartAlbum, PHAssetCollectionSubtype.AlbumRegular, null)
                                                .Cast<PHAssetCollection>().Where(a => !a.LocalizedTitle.Equals("Recently Deleted"));
             albums.AddRange(smartAlbums);
-            fetchOptions.Predicate = NSPredicate.FromFormat("mediaType == %d || mediaType == %d", FromObject(PHAssetMediaType.Image), FromObject(PHAssetMediaType.Video));
+            fetchOptions.Predicate = NSPredicate.FromFormat("mediaType == %d", FromObject(assetMediaType));
 
             foreach (var item in albums)
             {
