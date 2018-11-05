@@ -151,7 +151,7 @@ namespace Steepshot.iOS.Views
                 rotate.RemoveGestureRecognizer(rotateTap);
                 resize.RemoveGestureRecognizer(zoomTap);
                 multiSelect.RemoveGestureRecognizer(multiselectTap);
-
+                _cropView.VideoView.Stop();
             }
             base.ViewWillDisappear(animated);
         }
@@ -379,7 +379,6 @@ namespace Steepshot.iOS.Views
             NavigationItem.TitleView = titleView;
             titleView.UserInteractionEnabled = true;
             titleTapGesture = new UITapGestureRecognizer(TitleTapped);
-            titleView.AddGestureRecognizer(titleTapGesture);
             _titleLabel = new UILabel();
             titleView.AddSubview(_titleLabel);
             _titleLabel.AutoCenterInSuperview();
@@ -399,6 +398,7 @@ namespace Steepshot.iOS.Views
             {
                 UIView.Animate(0.2, 0, UIViewAnimationOptions.CurveEaseOut, () =>
                 {
+                    _cropView.VideoView.Stop();
                     _modalFolderView.Frame = new CGRect(0, 0, View.Frame.Width, View.Frame.Height);
                     leftBarButton.TintColor = rightBarButton.TintColor = UIColor.Clear;
                     leftBarButton.Enabled = rightBarButton.Enabled = false;
