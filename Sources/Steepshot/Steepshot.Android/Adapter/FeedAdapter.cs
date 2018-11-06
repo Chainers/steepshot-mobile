@@ -230,11 +230,6 @@ namespace Steepshot.Adapter
             ((PostPhotosPagerAdapter)PhotosViewPager.Adapter).Playback(shouldPlay);
         }
 
-        private void VolumeAction(object sender, EventArgs e)
-        {
-
-        }
-
         void PhotoAction(Post post)
         {
             HideScaleBar();
