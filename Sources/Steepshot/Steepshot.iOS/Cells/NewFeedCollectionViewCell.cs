@@ -11,14 +11,12 @@ using Xamarin.TTTAttributedLabel;
 using Constants = Steepshot.iOS.Helpers.Constants;
 using Steepshot.Core.Extensions;
 using Steepshot.Core.Models.Enums;
-using Steepshot.Core.Presenters;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Utils;
 using Steepshot.iOS.CustomViews;
 using Steepshot.iOS.ViewControllers;
 using Steepshot.iOS.Helpers;
 using AVFoundation;
-using CoreMedia;
 
 namespace Steepshot.iOS.Cells
 {
@@ -38,6 +36,7 @@ namespace Steepshot.iOS.Cells
         private UIView _contentView;
 
         private UIImageView _avatarImage;
+        private UIButton _volumeButton;
         private UILabel _author;
         private UILabel _timestamp;
         private UIButton _moreButton;
@@ -83,6 +82,7 @@ namespace Steepshot.iOS.Cells
         private readonly nfloat underPhotoPanelHeight = 60;
         private readonly nfloat verticalSeparatorHeight = 30;
         private readonly nfloat moreButtonWidth = 50;
+        private readonly nfloat volumeAreaSide = 70;
         private readonly nfloat likersCornerRadius;
 
         private readonly UITapGestureRecognizer _liketap;
@@ -96,6 +96,8 @@ namespace Steepshot.iOS.Cells
 
         public bool IsCellActionSet => CellAction != null;
         public Action<ActionType, Post> CellAction;
+        public Action MuteAction;
+
         public event Action<string> TagAction
         {
             add
@@ -115,7 +117,6 @@ namespace Steepshot.iOS.Cells
             _moreButton = new UIButton();
             _moreButton.Frame = new CGRect(_contentView.Frame.Width - moreButtonWidth, 0, moreButtonWidth, 60);
             _moreButton.SetImage(UIImage.FromBundle("ic_more"), UIControlState.Normal);
-            //_moreButton.BackgroundColor = UIColor.Black;
             _contentView.AddSubview(_moreButton);
 
             _avatarImage = new UIImageView(new CGRect(leftMargin, 15, 30, 30));
@@ -125,14 +126,12 @@ namespace Steepshot.iOS.Cells
 
             _author = new UILabel(new CGRect(authorX, _avatarImage.Frame.Top - 2, _moreButton.Frame.Left - authorX, 18));
             _author.Font = Constants.Semibold14;
-            //_author.BackgroundColor = UIColor.Yellow;
             _author.LineBreakMode = UILineBreakMode.TailTruncation;
             _author.TextColor = Constants.R15G24B30;
             _contentView.AddSubview(_author);
 
             _timestamp = new UILabel(new CGRect(authorX, _author.Frame.Bottom, _moreButton.Frame.Left - authorX, 16));
             _timestamp.Font = Constants.Regular12;
-            //_timestamp.BackgroundColor = UIColor.Green;
             _timestamp.LineBreakMode = UILineBreakMode.TailTruncation;
             _timestamp.TextColor = Constants.R151G155B158;
             _contentView.AddSubview(_timestamp);
@@ -159,7 +158,6 @@ namespace Steepshot.iOS.Cells
 
             _flags = new UILabel();
             _flags.Font = Constants.Semibold14;
-            //_flags.BackgroundColor = UIColor.Orange;
             _flags.LineBreakMode = UILineBreakMode.TailTruncation;
             _flags.TextColor = Constants.R15G24B30;
             _flags.UserInteractionEnabled = true;
@@ -167,7 +165,6 @@ namespace Steepshot.iOS.Cells
 
             _rewards = new UILabel();
             _rewards.Font = Constants.Semibold14;
-            //_rewards.BackgroundColor = UIColor.Orange;
             _rewards.LineBreakMode = UILineBreakMode.TailTruncation;
             _rewards.TextColor = Constants.R15G24B30;
             _rewards.UserInteractionEnabled = true;
@@ -204,12 +201,10 @@ namespace Steepshot.iOS.Cells
             _attributedLabel.UserInteractionEnabled = true;
             _attributedLabel.Enabled = true;
             _attributedLabel.AttributedTruncationToken = at;
-            //_attributedLabel.BackgroundColor = UIColor.Blue;
             _contentView.AddSubview(_attributedLabel);
 
             _comments = new UILabel();
             _comments.Font = Constants.Regular14;
-            //_comments.BackgroundColor = UIColor.DarkGray;
             _comments.LineBreakMode = UILineBreakMode.TailTruncation;
             _comments.TextColor = Constants.R151G155B158;
             _comments.UserInteractionEnabled = true;
@@ -288,6 +283,10 @@ namespace Steepshot.iOS.Cells
             });
             _flags.AddGestureRecognizer(_flagersTap);
 
+            _volumeButton = new UIButton();
+            _volumeButton.Hidden = true;
+            _volumeButton.TouchDown += SwitchVolume;
+
             _moreButton.TouchDown += FlagButton_TouchDown;
 
             _videoView = new VideoView(true, true);
@@ -346,6 +345,14 @@ namespace Steepshot.iOS.Cells
                 _videoView.PlayerLayer.Frame = new CGRect(new CGPoint(0, 0), _photoScroll.Frame.Size);
                 _videoView.Frame = new CGRect(new CGPoint(0, 0), _photoScroll.Frame.Size);
                 _videoView.ChangeItem(_currentPost.Media[0].Url);
+                _videoView.Player.Muted = !AppDelegate.VolumeEnabled;
+
+                _photoScroll.AddSubview(_volumeButton);
+                _volumeButton.Frame = new CGRect(new CGPoint(_videoView.Frame.Width - volumeAreaSide, _videoView.Frame.Height - volumeAreaSide), new CGSize(volumeAreaSide, volumeAreaSide));
+                _volumeButton.ContentEdgeInsets = new UIEdgeInsets(23, 23, 18, 18);
+                _volumeButton.SetImage(UIImage.FromBundle(AppDelegate.VolumeEnabled ? "ic_volume" : "ic_mute"), UIControlState.Normal);
+                _volumeButton.Hidden = false;
+                _volumeButton.UserInteractionEnabled = true;
             }
             else
             {
@@ -521,6 +528,18 @@ namespace Steepshot.iOS.Cells
                     _like.Image = post.Vote ? UIImage.FromBundle("ic_like_active_disabled") : UIImage.FromBundle("ic_like_disabled");
                 _like.UserInteractionEnabled = true;
             }
+        }
+
+        public void OnVolumeChanged()
+        {
+            _videoView.Player.Muted = !AppDelegate.VolumeEnabled;
+            _volumeButton.SetImage(UIImage.FromBundle(AppDelegate.VolumeEnabled ? "ic_volume" : "ic_mute"), UIControlState.Normal);
+        }
+
+        private void SwitchVolume(object sender, EventArgs e)
+        {
+            AppDelegate.VolumeEnabled = _videoView.Player.Muted;
+            MuteAction?.Invoke();
         }
 
         private void UpdateTopLikersAvatars(Post post)

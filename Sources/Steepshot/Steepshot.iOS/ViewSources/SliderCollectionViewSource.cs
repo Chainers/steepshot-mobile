@@ -2,11 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using Foundation;
-using Steepshot.Core.Models;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Presenters;
-using Steepshot.Core.Utils;
 using Steepshot.iOS.Cells;
 using Steepshot.iOS.Delegates;
 using Steepshot.iOS.Helpers;
@@ -59,6 +57,7 @@ namespace Steepshot.iOS.ViewSources
                 {
                     cell.CellAction += CellAction;
                     cell.TagAction += TagAction;
+                    cell.MuteAction += VolumeChanged;
                 }
                 if (!_feedCellsList.Any(c => c.Handle == cell.Handle))
                     _feedCellsList.Add(cell);
@@ -83,12 +82,19 @@ namespace Steepshot.iOS.ViewSources
             }
         }
 
+        private void VolumeChanged()
+        {
+            foreach (var item in _feedCellsList)
+                item.OnVolumeChanged();
+        }
+
         public void FreeAllCells()
         {
             foreach (var item in _feedCellsList)
             {
                 item.CellAction -= CellAction;
                 item.TagAction -= TagAction;
+                item.MuteAction -= VolumeChanged;
                 item.ReleaseCell();
             }
             _presenter.SourceChanged -= SourceChanged;

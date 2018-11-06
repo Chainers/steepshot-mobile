@@ -2,12 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using Foundation;
-using Steepshot.Core.Models;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
-using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Presenters;
-using Steepshot.Core.Utils;
 using Steepshot.iOS.Cells;
 using Steepshot.iOS.Delegates;
 using Steepshot.iOS.Helpers;
@@ -21,8 +18,8 @@ namespace Steepshot.iOS.ViewSources
         public event Action<ActionType, Post> CellAction;
         public event Action<ActionType> ProfileAction;
         public event Action<string> TagAction;
-        private readonly List<NewFeedCollectionViewCell> _feedCellsList = new List<NewFeedCollectionViewCell>();
         protected readonly BasePostPresenter _presenter;
+        private readonly List<NewFeedCollectionViewCell> _feedCellsList = new List<NewFeedCollectionViewCell>();
         private readonly CollectionViewFlowDelegate _flowDelegate;
 
         public FeedCollectionViewSource(BasePostPresenter presenter, CollectionViewFlowDelegate flowDelegate)
@@ -82,6 +79,7 @@ namespace Steepshot.iOS.ViewSources
                         {
                             ((NewFeedCollectionViewCell)cell).Cell.CellAction += CellAction;
                             ((NewFeedCollectionViewCell)cell).Cell.TagAction += TagAction;
+                            ((NewFeedCollectionViewCell)cell).Cell.MuteAction += VolumeChanged;
                         }
                         if (!_feedCellsList.Any(c => c.Handle == cell.Handle))
                             _feedCellsList.Add((NewFeedCollectionViewCell)cell);
@@ -108,12 +106,19 @@ namespace Steepshot.iOS.ViewSources
             }
         }
 
+        private void VolumeChanged()
+        {
+            foreach (var item in _feedCellsList)
+                item.Cell.OnVolumeChanged();
+        }
+
         public void FreeAllCells()
         {
             foreach (var item in _feedCellsList)
             {
                 item.Cell.CellAction = null;
                 item.Cell.TagAction -= TagAction;
+                item.Cell.MuteAction -= VolumeChanged;
                 item.Cell.ReleaseCell();
             }
 

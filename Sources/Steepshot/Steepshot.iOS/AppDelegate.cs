@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Autofac;
+using AVFoundation;
 using Com.OneSignal;
 using Com.OneSignal.Abstractions;
 using FFImageLoading;
@@ -36,6 +37,8 @@ namespace Steepshot.iOS
         public static KnownChains MainChain { get; set; }
 
         public override UIWindow Window { get; set; }
+
+        public static bool VolumeEnabled { get; set; }
 
         public override bool FinishedLaunching(UIApplication application, NSDictionary launchOptions)
         {
