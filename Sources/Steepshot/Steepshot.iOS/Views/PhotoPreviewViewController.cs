@@ -41,6 +41,8 @@ namespace Steepshot.iOS.Views
         private readonly UITapGestureRecognizer zoomTap;
         private readonly UITapGestureRecognizer multiselectTap;
         private readonly PHAssetMediaType assetMediaType;
+        private UIActivityIndicatorView _followProgress;
+        private UIImage _rightButtonImage;
 
         public PhotoPreviewViewController(PHAssetMediaType mediaType)
         {
@@ -115,7 +117,7 @@ namespace Steepshot.iOS.Views
             cropBackgroundView.BackgroundColor = Constants.R245G245B245;
             cropBackgroundView.AddSubview(_cropView);
             NavigationController.NavigationBar.Translucent = false;
-            SetBackButton();
+            SetBarButtons();
 
             _titleLabel.Text = sortedAlbums.FirstOrDefault()?.Item1;
             source.UpdateFetchResult(sortedAlbums.FirstOrDefault()?.Item2);
@@ -383,13 +385,18 @@ namespace Steepshot.iOS.Views
                 delegateP.ItemSelected(photoCollection, NSIndexPath.FromItemSection(0, 0));
         }
 
-        private void SetBackButton()
+        private void SetBarButtons()
         {
             leftBarButton.Image = UIImage.FromBundle("ic_back_arrow");
-            rightBarButton.Image = new UIImage(leftBarButton.Image.CGImage, leftBarButton.Image.CurrentScale, UIImageOrientation.UpMirrored);
-            rightBarButton.Enabled = false;
             NavigationItem.LeftBarButtonItem = leftBarButton;
-            NavigationItem.RightBarButtonItem = rightBarButton;
+
+            _followProgress = new UIActivityIndicatorView();
+            _followProgress.HidesWhenStopped = true;
+            _followProgress.ActivityIndicatorViewStyle = UIActivityIndicatorViewStyle.Gray;
+            _rightButtonImage = new UIImage(leftBarButton.Image.CGImage, leftBarButton.Image.CurrentScale, UIImageOrientation.UpMirrored);
+            SetRightBarButton(false);
+            rightBarButton.Enabled = false;
+
             NavigationController.NavigationBar.TintColor = Constants.R15G24B30;
 
             NavigationItem.TitleView = titleView;
@@ -406,6 +413,22 @@ namespace Steepshot.iOS.Views
 
             _arrowImage.AutoAlignAxisToSuperviewAxis(ALAxis.Horizontal);
             _arrowImage.AutoPinEdge(ALEdge.Left, ALEdge.Right, _titleLabel, 10);
+        }
+
+        private void SetRightBarButton(bool animated)
+        {
+            if (animated)
+            {
+                rightBarButton.CustomView = _followProgress;
+                _followProgress.StartAnimating();
+            }
+            else
+            {
+                _followProgress.StopAnimating();
+                rightBarButton.CustomView = null;
+                rightBarButton.Image = _rightButtonImage;
+            }
+            NavigationItem.RightBarButtonItem = rightBarButton;
         }
 
         private void TitleTapped()
@@ -475,6 +498,7 @@ namespace Steepshot.iOS.Views
                 leftBarButton.Enabled = false;
                 titleView.UserInteractionEnabled = false;
                 photoCollection.UserInteractionEnabled = false;
+                SetRightBarButton(true);
 
                 if (_urlAsset.Duration.Seconds > Core.Constants.VideoMaxDuration)
                     PostCreatedPopup.Show(View, "Video will be cut at 20 seconds.");
@@ -498,6 +522,7 @@ namespace Steepshot.iOS.Views
                 leftBarButton.Enabled = true;
                 titleView.UserInteractionEnabled = true;
                 photoCollection.UserInteractionEnabled = true;
+                SetRightBarButton(false);
             }
         }
 
