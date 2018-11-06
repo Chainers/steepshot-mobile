@@ -229,7 +229,14 @@ namespace Steepshot.iOS.Views
                 {
                     if (status.Result == PHAuthorizationStatus.Authorized)
                     {
-                        var fetchedAssets = PHAsset.FetchAssets(_currentMode == MediaType.Photo ? PHAssetMediaType.Image : PHAssetMediaType.Video, null);
+                        var fetchOptions = new PHFetchOptions
+                        {
+                            Predicate = NSPredicate.FromFormat("duration >= %d", FromObject(Core.Constants.VideoMinDuration))
+                        };
+                        var fetchedAssets = _currentMode == MediaType.Photo ? 
+                                            PHAsset.FetchAssets(PHAssetMediaType.Image, null) : 
+                                            PHAsset.FetchAssets(PHAssetMediaType.Video, fetchOptions);
+                       
                         if (fetchedAssets.LastObject is PHAsset lastGalleryPhoto)
                         {
                             _galleryButton.UserInteractionEnabled = true;

@@ -12,6 +12,7 @@ using Steepshot.iOS.Cells;
 using Steepshot.iOS.CustomViews;
 using Steepshot.iOS.Delegates;
 using Steepshot.iOS.Helpers;
+using Steepshot.iOS.Popups;
 using Steepshot.iOS.ViewControllers;
 using Steepshot.iOS.ViewSources;
 using UIKit;
@@ -81,7 +82,10 @@ namespace Steepshot.iOS.Views
             var smartAlbums = PHAssetCollection.FetchAssetCollections(PHAssetCollectionType.SmartAlbum, PHAssetCollectionSubtype.AlbumRegular, null)
                                                .Cast<PHAssetCollection>().Where(a => !a.LocalizedTitle.Equals("Recently Deleted"));
             albums.AddRange(smartAlbums);
-            fetchOptions.Predicate = NSPredicate.FromFormat("mediaType == %d", FromObject(assetMediaType));
+            if (assetMediaType == PHAssetMediaType.Image)
+                fetchOptions.Predicate = NSPredicate.FromFormat("mediaType == %d", FromObject(assetMediaType));
+            else
+                fetchOptions.Predicate = NSPredicate.FromFormat("mediaType == %d && duration >= %d", FromObject(assetMediaType), FromObject(Core.Constants.VideoMinDuration));
 
             foreach (var item in albums)
             {
@@ -457,6 +461,10 @@ namespace Steepshot.iOS.Views
             }
             else
             {
+                rightBarButton.Enabled = false;
+                if (_urlAsset.Duration.Seconds > Core.Constants.VideoMaxDuration)
+                    PostCreatedPopup.Show(View, "Video will be cut at 20 seconds.");
+
                 var vh = new VideoHelper();
                 var url = await vh.CropAssetToSquareInCenter(_urlAsset, 720, new Tuple<int, int>(0, 20),
                                                              new CGPoint(_cropView.ContentOffset.X / _cropView.Frame.Width, _cropView.ContentOffset.Y / _cropView.Frame.Height));
@@ -471,6 +479,7 @@ namespace Steepshot.iOS.Views
                 });*/
                 var descriptionViewController = new DescriptionViewController(url);
                 NavigationController.PushViewController(descriptionViewController, true);
+                rightBarButton.Enabled = true;
             }
         }
 
