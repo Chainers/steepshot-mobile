@@ -9,7 +9,7 @@ namespace Steepshot.iOS.CustomViews
 {
     public class CropView : UIScrollView
     {
-        public CGSize originalImageSize;
+        public CGSize originalContentSize;
         public UIImageOrientation orientation = UIImageOrientation.Up;
         private UIBezierPath _path;
         private CAShapeLayer _shapeLayer = new CAShapeLayer();
@@ -23,7 +23,7 @@ namespace Steepshot.iOS.CustomViews
         {
             ImageView = new UIImageView(_frame);
             ImageView.ContentMode = UIViewContentMode.ScaleAspectFit;
-            VideoView = new VideoView(_frame, false, false);
+            VideoView = new VideoView(_frame, true, false);
             VideoView.ContentMode = UIViewContentMode.ScaleAspectFit;
             VideoView.Hidden = true;
 
@@ -35,7 +35,7 @@ namespace Steepshot.iOS.CustomViews
             ViewForZoomingInScrollView += (UIScrollView sv) => { return ImageView; };
             AddSubview(ImageView);
             AddSubview(VideoView);
-            ContentSize = new CGSize(UIScreen.MainScreen.Bounds.Width, UIScreen.MainScreen.Bounds.Width);
+            ContentSize = new CGSize(Constants.ScreenWidth, Constants.ScreenWidth);
             DidZoom += (t, u) =>
             {
                 SetScrollViewInsets();
@@ -54,29 +54,57 @@ namespace Steepshot.iOS.CustomViews
 
         public void AdjustImageViewSize(UIImage img)
         {
-            var w = img.Size.Width / Core.Constants.PhotoMaxSize * UIScreen.MainScreen.Bounds.Width;
-            var h = img.Size.Height / Core.Constants.PhotoMaxSize * UIScreen.MainScreen.Bounds.Width;
-            originalImageSize = new CGSize(w, h);
+            var w = img.Size.Width / Core.Constants.PhotoMaxSize * Constants.ScreenWidth;
+            var h = img.Size.Height / Core.Constants.PhotoMaxSize * Constants.ScreenWidth;
+            originalContentSize = new CGSize(w, h);
 
-            if (originalImageSize.Width < UIScreen.MainScreen.Bounds.Width && originalImageSize.Height < UIScreen.MainScreen.Bounds.Width)
+            if (originalContentSize.Width < Constants.ScreenWidth && originalContentSize.Height < Constants.ScreenWidth)
             {
-                originalImageSize = ImageHelper.CalculateInSampleSize(originalImageSize,
-                                                          (float)UIScreen.MainScreen.Bounds.Width,
-                                                          (float)UIScreen.MainScreen.Bounds.Width, true);
+                originalContentSize = ImageHelper.CalculateInSampleSize(originalContentSize,
+                                                          (float)Constants.ScreenWidth,
+                                                          (float)Constants.ScreenWidth, true);
             }
 
             ContentInset = new UIEdgeInsets(0, 0, 0, 0);
             MinimumZoomScale = 1;
             ZoomScale = 1;
-            ContentSize = originalImageSize;
-            ImageView.Frame = new CGRect(new CGPoint(0, 0), originalImageSize);
+            ContentSize = originalContentSize;
+            ImageView.Frame = new CGRect(new CGPoint(0, 0), originalContentSize);
+        }
+
+        public void AdjustVideoViewSize(CGSize assetSize)
+        {
+            var contentSide = Constants.ScreenWidth;
+            var w = assetSize.Width / Core.Constants.PhotoMaxSize * contentSide;
+            var h = assetSize.Height / Core.Constants.PhotoMaxSize * contentSide;
+            originalContentSize = new CGSize(w, h);
+
+            if (originalContentSize.Width < contentSide && originalContentSize.Height < contentSide)
+                originalContentSize = ImageHelper.CalculateInSampleSize(originalContentSize, (float)contentSide, (float)contentSide, true);
+
+            if (originalContentSize.Width < contentSide)
+            {
+                var reqWidth = contentSide / originalContentSize.Width * originalContentSize.Height;
+                originalContentSize = new CGSize(contentSide, reqWidth);
+            }
+
+            if (originalContentSize.Height < contentSide)
+            {
+                var reqHeight = contentSide / originalContentSize.Height * originalContentSize.Width;
+                originalContentSize = new CGSize(reqHeight, contentSide);
+            }
+
+            ContentSize = originalContentSize;
+            MinimumZoomScale = 1;
+            ContentInset = new UIEdgeInsets(0, 0, 0, 0);
+            VideoView.Frame = new CGRect(new CGPoint(0, 0), originalContentSize);
         }
 
         public void SetScrollViewInsets()
         {
             nfloat shift;
 
-            var shiftSide = originalImageSize.Height < originalImageSize.Width;
+            var shiftSide = originalContentSize.Height < originalContentSize.Width;
             if (shiftSide)
                 shift = (Frame.Height - ContentSize.Height) / 2.0f;
             else
@@ -93,17 +121,17 @@ namespace Steepshot.iOS.CustomViews
 
         public void ZoomTap(bool isToSquareMode, bool isAnimated = true)
         {
-            if (originalImageSize.Width < originalImageSize.Height)
+            if (originalContentSize.Width < originalContentSize.Height)
             {
-                if (isToSquareMode || ZoomScale != Frame.Width / originalImageSize.Width)
-                    SetZoomScale(Frame.Width / originalImageSize.Width, isAnimated);
+                if (isToSquareMode || ZoomScale != Frame.Width / originalContentSize.Width)
+                    SetZoomScale(Frame.Width / originalContentSize.Width, isAnimated);
                 else
                     SetZoomScale(1f, isAnimated);
             }
             else
             {
-                if (isToSquareMode || ZoomScale != Frame.Height / originalImageSize.Height)
-                    SetZoomScale(Frame.Height / originalImageSize.Height, isAnimated);
+                if (isToSquareMode || ZoomScale != Frame.Height / originalContentSize.Height)
+                    SetZoomScale(Frame.Height / originalContentSize.Height, isAnimated);
                 else
                     SetZoomScale(1f, isAnimated);
             }
@@ -143,9 +171,9 @@ namespace Steepshot.iOS.CustomViews
         {
             nfloat scale = 1;
 
-            var imageRatio = originalImageSize.Width / originalImageSize.Height;
+            var imageRatio = originalContentSize.Width / originalContentSize.Height;
 
-            if (originalImageSize.Height > originalImageSize.Width)
+            if (originalContentSize.Height > originalContentSize.Width)
             {
                 if (imageRatio < 0.8f)
                     scale = 0.8f / imageRatio;
@@ -162,11 +190,11 @@ namespace Steepshot.iOS.CustomViews
         {
             nfloat scale = 0;
 
-            if (originalImageSize.Height > originalImageSize.Width && Frame.Height <= originalImageSize.Height)
-                scale = Frame.Width / originalImageSize.Width;
+            if (originalContentSize.Height > originalContentSize.Width && Frame.Height <= originalContentSize.Height)
+                scale = Frame.Width / originalContentSize.Width;
 
-            if (originalImageSize.Height < originalImageSize.Width && Frame.Width <= originalImageSize.Width)
-                scale = Frame.Height / originalImageSize.Height;
+            if (originalContentSize.Height < originalContentSize.Width && Frame.Width <= originalContentSize.Width)
+                scale = Frame.Height / originalContentSize.Height;
 
             if (scale > 1)
             {

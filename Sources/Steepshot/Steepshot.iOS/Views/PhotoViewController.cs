@@ -269,7 +269,7 @@ namespace Steepshot.iOS.Views
         {
             if (PHPhotoLibrary.AuthorizationStatus == PHAuthorizationStatus.Authorized)
             {
-                var descriptionViewController = new PhotoPreviewViewController();
+                var descriptionViewController = new PhotoPreviewViewController(_currentMode == MediaType.Photo ? PHAssetMediaType.Image : PHAssetMediaType.Video);
                 NavigationController.PushViewController(descriptionViewController, true);
             }
             else
