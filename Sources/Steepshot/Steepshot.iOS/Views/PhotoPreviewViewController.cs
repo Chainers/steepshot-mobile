@@ -206,10 +206,10 @@ namespace Steepshot.iOS.Views
 
             _cropView.PinchGestureRecognizer.Enabled = asset.Item2.MediaType == PHAssetMediaType.Image;
 
+            photoCollection.UserInteractionEnabled = false;
+            NavigationItem.RightBarButtonItem.Enabled = false;
             if (asset.Item2.MediaType == PHAssetMediaType.Image)
             {
-                photoCollection.UserInteractionEnabled = false;
-                NavigationItem.RightBarButtonItem.Enabled = false;
                 pickedPhoto = asset;
                 previousPhotoLocalIdentifier = source.CurrentlySelectedItem?.Item2?.LocalIdentifier;
                 var pickOptions = new PHImageRequestOptions() 
@@ -472,6 +472,10 @@ namespace Steepshot.iOS.Views
             else
             {
                 rightBarButton.Enabled = false;
+                leftBarButton.Enabled = false;
+                titleView.UserInteractionEnabled = false;
+                photoCollection.UserInteractionEnabled = false;
+
                 if (_urlAsset.Duration.Seconds > Core.Constants.VideoMaxDuration)
                     PostCreatedPopup.Show(View, "Video will be cut at 20 seconds.");
 
@@ -489,7 +493,11 @@ namespace Steepshot.iOS.Views
                 });*/
                 var descriptionViewController = new DescriptionViewController(url);
                 NavigationController.PushViewController(descriptionViewController, true);
+
                 rightBarButton.Enabled = true;
+                leftBarButton.Enabled = true;
+                titleView.UserInteractionEnabled = true;
+                photoCollection.UserInteractionEnabled = true;
             }
         }
 
