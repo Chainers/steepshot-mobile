@@ -212,14 +212,24 @@ namespace Steepshot.iOS.Views
                 NavigationItem.RightBarButtonItem.Enabled = false;
                 pickedPhoto = asset;
                 previousPhotoLocalIdentifier = source.CurrentlySelectedItem?.Item2?.LocalIdentifier;
-                var pickOptions = new PHImageRequestOptions() { ResizeMode = PHImageRequestOptionsResizeMode.Exact, DeliveryMode = PHImageRequestOptionsDeliveryMode.HighQualityFormat, NetworkAccessAllowed = true };
+                var pickOptions = new PHImageRequestOptions() 
+                {
+                    ResizeMode = PHImageRequestOptionsResizeMode.Exact, 
+                    DeliveryMode = PHImageRequestOptionsDeliveryMode.HighQualityFormat, 
+                    NetworkAccessAllowed = true 
+                };
                 var imageSize = ImageHelper.CalculateInSampleSize(new CGSize(asset.Item2.PixelWidth, asset.Item2.PixelHeight), Core.Constants.PhotoMaxSize, Core.Constants.PhotoMaxSize);
 
                 _m.RequestImageForAsset(asset.Item2, imageSize, PHImageContentMode.Default, pickOptions, PickImage);
             }
             else
             {
-                _m.RequestAvAsset(asset.Item2, null, PickVideo);
+                var pickOptions = new PHVideoRequestOptions()
+                {
+                    DeliveryMode = PHVideoRequestOptionsDeliveryMode.HighQualityFormat,
+                    NetworkAccessAllowed = true
+                };
+                _m.RequestAvAsset(asset.Item2, pickOptions, PickVideo);
             }
         }
 
