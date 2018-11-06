@@ -12,6 +12,7 @@ namespace Steepshot.Utils.Media
     {
         public TimeSpan Duration => TimeSpan.FromTicks(_player?.Duration * 10000L ?? 0);
         public TimeSpan CurrentPosition => TimeSpan.FromTicks(_player?.CurrentPosition * 10000L ?? 0);
+        public event Action Mute;
         public event Action Ready;
         private VideoPlayer _player;
 
@@ -26,6 +27,7 @@ namespace Steepshot.Utils.Media
             _player = App.VideoPlayerManager.GetFreePlayer();
             _player.StateChanged += PlayerOnStateChanged;
             _player.Prepare(st, media);
+            _player.VolumeChanged += Mute;
         }
 
         public override void Play()

@@ -14,6 +14,17 @@ namespace Steepshot.Utils.Media
         private readonly Context _context;
         private readonly SimpleCache _cache;
 
+        private bool _volumeEnabled;
+        public bool VolumeEnabled
+        {
+            get => _volumeEnabled;
+            set
+            {
+                _volumeEnabled = value;
+                _videoPlayers.ForEach(p => p.Mute());
+            }
+        }
+
         public VideoPlayerManager(Context context, long cacheSize)
         {
             _context = context;

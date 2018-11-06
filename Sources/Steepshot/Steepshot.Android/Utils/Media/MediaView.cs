@@ -10,6 +10,7 @@ using Android.Provider;
 using Android.Util;
 using Android.Views;
 using Android.Widget;
+using Steepshot.Base;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Utils;
 
@@ -34,8 +35,10 @@ namespace Steepshot.Utils.Media
 
         protected Handler MainHandler;
         protected Dictionary<MediaType, IMediaProducer> MediaProducers;
+        protected FrameLayout VideoLayout;
         protected TextureView VideoView;
         protected ImageView ImageView;
+        protected ImageView VideoVolume;
         private Paint _durationPaint;
         private bool _playBack;
 
@@ -70,6 +73,7 @@ namespace Steepshot.Utils.Media
             MediaProducers[MediaType.Image].PreDraw += PreDraw;
             MediaProducers[MediaType.Video].Draw += Draw;
             MediaProducers[MediaType.Video].PreDraw += PreDraw;
+            ((VideoProducer)MediaProducers[MediaType.Video]).Mute += VolumeIconState;
             ((VideoProducer)MediaProducers[MediaType.Video]).Ready += OnReady;
 
             ImageView = new ImageView(Context)
@@ -79,23 +83,49 @@ namespace Steepshot.Utils.Media
             };
             ImageView.SetScaleType(ImageView.ScaleType.CenterCrop);
 
+            VideoLayout = new FrameLayout(Context)
+            {
+                LayoutParameters =
+                    new LayoutParams(ViewGroup.LayoutParams.MatchParent, ViewGroup.LayoutParams.MatchParent)
+            };
+
             VideoView = new TextureView(Context)
             {
                 LayoutParameters =
                     new LayoutParams(ViewGroup.LayoutParams.MatchParent, ViewGroup.LayoutParams.MatchParent)
             };
 
+            VideoVolume = new ImageView(Context)
+            {
+                LayoutParameters =
+                    new LayoutParams((int)BitmapUtils.DpToPixel(62, Context.Resources), (int)BitmapUtils.DpToPixel(62, Context.Resources))
+            };
+            var buttonPaddings = (int)BitmapUtils.DpToPixel(15, Context.Resources);
+            VideoVolume.SetPadding(buttonPaddings, buttonPaddings, buttonPaddings, buttonPaddings);
+            var volumeIconParams = (LayoutParams)VideoVolume.LayoutParameters;
+            volumeIconParams.Gravity = GravityFlags.Right | GravityFlags.Bottom;
+            VideoVolume.LayoutParameters = volumeIconParams;
+            VideoVolume.Click += VolumeAction;
+            VolumeIconState();
+
             AddView(ImageView);
-            AddView(VideoView);
+            AddView(VideoLayout);
+            VideoLayout.AddView(VideoView);
+            VideoLayout.AddView(VideoVolume);
 
             VideoView.SurfaceTextureListener = this;
+        }
+
+        private void VolumeAction(object sender, EventArgs e)
+        {
+            App.VideoPlayerManager.VolumeEnabled = !App.VideoPlayerManager.VolumeEnabled;
         }
 
         private async void OnReady()
         {
             if (_playBack && MediaType == MediaType.Video)
             {
-                VideoView.BringToFront();
+                VideoLayout.BringToFront();
                 while (_playBack)
                 {
                     Invalidate();
@@ -153,6 +183,11 @@ namespace Steepshot.Utils.Media
                 _playBack = false;
                 MediaProducers[MediaType].Stop();
             });
+        }
+
+        public void VolumeIconState()
+        {
+            VideoVolume.SetImageResource(App.VideoPlayerManager.VolumeEnabled ? Resource.Drawable.ic_soundOn : Resource.Drawable.ic_soundOff);
         }
 
         private void Draw(WeakReference<Bitmap> weakBmp)
