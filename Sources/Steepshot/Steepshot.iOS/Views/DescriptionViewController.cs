@@ -18,7 +18,6 @@ using System.IO;
 using System.Linq;
 using Steepshot.Core.Localization;
 using ImageIO;
-using Steepshot.Core.Exceptions;
 using Steepshot.iOS.CustomViews;
 using AVFoundation;
 using Steepshot.iOS.Delegates;

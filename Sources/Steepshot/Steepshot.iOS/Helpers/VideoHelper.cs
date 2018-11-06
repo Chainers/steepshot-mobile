@@ -11,7 +11,7 @@ namespace Steepshot.iOS.Helpers
 {
     public class VideoHelper
     {
-        public async Task<NSUrl> CropAssetToSquareInCenter(AVUrlAsset urlAsset, float renderSide, Tuple<int, int> rangeToTrim)
+        public async Task<NSUrl> CropAssetToSquareInCenter(AVUrlAsset urlAsset, float renderSide, Tuple<int, int> rangeToTrim, CGPoint shift)
         {
             var videoTrack = urlAsset.TracksWithMediaType(AVMediaType.Video).FirstOrDefault();
 
@@ -31,12 +31,18 @@ namespace Steepshot.iOS.Helpers
 
             var videoTransform = videoTrack.PreferredTransform;
 
+            /*
             var rotateInRadians = Math.Atan2(videoTransform.xx * 1.0, videoTransform.xy * 1.0);
-
             if (rotateInRadians == Math.PI || rotateInRadians == 0)
                 videoTransform.Translate(0, -(videoTrack.NaturalSize.Height - renderSide) / 2);
             else
                 videoTransform.Translate(-(videoTrack.NaturalSize.Height - renderSide) / 2, 0);
+            */
+
+            if(videoTrack.NaturalSize.Height < videoTrack.NaturalSize.Width)
+                videoTransform.Translate(-shift.X * videoTrack.NaturalSize.Height, -shift.Y * videoTrack.NaturalSize.Height);
+            else
+                videoTransform.Translate(-shift.X * videoTrack.NaturalSize.Width, -shift.Y * videoTrack.NaturalSize.Width);
 
             var naturalSide = videoTrack.NaturalSize.Height > videoTrack.NaturalSize.Width ? videoTrack.NaturalSize.Width : videoTrack.NaturalSize.Height;
             videoTransform.Scale(renderSide / naturalSide, renderSide / naturalSide);
@@ -51,7 +57,7 @@ namespace Steepshot.iOS.Helpers
 
             var videoComposition = new AVMutableVideoComposition
             {
-                FrameDuration = new CMTime(1, (int)videoTrack.NominalFrameRate),
+                FrameDuration = new CMTime(1, 30),
                 Instructions = new AVVideoCompositionInstruction[] { instruction },
                 RenderSize = new CGSize(renderSide, renderSide)
             };

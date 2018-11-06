@@ -26,6 +26,7 @@ namespace Steepshot.iOS.Views
         private PhotoCollectionViewFlowDelegate delegateP;
         private string previousPhotoLocalIdentifier;
         private Tuple<NSIndexPath, PHAsset> pickedPhoto;
+        private AVUrlAsset _urlAsset;
         private bool _toSquareMode = true;
         private UILabel _titleLabel;
         private UIView _modalFolderView = new UIView();
@@ -133,6 +134,7 @@ namespace Steepshot.iOS.Views
                 resize.AddGestureRecognizer(zoomTap);
                 multiSelect.AddGestureRecognizer(multiselectTap);
             }
+            _cropView?.VideoView?.Play();
             base.ViewWillAppear(animated);
         }
 
@@ -151,8 +153,8 @@ namespace Steepshot.iOS.Views
                 rotate.RemoveGestureRecognizer(rotateTap);
                 resize.RemoveGestureRecognizer(zoomTap);
                 multiSelect.RemoveGestureRecognizer(multiselectTap);
-                _cropView.VideoView.Stop();
             }
+            _cropView.VideoView.Stop();
             base.ViewWillDisappear(animated);
         }
 
@@ -219,7 +221,7 @@ namespace Steepshot.iOS.Views
 
         private void PickVideo(AVAsset asset, AVAudioMix audioMix, NSDictionary info)
         {
-            var urlAsset = asset as AVUrlAsset;
+            _urlAsset = asset as AVUrlAsset;
             var track = asset.TracksWithMediaType(AVMediaType.Video).First();
             var dimensions = CGAffineTransform.CGRectApplyAffineTransform(new CGRect(0, 0, track.NaturalSize.Width, track.NaturalSize.Height), track.PreferredTransform);
             InvokeOnMainThread(() =>
@@ -230,7 +232,7 @@ namespace Steepshot.iOS.Views
                 NavigationItem.RightBarButtonItem.Enabled = true;
                 photoCollection.UserInteractionEnabled = true;
             });
-            _cropView.VideoView.ChangeItem(urlAsset.Url);
+            _cropView.VideoView.ChangeItem(_urlAsset.Url);
             _cropView.VideoView.Play();
         }
 
@@ -419,37 +421,57 @@ namespace Steepshot.iOS.Views
             }
         }
 
-        private void GoForward(object sender, EventArgs e)
+        private async void GoForward(object sender, EventArgs e)
         {
-            var croppedPhotos = new List<Tuple<NSDictionary, UIImage>>();
-
-            var currentPhoto = source.ImageAssets.FirstOrDefault(a => a.Asset.LocalIdentifier == source.CurrentlySelectedItem.Item2.LocalIdentifier);
-            if (currentPhoto != null)
+            if (assetMediaType == PHAssetMediaType.Image)
             {
-                currentPhoto.Offset = _cropView.ContentOffset;
-                currentPhoto.Scale = _cropView.ZoomScale;
-                currentPhoto.OriginalImageSize = _cropView.originalContentSize;
-                currentPhoto.Orientation = _cropView.orientation;
-            }
+                var croppedPhotos = new List<Tuple<NSDictionary, UIImage>>();
 
-            foreach (var item in source.ImageAssets)
-            {
-                NSDictionary metadata = null;
-                var croppedPhoto = _cropView.CropImage(item);
-                _m.RequestImageData(item.Asset, new PHImageRequestOptions() { Synchronous = true }, (data, dataUti, orientation, info) =>
+                var currentPhoto = source.ImageAssets.FirstOrDefault(a => a.Asset.LocalIdentifier == source.CurrentlySelectedItem.Item2.LocalIdentifier);
+                if (currentPhoto != null)
                 {
-                    if (data != null)
+                    currentPhoto.Offset = _cropView.ContentOffset;
+                    currentPhoto.Scale = _cropView.ZoomScale;
+                    currentPhoto.OriginalImageSize = _cropView.originalContentSize;
+                    currentPhoto.Orientation = _cropView.orientation;
+                }
+
+                foreach (var item in source.ImageAssets)
+                {
+                    NSDictionary metadata = null;
+                    var croppedPhoto = _cropView.CropImage(item);
+                    _m.RequestImageData(item.Asset, new PHImageRequestOptions() { Synchronous = true }, (data, dataUti, orientation, info) =>
                     {
-                        var dataSource = CGImageSource.FromData(data);
-                        metadata = dataSource?.GetProperties(0)?.Dictionary;
-                    }
-                });
+                        if (data != null)
+                        {
+                            var dataSource = CGImageSource.FromData(data);
+                            metadata = dataSource?.GetProperties(0)?.Dictionary;
+                        }
+                    });
 
-                croppedPhotos.Add(new Tuple<NSDictionary, UIImage>(metadata, croppedPhoto));
+                    croppedPhotos.Add(new Tuple<NSDictionary, UIImage>(metadata, croppedPhoto));
+                }
+
+                var descriptionViewController = new DescriptionViewController(croppedPhotos, "jpg");
+                NavigationController.PushViewController(descriptionViewController, true);
             }
+            else
+            {
+                var vh = new VideoHelper();
+                var url = await vh.CropAssetToSquareInCenter(_urlAsset, 720, new Tuple<int, int>(0, 20),
+                                                             new CGPoint(_cropView.ContentOffset.X / _cropView.Frame.Width, _cropView.ContentOffset.Y / _cropView.Frame.Height));
+                //if should save in gallery
+                /*
+                PHPhotoLibrary.SharedPhotoLibrary.PerformChanges(() =>
+                {
+                    PHAssetChangeRequest.FromVideo(url);
+                }, (bool arg1, NSError arg2) =>
+                {
 
-            var descriptionViewController = new DescriptionViewController(croppedPhotos, "jpg");
-            NavigationController.PushViewController(descriptionViewController, true);
+                });*/
+                var descriptionViewController = new DescriptionViewController(url);
+                NavigationController.PushViewController(descriptionViewController, true);
+            }
         }
 
         private void RotateTap()
