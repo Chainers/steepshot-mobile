@@ -143,7 +143,7 @@ namespace Steepshot.iOS.Views
                 RefreshPage();
                 ShouldProfileUpdate = false;
 
-                PostCreatedPopup.Show(View);
+                PostCreatedPopup.Show(View, AppDelegate.Localization.GetText(LocalizationKeys.PostDelay));
             }
         }
 

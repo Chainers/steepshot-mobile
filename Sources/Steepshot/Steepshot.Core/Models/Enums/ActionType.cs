@@ -17,6 +17,7 @@
         Tap,
         Delete,
         Edit,
+        Show,
         Hide,
         Photo,
         Share,

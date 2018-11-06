@@ -56,6 +56,11 @@ namespace Steepshot.iOS.CustomViews
                 SetupTimer();
         }
 
+        public VideoView(CGRect frame, bool isLoopNeeded, bool showTime) : this (isLoopNeeded, showTime)
+        {
+            Frame = frame;
+        }
+
         private void SetupTimer()
         {
             _timerLabel = new UILabel();

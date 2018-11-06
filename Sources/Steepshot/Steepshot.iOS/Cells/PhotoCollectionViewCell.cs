@@ -19,7 +19,10 @@ namespace Steepshot.iOS.Cells
         private UIImageView _galleryImage;
         private UIView _selectFrame;
         private UIView _selectView;
+        private UIView _disabledMask;
         private UILabel _countLabel;
+        private UILabel _duration;
+        private PHAssetMediaType _mediaType;
         private readonly TriangleView _triangle = new TriangleView();
 
         public bool IsSelected
@@ -40,10 +43,38 @@ namespace Steepshot.iOS.Cells
             _triangle.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 5);
         }
 
-        public void UpdateImage(PHImageManager cm, PHAsset photo, bool isCurrentlySelected, int count = 0, bool? isSelected = null)
+        public void UpdateImage(PHImageManager cm, PHAsset asset, bool isCurrentlySelected, int count = 0, bool? isSelected = null)
         {
             if (_bodyImage == null)
                 CreateImageView();
+
+            _mediaType = asset.MediaType;
+
+            if (_duration == null)
+            {
+                _duration = new UILabel();
+                _duration.Font = Constants.Semibold14;
+                _duration.TextColor = UIColor.White;
+                _duration.BackgroundColor = UIColor.Black.ColorWithAlpha(0.5f);
+                _duration.UserInteractionEnabled = false;
+                _duration.Hidden = true;
+                ContentView.AddSubview(_duration);
+                _duration.AutoPinEdgeToSuperviewEdge(ALEdge.Right);
+                _duration.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom);
+            }
+
+            _duration.Text = _mediaType == PHAssetMediaType.Video ? $" {TimeSpan.FromSeconds(asset.Duration).ToString("mm\\:ss")} " : string.Empty;
+            _duration.Hidden = _mediaType == PHAssetMediaType.Image;
+
+            if (_disabledMask == null)
+            {
+                _disabledMask = new UIView();
+                _disabledMask.BackgroundColor = UIColor.Black.ColorWithAlpha(0.4f);
+                _disabledMask.Hidden = true;
+                _disabledMask.UserInteractionEnabled = true;
+                ContentView.AddSubview(_disabledMask);
+                _disabledMask.AutoPinEdgesToSuperviewEdges();
+            }
 
             if (_selectView == null)
             {
@@ -64,10 +95,8 @@ namespace Steepshot.iOS.Cells
                 _countLabel.TextColor = UIColor.White;
                 _selectView.AddSubview(_countLabel);
                 _countLabel.AutoCenterInSuperview();
-
             }
             _countLabel.Text = (count + 1).ToString();
-
 
             if (_selectFrame == null)
             {
@@ -79,10 +108,12 @@ namespace Steepshot.iOS.Cells
                 ContentView.AddSubview(_selectFrame);
             }
             _selectFrame.Hidden = !isCurrentlySelected;
+            
+            ManageSelector(_mediaType == PHAssetMediaType.Image ? isSelected : null);
 
-            ManageSelector(isSelected);
+            _disabledMask.Hidden = isSelected == null || _mediaType == PHAssetMediaType.Image;
 
-            cm.RequestImageForAsset(photo, new CGSize(200, 200),
+            cm.RequestImageForAsset(asset, new CGSize(200, 200),
                                                  PHImageContentMode.AspectFill, new PHImageRequestOptions() { Synchronous = true }, (img, info) =>
                                        {
                                            _bodyImage.Image = img;

@@ -10,7 +10,7 @@ namespace Steepshot.iOS.Popups
 {
     public static class PostCreatedPopup
     {
-        public static void Show(UIView viewToAdd)
+        public static void Show(UIView viewToAdd, string message)
         {
             var warningView = new CustomView();
             warningView.ClipsToBounds = true;
@@ -29,7 +29,7 @@ namespace Steepshot.iOS.Popups
             warningImage.Image = UIImage.FromBundle("ic_info");
 
             var warningLabel = new UILabel();
-            warningLabel.Text = AppDelegate.Localization.GetText(LocalizationKeys.PostDelay);
+            warningLabel.Text = message;
             warningLabel.Lines = 5;
             warningLabel.Font = Constants.Regular12;
             warningLabel.TextColor = UIColor.FromRGB(255, 255, 255);
@@ -39,7 +39,7 @@ namespace Steepshot.iOS.Popups
 
             warningImage.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 20);
             warningImage.AutoAlignAxisToSuperviewAxis(ALAxis.Horizontal);
-            warningImage.SetContentCompressionResistancePriority(999, UILayoutConstraintAxis.Horizontal);
+            //warningImage.SetContentCompressionResistancePriority(999, UILayoutConstraintAxis.Horizontal);
 
             warningLabel.AutoPinEdge(ALEdge.Left, ALEdge.Right, warningImage, 20);
             warningLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Top, 20);

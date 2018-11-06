@@ -189,6 +189,7 @@ namespace Steepshot.iOS.Views
             UIView.Animate(0.2, 0, UIViewAnimationOptions.CurveEaseOut, View.LayoutIfNeeded, null);
 
             _currentMode = targetMode;
+            SetGalleryButton();
         }
 
         private UIImage CircleBorder(nfloat diameter, UIColor color, bool opaque = false)
@@ -228,7 +229,14 @@ namespace Steepshot.iOS.Views
                 {
                     if (status.Result == PHAuthorizationStatus.Authorized)
                     {
-                        var fetchedAssets = PHAsset.FetchAssets(PHAssetMediaType.Image, null);
+                        var fetchOptions = new PHFetchOptions
+                        {
+                            Predicate = NSPredicate.FromFormat("duration >= %d", FromObject(Core.Constants.VideoMinDuration))
+                        };
+                        var fetchedAssets = _currentMode == MediaType.Photo ? 
+                                            PHAsset.FetchAssets(PHAssetMediaType.Image, null) : 
+                                            PHAsset.FetchAssets(PHAssetMediaType.Video, fetchOptions);
+                       
                         if (fetchedAssets.LastObject is PHAsset lastGalleryPhoto)
                         {
                             _galleryButton.UserInteractionEnabled = true;

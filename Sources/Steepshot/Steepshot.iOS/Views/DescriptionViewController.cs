@@ -18,7 +18,6 @@ using System.IO;
 using System.Linq;
 using Steepshot.Core.Localization;
 using ImageIO;
-using Steepshot.Core.Exceptions;
 using Steepshot.iOS.CustomViews;
 using AVFoundation;
 using Steepshot.iOS.Delegates;
@@ -231,7 +230,7 @@ namespace Steepshot.iOS.Views
             {
                 RotatePhotoIfNeeded();
                 _cropView.AdjustImageViewSize(ImageAssets[0].Item2);
-                _cropView.imageView.Image = ImageAssets[0].Item2;
+                _cropView.ImageView.Image = ImageAssets[0].Item2;
                 _cropView.ApplyCriticalScale();
                 _cropView.ZoomTap(true, false);
                 _cropView.SetScrollViewInsets();
@@ -482,7 +481,7 @@ namespace Steepshot.iOS.Views
 
             if (_isFromCamera && !skipPreparationSteps)
             {
-                var croppedPhoto = _cropView.CropImage(new SavedPhoto(null, ImageAssets[0].Item2, _cropView.ContentOffset) { OriginalImageSize = _cropView.originalImageSize, Scale = _cropView.ZoomScale });
+                var croppedPhoto = _cropView.CropImage(new SavedPhoto(null, ImageAssets[0].Item2, _cropView.ContentOffset) { OriginalImageSize = _cropView.originalContentSize, Scale = _cropView.ZoomScale });
                 ImageAssets.RemoveAt(0);
                 ImageAssets.Add(new Tuple<NSDictionary, UIImage>(null, croppedPhoto));
             }
@@ -622,7 +621,7 @@ namespace Steepshot.iOS.Views
             _cropView.RotateTap();
 
             ImageAssets.RemoveAt(0);
-            ImageAssets.Add(new Tuple<NSDictionary, UIImage>(null, _cropView.imageView.Image));
+            ImageAssets.Add(new Tuple<NSDictionary, UIImage>(null, _cropView.ImageView.Image));
             _cropView.ApplyCriticalScale();
         }
 

@@ -270,15 +270,16 @@ namespace Steepshot.iOS.Delegates
             var pa = _vs.GetPHAsset((int)indexPath.Item);
             if (pa != null)
             {
+                if (pa.MediaType == PHAssetMediaType.Video && _vs.MultiPickMode)
+                    return;
+
                 if (_vs.ImageAssets.Count >= postLimit && !_vs.ImageAssets.Any(a => a.Asset.LocalIdentifier == pa.LocalIdentifier))
                 {
                     CellClicked?.Invoke(ActionType.Close, new Tuple<NSIndexPath, PHAsset>(indexPath, null));
                     return;
                 }
 
-                CellClicked?.Invoke(ActionType.Preview, new Tuple<NSIndexPath, PHAsset>(indexPath, pa));
-
-                var index = _vs.ImageAssets.FindIndex(a => a.Asset.LocalIdentifier == pa.LocalIdentifier);
+                CellClicked?.Invoke(!_vs.MultiPickMode && pa.MediaType == PHAssetMediaType.Video ? ActionType.Hide : ActionType.Show, new Tuple<NSIndexPath, PHAsset>(indexPath, pa));
 
                 if (_vs.CurrentlySelectedItem.Item1 != null)
                     ((PhotoCollectionViewCell)collectionView.CellForItem(_vs.CurrentlySelectedItem.Item1))?.ToggleCell(false);
