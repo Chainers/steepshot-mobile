@@ -64,7 +64,7 @@ namespace Steepshot.Fragment
                 Presenter.TryLoadPostInfoAsync(_url);
             }
         }
-        
+
         private void BackButtonOnClick(object sender, EventArgs eventArgs) => ((BaseActivity)Activity).OnBackPressed();
 
         private void PresenterOnSourceChanged(Status status)
@@ -72,6 +72,7 @@ namespace Steepshot.Fragment
             _container.Visibility = ViewStates.Visible;
             _loadingBar.Visibility = ViewStates.Gone;
             PostViewHolder.UpdateData(Presenter.PostInfo, Activity);
+            PostViewHolder.Playback(true);
         }
 
         public PostViewFragment(string url)
@@ -128,7 +129,7 @@ namespace Steepshot.Fragment
                     {
                         if (!App.User.HasPostingPermission)
                             return;
-                        
+
                         var result = await Presenter.TryFlagAsync(post);
                         if (!IsInitialized)
                             return;
