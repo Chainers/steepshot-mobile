@@ -11,6 +11,7 @@ using Com.Google.Android.Exoplayer2.Trackselection;
 using Com.Google.Android.Exoplayer2.Upstream;
 using Com.Google.Android.Exoplayer2.Upstream.Cache;
 using Com.Google.Android.Exoplayer2.Util;
+using Steepshot.Base;
 using Steepshot.Core;
 using Steepshot.Core.Models.Common;
 using Object = Java.Lang.Object;
@@ -23,6 +24,7 @@ namespace Steepshot.Utils.Media
         public long Duration => _player.Duration;
         public long CurrentPosition => _player.CurrentPosition;
         public event Action<int> StateChanged;
+        public event Action VolumeChanged;
 
         private readonly Context _context;
         private readonly SimpleCache _cache;
@@ -44,6 +46,7 @@ namespace Steepshot.Utils.Media
             var defaultRenderersFactory = new DefaultRenderersFactory(context);
             _player = ExoPlayerFactory.NewSimpleInstance(defaultRenderersFactory, defaultTrackSelector);
             _player.RepeatMode = 1;
+            _player.Volume = App.VideoPlayerManager.VolumeEnabled ? 1 : 0;
             _player.AddListener(this);
         }
 
@@ -86,6 +89,12 @@ namespace Steepshot.Utils.Media
         {
             Pause();
             _player.Stop(true);
+        }
+
+        public void Mute()
+        {
+            _player.Volume = App.VideoPlayerManager.VolumeEnabled ? 1 : 0;
+            VolumeChanged?.Invoke();
         }
 
         protected override void Dispose(bool disposing)
