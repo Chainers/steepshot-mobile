@@ -99,6 +99,13 @@
 					android:visibility="gone"
 					android:layout_width="match_parent"
 					android:layout_height="match_parent"/>
+					
+					<Steepshot.Utils.Media.MediaView
+					android:id="@+id/media_view"
+					android:visibility="gone"
+					android:layout_width="match_parent"
+					android:layout_height="match_parent"/>
+
 				</Steepshot.CustomViews.RoundedRelativeLayout>
 			</RelativeLayout>
             <LinearLayout

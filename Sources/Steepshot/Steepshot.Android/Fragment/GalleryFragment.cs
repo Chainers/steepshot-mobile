@@ -123,22 +123,25 @@ namespace Steepshot.Fragment
 
             if (_pickedItems.Count > 0)
             {
-                if (MimeTypeHelper.IsVideo(_pickedItems[0].MimeType))
-                {
-                    if (_pickedItems[0].Duration.TotalSeconds > Constants.VideoMaxDuration / 2f)
-                        Activity.ShowAlert(LocalizationKeys.VideoDurationLimit, ToastLength.Short);
-
-                    _pickedItems[0].Parameters.CropBounds = _vpreview.CropArea;
-                    ((BaseActivity)Activity).OpenNewContentFragment(new PreviewPostCreateFragment(_pickedItems[0]));
-                    return;
-                }
-
                 for (int i = 0; i < _pickedItems.Count; i++)
                 {
                     var itm = _pickedItems[i];
-                    if (itm.Selected)
-                        itm.Parameters = _preview.DrawableImageParameters.Copy();
+                    if (MimeTypeHelper.IsVideo(itm.MimeType))
+                    {
+                        if (itm.Duration.TotalSeconds > Constants.VideoMaxDuration / 2f)
+                            Activity.ShowAlert(LocalizationKeys.VideoDurationLimit, ToastLength.Short);
 
+                        itm.Parameters.CropBounds = _vpreview.CropArea;
+                        itm.Parameters.Scale = 1;
+                        itm.Parameters.Rotation = 0;
+                        itm.Parameters.Height = _vpreview.VideoLayout.Height;
+                        itm.Parameters.Width = _vpreview.VideoLayout.Width;
+                    }
+                    else
+                    {
+                        if (itm.Selected)
+                            itm.Parameters = _preview.DrawableImageParameters.Copy();
+                    }
                 }
 
                 ((BaseActivity)Activity).OpenNewContentFragment(new PostCreateFragment(_pickedItems));

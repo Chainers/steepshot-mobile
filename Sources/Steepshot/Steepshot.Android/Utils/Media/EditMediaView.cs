@@ -43,7 +43,7 @@ namespace Steepshot.Utils.Media
                 {
                     MainHandler.Post(() =>
                     {
-                        MediaProducers[MediaType]?.Prepare(VideoView.SurfaceTexture, value);
+                        MediaProducers[CurrentMediaType]?.Prepare(VideoView.SurfaceTexture, value);
                     });
                 }
                 SetUi(value);

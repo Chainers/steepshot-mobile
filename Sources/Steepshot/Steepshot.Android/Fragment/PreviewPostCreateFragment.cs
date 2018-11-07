@@ -13,6 +13,7 @@ using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Database;
 using Steepshot.Core.Utils;
+using Steepshot.CustomViews;
 using Steepshot.Utils;
 using Steepshot.Utils.Media;
 
@@ -23,7 +24,8 @@ namespace Steepshot.Fragment
         private CancellationTokenSource _videoCropCts;
 
         #region BindView
-
+        
+        [BindView(Resource.Id.photo_preview)] protected CropView Preview;
         [BindView(Resource.Id.ratio_switch)] protected ImageButton RatioBtn;
         [BindView(Resource.Id.rotate)] protected ImageButton RotateBtn;
         [BindView(Resource.Id.video_preview)] protected EditMediaView MediaView;

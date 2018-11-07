@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Android.App;
 using Android.Content;
@@ -15,6 +16,7 @@ using CheeseBind;
 using Java.IO;
 using Steepshot.Adapter;
 using Steepshot.Base;
+using Steepshot.CameraGL;
 using Steepshot.Core;
 using Steepshot.Core.Exceptions;
 using Steepshot.Core.Localization;
@@ -22,8 +24,10 @@ using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Database;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
+using Steepshot.Core.Utils;
 using Steepshot.CustomViews;
 using Steepshot.Utils;
+using Steepshot.Utils.Media;
 
 namespace Steepshot.Fragment
 {
@@ -32,7 +36,7 @@ namespace Steepshot.Fragment
         #region BindView
 
         [BindView(Resource.Id.photos)] protected RecyclerView Photos;
-        [BindView(Resource.Id.photo_preview)] protected CropView Preview;
+        [BindView(Resource.Id.media_view)] protected MediaView MediaView;
         [BindView(Resource.Id.media_preview_container)] protected RoundedRelativeLayout PreviewContainer;
 
         #endregion
@@ -83,7 +87,7 @@ namespace Steepshot.Fragment
         {
             if (_isSingleMode)
             {
-                Preview.Visibility = ViewStates.Visible;
+                MediaView.Visibility = ViewStates.Visible;
                 PreviewContainer.Visibility = ViewStates.Visible;
                 PreviewContainer.Radius = Style.CornerRadius5;
 
@@ -91,10 +95,13 @@ namespace Steepshot.Fragment
                 var layoutParams = new RelativeLayout.LayoutParams(previewSize.Width, previewSize.Height);
                 layoutParams.SetMargins(Style.Margin15, 0, Style.Margin15, Style.Margin15);
                 PreviewContainer.LayoutParameters = layoutParams;
-                Preview.Touch += PreviewOnTouch;
 
                 if (!string.IsNullOrEmpty(Media[0].TempPath))
-                    Preview.SetImageBitmap(Media[0].TempPath);
+                    MediaView.MediaSource = new MediaModel
+                    {
+                        ContentType = Media[0].MimeType,
+                        Url = Media[0].TempPath
+                    };
             }
             else
             {
@@ -126,162 +133,200 @@ namespace Steepshot.Fragment
             await StartUploadMedia();
         }
 
-        private void PreviewOnTouch(object sender, View.TouchEventArgs touchEventArgs)
+        protected async Task<bool> ConvertAndSave()
         {
-            //event interception
-            touchEventArgs.Handled = true;
-        }
-
-        protected Task<bool> ConvertAndSave()
-        {
-            return Task.Run(() =>
-            {
-                try
-                {
-                    for (var i = 0; i < Media.Count; i++)
-                    {
-                        var model = Media[i];
-
-                        if (!string.IsNullOrEmpty(model.TempPath))
-                            continue;
-
-                        model.TempPath = CropAndSave(model);
-                        model.UploadState = UploadState.ReadyToUpload;
-
-                        if (!IsInitialized)
-                            break;
-
-                        var i1 = i;
-                        Activity.RunOnUiThread(() =>
-                        {
-                            if (_isSingleMode)
-                                Preview.SetImageBitmap(model.TempPath);
-                            else
-                                _galleryAdapter.NotifyItemChanged(i1);
-                        });
-                    }
-
-                    return true;
-                }
-                catch (Exception ex)
-                {
-                    App.Logger.ErrorAsync(ex);
-                    return false;
-                }
-            });
-        }
-
-        public string CropAndSave(GalleryMediaModel model)
-        {
-            FileStream stream = null;
-            Bitmap sized = null;
-            Bitmap croped = null;
             try
             {
-                var parameters = model.Parameters;
-                var rotation = parameters.Rotation;
-                var previewBounds = parameters.PreviewBounds;
-                var cropBounds = parameters.CropBounds;
-
-                var options = new BitmapFactory.Options { InJustDecodeBounds = true };
-                BitmapFactory.DecodeFile(model.Path, options);
-
-                var pWidth = (int)Math.Round((previewBounds.Right - previewBounds.Left) / parameters.Scale);
-                var dZ = (rotation % 180 > 0 ? options.OutHeight : options.OutWidth) / (float)pWidth;
-
-                var width = (int)Math.Round((cropBounds.Right - cropBounds.Left) * dZ / parameters.Scale);
-                var height = (int)Math.Round((cropBounds.Bottom - cropBounds.Top) * dZ / parameters.Scale);
-                var x = (int)Math.Max(Math.Round(-previewBounds.Left * dZ / parameters.Scale), 0);
-                var y = (int)Math.Max(Math.Round(-previewBounds.Top * dZ / parameters.Scale), 0);
-
-                var sampleSize = BitmapUtils.CalculateInSampleSize(width, height, BitmapUtils.MaxImageSize, BitmapUtils.MaxImageSize);
-
-                width = width / sampleSize;
-                height = height / sampleSize;
-                x = x / sampleSize;
-                y = y / sampleSize;
-
-                options.InSampleSize = sampleSize;
-                options.InJustDecodeBounds = false;
-                options.InPreferQualityOverSpeed = true;
-                sized = BitmapFactory.DecodeFile(model.Path, options);
-
-
-                switch (rotation)
+                for (var i = 0; i < Media.Count; i++)
                 {
-                    case 90:
-                        {
-                            var b = width;
-                            width = height;
-                            height = b;
+                    var model = Media[i];
 
-                            b = x;
-                            x = y;
-                            y = sized.Height - b - height;
-                            break;
-                        }
-                    case 180:
-                        {
-                            x = sized.Width - width - x;
-                            y = sized.Height - height - y;
-                            break;
-                        }
-                    case 270:
-                        {
-                            var b = width;
-                            width = height;
-                            height = b;
+                    if (!string.IsNullOrEmpty(model.TempPath))
+                        continue;
 
-                            b = y;
-                            y = x;
-                            x = sized.Width - b - width;
-                            break;
-                        }
+                    model.TempPath = await CropAndSave(model).ConfigureAwait(true);
+                    model.UploadState = UploadState.ReadyToUpload;
+
+                    if (!IsInitialized)
+                        break;
+
+                    var i1 = i;
+
+                    if (_isSingleMode)
+                    {
+                        MediaView.MediaSource = new MediaModel
+                        {
+                            ContentType = model.MimeType,
+                            Url = model.TempPath,
+                        };
+                        MediaView.Play();
+                    }
+                    else
+                        _galleryAdapter.NotifyItemChanged(i1);
                 }
 
-                x = Math.Max(x, 0);
-                y = Math.Max(y, 0);
-
-                if (x + width > sized.Width)
-                    width = sized.Width - x;
-                if (y + height > sized.Height)
-                    height = sized.Height - y;
-
-                var matrix = new Matrix();
-                matrix.SetRotate(rotation);
-
-                croped = Bitmap.CreateBitmap(sized, x, y, width, height, matrix, true);
-
-                var directory = new Java.IO.File(Context.CacheDir, Constants.Steepshot);
-                if (!directory.Exists())
-                    directory.Mkdirs();
-
-                var outPath = $"{directory}/{Guid.NewGuid()}.jpeg";
-                stream = new FileStream(outPath, FileMode.Create);
-                croped.Compress(Bitmap.CompressFormat.Jpeg, 99, stream);
-
-                var args = new Dictionary<string, string>
-                {
-                    {ExifInterface.TagImageLength, croped.Height.ToString()},
-                    {ExifInterface.TagImageWidth, croped.Width.ToString()},
-                    {ExifInterface.TagOrientation, "1"},
-                };
-
-                BitmapUtils.CopyExif(model.Path, outPath, args);
-
-                return outPath;
+                return true;
             }
             catch (Exception ex)
             {
                 App.Logger.ErrorAsync(ex);
-                return string.Empty;
+                return false;
             }
-            finally
+        }
+
+        public async Task<string> CropAndSave(GalleryMediaModel model)
+        {
+            if (MimeTypeHelper.IsVideo(model.MimeType))
+                return await CropAndSaveVideoAsync(model);
+
+            return await CropAndSaveImage(model);
+        }
+
+        private async Task<string> CropAndSaveVideoAsync(GalleryMediaModel model)
+        {
+            var media = Media[0];
+            var directory = new Java.IO.File(Context.CacheDir, Constants.Steepshot);
+            if (!directory.Exists())
+                directory.Mkdirs();
+
+            try
             {
-                stream?.Dispose();
-                BitmapUtils.ReleaseBitmap(sized);
-                BitmapUtils.ReleaseBitmap(croped);
+                var editor = new VideoEditor();
+                var tempPath = await editor.PerformEdit(media.Path, $"{directory}/{Guid.NewGuid()}.mp4", 0, 20, media.Parameters.CropBounds, Presenter.OnDisposeCts.Token);
+
+                if (!string.IsNullOrEmpty(tempPath))
+                {
+                    media.TempPath = tempPath;
+                    media.UploadState = UploadState.ReadyToUpload;
+                }
+
+                return tempPath;
             }
+            catch (Exception e)
+            {
+                Activity.ShowAlert(e);
+                await App.Logger.ErrorAsync(e);
+            }
+
+            return string.Empty;
+        }
+
+        private async Task<string> CropAndSaveImage(GalleryMediaModel model)
+        {
+            return await Task.Run(() =>
+            {
+
+                FileStream stream = null;
+                Bitmap sized = null;
+                Bitmap croped = null;
+                try
+                {
+                    var parameters = model.Parameters;
+                    var rotation = parameters.Rotation;
+                    var previewBounds = parameters.PreviewBounds;
+                    var cropBounds = parameters.CropBounds;
+
+                    var options = new BitmapFactory.Options { InJustDecodeBounds = true };
+                    BitmapFactory.DecodeFile(model.Path, options);
+
+                    var pWidth = (int)Math.Round((previewBounds.Right - previewBounds.Left) / parameters.Scale);
+                    var dZ = (rotation % 180 > 0 ? options.OutHeight : options.OutWidth) / (float)pWidth;
+
+                    var width = (int)Math.Round((cropBounds.Right - cropBounds.Left) * dZ / parameters.Scale);
+                    var height = (int)Math.Round((cropBounds.Bottom - cropBounds.Top) * dZ / parameters.Scale);
+                    var x = (int)Math.Max(Math.Round(-previewBounds.Left * dZ / parameters.Scale), 0);
+                    var y = (int)Math.Max(Math.Round(-previewBounds.Top * dZ / parameters.Scale), 0);
+
+                    var sampleSize = BitmapUtils.CalculateInSampleSize(width, height, BitmapUtils.MaxImageSize, BitmapUtils.MaxImageSize);
+
+                    width = width / sampleSize;
+                    height = height / sampleSize;
+                    x = x / sampleSize;
+                    y = y / sampleSize;
+
+                    options.InSampleSize = sampleSize;
+                    options.InJustDecodeBounds = false;
+                    options.InPreferQualityOverSpeed = true;
+                    sized = BitmapFactory.DecodeFile(model.Path, options);
+
+
+                    switch (rotation)
+                    {
+                        case 90:
+                            {
+                                var b = width;
+                                width = height;
+                                height = b;
+
+                                b = x;
+                                x = y;
+                                y = sized.Height - b - height;
+                                break;
+                            }
+                        case 180:
+                            {
+                                x = sized.Width - width - x;
+                                y = sized.Height - height - y;
+                                break;
+                            }
+                        case 270:
+                            {
+                                var b = width;
+                                width = height;
+                                height = b;
+
+                                b = y;
+                                y = x;
+                                x = sized.Width - b - width;
+                                break;
+                            }
+                    }
+
+                    x = Math.Max(x, 0);
+                    y = Math.Max(y, 0);
+
+                    if (x + width > sized.Width)
+                        width = sized.Width - x;
+                    if (y + height > sized.Height)
+                        height = sized.Height - y;
+
+                    var matrix = new Matrix();
+                    matrix.SetRotate(rotation);
+
+                    croped = Bitmap.CreateBitmap(sized, x, y, width, height, matrix, true);
+
+                    var directory = new Java.IO.File(Context.CacheDir, Constants.Steepshot);
+                    if (!directory.Exists())
+                        directory.Mkdirs();
+
+                    var outPath = $"{directory}/{Guid.NewGuid()}.jpeg";
+                    stream = new FileStream(outPath, FileMode.Create);
+                    croped.Compress(Bitmap.CompressFormat.Jpeg, 99, stream);
+
+                    var args = new Dictionary<string, string>
+                    {
+                        {ExifInterface.TagImageLength, croped.Height.ToString()},
+                        {ExifInterface.TagImageWidth, croped.Width.ToString()},
+                        {ExifInterface.TagOrientation, "1"},
+                    };
+
+                    BitmapUtils.CopyExif(model.Path, outPath, args);
+
+                    return outPath;
+                }
+                catch (Exception ex)
+                {
+                    App.Logger.ErrorAsync(ex);
+                }
+                finally
+                {
+                    stream?.Dispose();
+                    BitmapUtils.ReleaseBitmap(sized);
+                    BitmapUtils.ReleaseBitmap(croped);
+                }
+
+                return string.Empty;
+            });
         }
 
         private async Task StartUploadMedia()

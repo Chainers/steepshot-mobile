@@ -96,7 +96,7 @@ namespace Steepshot.CameraGL
 
                 var format = _extractor.GetTrackFormat(tracks.VideoTrack);
                 var mimeType = format.GetString(MediaFormat.KeyMime);
-                format.SetInteger(MediaFormat.KeyWidth, 1280);
+                format.SetInteger(MediaFormat.KeyMaxWidth, 1280);
                 format.SetInteger(MediaFormat.KeyMaxHeight, 1280);
 
                 _encoder = new VideoEditorEncoder();

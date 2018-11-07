@@ -18,7 +18,12 @@ namespace Steepshot.Utils.Media
 {
     public class MediaView : FrameLayout, TextureView.ISurfaceTextureListener
     {
-        public MediaType MediaType { get; private set; }
+        public MediaType CurrentMediaType
+        {
+            get;
+            private set;
+        }
+
         private MediaModel _mediaSource;
         public virtual MediaModel MediaSource
         {
@@ -27,16 +32,21 @@ namespace Steepshot.Utils.Media
             {
                 if (_mediaSource != value)
                 {
+                    if (_mediaSource != null)
+                    {
+                        //TODO ???
+                    }
+
                     _mediaSource = value;
                     var mimeType = _mediaSource.ContentType;
-                    MediaType = MimeTypeHelper.IsVideo(mimeType) ? MediaType.Video : MediaType.Image;
+                    CurrentMediaType = MimeTypeHelper.IsVideo(mimeType) ? MediaType.Video : MediaType.Image;
                 }
             }
         }
 
         protected Handler MainHandler;
         protected Dictionary<MediaType, IMediaProducer> MediaProducers;
-        protected FrameLayout VideoLayout;
+        public FrameLayout VideoLayout;
         protected TextureView VideoView;
         protected ImageView ImageView;
         protected ImageView VideoVolume;
@@ -126,7 +136,11 @@ namespace Steepshot.Utils.Media
 
         private async void OnReady()
         {
-            if (_playBack && MediaType == MediaType.Video)
+            var type = CurrentMediaType;
+            if (type == MediaType.None)
+                return;
+
+            if (_playBack && type == MediaType.Video)
             {
                 VideoLayout.BringToFront();
                 while (_playBack)
@@ -139,8 +153,12 @@ namespace Steepshot.Utils.Media
 
         public override void Draw(Canvas canvas)
         {
+            var type = CurrentMediaType;
+            if (type == MediaType.None)
+                return;
+
             base.Draw(canvas);
-            if (MediaType == MediaType.Video && _playBack)
+            if (type == MediaType.Video && _playBack)
             {
                 var videoProd = (VideoProducer)MediaProducers[MediaType.Video];
                 if (DrawTime && videoProd.Duration.TotalSeconds > 0)
@@ -155,12 +173,16 @@ namespace Steepshot.Utils.Media
 
         public void Play()
         {
+            var type = CurrentMediaType;
+            if (type == MediaType.None)
+                return;
+
             MainHandler?.Post(() =>
             {
                 _playBack = true;
-                if (MediaType == MediaType.Video && VideoView.IsAvailable)
+                if (type == MediaType.Video && VideoView.IsAvailable)
                 {
-                    MediaProducers[MediaType]?.Play();
+                    MediaProducers[type]?.Play();
                 }
                 else
                 {
@@ -171,21 +193,29 @@ namespace Steepshot.Utils.Media
 
         public void Pause()
         {
+            var type = CurrentMediaType;
+            if (type == MediaType.None)
+                return;
+
             MainHandler?.Post(() =>
             {
                 _playBack = false;
                 ImageView.BringToFront();
-                MediaProducers[MediaType].Pause();
+                MediaProducers[type].Pause();
             });
         }
 
         public void Stop()
         {
+            var type = CurrentMediaType;
+            if (type == MediaType.None)
+                return;
+
             MainHandler?.Post(() =>
             {
                 _playBack = false;
                 ImageView.BringToFront();
-                MediaProducers[MediaType].Stop();
+                MediaProducers[type].Stop();
             });
         }
 
@@ -209,25 +239,33 @@ namespace Steepshot.Utils.Media
 
         public void OnSurfaceTextureAvailable(SurfaceTexture surface, int width, int height)
         {
+            var type = CurrentMediaType;
+            if (type == MediaType.None)
+                return;
+
             MainHandler?.Post(() =>
             {
-                if (!MediaProducers.ContainsKey(MediaType))
+                if (!MediaProducers.ContainsKey(type))
                     return;
 
-                MediaProducers[MediaType]?.Prepare(surface, _mediaSource);
+                MediaProducers[type]?.Prepare(surface, _mediaSource);
                 if (_playBack)
-                    MediaProducers[MediaType]?.Play();
+                    MediaProducers[type]?.Play();
             });
         }
 
         public bool OnSurfaceTextureDestroyed(SurfaceTexture surface)
         {
+            var type = CurrentMediaType;
+            if (type == MediaType.None)
+                return true;
+
             MainHandler?.Post(() =>
             {
-                if (!MediaProducers.ContainsKey(MediaType))
+                if (!MediaProducers.ContainsKey(type))
                     return;
 
-                MediaProducers[MediaType].Stop();
+                MediaProducers[type].Stop();
                 ImageView.BringToFront();
             });
             return true;
