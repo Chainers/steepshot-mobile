@@ -349,4 +349,5 @@ About 6 inches away</string>
     <string name="PromoteConfirmation">Are you sure you want to send {0} {1} to @{2}?</string>
     <string name="TransferConfirmation">Are you sure you want to transfer {0} {1} to @{2}?</string>
     <string name="PowerUpDownConfirmation">Are you sure you want to {0} {1} {2}?</string>
+    <string name="VideoDurationLimit">Video will be cut to 20 sec</string>
 </resources>

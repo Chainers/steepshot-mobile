@@ -234,10 +234,11 @@
         MinSP,
         NotificationWarning,
         NotificationTransfers,
-        PromoteConfirmation, 
+        PromoteConfirmation,
         TransferConfirmation,
         PowerUpDownConfirmation,
         Video,
         EnableCameraAccess,
+        VideoDurationLimit
     }
 }

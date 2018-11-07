@@ -126,7 +126,7 @@ namespace Steepshot.Fragment
                 if (MimeTypeHelper.IsVideo(_pickedItems[0].MimeType))
                 {
                     if (_pickedItems[0].Duration.TotalSeconds > Constants.VideoMaxDuration / 2f)
-                        Activity.ShowAlert(LocalizationKeys.AcceptToS);
+                        Activity.ShowAlert(LocalizationKeys.VideoDurationLimit, ToastLength.Short);
 
                     _pickedItems[0].Parameters.CropBounds = _vpreview.CropArea;
                     ((BaseActivity)Activity).OpenNewContentFragment(new PreviewPostCreateFragment(_pickedItems[0]));

@@ -91,7 +91,7 @@ namespace Steepshot.Fragment
 
         public override void OnDetach()
         {
-            _videoCropCts.Cancel();
+            _videoCropCts?.Cancel();
             base.OnDetach();
         }
 

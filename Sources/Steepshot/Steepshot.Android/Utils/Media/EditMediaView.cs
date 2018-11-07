@@ -18,10 +18,10 @@ namespace Steepshot.Utils.Media
         {
             get
             {
-                _cropArea.Left = (int)Math.Round(VideoView.TranslationX / _scalingRatio);
-                _cropArea.Top = (int)Math.Round(VideoView.TranslationY / _scalingRatio);
-                _cropArea.Right = (int)Math.Round((VideoView.TranslationX + VideoView.LayoutParameters.Width - Width) / _scalingRatio);
-                _cropArea.Bottom = (int)Math.Round((VideoView.TranslationY + VideoView.LayoutParameters.Height - Height) / _scalingRatio);
+                _cropArea.Left = (int)Math.Round(VideoLayout.TranslationX / _scalingRatio);
+                _cropArea.Top = (int)Math.Round(VideoLayout.TranslationY / _scalingRatio);
+                _cropArea.Right = (int)Math.Round((VideoLayout.TranslationX + VideoLayout.LayoutParameters.Width - Width) / _scalingRatio);
+                _cropArea.Bottom = (int)Math.Round((VideoLayout.TranslationY + VideoLayout.LayoutParameters.Height - Height) / _scalingRatio);
                 return _cropArea;
             }
             set => _cropArea = value;
@@ -63,25 +63,25 @@ namespace Steepshot.Utils.Media
 
         private void SetUi(MediaModel model)
         {
-            VideoView.TranslationX = VideoView.TranslationY = 0;
+            VideoLayout.TranslationX = VideoLayout.TranslationY = 0;
 
             _videoWidth = model.Size.Width;
             _videoHeight = model.Size.Height;
             if (_videoWidth > _videoHeight)
             {
-                VideoView.LayoutParameters.Height = Height;
+                VideoLayout.LayoutParameters.Height = Height;
                 _scalingRatio = Height > _videoHeight ? Height / (float)_videoHeight : _videoHeight / (float)Height;
-                VideoView.LayoutParameters.Width = (int)Math.Round(_videoWidth * _scalingRatio);
-                VideoView.TranslationX = _cropArea?.Width() > 0 ? _cropArea.Left * _scalingRatio : -(VideoView.LayoutParameters.Width - Width) / 2f;
-                VideoView.TranslationY = 0;
+                VideoLayout.LayoutParameters.Width = (int)Math.Round(_videoWidth * _scalingRatio);
+                VideoLayout.TranslationX = _cropArea?.Width() > 0 ? _cropArea.Left * _scalingRatio : -(VideoLayout.LayoutParameters.Width - Width) / 2f;
+                VideoLayout.TranslationY = 0;
             }
             else
             {
-                VideoView.LayoutParameters.Width = Width;
+                VideoLayout.LayoutParameters.Width = Width;
                 _scalingRatio = Width > _videoWidth ? Width / (float)_videoWidth : _videoWidth / (float)Width;
-                VideoView.LayoutParameters.Height = (int)Math.Round(_videoHeight * _scalingRatio);
-                VideoView.TranslationY = _cropArea?.Height() > 0 ? _cropArea.Top * _scalingRatio : -(VideoView.LayoutParameters.Height - Height) / 2f;
-                VideoView.TranslationX = 0;
+                VideoLayout.LayoutParameters.Height = (int)Math.Round(_videoHeight * _scalingRatio);
+                VideoLayout.TranslationY = _cropArea?.Height() > 0 ? _cropArea.Top * _scalingRatio : -(VideoLayout.LayoutParameters.Height - Height) / 2f;
+                VideoLayout.TranslationX = 0;
             }
         }
 
@@ -93,16 +93,16 @@ namespace Steepshot.Utils.Media
             switch (e.Event.Action)
             {
                 case MotionEventActions.Down:
-                    _startX = e.Event.RawX - VideoView.TranslationX;
-                    _startY = e.Event.RawY - VideoView.TranslationY;
+                    _startX = e.Event.RawX - VideoLayout.TranslationX;
+                    _startY = e.Event.RawY - VideoLayout.TranslationY;
                     break;
                 case MotionEventActions.Move:
                     var xTranslation = e.Event.RawX - _startX;
                     var yTranslation = e.Event.RawY - _startY;
-                    if (xTranslation < 0 && xTranslation >= Width - VideoView.Width)
-                        VideoView.TranslationX = xTranslation;
-                    if (yTranslation < 0 && yTranslation >= Height - VideoView.Height)
-                        VideoView.TranslationY = yTranslation;
+                    if (xTranslation < 0 && xTranslation >= Width - VideoLayout.Width)
+                        VideoLayout.TranslationX = xTranslation;
+                    if (yTranslation < 0 && yTranslation >= Height - VideoLayout.Height)
+                        VideoLayout.TranslationY = yTranslation;
                     break;
             }
         }
