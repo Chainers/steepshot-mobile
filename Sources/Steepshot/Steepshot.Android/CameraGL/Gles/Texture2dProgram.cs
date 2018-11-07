@@ -218,7 +218,7 @@ namespace Steepshot.CameraGL.Gles
                 if (InputSize.Width > InputSize.Height)
                 {
                     Matrix.ScaleM(mvpMatrix, 0, InputSize.Width / (float)InputSize.Height, 1f, 1f);
-                    if (ViewPort != null)
+                    if (ViewPort != null && ViewPort.Width() > 0)
                     {
                         var multiplier = 1f - InputSize.Height / (float)InputSize.Width;
                         Matrix.TranslateM(mvpMatrix, 0, 2f * multiplier * ViewPort.Left / ViewPort.Width() + multiplier, 0f, 0f);
@@ -229,7 +229,7 @@ namespace Steepshot.CameraGL.Gles
                     if (ViewPort == null)
                         Matrix.TranslateM(mvpMatrix, 0, 0f, (Style.ScreenHeight - Style.ScreenWidth) / (2f * Style.ScreenHeight) - 1, 0f);
                     Matrix.ScaleM(mvpMatrix, 0, 1f, InputSize.Height / (float)InputSize.Width, 1f);
-                    if (ViewPort != null)
+                    if (ViewPort != null && ViewPort.Height() > 0)
                     {
                         var multiplier = 1f - InputSize.Width / (float)InputSize.Height;
                         Matrix.TranslateM(mvpMatrix, 0, 0f, -2f * multiplier * ViewPort.Top / ViewPort.Height() - multiplier, 0f);
