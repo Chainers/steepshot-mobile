@@ -92,6 +92,11 @@ namespace Steepshot.Fragment
                 PreviewContainer.Radius = Style.CornerRadius5;
 
                 var previewSize = BitmapUtils.CalculateImagePreviewSize(Media[0].Parameters, Style.ScreenWidth - Style.Margin15 * 2);
+                //TODO: not wok for video >
+                if (MimeTypeHelper.IsVideo(Media[0].MimeType))
+                {
+                    previewSize = new FrameSize(720, 720);
+                }
                 var layoutParams = new RelativeLayout.LayoutParams(previewSize.Width, previewSize.Height);
                 layoutParams.SetMargins(Style.Margin15, 0, Style.Margin15, Style.Margin15);
                 PreviewContainer.LayoutParameters = layoutParams;
