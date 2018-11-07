@@ -102,11 +102,14 @@ namespace Steepshot.Fragment
                 PreviewContainer.LayoutParameters = layoutParams;
 
                 if (!string.IsNullOrEmpty(Media[0].TempPath))
+                {
                     MediaView.MediaSource = new MediaModel
                     {
                         ContentType = Media[0].MimeType,
                         Url = Media[0].TempPath
                     };
+                    MediaView.Play();
+                }
             }
             else
             {

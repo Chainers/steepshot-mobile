@@ -248,7 +248,7 @@ namespace Steepshot.Utils.Media
                 if (!MediaProducers.ContainsKey(type))
                     return;
 
-                MediaProducers[type]?.Prepare(surface, _mediaSource);
+                MediaProducers[type]?.Prepare(surface, MediaSource);
                 if (_playBack)
                     MediaProducers[type]?.Play();
             });
