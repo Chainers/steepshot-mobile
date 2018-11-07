@@ -14,19 +14,26 @@ namespace Steepshot.CameraGL
 {
     public class MuxerWrapper
     {
+        public enum TrackMode
+        {
+            Video,
+            VideoAudio
+        }
+
+        public TrackMode Mode { get; set; } = TrackMode.VideoAudio;
         public event Action<string> MuxingFinished;
         private MediaMuxer Muxer { get; set; }
         private string _path;
         private File _outPutFile;
         private MuxerOutputType _muxerOutputType;
-        private readonly Dictionary<BaseMediaEncoder, int> _encoders;
+        private readonly Dictionary<MuxerTrack, int> _encoders;
         private CancellationTokenSource _muxerCts;
 
         private event Action WriteOutput;
 
         public MuxerWrapper()
         {
-            _encoders = new Dictionary<BaseMediaEncoder, int>();
+            _encoders = new Dictionary<MuxerTrack, int>();
             WriteOutput += OnWriteOutput;
         }
 
@@ -42,7 +49,7 @@ namespace Steepshot.CameraGL
             _muxerCts?.Cancel();
         }
 
-        public void AddTrack(BaseMediaEncoder encoder)
+        public void AddTrack(MuxerTrack encoder)
         {
             lock (_encoders)
             {
@@ -55,11 +62,14 @@ namespace Steepshot.CameraGL
                 if (_encoders.Any(x => x.Key.Type == encoder.Type))
                     throw new IllegalArgumentException("You already added track of this type");
 
+                if (Mode == TrackMode.Video && encoder.Type != EncoderType.Video)
+                    throw new IllegalArgumentException("You can add only video track");
+
+
                 var trackIndex = Muxer.AddTrack(encoder.OutputFormat);
                 _encoders.Add(encoder, trackIndex);
 
-                if (_encoders.Any(x => x.Key.Type == EncoderType.Video) &&
-                    _encoders.Any(x => x.Key.Type == EncoderType.Audio))
+                if (_encoders.Count == (Mode == TrackMode.Video ? 1 : 2))
                 {
                     try
                     {
@@ -89,6 +99,7 @@ namespace Steepshot.CameraGL
 
                         var info = new MediaCodec.BufferInfo();
 
+                        var lastPts = 0L;
                         do
                         {
                             if (_muxerCts.IsCancellationRequested)
@@ -98,7 +109,12 @@ namespace Steepshot.CameraGL
                             }
 
                             var buf = encoder.CircularBuffer.GetChunk(index, info);
-                            Muxer.WriteSampleData(_encoders[encoder], buf, info);
+                            if (info.PresentationTimeUs > +lastPts)
+                            {
+                                lastPts = info.PresentationTimeUs;
+                                Muxer.WriteSampleData(_encoders[encoder], buf, info);
+                            }
+
                             index = encoder.CircularBuffer.GetNextIndex(index);
                         } while (index >= 0);
                     });

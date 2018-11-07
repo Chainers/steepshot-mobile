@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Android.Database;
+using Android.Media;
 using Android.OS;
 using Android.Provider;
 using Android.Support.V7.Widget;
@@ -10,6 +11,7 @@ using Android.Widget;
 using CheeseBind;
 using Steepshot.Adapter;
 using Steepshot.Base;
+using Steepshot.Core;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Utils;
@@ -49,11 +51,16 @@ namespace Steepshot.Fragment
         private bool _multiSelect;
         private List<string> _buckets;
         private string _selectedBucket;
+        private readonly bool _onlyVideos;
 
         private GalleryGridAdapter _gridAdapter;
 
         #endregion
 
+        public GalleryFragment(bool onlyVideos = false)
+        {
+            _onlyVideos = onlyVideos;
+        }
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
@@ -69,9 +76,13 @@ namespace Steepshot.Fragment
         public override void OnViewCreated(View view, Bundle savedInstanceState)
         {
             if (IsInitialized)
+            {
+                _vpreview.Play();
                 return;
+            }
 
             base.OnViewCreated(view, savedInstanceState);
+            _vpreview.Editable = true;
 
             var toolbarHeight = (int)BitmapUtils.DpToPixel(10, Resources);
             _coordinator.LayoutParameters.Height = Style.ScreenWidth + Resources.DisplayMetrics.HeightPixels - toolbarHeight;
@@ -105,16 +116,29 @@ namespace Steepshot.Fragment
 
         private void NextBtnOnClick(object sender, EventArgs eventArgs)
         {
-            if (!_preview.IsBitmapReady)
+            if (_preview.Visibility == ViewStates.Visible && !_preview.IsBitmapReady)
                 return;
+
+            _vpreview.Stop();
 
             if (_pickedItems.Count > 0)
             {
+                if (MimeTypeHelper.IsVideo(_pickedItems[0].MimeType))
+                {
+                    if (_pickedItems[0].Duration.TotalSeconds > Constants.VideoMaxDuration / 2f)
+                        Activity.ShowAlert(LocalizationKeys.AcceptToS);
+
+                    _pickedItems[0].Parameters.CropBounds = _vpreview.CropArea;
+                    ((BaseActivity)Activity).OpenNewContentFragment(new PreviewPostCreateFragment(_pickedItems[0]));
+                    return;
+                }
+
                 for (int i = 0; i < _pickedItems.Count; i++)
                 {
                     var itm = _pickedItems[i];
                     if (itm.Selected)
                         itm.Parameters = _preview.DrawableImageParameters.Copy();
+
                 }
 
                 ((BaseActivity)Activity).OpenNewContentFragment(new PostCreateFragment(_pickedItems));
@@ -157,7 +181,7 @@ namespace Steepshot.Fragment
 
             foreach (var model in _gallery)
             {
-                model.MultySelect = _multiSelect;
+                model.MultiSelect = _multiSelect;
                 model.SelectionPosition = 0;
             }
 
@@ -210,10 +234,38 @@ namespace Steepshot.Fragment
                 _ratioBtn.Visibility = _rotateBtn.Visibility = _multiselectBtn.Visibility = ViewStates.Gone;
 
                 _vpreview.Stop();
+
+                using (var mdr = new MediaMetadataRetriever())
+                {
+                    mdr.SetDataSource(model.Path);
+                    if (model.Parameters == null)
+                    {
+                        var rot = int.Parse(mdr.ExtractMetadata(MetadataKey.VideoRotation));
+                        var width = int.Parse(mdr.ExtractMetadata(MetadataKey.VideoWidth));
+                        var height = int.Parse(mdr.ExtractMetadata(MetadataKey.VideoHeight));
+
+                        model.Parameters = new MediaParameters();
+                        if (rot > 0 && rot % 90 == 0)
+                        {
+                            model.Parameters.Width = height;
+                            model.Parameters.Height = width;
+                        }
+                        else
+                        {
+                            model.Parameters.Width = width;
+                            model.Parameters.Height = height;
+                        }
+                    }
+
+                    mdr.Release();
+                }
+
+                _vpreview.CropArea.SetEmpty();
                 _vpreview.MediaSource = new MediaModel
                 {
                     Url = model.Path,
-                    ContentType = model.MimeType
+                    ContentType = model.MimeType,
+                    Size = new FrameSize(model.Parameters.Height, model.Parameters.Width)
                 };
                 _vpreview.Play();
                 _preview.Visibility = ViewStates.Gone;
@@ -318,10 +370,17 @@ namespace Steepshot.Fragment
         {
             string[] columns = { $"DISTINCT {MediaStore.Images.ImageColumns.BucketDisplayName}" };
 
-            var imagesCursor = Activity.ContentResolver.Query(MediaStore.Images.Media.ExternalContentUri, columns, null, null, null);
-            var videosCursor = Activity.ContentResolver.Query(MediaStore.Video.Media.ExternalContentUri, columns, null, null, null);
             _buckets = new List<string> { App.Localization.GetText(LocalizationKeys.Gallery) };
-            MergeBuckets(imagesCursor, videosCursor);
+            if (!_onlyVideos)
+            {
+                var imagesCursor = Activity.ContentResolver.Query(MediaStore.Images.Media.ExternalContentUri, columns,
+                    null, null, null);
+                MergeBuckets(imagesCursor);
+                return;
+            }
+
+            var videosCursor = Activity.ContentResolver.Query(MediaStore.Video.Media.ExternalContentUri, columns, null, null, null);
+            MergeBuckets(videosCursor);
         }
 
         private void MergeBuckets(params ICursor[] cursors)
@@ -345,17 +404,24 @@ namespace Steepshot.Fragment
         {
             _gallery = new List<GalleryMediaModel>();
 
-            string[] imageColumns =
+            if (!_onlyVideos)
             {
-                MediaStore.Images.ImageColumns.Id,
-                MediaStore.Images.ImageColumns.Data,
-                MediaStore.Images.ImageColumns.DateTaken,
-                MediaStore.Images.ImageColumns.BucketDisplayName,
-                MediaStore.Images.ImageColumns.MimeType,
-                MediaStore.Images.ImageColumns.Orientation
-            };
+                string[] imageColumns =
+                {
+                    MediaStore.Images.ImageColumns.Id,
+                    MediaStore.Images.ImageColumns.Data,
+                    MediaStore.Images.ImageColumns.DateTaken,
+                    MediaStore.Images.ImageColumns.BucketDisplayName,
+                    MediaStore.Images.ImageColumns.MimeType,
+                    MediaStore.Images.ImageColumns.Orientation
+                };
 
-            var imagesCursor = Activity.ContentResolver.Query(MediaStore.Images.Media.ExternalContentUri, imageColumns, null, null, null);
+                var imagesCursor = Activity.ContentResolver.Query(MediaStore.Images.Media.ExternalContentUri,
+                    imageColumns, null, null, null);
+
+                MergeMediaCursors(imagesCursor);
+                return;
+            }
 
             string[] videoColumns =
             {
@@ -369,7 +435,7 @@ namespace Steepshot.Fragment
 
             var videosCursor = Activity.ContentResolver.Query(MediaStore.Video.Media.ExternalContentUri, videoColumns, null, null, null);
 
-            MergeMediaCursors(imagesCursor, videosCursor);
+            MergeMediaCursors(videosCursor);
         }
 
         private void MergeMediaCursors(params ICursor[] cursors)

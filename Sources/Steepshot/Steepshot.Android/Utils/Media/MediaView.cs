@@ -22,6 +22,7 @@ namespace Steepshot.Utils.Media
         private MediaModel _mediaSource;
         public virtual MediaModel MediaSource
         {
+            protected get => _mediaSource;
             set
             {
                 if (_mediaSource != value)
@@ -39,6 +40,7 @@ namespace Steepshot.Utils.Media
         protected TextureView VideoView;
         protected ImageView ImageView;
         protected ImageView VideoVolume;
+        protected bool DrawTime;
         private Paint _durationPaint;
         private bool _playBack;
 
@@ -54,6 +56,7 @@ namespace Steepshot.Utils.Media
 
         private void Init()
         {
+            DrawTime = true;
             Clickable = true;
             SetWillNotDraw(false);
             LayoutTransition = new LayoutTransition();
@@ -140,7 +143,7 @@ namespace Steepshot.Utils.Media
             if (MediaType == MediaType.Video && _playBack)
             {
                 var videoProd = (VideoProducer)MediaProducers[MediaType.Video];
-                if (videoProd.Duration.TotalSeconds > 0)
+                if (DrawTime && videoProd.Duration.TotalSeconds > 0)
                 {
                     var leftTime = (videoProd.Duration - videoProd.CurrentPosition).ToString(@"mm\:ss");
                     var textRect = new Rect();
@@ -181,6 +184,7 @@ namespace Steepshot.Utils.Media
             MainHandler?.Post(() =>
             {
                 _playBack = false;
+                ImageView.BringToFront();
                 MediaProducers[MediaType].Stop();
             });
         }
@@ -190,7 +194,7 @@ namespace Steepshot.Utils.Media
             VideoVolume.SetImageResource(App.VideoPlayerManager.VolumeEnabled ? Resource.Drawable.ic_soundOn : Resource.Drawable.ic_soundOff);
         }
 
-        private void Draw(WeakReference<Bitmap> weakBmp)
+        protected virtual void Draw(WeakReference<Bitmap> weakBmp)
         {
             if (!weakBmp.TryGetTarget(out var bitmap))
                 return;
@@ -198,7 +202,7 @@ namespace Steepshot.Utils.Media
             ImageView.SetImageBitmap(bitmap);
         }
 
-        private void PreDraw(ColorDrawable cdr)
+        protected virtual void PreDraw(ColorDrawable cdr)
         {
             ImageView.SetImageDrawable(cdr);
         }
@@ -220,6 +224,9 @@ namespace Steepshot.Utils.Media
         {
             MainHandler?.Post(() =>
             {
+                if (!MediaProducers.ContainsKey(MediaType))
+                    return;
+
                 MediaProducers[MediaType].Stop();
                 ImageView.BringToFront();
             });

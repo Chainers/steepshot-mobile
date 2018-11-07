@@ -56,11 +56,6 @@ namespace Steepshot.CustomViews
                 var y = Height - bounds.Height() * 2 - SelectionPaint.StrokeWidth / 2;
                 canvas.DrawRect(x, y, Width, Height, BlackPaint);
                 canvas.DrawText(duration, Width - SelectionPaint.StrokeWidth, Height - SelectionPaint.StrokeWidth, WhitePaint);
-                if (_model.MultySelect)
-                {
-                    canvas.DrawRect(0, 0, Width, Height, BlackPaint);
-                    return;
-                }
             }
 
             if (_model.Selected)
@@ -69,7 +64,7 @@ namespace Steepshot.CustomViews
                 canvas.DrawRect(0, 0, Width, Height, SelectionPaint);
             }
 
-            if (_model.MultySelect)
+            if (_model.MultiSelect)
             {
                 SelectionPaint.SetStyle(Paint.Style.Fill);
                 var radius = BitmapUtils.DpToPixel(15, Context.Resources);

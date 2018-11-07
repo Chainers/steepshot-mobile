@@ -100,6 +100,7 @@
     <Compile Include="CameraGL\Gles\GlUtil.cs" />
     <Compile Include="CameraGL\Gles\Texture2dProgram.cs" />
     <Compile Include="CameraGL\Gles\WindowSurface.cs" />
+    <Compile Include="CameraGL\MuxerTrack.cs" />
     <Compile Include="CameraGL\MuxerWrapper.cs" />
     <Compile Include="CameraGL\Enums\EncoderMessages.cs" />
     <Compile Include="CameraGL\Enums\RecordingStatus.cs" />

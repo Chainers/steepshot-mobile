@@ -311,7 +311,7 @@ namespace Steepshot.Fragment
         private void GalleryBtnOnClick(object sender, EventArgs e)
         {
             SetUiEnable(false);
-            ((BaseActivity)Activity).OpenNewContentFragment(new GalleryFragment());
+            ((BaseActivity)Activity).OpenNewContentFragment(new GalleryFragment(_cameraConfig == CameraConfig.Video));
         }
 
         private async void ShotBtnOnTouch(object sender, View.TouchEventArgs e)
@@ -408,6 +408,7 @@ namespace Steepshot.Fragment
             var mimeType = fp.GetMimeType(path);
             var model = new GalleryMediaModel(path, mimeType)
             {
+                Path = path,
                 TempPath = path,
                 UploadState = UploadState.ReadyToUpload,
                 Parameters = new MediaParameters

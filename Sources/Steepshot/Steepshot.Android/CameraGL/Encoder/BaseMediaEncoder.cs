@@ -2,18 +2,14 @@
 using Android.Media;
 using Android.OS;
 using Java.Lang;
-using Object = Java.Lang.Object;
 using Thread = Java.Lang.Thread;
 
 namespace Steepshot.CameraGL.Encoder
 {
-    public abstract class BaseMediaEncoder : Object, IRunnable
+    public abstract class BaseMediaEncoder : MuxerTrack, IRunnable
     {
         public BaseEncoderConfig Config { get; protected set; }
         public abstract MediaFormat Format { get; protected set; }
-        public abstract EncoderType Type { get; }
-        public abstract CircularEncoderBuffer CircularBuffer { get; protected set; }
-        public MediaFormat OutputFormat { get; private set; }
         protected int TimeoutUsec => 0;
         protected MediaCodec Codec;
         protected MuxerWrapper Muxer;

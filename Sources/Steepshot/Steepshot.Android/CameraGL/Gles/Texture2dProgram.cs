@@ -1,8 +1,11 @@
-﻿using Android.Opengl;
+﻿using Android.Graphics;
+using Android.Opengl;
 using Android.Util;
 using Java.Lang;
 using Java.Nio;
+using Steepshot.Core.Models.Common;
 using Steepshot.Utils;
+using Matrix = Android.Opengl.Matrix;
 using String = System.String;
 
 namespace Steepshot.CameraGL.Gles
@@ -41,7 +44,8 @@ namespace Steepshot.CameraGL.Gles
         // - Bake the filter kernel into the shader, instead of passing it through a uniform
         //   array.  That, combined with loop unrolling, should reduce memory accesses.
         public static int KERNEL_SIZE = 9;
-        public float AspectRatio { get; set; } = 1;
+        public FrameSize InputSize { get; set; }
+        public Rect ViewPort { get; set; }
 
         // Handles to the GL program and various components of it.
         private int _mProgramHandle;
@@ -209,10 +213,30 @@ namespace Steepshot.CameraGL.Gles
             GLES20.GlActiveTexture(GLES20.GlTexture0);
             GLES20.GlBindTexture(_mTextureTarget, textureId);
 
-            // Copy the model / view / projection matrix over. 
-            if (AspectRatio > 1)
-                Matrix.TranslateM(mvpMatrix, 0, 0f, (Style.ScreenHeight - Style.ScreenWidth) / (2f * Style.ScreenHeight) - 1, 0f);
-            Matrix.ScaleM(mvpMatrix, 0, 1, AspectRatio, 1);
+            if (InputSize != null)
+            {
+                if (InputSize.Width > InputSize.Height)
+                {
+                    Matrix.ScaleM(mvpMatrix, 0, InputSize.Width / (float)InputSize.Height, 1f, 1f);
+                    if (ViewPort != null)
+                    {
+                        var multiplier = 1f - InputSize.Height / (float)InputSize.Width;
+                        Matrix.TranslateM(mvpMatrix, 0, 2f * multiplier * ViewPort.Left / ViewPort.Width() + multiplier, 0f, 0f);
+                    }
+                }
+                else
+                {
+                    if (ViewPort == null)
+                        Matrix.TranslateM(mvpMatrix, 0, 0f, (Style.ScreenHeight - Style.ScreenWidth) / (2f * Style.ScreenHeight) - 1, 0f);
+                    Matrix.ScaleM(mvpMatrix, 0, 1f, InputSize.Height / (float)InputSize.Width, 1f);
+                    if (ViewPort != null)
+                    {
+                        var multiplier = 1f - InputSize.Width / (float)InputSize.Height;
+                        Matrix.TranslateM(mvpMatrix, 0, 0f, -2f * multiplier * ViewPort.Top / ViewPort.Height() - multiplier, 0f);
+                    }
+                }
+            }
+
             GLES20.GlUniformMatrix4fv(_muMvpMatrixLoc, 1, false, mvpMatrix, 0);
 
             // Copy the texture transformation matrix over.

@@ -54,7 +54,7 @@ namespace Steepshot.Utils
 
         public Bitmap PreparedBitmap { get; set; }
 
-        public bool MultySelect { get; set; }
+        public bool MultiSelect { get; set; }
 
         [JsonProperty]
         public string TempPath { get; set; }

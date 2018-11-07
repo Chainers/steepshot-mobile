@@ -27,6 +27,7 @@ namespace Steepshot.Utils.Media
             _player = App.VideoPlayerManager.GetFreePlayer();
             _player.StateChanged += PlayerOnStateChanged;
             _player.Prepare(st, media);
+            _player.VolumeChanged -= Mute;
             _player.VolumeChanged += Mute;
         }
 

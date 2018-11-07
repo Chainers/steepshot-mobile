@@ -599,5 +599,12 @@ namespace Steepshot.Core.Utils
                 return false;
             return mimeType.StartsWith("video", StringComparison.InvariantCulture);
         }
+
+        public static bool IsAudio(string mimeType)
+        {
+            if (string.IsNullOrEmpty(mimeType))
+                return false;
+            return mimeType.StartsWith("audio", StringComparison.InvariantCulture);
+        }
     }
 }

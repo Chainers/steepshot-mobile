@@ -6,8 +6,6 @@ namespace Steepshot.CameraGL.Encoder
 {
     public class VideoEncoder : BaseMediaEncoder
     {
-        public override EncoderType Type => EncoderType.Video;
-        public override CircularEncoderBuffer CircularBuffer { get; protected set; }
         public sealed override MediaFormat Format { get; protected set; }
         public Surface InputSurface { get; private set; }
 
@@ -23,6 +21,7 @@ namespace Steepshot.CameraGL.Encoder
         {
             Release();
 
+            Type = EncoderType.Video;
             var videoConfig = (VideoEncoderConfig)Config;
             Muxer = videoConfig.MuxerWrapper;
             CircularBuffer = new CircularEncoderBuffer(videoConfig.Bitrate, videoConfig.FrameRate, Config.BufferSizeSec);

@@ -288,7 +288,7 @@ namespace Steepshot.Fragment
             TagEdit.Text = string.Empty;
         }
 
-        protected void AnimateTagsLayout(bool openTags)
+        protected virtual void AnimateTagsLayout(bool openTags)
         {
             PageTitle.Text = App.Localization.GetText(openTags ? LocalizationKeys.AddHashtag : LocalizationKeys.PostSettings);
             TagEdit.Visibility = TagsListContainer.Visibility = openTags ? ViewStates.Visible : ViewStates.Gone;

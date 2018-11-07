@@ -5,8 +5,6 @@ namespace Steepshot.CameraGL.Encoder
 {
     public class AudioEncoder : BaseMediaEncoder
     {
-        public override EncoderType Type => EncoderType.Audio;
-        public override CircularEncoderBuffer CircularBuffer { get; protected set; }
         public sealed override MediaFormat Format { get; protected set; }
 
         public override void Configure(BaseEncoderConfig config)
@@ -21,6 +19,7 @@ namespace Steepshot.CameraGL.Encoder
         {
             Release();
 
+            Type = EncoderType.Audio;
             var audioConfig = (AudioEncoderConfig)Config;
             Muxer = audioConfig.MuxerWrapper;
             CircularBuffer = new CircularEncoderBuffer(audioConfig.Bitrate, audioConfig.SampleRate * 2 / audioConfig.SamplesPerFrame, audioConfig.BufferSizeSec);

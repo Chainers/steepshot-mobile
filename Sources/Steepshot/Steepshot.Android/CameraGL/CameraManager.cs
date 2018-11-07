@@ -12,6 +12,7 @@ using Java.Lang;
 using Steepshot.CameraGL.Audio;
 using Steepshot.CameraGL.Encoder;
 using Steepshot.CameraGL.Gles;
+using Steepshot.Core.Models.Common;
 using Steepshot.Utils;
 using Camera = Android.Hardware.Camera;
 using Object = Java.Lang.Object;
@@ -253,7 +254,8 @@ namespace Steepshot.CameraGL
             _cameraTexture.GetTransformMatrix(_tmpMatrix);
 
             GLES20.GlViewport(0, 0, _surface.Width, _surface.Height);
-            _texture2DProgram.AspectRatio = 1;
+            _texture2DProgram.InputSize = null;
+            _texture2DProgram.ViewPort = null;
             _fullFrame.DrawFrame(_textureId, _tmpMatrix);
             _displaySurface.SwapBuffers();
 
@@ -261,7 +263,8 @@ namespace Steepshot.CameraGL
             {
                 _encoderSurface.MakeCurrent();
                 GLES20.GlViewport(0, 0, _encoderWidth, _encoderHeight);
-                _texture2DProgram.AspectRatio = _previewWidth / (float)_previewHeight;
+                _texture2DProgram.InputSize = new FrameSize(_previewWidth, _previewHeight);
+                _texture2DProgram.ViewPort = null;
                 _fullFrame.DrawFrame(_textureId, _tmpMatrix);
                 _videoEncoder.FrameAvailable();
                 _encoderSurface.SetPresentationTime(timestamp);

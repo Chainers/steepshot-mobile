@@ -2,6 +2,11 @@
 {
     public class VideoEditorEncoder : VideoEncoder
     {
+        public override void Configure(BaseEncoderConfig config)
+        {
+            Config = config;
+        }
+
         public override void Start()
         {
             InitCodec();
@@ -10,14 +15,6 @@
 
         public override void Stop(bool save = false)
         {
-            if (save)
-            {
-                DrainEncoder(true);
-                Muxer.MuxingFinished += MuxingFinished;
-                Muxer.AddTrack(this);
-                return;
-            }
-
             Release();
         }
     }

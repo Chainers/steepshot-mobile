@@ -94,7 +94,7 @@
                         android:background="@android:color/transparent"
                         android:src="@drawable/ic_rotate" />
 					
-					<Steepshot.Utils.Media.MediaView
+					<Steepshot.Utils.Media.EditMediaView
 					android:id="@+id/video_preview"
 					android:visibility="gone"
 					android:layout_width="match_parent"
