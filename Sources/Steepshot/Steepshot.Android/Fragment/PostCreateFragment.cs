@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Android.App;
 using Android.Content;
@@ -81,6 +80,15 @@ namespace Steepshot.Fragment
 
             InitDataAsync();
             OnTagSearchQueryChanged();
+        }
+
+        protected override void AnimateTagsLayout(bool openTags)
+        {
+            if (openTags)
+                MediaView.Pause();
+            else
+                MediaView.Play();
+            base.AnimateTagsLayout(openTags);
         }
 
         protected virtual async Task InitDataAsync()

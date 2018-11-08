@@ -93,19 +93,11 @@
                         android:visibility="gone"
                         android:background="@android:color/transparent"
                         android:src="@drawable/ic_rotate" />
-					
-					<Steepshot.Utils.Media.EditMediaView
-					android:id="@+id/video_preview"
-					android:visibility="gone"
-					android:layout_width="match_parent"
-					android:layout_height="match_parent"/>
-					
 					<Steepshot.Utils.Media.MediaView
-					android:id="@+id/media_view"
-					android:visibility="gone"
-					android:layout_width="match_parent"
-					android:layout_height="match_parent"/>
-
+						android:id="@+id/media_view"
+						android:visibility="gone"
+						android:layout_width="match_parent"
+						android:layout_height="match_parent"/>
 				</Steepshot.CustomViews.RoundedRelativeLayout>
 			</RelativeLayout>
             <LinearLayout

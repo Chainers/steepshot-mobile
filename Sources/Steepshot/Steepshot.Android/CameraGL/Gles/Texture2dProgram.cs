@@ -4,7 +4,6 @@ using Android.Util;
 using Java.Lang;
 using Java.Nio;
 using Steepshot.Core.Models.Common;
-using Steepshot.Utils;
 using Matrix = Android.Opengl.Matrix;
 using String = System.String;
 
@@ -226,8 +225,6 @@ namespace Steepshot.CameraGL.Gles
                 }
                 else
                 {
-                    if (ViewPort == null)
-                        Matrix.TranslateM(mvpMatrix, 0, 0f, (Style.ScreenHeight - Style.ScreenWidth) / (2f * Style.ScreenHeight) - 1, 0f);
                     Matrix.ScaleM(mvpMatrix, 0, 1f, InputSize.Height / (float)InputSize.Width, 1f);
                     if (ViewPort != null && ViewPort.Height() > 0)
                     {

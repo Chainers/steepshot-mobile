@@ -264,7 +264,7 @@ namespace Steepshot.CameraGL
                 _encoderSurface.MakeCurrent();
                 GLES20.GlViewport(0, 0, _encoderWidth, _encoderHeight);
                 _texture2DProgram.InputSize = new FrameSize(_previewWidth, _previewHeight);
-                _texture2DProgram.ViewPort = null;
+                _texture2DProgram.ViewPort = new Rect(0, 0, 0, _previewHeight);
                 _fullFrame.DrawFrame(_textureId, _tmpMatrix);
                 _videoEncoder.FrameAvailable();
                 _encoderSurface.SetPresentationTime(timestamp);
