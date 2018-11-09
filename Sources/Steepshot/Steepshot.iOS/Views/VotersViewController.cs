@@ -59,7 +59,7 @@ namespace Steepshot.iOS.Views
             base.ViewWillAppear(animated);
         }
 
-        public override void ViewWillDisappear(bool animated)
+        public override void ViewDidDisappear(bool animated)
         {
             if (IsMovingFromParentViewController)
             {
@@ -70,7 +70,7 @@ namespace Steepshot.iOS.Views
                 Presenter.LoadCancel();
                 _tableSource.FreeAllCells();
             }
-            base.ViewWillDisappear(animated);
+            base.ViewDidDisappear(animated);
         }
 
         private void SetBackButton()

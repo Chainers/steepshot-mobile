@@ -102,7 +102,7 @@ namespace Steepshot.iOS.Views
                 AppDelegate.User.PushSettings = PushSettings;
         }
 
-        public override async void ViewWillDisappear(bool animated)
+        public override async void ViewDidDisappear(bool animated)
         {
             if (IsMovingFromParentViewController)
             {
@@ -116,7 +116,7 @@ namespace Steepshot.iOS.Views
             }
 
             await SavePushSettings();
-            base.ViewWillDisappear(animated);
+            base.ViewDidDisappear(animated);
         }
 
         private void CreateView()

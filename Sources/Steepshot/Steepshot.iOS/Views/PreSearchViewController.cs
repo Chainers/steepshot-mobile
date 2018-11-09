@@ -141,7 +141,7 @@ namespace Steepshot.iOS.Views
             base.ViewWillAppear(animated);
         }
 
-        public override void ViewWillDisappear(bool animated)
+        public override void ViewDidDisappear(bool animated)
         {
             NavigationController.SetNavigationBarHidden(false, false);
             StopPlayingVideo(sliderCollection, collectionView);
@@ -173,7 +173,7 @@ namespace Steepshot.iOS.Views
             if (TabBarController != null)
                 ((MainTabBarController)TabBarController).SameTabTapped -= SameTabTapped;
 
-            base.ViewWillDisappear(animated);
+            base.ViewDidDisappear(animated);
         }
 
         public void CleanViewController()

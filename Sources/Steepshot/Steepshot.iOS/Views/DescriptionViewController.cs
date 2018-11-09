@@ -204,6 +204,12 @@ namespace Steepshot.iOS.Views
 
         public override void ViewWillDisappear(bool animated)
         {
+            videoContainer?.Stop();
+            base.ViewWillDisappear(animated);
+        }
+
+        public override void ViewDidDisappear(bool animated)
+        {
             collectionviewSource.CellAction -= CollectionCellAction;
             if (IsMovingFromParentViewController)
             {
@@ -218,8 +224,7 @@ namespace Steepshot.iOS.Views
                 ((InteractivePopNavigationController)NavigationController).DidEnterBackgroundEvent -= VideoViewTapped;
                 ((InteractivePopNavigationController)NavigationController).WillEnterForegroundEvent -= VideoViewTapped;
             }
-            videoContainer?.Stop();
-            base.ViewWillDisappear(animated);
+            base.ViewDidDisappear(animated);
         }
 
         public override void ViewDidAppear(bool animated)

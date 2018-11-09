@@ -97,7 +97,7 @@ namespace Steepshot.iOS.Views
             base.ViewWillAppear(animated);
         }
 
-        public override void ViewWillDisappear(bool animated)
+        public override void ViewDidDisappear(bool animated)
         {
             /*
             if (_postToEdit != null)
@@ -119,7 +119,7 @@ namespace Steepshot.iOS.Views
                 CleanViewController();
 
             ((InteractivePopNavigationController)_navController).WillEnterForegroundEvent -= WillEnterForeground;
-            base.ViewWillDisappear(animated);
+            base.ViewDidDisappear(animated);
         }
         
         public void CleanViewController()
