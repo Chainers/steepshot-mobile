@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Foundation;
-using Steepshot.Core.Models;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Presenters;
@@ -9,24 +7,19 @@ using Steepshot.iOS.Cells;
 using Steepshot.iOS.Helpers;
 using Steepshot.iOS.ViewControllers;
 using Steepshot.iOS.ViewSources;
-using Steepshot.Core.Interfaces;
 using UIKit;
 using CoreGraphics;
 using Steepshot.Core.Exceptions;
-using Steepshot.Core.Utils;
 using Steepshot.iOS.Delegates;
 
 namespace Steepshot.iOS.Views
 {
-    public partial class FeedViewController : BasePostController<FeedPresenter>, IPageCloser
+    public partial class FeedViewController : BasePostController<FeedPresenter>
     {
         private FeedCollectionViewSource _collectionViewSource;
-        private CollectionViewFlowDelegate _gridDelegate;
         private UINavigationController _navController;
         private UIRefreshControl _refreshControl;
         private bool _isFeedRefreshing;
-        private SliderCollectionViewFlowDelegate _sliderGridDelegate;
-        private SliderCollectionViewSource _sliderCollectionViewSource;
 
         protected override void SourceChanged(Status status)
         {
@@ -39,12 +32,12 @@ namespace Steepshot.iOS.Views
         {
             if (!feedCollection.Hidden)
             {
-                _gridDelegate.GenerateVariables();
+                FeedCollectionViewDelegate.GenerateVariables();
                 feedCollection.ReloadData();
             }
             else
             {
-                _sliderGridDelegate.GenerateVariables();
+                SliderCollectionViewDelegate.GenerateVariables();
                 sliderCollection.ReloadData();
             }
         }
@@ -69,10 +62,13 @@ namespace Steepshot.iOS.Views
 
             _navController = TabBarController.NavigationController;
 
-            _gridDelegate = new CollectionViewFlowDelegate(feedCollection, Presenter);
-            _gridDelegate.ScrolledToBottom += ScrolledToBottom;
-            _gridDelegate.IsGrid = false;
-            _collectionViewSource = new FeedCollectionViewSource(Presenter, _gridDelegate);
+            FeedCollection = feedCollection;
+            SliderCollection = sliderCollection;
+
+            FeedCollectionViewDelegate = new CollectionViewFlowDelegate(feedCollection, Presenter);
+            FeedCollectionViewDelegate.ScrolledToBottom += ScrolledToBottom;
+            FeedCollectionViewDelegate.IsGrid = false;
+            _collectionViewSource = new FeedCollectionViewSource(Presenter, FeedCollectionViewDelegate);
             _collectionViewSource.IsGrid = false;
             _collectionViewSource.CellAction += CellAction;
             _collectionViewSource.TagAction += TagAction;
@@ -84,13 +80,13 @@ namespace Steepshot.iOS.Views
             feedCollection.RegisterClassForCell(typeof(NewFeedCollectionViewCell), nameof(NewFeedCollectionViewCell));
             feedCollection.RegisterClassForCell(typeof(LoaderCollectionCell), nameof(LoaderCollectionCell));
             feedCollection.Add(_refreshControl);
-            feedCollection.Delegate = _gridDelegate;
+            feedCollection.Delegate = FeedCollectionViewDelegate;
             feedCollection.DelaysContentTouches = false;
 
-            _sliderGridDelegate = new SliderCollectionViewFlowDelegate(sliderCollection, Presenter);
-            _sliderGridDelegate.ScrolledToBottom += ScrolledToBottom;
+            SliderCollectionViewDelegate = new SliderCollectionViewFlowDelegate(sliderCollection, Presenter);
+            SliderCollectionViewDelegate.ScrolledToBottom += ScrolledToBottom;
 
-            _sliderCollectionViewSource = new SliderCollectionViewSource(Presenter, _sliderGridDelegate);
+            SliderViewSource = new SliderCollectionViewSource(Presenter, SliderCollectionViewDelegate);
 
             sliderCollection.DecelerationRate = UIScrollView.DecelerationRateFast;
             sliderCollection.ShowsHorizontalScrollIndicator = false;
@@ -103,15 +99,15 @@ namespace Steepshot.iOS.Views
                 SectionInset = new UIEdgeInsets(0, 15, 0, 15),
             }, false);
 
-            sliderCollection.Source = _sliderCollectionViewSource;
+            sliderCollection.Source = SliderViewSource;
             sliderCollection.RegisterClassForCell(typeof(LoaderCollectionCell), nameof(LoaderCollectionCell));
             sliderCollection.RegisterClassForCell(typeof(SliderFeedCollectionViewCell), nameof(SliderFeedCollectionViewCell));
 
             sliderCollection.DelaysContentTouches = false;
 
-            _sliderCollectionViewSource.CellAction += CellAction;
-            _sliderCollectionViewSource.TagAction += TagAction;
-            sliderCollection.Delegate = _sliderGridDelegate;
+            SliderViewSource.CellAction += CellAction;
+            SliderViewSource.TagAction += TagAction;
+            sliderCollection.Delegate = SliderCollectionViewDelegate;
 
             SliderAction += (isOpening) =>
             {
@@ -201,37 +197,6 @@ namespace Steepshot.iOS.Views
             }
         }
 
-        public void OpenPost(Post post)
-        {
-            feedCollection.Hidden = true;
-            sliderCollection.Hidden = false;
-            _sliderGridDelegate.GenerateVariables();
-            sliderCollection.ReloadData();
-            var index = NSIndexPath.FromRowSection(Presenter.IndexOf(post), 0);
-            sliderCollection.ScrollToItem(index, UICollectionViewScrollPosition.CenteredHorizontally, false);
-            _sliderCollectionViewSource.playingIndex = index;
-        }
-
-        public bool ClosePost()
-        {
-            if (!sliderCollection.Hidden)
-            {
-                var visibleRect = new CGRect();
-                visibleRect.Location = sliderCollection.ContentOffset;
-                visibleRect.Size = sliderCollection.Bounds.Size;
-                var visiblePoint = new CGPoint(visibleRect.GetMidX(), visibleRect.GetMidY());
-                var index = sliderCollection.IndexPathForItemAtPoint(visiblePoint);
-
-                feedCollection.ScrollToItem(index, UICollectionViewScrollPosition.Top, false);
-                feedCollection.Hidden = false;
-                sliderCollection.Hidden = true;
-                _gridDelegate.GenerateVariables();
-                feedCollection.ReloadData();
-                return true;
-            }
-            return false;
-        }
-
         protected override async Task GetPosts(bool shouldStartAnimating = true, bool clearOld = false)
         {
             Exception exception;
@@ -244,7 +209,7 @@ namespace Steepshot.iOS.Views
                 if (clearOld)
                 {
                     Presenter.Clear();
-                    _gridDelegate.ClearPosition();
+                    FeedCollectionViewDelegate.ClearPosition();
                 }
                 exception = await Presenter.TryLoadNextTopPostsAsync();
 

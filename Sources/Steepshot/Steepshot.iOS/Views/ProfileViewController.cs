@@ -1,17 +1,13 @@
 ﻿using System;
 using System.Threading.Tasks;
 using CoreGraphics;
-using Foundation;
 using PureLayout.Net;
 using Steepshot.Core.Localization;
-using Steepshot.Core.Models;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
-using Steepshot.Core.Interfaces;
 using Steepshot.Core.Presenters;
-using Steepshot.Core.Utils;
 using Steepshot.iOS.Cells;
 using Steepshot.iOS.Delegates;
 using Steepshot.iOS.Helpers;
@@ -22,14 +18,12 @@ using Steepshot.iOS.Popups;
 
 namespace Steepshot.iOS.Views
 {
-    public partial class ProfileViewController : BasePostController<UserProfilePresenter>, IPageCloser
+    public partial class ProfileViewController : BasePostController<UserProfilePresenter>
     {
         private UserProfileResponse _userData;
         private FeedCollectionViewSource _collectionViewSource;
         private UIRefreshControl _refreshControl;
         private bool _isPostsLoading;
-        private CollectionViewFlowDelegate _gridDelegate;
-        private SliderCollectionViewFlowDelegate _sliderGridDelegate;
         private UINavigationController _navController;
         private readonly UIBarButtonItem _switchButton = new UIBarButtonItem();
         private readonly UIBarButtonItem _leftBarButton = new UIBarButtonItem();
@@ -40,8 +34,6 @@ namespace Steepshot.iOS.Views
         private bool isPowerOpen;
         private bool UserIsWatched => AppDelegate.User.WatchedUsers.Contains(Username);
 
-        private SliderCollectionViewSource _sliderCollectionViewSource;
-
         public string Username = AppDelegate.User.Login;
 
         public override void ViewDidLoad()
@@ -49,6 +41,9 @@ namespace Steepshot.iOS.Views
             base.ViewDidLoad();
             Presenter.UserName = Username;
             _navController = TabBarController != null ? TabBarController.NavigationController : NavigationController;
+
+            FeedCollection = collectionView;
+            SliderCollection = sliderCollection;
 
             collectionView.RegisterClassForCell(typeof(ProfileHeaderViewCell), nameof(ProfileHeaderViewCell));
             collectionView.RegisterClassForCell(typeof(LoaderCollectionCell), nameof(LoaderCollectionCell));
@@ -61,18 +56,18 @@ namespace Steepshot.iOS.Views
                 MinimumInteritemSpacing = 0,
             }, false);
 
-            _gridDelegate = new ProfileCollectionViewFlowDelegate(collectionView, Presenter);
-            _gridDelegate.IsGrid = false;
-            _gridDelegate.IsProfile = true;
+            FeedCollectionViewDelegate = new ProfileCollectionViewFlowDelegate(collectionView, Presenter);
+            FeedCollectionViewDelegate.IsGrid = false;
+            FeedCollectionViewDelegate.IsProfile = true;
             
-            _collectionViewSource = new ProfileCollectionViewSource(Presenter, _gridDelegate);
+            _collectionViewSource = new ProfileCollectionViewSource(Presenter, FeedCollectionViewDelegate);
 
             collectionView.Source = _collectionViewSource;
-            collectionView.Delegate = _gridDelegate;
+            collectionView.Delegate = FeedCollectionViewDelegate;
 
-            _sliderGridDelegate = new SliderCollectionViewFlowDelegate(sliderCollection, Presenter);
+            SliderCollectionViewDelegate = new SliderCollectionViewFlowDelegate(sliderCollection, Presenter);
 
-            _sliderCollectionViewSource = new SliderCollectionViewSource(Presenter, _sliderGridDelegate);
+            SliderViewSource = new SliderCollectionViewSource(Presenter, SliderCollectionViewDelegate);
 
             sliderCollection.DecelerationRate = UIScrollView.DecelerationRateFast;
             sliderCollection.ShowsHorizontalScrollIndicator = false;
@@ -85,10 +80,10 @@ namespace Steepshot.iOS.Views
                 SectionInset = new UIEdgeInsets(0, 15, 0, 15),
             }, false);
 
-            sliderCollection.Source = _sliderCollectionViewSource;
+            sliderCollection.Source = SliderViewSource;
             sliderCollection.RegisterClassForCell(typeof(LoaderCollectionCell), nameof(LoaderCollectionCell));
             sliderCollection.RegisterClassForCell(typeof(SliderFeedCollectionViewCell), nameof(SliderFeedCollectionViewCell));
-            sliderCollection.Delegate = _sliderGridDelegate;
+            sliderCollection.Delegate = SliderCollectionViewDelegate;
 
             _refreshControl = new UIRefreshControl();
             collectionView.Add(_refreshControl);
@@ -109,14 +104,14 @@ namespace Steepshot.iOS.Views
             else
             {
                 Presenter.SourceChanged += SourceChanged;
-                _gridDelegate.ScrolledToBottom += ScrolledToBottom;
-                _gridDelegate.CellClicked += CellAction;
+                FeedCollectionViewDelegate.ScrolledToBottom += ScrolledToBottom;
+                FeedCollectionViewDelegate.CellClicked += CellAction;
                 _collectionViewSource.CellAction += CellAction;
                 _collectionViewSource.TagAction += TagAction;
                 _collectionViewSource.ProfileAction += ProfileAction;
-                _sliderGridDelegate.ScrolledToBottom += ScrolledToBottom;
-                _sliderCollectionViewSource.CellAction += CellAction;
-                _sliderCollectionViewSource.TagAction += TagAction;
+                SliderCollectionViewDelegate.ScrolledToBottom += ScrolledToBottom;
+                SliderViewSource.CellAction += CellAction;
+                SliderViewSource.TagAction += TagAction;
                 _refreshControl.ValueChanged += RefreshControl_ValueChanged;
                 _switchButton.Clicked += SwitchLayout;
                 if (Username == AppDelegate.User.Login)
@@ -155,14 +150,14 @@ namespace Steepshot.iOS.Views
             if (IsMovingFromParentViewController)
             {
                 Presenter.SourceChanged -= SourceChanged;
-                _gridDelegate.ScrolledToBottom = null;
-                _gridDelegate.CellClicked = null;
+                FeedCollectionViewDelegate.ScrolledToBottom = null;
+                FeedCollectionViewDelegate.CellClicked = null;
                 _collectionViewSource.CellAction -= CellAction;
                 _collectionViewSource.TagAction -= TagAction;
                 _collectionViewSource.ProfileAction -= ProfileAction;
-                _sliderGridDelegate.ScrolledToBottom = null;
-                _sliderCollectionViewSource.CellAction -= CellAction;
-                _sliderCollectionViewSource.TagAction -= TagAction;
+                SliderCollectionViewDelegate.ScrolledToBottom = null;
+                SliderViewSource.CellAction -= CellAction;
+                SliderViewSource.TagAction -= TagAction;
                 _refreshControl.ValueChanged -= RefreshControl_ValueChanged;
                 _switchButton.Clicked -= SwitchLayout;
                 if (Username == AppDelegate.User.Login)
@@ -173,7 +168,7 @@ namespace Steepshot.iOS.Views
                     _settingsButton.Clicked -= ShowPushSetting;
                 }
                 _collectionViewSource.FreeAllCells();
-                _sliderCollectionViewSource.FreeAllCells();
+                SliderViewSource.FreeAllCells();
                 Presenter.TasksCancel();
             }
             if (TabBarController != null)
@@ -296,16 +291,16 @@ namespace Steepshot.iOS.Views
         {
 
             if(status.Sender == nameof(Presenter.TryGetUserInfoAsync))
-                _gridDelegate.UpdateProfile();
+                FeedCollectionViewDelegate.UpdateProfile();
 
             if (sliderCollection.Hidden)
             {
-                _gridDelegate.GenerateVariables();
+                FeedCollectionViewDelegate.GenerateVariables();
                 collectionView.ReloadData();
             }
             else
             {
-                _sliderGridDelegate.GenerateVariables();
+                SliderCollectionViewDelegate.GenerateVariables();
                 sliderCollection.ReloadData();
             }
         }
@@ -469,7 +464,7 @@ namespace Steepshot.iOS.Views
 
         private void SwitchLayout(object sender, EventArgs e)
         {
-            _gridDelegate.IsGrid = _collectionViewSource.IsGrid = !_collectionViewSource.IsGrid;
+            FeedCollectionViewDelegate.IsGrid = _collectionViewSource.IsGrid = !_collectionViewSource.IsGrid;
             if (_collectionViewSource.IsGrid)
             {
                 _switchButton.Image = UIImage.FromBundle("ic_grid_active");
@@ -507,8 +502,8 @@ namespace Steepshot.iOS.Views
             if (clearOld)
             {
                 Presenter.Clear();
-                _gridDelegate.ClearPosition();
-                _sliderGridDelegate.ClearPosition();
+                FeedCollectionViewDelegate.ClearPosition();
+                SliderCollectionViewDelegate.ClearPosition();
             }
 
             var exception = await Presenter.TryLoadNextPostsAsync();
@@ -531,55 +526,13 @@ namespace Steepshot.iOS.Views
 
         private async Task Follow()
         {
-            _gridDelegate.profileCell.DecorateFollowButton();
+            FeedCollectionViewDelegate.profileCell.DecorateFollowButton();
             var result = await Presenter.TryFollowAsync();
 
             if (result.IsSuccess)
-                _gridDelegate.profileCell.DecorateFollowButton();
+                FeedCollectionViewDelegate.profileCell.DecorateFollowButton();
             else
                 ShowAlert(result);
-        }
-
-        public void OpenPost(Post post)
-        {
-            collectionView.Hidden = true;
-            sliderCollection.Hidden = false;
-            _sliderGridDelegate.GenerateVariables();
-            sliderCollection.ReloadData();
-            var index = NSIndexPath.FromRowSection(Presenter.IndexOf(post), 0);
-            sliderCollection.ScrollToItem(index, UICollectionViewScrollPosition.CenteredHorizontally, false);
-            _sliderCollectionViewSource.playingIndex = index;
-            
-            foreach (var item in collectionView.IndexPathsForVisibleItems)
-            {
-                if (collectionView.CellForItem(item) is NewFeedCollectionViewCell cell)
-                    cell.Cell.Playback(false);
-            }
-        }
-
-        public bool ClosePost()
-        {
-            foreach (var item in sliderCollection.IndexPathsForVisibleItems)
-            {
-                if (sliderCollection.CellForItem(item) is SliderFeedCollectionViewCell cell)
-                    cell.Playback(false);
-            }
-            if (!sliderCollection.Hidden)
-            {
-                var visibleRect = new CGRect();
-                visibleRect.Location = sliderCollection.ContentOffset;
-                visibleRect.Size = sliderCollection.Bounds.Size;
-                var visiblePoint = new CGPoint(visibleRect.GetMidX(), visibleRect.GetMidY());
-                var index = sliderCollection.IndexPathForItemAtPoint(visiblePoint);
-
-                sliderCollection.Hidden = true;
-                _gridDelegate.GenerateVariables();
-                collectionView.Hidden = false;
-                collectionView.ReloadData();
-                collectionView.ScrollToItem(NSIndexPath.FromRowSection(index.Row + 1, index.Section), UICollectionViewScrollPosition.Top, false);
-                return true;
-            }
-            return false;
         }
     }
 }

@@ -6,6 +6,6 @@ namespace Steepshot.Core.Interfaces
     public interface IPageCloser
     {
         void OpenPost(Post post);
-        bool ClosePost();
+        void ClosePost();
     }
 }
