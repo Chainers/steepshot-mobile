@@ -23,9 +23,9 @@ namespace Steepshot.CustomViews
         private readonly float _orderTextSize;
         private readonly float _durationTextSize;
 
-        private Paint SelectionPaint => _selectionPaint ?? (_selectionPaint = new Paint(PaintFlags.AntiAlias) { Color = Style.R255G81B4, StrokeWidth = BitmapUtils.DpToPixel(6, Context.Resources) });
-        private Paint WhitePaint => _whitePaint ?? (_whitePaint = new Paint(PaintFlags.AntiAlias) { Color = Color.White, StrokeWidth = BitmapUtils.DpToPixel(1, Context.Resources) });
-        private Paint BlackPaint => _blackPaint ?? (_blackPaint = new Paint(PaintFlags.AntiAlias) { Color = Color.Argb(125, 0, 0, 0), StrokeWidth = BitmapUtils.DpToPixel(1, Context.Resources) });
+        private Paint SelectionPaint => _selectionPaint ?? (_selectionPaint = new Paint(PaintFlags.AntiAlias) { Color = Style.R255G81B4, StrokeWidth = MediaUtils.DpToPixel(6, Context.Resources) });
+        private Paint WhitePaint => _whitePaint ?? (_whitePaint = new Paint(PaintFlags.AntiAlias) { Color = Color.White, StrokeWidth = MediaUtils.DpToPixel(1, Context.Resources) });
+        private Paint BlackPaint => _blackPaint ?? (_blackPaint = new Paint(PaintFlags.AntiAlias) { Color = Color.Argb(125, 0, 0, 0), StrokeWidth = MediaUtils.DpToPixel(1, Context.Resources) });
 
         public SelectableImageView(Context context) : base(context)
         {
@@ -35,8 +35,8 @@ namespace Steepshot.CustomViews
             {
                 InPreferredConfig = Bitmap.Config.Rgb565
             };
-            _orderTextSize = BitmapUtils.DpToPixel(16, Context.Resources);
-            _durationTextSize = BitmapUtils.DpToPixel(10, Context.Resources);
+            _orderTextSize = MediaUtils.DpToPixel(16, Context.Resources);
+            _durationTextSize = MediaUtils.DpToPixel(10, Context.Resources);
         }
 
 
@@ -67,8 +67,8 @@ namespace Steepshot.CustomViews
             if (_model.MultiSelect)
             {
                 SelectionPaint.SetStyle(Paint.Style.Fill);
-                var radius = BitmapUtils.DpToPixel(15, Context.Resources);
-                var offset = BitmapUtils.DpToPixel(5, Context.Resources);
+                var radius = MediaUtils.DpToPixel(15, Context.Resources);
+                var offset = MediaUtils.DpToPixel(5, Context.Resources);
                 var x = (int)(Width - radius - offset);
                 var y = (int)(radius + offset);
                 if (_model.SelectionPosition > 0)
@@ -91,7 +91,7 @@ namespace Steepshot.CustomViews
 
         public async Task Bind(GalleryMediaModel model)
         {
-            BitmapUtils.ReleaseBitmap(Drawable);
+            MediaUtils.ReleaseBitmap(Drawable);
             SetImageDrawable(DefaultColor);
 
             _model = model;
@@ -116,7 +116,7 @@ namespace Steepshot.CustomViews
                         if (_model == null || model.Id != _model.Id)
                             return;
 
-                        BitmapUtils.ReleaseBitmap(Drawable);
+                        MediaUtils.ReleaseBitmap(Drawable);
                         SetImageBitmap(thumbnail);
                     });
                     return;
@@ -126,14 +126,14 @@ namespace Steepshot.CustomViews
                 matrix.PostRotate(model.Orientation);
                 var oriThumbnail = Bitmap.CreateBitmap(thumbnail, 0, 0, thumbnail.Width, thumbnail.Height, matrix, false);
 
-                BitmapUtils.ReleaseBitmap(thumbnail);
+                MediaUtils.ReleaseBitmap(thumbnail);
 
                 _handler.Post(() =>
                 {
                     if (_model == null || model.Id != _model.Id)
                         return;
 
-                    BitmapUtils.ReleaseBitmap(Drawable);
+                    MediaUtils.ReleaseBitmap(Drawable);
                     SetImageBitmap(oriThumbnail);
                 });
             });

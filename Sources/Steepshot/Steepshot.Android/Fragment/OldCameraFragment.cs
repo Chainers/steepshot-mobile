@@ -470,7 +470,7 @@ namespace Steepshot.Fragment
                     var picCoeff = (double)pictureSize.Height / pictureSize.Width;
                     if (Math.Abs(picCoeff - previewCoeff) < 0.001)
                     {
-                        var t = Math.Abs(BitmapUtils.MaxImageSize - pictureSize.Width);
+                        var t = Math.Abs(MediaUtils.MaxImageSize - pictureSize.Width);
                         if (t < difference)
                         {
                             difference = t;
@@ -568,7 +568,7 @@ namespace Steepshot.Fragment
                 if (orientation != 1 && orientation != 0)
                 {
                     var bitmap = BitmapFactory.DecodeByteArray(data, 0, data.Length);
-                    bitmap = BitmapUtils.RotateImage(bitmap, _rotationOnShutter);
+                    bitmap = MediaUtils.RotateImage(bitmap, _rotationOnShutter);
                     var rotationStream = new System.IO.FileStream(photoUri, System.IO.FileMode.Create);
                     bitmap.Compress(Bitmap.CompressFormat.Jpeg, 100, rotationStream);
                 }

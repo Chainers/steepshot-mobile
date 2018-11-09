@@ -94,7 +94,7 @@ namespace Steepshot.Utils.Media
                 LayoutParameters =
                     new LayoutParams(ViewGroup.LayoutParams.MatchParent, ViewGroup.LayoutParams.MatchParent)
             };
-            ImageView.SetScaleType(ImageView.ScaleType.CenterCrop);
+            ImageView.SetScaleType(ImageView.ScaleType.FitXy);
 
             VideoLayout = new FrameLayout(Context)
             {
@@ -111,9 +111,9 @@ namespace Steepshot.Utils.Media
             VideoVolume = new ImageView(Context)
             {
                 LayoutParameters =
-                    new LayoutParams((int)BitmapUtils.DpToPixel(62, Context.Resources), (int)BitmapUtils.DpToPixel(62, Context.Resources))
+                    new LayoutParams((int)MediaUtils.DpToPixel(62, Context.Resources), (int)MediaUtils.DpToPixel(62, Context.Resources))
             };
-            var buttonPaddings = (int)BitmapUtils.DpToPixel(15, Context.Resources);
+            var buttonPaddings = (int)MediaUtils.DpToPixel(15, Context.Resources);
             VideoVolume.SetPadding(buttonPaddings, buttonPaddings, buttonPaddings, buttonPaddings);
             var volumeIconParams = (LayoutParams)VideoVolume.LayoutParameters;
             volumeIconParams.Gravity = GravityFlags.Right | GravityFlags.Bottom;

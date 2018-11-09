@@ -99,11 +99,12 @@ namespace Steepshot.Fragment
                 PreviewContainer.Visibility = ViewStates.Visible;
                 PreviewContainer.Radius = Style.CornerRadius5;
 
-                var previewSize = BitmapUtils.CalculateImagePreviewSize(Media[0].Parameters, Style.ScreenWidth - Style.Margin15 * 2);
+                var previewSize = MediaUtils.CalculateImagePreviewSize(Media[0].Parameters, Style.ScreenWidth - Style.Margin15 * 2);
                 //TODO: not wok for video >
                 if (MimeTypeHelper.IsVideo(Media[0].MimeType))
                 {
-                    previewSize = new FrameSize(720, 720);
+                    var size = Style.ScreenWidth - Style.Margin15 * 2;
+                    previewSize = new FrameSize(size, size);
                 }
                 var layoutParams = new RelativeLayout.LayoutParams(previewSize.Width, previewSize.Height);
                 layoutParams.SetMargins(Style.Margin15, 0, Style.Margin15, Style.Margin15);
@@ -253,7 +254,7 @@ namespace Steepshot.Fragment
                     var x = (int)Math.Max(Math.Round(-previewBounds.Left * dZ / parameters.Scale), 0);
                     var y = (int)Math.Max(Math.Round(-previewBounds.Top * dZ / parameters.Scale), 0);
 
-                    var sampleSize = BitmapUtils.CalculateInSampleSize(width, height, BitmapUtils.MaxImageSize, BitmapUtils.MaxImageSize);
+                    var sampleSize = MediaUtils.CalculateInSampleSize(width, height, MediaUtils.MaxImageSize, MediaUtils.MaxImageSize);
 
                     width = width / sampleSize;
                     height = height / sampleSize;
@@ -326,7 +327,7 @@ namespace Steepshot.Fragment
                         {ExifInterface.TagOrientation, "1"},
                     };
 
-                    BitmapUtils.CopyExif(model.Path, outPath, args);
+                    MediaUtils.CopyExif(model.Path, outPath, args);
 
                     return outPath;
                 }
@@ -337,8 +338,8 @@ namespace Steepshot.Fragment
                 finally
                 {
                     stream?.Dispose();
-                    BitmapUtils.ReleaseBitmap(sized);
-                    BitmapUtils.ReleaseBitmap(croped);
+                    MediaUtils.ReleaseBitmap(sized);
+                    MediaUtils.ReleaseBitmap(croped);
                 }
 
                 return string.Empty;
@@ -621,6 +622,7 @@ namespace Steepshot.Fragment
 
         public override void OnDetach()
         {
+            Media.ForEach(m => m.TempPath = null);
             Photos.SetAdapter(null);
             CleanCash();
             base.OnDetach();

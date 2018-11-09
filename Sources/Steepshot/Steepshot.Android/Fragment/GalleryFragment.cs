@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Android.Database;
-using Android.Media;
 using Android.OS;
 using Android.Provider;
 using Android.Support.V7.Widget;
@@ -84,7 +83,7 @@ namespace Steepshot.Fragment
             base.OnViewCreated(view, savedInstanceState);
             _vpreview.Editable = true;
 
-            var toolbarHeight = (int)BitmapUtils.DpToPixel(10, Resources);
+            var toolbarHeight = (int)MediaUtils.DpToPixel(10, Resources);
             _coordinator.LayoutParameters.Height = Style.ScreenWidth + Resources.DisplayMetrics.HeightPixels - toolbarHeight;
             _coordinator.SetTopViewParam(Style.ScreenWidth, toolbarHeight);
             _previewContainer.LayoutParameters = new LinearLayout.LayoutParams(Style.ScreenWidth, Style.ScreenWidth);
@@ -238,29 +237,14 @@ namespace Steepshot.Fragment
 
                 _vpreview.Stop();
 
-                using (var mdr = new MediaMetadataRetriever())
+                if (model.Parameters == null)
                 {
-                    mdr.SetDataSource(model.Path);
-                    if (model.Parameters == null)
+                    var videoSize = MediaUtils.GetVideoSize(model.Path);
+                    model.Parameters = new MediaParameters
                     {
-                        var rot = int.Parse(mdr.ExtractMetadata(MetadataKey.VideoRotation));
-                        var width = int.Parse(mdr.ExtractMetadata(MetadataKey.VideoWidth));
-                        var height = int.Parse(mdr.ExtractMetadata(MetadataKey.VideoHeight));
-
-                        model.Parameters = new MediaParameters();
-                        if (rot > 0 && rot % 90 == 0)
-                        {
-                            model.Parameters.Width = height;
-                            model.Parameters.Height = width;
-                        }
-                        else
-                        {
-                            model.Parameters.Width = width;
-                            model.Parameters.Height = height;
-                        }
-                    }
-
-                    mdr.Release();
+                        Width = videoSize.Width,
+                        Height = videoSize.Height
+                    };
                 }
 
                 _vpreview.CropArea.SetEmpty();

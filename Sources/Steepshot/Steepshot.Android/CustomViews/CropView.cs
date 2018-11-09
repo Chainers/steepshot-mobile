@@ -260,7 +260,7 @@ namespace Steepshot.CustomViews
             {
                 _media = model;
 
-                BitmapUtils.ReleaseBitmap(_drawable);
+                MediaUtils.ReleaseBitmap(_drawable);
                 _drawable = null;
             }
 
@@ -278,7 +278,7 @@ namespace Steepshot.CustomViews
         public void SetImageBitmap(string filePath)
         {
             _reloadImage = false;
-            BitmapUtils.ReleaseBitmap(_drawable);
+            MediaUtils.ReleaseBitmap(_drawable);
             _drawable = Drawable.CreateFromPath(filePath);
 
             var options = new BitmapFactory.Options { InJustDecodeBounds = true };
@@ -295,7 +295,7 @@ namespace Steepshot.CustomViews
         {
             _reloadImage = false;
 
-            BitmapUtils.ReleaseBitmap(_drawable);
+            MediaUtils.ReleaseBitmap(_drawable);
             _drawable = new BitmapDrawable(bitmap);
 
             _imageRawWidth = bitmap.Width;
@@ -478,7 +478,7 @@ namespace Steepshot.CustomViews
             {
                 IsBitmapReady = false;
 
-                var drawableRequest = await MakeDrawable(_cancellationSignal, BitmapUtils.MaxImageSize, BitmapUtils.MaxImageSize, _drawableImageParameters.Rotation);
+                var drawableRequest = await MakeDrawable(_cancellationSignal, MediaUtils.MaxImageSize, MediaUtils.MaxImageSize, _drawableImageParameters.Rotation);
 
                 if (drawableRequest == null)
                 {
@@ -487,7 +487,7 @@ namespace Steepshot.CustomViews
                     return;
                 }
 
-                BitmapUtils.ReleaseBitmap(_drawable);
+                MediaUtils.ReleaseBitmap(_drawable);
                 _drawable = drawableRequest;
             }
 
@@ -522,7 +522,7 @@ namespace Steepshot.CustomViews
                     if (Looper.MyLooper() == null)
                         Looper.Prepare();
 
-                    using (var bitmap = BitmapUtils.DecodeSampledBitmapFromFile(Context, Uri.Parse(_media.Path), targetWidth, targetHeight))
+                    using (var bitmap = MediaUtils.DecodeSampledBitmapFromFile(Context, Uri.Parse(_media.Path), targetWidth, targetHeight))
                     {
                         var matrix = new Matrix();
                         matrix.PostRotate(angle);
@@ -532,7 +532,7 @@ namespace Steepshot.CustomViews
 
                         if (signal.IsCanceled)
                         {
-                            BitmapUtils.ReleaseBitmap(preparedBitmap);
+                            MediaUtils.ReleaseBitmap(preparedBitmap);
                             return null;
                         }
 

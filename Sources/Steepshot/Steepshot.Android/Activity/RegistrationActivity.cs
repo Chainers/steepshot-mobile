@@ -86,7 +86,7 @@ namespace Steepshot.Activity
 
         private BitmapDrawable SetupLogo(int drawable)
         {
-            var logoSide = (int)BitmapUtils.DpToPixel(80, Resources);
+            var logoSide = (int)MediaUtils.DpToPixel(80, Resources);
             var originalImage = BitmapFactory.DecodeResource(Resources, drawable);
             var scaledBitmap = Bitmap.CreateScaledBitmap(originalImage, logoSide, logoSide, true);
             return new BitmapDrawable(Resources, scaledBitmap);

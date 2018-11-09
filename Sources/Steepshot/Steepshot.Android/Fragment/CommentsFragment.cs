@@ -88,9 +88,9 @@ namespace Steepshot.Fragment
             _viewTitle.Text = App.Localization.GetText(LocalizationKeys.Comments);
 
             _textInputShape = new GradientDrawable();
-            _textInputShape.SetCornerRadius(BitmapUtils.DpToPixel(20, Resources));
+            _textInputShape.SetCornerRadius(MediaUtils.DpToPixel(20, Resources));
             _textInputShape.SetColor(Color.White);
-            _textInputShape.SetStroke((int)BitmapUtils.DpToPixel(1, Resources), Style.R244G244B246);
+            _textInputShape.SetStroke((int)MediaUtils.DpToPixel(1, Resources), Style.R244G244B246);
             _textInput.Background = _textInputShape;
             _textInput.TextChanged += TextInputOnTextChanged;
 
@@ -136,7 +136,7 @@ namespace Steepshot.Fragment
         {
             if (_textInput.LineCount <= 2)
             {
-                _textInputShape.SetCornerRadius(BitmapUtils.DpToPixel(20, Resources) / _textInput.LineCount);
+                _textInputShape.SetCornerRadius(MediaUtils.DpToPixel(20, Resources) / _textInput.LineCount);
                 _textInput.Background = _textInputShape;
             }
         }
@@ -341,7 +341,7 @@ namespace Steepshot.Fragment
 
         private void ViewTreeObserverOnGlobalLayout(object sender, EventArgs e)
         {
-            if (_rootLayout.RootView.Height - _rootLayout.Height > BitmapUtils.DpToPixel(128, Resources))
+            if (_rootLayout.RootView.Height - _rootLayout.Height > MediaUtils.DpToPixel(128, Resources))
             {
                 _adapter.MItemManager.CloseAllItems();
                 _adapter.SwipeEnabled = false;

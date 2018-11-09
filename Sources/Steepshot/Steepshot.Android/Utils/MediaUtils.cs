@@ -18,7 +18,7 @@ using Uri = Android.Net.Uri;
 
 namespace Steepshot.Utils
 {
-    public static class BitmapUtils
+    public static class MediaUtils
     {
         public const int MaxImageSize = 1600;
 
@@ -273,7 +273,6 @@ namespace Steepshot.Utils
             if (bitmap == null || bitmap.Handle == IntPtr.Zero) return;
             bitmap.Recycle();
             bitmap.Dispose();
-            bitmap = null;
         }
 
         public static FrameSize CalculateImagePreviewSize(MediaParameters param, int maxWidth, int maxHeight = int.MaxValue)
@@ -297,6 +296,28 @@ namespace Steepshot.Utils
             return nh > maxHeight
                 ? new FrameSize(maxHeight, nw)
                 : new FrameSize(nh, maxWidth);
+        }
+
+        public static (int Width, int Height) GetVideoSize(string path)
+        {
+            var mdr = new MediaMetadataRetriever();
+            mdr.SetDataSource(path);
+
+            var rot = int.Parse(mdr.ExtractMetadata(MetadataKey.VideoRotation));
+            var width = int.Parse(mdr.ExtractMetadata(MetadataKey.VideoWidth));
+            var height = int.Parse(mdr.ExtractMetadata(MetadataKey.VideoHeight));
+
+            if (rot > 0 && rot % 90 == 0)
+            {
+                width ^= height;
+                height ^= width;
+                width ^= height;
+            }
+
+            mdr.Release();
+            mdr.Dispose();
+
+            return (width, height);
         }
     }
 }

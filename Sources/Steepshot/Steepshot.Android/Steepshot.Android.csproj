@@ -201,7 +201,7 @@
     <Compile Include="Services\ConnectionService.cs" />
     <Compile Include="Base\BaseFragmentWithPresenter.cs" />
     <Compile Include="Base\BaseActivityWithPresenter.cs" />
-    <Compile Include="Utils\BitmapUtils.cs" />
+    <Compile Include="Utils\MediaUtils.cs" />
     <Compile Include="Adapter\ProfileGridAdapter.cs" />
     <Compile Include="Adapter\ProfileFeedAdapter.cs" />
     <Compile Include="Utils\Enums.cs" />

@@ -635,8 +635,8 @@ namespace Steepshot.Adapter
         private void UpdateTopLikersAvatars(Post post)
         {
             _topLikers.RemoveAllViews();
-            var topLikersSize = (int)BitmapUtils.DpToPixel(24, Context.Resources);
-            var topLikersMargin = (int)BitmapUtils.DpToPixel(6, Context.Resources);
+            var topLikersSize = (int)MediaUtils.DpToPixel(24, Context.Resources);
+            var topLikersMargin = (int)MediaUtils.DpToPixel(6, Context.Resources);
 
             for (int i = 0; i < post.TopLikersAvatars.Length; i++)
             {

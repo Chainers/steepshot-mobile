@@ -38,7 +38,7 @@ namespace Steepshot.CustomViews
         private void Init()
         {
             _marksCount = 5;
-            _markRadius = (int)BitmapUtils.DpToPixel(4, Context.Resources);
+            _markRadius = (int)MediaUtils.DpToPixel(4, Context.Resources);
             _argbEvaluator = new ArgbEvaluator();
             ProgressChanged += OnProgressChanged;
         }

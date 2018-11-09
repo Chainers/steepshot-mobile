@@ -209,9 +209,9 @@ namespace Steepshot.Fragment
 
             _recipientSearch.SetFilters(new IInputFilter[] { new TextInputFilter(TextInputFilter.TagFilter) });
             _commentShape = new GradientDrawable();
-            _commentShape.SetCornerRadius(BitmapUtils.DpToPixel(25, Resources));
+            _commentShape.SetCornerRadius(MediaUtils.DpToPixel(25, Resources));
             _commentShape.SetColor(Style.R244G244B246);
-            _commentShape.SetStroke((int)BitmapUtils.DpToPixel(1, Resources), Style.R244G244B246);
+            _commentShape.SetStroke((int)MediaUtils.DpToPixel(1, Resources), Style.R244G244B246);
             _transferCommentEdit.Background = _commentShape;
             _transferCommentEdit.TextChanged += TransferCommentEditOnTextChanged;
 
@@ -532,7 +532,7 @@ namespace Steepshot.Fragment
         {
             if (_transferCommentEdit.LineCount <= 2)
             {
-                _commentShape.SetCornerRadius(BitmapUtils.DpToPixel(25, Resources) / _transferCommentEdit.LineCount);
+                _commentShape.SetCornerRadius(MediaUtils.DpToPixel(25, Resources) / _transferCommentEdit.LineCount);
                 _transferCommentEdit.Background = _commentShape;
             }
         }
@@ -543,12 +543,12 @@ namespace Steepshot.Fragment
             {
                 State = FragmentState.Comment;
                 _commentShape.SetColor(Color.White);
-                _commentShape.SetStroke((int)BitmapUtils.DpToPixel(1, Resources), Style.R255G34B5);
+                _commentShape.SetStroke((int)MediaUtils.DpToPixel(1, Resources), Style.R255G34B5);
             }
             else
             {
                 _commentShape.SetColor(Style.R244G244B246);
-                _commentShape.SetStroke((int)BitmapUtils.DpToPixel(1, Resources), Style.R244G244B246);
+                _commentShape.SetStroke((int)MediaUtils.DpToPixel(1, Resources), Style.R244G244B246);
             }
 
             _transferCommentEdit.Background = _commentShape;

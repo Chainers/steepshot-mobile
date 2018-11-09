@@ -53,7 +53,7 @@ namespace Steepshot.Activity
             SetContentView(Resource.Layout.lyt_tab_host);
             Cheeseknife.Bind(this);
 
-            _tabHeight = (int)BitmapUtils.DpToPixel(30, Resources);
+            _tabHeight = (int)MediaUtils.DpToPixel(30, Resources);
             _adapter = new Adapter.PagerAdapter(SupportFragmentManager);
             _viewPager.Adapter = _adapter;
             InitTabs();
@@ -131,7 +131,7 @@ namespace Steepshot.Activity
             intent.RemoveExtra(SharingPhotoData);
             if (uri != null)
             {
-                var path = BitmapUtils.GetUriRealPath(this, uri);
+                var path = MediaUtils.GetUriRealPath(this, uri);
                 var fileProvider = App.Container.GetFileProvider();
                 var mimeType = fileProvider.GetMimeType(path);
                 var galleryModel = new GalleryMediaModel(path, mimeType);
@@ -292,9 +292,9 @@ namespace Steepshot.Activity
             {
                 Draw = true,
                 Power = Presenter.UserProfileResponse == null ? 0 : (float)Presenter.UserProfileResponse.VotingPower,
-                PowerWidth = BitmapUtils.DpToPixel(3, Resources)
+                PowerWidth = MediaUtils.DpToPixel(3, Resources)
             };
-            var padding = (int)BitmapUtils.DpToPixel(7, Resources);
+            var padding = (int)MediaUtils.DpToPixel(7, Resources);
             votingPowerFrame.Layout(0, 0, size, size);
             var avatar = new CircleImageView(this);
             avatar.SetScaleType(ImageView.ScaleType.CenterCrop);
@@ -311,11 +311,11 @@ namespace Steepshot.Activity
                     .Resize(size, size)
                     .CenterCrop()
                     .Placeholder(Resource.Drawable.ic_holder)
-                    .Into(avatar, () => { profileTab.SetIcon(BitmapUtils.GetViewDrawable(votingPowerFrame)); }, null);
+                    .Into(avatar, () => { profileTab.SetIcon(MediaUtils.GetViewDrawable(votingPowerFrame)); }, null);
             }
             else
             {
-                profileTab.SetIcon(BitmapUtils.GetViewDrawable(votingPowerFrame));
+                profileTab.SetIcon(MediaUtils.GetViewDrawable(votingPowerFrame));
             }
         }
 

@@ -104,7 +104,7 @@ namespace Steepshot.Fragment
                 PreviewContainer.Visibility = ViewStates.Visible;
                 PreviewContainer.Radius = Style.CornerRadius5;
 
-                var previewSize = BitmapUtils.CalculateImagePreviewSize(Media[0].Parameters, Style.ScreenWidth - Style.Margin15 * 2);
+                var previewSize = MediaUtils.CalculateImagePreviewSize(Media[0].Parameters, Style.ScreenWidth - Style.Margin15 * 2);
                 var layoutParams = new RelativeLayout.LayoutParams(previewSize.Width, previewSize.Height);
                 layoutParams.SetMargins(Style.Margin15, 0, Style.Margin15, Style.Margin15);
                 PreviewContainer.LayoutParameters = layoutParams;
@@ -209,7 +209,7 @@ namespace Steepshot.Fragment
                 var x = (int)Math.Max(Math.Round(-previewBounds.Left * dZ / parameters.Scale), 0);
                 var y = (int)Math.Max(Math.Round(-previewBounds.Top * dZ / parameters.Scale), 0);
 
-                var sampleSize = BitmapUtils.CalculateInSampleSize(width, height, BitmapUtils.MaxImageSize, BitmapUtils.MaxImageSize);
+                var sampleSize = MediaUtils.CalculateInSampleSize(width, height, MediaUtils.MaxImageSize, MediaUtils.MaxImageSize);
 
                 width = width / sampleSize;
                 height = height / sampleSize;
@@ -282,7 +282,7 @@ namespace Steepshot.Fragment
                     {ExifInterface.TagOrientation, "1"},
                 };
 
-                BitmapUtils.CopyExif(model.Path, outPath, args);
+                MediaUtils.CopyExif(model.Path, outPath, args);
 
                 return outPath;
             }
@@ -294,8 +294,8 @@ namespace Steepshot.Fragment
             finally
             {
                 stream?.Dispose();
-                BitmapUtils.ReleaseBitmap(sized);
-                BitmapUtils.ReleaseBitmap(croped);
+                MediaUtils.ReleaseBitmap(sized);
+                MediaUtils.ReleaseBitmap(croped);
             }
         }
 
@@ -499,12 +499,12 @@ namespace Steepshot.Fragment
                 var maxWidth = Style.GalleryHorizontalScreenWidth;
                 var maxHeight = Style.GalleryHorizontalHeight;
 
-                var previewSize = BitmapUtils.CalculateImagePreviewSize(_gallery[0].Parameters, maxWidth, maxHeight);
+                var previewSize = MediaUtils.CalculateImagePreviewSize(_gallery[0].Parameters, maxWidth, maxHeight);
 
                 var cardView = new CardView(parent.Context)
                 {
                     LayoutParameters = new FrameLayout.LayoutParams(previewSize.Width, previewSize.Height),
-                    Radius = BitmapUtils.DpToPixel(5, parent.Resources)
+                    Radius = MediaUtils.DpToPixel(5, parent.Resources)
                 };
                 var image = new ImageView(parent.Context)
                 {
@@ -529,14 +529,14 @@ namespace Steepshot.Fragment
 
             public void Update(GalleryMediaModel model)
             {
-                BitmapUtils.ReleaseBitmap(_image.Drawable);
+                MediaUtils.ReleaseBitmap(_image.Drawable);
 
                 _image.SetImageBitmap(null);
                 _image.SetImageResource(Style.R245G245B245);
 
                 if (!string.IsNullOrEmpty(model.TempPath))
                 {
-                    var bitmap = BitmapUtils.DecodeSampledBitmapFromFile(ItemView.Context, Android.Net.Uri.Parse(model.TempPath), Style.GalleryHorizontalScreenWidth, Style.GalleryHorizontalHeight);
+                    var bitmap = MediaUtils.DecodeSampledBitmapFromFile(ItemView.Context, Android.Net.Uri.Parse(model.TempPath), Style.GalleryHorizontalScreenWidth, Style.GalleryHorizontalHeight);
                     _image.SetImageBitmap(bitmap);
                 }
             }

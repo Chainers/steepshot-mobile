@@ -442,7 +442,7 @@ namespace Steepshot.Fragment
                 if (orientation != 1 && orientation != 0)
                 {
                     var bitmap = BitmapFactory.DecodeByteArray(data, 0, data.Length);
-                    bitmap = BitmapUtils.RotateImage(bitmap, _cameraManager.CurrentCamera.Rotation);
+                    bitmap = MediaUtils.RotateImage(bitmap, _cameraManager.CurrentCamera.Rotation);
                     var rotationStream = new System.IO.FileStream(photoUri, System.IO.FileMode.Create);
                     bitmap.Compress(Bitmap.CompressFormat.Jpeg, 100, rotationStream);
                 }

@@ -114,14 +114,14 @@ namespace Steepshot.Fragment
                 _previewContainer.Visibility = ViewStates.Visible;
                 _preview.ClipToOutline = true;
 
-                var margin = (int)BitmapUtils.DpToPixel(15, Resources);
+                var margin = (int)MediaUtils.DpToPixel(15, Resources);
 
                 var model = _media[0];
                 if (!string.IsNullOrEmpty(model.TempPath))
                 {
                     Bitmap bitmap = MimeTypeHelper.IsVideo(model.MimeType)
                         ? ThumbnailUtils.CreateVideoThumbnail(model.TempPath, ThumbnailKind.FullScreenKind)
-                        : BitmapUtils.DecodeSampledBitmapFromFile(Context, Android.Net.Uri.Parse(model.TempPath), Style.ScreenWidth - margin * 2, Style.ScreenWidth - margin * 2);
+                        : MediaUtils.DecodeSampledBitmapFromFile(Context, Android.Net.Uri.Parse(model.TempPath), Style.ScreenWidth - margin * 2, Style.ScreenWidth - margin * 2);
                     _preview.SetImageBitmap(bitmap);
                 }
             }

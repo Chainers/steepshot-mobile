@@ -59,8 +59,8 @@ namespace Steepshot.Fragment
                 PreviewContainer.Visibility = ViewStates.Visible;
                 PreviewContainer.Radius = Style.CornerRadius5;
 
-                var margin = (int)BitmapUtils.DpToPixel(15, Resources);
-                var previewSize = BitmapUtils.CalculateImagePreviewSize(_editPost.Media[0].Size.Width, _editPost.Media[0].Size.Height, Style.ScreenWidth - margin * 2, int.MaxValue);
+                var margin = (int)MediaUtils.DpToPixel(15, Resources);
+                var previewSize = MediaUtils.CalculateImagePreviewSize(_editPost.Media[0].Size.Width, _editPost.Media[0].Size.Height, Style.ScreenWidth - margin * 2, int.MaxValue);
                 var layoutParams = new RelativeLayout.LayoutParams(previewSize.Width, previewSize.Height);
                 layoutParams.SetMargins(margin, 0, margin, margin);
                 PreviewContainer.LayoutParameters = layoutParams;
@@ -122,7 +122,7 @@ namespace Steepshot.Fragment
                 var maxWidth = Style.GalleryHorizontalScreenWidth;
                 var maxHeight = Style.GalleryHorizontalHeight;
 
-                var previewSize = BitmapUtils.CalculateImagePreviewSize(_postMedia[0].Size.Width, _postMedia[0].Size.Height, maxWidth, maxHeight);
+                var previewSize = MediaUtils.CalculateImagePreviewSize(_postMedia[0].Size.Width, _postMedia[0].Size.Height, maxWidth, maxHeight);
 
                 var cardView = new CardView(parent.Context)
                 {

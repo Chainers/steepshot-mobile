@@ -30,12 +30,12 @@ namespace Steepshot.Adapter
             var maxWidth = Style.GalleryHorizontalScreenWidth;
             var maxHeight = Style.GalleryHorizontalHeight;
 
-            var previewSize = BitmapUtils.CalculateImagePreviewSize(_gallery[0].Parameters, maxWidth, maxHeight);
+            var previewSize = MediaUtils.CalculateImagePreviewSize(_gallery[0].Parameters, maxWidth, maxHeight);
 
             var cardView = new CardView(parent.Context)
             {
                 LayoutParameters = new FrameLayout.LayoutParams(previewSize.Width, previewSize.Height),
-                Radius = BitmapUtils.DpToPixel(5, parent.Resources)
+                Radius = MediaUtils.DpToPixel(5, parent.Resources)
             };
             var image = new ImageView(parent.Context)
             {
@@ -60,7 +60,7 @@ namespace Steepshot.Adapter
 
         public void Update(GalleryMediaModel model)
         {
-            BitmapUtils.ReleaseBitmap(_image.Drawable);
+            MediaUtils.ReleaseBitmap(_image.Drawable);
 
             _image.SetImageBitmap(null);
             _image.SetImageResource(Style.R245G245B245);
@@ -69,7 +69,7 @@ namespace Steepshot.Adapter
             {
                 Bitmap bitmap = MimeTypeHelper.IsVideo(model.MimeType)
                     ? ThumbnailUtils.CreateVideoThumbnail(model.TempPath, ThumbnailKind.FullScreenKind)
-                    : BitmapUtils.DecodeSampledBitmapFromFile(ItemView.Context, Android.Net.Uri.Parse(model.TempPath), Style.GalleryHorizontalScreenWidth, Style.GalleryHorizontalHeight);
+                    : MediaUtils.DecodeSampledBitmapFromFile(ItemView.Context, Android.Net.Uri.Parse(model.TempPath), Style.GalleryHorizontalScreenWidth, Style.GalleryHorizontalHeight);
                 _image.SetImageBitmap(bitmap);
             }
         }

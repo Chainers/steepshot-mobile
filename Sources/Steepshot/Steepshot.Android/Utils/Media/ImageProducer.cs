@@ -2,6 +2,7 @@
 using Android.Content;
 using Android.Graphics;
 using Android.Graphics.Drawables;
+using Android.Webkit;
 using Square.Picasso;
 using Steepshot.Core.Models.Common;
 
@@ -26,12 +27,15 @@ namespace Steepshot.Utils.Media
 
             _media = media;
 
-            Picasso.With(_context)
-                .LoadWithProxy(media, Style.ScreenWidth)
-                .Placeholder(new ColorDrawable(Style.R245G245B245))
-                .NoFade()
-                .Priority(Picasso.Priority.High)
-                .Into(this);
+            if (URLUtil.IsHttpUrl(media.Url) || URLUtil.IsHttpsUrl(media.Url))
+                Picasso.With(_context)
+                    .LoadWithProxy(media, Style.ScreenWidth)
+                    .Placeholder(new ColorDrawable(Style.R245G245B245))
+                    .NoFade()
+                    .Priority(Picasso.Priority.High)
+                    .Into(this);
+            else
+                Draw?.Invoke(new WeakReference<Bitmap>(BitmapFactory.DecodeFile(media.Url)));
         }
 
         public void OnBitmapFailed(Drawable p0)

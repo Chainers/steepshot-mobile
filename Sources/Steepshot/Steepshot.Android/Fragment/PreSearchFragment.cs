@@ -319,7 +319,7 @@ namespace Steepshot.Fragment
 
         private void OnToolbarOffsetChanged(object sender, AppBarLayout.OffsetChangedEventArgs e)
         {
-            ViewCompat.SetElevation(_toolbar, BitmapUtils.DpToPixel(2, Resources));
+            ViewCompat.SetElevation(_toolbar, MediaUtils.DpToPixel(2, Resources));
         }
 
         private void OnClearClick(object sender, EventArgs e)

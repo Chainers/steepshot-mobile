@@ -41,7 +41,7 @@ namespace Steepshot.Adapter
             _viewHolders = new List<PostViewHolder>(_presenter.Count);
             _viewHolders.AddRange(Enumerable.Repeat<PostViewHolder>(null, CachedPagesCount));
             _itemsCount = 0;
-            _pageOffset = BitmapUtils.DpToPixel(20, _context.Resources);
+            _pageOffset = MediaUtils.DpToPixel(20, _context.Resources);
             _pager.PageScrolled += PagerOnPageScrolled;
         }
 
@@ -191,7 +191,7 @@ namespace Steepshot.Adapter
 
         private void ViewTreeObserverOnGlobalLayout(object sender, EventArgs eventArgs)
         {
-            if (NsfwMask.Height < BitmapUtils.DpToPixel(200, Context.Resources))
+            if (NsfwMask.Height < MediaUtils.DpToPixel(200, Context.Resources))
                 NsfwMaskSubMessage.Visibility = ViewStates.Gone;
         }
 

@@ -324,7 +324,7 @@ namespace Steepshot.Fragment
             flowViewTag.Text = tag;
             flowViewTag.Typeface = Style.Light;
             flowView.Click += (sender, args) => RemoveTag(tag);
-            var margin = (int)BitmapUtils.DpToPixel(5, Resources);
+            var margin = (int)MediaUtils.DpToPixel(5, Resources);
             var layoutParams = new FlowLayout.LayoutParams(ViewGroup.LayoutParams.WrapContent, ViewGroup.LayoutParams.WrapContent);
             layoutParams.SetMargins(0, margin, margin, margin);
             flowView.LayoutParameters = layoutParams;
