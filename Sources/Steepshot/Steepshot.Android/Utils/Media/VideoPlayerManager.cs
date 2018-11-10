@@ -21,7 +21,10 @@ namespace Steepshot.Utils.Media
             set
             {
                 _volumeEnabled = value;
-                _videoPlayers.ForEach(p => p.Mute());
+                lock (_videoPlayers)
+                {
+                    _videoPlayers.ForEach(p => p.Mute());
+                }
             }
         }
 
@@ -36,21 +39,28 @@ namespace Steepshot.Utils.Media
 
         public VideoPlayer GetFreePlayer()
         {
-            var freeInstance = _videoPlayers.Find(pl => pl.State == Player.StateIdle);
-            if (freeInstance == null)
+            lock (_videoPlayers)
             {
-                freeInstance = new VideoPlayer(_context, _cache);
-                _videoPlayers.Add(freeInstance);
+                var freeInstance = _videoPlayers.Find(pl => pl.State == Player.StateIdle);
+                if (freeInstance == null)
+                {
+                    freeInstance = new VideoPlayer(_context, _cache);
+                    _videoPlayers.Add(freeInstance);
+                }
+
+                return freeInstance;
             }
-            return freeInstance;
         }
 
         public void ReleasePlayers()
         {
-            for (int i = 0; i < _videoPlayers.Count; i++)
+            lock (_videoPlayers)
             {
-                _videoPlayers[i].Dispose();
-                _videoPlayers.Remove(_videoPlayers[i]);
+                for (int i = 0; i < _videoPlayers.Count; i++)
+                {
+                    _videoPlayers[i].Dispose();
+                    _videoPlayers.Remove(_videoPlayers[i]);
+                }
             }
         }
     }

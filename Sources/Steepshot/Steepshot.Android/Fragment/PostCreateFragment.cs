@@ -6,12 +6,14 @@ using System.Threading.Tasks;
 using Android.App;
 using Android.Content;
 using Android.Graphics;
+using Android.Graphics.Drawables;
 using Android.Media;
 using Android.OS;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
 using CheeseBind;
+using IO.SuperCharge.ShimmerLayoutLib;
 using Java.IO;
 using Steepshot.Adapter;
 using Steepshot.Base;
@@ -37,6 +39,7 @@ namespace Steepshot.Fragment
         [BindView(Resource.Id.photos)] protected RecyclerView Photos;
         [BindView(Resource.Id.media_view)] protected MediaView MediaView;
         [BindView(Resource.Id.media_preview_container)] protected RoundedRelativeLayout PreviewContainer;
+        [BindView(Resource.Id.shimmer)] protected ShimmerLayout Shimmer;
 
         #endregion
 
@@ -119,6 +122,14 @@ namespace Steepshot.Fragment
                     };
                     MediaView.Play();
                 }
+                else
+                {
+                    Shimmer.Background = new ColorDrawable(Style.R230G230B230);
+                    Shimmer.GetChildAt(0).Background = new ColorDrawable(Style.R230G230B230);
+                    Shimmer.SetShimmerColor(Color.Argb(80, 255, 255, 255));
+                    Shimmer.SetMaskWidth(0.8f);
+                    Shimmer.StartShimmerAnimation();
+                }
             }
             else
             {
@@ -171,6 +182,9 @@ namespace Steepshot.Fragment
 
                     if (_isSingleMode)
                     {
+                        Shimmer.StopShimmerAnimation();
+                        Shimmer.Visibility = ViewStates.Gone;
+
                         MediaView.MediaSource = new MediaModel
                         {
                             ContentType = model.MimeType,
