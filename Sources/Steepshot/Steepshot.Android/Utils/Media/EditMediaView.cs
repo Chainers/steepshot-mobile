@@ -58,6 +58,7 @@ namespace Steepshot.Utils.Media
         {
             _cropArea = new Rect();
             DrawTime = false;
+            VideoVolume.Visibility = ViewStates.Gone;
             Touch += OnTouch;
         }
 

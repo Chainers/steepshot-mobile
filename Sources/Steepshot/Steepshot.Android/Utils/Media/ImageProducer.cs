@@ -22,7 +22,7 @@ namespace Steepshot.Utils.Media
 
         public virtual void Prepare(SurfaceTexture st, MediaModel media)
         {
-            if (media == null)
+            if (media == null || _media == media)
                 return;
 
             _media = media;
@@ -56,12 +56,7 @@ namespace Steepshot.Utils.Media
 
         public virtual void Play()
         {
-            Picasso.With(_context)
-                .LoadWithProxy(_media, Style.ScreenWidth)
-                .Placeholder(new ColorDrawable(Style.R245G245B245))
-                .NoFade()
-                .Priority(Picasso.Priority.High)
-                .Into(this);
+            Prepare(null, _media);
         }
 
         public virtual void Pause()

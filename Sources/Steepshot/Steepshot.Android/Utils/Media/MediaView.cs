@@ -114,7 +114,8 @@ namespace Steepshot.Utils.Media
             VideoVolume = new ImageView(Context)
             {
                 LayoutParameters =
-                    new LayoutParams((int)MediaUtils.DpToPixel(62, Context.Resources), (int)MediaUtils.DpToPixel(62, Context.Resources))
+                    new LayoutParams((int)MediaUtils.DpToPixel(62, Context.Resources), (int)MediaUtils.DpToPixel(62, Context.Resources)),
+                Visibility = ViewStates.Gone
             };
             var buttonPaddings = (int)MediaUtils.DpToPixel(15, Context.Resources);
             VideoVolume.SetPadding(buttonPaddings, buttonPaddings, buttonPaddings, buttonPaddings);
@@ -146,6 +147,7 @@ namespace Steepshot.Utils.Media
             if (_playBack && type == MediaType.Video)
             {
                 VideoLayout.BringToFront();
+                VideoVolume.Visibility = ViewStates.Visible;
                 while (_playBack)
                 {
                     Invalidate();
@@ -248,9 +250,7 @@ namespace Steepshot.Utils.Media
 
             MainHandler?.Post(() =>
             {
-                if (!MediaProducers.ContainsKey(type))
-                    return;
-
+                VideoVolume.Visibility = ViewStates.Gone;
                 MediaProducers[type]?.Prepare(surface, MediaSource);
                 if (_playBack)
                     MediaProducers[type]?.Play();

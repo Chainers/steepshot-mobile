@@ -63,7 +63,6 @@
                     android:visibility="gone"
                     android:layout_width="match_parent"
                     android:layout_height="0dp">
-
                     <Steepshot.CustomViews.CropView
                         android:id="@+id/photo_preview"
                         android:visibility="gone"
@@ -98,6 +97,14 @@
 						android:visibility="gone"
 						android:layout_width="match_parent"
 						android:layout_height="match_parent"/>
+					<io.supercharge.shimmerlayout.ShimmerLayout
+						android:id="@+id/shimmer"
+						android:layout_width="match_parent"
+						android:layout_height="match_parent">
+						<View
+							android:layout_width="match_parent"
+							android:layout_height="match_parent" />
+					</io.supercharge.shimmerlayout.ShimmerLayout>
 				</Steepshot.CustomViews.RoundedRelativeLayout>
 			</RelativeLayout>
             <LinearLayout

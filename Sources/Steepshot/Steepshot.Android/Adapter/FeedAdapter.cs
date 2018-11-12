@@ -227,7 +227,8 @@ namespace Steepshot.Adapter
 
         public void Playback(bool shouldPlay)
         {
-            ((PostPhotosPagerAdapter)PhotosViewPager.Adapter).Playback(shouldPlay);
+            PhotosViewPager.Post(() =>
+            ((PostPhotosPagerAdapter)PhotosViewPager.Adapter).Playback(shouldPlay));
         }
 
         void PhotoAction(Post post)

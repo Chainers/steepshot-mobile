@@ -6,7 +6,6 @@ using Android.Util;
 using Android.Views;
 using Android.Widget;
 using CheeseBind;
-using Square.Picasso;
 using Steepshot.Base;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
@@ -22,7 +21,7 @@ namespace Steepshot.Fragment
 #pragma warning disable 0649, 4014
 
         [BindView(Resource.Id.photos)] protected RecyclerView Photos;
-        [BindView(Resource.Id.video_preview)] protected MediaView MediaView;
+        [BindView(Resource.Id.media_view)] protected MediaView MediaView;
         [BindView(Resource.Id.media_preview_container)] protected RoundedRelativeLayout PreviewContainer;
 
 #pragma warning restore 0649, 4014
@@ -66,6 +65,7 @@ namespace Steepshot.Fragment
                 PreviewContainer.LayoutParameters = layoutParams;
 
                 MediaView.MediaSource = _editPost.Media[0];
+                MediaView.Play();
             }
 
             await OnTagSearchQueryChanged();
