@@ -39,7 +39,10 @@ namespace Steepshot.Utils.Media
 
                     _mediaSource = value;
                     var mimeType = _mediaSource.ContentType;
+
                     CurrentMediaType = MimeTypeHelper.IsVideo(mimeType) ? MediaType.Video : MediaType.Image;
+                    if (CurrentMediaType == MediaType.Image)
+                        ImageView.BringToFront();
                 }
             }
         }
