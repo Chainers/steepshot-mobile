@@ -42,10 +42,7 @@ namespace Steepshot.Utils.Media
 
                     CurrentMediaType = MimeTypeHelper.IsVideo(mimeType) ? MediaType.Video : MediaType.Image;
                     if (CurrentMediaType == MediaType.Image)
-                    {
                         VideoVolume.Visibility = ViewStates.Gone;
-                        ImageView.BringToFront();
-                    }
                 }
             }
         }
