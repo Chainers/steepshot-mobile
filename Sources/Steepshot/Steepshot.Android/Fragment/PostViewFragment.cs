@@ -3,18 +3,15 @@ using Android.Content;
 using Android.OS;
 using Android.Views;
 using Android.Widget;
-using Autofac;
 using CheeseBind;
 using Steepshot.Activity;
 using Steepshot.Adapter;
 using Steepshot.Base;
 using Steepshot.Core;
 using Steepshot.Core.Localization;
-using Steepshot.Core.Models;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Presenters;
-using Steepshot.Core.Utils;
 using Steepshot.CustomViews;
 using Steepshot.Utils;
 
@@ -23,15 +20,13 @@ namespace Steepshot.Fragment
     public class PostViewFragment : BaseFragmentWithPresenter<SinglePostPresenter>
     {
 #pragma warning disable 0649, 4014
-        [BindView(Resource.Id.right_btns_layout)] private LinearLayout _rightButtons;
         [BindView(Resource.Id.single_post)] private FrameLayout _container;
         [BindView(Resource.Id.close)] private ImageButton _closeButton;
         [BindView(Resource.Id.loading_spinner)] private ProgressBar _loadingBar;
-        [BindView(Resource.Id.profile_login)] private TextView _header;
 #pragma warning restore 0649
 
         private PostViewHolder _postViewHolder;
-        private PostViewHolder PostViewHolder => _postViewHolder ?? (_postViewHolder = new PostViewHolder(InflatedView, PostAction, AutoLinkAction, null, Style.ScreenWidth, Style.ScreenWidth));
+        private PostViewHolder PostViewHolder => _postViewHolder ?? (_postViewHolder = new PostViewHolder(InflatedView, PostAction, AutoLinkAction, null, Style.ScreenWidth, Style.ScreenWidth - (_container.PaddingLeft + _container.PaddingRight)));
         private readonly string _url;
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
