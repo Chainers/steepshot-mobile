@@ -136,9 +136,6 @@ namespace Steepshot.iOS.CustomViews
                 item?.RemoveObserver(this, (NSString)ObserveLikelyToKeepUpKey);
                 item?.RemoveObserver(this, (NSString)ObserveBufferFullKey);
                 _isRegistered = false;
-
-                if (_timerLabel != null)
-                    _timerLabel.Text = InitialValue;
             }
             
             if (url != null)
@@ -148,6 +145,9 @@ namespace Steepshot.iOS.CustomViews
                     ImageLoader.Load(thumbnailUrl, _thumbnail, 2, LoadingPriority.Highest);
                     _thumbnail.Hidden = false;
                 }
+
+                if (_timerLabel != null)
+                    _timerLabel.Text = InitialValue;
 
                 item = new AVPlayerItem(url);
                 item.AddObserver(this, (NSString)ObserveKey, NSKeyValueObservingOptions.OldNew, Handle);
