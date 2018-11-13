@@ -6,20 +6,20 @@ using ObjCRuntime;
 using UIKit;
 using PureLayout.Net;
 using CoreGraphics;
-using System.Threading.Tasks;
+using Steepshot.iOS.Helpers;
+using FFImageLoading.Work;
 
 namespace Steepshot.iOS.CustomViews
 {
     public class VideoView : UIView
     {
         private const string ObserveKey = "status";
-        private const string ObserveBufferEmptyKey = "playbackBufferEmpty";
         private const string ObserveLikelyToKeepUpKey = "playbackLikelyToKeepUp";
         private const string ObserveBufferFullKey = "playbackBufferFull";
         private AVPlayerItem item;
         private NSObject notificationToken;
         private UILabel _timerLabel;
-        private UIActivityIndicatorView _videoLoader;
+        private UIImageView _thumbnail;
         private bool _isRegistered;
         private bool _shouldPlay;
         private bool _showTimer;
@@ -52,6 +52,8 @@ namespace Steepshot.iOS.CustomViews
             _showTimer = showTime;
             notificationToken = AVPlayerItem.Notifications.ObserveDidPlayToEndTime(HandleEventHandler);
 
+            SetupThumbnail();
+
             if (_showTimer)
                 SetupTimer();
         }
@@ -59,6 +61,22 @@ namespace Steepshot.iOS.CustomViews
         public VideoView(CGRect frame, bool isLoopNeeded, bool showTime) : this (isLoopNeeded, showTime)
         {
             Frame = frame;
+        }
+
+        private void SetupThumbnail()
+        {
+            _thumbnail = new UIImageView();
+            _thumbnail.Hidden = true;
+            AddSubview(_thumbnail);
+
+            var blurEffect = UIBlurEffect.FromStyle(UIBlurEffectStyle.Regular);
+            var blurEffectView = new UIVisualEffectView(blurEffect);
+            blurEffectView.Frame = Bounds;
+            blurEffectView.AutoresizingMask = UIViewAutoresizing.FlexibleDimensions;
+            _thumbnail.AddSubview(blurEffectView);
+
+            _thumbnail.AutoPinEdgesToSuperviewEdges();
+            blurEffectView.AutoPinEdgesToSuperviewEdges();
         }
 
         private void SetupTimer()
@@ -70,15 +88,8 @@ namespace Steepshot.iOS.CustomViews
             _timerLabel.Hidden = false;
             AddSubview(_timerLabel);
 
-            _videoLoader = new UIActivityIndicatorView();
-            _videoLoader.Color = UIColor.DarkGray;
-            _videoLoader.HidesWhenStopped = true;
-            AddSubview(_videoLoader);
-            _videoLoader.StartAnimating();
-
             _timerLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 20);
             _timerLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Top, 20);
-            _videoLoader.AutoCenterInSuperview();
 
             var interval = new CMTime(1, 1);
             double timeLeft;
@@ -110,27 +121,31 @@ namespace Steepshot.iOS.CustomViews
             }
         }
 
-        public void ChangeItem(string url)
+        public void ChangeItem(string url, string thumbnailUrl = null)
         {
-            ChangeItem(NSUrl.FromString(url));
+            ChangeItem(NSUrl.FromString(url), thumbnailUrl);
         }
 
-        public void ChangeItem(NSUrl url)
+        public void ChangeItem(NSUrl url, string thumbnailUrl = null)
         {
             if (_isRegistered)
             {
                 item?.RemoveObserver(this, (NSString)ObserveKey);
-                item?.RemoveObserver(this, (NSString)ObserveBufferEmptyKey);
                 item?.RemoveObserver(this, (NSString)ObserveLikelyToKeepUpKey);
                 item?.RemoveObserver(this, (NSString)ObserveBufferFullKey);
                 _isRegistered = false;
             }
-
+            
             if (url != null)
             {
+                if (thumbnailUrl != null)
+                {
+                    ImageLoader.Load(thumbnailUrl, _thumbnail, 2, LoadingPriority.Highest);
+                    _thumbnail.Hidden = false;
+                }
+
                 item = new AVPlayerItem(url);
                 item.AddObserver(this, (NSString)ObserveKey, NSKeyValueObservingOptions.OldNew, Handle);
-                item.AddObserver(this, (NSString)ObserveBufferEmptyKey, NSKeyValueObservingOptions.OldNew, Handle);
                 item.AddObserver(this, (NSString)ObserveLikelyToKeepUpKey, NSKeyValueObservingOptions.OldNew, Handle);
                 item.AddObserver(this, (NSString)ObserveBufferFullKey, NSKeyValueObservingOptions.OldNew, Handle);
                 _isRegistered = true;
@@ -144,12 +159,10 @@ namespace Steepshot.iOS.CustomViews
         {
             switch (keyPath)
             {
-                case ObserveBufferEmptyKey:
-                    _videoLoader?.StartAnimating();
-                    break;
                 case ObserveLikelyToKeepUpKey:
                 case ObserveBufferFullKey:
-                    _videoLoader?.StopAnimating();
+                    _thumbnail.Hidden = true;
+
                     if (_shouldPlay)
                         Player.Play();
                     break;
@@ -162,7 +175,7 @@ namespace Steepshot.iOS.CustomViews
 
                     if (_shouldPlay)
                     {
-                        _videoLoader?.StartAnimating();
+                        _thumbnail.Hidden = true;
                         Player.Play();
                     }
                     break;
@@ -176,7 +189,7 @@ namespace Steepshot.iOS.CustomViews
                 Player.Status == AVPlayerStatus.ReadyToPlay &&
                 PlayerLayer.ReadyForDisplay)
             {
-                _videoLoader?.StopAnimating();
+                _thumbnail.Hidden = true;
                 Player.Play();
             }
         }
