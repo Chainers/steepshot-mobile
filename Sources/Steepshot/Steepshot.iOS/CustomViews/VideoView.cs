@@ -13,6 +13,7 @@ namespace Steepshot.iOS.CustomViews
 {
     public class VideoView : UIView
     {
+        private const string InitialValue = "00:00";
         private const string ObserveKey = "status";
         private const string ObserveLikelyToKeepUpKey = "playbackLikelyToKeepUp";
         private const string ObserveBufferFullKey = "playbackBufferFull";
@@ -86,6 +87,7 @@ namespace Steepshot.iOS.CustomViews
             _timerLabel.TextColor = UIColor.White;
             _timerLabel.UserInteractionEnabled = false;
             _timerLabel.Hidden = false;
+            _timerLabel.Text = InitialValue;
             AddSubview(_timerLabel);
 
             _timerLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 20);
@@ -134,6 +136,9 @@ namespace Steepshot.iOS.CustomViews
                 item?.RemoveObserver(this, (NSString)ObserveLikelyToKeepUpKey);
                 item?.RemoveObserver(this, (NSString)ObserveBufferFullKey);
                 _isRegistered = false;
+
+                if (_timerLabel != null)
+                    _timerLabel.Text = InitialValue;
             }
             
             if (url != null)
