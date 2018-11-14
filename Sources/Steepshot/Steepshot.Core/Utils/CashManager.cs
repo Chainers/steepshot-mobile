@@ -112,6 +112,7 @@ namespace Steepshot.Core.Utils
             item1.AuthorRewards = item2.AuthorRewards;
             item1.AuthorReputation = item2.AuthorReputation;
             //item1.NetVotes = item2.NetVotes;
+            item1.TopLikersAvatars = item2.TopLikersAvatars;
             item1.NetLikes = item2.NetLikes;
             item1.NetFlags = item2.NetFlags;
             item1.Children = item2.Children;
@@ -125,7 +126,6 @@ namespace Steepshot.Core.Utils
             item1.Tags = item2.Tags;
             item1.Depth = item2.Depth;
             item1.Resteemed = item2.Resteemed;
-            item1.TopLikersAvatars = item2.TopLikersAvatars;
             item1.IsLowRated = item2.IsLowRated;
             item1.IsNsfw = item2.IsNsfw;
             item1.CashoutTime = item2.CashoutTime;
