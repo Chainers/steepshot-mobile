@@ -144,7 +144,7 @@ namespace Steepshot.iOS.Views
             base.ViewWillAppear(animated);
         }
 
-        public override void ViewWillDisappear(bool animated)
+        public override void ViewDidDisappear(bool animated)
         {
             if (IsMovingFromParentViewController)
             {
@@ -161,7 +161,7 @@ namespace Steepshot.iOS.Views
                 multiSelect.RemoveGestureRecognizer(multiselectTap);
             }
             _cropView.VideoView.Stop();
-            base.ViewWillDisappear(animated);
+            base.ViewDidDisappear(animated);
         }
 
         public override void ViewDidLayoutSubviews()

@@ -150,6 +150,11 @@ namespace Steepshot.iOS.Views
         public override void ViewWillDisappear(bool animated)
         {
             StopPlayingVideo(sliderCollection, collectionView);
+            base.ViewWillDisappear(animated);
+        }
+
+        public override void ViewDidDisappear(bool animated)
+        {
             SliderAction = null;
 
             if (IsMovingFromParentViewController)
@@ -176,9 +181,10 @@ namespace Steepshot.iOS.Views
                 _sliderCollectionViewSource.FreeAllCells();
                 Presenter.TasksCancel();
             }
+
             if (TabBarController != null)
                 ((MainTabBarController)TabBarController).SameTabTapped -= SameTabTapped;
-            base.ViewWillDisappear(animated);
+            base.ViewDidDisappear(animated);
         }
 
         private void SetVotePowerView()

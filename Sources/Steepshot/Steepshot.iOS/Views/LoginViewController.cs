@@ -84,7 +84,7 @@ namespace Steepshot.iOS.Views
             base.ViewWillAppear(animated);
         }
 
-        public override void ViewWillDisappear(bool animated)
+        public override void ViewDidDisappear(bool animated)
         {
             loginButton.TouchDown -= Login;
             _eyeButton.TouchDown -= EyeButtonTouch;
@@ -92,7 +92,7 @@ namespace Steepshot.iOS.Views
             password.ShouldChangeCharacters -= ShouldCharactersChange;
             qrButton.TouchDown -= QrTouch;
             _leftBarButton.Clicked -= GoBack;
-            base.ViewWillDisappear(animated);
+            base.ViewDidDisappear(animated);
         }
 
         private async void GetAccountInfo()

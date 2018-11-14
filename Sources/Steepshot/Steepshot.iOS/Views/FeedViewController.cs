@@ -132,7 +132,7 @@ namespace Steepshot.iOS.Views
             GetPosts();
         }
 
-        public override void ViewWillDisappear(bool animated)
+        public override void ViewDidDisappear(bool animated)
         {
             StopPlayingVideo(sliderCollection, feedCollection);
 
@@ -143,7 +143,7 @@ namespace Steepshot.iOS.Views
 
             ((MainTabBarController)TabBarController).SameTabTapped -= SameTabTapped;
 
-            base.ViewWillDisappear(animated);
+            base.ViewDidDisappear(animated);
         }
 
         protected override void SameTabTapped()

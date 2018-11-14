@@ -68,7 +68,7 @@ namespace Steepshot.iOS.Views
             base.ViewWillAppear(animated);
         }
 
-        public override void ViewWillDisappear(bool animated)
+        public override void ViewDidDisappear(bool animated)
         {
             if (IsMovingFromParentViewController)
             {
@@ -88,7 +88,7 @@ namespace Steepshot.iOS.Views
                 _tagsSource.FreeAllCells();
                 _userTableSource.FreeAllCells();
             }
-            base.ViewWillDisappear(animated);
+            base.ViewDidDisappear(animated);
         }
 
         private void SearchTextField_ClearButtonTapped()

@@ -97,7 +97,7 @@ namespace Steepshot.iOS.Views
             base.ViewWillAppear(animated);
         }
 
-        public override void ViewWillDisappear(bool animated)
+        public override void ViewDidDisappear(bool animated)
         {
             if (IsMovingFromParentViewController)
             {
@@ -115,7 +115,7 @@ namespace Steepshot.iOS.Views
                     _mailController.Finished -= MailController_Finished;
                 Presenter.TasksCancel();
             }
-            base.ViewWillDisappear(animated);
+            base.ViewDidDisappear(animated);
         }
 
         private void NotificationSettings_TouchDown(object sender, EventArgs e)

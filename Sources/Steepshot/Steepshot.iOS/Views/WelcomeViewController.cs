@@ -51,12 +51,12 @@ namespace Steepshot.iOS.Views
             base.ViewWillAppear(animated);
         }
 
-        public override void ViewWillDisappear(bool animated)
+        public override void ViewDidDisappear(bool animated)
         {
             steemLogin.TouchDown -= GoToPreLogin;
             newAccount.TouchDown -= CreateAccount;
             _leftBarButton.Clicked -= GoBack;
-            base.ViewWillDisappear(animated);
+            base.ViewDidDisappear(animated);
         }
 
         private void SetBackButton()
