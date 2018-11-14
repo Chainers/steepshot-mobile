@@ -214,9 +214,6 @@ namespace Steepshot.iOS.Delegates
 
         public override CGPoint TargetContentOffset(CGPoint proposedContentOffset, CGPoint scrollingVelocity)
         {
-            if (scrollingVelocity.X == 0)
-                return mostRecentOffset;
-
             if (CollectionView != null)
             {
                 var cv = CollectionView;
@@ -224,6 +221,20 @@ namespace Steepshot.iOS.Delegates
                 var halfWidth = cvBounds.Size.Width * 0.5;
 
                 var attributesForVisibleCells = LayoutAttributesForElementsInRect(cvBounds);
+
+                if (scrollingVelocity.X == 0)
+                {
+                    if (cv.IndexPathsForVisibleItems.Length > 0)
+                    {
+                        var center = cv.ContentOffset.X + cv.Frame.Width / 2;
+
+                        var closestToCenterCell = attributesForVisibleCells.Aggregate((UICollectionViewLayoutAttributes arg1, UICollectionViewLayoutAttributes arg2) =>
+                                                                       Math.Abs(arg1.Center.X - center) < Math.Abs(arg2.Center.X - center) ? arg1 : arg2);
+
+                        mostRecentOffset = new CGPoint(Math.Floor(closestToCenterCell.Center.X - halfWidth), proposedContentOffset.Y);
+                        return mostRecentOffset;
+                    }
+                }
 
                 UICollectionViewLayoutAttributes candidateAttributes = null;
 
