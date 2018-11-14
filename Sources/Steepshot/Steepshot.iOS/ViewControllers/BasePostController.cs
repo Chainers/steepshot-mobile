@@ -4,24 +4,32 @@ using System.Threading.Tasks;
 using CoreGraphics;
 using Foundation;
 using PureLayout.Net;
+using Steepshot.Core.Interfaces;
 using Steepshot.Core.Localization;
-using Steepshot.Core.Models;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
-using Steepshot.Core.Utils;
 using Steepshot.iOS.Cells;
 using Steepshot.iOS.CustomViews;
+using Steepshot.iOS.Delegates;
 using Steepshot.iOS.Views;
+using Steepshot.iOS.ViewSources;
 using UIKit;
 using Constants = Steepshot.iOS.Helpers.Constants;
 
 namespace Steepshot.iOS.ViewControllers
 {
-    public abstract class BasePostController<T> : BaseViewControllerWithPresenter<T> where T : BasePostPresenter
+    public abstract class BasePostController<T> : BaseViewControllerWithPresenter<T>, IPageCloser 
+        where T : BasePostPresenter
     {
         private UIView dialog;
         private UIButton rightButton;
         private CustomAlertView _alert;
+
+        protected UICollectionView FeedCollection;
+        protected UICollectionView SliderCollection;
+        protected CollectionViewFlowDelegate FeedCollectionViewDelegate;
+        protected SliderCollectionViewFlowDelegate SliderCollectionViewDelegate;
+        protected SliderCollectionViewSource SliderViewSource;
 
         protected async void Vote(Post post)
         {
@@ -282,6 +290,47 @@ namespace Steepshot.iOS.ViewControllers
         protected async void ScrolledToBottom()
         {
             await GetPosts(false, false);
+        }
+
+        public void OpenPost(Post post)
+        {
+            SliderCollection.Hidden = false;
+            SliderCollectionViewDelegate.GenerateVariables();
+            SliderCollection.ReloadData();
+            var index = NSIndexPath.FromRowSection(Presenter.IndexOf(post), 0);
+            SliderCollection.ScrollToItem(index, UICollectionViewScrollPosition.CenteredHorizontally, false);
+            SliderViewSource.playingIndex = index;
+            FeedCollection.Hidden = true;
+
+            foreach (var item in FeedCollection.IndexPathsForVisibleItems)
+            {
+                if (FeedCollection.CellForItem(item) is NewFeedCollectionViewCell cell)
+                    cell.Cell.Playback(false);
+            }
+        }
+
+        public void ClosePost()
+        {
+            foreach (var item in SliderCollection.IndexPathsForVisibleItems)
+            {
+                if (SliderCollection.CellForItem(item) is SliderFeedCollectionViewCell cell)
+                    cell.Playback(false);
+            }
+
+            if (!SliderCollection.Hidden)
+            {
+                var visibleRect = new CGRect();
+                visibleRect.Location = SliderCollection.ContentOffset;
+                visibleRect.Size = SliderCollection.Bounds.Size;
+                var visiblePoint = new CGPoint(visibleRect.GetMidX(), visibleRect.GetMidY());
+                var index = SliderCollection.IndexPathForItemAtPoint(visiblePoint);
+
+                FeedCollectionViewDelegate.GenerateVariables();
+                FeedCollection.Hidden = false;
+                FeedCollection.ReloadData();
+                FeedCollection.ScrollToItem(NSIndexPath.FromRowSection(FeedCollectionViewDelegate.IsProfile ? index.Row + 1 : index.Row, index.Section), UICollectionViewScrollPosition.Top, false);
+                SliderCollection.Hidden = true;
+            }
         }
     }
 }
