@@ -23,7 +23,8 @@ namespace Steepshot.Adapter
         {
             WalletCards,
             TrxHistory,
-            TrxHistoryShimmer
+            TrxHistoryShimmer, 
+            Loader
         }
 
         public Action<AutoLinkType, string> AutoLinkAction;
@@ -90,6 +91,9 @@ namespace Steepshot.Adapter
             if (!_currentWallet.IsHistoryLoaded && position != 0)
                 return (int)WalletAdapterHolders.TrxHistoryShimmer;
 
+            if (_currentWallet.IsHistoryLoaded && position == _currentWallet.AccountHistory.Count && !_walletFacade.IsLastReaded)
+                return (int)WalletAdapterHolders.Loader;
+
             return position == 0 ? (int)WalletAdapterHolders.WalletCards : (int)WalletAdapterHolders.TrxHistory;
         }
 
@@ -105,6 +109,10 @@ namespace Steepshot.Adapter
                     return new TrxHistoryShimmerHolder(trxHistoryShimmerView);
                 case WalletAdapterHolders.WalletCards:
                     return new WalletCardsHolder(_headerView);
+                case WalletAdapterHolders.Loader:
+                    var loaderView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.loading_item, parent, false);
+                    var loaderVh = new LoaderViewHolder(loaderView);
+                    return loaderVh;
                 default:
                     return null;
             }

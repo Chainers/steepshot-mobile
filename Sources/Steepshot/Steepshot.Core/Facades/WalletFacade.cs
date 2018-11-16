@@ -99,6 +99,7 @@ namespace Steepshot.Core.Facades
             private set => _selectedBalance = value;
         }
 
+        public bool IsLastReaded { get; set; }
 
         public readonly WalletPresenter WalletPresenter;
         public readonly TransferPresenter TransferPresenter;
@@ -129,13 +130,17 @@ namespace Steepshot.Core.Facades
             return result;
         }
 
-        public async Task TryGetAccountHistoryAsync(WalletModel model, bool isLoop = false, bool readNext = true)
+        public async Task TryGetAccountHistoryAsync(WalletModel model, bool isLoop = false)
         {
-            var args = new AccountHistoryModel(model.UserInfo.Login, readNext ? model.HistoryStartId : ulong.MaxValue);
+            var args = new AccountHistoryModel();
 
+            IsLastReaded = false;
             bool isChanged = false;
             do
             {
+                args.Account = model.UserInfo.Login;
+                args.Start = model.HistoryStartId;
+
                 var result = await WalletPresenter.TryGetAccountHistoryAsync(args, model.UserInfo.Chain)
                     .ConfigureAwait(true);
 
@@ -143,8 +148,10 @@ namespace Steepshot.Core.Facades
                 {
                     model.Update(result.Result);
                     isChanged = result.Result.Count > 0;
+                    IsLastReaded = result.Result.StartId < 1;
                 }
-            } while (isLoop && !isChanged);
+
+            } while (isLoop && !isChanged && !IsLastReaded);
         }
 
         public async Task TryGetCurrencyRatesAsync()
