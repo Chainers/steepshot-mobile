@@ -344,7 +344,7 @@ namespace Steepshot.iOS.Cells
                 _photoScroll.AddSubview(_videoView);
                 _videoView.PlayerLayer.Frame = new CGRect(new CGPoint(0, 0), _photoScroll.Frame.Size);
                 _videoView.Frame = new CGRect(new CGPoint(0, 0), _photoScroll.Frame.Size);
-                _videoView.ChangeItem(_currentPost.Media[0].Url);
+                _videoView.ChangeItem(_currentPost.Media[0].Url, _currentPost.Media[0].Thumbnails.Micro);
                 _videoView.Player.Muted = !AppDelegate.VolumeEnabled;
 
                 _photoScroll.AddSubview(_volumeButton);
