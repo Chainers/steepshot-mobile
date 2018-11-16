@@ -99,8 +99,6 @@ namespace Steepshot.Core.Facades
             private set => _selectedBalance = value;
         }
 
-        public bool IsLastReaded { get; set; }
-
         public readonly WalletPresenter WalletPresenter;
         public readonly TransferPresenter TransferPresenter;
 
@@ -133,11 +131,9 @@ namespace Steepshot.Core.Facades
         public async Task TryGetAccountHistoryAsync(WalletModel model, bool isLoop = false)
         {
             var args = new AccountHistoryModel(model.UserInfo.Login);
-
-            IsLastReaded = false;
             bool isChanged = false;
 
-            while (isLoop && !isChanged && !IsLastReaded)
+            while (isLoop && !isChanged && !model.IsLastReaded)
             {
                 args.Start = model.HistoryStartId;
 
@@ -148,7 +144,6 @@ namespace Steepshot.Core.Facades
                 {
                     model.Update(result.Result);
                     isChanged = result.Result.Count > 0;
-                    IsLastReaded = result.Result.StartId < 1;
                 }
             }
         }

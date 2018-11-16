@@ -91,7 +91,7 @@ namespace Steepshot.Adapter
             if (!_currentWallet.IsHistoryLoaded && position != 0)
                 return (int)WalletAdapterHolders.TrxHistoryShimmer;
 
-            if (_currentWallet.IsHistoryLoaded && position == _currentWallet.AccountHistory.Count && !_walletFacade.IsLastReaded)
+            if (_currentWallet.IsHistoryLoaded && position == _currentWallet.AccountHistory.Count && !_currentWallet.IsLastReaded)
                 return (int)WalletAdapterHolders.Loader;
 
             return position == 0 ? (int)WalletAdapterHolders.WalletCards : (int)WalletAdapterHolders.TrxHistory;

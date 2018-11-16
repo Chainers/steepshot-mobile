@@ -133,8 +133,9 @@ namespace Steepshot.Core.Presenters
     {
         public List<AccountHistoryItem> AccountHistory = new List<AccountHistoryItem>();
         public readonly UserInfo UserInfo;
-        public bool IsHistoryLoaded => HistoryStartId != ulong.MaxValue;
         public ulong HistoryStartId = ulong.MaxValue;
+        public bool IsHistoryLoaded => HistoryStartId != ulong.MaxValue;
+        public bool IsLastReaded { get => HistoryStartId < 1; }
 
         public WalletModel(UserInfo userInfo)
         {
