@@ -132,13 +132,12 @@ namespace Steepshot.Core.Facades
 
         public async Task TryGetAccountHistoryAsync(WalletModel model, bool isLoop = false)
         {
-            var args = new AccountHistoryModel();
+            var args = new AccountHistoryModel(model.UserInfo.Login);
 
             IsLastReaded = false;
             bool isChanged = false;
             do
             {
-                args.Account = model.UserInfo.Login;
                 args.Start = model.HistoryStartId;
 
                 var result = await WalletPresenter.TryGetAccountHistoryAsync(args, model.UserInfo.Chain)

@@ -5,7 +5,7 @@ namespace Steepshot.Core.Models.Requests
     [JsonObject(MemberSerialization.OptIn)]
     public class AccountHistoryModel
     {
-        public string Account { get; set; }
+        public readonly string Account;
 
         private ulong _start;
         public ulong Start 
@@ -18,5 +18,10 @@ namespace Steepshot.Core.Models.Requests
             }
         }
         public uint Limit { get; private set; }
+
+        public AccountHistoryModel(string account)
+        {
+            Account = account;
+        }
     }
 }
