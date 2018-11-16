@@ -6,18 +6,22 @@ namespace Steepshot.Core.Models.Requests
     public class AccountHistoryModel
     {
         public readonly string Account;
-        public readonly ulong Start;
-        public readonly uint Limit;
 
+        private ulong _start;
+        public ulong Start 
+        {
+            get => _start;
+            set
+            {
+                _start = value;
+                Limit = value < 1000 ? (uint)value : 1000;
+            }
+        }
+        public uint Limit { get; private set; }
 
-        public AccountHistoryModel(string account, ulong start)
-        : this(account, start, 1000) { }
-
-        public AccountHistoryModel(string account, ulong start, uint limit)
+        public AccountHistoryModel(string account)
         {
             Account = account;
-            Start = start;
-            Limit = limit;
         }
     }
 }

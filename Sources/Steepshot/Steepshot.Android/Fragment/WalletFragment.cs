@@ -90,6 +90,7 @@ namespace Steepshot.Fragment
 
             _scrollListner = new ScrollListener();
             _scrollListner.ScrolledToBottom += OnScrolledToBottom;
+            _scrollListner.FixedItemsCount = false;
 
             _trxHistory.SetAdapter(_walletAdapter);
             _trxHistory.AddItemDecoration(new Adapter.DividerItemDecoration(Activity));
