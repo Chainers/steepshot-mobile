@@ -1,20 +1,19 @@
 ﻿using System;
-using System.Collections.Generic;
 using Android.Support.V7.Widget;
 using Android.Widget;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
-using Steepshot.Core.Extensions;
-using Steepshot.Core.Utils;
 using Steepshot.Utils;
 using Android.Views;
 using Android.Text;
 using System.Globalization;
+using System.Linq;
 using Android.Content;
 using Android.Views.InputMethods;
 using Steepshot.Base;
 using Steepshot.Core.Models.Responses;
+using Steepshot.Core.Extensions;
 
 namespace Steepshot.Holders
 {
@@ -27,7 +26,7 @@ namespace Steepshot.Holders
         private Button _maxBtn;
         private ProgressBar _balanceLoader;
 
-        public List<BalanceModel> Balances { get; private set; }
+        public BalanceModel[] Balances { get; private set; }
         public CurrencyType PickedCoin { get; private set; } = CurrencyType.Steem;
         public event Action CoinPickClick;
 
@@ -85,7 +84,7 @@ namespace Steepshot.Holders
 
         private void MaxBtnOnClick(object sender, EventArgs e)
         {
-            _amountTextField.Text = Balances.Find(x => x.CurrencyType == PickedCoin).Value.ToBalanceValueString();
+            _amountTextField.Text = Balances.First(x => x.CurrencyType == PickedCoin).Value.ToBalanceValueString();
             _amountTextField.SetSelection(_amountTextField.Text.Length);
         }
 
@@ -122,7 +121,7 @@ namespace Steepshot.Holders
             else
             {
                 Balances = _accountInfo.Balances;
-                var balance = Balances?.Find(x => x.CurrencyType == PickedCoin);
+                var balance = Balances?.FirstOrDefault(x => x.CurrencyType == PickedCoin);
                 _balanceLabel.Text = $"{App.Localization.GetText(LocalizationKeys.Balance)}: {balance?.Value}";
 
                 ToggleBalanceControlls(true);

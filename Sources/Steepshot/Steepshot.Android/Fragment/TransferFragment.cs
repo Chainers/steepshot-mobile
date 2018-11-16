@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Android.App;
@@ -23,11 +24,9 @@ using Steepshot.Core.Authorization;
 using Steepshot.Core.Extensions;
 using Steepshot.Core.Facades;
 using Steepshot.Core.Localization;
-using Steepshot.Core.Models;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
-using Steepshot.Core.Utils;
 using Steepshot.CustomViews;
 using Steepshot.Utils;
 
@@ -118,6 +117,7 @@ namespace Steepshot.Fragment
             }
         }
         private bool IsKeyboardOpening => LytHeightDiff > Style.KeyboardVisibilityThreshold;
+
 
         public TransferFragment() : this(App.User.UserInfo)
         {
@@ -258,7 +258,7 @@ namespace Steepshot.Fragment
                 OnRecipientChanged();
             }
         }
-        
+
         private void TokenLayedOut(object sender, EventArgs e)
         {
             _transferAmountEdit?.SetPadding(_transferAmountEdit.PaddingLeft, _transferAmountEdit.PaddingTop, ((View)_transferCoinName.Parent).Width, _transferAmountEdit.PaddingBottom);
@@ -484,7 +484,7 @@ namespace Steepshot.Fragment
             if (response.IsSuccess)
             {
                 _userInfo.AccountInfo = response.Result;
-                _transferFacade.UserBalance = _userInfo.AccountInfo?.Balances?.Find(x => x.CurrencyType == _pickedCoin);
+                _transferFacade.UserBalance = _userInfo.AccountInfo?.Balances?.FirstOrDefault(x => x.CurrencyType == _pickedCoin);
             }
             _balance.Visibility = ViewStates.Visible;
             _balanceLoader.Visibility = ViewStates.Gone;
@@ -494,7 +494,7 @@ namespace Steepshot.Fragment
         {
             _pickedCoin = pickedCoin;
             _transferCoinName.Text = _pickedCoin.ToString();
-            _transferFacade.UserBalance = _userInfo.AccountInfo?.Balances?.Find(x => x.CurrencyType == _pickedCoin);
+            _transferFacade.UserBalance = _userInfo.AccountInfo?.Balances?.FirstOrDefault(x => x.CurrencyType == _pickedCoin);
             switch (pickedCoin)
             {
                 case CurrencyType.Steem:
@@ -683,7 +683,7 @@ namespace Steepshot.Fragment
             }
             return base.OnBackPressed();
         }
-        
+
         public override void OnDetach()
         {
             _activityRoot.ViewTreeObserver.GlobalLayout -= OnKeyboardClosing;

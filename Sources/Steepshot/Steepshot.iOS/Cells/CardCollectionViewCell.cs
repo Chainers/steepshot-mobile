@@ -7,25 +7,25 @@ using Steepshot.iOS.Helpers;
 using Steepshot.Core.Extensions;
 using UIKit;
 using Steepshot.Core.Models.Requests;
-using Steepshot.Core.Utils;
+using Steepshot.Core.Presenters;
 
 namespace Steepshot.iOS.Cells
 {
     public class CardCollectionViewCell : UICollectionViewCell
     {
-        private UIImageView _image = new UIImageView();
-        private UIView _shadowHelper = new UIView();
+        private readonly UIImageView _image = new UIImageView();
+        private readonly UIView _shadowHelper = new UIView();
 
-        private UILabel _login = new UILabel();
-        private UILabel _equivalentBalance = new UILabel();
+        private readonly UILabel _login = new UILabel();
+        private readonly UILabel _equivalentBalance = new UILabel();
 
-        private UILabel _firstTokenLabel = new UILabel();
-        private UILabel _firstTokenValue = new UILabel();
+        private readonly UILabel _firstTokenLabel = new UILabel();
+        private readonly UILabel _firstTokenValue = new UILabel();
 
-        private UILabel _secondTokenLabel = new UILabel();
-        private UILabel _secondTokenValue = new UILabel();
+        private readonly UILabel _secondTokenLabel = new UILabel();
+        private readonly UILabel _secondTokenValue = new UILabel();
 
-        private UILabel _balanceLabel = new UILabel();
+        private readonly UILabel _balanceLabel = new UILabel();
 
         protected CardCollectionViewCell(IntPtr handle) : base(handle)
         {
@@ -139,9 +139,9 @@ namespace Steepshot.iOS.Cells
             _secondTokenValue.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, _secondTokenLabel);
         }
 
-        public void UpdateCard(BalanceModel balance, CurrencyRate currencyRate, int i)
+        public void UpdateCard(WalletModel walletModel, BalanceModel balance, CurrencyRate currencyRate, int i)
         {
-            _login.Text = $"@{balance.UserInfo.Login}";
+            _login.Text = $"@{walletModel.UserInfo.Login}";
             double usdBalance = 0;
 
             switch (balance.CurrencyType)

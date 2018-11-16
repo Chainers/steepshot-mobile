@@ -158,7 +158,7 @@ namespace Steepshot.iOS.Cells
             _bottomLine.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, circle, 16);
         }
 
-        public void UpdateCard(AccountHistoryResponse transaction, bool isFirst, bool isLast)
+        public void UpdateCard(AccountHistoryItem transaction, bool isFirst, bool isLast)
         {
             _topLine.Hidden = isFirst;
             _bottomLine.Hidden = isLast;

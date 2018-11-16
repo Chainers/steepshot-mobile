@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using CoreGraphics;
 using PureLayout.Net;
@@ -28,7 +29,7 @@ namespace Steepshot.iOS.Popups
         private UIActivityIndicatorView balanceLoader;
         private UILabel balanceLabel;
         private UILabel errorMessage;
-        private List<BalanceModel> balances;
+        private BalanceModel[] balances;
         private readonly PromotePresenter _presenter;
 
         public PromotePopup()
@@ -44,7 +45,7 @@ namespace Steepshot.iOS.Popups
             if (response.IsSuccess)
             {
                 balances = response.Result?.Balances;
-                var balance = balances?.Find(x => x.CurrencyType == _pickedCoin);
+                var balance = balances?.First(x => x.CurrencyType == _pickedCoin);
                 balanceLabel.Text = $"{AppDelegate.Localization.GetText(LocalizationKeys.Balance)}: {balance.Value}";
             }
             balanceLoader.StopAnimating();
@@ -69,7 +70,7 @@ namespace Steepshot.iOS.Popups
             popup.Layer.CornerRadius = 20;
             popup.BackgroundColor = Constants.R255G255B255;
 
-            var _alert = new CustomAlertView(popup, controller);
+            var _alert = new CustomAlertView(controller, popup);
 
             var dialogWidth = UIScreen.MainScreen.Bounds.Width - 10 * 2;
             popup.AutoSetDimension(ALDimension.Width, dialogWidth);
@@ -380,7 +381,7 @@ namespace Steepshot.iOS.Popups
                     _pickedCoin = _coins[(int)picker.SelectedRowInComponent(0)];
                     _pickerLabel.Text = _pickedCoin.ToString().ToUpper();
 
-                    var balance = balances?.Find(x => x.CurrencyType == _pickedCoin);
+                    var balance = balances?.FirstOrDefault(x => x.CurrencyType == _pickedCoin);
                     balanceLabel.Text = $"{AppDelegate.Localization.GetText(LocalizationKeys.Balance)}: {balance?.Value}";
 
                     pickerHidden.Active = true;
@@ -471,7 +472,7 @@ namespace Steepshot.iOS.Popups
                 }
                 else
                 {
-                    if (_amountTextField.GetDoubleValue() > balances?.Find(x => x.CurrencyType == _pickedCoin).Value)
+                    if (_amountTextField.GetDoubleValue() > balances?.First(x => x.CurrencyType == _pickedCoin).Value)
                     {
                         errorMessage.Text = AppDelegate.Localization.GetText(LocalizationKeys.NotEnoughBalance);
                         errorMessage.Hidden = false;
@@ -597,7 +598,7 @@ namespace Steepshot.iOS.Popups
 
         private void MaxBtnOnClick(object sender, EventArgs e)
         {
-            _amountTextField.Text = balances?.Find(x => x.CurrencyType == _pickedCoin).Value.ToString();
+            _amountTextField.Text = balances?.First(x => x.CurrencyType == _pickedCoin).Value.ToString();
             IsEnoughBalance(null, null);
         }
 

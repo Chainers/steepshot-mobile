@@ -479,7 +479,7 @@ namespace Steepshot.Core.Clients
                 PublicPostingKeys = acc.Posting.KeyAuths.Select(i => i.Key.Data).ToArray(),
                 PublicActiveKeys = acc.Active.KeyAuths.Select(i => i.Key.Data).ToArray(),
                 Metadata = JsonConvert.DeserializeObject<AccountMetadata>(acc.JsonMetadata),
-                Balances = new List<BalanceModel>
+                Balances = new[]
                 {
                     new BalanceModel(acc.Balance.ToDouble(), 3, CurrencyType.Steem)
                     {
@@ -514,19 +514,19 @@ namespace Steepshot.Core.Clients
             WithdrawVestingOperation.OperationName
         };
 
-        public override async Task<OperationResult<AccountHistoryResponse[]>> GetAccountHistoryAsync(string userName, CancellationToken ct)
+        public override async Task<OperationResult<AccountHistoryResponse>> GetAccountHistoryAsync(AccountHistoryModel model, CancellationToken ct)
         {
             var isConnected = await TryReconnectChainAsync(ct).ConfigureAwait(false);
             if (!isConnected)
-                return new OperationResult<AccountHistoryResponse[]>(new ValidationException(LocalizationKeys.EnableConnectToBlockchain));
+                return new OperationResult<AccountHistoryResponse>(new ValidationException(LocalizationKeys.EnableConnectToBlockchain));
 
-            var result = new OperationResult<AccountHistoryResponse[]>();
+            var result = new OperationResult<AccountHistoryResponse>();
 
             var args = new GetAccountHistoryArgs
             {
-                Account = userName,
-                Start = ulong.MaxValue,
-                Limit = 1000
+                Account = model.Account,
+                Start = model.Start,
+                Limit = model.Limit
             };
             var resp = await _operationManager.CondenserGetAccountHistoryAsync(args, ct).ConfigureAwait(false);
             if (resp.IsError)
@@ -537,9 +537,19 @@ namespace Steepshot.Core.Clients
 
             var vestsExchangeRatio = await GetVestsExchangeRatioAsync(ct).ConfigureAwait(false);
             if (!vestsExchangeRatio.IsSuccess)
-                return new OperationResult<AccountHistoryResponse[]>(vestsExchangeRatio.Exception);
+                return new OperationResult<AccountHistoryResponse>(vestsExchangeRatio.Exception);
 
-            result.Result = resp.Result.History.Where(Filter).Select(pair => Transform(pair, vestsExchangeRatio.Result)).OrderByDescending(x => x.DateTime).ToArray();
+            result.Result = new AccountHistoryResponse
+            {
+                Items = resp.Result.History
+                    .Where(Filter)
+                    .Select(pair => Transform(pair, vestsExchangeRatio.Result))
+                    .OrderByDescending(x => x.DateTime)
+                    .ToArray(),
+                 StartId = resp.Result.History.First().Key,
+                 EndId = resp.Result.History.Last().Key
+            };
+                
             return result;
         }
 
@@ -566,7 +576,7 @@ namespace Steepshot.Core.Clients
             return _accountHistoryFilter.Contains(baseOperation.TypeName);
         }
 
-        private AccountHistoryResponse Transform(KeyValuePair<uint, AppliedOperation> arg, double vestsExchangeRatio)
+        private AccountHistoryItem Transform(KeyValuePair<uint, AppliedOperation> arg, double vestsExchangeRatio)
         {
             BaseOperation baseOperation = arg.Value.Op;
             switch (baseOperation.TypeName)
@@ -574,10 +584,11 @@ namespace Steepshot.Core.Clients
                 case TransferOperation.OperationName:
                     {
                         var typed = (TransferOperation)baseOperation;
-                        return new AccountHistoryResponse
+                        return new AccountHistoryItem
                         {
+                            Id = arg.Key,
                             DateTime = arg.Value.Timestamp,
-                            Type = AccountHistoryResponse.OperationType.Transfer,
+                            Type = AccountHistoryItem.OperationType.Transfer,
                             From = typed.From,
                             To = typed.To,
                             Amount = typed.Amount.ToOldFormatString(),
@@ -587,10 +598,11 @@ namespace Steepshot.Core.Clients
                 case TransferToVestingOperation.OperationName:
                     {
                         var typed = (TransferToVestingOperation)baseOperation;
-                        return new AccountHistoryResponse
+                        return new AccountHistoryItem
                         {
+                            Id = arg.Key,
                             DateTime = arg.Value.Timestamp,
-                            Type = AccountHistoryResponse.OperationType.PowerUp,
+                            Type = AccountHistoryItem.OperationType.PowerUp,
                             From = typed.From,
                             To = typed.To,
                             Amount = typed.Amount.ToOldFormatString()
@@ -599,10 +611,11 @@ namespace Steepshot.Core.Clients
                 case WithdrawVestingOperation.OperationName:
                     {
                         var typed = (WithdrawVestingOperation)baseOperation;
-                        return new AccountHistoryResponse
+                        return new AccountHistoryItem
                         {
+                            Id = arg.Key,
                             DateTime = arg.Value.Timestamp,
-                            Type = AccountHistoryResponse.OperationType.PowerDown,
+                            Type = AccountHistoryItem.OperationType.PowerDown,
                             From = typed.Account,
                             To = typed.Account,
                             Amount = $"{(typed.VestingShares.ToDouble() * vestsExchangeRatio).ToBalanceValueString()} {CurrencyType.Steem.ToString().ToUpper()}"
@@ -611,10 +624,11 @@ namespace Steepshot.Core.Clients
                 case ClaimRewardBalanceOperation.OperationName:
                     {
                         var typed = (ClaimRewardBalanceOperation)baseOperation;
-                        return new AccountHistoryResponse
+                        return new AccountHistoryItem
                         {
+                            Id = arg.Key,
                             DateTime = arg.Value.Timestamp,
-                            Type = AccountHistoryResponse.OperationType.ClaimReward,
+                            Type = AccountHistoryItem.OperationType.ClaimReward,
                             From = typed.Account,
                             To = typed.Account,
                             RewardSteem = typed.RewardSteem.ToDoubleString(),

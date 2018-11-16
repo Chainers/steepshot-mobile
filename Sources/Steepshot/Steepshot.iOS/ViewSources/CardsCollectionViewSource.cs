@@ -1,6 +1,6 @@
 ﻿using System;
 using Foundation;
-using Steepshot.Core.Presenters;
+using Steepshot.Core.Facades;
 using Steepshot.iOS.Cells;
 using UIKit;
 
@@ -8,34 +8,39 @@ namespace Steepshot.iOS.ViewSources
 {
     public class CardsCollectionViewSource : UICollectionViewSource
     {
-        private WalletPresenter _presenter;
+        private readonly WalletFacade _walletFacade;
 
-        public CardsCollectionViewSource(WalletPresenter presenter)
+        public CardsCollectionViewSource(WalletFacade walletFacade)
         {
-            _presenter = presenter;
+            _walletFacade = walletFacade;
         }
 
         public override nint GetItemsCount(UICollectionView collectionView, nint section)
         {
-            if (_presenter.Balances.Count == 0)
-                return 1;
-            return _presenter.Balances.Count;
+            return _walletFacade.BalanceCount;
         }
 
         public override UICollectionViewCell GetCell(UICollectionView collectionView, NSIndexPath indexPath)
         {
-            if (_presenter.Balances.Count == 0)
+            var cell = (CardCollectionViewCell)collectionView.DequeueReusableCell(nameof(CardCollectionViewCell), indexPath);
+
+            var i = indexPath.Row;
+
+            foreach (var wallet in _walletFacade.Wallets)
             {
-                var cell = (CardShimmerCollectionView)collectionView.DequeueReusableCell(nameof(CardShimmerCollectionView), indexPath);
-                return cell;
+                if (wallet.UserInfo.AccountInfo.Balances.Length <= i)
+                {
+                    i -= wallet.UserInfo.AccountInfo.Balances.Length;
+                    continue;
+                }
+
+                var balance = wallet.UserInfo.AccountInfo.Balances[i];
+                var cr = _walletFacade.GetCurrencyRate(balance.CurrencyType);
+                cell.UpdateCard(wallet, balance, cr, indexPath.Row);
+                break;
             }
-            else
-            {
-                var cell = (CardCollectionViewCell)collectionView.DequeueReusableCell(nameof(CardCollectionViewCell), indexPath);
-                var currencyRate = _presenter.GetCurrencyRate(_presenter.Balances[indexPath.Row].CurrencyType);
-                cell.UpdateCard(_presenter.Balances[indexPath.Row], currencyRate, indexPath.Row);
-                return cell;
-            }
+
+            return cell;
         }
     }
 }

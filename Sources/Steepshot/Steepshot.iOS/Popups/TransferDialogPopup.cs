@@ -2,13 +2,9 @@
 using Foundation;
 using PureLayout.Net;
 using Steepshot.Core.Localization;
-using Steepshot.Core.Models.Enums;
-using Steepshot.Core.Models.Requests;
-using Steepshot.Core.Utils;
 using Steepshot.iOS.CustomViews;
 using Steepshot.iOS.Helpers;
 using UIKit;
-using Steepshot.Core.Extensions;
 
 namespace Steepshot.iOS.Popups
 {
@@ -23,7 +19,7 @@ namespace Steepshot.iOS.Popups
             popup.Layer.CornerRadius = 20;
             popup.BackgroundColor = Constants.R250G250B250;
 
-            var _alert = new CustomAlertView(popup, controller);
+            var _alert = new CustomAlertView(controller, popup);
 
             var dialogWidth = UIScreen.MainScreen.Bounds.Width - 10 * 2;
             popup.AutoSetDimension(ALDimension.Width, dialogWidth);
