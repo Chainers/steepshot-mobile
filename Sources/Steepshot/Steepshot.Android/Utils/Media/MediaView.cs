@@ -39,7 +39,10 @@ namespace Steepshot.Utils.Media
 
                     _mediaSource = value;
                     var mimeType = _mediaSource.ContentType;
+
                     CurrentMediaType = MimeTypeHelper.IsVideo(mimeType) ? MediaType.Video : MediaType.Image;
+                    if (CurrentMediaType == MediaType.Image)
+                        VideoVolume.Visibility = ViewStates.Gone;
                 }
             }
         }
@@ -126,6 +129,7 @@ namespace Steepshot.Utils.Media
             AddView(VideoLayout);
             VideoLayout.AddView(VideoView);
             VideoLayout.AddView(VideoVolume);
+            VideoVolume.Visibility = ViewStates.Gone;
 
             VideoView.SurfaceTextureListener = this;
         }
