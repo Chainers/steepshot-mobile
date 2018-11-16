@@ -136,7 +136,8 @@ namespace Steepshot.Core.Facades
 
             IsLastReaded = false;
             bool isChanged = false;
-            do
+
+            while (isLoop && !isChanged && !IsLastReaded)
             {
                 args.Start = model.HistoryStartId;
 
@@ -149,8 +150,7 @@ namespace Steepshot.Core.Facades
                     isChanged = result.Result.Count > 0;
                     IsLastReaded = result.Result.StartId < 1;
                 }
-
-            } while (isLoop && !isChanged && !IsLastReaded);
+            }
         }
 
         public async Task TryGetCurrencyRatesAsync()
