@@ -10,6 +10,8 @@ namespace Steepshot.Utils
         public event Action ScrolledToBottom;
         private int _pos, _prevPos;
         public int Position => _pos;
+        public bool FixedItemsCount { get; set; } = true;
+
 
         public void ClearPosition()
         {
@@ -25,24 +27,26 @@ namespace Steepshot.Utils
             // TODO: temporary solution
             if (lastPos > _prevPos && lastPos != _prevPos)
             {
-                if (lastPos >= _prevPos + packSize / 2)
-                { 
-                    ScrolledToBottom?.Invoke();
-                    _prevPos = _prevPos + packSize;
-                }
-            }
-
-            /*if (lastPos > _prevPos && lastPos != _prevPos)
-            {
-                if (lastPos == recyclerView.GetAdapter().ItemCount - 1)
+                if (FixedItemsCount)
                 {
-                    if (lastPos < recyclerView.GetAdapter().ItemCount)
+                    if (lastPos >= _prevPos + packSize / 2)
                     {
                         ScrolledToBottom?.Invoke();
-                        _prevPos = lastPos;
+                        _prevPos = _prevPos + packSize;
                     }
                 }
-            }*/
+                else
+                {
+                    if (lastPos == recyclerView.GetAdapter().ItemCount - 1)
+                    {
+                        if (lastPos < recyclerView.GetAdapter().ItemCount)
+                        {
+                            ScrolledToBottom?.Invoke();
+                            _prevPos = lastPos;
+                        }
+                    }
+                }
+            }
         }
     }
 }

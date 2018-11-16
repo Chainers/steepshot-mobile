@@ -5,7 +5,6 @@ using Android.Views;
 using Android.Widget;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Presenters;
-using Steepshot.Core.Utils;
 using Steepshot.Utils;
 using Android.Support.Design.Widget;
 using Android.Support.V4.View;
@@ -13,6 +12,7 @@ using Steepshot.Adapter;
 using Steepshot.Core.Models.Common;
 using System.Threading.Tasks;
 using System.Globalization;
+using System.Linq;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Activity;
@@ -57,8 +57,14 @@ namespace Steepshot.CustomViews
             ShowEvent += OnShowEvent;
         }
 
-        private async void OnShowEvent(object sender, EventArgs e)
+        private void OnShowEvent(object sender, EventArgs e)
         {
+            UpdateAccountInfo();
+        }
+
+        private async void UpdateAccountInfo()
+        {
+            _adapter.MainHolder.ToggleBalanceControlls(false);
             var response = await _presenter.TryGetAccountInfoAsync(App.User.Login);
             if (response.IsSuccess)
             {
@@ -152,6 +158,7 @@ namespace Steepshot.CustomViews
                     break;
                 case Pages.Messages:
                     _pager.SetCurrentItem((int)Pages.Main, false);
+                    UpdateAccountInfo();
                     break;
             }
         }
@@ -169,7 +176,7 @@ namespace Steepshot.CustomViews
             if (!double.TryParse(mainHolder.AmountEdit, NumberStyles.Any, CultureInfo.InvariantCulture, out var amountEdit))
                 return;
 
-            if (amountEdit > mainHolder.Balances?.Find(x => x.CurrencyType == mainHolder.PickedCoin).Value)
+            if (amountEdit > mainHolder.Balances?.First(x => x.CurrencyType == mainHolder.PickedCoin).Value)
             {
                 mainHolder.ShowError(App.Localization.GetText(LocalizationKeys.NotEnoughBalance));
                 return;

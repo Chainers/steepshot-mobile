@@ -10,12 +10,12 @@
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:layout_marginBottom="25dp"
-        android:paddingBottom="20dp"
-        android:paddingLeft="20dp"
-        android:paddingRight="20dp"
+        android:layout_marginLeft="@dimen/rl_actions_marginLeft_dp"
+        android:layout_marginRight="@dimen/rl_actions_marginRight_dp"
+        android:layout_marginBottom="@dimen/rl_actions_marginBottom_dp"
+        android:paddingBottom="@dimen/rl_actions_paddingBottom_dp"
+        android:paddingLeft="@dimen/rl_actions_paddingLeft_dp"
+        android:paddingRight="@dimen/rl_actions_paddingRight_dp"
         android:background="@drawable/white_rounded_border16dip">
         <android.support.design.widget.TabLayout
             android:id="@+id/page_indicator"
@@ -31,9 +31,9 @@
             android:layout_height="50dp">
             <ImageButton
                 android:id="@+id/more"
-                android:layout_width="50dp"
-                android:layout_height="match_parent"
-                android:layout_marginLeft="10dp"
+                android:layout_width="@dimen/btn_more_height_width_dp"
+                android:layout_height="@dimen/btn_more_height_width_dp"
+                android:layout_marginLeft="@dimen/btn_more_marginLeft_dp"
                 android:layout_alignParentRight="true"
                 android:background="@drawable/grey_rounded_border25dip"
                 android:src="@drawable/ic_more" />

@@ -46,6 +46,7 @@ namespace Steepshot.Core.Utils
             builder.RegisterType<SearchFacade>();
             builder.RegisterType<TransferFacade>();
             builder.RegisterType<TagPickerFacade>();
+            builder.RegisterType<WalletFacade>();
         }
 
         public void Clients(ContainerBuilder builder)

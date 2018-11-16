@@ -23,7 +23,7 @@ namespace Steepshot.iOS.ViewControllers
     {
         private UIView dialog;
         private UIButton rightButton;
-        private CustomAlertView _alert;
+        private CustomAlertView _customAlertView;
 
         protected UICollectionView FeedCollection;
         protected UICollectionView SliderCollection;
@@ -38,7 +38,7 @@ namespace Steepshot.iOS.ViewControllers
                 LoginTapped(null, null);
                 return;
             }
-            
+
             var result = await Presenter.TryVoteAsync(post);
             ShowAlert(result);
             if (result.IsSuccess)
@@ -82,8 +82,8 @@ namespace Steepshot.iOS.ViewControllers
 
         public override void ViewDidAppear(bool animated)
         {
-            if (_alert != null)
-                _alert.Hidden = false;
+            if (_customAlertView != null)
+                _customAlertView.Hidden = false;
 
             base.ViewDidAppear(animated);
         }
@@ -91,7 +91,7 @@ namespace Steepshot.iOS.ViewControllers
         private void ShowPromotePopup(Post post)
         {
             var promotePopup = new Popups.PromotePopup();
-            _alert = promotePopup.Create(post, TabBarController != null ? TabBarController.NavigationController : NavigationController, View);
+            _customAlertView = promotePopup.Create(post, TabBarController != null ? TabBarController.NavigationController : NavigationController, View);
         }
 
         protected void HidePhoto(Post post)
@@ -129,7 +129,7 @@ namespace Steepshot.iOS.ViewControllers
                 LoginTapped(null, null);
                 return;
             }
-            
+
             var result = await Presenter.TryFlagAsync(post);
             ShowAlert(result);
             if (result.IsSuccess)
@@ -248,7 +248,7 @@ namespace Steepshot.iOS.ViewControllers
 
                 NavigationController.View.EndEditing(true);
 
-                _deleteAlert = new CustomAlertView(dialog, TabBarController);
+                _deleteAlert = new CustomAlertView(TabBarController, dialog);
 
                 leftButton.TouchDown += (sender, e) => { _deleteAlert.Close(); };
                 rightButton.TouchDown += (sender, e) => { DeletePost(post, _deleteAlert.Close); };

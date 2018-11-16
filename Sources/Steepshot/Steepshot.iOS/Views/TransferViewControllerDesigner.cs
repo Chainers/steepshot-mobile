@@ -132,7 +132,8 @@ namespace Steepshot.iOS.Views
 
             _recepientTextField = new SearchTextField(AppDelegate.Localization.GetText(LocalizationKeys.RecipientNameHint));
 
-            _recepientTextField.ReturnButtonTapped += () => {
+            _recepientTextField.ReturnButtonTapped += () =>
+            {
                 RemoveFocus();
             };
 
@@ -344,7 +345,7 @@ namespace Steepshot.iOS.Views
 
                     NavigationController.View.EndEditing(true);
 
-                    _alert = new CustomAlertView(popup, NavigationController);
+                    _alert = new CustomAlertView(NavigationController, popup);
 
                     selectButton.TouchDown += (sender, e) =>
                     {
@@ -640,7 +641,7 @@ namespace Steepshot.iOS.Views
 
                 NavigationController.View.EndEditing(true);
 
-                _successAlert = new CustomAlertView(popup, NavigationController);
+                _successAlert = new CustomAlertView(NavigationController, popup);
                 cancelButton.TouchDown += (sender, e) => { _successAlert.Close(); };
 
                 popup.SizeToFit();

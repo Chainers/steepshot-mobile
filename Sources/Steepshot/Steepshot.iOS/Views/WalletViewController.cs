@@ -2,8 +2,6 @@
 using CoreGraphics;
 using PureLayout.Net;
 using Steepshot.Core.Localization;
-using Steepshot.Core.Presenters;
-using Steepshot.Core.Utils;
 using Steepshot.iOS.Cells;
 using Steepshot.iOS.CustomViews;
 using Steepshot.iOS.Delegates;
@@ -13,19 +11,23 @@ using Steepshot.iOS.ViewSources;
 using UIKit;
 using Steepshot.Core.Extensions;
 using System.Threading.Tasks;
+using Steepshot.Core.Facades;
 
 namespace Steepshot.iOS.Views
 {
-    public class WalletViewController : BaseViewControllerWithPresenter<WalletPresenter>
+    public class WalletViewController : BaseViewController
     {
         private UICollectionView _historyCollection;
         private TransferCollectionViewSource _historySource;
         private readonly UIActivityIndicatorView _loader = new UIActivityIndicatorView();
         private readonly UIRefreshControl _refreshControl = new UIRefreshControl();
+        private WalletFacade _walletFacade;
 
         public override void ViewDidLoad()
         {
             base.ViewDidLoad();
+            _walletFacade = AppDelegate.Container.GetFacade<WalletFacade>(AppDelegate.MainChain);
+
             View.BackgroundColor = Constants.R250G250B250;
             View.ClipsToBounds = true;
 
@@ -49,7 +51,6 @@ namespace Steepshot.iOS.Views
             if (IsMovingToParentViewController)
             {
                 _refreshControl.ValueChanged += OnRefresh;
-                Presenter.UpdateWallet += UpdateWallet;
             }
             base.ViewDidAppear(animated);
         }
@@ -60,13 +61,7 @@ namespace Steepshot.iOS.Views
             if (IsMovingFromParentViewController)
             {
                 _refreshControl.ValueChanged -= OnRefresh;
-                Presenter.UpdateWallet -= UpdateWallet;
             }
-        }
-
-        private void UpdateWallet()
-        {
-            OnRefresh(null, null);
         }
 
         private async void OnRefresh(object sender, EventArgs e)
@@ -77,27 +72,24 @@ namespace Steepshot.iOS.Views
 
         private async Task LoadDataAsync()
         {
-            Presenter.Reset();
-            var exception = await Presenter.TryLoadNextAccountInfoAsync();
-            if (exception == null)
-            {
-                _historySource.GroupHistory();
-                _historyCollection.ReloadData();
-                _historySource.ReloadCardsHeader();
+            await _walletFacade.TryUpdateWallets();
 
-                if (Presenter.Balances[0].RewardSp > 0 || Presenter.Balances[0].RewardSbd > 0 || Presenter.Balances[0].RewardSteem > 0)
-                {
-                    NavigationItem.RightBarButtonItem.TintColor = Constants.R231G72B0;
-                    NavigationItem.RightBarButtonItem.Enabled = true;
-                }
-                else
-                {
-                    NavigationItem.RightBarButtonItem.TintColor = UIColor.Clear;
-                    NavigationItem.RightBarButtonItem.Enabled = false;
-                }
-                _historyCollection.Hidden = false;
-                _loader.StopAnimating();
+            _historySource.GroupHistory();
+            _historyCollection.ReloadData();
+            _historySource.ReloadCardsHeader();
+
+            if (_walletFacade.SelectedBalance.RewardSp > 0 || _walletFacade.SelectedBalance.RewardSbd > 0 || _walletFacade.SelectedBalance.RewardSteem > 0)
+            {
+                NavigationItem.RightBarButtonItem.TintColor = Constants.R231G72B0;
+                NavigationItem.RightBarButtonItem.Enabled = true;
             }
+            else
+            {
+                NavigationItem.RightBarButtonItem.TintColor = UIColor.Clear;
+                NavigationItem.RightBarButtonItem.Enabled = false;
+            }
+            _historyCollection.Hidden = false;
+            _loader.StopAnimating();
         }
 
         private void SetupHistoryCollection()
@@ -118,7 +110,7 @@ namespace Steepshot.iOS.Views
 
             View.Add(_historyCollection);
 
-            _historySource = new TransferCollectionViewSource(Presenter, NavigationController);
+            _historySource = new TransferCollectionViewSource(_walletFacade, NavigationController);
 
             _historySource.CellAction += (string obj) =>
             {
@@ -161,7 +153,7 @@ namespace Steepshot.iOS.Views
             popup.Layer.CornerRadius = 20;
             popup.BackgroundColor = Constants.R250G250B250;
 
-            var _alert = new CustomAlertView(popup, NavigationController);
+            var _alert = new CustomAlertView(NavigationController, popup);
 
             var dialogWidth = UIScreen.MainScreen.Bounds.Width - 10 * 2;
             popup.AutoSetDimension(ALDimension.Width, dialogWidth);
@@ -197,7 +189,7 @@ namespace Steepshot.iOS.Views
             steemAmountLabel.AutoAlignAxisToSuperviewAxis(ALAxis.Horizontal);
 
             var steemAmount = new UILabel();
-            steemAmount.Text = Presenter.Balances[0].RewardSteem.ToBalanceValueString();
+            steemAmount.Text = _walletFacade.SelectedBalance.RewardSteem.ToBalanceValueString();
             steemAmount.Font = Constants.Semibold14;
             steemAmount.TextColor = Constants.R255G34B5;
             steemAmount.TextAlignment = UITextAlignment.Right;
@@ -227,7 +219,7 @@ namespace Steepshot.iOS.Views
             sbdAmountLabel.AutoAlignAxisToSuperviewAxis(ALAxis.Horizontal);
 
             var sbdAmount = new UILabel();
-            sbdAmount.Text = Presenter.Balances[0].RewardSbd.ToBalanceValueString();
+            sbdAmount.Text = _walletFacade.SelectedBalance.RewardSbd.ToBalanceValueString();
             sbdAmount.Font = Constants.Semibold14;
             sbdAmount.TextColor = Constants.R255G34B5;
             sbdAmount.TextAlignment = UITextAlignment.Right;
@@ -257,7 +249,7 @@ namespace Steepshot.iOS.Views
             spAmountLabel.AutoAlignAxisToSuperviewAxis(ALAxis.Horizontal);
 
             var spAmount = new UILabel();
-            spAmount.Text = Presenter.Balances[0].RewardSp.ToBalanceValueString();
+            spAmount.Text = _walletFacade.SelectedBalance.RewardSp.ToBalanceValueString();
             spAmount.Font = Constants.Semibold14;
             spAmount.TextColor = Constants.R255G34B5;
             spAmount.TextAlignment = UITextAlignment.Right;
@@ -318,13 +310,13 @@ namespace Steepshot.iOS.Views
             {
                 selectButton.Enabled = false;
                 loader.StartAnimating();
-                var result = await Presenter.TryClaimRewardsAsync(Presenter.Balances[0]);
+                var result = await _walletFacade.WalletPresenter.TryClaimRewardsAsync(_walletFacade.SelectedWallet.UserInfo, _walletFacade.SelectedBalance);
                 loader.StopAnimating();
                 selectButton.Enabled = true;
 
                 if (result.IsSuccess)
                 {
-                    LoadDataAsync();
+                    await LoadDataAsync();
                     _alert.Close();
                 }
                 else

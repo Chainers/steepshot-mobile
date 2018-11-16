@@ -8,7 +8,7 @@ using Steepshot.Core.Models.Requests;
 
 namespace Steepshot.Core.Clients
 {
-    [Obsolete]
+    [Obsolete("Try to use SteepshotClient")]
     public class SteepshotApiClient : BaseServerClient
     {
         public SteepshotApiClient(ExtendedHttpClient extendedHttpClient, ILogService logService, string baseUrl)

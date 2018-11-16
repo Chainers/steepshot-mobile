@@ -26,7 +26,7 @@ namespace Steepshot.Core.Extensions
         {
             return container.ResolveKeyed<SteepshotApiClient>(chain);
         }
-        
+
         public static SteepshotClient GetSteepshotClient(this IContainer container)
         {
             return container.Resolve<SteepshotClient>();
@@ -116,6 +116,8 @@ namespace Steepshot.Core.Extensions
             {
                 new TypedParameter(typeof(BaseDitchClient), GetDitchClient(container, chain)),
                 new TypedParameter(typeof(SteepshotApiClient), GetSteepshotApiClient(container, chain)),
+                new TypedParameter(typeof(SteemClient), GetDitchClient(container, KnownChains.Steem)),
+                new TypedParameter(typeof(GolosClient), GetDitchClient(container, KnownChains.Golos)),
             };
 
             return container.Resolve(type, args);
@@ -125,17 +127,17 @@ namespace Steepshot.Core.Extensions
         {
             return container.Resolve<JobProcessingService>();
         }
-        
+
         public static SettingsManager GetSettingsManager(this IContainer container)
         {
             return container.Resolve<SettingsManager>();
         }
-        
+
         public static NavigationManager GetNavigationManager(this IContainer container)
         {
             return container.Resolve<NavigationManager>();
         }
-        
+
         public static ICommand GetCommand(this IContainer container, string id)
         {
             return container.ResolveNamed<ICommand>(id);

@@ -21,6 +21,8 @@ namespace Steepshot.Core.Authorization
             return _set;
         }
 
+        public int Count => _set.Count;
+
         public void Delete(UserInfo userInfo)
         {
             for (var i = 0; i < _set.Count; i++)

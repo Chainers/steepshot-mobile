@@ -440,7 +440,6 @@
     <Compile Include="Popups\PostCreatedPopup.cs" />
     <Compile Include="CustomViews\CustomView.cs" />
     <Compile Include="Cells\TransactionShimmerCollectionViewCell.cs" />
-    <Compile Include="Cells\CardShimmerCollectionView.cs" />
     <Compile Include="CustomViews\VideoView.cs" />
     <Compile Include="Models\EmptyLogger.cs" />
     <Compile Include="ViewSources\SliderCollectionViewSource.cs" />

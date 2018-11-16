@@ -264,6 +264,8 @@ About 6 inches away</string>
 
     <string name="abs_rshares &gt; STEEMIT_VOTE_DUST_THRESHOLD || o.weight == 0&split;abs_rshares &gt; STEEM_VOTE_DUST_THRESHOLD || o.weight == 0&split;abs_rshares &gt; STEEM_VOTE_DUST_THRESHOLD || vote_weight == 0&split;abs_rshares &gt; 30000000 || o.weight == 0">Voting weight is too small, please accumulate more voting power or steem power.</string>
 
+    <string name="${account} has ${rc_current} RC, needs ${rc_needed} RC">Not enough RC. Please wait to transact, or power up STEEM.</string>
+
     <string name="beneficiaries.size() == 0">Comment already has beneficiaries specified.</string>
     <string name="(skip &amp; skip_transaction_dupe_check) || trx_idx.indices().get&lt;by_trx_id&gt;().find(trx_id) == trx_idx.indices().get&lt;by_trx_id&gt;().end()">Duplicate transaction check failed.</string>
     <string name="title.size() &lt; 256">Title larger than size limit.</string>

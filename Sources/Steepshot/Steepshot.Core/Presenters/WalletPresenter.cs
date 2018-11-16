@@ -1,118 +1,121 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using Autofac;
 using Ditch.Core.JsonRpc;
 using Steepshot.Core.Authorization;
 using Steepshot.Core.Clients;
-using Steepshot.Core.Exceptions;
-using Steepshot.Core.Extensions;
 using Steepshot.Core.Interfaces;
 using Steepshot.Core.Models.Common;
-using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
-using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Presenters
 {
-    public class WalletPresenter : BasePresenter, IEnumerator<UserInfo>
+    public class WalletPresenter : BasePresenter
     {
-        public Dictionary<int, UserInfo> ConnectedUsers { get; }
-        public bool HasNext { get; private set; }
-        public List<BalanceModel> Balances { get; }
-        public Action UpdateWallet;
-        private CurrencyRate[] CurrencyRates { get; set; }
-        private readonly int[] _logins;
-        private int _current = -1;
+        private readonly UserManager _dataProvider;
+        private readonly SteemClient _steemClient;
+        private readonly GolosClient _golosClient;
+        private readonly SteepshotApiClient _steepshotApiClient;
 
-        private SteepshotApiClient _steepshotApiClient;
-        private BaseDitchClient _ditchClient;
-
-        public WalletPresenter(IConnectionService connectionService, ILogService logService, BaseDitchClient ditchClient, SteepshotApiClient steepshotApiClient, UserManager dataProvider)
+        public WalletPresenter(IConnectionService connectionService, ILogService logService, SteemClient steemClient, GolosClient golosClient, SteepshotApiClient steepshotApiClient, UserManager dataProvider)
             : base(connectionService, logService)
         {
             _steepshotApiClient = steepshotApiClient;
-            _ditchClient = ditchClient;
 
-            ConnectedUsers = dataProvider.Select().OrderByDescending(x => x.LoginTime).ToDictionary(x => x.Id, x => x);
-            _logins = ConnectedUsers.Keys.ToArray();
-            Balances = new List<BalanceModel>();
-            HasNext = MoveNext();
+            _dataProvider = dataProvider;
+            _steemClient = steemClient;
+            _golosClient = golosClient;
         }
 
-        public async Task<Exception> TryLoadNextAccountInfoAsync()
+        public async Task<OperationResult<AccountInfoResponse>> TryUpdateAccountInfoAsync(UserInfo userInfo)
         {
-            if (!HasNext || Current == null)
-                return new ValidationException(string.Empty);
+            BaseDitchClient ditchClient;
+            switch (userInfo.Chain)
+            {
+                case KnownChains.Steem:
+                    ditchClient = _steemClient;
+                    break;
+                case KnownChains.Golos:
+                    ditchClient = _golosClient;
+                    break;
 
-            var exception = await TryUpdateAccountInfoAsync(Current)
-                .ConfigureAwait(false);
-            if (exception == null)
-                HasNext = MoveNext();
-
-            return exception;
-        }
-
-        public async Task<Exception> TryUpdateAccountInfoAsync(UserInfo userInfo)
-        {
-            if (!ConnectedUsers.ContainsKey(userInfo.Id))
-                return new ValidationException(string.Empty);
+                default:
+                    {
+                        throw new NotSupportedException(userInfo.Chain.ToString());
+                    }
+            }
 
             var response = await TaskHelper
-                .TryRunTaskAsync(_ditchClient.GetAccountInfoAsync, userInfo.Login, OnDisposeCts.Token)
-                .ConfigureAwait(false);
+                .TryRunTaskAsync(ditchClient.GetAccountInfoAsync, userInfo.Login, OnDisposeCts.Token)
+                .ConfigureAwait(true);
+
             if (response.IsSuccess)
             {
-                ConnectedUsers[userInfo.Id].AccountInfo = response.Result;
-                var responseBalances = response.Result.Balances;
-                responseBalances.ForEach(x => x.UserInfo = ConnectedUsers[userInfo.Id]);
-                lock (Balances)
+                foreach (var newBalance in response.Result.Balances)
                 {
-                    responseBalances.ForEach(x =>
-                        {
-                            var balanceInd = Balances.FindIndex(y => y.UserInfo.Id == x.UserInfo.Id && y.CurrencyType == x.CurrencyType);
-                            if (balanceInd >= 0)
-                                Balances[balanceInd] = x;
-                            else
-                                Balances.Add(x);
-                        });
+                    var oldBalance = userInfo.AccountInfo.Balances.First(b => b.CurrencyType == newBalance.CurrencyType);
+                    oldBalance.Update(newBalance);
                 }
-            }
-            else
-            {
-                return response.Exception;
+
+                _dataProvider.Update(userInfo);
             }
 
-            var historyResp = await TaskHelper.TryRunTaskAsync(_ditchClient.GetAccountHistoryAsync, userInfo.Login, OnDisposeCts.Token)
-                .ConfigureAwait(false);
-            if (historyResp.IsSuccess)
-            {
-                ConnectedUsers[userInfo.Id].AccountHistory = historyResp.Result;
-                return null;
-            }
-
-            return historyResp.Exception;
+            return response;
         }
 
-        public async Task<OperationResult<VoidResponse>> TryClaimRewardsAsync(BalanceModel balance)
+
+        public async Task<OperationResult<AccountHistoryResponse>> TryGetAccountHistoryAsync(AccountHistoryModel model, KnownChains chain)
         {
-            var claimRewardsModel = new ClaimRewardsModel(balance.UserInfo, balance.RewardSteem, balance.RewardSp, balance.RewardSbd);
-            var result = await TaskHelper.TryRunTaskAsync(_ditchClient.ClaimRewardsAsync, claimRewardsModel, OnDisposeCts.Token)
+            BaseDitchClient ditchClient;
+            switch (chain)
+            {
+                case KnownChains.Steem:
+                    ditchClient = _steemClient;
+                    break;
+                case KnownChains.Golos:
+                    ditchClient = _golosClient;
+                    break;
+
+                default:
+                    {
+                        throw new NotSupportedException(chain.ToString());
+                    }
+            }
+
+            return await TaskHelper.TryRunTaskAsync(ditchClient.GetAccountHistoryAsync, model, OnDisposeCts.Token)
                 .ConfigureAwait(false);
+        }
+
+
+        public async Task<OperationResult<VoidResponse>> TryClaimRewardsAsync(UserInfo userInfo, BalanceModel balance)
+        {
+            BaseDitchClient ditchClient;
+            switch (userInfo.Chain)
+            {
+                case KnownChains.Steem:
+                    ditchClient = _steemClient;
+                    break;
+                case KnownChains.Golos:
+                    ditchClient = _golosClient;
+                    break;
+
+                default:
+                    {
+                        throw new NotSupportedException(userInfo.Chain.ToString());
+                    }
+            }
+
+            var claimRewardsModel = new ClaimRewardsModel(userInfo, balance.RewardSteem, balance.RewardSp, balance.RewardSbd);
+            var result = await TaskHelper.TryRunTaskAsync(ditchClient.ClaimRewardsAsync, claimRewardsModel, OnDisposeCts.Token)
+                .ConfigureAwait(false);
+
             if (result.IsSuccess)
             {
-                Balances.ForEach(x =>
-                {
-                    if (x.UserInfo.Chain == balance.UserInfo.Chain &&
-                        x.UserInfo.Login.Equals(balance.UserInfo.Login, StringComparison.OrdinalIgnoreCase))
-                    {
-                        x.RewardSteem = x.RewardSbd = x.RewardSp = 0;
-                    }
-                });
-                await TryUpdateAccountInfoAsync(balance.UserInfo)
+                await TryUpdateAccountInfoAsync(userInfo)
                     .ConfigureAwait(false);
             }
 
@@ -121,59 +124,40 @@ namespace Steepshot.Core.Presenters
 
         public async Task<OperationResult<CurrencyRate[]>> TryGetCurrencyRatesAsync()
         {
-            var result = await TaskHelper.TryRunTaskAsync(_steepshotApiClient.GetCurrencyRatesAsync, OnDisposeCts.Token)
-                .ConfigureAwait(false);
-            if (result.IsSuccess)
-                CurrencyRates = result.Result;
-            return result;
-        }
-
-        public CurrencyRate GetCurrencyRate(CurrencyType currency)
-        {
-            return CurrencyRates?.FirstOrDefault(x => x.Symbol.Equals(currency.ToString(), StringComparison.OrdinalIgnoreCase)) ?? new CurrencyRate
-            {
-                Symbol = currency.ToString(),
-                UsdRate = 1
-            };
-        }
-
-        public void SetClient(IContainer container, KnownChains chain)
-        {
-            TasksCancel();
-
-            _steepshotApiClient = container.GetSteepshotApiClient(chain);
-            _ditchClient = container.GetDitchClient(chain);
-        }
-
-
-        public async Task<OperationResult<VoidResponse>> TryPowerUpOrDownAsync(BalanceModel balance, PowerAction powerAction)
-        {
-            var model = new PowerUpDownModel(balance, powerAction);
-            return await TaskHelper.TryRunTaskAsync(_ditchClient.PowerUpOrDownAsync, model, OnDisposeCts.Token)
+            return await TaskHelper.TryRunTaskAsync(_steepshotApiClient.GetCurrencyRatesAsync, OnDisposeCts.Token)
                 .ConfigureAwait(false);
         }
+    }
 
-        #region IEnumerator<UserInfo>
+    public class WalletModel : INotifyPropertyChanged
+    {
+        public List<AccountHistoryItem> AccountHistory = new List<AccountHistoryItem>();
+        public readonly UserInfo UserInfo;
+        public ulong HistoryStartId = ulong.MaxValue;
+        public bool IsHistoryLoaded => HistoryStartId != ulong.MaxValue;
+        public bool IsLastReaded { get => HistoryStartId < 1; }
 
-        object IEnumerator.Current => Current;
-        public UserInfo Current => ConnectedUsers[_logins[_current]];
-
-        public void Reset()
+        public WalletModel(UserInfo userInfo)
         {
-            _current = -1;
-            HasNext = MoveNext();
+            UserInfo = userInfo;
         }
 
-        public bool MoveNext()
+        public void Update(AccountHistoryResponse response)
         {
-            var hasNext = _current + 1 < _logins.Length;
-            if (hasNext)
-                _current += 1;
-            return hasNext;
+            HistoryStartId = Math.Min(HistoryStartId, response.StartId);
+
+            AccountHistory = AccountHistory.Union(response.Items).OrderByDescending(i=>i.Id).ToList();
+
+            NotifyPropertyChanged(nameof(AccountHistory));
         }
 
-        public void Dispose()
+        #region INotifyPropertyChanged
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
         {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         #endregion

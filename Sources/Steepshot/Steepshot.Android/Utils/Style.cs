@@ -37,6 +37,13 @@ namespace Steepshot.Utils
         public static readonly int Margin10;
         public static readonly int Margin15;
 
+        #region Wallet
+
+        public static readonly float WalletBtnTransferMaxWidth;
+        public static readonly float WalletBtnTransferMinWidth;
+
+        #endregion
+
         static Style()
         {
             Light = Typeface.CreateFromAsset(Application.Context.Assets, "OpenSans-Light.ttf");
@@ -74,6 +81,25 @@ namespace Steepshot.Utils
             CornerRadius5 = 5 * Density;
             Margin10 = (int)(10 * Density);
             Margin15 = (int)(15 * Density);
+
+
+
+            #region Wallet
+
+            {
+                var waml = Application.Context.Resources.GetDimension(Resource.Dimension.rl_actions_marginLeft_dp);
+                var wamr = Application.Context.Resources.GetDimension(Resource.Dimension.rl_actions_marginRight_dp);
+                var wapl = Application.Context.Resources.GetDimension(Resource.Dimension.rl_actions_paddingLeft_dp);
+                var wapr = Application.Context.Resources.GetDimension(Resource.Dimension.rl_actions_paddingRight_dp);
+                WalletBtnTransferMaxWidth = ScreenWidth - waml - wamr - wapl - wapr;
+
+                var bmw = Application.Context.Resources.GetDimension(Resource.Dimension.btn_more_height_width_dp);
+                var bmml = Application.Context.Resources.GetDimension(Resource.Dimension.btn_more_marginLeft_dp);
+                WalletBtnTransferMinWidth = WalletBtnTransferMaxWidth - bmw - bmml;
+            }
+
+            #endregion
+
         }
 
         public static int DpiToPixel(int dpi)
