@@ -23,7 +23,6 @@ namespace Steepshot.Utils.Media
                 _cropArea.Bottom = (int)Math.Round((VideoView.TranslationY + VideoView.LayoutParameters.Height - Height) / _scalingRatio);
                 return _cropArea;
             }
-            set => _cropArea = value;
         }
 
         private float _startX;
@@ -76,6 +75,8 @@ namespace Steepshot.Utils.Media
                 VideoView.TranslationY = _cropArea?.Height() > 0 ? _cropArea.Top * _scalingRatio : -(VideoView.LayoutParameters.Height - Height) / 2f;
                 VideoView.TranslationX = 0;
             }
+
+            RequestLayout();
         }
 
         private void OnTouch(object sender, TouchEventArgs e)
