@@ -133,8 +133,6 @@ namespace Steepshot.Fragment
                         itm.Parameters.CropBounds = _vpreview.CropArea;
                         itm.Parameters.Scale = 1;
                         itm.Parameters.Rotation = 0;
-                        itm.Parameters.Height = _vpreview.VideoLayout.Height;
-                        itm.Parameters.Width = _vpreview.VideoLayout.Width;
                     }
                     else
                     {

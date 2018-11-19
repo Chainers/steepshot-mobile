@@ -1,62 +1,63 @@
 ﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
 using Android.Content;
 using Android.Graphics;
-using Android.Graphics.Drawables;
+using Android.Views;
 using Android.Webkit;
 using Square.Picasso;
+using Steepshot.Base;
 using Steepshot.Core.Models.Common;
 
 namespace Steepshot.Utils.Media
 {
-    public class ImageProducer : Java.Lang.Object, IMediaProducer, ITarget
+    public class ImageProducer : IMediaProducer
     {
         private readonly Context _context;
-        private MediaModel _media;
+        protected MediaModel Media;
+        protected Surface MediaSurface;
         public event Action<WeakReference<Bitmap>> Draw;
-        public event Action<ColorDrawable> PreDraw;
 
         public ImageProducer(Context context)
         {
             _context = context;
         }
 
-        public virtual void Prepare(SurfaceTexture st, MediaModel media)
+        public virtual async Task PrepareAsync(Surface surface, MediaModel media, CancellationToken ct)
         {
-            if (media == null || _media == media)
+            if (media == null)
                 return;
 
-            _media = media;
+            Media = media;
+            MediaSurface = surface;
 
-            if (URLUtil.IsHttpUrl(media.Url) || URLUtil.IsHttpsUrl(media.Url))
-                Picasso.With(_context)
-                    .LoadWithProxy(media, Style.ScreenWidth)
-                    .Placeholder(new ColorDrawable(Style.R245G245B245))
-                    .NoFade()
-                    .Priority(Picasso.Priority.High)
-                    .Into(this);
-            else
-                Draw?.Invoke(new WeakReference<Bitmap>(BitmapFactory.DecodeFile(media.Url)));
-        }
+            var frame = URLUtil.IsHttpUrl(media.Url) || URLUtil.IsHttpsUrl(media.Url) ?
+                await Task.Run(() =>
+                {
+                    try
+                    {
+                        return Picasso.With(_context)
+                            .LoadWithProxy(media, Style.ScreenWidth)
+                            .Config(Bitmap.Config.Rgb565)
+                            .Priority(Picasso.Priority.High)
+                            .Get();
+                    }
+                    catch (Exception e)
+                    {
+                        App.Logger.ErrorAsync(e);
+                        return null;
+                    }
+                }) : BitmapFactory.DecodeFile(media.Url);
 
-        public void OnBitmapFailed(Drawable p0)
-        {
-            Prepare(null, _media);
-        }
+            if (frame == null || ct.IsCancellationRequested)
+                return;
 
-        public void OnBitmapLoaded(Bitmap p0, Picasso.LoadedFrom p1)
-        {
-            var weakBmp = new WeakReference<Bitmap>(p0);
-            Draw?.Invoke(weakBmp);
-        }
-
-        public void OnPrepareLoad(Drawable p0)
-        {
-            PreDraw?.Invoke((ColorDrawable)p0);
+            Draw?.Invoke(new WeakReference<Bitmap>(frame));
         }
 
         public virtual void Play()
         {
-            Prepare(null, _media);
+            //PrepareAsync(MediaSurface,)
         }
 
         public virtual void Pause()

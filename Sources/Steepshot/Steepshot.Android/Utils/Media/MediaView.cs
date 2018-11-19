@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
-using Android.Animation;
 using Android.Content;
 using Android.Graphics;
-using Android.Graphics.Drawables;
-using Android.OS;
 using Android.Provider;
 using Android.Util;
 using Android.Views;
@@ -13,6 +11,7 @@ using Android.Widget;
 using Steepshot.Base;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Utils;
+using Matrix = Android.Graphics.Matrix;
 
 namespace Steepshot.Utils.Media
 {
@@ -43,18 +42,26 @@ namespace Steepshot.Utils.Media
                     CurrentMediaType = MimeTypeHelper.IsVideo(mimeType) ? MediaType.Video : MediaType.Image;
                     if (CurrentMediaType == MediaType.Image)
                         VideoVolume.Visibility = ViewStates.Gone;
+
+                    if (VideoView.IsAvailable)
+                    {
+                        Post(() =>
+                        {
+                            MediaProducers[CurrentMediaType]?.PrepareAsync(MediaSurface, value, Cts.Token);
+                        });
+                    }
                 }
             }
         }
 
-        protected Handler MainHandler;
+        protected CancellationTokenSource Cts;
         protected Dictionary<MediaType, IMediaProducer> MediaProducers;
-        public FrameLayout VideoLayout;
         protected TextureView VideoView;
-        protected ImageView ImageView;
+        protected WeakReference<Bitmap> WeakBitmap;
+        protected Surface MediaSurface;
         protected ImageView VideoVolume;
+        protected TextView VideoDuration;
         protected bool DrawTime;
-        private Paint _durationPaint;
         private bool _playBack;
 
         public MediaView(Context context) : base(context)
@@ -72,66 +79,87 @@ namespace Steepshot.Utils.Media
             DrawTime = true;
             Clickable = true;
             SetWillNotDraw(false);
-            LayoutTransition = new LayoutTransition();
-            _durationPaint = new Paint(PaintFlags.AntiAlias)
-            {
-                Color = Color.White,
-                TextSize = TypedValue.ApplyDimension(ComplexUnitType.Dip, 14, Context.Resources.DisplayMetrics)
-            };
-            MainHandler = new Handler(Looper.MainLooper);
+
             MediaProducers = new Dictionary<MediaType, IMediaProducer>
                     {
                         {MediaType.Image, new ImageProducer(Context)},
                         {MediaType.Video, new VideoProducer(Context)}
                     };
 
-            MediaProducers[MediaType.Image].Draw += Draw;
-            MediaProducers[MediaType.Image].PreDraw += PreDraw;
-            MediaProducers[MediaType.Video].Draw += Draw;
-            MediaProducers[MediaType.Video].PreDraw += PreDraw;
+            MediaProducers[MediaType.Image].Draw += MediaViewOnDraw;
             ((VideoProducer)MediaProducers[MediaType.Video]).Mute += VolumeIconState;
             ((VideoProducer)MediaProducers[MediaType.Video]).Ready += OnReady;
-
-            ImageView = new ImageView(Context)
-            {
-                LayoutParameters =
-                    new LayoutParams(ViewGroup.LayoutParams.MatchParent, ViewGroup.LayoutParams.MatchParent)
-            };
-            ImageView.SetScaleType(ImageView.ScaleType.FitXy);
-
-            VideoLayout = new FrameLayout(Context)
-            {
-                LayoutParameters =
-                    new LayoutParams(ViewGroup.LayoutParams.MatchParent, ViewGroup.LayoutParams.MatchParent)
-            };
 
             VideoView = new TextureView(Context)
             {
                 LayoutParameters =
-                    new LayoutParams(ViewGroup.LayoutParams.MatchParent, ViewGroup.LayoutParams.MatchParent)
+                    new LayoutParams(ViewGroup.LayoutParams.MatchParent, ViewGroup.LayoutParams.MatchParent),
+                Alpha = 1f
             };
 
             VideoVolume = new ImageView(Context)
             {
                 LayoutParameters =
-                    new LayoutParams((int)MediaUtils.DpToPixel(62, Context.Resources), (int)MediaUtils.DpToPixel(62, Context.Resources)),
-                Visibility = ViewStates.Gone
+                    new LayoutParams((int)MediaUtils.DpToPixel(62, Context.Resources), (int)MediaUtils.DpToPixel(62, Context.Resources))
+                    {
+                        Gravity = GravityFlags.Right | GravityFlags.Bottom
+                    }
             };
-            var buttonPaddings = (int)MediaUtils.DpToPixel(15, Context.Resources);
-            VideoVolume.SetPadding(buttonPaddings, buttonPaddings, buttonPaddings, buttonPaddings);
-            var volumeIconParams = (LayoutParams)VideoVolume.LayoutParameters;
-            volumeIconParams.Gravity = GravityFlags.Right | GravityFlags.Bottom;
-            VideoVolume.LayoutParameters = volumeIconParams;
+
+            VideoDuration = new TextView(Context)
+            {
+                LayoutParameters =
+                    new LayoutParams(ViewGroup.LayoutParams.WrapContent, ViewGroup.LayoutParams.WrapContent)
+                    {
+                        Gravity = GravityFlags.Right | GravityFlags.Top
+                    },
+                TextSize = TypedValue.ApplyDimension(ComplexUnitType.Sp, 4.5f, Context.Resources.DisplayMetrics),
+            };
+            VideoDuration.SetTextColor(Color.White);
+
+            var padding = (int)MediaUtils.DpToPixel(15, Context.Resources);
+            VideoVolume.SetPadding(padding, padding, padding, padding);
             VideoVolume.Click += VolumeAction;
             VolumeIconState();
+            VideoDuration.SetPadding(padding, padding, padding, padding);
 
-            AddView(ImageView);
-            AddView(VideoLayout);
-            VideoLayout.AddView(VideoView);
-            VideoLayout.AddView(VideoVolume);
-            VideoVolume.Visibility = ViewStates.Gone;
+            AddView(VideoView);
+            AddView(VideoVolume);
+            AddView(VideoDuration);
 
             VideoView.SurfaceTextureListener = this;
+        }
+
+        private void MediaViewOnDraw(WeakReference<Bitmap> weakBmp)
+        {
+            Post(() =>
+            {
+                WeakBitmap = weakBmp;
+                Invalidate();
+            });
+        }
+
+        protected override void OnDraw(Canvas canvas)
+        {
+            base.OnDraw(canvas);
+
+            canvas.DrawColor(Style.R245G245B245);
+
+            if (WeakBitmap == null || !WeakBitmap.TryGetTarget(out var bitmap) || bitmap.PeerReference.Handle == IntPtr.Zero)
+                return;
+
+            using (var transform = new Matrix())
+            {
+                {
+                    var scale = bitmap.Width < Width ? Width / (float)bitmap.Width : bitmap.Width / (float)Width;
+                    transform.PostScale(scale, scale);
+                    var scaledW = bitmap.Width * scale;
+                    var scaledH = bitmap.Height * scale;
+                    transform.PostTranslate(scaledW > Width ? (Width - scaledW) / 2 : 0,
+                        scaledH > Height ? (Height - scaledH) / 2 : 0);
+                    canvas.DrawBitmap(bitmap, transform, null);
+                }
+            }
         }
 
         private void VolumeAction(object sender, EventArgs e)
@@ -139,120 +167,101 @@ namespace Steepshot.Utils.Media
             App.VideoPlayerManager.VolumeEnabled = !App.VideoPlayerManager.VolumeEnabled;
         }
 
-        private async void OnReady()
+        private void OnReady()
         {
-            var type = CurrentMediaType;
-            if (type == MediaType.None)
-                return;
-
-            if (_playBack && type == MediaType.Video)
+            Post(async () =>
             {
-                VideoLayout.BringToFront();
-                VideoVolume.Visibility = ViewStates.Visible;
-                while (_playBack)
-                {
-                    Invalidate();
-                    await Task.Delay(50);
-                }
-            }
-        }
+                var type = CurrentMediaType;
+                if (type == MediaType.None)
+                    return;
 
-        public override void Draw(Canvas canvas)
-        {
-            var type = CurrentMediaType;
-            if (type == MediaType.None)
-                return;
-
-            base.Draw(canvas);
-            if (type == MediaType.Video && _playBack)
-            {
-                var videoProd = (VideoProducer)MediaProducers[MediaType.Video];
-                if (DrawTime && videoProd.Duration.TotalSeconds > 0)
+                if (_playBack && type == MediaType.Video)
                 {
-                    var leftTime = (videoProd.Duration - videoProd.CurrentPosition).ToString(@"mm\:ss");
-                    var textRect = new Rect();
-                    _durationPaint.GetTextBounds(leftTime, 0, leftTime.Length, textRect);
-                    canvas.DrawText(leftTime, Width - textRect.Width() - Style.Margin15, textRect.Height() + Style.Margin15, _durationPaint);
+                    VideoVolume.Visibility = ViewStates.Visible;
+                    VideoDuration.Visibility = ViewStates.Visible;
+                    var videoProd = (VideoProducer)MediaProducers[MediaType.Video];
+                    if (DrawTime && videoProd.Duration.TotalSeconds > 0)
+                    {
+                        while (_playBack)
+                        {
+                            var timeLeft = (videoProd.Duration - videoProd.CurrentPosition).ToString(@"mm\:ss");
+                            VideoDuration.Text = timeLeft;
+                            await Task.Delay(50);
+                        }
+                    }
                 }
-            }
+            });
         }
 
         public void Play()
         {
-            var type = CurrentMediaType;
-            if (type == MediaType.None)
-                return;
-
-            MainHandler?.Post(() =>
+            Post(() =>
             {
+                var type = CurrentMediaType;
+                if (type == MediaType.None)
+                    return;
+
                 _playBack = true;
-                if (type == MediaType.Video && VideoView.IsAvailable)
+                if (VideoView.IsAvailable)
                 {
-                    MediaProducers[type]?.Play();
-                }
-                else
-                {
-                    ImageView.BringToFront();
+                    if (type == MediaType.Video)
+                    {
+                        MediaProducers[type]?.Play();
+                    }
                 }
             });
         }
 
         public void Pause()
         {
-            var type = CurrentMediaType;
-            if (type == MediaType.None)
-                return;
-
-            MainHandler?.Post(() =>
+            Post(() =>
             {
+                var type = CurrentMediaType;
+                if (type == MediaType.None)
+                    return;
+
                 _playBack = false;
-                ImageView.BringToFront();
                 MediaProducers[type].Pause();
             });
         }
 
         public void Stop()
         {
-            var type = CurrentMediaType;
-            if (type == MediaType.None)
-                return;
-
-            MainHandler?.Post(() =>
+            Post(() =>
             {
+                var type = CurrentMediaType;
+                if (type == MediaType.None)
+                    return;
+
                 _playBack = false;
-                ImageView.BringToFront();
                 MediaProducers[type].Stop();
             });
         }
 
-        public void VolumeIconState()
+        private void VolumeIconState()
         {
-            VideoVolume.SetImageResource(App.VideoPlayerManager.VolumeEnabled ? Resource.Drawable.ic_soundOn : Resource.Drawable.ic_soundOff);
-        }
-
-        protected virtual void Draw(WeakReference<Bitmap> weakBmp)
-        {
-            if (!weakBmp.TryGetTarget(out var bitmap))
-                return;
-
-            ImageView.SetImageBitmap(bitmap);
-        }
-
-        protected virtual void PreDraw(ColorDrawable cdr)
-        {
-            ImageView.SetImageDrawable(cdr);
-        }
-
-        public void OnSurfaceTextureAvailable(SurfaceTexture surface, int width, int height)
-        {
-            var type = CurrentMediaType;
-            if (type == MediaType.None)
-                return;
-
-            MainHandler?.Post(() =>
+            Post(() =>
             {
+                VideoVolume.SetImageResource(App.VideoPlayerManager.VolumeEnabled
+                    ? Resource.Drawable.ic_soundOn
+                    : Resource.Drawable.ic_soundOff);
+            });
+        }
+
+        public void OnSurfaceTextureAvailable(SurfaceTexture st, int width, int height)
+        {
+            Post(async () =>
+            {
+                MediaSurface = new Surface(st);
+                Cts = new CancellationTokenSource();
+
+                var type = CurrentMediaType;
+                if (type == MediaType.None)
+                    return;
+
                 VideoVolume.Visibility = ViewStates.Gone;
-                MediaProducers[type]?.Prepare(surface, MediaSource);
+                VideoDuration.Visibility = ViewStates.Gone;
+                await MediaProducers[type].PrepareAsync(MediaSurface, MediaSource, Cts.Token);
                 if (_playBack)
                     MediaProducers[type]?.Play();
             });
@@ -260,18 +269,18 @@ namespace Steepshot.Utils.Media
 
         public bool OnSurfaceTextureDestroyed(SurfaceTexture surface)
         {
-            var type = CurrentMediaType;
-            if (type == MediaType.None)
-                return true;
-
-            MainHandler?.Post(() =>
+            Post(() =>
             {
-                if (!MediaProducers.ContainsKey(type))
+                var type = CurrentMediaType;
+                if (type == MediaType.None)
                     return;
 
+                WeakBitmap = null;
+                Cts?.Cancel();
                 MediaProducers[type].Stop();
-                ImageView.BringToFront();
+                Invalidate();
             });
+
             return true;
         }
 

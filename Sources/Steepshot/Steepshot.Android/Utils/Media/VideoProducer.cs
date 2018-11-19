@@ -1,6 +1,8 @@
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 using Android.Content;
-using Android.Graphics;
+using Android.Views;
 using Android.Webkit;
 using Com.Google.Android.Exoplayer2;
 using Steepshot.Base;
@@ -20,13 +22,13 @@ namespace Steepshot.Utils.Media
         {
         }
 
-        public override void Prepare(SurfaceTexture st, MediaModel media)
+        public override async Task PrepareAsync(Surface surface, MediaModel media, CancellationToken ct)
         {
             if (URLUtil.IsHttpUrl(media.Url) || URLUtil.IsHttpsUrl(media.Url))
-                base.Prepare(st, media);
+                await base.PrepareAsync(surface, media, ct);
             _player = App.VideoPlayerManager.GetFreePlayer();
             _player.StateChanged += PlayerOnStateChanged;
-            _player.Prepare(st, media);
+            _player.Prepare(surface, media);
             _player.VolumeChanged -= Mute;
             _player.VolumeChanged += Mute;
         }

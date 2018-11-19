@@ -1,6 +1,5 @@
 ﻿using System;
 using Android.Content;
-using Android.Graphics;
 using Android.Runtime;
 using Android.Views;
 using Android.Webkit;
@@ -50,7 +49,7 @@ namespace Steepshot.Utils.Media
             _player.AddListener(this);
         }
 
-        public void Prepare(SurfaceTexture st, MediaModel model)
+        public void Prepare(Surface surface, MediaModel model)
         {
             var userAgent = Util.GetUserAgent(_context, Constants.Steepshot);
             var mediaUri = Android.Net.Uri.Parse(model.Url);
@@ -70,7 +69,9 @@ namespace Steepshot.Utils.Media
                 _mediaSource = extractorMediaSource.CreateMediaSource(mediaUri);
             }
 
-            var surface = new Surface(st);
+            if (surface == null || !surface.IsValid)
+                return;
+
             _player.SetVideoSurface(surface);
             _player.Prepare(_mediaSource);
         }
@@ -88,7 +89,8 @@ namespace Steepshot.Utils.Media
         public void Stop()
         {
             Pause();
-            _player.Stop(true);
+            _player.Stop();
+            _player.ClearVideoSurface();
         }
 
         public void Mute()
