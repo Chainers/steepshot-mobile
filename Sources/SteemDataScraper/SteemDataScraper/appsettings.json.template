@@ -1,0 +1,24 @@
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Host=localhost;Database=steem_data_light;Username=steem_data_light_user;Password=123456789;Timeout=0;Command Timeout=0",
+    "ChainUrl": "http://",
+    "AddressesUrl": "https://"
+  },
+  "Logging": {
+    "LogLevel": {
+      "Default": "Warning"
+    }
+  },
+  "TelegramBot": {
+    "Token": "11111111:1111111111111111111",
+    "Chanel": -1111111
+  },
+  "Jwt": {
+    "Key": "123456789",
+    "Issuer": "http://localhost",
+    "Audience": "http://localhost",
+    "ExpireTime": "00:30:00",
+    "MaxIncorrectPasswordCount": 3,
+    "IncorrectPasswordLockTime":  "00:30:00"
+  }
+}
