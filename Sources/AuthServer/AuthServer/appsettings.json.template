@@ -1,0 +1,10 @@
+{
+  "SteemUrl": [ "https://api.steemit.com" ],
+  "GolosUrl": [ "wss://ws.golos.io" ],
+  "JwtSettings": {
+    "Key": "12345678",
+    "Issuer": "http://localhost:7777",
+    "Audience": "http://localhost:7777",
+    "LifeTime": "00:30:00"
+  }
+}
