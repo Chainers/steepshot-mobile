@@ -225,3 +225,4 @@ Sources/Steepshot/Steepshot.Android/Assets/Config.txt
 Sources/Steepshot/Steepshot.Android/Assets/IntegrationModuleConfig.txt
 Sources/AuthServer/AuthServer/appsettings.json
 Sources/MediaUpload/MediaUpload/appsettings.json
+Sources/SteemDataScraper/SteemDataScraper/appsettings.json
