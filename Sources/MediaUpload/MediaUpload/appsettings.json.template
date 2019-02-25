@@ -1,0 +1,23 @@
+﻿{
+  "ConnectionStrings": {
+    "DefaultConnection": "Host=localhost;Database=media_data;Username=media_data_user;Password=123456789;Timeout=0;Command Timeout=0"
+  },
+  "JwtSettings": {
+    "Key": "123456789",
+    "Issuer": "http://localhost:7777",
+    "Audience": "http://localhost:7777",
+    "LifeTime": "00:30:00"
+  },
+  "ApplicationInsights": {
+    "InstrumentationKey": ""
+  },
+  "Logging": {
+    "IncludeScopes": false,
+    "LogLevel": {
+      "Default": "Debug",
+      "System": "Information",
+      "Microsoft": "Information"
+    }
+  },
+  "UploadFolder": "uploads"
+}

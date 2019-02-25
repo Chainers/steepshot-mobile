@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.271
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MediaUpload", "MediaUpload\MediaUpload.csproj", "{9C7E3E87-5D99-451F-8EFC-92D89FF9F3A2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaUpload.Tests", "MediaUpload.Tests\MediaUpload.Tests.csproj", "{04E1CFE5-35B1-4FD2-83AE-56C36800AEB6}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "AuthServer.Models", "..\AuthServer\AuthServer.Models\AuthServer.Models.shproj", "{48308537-0037-4FE4-A27F-C75A6C97B122}"
+EndProject
+Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		..\AuthServer\AuthServer.Models\AuthServer.Models.projitems*{04e1cfe5-35b1-4fd2-83ae-56c36800aeb6}*SharedItemsImports = 4
+		..\AuthServer\AuthServer.Models\AuthServer.Models.projitems*{48308537-0037-4fe4-a27f-c75a6c97b122}*SharedItemsImports = 13
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9C7E3E87-5D99-451F-8EFC-92D89FF9F3A2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9C7E3E87-5D99-451F-8EFC-92D89FF9F3A2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9C7E3E87-5D99-451F-8EFC-92D89FF9F3A2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9C7E3E87-5D99-451F-8EFC-92D89FF9F3A2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{04E1CFE5-35B1-4FD2-83AE-56C36800AEB6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{04E1CFE5-35B1-4FD2-83AE-56C36800AEB6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{04E1CFE5-35B1-4FD2-83AE-56C36800AEB6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{04E1CFE5-35B1-4FD2-83AE-56C36800AEB6}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {3276CF8F-289B-4885-A0F7-3A66A5C4AEF8}
+	EndGlobalSection
+EndGlobal
